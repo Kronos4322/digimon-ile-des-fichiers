@@ -249,7 +249,7 @@
     ['Plateau des Engrenages Noirs', 'grove', { theme: 'summit', lm: [['ã', 4]] }],
     ["Sommet de l'Infini", 'plaza', { theme: 'summit', lm: [['ã', 2], ['å', 4]], noRegionLm: true, post: g => { const x = g.w >> 1, y = (g.h >> 1) - 4; g.set(x, y, '<'); g.set(x - 3, y + 2, '>'); g.set(x + 3, y + 2, '>'); } }],
   ] });
-  region('volcan', { name: 'Mont Panorama', theme: 'volcano', entry: 'up', lm: [['ë', 3], ['ì', 3]], subs: [
+  region('volcan', { name: 'Mont Panorama', theme: 'volcano', entry: 'up', climate: 'volcano', lm: [['ë', 3], ['ì', 3]], subs: [
     ['Pied du Mont Panorama', 'trail'], ['Champs de Cendres', 'plaza'], ['Coulée de Lave', 'river'], ['Forêt Calcinée', 'grove'],
     ['Fumerolles', 'islands', { lm: [['ì', 5]] }], ['Orgues de Basalte', 'grove', { lm: [['ā', 6]] }], ['Lac de Magma', 'bigLake'],
     ['Belvédère du Panorama', 'set', { piece: { kind: 'telescope', w: 2, h: 2 }, lm: [['ā', 3]], pieceSign: "Une longue-vue. On aperçoit toute l'Île des Fichiers... et une fumée noire au loin." }],
@@ -322,7 +322,7 @@
     ['Lac des Canards', 'lake'], ['Labyrinthe de Dominos', 'maze', { lm: [['B', 6]] }], ['Place des Boîtes à Surprise', 'plaza', { lm: [['ñ', 5]] }],
     ['Château de Monzaemon', 'set', { piece: { kind: 'toycastle', w: 7, h: 5 }, pieceSign: "Le château des jouets. « Ici, tout le monde doit sourire ! » dit une pancarte." }],
   ] });
-  region('gel', { name: 'Terre Gelée', theme: 'snow', entry: 'down', lm: [['å', 2], ['ç', 2]], subs: [
+  region('gel', { name: 'Terre Gelée', theme: 'snow', entry: 'down', climate: 'snow', lm: [['å', 2], ['ç', 2]], subs: [
     ['Frontière Gelée', 'trail'], ['Forêt Enneigée', 'grove'], ['Lac Gelé', 'bigLake'], ['Plaine des Bonshommes', 'plaza', { lm: [['æ', 5]] }],
     ['Cascade de Glace', 'set', { piece: { kind: 'frozenfall', w: 4, h: 3 } }],
     ["Village d'Igloos", 'set', { piece: { kind: 'igloo', w: 2, h: 1 }, objects: [{ kind: 'igloo', x: 30, y: 6, w: 2, h: 1 }, { kind: 'igloo', x: 28, y: 20, w: 2, h: 1 }] }],

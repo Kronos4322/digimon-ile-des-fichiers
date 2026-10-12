@@ -15,11 +15,14 @@
     forest: [['clear', 50], ['cloudy', 15], ['rain', 22], ['fog', 13]],
     beach: [['clear', 70], ['cloudy', 15], ['rain', 15]],
     village: [['clear', 80], ['cloudy', 12], ['rain', 8]],
+    // pas de pluie sur la neige ni sur le volcan (la neige et les cendres viennent du thème de la zone)
+    snow: [['clear', 45], ['cloudy', 35], ['fog', 20]],
+    volcano: [['clear', 55], ['cloudy', 45]],
   };
   const WNAME = { clear: 'Beau temps', cloudy: 'Nuageux', rain: 'Pluie', fog: 'Brume' };
 
   const T = DW.Time = {
-    RATE: 1,
+    RATE: 1, CLIMATES: CLIMATE,
     get st() { return DW.state; },
     hour() { return (this.st.clock / 60) % 24; },
     day() { return Math.floor(this.st.clock / 1440) + 1; },
@@ -46,7 +49,7 @@
       const st = this.st;
       st.clock += dt * this.RATE;
       if (st.clock >= st.weather.until) this.newWeather(climate);
-      else if (climate && !CLIMATE[climate].some(([w]) => w === st.weather.type)) this.newWeather(climate);
+      else if (climate && CLIMATE[climate] && !CLIMATE[climate].some(([w]) => w === st.weather.type)) this.newWeather(climate);
     },
     newWeather(climate) {
       const st = this.st, list = CLIMATE[climate] || CLIMATE.village;

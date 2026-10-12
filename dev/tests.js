@@ -95,6 +95,9 @@ test('tous les drapeaux utilisés sont déclarés dans js/data/flags.js', () => 
 });
 
 // ------------------------------------------------------------ données
+test('chaque carte a un climat connu (météo)', () => {
+  for (const id in DW.MAPS) { const c = DW.MAPS[id].climate; if (c) yes(DW.Time.CLIMATES[c], `${id} : climat inconnu ${c}`); }
+});
 test('les drapeaux créés par programme (préfixes) sont déclarés', () => {
   for (const k of ['act_cup_0', 'act_curling', 'act_dig', 'act_fish', 'pk_clairiere']) yes(DW.flagKnown(k), k + ' non déclaré');
 });
