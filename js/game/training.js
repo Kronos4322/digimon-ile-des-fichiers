@@ -14,12 +14,13 @@
   const W = DW.W, H = DW.H;
   const STATS = {
     hp: { name: 'Endurance', stat: 'PV', obj: 'weights', desc: 'Soulever les gros rochers.' },
+    mp: { name: 'Énergie', stat: 'PM', obj: 'datacrystal', desc: "Canaliser l'énergie du cristal de données." },
     atk: { name: 'Frappe', stat: 'Attaque', obj: 'dummy', desc: 'Frapper le mannequin de paille.' },
     def: { name: 'Garde', stat: 'Défense', obj: 'guardwall', desc: 'Encaisser contre le mur de pierre.' },
     spd: { name: 'Sprint', stat: 'Vitesse', obj: 'hurdle', desc: 'Sauter les haies à toute allure.' },
     int: { name: 'Méditation', stat: 'Intelligence', obj: 'shrine', desc: 'Se concentrer dans le cercle de pierres.' },
   };
-  const TOTAL = 256, TIRE = 30, MINUTES = 90;
+  const TOTAL = 300, TIRE = 30, MINUTES = 90;   // TOTAL : points d'entraînement cumulés, toutes stats (6 avec les PM)
 
   const Training = DW.Training = {
     STATS, TOTAL,
@@ -70,7 +71,7 @@
       this.zone = 0.28 - dif * 0.17;            // largeur de la zone réussie (fraction de la jauge)
       this.speed = 0.9 + dif * 1.3;             // allers-retours par seconde
       if (m.tired >= 60) this.speed *= 1.15;    // fatigué : plus difficile
-      this.before = k === 'hp' ? m.maxHp : m.stat(k);
+      this.before = m.stat(k);
       this.state = 'play';
       this.newRound();
       Audio.sfx('buff');
@@ -101,8 +102,9 @@
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);
       DW.Life.addFat(m, -1);
       DW.state.clock += MINUTES;
-      this.after = k === 'hp' ? m.maxHp : m.stat(k);
+      this.after = m.stat(k);
       if (k === 'hp') m.hp = Math.min(m.maxHp, m.hp + (this.after - this.before));
+      if (k === 'mp') m.mp = Math.min(m.maxMp, m.mp + (this.after - this.before));
       this.state = 'done';
       Audio.sfx(this.g ? 'levelup' : 'back');
     }
@@ -123,7 +125,7 @@
       if (play && k === 'spd') x = 130 + Math.sin(t * 7) * 24;
       if (play && k === 'hp') y = 170 - Math.abs(Math.sin(t * 4)) * 4;
       if (hit && this.lastRes) x += Math.sin((0.45 - this.flash) / 0.45 * Math.PI) * 40;
-      if (k === 'int' && play) {
+      if ((k === 'int' || k === 'mp') && play) {
         c.save(); c.globalCompositeOperation = 'lighter';
         for (let i = 0; i < 3; i++) { c.strokeStyle = `rgba(120,220,255,${0.35 - i * 0.1})`; c.lineWidth = 1.5; c.beginPath(); c.ellipse(x, y - 30, 36 + i * 10 + Math.sin(t * 4) * 4, 12 + i * 4, 0, 0, 7); c.stroke(); }
         c.restore();

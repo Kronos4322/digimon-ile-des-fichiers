@@ -6,6 +6,7 @@
 //    piste ovale (centre)  : N haies (Vitesse)
 //    zone de garde (est)   : A mur de pierre (Défense)
 //    jardin zen (sud-est)  : F cercle de pierres (Intelligence)
+//    cristal (sud-ouest)   : Ψ cristal de données (PM)
 //  + gradins, torches, toilettes (y), panneau
 // =====================================================================
 (function () {
@@ -39,6 +40,7 @@
     g.set(10, 12, 'N'); g.set(22, 12, 'N');
     g.set(27, 9, 'A');
     g.set(26, 16, 'F');
+    g.set(10, 17, 'Ψ');   // cristal de données (PM)
     // toilettes et panneau
     g.set(5, 18, 'y'); g.set(14, 6, 'S');
   });
@@ -61,7 +63,7 @@
       // panneaux à pictogramme devant chaque poste
       { kind: 'stationsign', v: 0, x: 3, y: 9, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 12, w: 1, h: 1, small: true },
       { kind: 'stationsign', v: 3, x: 9, y: 12, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 2, x: 28, y: 8, w: 1, h: 1, small: true },
-      { kind: 'stationsign', v: 4, x: 25, y: 15, w: 1, h: 1, small: true },
+      { kind: 'stationsign', v: 4, x: 25, y: 15, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 9, y: 17, w: 1, h: 1, small: true },
       { kind: 'rock', v: 1, x: 24, y: 16, w: 1, h: 1, small: true }, { kind: 'rock', v: 0, x: 28, y: 15, w: 1, h: 1, small: true },
       { kind: 'bench', x: 12, y: 18, w: 1, h: 1, small: true }, { kind: 'bench', x: 19, y: 18, w: 1, h: 1, small: true },
       { kind: 'barrel', v: 0, x: 3, y: 16, w: 1, h: 1, small: true }, { kind: 'barrel', v: 1, x: 28, y: 12, w: 1, h: 1, small: true },
@@ -70,7 +72,7 @@
     warps: [{ x: 15, y: 0, w: 2, h: 1, dir: 'up', to: 'village', tx: 19, ty: 29 }],
     signs: {
       '14,6': async () => {
-        await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Jardin zen : méditation (Intelligence).");
+        await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Jardin zen : méditation (Intelligence).  Cristal de données : énergie (PM).");
         await say("Les COMBATS font monter le niveau, et le niveau fixe le POTENTIEL de ton Digimon (6 + 2 × niveau points par stat).");
         await say("L'ENTRAÎNEMENT remplit ce potentiel. Ce sont les points d'entraînement qui permettent de digivoluer !");
         await say("Pendant une séance, appuie sur ESPACE quand le curseur passe dans la zone verte. Plus ton Digimon est entraîné, plus c'est dur !");

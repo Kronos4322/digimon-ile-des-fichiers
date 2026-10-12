@@ -16,8 +16,8 @@
       this.born = o.born != null ? o.born : (DW.state ? DW.state.clock : 0); // date d'arrivée (minutes de jeu)
       this.evoAt = o.evoAt != null ? o.evoAt : this.born;                      // date de la dernière Digivolution
       this.wins = o.wins || 0;
-      this.tr = Object.assign({ hp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
-      this.chips = Object.assign({ hp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
+      this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
+      this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
       this.tired = o.tired || 0;                                                     // fatigue 0-100
       this.hunger = o.hunger || 0; this.need = o.need || 0;                          // faim / toilettes 0-100 (voir care.js)
       // vie (voir life.js) : erreurs de soin, discipline, corpulence, renaissances, durée de vie, sommeil, maladie, blessure
@@ -38,15 +38,18 @@
     }
     get d() { return DW.SPECIES[this.sp]; }
     get name() { return this.nick || this.d.name; }
+    // échelle façon Digimon World : PV et PM en milliers (max 9999), autres stats en centaines (max 999)
+    // (le calcul « brut » reste celui d'origine, puis il est multiplié par DW.SCALE)
+    bonus(k) { const t = (this.tr && this.tr[k]) || 0; return Math.floor(t * this.level / 100) + Math.round(t / 3) + ((this.chips && this.chips[k]) || 0); }
     stat(k) {
-      const b = this.d.base[k] || 50, iv = this.iv[k] || 0;
-      const t = (this.tr && this.tr[k]) || 0, bonus = Math.floor(t * this.level / 100) + Math.round(t / 3) + ((this.chips && this.chips[k]) || 0);
-      if (k === 'hp') return Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus;
-      return Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus;
+      if (k === 'mp') return this.maxMp;
+      const S = DW.SCALE, b = this.d.base[k] || 50, iv = this.iv[k] || 0, bonus = this.bonus(k);
+      if (k === 'hp') return Math.min(S.capHp, (Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp);
+      return Math.min(S.capStat, (Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat);
     }
     get maxHp() { return this.stat('hp'); }
-    // PM : dépendent de l'Intelligence et du niveau ; rendus par le repos et le sommeil
-    get maxMp() { const b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.floor((2 * b + iv) * this.level / 100) + this.level + 10; }
+    // PM : dépendent de l'Intelligence et du niveau, et de l'entraînement PM ; rendus par le repos et le sommeil
+    get maxMp() { const S = DW.SCALE, b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.min(S.capHp, (Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + this.bonus('mp')) * S.mp); }
     canPay(id) { return this.mp >= DW.mpCost(id); }
     // âge en jours de jeu depuis l'arrivée dans l'équipe
     get age() { return Math.max(0, Math.floor(((DW.state ? DW.state.clock : 0) - this.born) / 1440)); }
@@ -79,7 +82,7 @@
       }
       return ev;
     }
-    stats() { return { hp: this.maxHp, atk: this.stat('atk'), def: this.stat('def'), spd: this.stat('spd'), int: this.stat('int') }; }
+    stats() { return { hp: this.maxHp, mp: this.maxMp, atk: this.stat('atk'), def: this.stat('def'), spd: this.stat('spd'), int: this.stat('int') }; }
     // première Digivolution dont toutes les conditions sont remplies
     evoTarget() {
       const a = DW.Evo.available(this);
@@ -163,10 +166,11 @@
     if (it.use === 'sick') { const was = m.sick; m.sick = 0; m.germs = 0; m.addHappy(2); return was ? `${m.name} n'est plus malade !` : `${m.name} reprend des couleurs. Il ne tombera pas malade !`; }
     if (it.use === 'hurt') { m.hurt = 0; return `La blessure de ${m.name} est soignée !`; }
     if (it.use === 'chip') {
-      const hp0 = m.maxHp;
+      const hp0 = m.maxHp, mp0 = m.maxMp, v0 = m.stat(it.stat);
       m.chips[it.stat] += it.amt;
       if (it.stat === 'hp') m.hp += m.maxHp - hp0;
-      return `${m.name} absorbe la puce : ${DW.Training.STATS[it.stat].stat} +${it.amt} !`;
+      if (it.stat === 'mp') m.mp += m.maxMp - mp0;
+      return `${m.name} absorbe la puce : ${DW.Training.STATS[it.stat].stat} +${m.stat(it.stat) - v0} !`;
     }
     if (it.use === 'mp') { const b = m.mp; m.mp = Math.min(m.maxMp, m.mp + it.amt); return `${m.name} récupère ${m.mp - b} PM !`; }
     return '';
@@ -189,7 +193,9 @@
   // Trois emplacements : la sauvegarde, la copie précédente (écrite juste avant chaque sauvegarde)
   // et une copie « illisible » mise de côté si le chargement échoue (jamais écrasée par une nouvelle partie).
   const KEY = 'digimon_ile_des_fichiers_save', BAK = KEY + '_precedente', BROKEN = KEY + '_illisible';
-  DW.SAVE_V = 4; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2
+  // échelle des statistiques (façon Digimon World 1) : PV/PM ×20 jusqu'à 9999, Attaque/Défense/Vitesse/Intelligence ×4 jusqu'à 999
+  DW.SCALE = { hp: 20, mp: 20, stat: 4, capHp: 9999, capStat: 999 };
+  DW.SAVE_V = 5; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20)
   DW.newState = () => ({
     name: 'Tai', hero: 'tai', party: [], box: [], bag: {}, bits: 300, flags: {}, seen: {}, owned: {},
     map: 'maison', x: 12, y: 5, dir: 'down', heal: { map: 'maison', x: 12, y: 5 }, time: 0, recruits: {},
@@ -263,6 +269,8 @@
     for (const box of [st.bag, st.bank]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
     const orphans = (st.orphans || []).slice();
     st.orphans = [];
+    // v5 : PV et PM passent à l'échelle Digimon World (×20) ; les PV restants suivent
+    if (v < 5) for (const x of [...(o.party || []), ...(o.box || []), ...orphans]) if (x) { if (Number.isFinite(x.hp)) x.hp *= DW.SCALE.hp; if (Number.isFinite(x.mp)) x.mp *= DW.SCALE.mp; }
     const keep = list => list.map(x => { const m = revive(x); if (!m && x) st.orphans.push(x); return m; }).filter(Boolean);
     st.party = keep(o.party || []);
     st.box = keep(o.box || []).concat(keep(orphans));   // espèce revenue dans le jeu : retour dans la boîte

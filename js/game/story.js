@@ -307,7 +307,7 @@
       for (const m of st().party) { m.heal(); m.sick = 0; m.hurt = 0; }
       DW.Audio.sfx('heal'); await say('Voilà : PV, PM, maladies et blessures, tout est soigné !', n);
     } },
-    andromon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Puces de données. Installation instantanée. Effet permanent.', n); await shop(['puce_pv', 'puce_atk', 'puce_def', 'puce_spd', 'puce_int']); } },
+    andromon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Puces de données. Installation instantanée. Effet permanent.', n); await shop(['puce_pv', 'puce_pm', 'puce_atk', 'puce_def', 'puce_spd', 'puce_int']); } },
     meramon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Le Restaurant est ouvert ! Tout est cuit au feu de Meramon !', n); await shop(['riz', 'poisson', 'super_viande', 'gateau']); } },
     frigimon: { home: 'village', async talk(n) { await say('Une glace ? Elles sont fraîches de ce matin !', n); await shop(['glace', 'bonbon']); } },
     etemon: { home: 'village', async talk(n) { await say('Yeah baby ! Des cartes, des cartes, encore des cartes !', n); await shop(['cartes']); } },
@@ -327,12 +327,12 @@
     piximon: { home: 'village', async talk(n) {
       const m = st().party[0]; if (!m) return;
       if (!daily('piximon')) return say('Pix ! Un entraînement spécial par jour, pas plus !', n);
-      let g = 0; for (const k of ['hp', 'atk', 'def', 'spd', 'int']) g += DW.Training.gain(m, k, 1);
+      let g = 0; for (const k of ['hp', 'mp', 'atk', 'def', 'spd', 'int']) g += DW.Training.gain(m, k, 1);
       m.tired = Math.min(100, m.tired + 40);
       await say(g ? `Pix pix ! Entraînement spécial terminé : ${m.name} gagne ${g} points d'entraînement !` : `${m.name} a atteint son potentiel... Gagne des niveaux en combat !`, n);
     } },
     sukamon: { home: 'champs', async talk(n) { if (!daily('sukamon')) return say('Les poubelles sont vides pour aujourd\'hui...', n); await gift(n, ['pomme', 'champi', 'bonbon', 'disque_pm', 'medoc', 'cartes'], 'J\'ai trouvé ça dans les ordures !'); } },
-    drimogemon: { home: 'champs', async talk(n) { if (!daily('drimogemon')) return say('Mes griffes sont usées pour aujourd\'hui.', n); await gift(n, ['super_viande', 'reveil', 'disque_pm', 'puce_pv', 'puce_atk', 'puce_def', 'puce_spd', 'puce_int', 'manuel'], 'Je creuse, je creuse... Trouvé !'); } },
+    drimogemon: { home: 'champs', async talk(n) { if (!daily('drimogemon')) return say('Mes griffes sont usées pour aujourd\'hui.', n); await gift(n, ['super_viande', 'reveil', 'disque_pm', 'puce_pv', 'puce_pm', 'puce_atk', 'puce_def', 'puce_spd', 'puce_int', 'manuel'], 'Je creuse, je creuse... Trouvé !'); } },
     lillymon: { home: 'champs', async talk(n) { if (!daily('lillymon')) return say('Les fruits repoussent... Reviens demain !', n); await gift(n, ['pomme', 'pomme', 'glace'], 'Une récolte fraîche, rien que pour toi !'); } },
     shellmon: { home: 'champs', async talk(n) { if (!daily('shellmon')) return say('Plus de poisson aujourd\'hui.', n); await gift(n, ['poisson'], 'Belle pêche aujourd\'hui !'); } },
     seadramon: { home: 'champs', still: true,

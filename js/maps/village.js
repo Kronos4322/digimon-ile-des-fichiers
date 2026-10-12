@@ -230,7 +230,8 @@
     const s = st();
     if (!s.flags.starter) { await say("Les trois bébés t'attendent dehors, sur la place. Va choisir ton partenaire !", 'Jijimon'); return; }
     if (!s.flags.jiji_tanemon) { s.flags.jiji_tanemon = true; await say("Si ton partenaire a faim, va voir Tanemon au Quartier des Champs : il cultive de la Digiviande et en donne chaque jour.", 'Jijimon'); }
-    const r = await DW.ask("Que veux-tu, jeune DigiSélectionné ?", ['Se reposer', 'Des conseils', 'Au revoir'], 'Jijimon');
+    const r = await DW.ask("Que veux-tu, jeune DigiSélectionné ?", ['Se reposer', 'Des conseils', 'Questions', 'Au revoir'], 'Jijimon');
+    if (r === 2) { await DW.Guide.questions('Que veux-tu savoir ?'); return; }
     if (r === 0) {
       const night = DW.Time.isNight();
       await say(night ? "Dors donc ici cette nuit. Hohoho !" : "Une petite sieste te fera du bien.", 'Jijimon');
@@ -352,14 +353,6 @@
   build();
 
   // ------------------------------------------------------------ début de l'aventure (réveil chez Jijimon)
-  DW.Story.opening = async () => {
-    await DW.wait(0.6);
-    await say('Mmh... Où est-ce que je suis ?');
-    await say("Hohoho ! Tu es réveillé ? Bienvenue à la Ville des Fichiers, sur l'Île des Fichiers.", 'Jijimon');
-    await say("Je suis Jijimon, le doyen de la ville. Je t'ai trouvé endormi près de la plage et je t'ai ramené chez moi.", 'Jijimon');
-    await say("Une force mystérieuse a fait perdre la mémoire aux Digimon de l'île. Ils sont tous partis vivre à l'état sauvage... La ville tombe en ruines.", 'Jijimon');
-    await say("Trois bébés Digimon t'attendent dehors, sur la place : Botamon, Pichimon et Yuramon. Va leur parler et choisis ton partenaire !", 'Jijimon');
-    await say("(Déplacements : flèches ou ZQSD.  Courir : Maj.  Parler : ESPACE.  Menu : ENTRÉE.)");
-    await DW.chooseRules();
-  };
+  // la grande discussion d'arrivée (monde, mystère, enquête, règles) : game/guide.js
+  DW.Story.opening = () => DW.Guide.opening();
 })();

@@ -18,7 +18,7 @@
     c.strokeStyle = '#3a8aa0'; c.lineWidth = 0.6; c.strokeRect(x + 0.3, y + 0.3, w - 0.6, 10.4);
     UI.text(c, txt, x + 3, y + 8.6, { size: 8, color: col });
   };
-  const PARAMS = [['hp', 'PV', '#ff5a8a'], ['atk', 'Att', '#ff8a3a'], ['def', 'Déf', '#ffd040'], ['spd', 'Vit', '#5ae0a0'], ['int', 'Int', '#7ab0ff']];
+  const PARAMS = [['hp', 'PV', '#ff5a8a'], ['mp', 'PM', '#4ad0e8'], ['atk', 'Att', '#ff8a3a'], ['def', 'Déf', '#ffd040'], ['spd', 'Vit', '#5ae0a0'], ['int', 'Int', '#7ab0ff']];
 
   class SummaryScene extends DW.Scene {
     constructor(i) { super(); this.i = i; this.tab = 0; this.mv = 0; }
@@ -106,12 +106,12 @@
       // PARAMÈTRES
       UI.label(c, 'PARAMÈTRES', 152, 97);
       PARAMS.forEach(([k, lab, col], j) => {
-        const y = 118 + j * 21, v = k === 'hp' ? m.maxHp : m.stat(k);
+        const y = 116 + j * 19, v = m.stat(k), cur = k === 'hp' ? m.hp : k === 'mp' ? m.mp : null, rr = cur != null ? cur / Math.max(1, v) : 0;
         c.fillStyle = col; c.beginPath(); c.arc(158, y - 3, 3, 0, 7); c.fill();
         UI.text(c, lab, 164, y, { size: 9 });
-        UI.text(c, k === 'hp' ? `${m.hp} / ${v}` : String(v), 304, y, { size: 9, align: 'right' });
+        UI.text(c, cur != null ? `${cur} / ${v}` : String(v), 304, y, { size: 9, align: 'right' });
         UI.text(c, `entr. ${m.tr[k]}/${DW.Training.cap(m)}`, 206, y, { size: 7, color: m.tr[k] >= DW.Training.cap(m) ? '#ffd070' : '#7aff8a' });
-        UI.bar(c, 190, y + 3, 114, 3, k === 'hp' ? r : Math.min(1, v / (m.level * 2.6 + 30)), k === 'hp' ? UI.hpColor(r) : '#4ad8e8');
+        UI.bar(c, 190, y + 3, 114, 3, cur != null ? rr : Math.min(1, v / ((m.level * 2.6 + 30) * DW.SCALE.stat)), k === 'hp' ? UI.hpColor(rr) : k === 'mp' ? '#5a8aff' : '#4ad8e8');
       });
     }
     drawTech(c, m) {

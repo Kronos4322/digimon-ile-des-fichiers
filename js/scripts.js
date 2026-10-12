@@ -33,7 +33,7 @@
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/foret.js', 'maps/plage.js', 'maps/village.js', 'maps/maison.js', 'maps/interieurs.js',
     'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/regions.js',
-    'game/activities.js', 'game/story.js',
+    'game/activities.js', 'game/story.js', 'game/guide.js',
     // démarrage
     'main.js',
   ];

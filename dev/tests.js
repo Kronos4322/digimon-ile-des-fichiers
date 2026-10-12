@@ -249,6 +249,21 @@ test('maladie : jamais au hasard, seulement par accumulation de négligences', (
   } finally { Math.random = r; DW.state.poops = {}; }
 });
 
+test('échelle Digimon World : PV/PM en centaines-milliers (max 9999), stats ≤ 999, PM entraînables', () => {
+  const a = new DW.Digimon('agumon', 12);
+  yes(a.maxHp >= 300 && a.maxHp <= 2000, 'PV ' + a.maxHp); yes(a.maxMp >= 300, 'PM ' + a.maxMp);
+  const z = new DW.Digimon('wargreymon', 100); z.tr = { hp: 64, mp: 64, atk: 64, def: 64, spd: 64, int: 64 };
+  yes(z.maxHp <= 9999 && z.maxMp <= 9999 && ['atk', 'def', 'spd', 'int'].every(k => z.stat(k) <= 999));
+  const mp0 = a.maxMp; a.tr.mp = 20; yes(a.maxMp > mp0, 'entraînement PM sans effet');
+  yes(DW.Training.STATS.mp && DW.World.CH['Ψ'].train === 'mp');
+});
+test('migration v4 → v5 : PV et PM restants passent à l\'échelle ×20', () => {
+  fresh();
+  const d = new DW.Digimon('agumon', 12).toJSON(); d.hp = 10; d.mp = 5;
+  store.set(SAVE, JSON.stringify({ ...DW.newState(), v: 4, party: [d] }));
+  yes(DW.load()); eq(DW.state.party[0].hp, 200); eq(DW.state.party[0].mp, 100);
+});
+
 // ------------------------------------------------------------ lancement
 (async () => {
   for (const [name, fn] of tests) {

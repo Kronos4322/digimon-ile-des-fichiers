@@ -27,6 +27,7 @@
     'W': { t: 'dirt', obj: 'weights', solid: true, train: 'hp' }, 'A': { t: 'dirt', obj: 'guardwall', solid: true, train: 'def' },
     'N': { t: 'dirt', obj: 'hurdle', solid: true, train: 'spd' }, 'F': { t: 'grass', obj: 'shrine', solid: true, train: 'int' },
     'y': { t: 'grass', obj: 'toilet', solid: true, toilet: true },
+    'Ψ': { t: 'grass', obj: 'datacrystal', solid: true, train: 'mp' },
     'z': { t: 'cobble' }, 'j': { t: 'grass', deco: 'weeds' }, 'i': { t: 'grass', obj: 'lamp', solid: true }, 'I': { t: 'cobble', obj: 'lamp', solid: true },
     'J': { t: 'cobble', obj: 'bench', solid: true }, 'V': { t: 'grass', obj: 'flag', solid: true }, 'a': { t: 'grass', obj: 'barrel', solid: true },
     'x': { t: 'lawn', solid: true },
@@ -235,6 +236,17 @@
       d.tube([[4, 15], [4, 5]], 2, 2, '#f0f0f0'); d.tube([[18, 15], [18, 5]], 2, 2, '#f0f0f0');
       d.rect(2, 4, 18, 4, '#e04848', { round: 0.4 });
       d.deco.rect(6, 4.6, 3, 2.8, '#ffffff'); d.deco.rect(13, 4.6, 3, 2.8, '#ffffff');
+    } },
+    // cristal de données (poste PM) : un grand cristal bleu qui flotte au-dessus d'un socle de pierre
+    datacrystal: { w: 30, h: 44, n: 1, lights: [[15, 16, 16]], draw(d) {
+      d.ell(15, 42, 12, 2.2, '#2a2a2a', 0, { flat: true });
+      d.rect(5, 34, 20, 8, '#9a968e', { round: 0.3, tex: 0.3 }); d.deco.rect(5, 34, 20, 2, '#bab6ae');
+      for (let i = 0; i < 3; i++) d.deco.circ(9 + i * 6, 38, 1.2, '#4ad0e8', { unlit: true });
+      d.poly([[15, 2], [24, 14], [15, 30], [6, 14]], '#3a9ae0', { shiny: true });
+      d.poly([[15, 2], [24, 14], [15, 16]], '#6ac8f8'); d.poly([[15, 2], [15, 16], [6, 14]], '#4ab0f0');
+      d.deco.line(15, 4, 15, 28, 0.6, '#c8f4ff', { unlit: true });
+      d.deco.circ(12, 10, 1.4, '#ffffff', { unlit: true });
+      for (const [x, y] of [[4, 6], [26, 9], [24, 26], [5, 24]]) d.deco.circ(x, y, 0.9, '#8ae8ff', { unlit: true });
     } },
     shrine: { w: 28, h: 26, n: 1, draw(d) {
       for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; d.circ(14 + Math.cos(a) * 10, 18 + Math.sin(a) * 5, 2.6, '#a8a49c', { tex: 0.3 }); }

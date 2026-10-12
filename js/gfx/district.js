@@ -140,17 +140,18 @@
     } },
     // ---------------------------------------------------------- Terrain d'entraînement
     // panneau de poste (comme Digimon World) : v0 PV cœur, v1 Attaque soleil, v2 Défense bouclier, v3 Vitesse chevrons, v4 Intelligence œil
-    stationsign: { w: 24, h: 30, n: 5, draw(d, v) {
+    stationsign: { w: 24, h: 30, n: 6, draw(d, v) {
       d.ell(12, 29, 8, 1.6, '#1a1a1a', 0, { flat: true });
       d.tube([[5, 29], [5, 14]], 2, 2, '#4a3a2e'); d.tube([[19, 29], [19, 14]], 2, 2, '#4a3a2e');
       d.rect(1, 2, 22, 16, '#2a2a30', { round: 0.08 });
       d.deco.rect(1, 2, 22, 2, '#5a4a3e'); d.deco.rect(1, 16, 22, 2, '#5a4a3e');
-      const C = ['#ff5a7a', '#ffd040', '#5ab8ff', '#7aff7a', '#c88aff'][v];
+      const C = ['#ff5a7a', '#ffd040', '#5ab8ff', '#7aff7a', '#c88aff', '#4ae0f0'][v];
       if (v === 0) { d.deco.circ(9.6, 8, 2.6, C, { unlit: true }); d.deco.circ(14.4, 8, 2.6, C, { unlit: true }); d.deco.poly([[7, 9], [17, 9], [12, 15]], C, { unlit: true }); }
       else if (v === 1) { d.deco.circ(12, 10, 3, C, { unlit: true }); for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; d.deco.line(12 + Math.cos(a) * 4, 10 + Math.sin(a) * 4, 12 + Math.cos(a) * 6, 10 + Math.sin(a) * 6, 1, C, { unlit: true }); } }
       else if (v === 2) { d.deco.poly([[7, 5], [17, 5], [17, 10], [12, 15], [7, 10]], C, { unlit: true }); d.deco.line(12, 6, 12, 13, 0.8, '#2a2a30'); }
       else if (v === 3) { for (const x of [6, 11]) d.deco.poly([[x, 5], [x + 3, 5], [x + 7, 10], [x + 3, 15], [x, 15], [x + 4, 10]], C, { unlit: true }); }
-      else { d.deco.ell(12, 10, 6, 3.6, C, 0, { unlit: true }); d.deco.circ(12, 10, 2, '#2a2a30'); d.deco.circ(12.6, 9.4, 0.7, '#ffffff', { unlit: true }); }
+      else if (v === 4) { d.deco.ell(12, 10, 6, 3.6, C, 0, { unlit: true }); d.deco.circ(12, 10, 2, '#2a2a30'); d.deco.circ(12.6, 9.4, 0.7, '#ffffff', { unlit: true }); }
+      else d.deco.poly([[12, 4], [16, 10], [12, 16], [8, 10]], C, { unlit: true });   // cristal (PM)
     } },
     // pieu de frappe enveloppé de corde
     stake: { w: 14, h: 34, n: 1, draw(d) {

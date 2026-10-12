@@ -188,7 +188,7 @@
         let w = mv.pow ? mv.pow * DW.typeMult(mv.type, E.d.types) * (P.d.types.includes(mv.type) ? 1.5 : 1) : 25;
         if (mv.heal) w = P.hp < P.maxHp * 0.4 ? 200 : 1;
         if (mv.st && !mv.pow && E.status) w = 2;
-        if (P.mp < P.maxMp * 0.3) w /= 1 + cost / 4;
+        if (P.mp < P.maxMp * 0.3) w /= 1 + cost / (4 * DW.SCALE.mp);
         return { o, w: Math.max(1, w * w) };
       });
       return { type: 'move', slot: DW.weighted(scored).o.i, auto: true };
@@ -317,7 +317,8 @@
     calc(uSide, mv, user, tgt, mult = 1) {
       const tSide = uSide === 'p' ? 'e' : 'p';
       const A = this.eff(uSide, mv.contact ? 'atk' : 'int'), Dd = this.eff(tSide, mv.contact ? 'def' : 'int');
-      const base = Math.floor(Math.floor(Math.floor(2 * user.level / 5 + 2) * mv.pow * A / Dd) / 50) + 2;
+      // formule d'origine, mise à l'échelle des PV (×20, façon Digimon World)
+      const base = (Math.floor(2 * user.level / 5 + 2) * mv.pow * A / Dd / 50 + 2) * DW.SCALE.hp;
       const stab = user.d.types.includes(mv.type) ? 1.5 : 1;
       const tm = DW.typeMult(mv.type, tgt.d.types);
       const attr = DW.ATTR_ADV[user.d.attr] === tgt.d.attr ? 1.2 : 1;
@@ -457,7 +458,7 @@
         return mv && !m.knows(id) && (mv.type === 'Neutre' || m.d.types.includes(mv.type)) && !(young && mv.pow > 90);
       });
       if (!pool.length) return;
-      const ch = Math.min(0.6, 0.3 + m.stat('int') / 400);
+      const ch = Math.min(0.6, 0.3 + m.stat('int') / (400 * DW.SCALE.stat));
       if (Math.random() >= ch) return;
       const id = DW.pick(pool);
       Audio.sfx('buff');
