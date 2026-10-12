@@ -419,19 +419,29 @@
     } },
   };
   const objCache = {};
+  // ------------------------------------------------------------ échelle du décor (proportions façon Digimon World)
+  // Les arbres dominent largement le héros, comme dans Digimon World : le dessin est rendu plus grand
+  // (vraie résolution, pas de pixels étirés), posé sur la même case (ancrage en bas au centre).
+  const OBJ_SCALE = {};
+  for (const k of ['tree', 'oak', 'birch', 'pine', 'palm', 'candytree', 'cycad', 'jungletree', 'mangrove', 'swamptree', 'acacia', 'baobab', 'deadtree']) OBJ_SCALE[k] = 1.55;
+  for (const k of ['bigtree', 'cactus', 'giantshroom', 'giantflower', 'giantstump', 'spire']) OBJ_SCALE[k] = 1.45;
+  for (const k of ['bush', 'fern', 'bigfern', 'junglebush', 'snowbush', 'drybush', 'reeds', 'glowshroom', 'hedge']) OBJ_SCALE[k] = 1.4;
+  for (const k of ['rock', 'boulder', 'mossrock', 'icerock', 'lavarock', 'searock', 'rockpile', 'basalt', 'crystal', 'stalagmite', 'icecrystal', 'termite', 'log', 'hollowlog', 'stump']) OBJ_SCALE[k] = 1.3;
+  World.OBJ_SCALE = OBJ_SCALE;
+  const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;
+    const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)
+    return { w, h, W: Math.round(w * S), H: Math.round(h * S) }; };
   World.obj = (kind, v = 0) => {
     const o = OBJ[kind], key = kind + v;
-    // taille fixe, ou fonction de la variante (ex. clôture de v cases)
-    const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;
-    if (!objCache[key]) objCache[key] = Art.render(dd => o.draw(dd, v, 0), w, h, { silhouettes: false, noOutline: !!o.noOutline });
+    if (!objCache[key]) { const z = objSize(kind, v); objCache[key] = Art.render(dd => o.draw(dd, v, 0), z.W, z.H, { box: [z.w, z.h], silhouettes: false, noOutline: !!o.noOutline }); }
     return objCache[key];
   };
   // images d'un objet animé (moulin, cascade, linge...) : OBJ.frames images
   World.objFrame = (kind, v, f) => {
     const o = OBJ[kind], key = kind + v + '_' + f;
     if (objCache[key]) return objCache[key];
-    const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;
-    return (objCache[key] = Art.render(dd => o.draw(dd, v, f), w, h, { silhouettes: false, noOutline: !!o.noOutline }));
+    const z = objSize(kind, v);
+    return (objCache[key] = Art.render(dd => o.draw(dd, v, f), z.W, z.H, { box: [z.w, z.h], silhouettes: false, noOutline: !!o.noOutline }));
   };
   World.objFrames = (kind, v = 0) => Array.from({ length: OBJ[kind].frames }, (_, f) => World.objFrame(kind, v, f));
   World.objReady = (kind, v = 0, f = 0) => !!objCache[kind + v + (OBJ[kind].frames ? '_' + f : '')];

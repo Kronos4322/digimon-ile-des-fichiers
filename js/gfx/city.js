@@ -213,4 +213,6 @@
       d.deco.circ(14, 18, 2, '#ffe070', { unlit: true }); d.deco.circ(82, 18, 2, '#ffe070', { unlit: true });
     } },
   });
+  // bâtiments des quartiers dessinés 30 % plus grands (proportions façon Digimon World : ils dominent le héros)
+  for (const k of ['cottage', 'townhouse', 'apartment', 'shopfront', 'marketstall', 'clocktower', 'datatower', 'digistatue', 'cablepole']) OBJ[k].scale = 1.3;
 })();

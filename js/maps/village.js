@@ -338,7 +338,7 @@
     build,
     onEnter: () => DW.Town.reveal(),
     rows: null, objects: [], npcs: [],
-    warps: [{ x: 0, y: 13, w: 1, h: 3, dir: 'left', to: 'plage', tx: 39, ty: 1 }, { x: 11, y: 0, w: 2, h: 1, dir: 'up', to: 'residentiel', tx: 23, ty: 33 }, { x: 19, y: 29, w: 2, h: 1, dir: 'down', to: 'gym', tx: 15, ty: 0 },
+    warps: [{ x: 0, y: 13, w: 1, h: 3, dir: 'left', to: 'plage', tx: 39, ty: 1 }, { x: 11, y: 0, w: 2, h: 1, dir: 'up', to: 'residentiel', tx: 30, ty: 43 }, { x: 19, y: 29, w: 2, h: 1, dir: 'down', to: 'gym', tx: 15, ty: 0 },
       { x: 5, y: 29, w: 2, h: 1, dir: 'down', to: 'champs', tx: 5, ty: 0 }],
     doors: [],
     // la route de l'est (Montagne de l'Infini) est gardée par la porte de région (regions.js : GATE.montagne)

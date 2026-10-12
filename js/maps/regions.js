@@ -126,13 +126,13 @@
     R.subs.forEach(([name, kind, x = {}], i) => {
       const id = ids[i], s = Hh(i, rid.length * 13 + rid.charCodeAt(0), 501) * 1000 | 0;
       // cartes larges (comme Digimon World) : de la place pour explorer et contourner les Digimon sauvages
-      const w = 50 + Math.floor(Hh(i, 1, s) * 3) * 4, h = 36 + Math.floor(Hh(i, 2, s) * 3) * 3;
+      const w = 60 + Math.floor(Hh(i, 1, s) * 3) * 4, h = 44 + Math.floor(Hh(i, 2, s) * 3) * 3;
       const exits = {};
       for (const side in sides[i]) {
         const span = side === 'left' || side === 'right' ? h : w, off = Math.round((Hh(i, side.length, s) - 0.5) * (span > 32 ? 8 : 6));
         exits[side] = [Math.floor(span / 2) - 1 + off, 3];
       }
-      const hub = [Math.floor(w / 2) + Math.round((Hh(i, 3, s) - 0.5) * 6), Math.floor(h / 2) + Math.round((Hh(i, 4, s) - 0.5) * 4)];
+      const hub = [Math.floor(w / 2) + Math.round((Hh(i, 3, s) - 0.5) * 8), Math.floor(h / 2) + Math.round((Hh(i, 4, s) - 0.5) * 5)];
       const theme = x.theme || R.theme, k = kindOpts(kind, w, h, hub, s + i);
       const cave = kind === 'cave';
       const spec = Object.assign({ seed: s + 13, hub, lm: [...(x.lm || []), ...(x.noRegionLm ? [] : R.lm || [])] }, k, x.opts || {}, { post: x.post });
@@ -164,7 +164,7 @@
   // Placés loin du carrefour, des sorties et de la pièce maîtresse, et espacés entre eux.
   function addRooms(m, kind, seed) {
     const o = m.spec, { w, h } = m, hub = o.hub, r = k => Hh(seed, k, 613);
-    const avoid = [[hub[0], hub[1], 10]], lanes = [];
+    const avoid = [[hub[0], hub[1], 12]], lanes = [];
     for (const side in m.exits) {
       const [pos, len] = m.exits[side], c = pos + len / 2, inn = { left: [2, c], right: [w - 3, c], up: [c, 2], down: [c, h - 3] }[side];
       avoid.push([...inn, 7]); lanes.push([inn, hub]);
@@ -186,12 +186,12 @@
     const n = 4 + (r(1) < 0.4 ? 1 : 0), rooms = [];
     for (const [, x, y] of cand) {
       if (rooms.length >= n) break;
-      if (rooms.some(R => Math.hypot(R.x - x, R.y - y) < 13)) continue;
+      if (rooms.some(R => Math.hypot(R.x - x, R.y - y) < 15.5)) continue;
       rooms.push({ x, y });
     }
     const KINDS = kind === 'cave' ? ['pond', 'meadow', 'grove'] : ['meadow', 'pond', 'grove', 'meadow'];
     o.rooms = rooms.map((R, j) => {
-      const rx = 6.5 + r(10 + j) * 3, ry = rx * 0.74, type = KINDS[(j + Math.floor(r(2) * 4)) % KINDS.length];
+      const rx = 7.8 + r(10 + j) * 3.6, ry = rx * 0.74, type = KINDS[(j + Math.floor(r(2) * 4)) % KINDS.length];
       const dx = hub[0] - R.x, dy = hub[1] - R.y, d = Math.hypot(dx, dy) || 1;
       // entrée de l'espace : sur son bord, du côté du carrefour
       const door = [Math.round(R.x + dx / d * rx * 0.55), Math.round(R.y + dy / d * ry * 0.55)];

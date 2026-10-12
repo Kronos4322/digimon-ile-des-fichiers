@@ -15,7 +15,8 @@
   const { say, st, paint } = DW.MapKit;
   const MAPS = DW.MAPS, Hh = DW.Art.hash;
   const level = () => DW.Town.level();
-  const W = 48, H = 34;
+  // agrandissement des quartiers (bâtiments plus grands, plus d'espace) : plan d'origine 48×34 × Z
+  const Z = 1.3, W = Math.round(48 * Z), H = Math.round(34 * Z);
   // herbe non praticable (invisible) : derrière les grands bâtiments, là où le toit déborde de l'emprise
   DW.World.CH['ŧ'] = { t: 'grass', solid: true }; DW.SOLID.add('ŧ');
 
@@ -105,40 +106,52 @@
   // ------------------------------------------------------------ outils communs des quartiers
   // Comme la Ville des Fichiers de Digimon World 1 : chemins de terre qui serpentent, bâtiments posés
   // librement dans l'herbe avec leur jardinet, bosquets, ruisseau et étang naturels.
-  // emplacement : { kind, v, x, y, w, h, min } ; chaumières, maisons et immeubles se visitent (porte en bas)
+  // Les plans sont écrits dans un repère 48×34 puis agrandis de Z (bâtiments plus grands, quartiers plus vastes).
+  // emplacement : { kind, v, x, y, min } ; chaumières, maisons et immeubles se visitent (porte en bas)
+  const z = v => Math.round(v * Z);
+  // emprise (en cases) des bâtiments agrandis, et position de la porte sur leur façade
+  const FOOT = { cottage: [5, 4], townhouse: [5, 4], apartment: [6, 4], shopfront: [5, 4], marketstall: [4, 2], datatower: [4, 2] };
+  const DOOR = { cottage: [2, 1], townhouse: [2, 1], apartment: [2, 2] };
   function lots(list, quarter, prefix) {
     return list.map((L, i) => {
-      const o = { ...L };
-      if (o.kind === 'cottage' || o.kind === 'townhouse' || o.kind === 'apartment') {
-        const dx = o.kind === 'apartment' ? 2 : 1;
-        o.door = { x: o.x + dx, y: o.y + o.h - 1, w: 2 };
+      const o = { ...L, x: z(L.x), y: z(L.y) };
+      [o.w, o.h] = FOOT[o.kind] || [L.w, L.h];
+      if (DOOR[o.kind]) {
+        const [dx, dw] = DOOR[o.kind];
+        o.door = { x: o.x + dx, y: o.y + o.h - 1, w: dw };
         o.home = makeHome(`${prefix}${i}`, prefix.length * 97 + i * 13 + 5, o.kind === 'apartment' ? 'Immeuble' : 'Maison', quarter, [o.x + dx, o.y + o.h]);
       }
       return o;
     });
   }
-  // --- tracé naturel
+  // --- tracé naturel (coordonnées du plan d'origine, agrandies ici)
   const segD = (x, y, a, b) => {
     const dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy;
     let t = l ? ((x - a[0]) * dx + (y - a[1]) * dy) / l : 0; t = t < 0 ? 0 : t > 1 ? 1 : t;
     return Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t);
   };
   const polyD = (x, y, pts) => { let m = 1e9; for (let i = 0; i < pts.length - 1; i++) m = Math.min(m, segD(x, y, pts[i], pts[i + 1])); return m; };
+  const zp = pts => pts.map(([x, y]) => [x * Z, y * Z]);
   // chemin sinueux (bords irréguliers) ; sur l'eau, il devient un pont
   function trail(g, pts, r, ch = '=', seed = 1) {
+    pts = zp(pts); r *= Z * 0.92;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       if (polyD(x, y, pts) > r + (Hh(x, y, 820 + seed) - 0.5) * 0.7) continue;
       const c = g.get(x, y);
       if (c === '~' || c === 'w' || c === '_') g.set(x, y, '_'); else g.set(x, y, ch);
     }
   }
-  function water(g, pts, r) { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (polyD(x, y, pts) <= r + (Hh(x, y, 830) - 0.5) * 0.6) g.set(x, y, '~'); }
+  function water(g, pts, r) { pts = zp(pts); r *= Z; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (polyD(x, y, pts) <= r + (Hh(x, y, 830) - 0.5) * 0.6) g.set(x, y, '~'); }
   function pond(g, cx, cy, rx, ry) {
+    cx *= Z; cy *= Z; rx *= Z; ry *= Z;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const d = Math.hypot((x - cx) / rx, (y - cy) / ry) + (Hh(x, y, 831) - 0.5) * 0.18;
       if (d < 1) g.set(x, y, Hh(x, y, 832) < 0.1 && d < 0.75 ? 'w' : '~');
     }
   }
+  const put = (g, x, y, ch) => g.set(z(x), z(y), ch);
+  // entrée franche sur un bord (3 cases de large, à la hauteur y du plan)
+  const gateRows = (g, side, y) => g.rect(side === 'left' ? 0 : W - 3, z(y), 3, 3, '=');
   // lisière irrégulière : 2 rangées d'arbres, plus quelques arbres en avancée
   function edge(g, seed) {
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
@@ -146,11 +159,11 @@
       if (d <= 1 || (d === 2 && Hh(x, y, 840 + seed) < 0.45)) g.set(x, y, 'T');
     }
   }
-  // zones protégées (emprise + jardinet devant + marge) : pas d'arbre ni de rocher
+  // zones protégées (emprise + jardinet devant + marge) : pas d'arbre ni de rocher ; extra en coordonnées du plan
   const protectedSet = (list, extra = []) => {
     const P = new Set();
     for (const L of list) for (let y = L.y - 1; y < L.y + L.h + 3; y++) for (let x = L.x - 1; x < L.x + L.w + 1; x++) P.add(x + ',' + y);
-    for (const [x, y, r] of extra) for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) P.add((x + i) + ',' + (y + j));
+    for (const [x0, y0, r] of extra) { const x = z(x0), y = z(y0); for (let j = -r - 1; j <= r + 1; j++) for (let i = -r - 1; i <= r + 1; i++) P.add((x + i) + ',' + (y + j)); }
     return P;
   };
   // bosquets, buissons, fleurs, rochers, souches sur l'herbe libre
@@ -158,11 +171,11 @@
     for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) {
       if (g.get(x, y) !== '.' || P.has(x + ',' + y)) continue;
       const near = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => '=¢z_'.includes(g.get(x + a, y + b)));
-      const r = Hh(x, y, 850 + seed), clump = DW.Art.noise(x * 0.22, y * 0.22, 851 + seed);
-      if (!near && clump > 0.68 && r < 0.55 * dens) g.set(x, y, 'T');
-      else if (!near && r < 0.035 * dens) g.set(x, y, 'b');
+      const r = Hh(x, y, 850 + seed), clump = DW.Art.noise(x * 0.18, y * 0.18, 851 + seed);
+      if (!near && clump > 0.7 && r < 0.42 * dens) g.set(x, y, 'T');
+      else if (!near && r < 0.03 * dens) g.set(x, y, 'b');
       else if (r < 0.1) g.set(x, y, 'f');
-      else if (!near && r < 0.115 * dens) g.set(x, y, Hh(x, y, 852) < 0.5 ? 'r' : 'k');
+      else if (!near && r < 0.11 * dens) g.set(x, y, Hh(x, y, 852) < 0.5 ? 'r' : 'k');
       else if (!near && clump < 0.25 && r < 0.45) g.set(x, y, ',');
     }
   }
@@ -193,14 +206,14 @@
         const g = this.rows.map(r => [...r]), fronts = new Set();
         for (const L of def.lots) for (let x = L.x; x < L.x + L.w; x++) fronts.add(x + ',' + (L.y + L.h));
         for (const L of def.lots) if (lv >= L.min) {
-          const O = DW.World.OBJ[L.kind], above = Math.ceil((O.h - L.h * 16) / 16);
+          const above = Math.ceil((DW.World.obj(L.kind, L.v || 0).h - L.h * 16) / 16);
           for (let y = L.y - above; y < L.y; y++) for (let x = L.x; x < L.x + L.w; x++) if (g[y] && '.f,'.includes(g[y][x]) && !fronts.has(x + ',' + y)) g[y][x] = 'ŧ';
         }
         this.rows = g.map(r => r.join(''));
         // promeneurs : sur les chemins, espacés
         this.walkSpots = [];
         for (let y = 3; y < H - 3; y++) for (let x = 3; x < W - 3; x++)
-          if ('=¢'.includes(this.rows[y][x]) && Hh(x, y, def.seed) < 0.08 && !this.walkSpots.some(([a, b]) => Math.abs(a - x) + Math.abs(b - y) < 6)) this.walkSpots.push([x, y]);
+          if ('=¢'.includes(this.rows[y][x]) && Hh(x, y, def.seed) < 0.08 && !this.walkSpots.some(([a, b]) => Math.abs(a - x) + Math.abs(b - y) < 7)) this.walkSpots.push([x, y]);
         this.objects = [...(def.fixed ? def.fixed(lv) : [])];
         this.doors = [];
         for (const L of def.lots) {
@@ -213,7 +226,7 @@
       },
       populate() {
         // habitants qui se promènent : plus la ville grandit, plus il y a de monde
-        const lv = level(), S = this.walkSpots || [], n = Math.max(0, Math.min(S.length, 10, Math.floor((lv - def.open) / 2) + 1));
+        const lv = level(), S = this.walkSpots || [], n = Math.max(0, Math.min(S.length, 12, Math.floor((lv - def.open) / 2) + 1));
         this.npcs = S.slice(0, n).map(([x, y], i) => {
           const sp = citizenOf(def.seed + i * 31), line = lineOf(def.seed + i * 29);
           return { sp, x, y, face: i % 2 ? 'left' : 'right', wander: 2, citizen: true, talk: () => say(line, nameOf(sp)) };
@@ -224,18 +237,18 @@
     def.lots = lots(def.lots, id, def.prefix);
   }
   const progressive = (list, open, step) => list.map((L, i) => ({ ...L, min: open + Math.floor(i * step) }));
-  const C = (x, y, v) => ({ kind: 'cottage', v, x, y, w: 4, h: 3 });
+  const C = (x, y, v) => ({ kind: 'cottage', v, x, y });
+  const EXIT_Y = z(14);   // rangées des passages est / ouest entre quartiers
 
   // ============================================================ QUARTIER RÉSIDENTIEL (nord de la ville) : hameau de chaumières
   const OPEN = { residentiel: 3, marche: 8, numerique: 14 };
   {
     const list = [C(26, 5, 0), C(15, 4, 1), C(10, 11, 2), C(16, 11, 3), C(27, 10, 1), C(4, 4, 3), C(9, 18, 0), C(3, 19, 1), C(16, 20, 2),
       C(26, 19, 3), C(5, 25, 2), C(12, 26, 0), C(18, 27, 1), C(28, 27, 0), C(35, 28, 2), C(41, 9, 0), C(39, 2, 3)];
-    const lotsR = progressive(list, OPEN.residentiel, 1.9);
     district('residentiel', {
       name: 'Quartier Résidentiel', prefix: 'maison_r', open: OPEN.residentiel, seed: 11,
-      lots: lotsR,
-      exits: [{ min: OPEN.numerique, x0: 0, x1: 2, y0: 14, y1: 16 }, { min: OPEN.marche, x0: W - 3, x1: W - 1, y0: 14, y1: 16 }],
+      lots: progressive(list, OPEN.residentiel, 1.9),
+      exits: [{ min: OPEN.numerique, x0: 0, x1: 2, y0: EXIT_Y, y1: EXIT_Y + 2 }, { min: OPEN.marche, x0: W - 3, x1: W - 1, y0: EXIT_Y, y1: EXIT_Y + 2 }],
       paint(g, lv) {
         edge(g, 1);
         // ruisseau qui descend du nord vers l'étang, puis repart vers le sud-est
@@ -245,94 +258,92 @@
         // chemins de terre (ponts automatiques sur le ruisseau)
         trail(g, [[23.5, 34], [23.5, 29], [22, 23], [23, 16], [24, 10], [22, 4]], 1.3, '=', 1);
         trail(g, [[22.5, 16], [14, 15.5], [6, 16.5], [-1, 15]], 1.05, '=', 2);
-        g.rect(0, 14, 3, 3, '='); g.rect(W - 3, 14, 3, 3, '=');
+        gateRows(g, 'left', 14); gateRows(g, 'right', 14);
         trail(g, [[23, 16], [32, 14.5], [40, 15.5], [48, 15]], 1.05, '=', 3);
         trail(g, [[24, 10], [15, 8], [9, 9.5], [7, 15]], 0.85, '=', 4);
         trail(g, [[22.5, 23], [30, 25.5], [38, 26], [42, 21], [42, 13]], 0.85, '=', 5);
-        trail(g, [[23.5, 30], [23.5, 33]], 1.1, '=', 6);
+        trail(g, [[23.5, 30], [23.5, 34]], 1.1, '=', 6);
         // nature, jardins, petits aménagements
-        nature(g, protectedSet(lotsR, [[23, 16, 2], [33, 16, 1]]), 1);
-        gardens(g, lotsR.filter(L => lv >= L.min), 1);   // seulement devant les maisons déjà construites
-        g.set(21, 31, 'S'); g.set(25, 18, 'e');
-        for (const [x, y] of [[21, 9], [26, 22], [20, 17]]) if (g.get(x, y) === '.' || g.get(x, y) === 'f') g.set(x, y, 'i');
+        nature(g, protectedSet(this.lots, [[23, 16, 2], [33, 16, 1]]), 1);
+        gardens(g, this.lots.filter(L => lv >= L.min), 1);   // seulement devant les maisons déjà construites
+        put(g, 21, 31, 'S'); put(g, 25, 18, 'e');
+        for (const [x, y] of [[21, 9], [26, 22], [20, 17]]) if (g.get(z(x), z(y)) === '.' || g.get(z(x), z(y)) === 'f') put(g, x, y, 'i');
       },
       fixed: () => [
-        { kind: 'districtgate', v: 0, x: 21, y: 31, w: 6, h: 3, top: true },
-        { kind: 'digistatue', v: 0, x: 20, y: 13, w: 2, h: 1 },
+        { kind: 'districtgate', v: 0, x: z(23.5) - 3, y: H - 3, w: 6, h: 3, top: true },
+        { kind: 'digistatue', v: 0, x: z(20), y: z(13), w: 3, h: 1 },
       ],
-      signs: () => ({ '21,31': `Quartier Résidentiel — ${level()} habitants en ville. Est : Quartier du Marché. Ouest : Quartier Numérique.` }),
-      warps: [{ x: 23, y: H - 1, w: 2, h: 1, dir: 'down', to: 'village', tx: 11, ty: 0 },
-        { x: 0, y: 14, w: 1, h: 3, dir: 'left', to: 'numerique', tx: W - 1, ty: 14 },
-        { x: W - 1, y: 14, w: 1, h: 3, dir: 'right', to: 'marche', tx: 0, ty: 14 }],
+      signs: () => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${level()} habitants en ville. Est : Quartier du Marché. Ouest : Quartier Numérique.` }),
+      warps: [{ x: z(23.5) - 1, y: H - 1, w: 2, h: 1, dir: 'down', to: 'village', tx: 11, ty: 0 },
+        { x: 0, y: EXIT_Y, w: 1, h: 3, dir: 'left', to: 'numerique', tx: W - 1, ty: EXIT_Y },
+        { x: W - 1, y: EXIT_Y, w: 1, h: 3, dir: 'right', to: 'marche', tx: 0, ty: EXIT_Y }],
     });
   }
 
   // ============================================================ QUARTIER DU MARCHÉ (est du Résidentiel) : place de terre battue
   {
+    const S = (kind, v, x, y) => ({ kind, v, x, y });
     const list = [
-      { kind: 'marketstall', v: 0, x: 14, y: 11, w: 3, h: 2 }, { kind: 'marketstall', v: 1, x: 31, y: 10, w: 3, h: 2 },
-      { kind: 'shopfront', v: 0, x: 6, y: 3, w: 4, h: 3 }, { kind: 'shopfront', v: 2, x: 29, y: 3, w: 4, h: 3 },
-      { kind: 'marketstall', v: 2, x: 13, y: 19, w: 3, h: 2 }, { kind: 'marketstall', v: 0, x: 32, y: 20, w: 3, h: 2 },
-      C(2, 25, 1), { kind: 'shopfront', v: 1, x: 13, y: 4, w: 4, h: 3 }, C(36, 26, 3),
-      { kind: 'marketstall', v: 1, x: 20, y: 22, w: 3, h: 2 }, { kind: 'shopfront', v: 3, x: 36, y: 4, w: 4, h: 3 },
-      C(11, 25, 0), { kind: 'marketstall', v: 2, x: 26, y: 8, w: 3, h: 2 }, C(29, 27, 2), C(42, 12, 1), C(17, 26, 3),
+      S('marketstall', 0, 14, 11), S('marketstall', 1, 31, 10), S('shopfront', 0, 6, 3), S('shopfront', 2, 29, 3),
+      S('marketstall', 2, 13, 19), S('marketstall', 0, 32, 20), C(2, 25, 1), S('shopfront', 1, 13, 4), C(36, 26, 3),
+      S('marketstall', 1, 20, 22), S('shopfront', 3, 36, 4), C(11, 25, 0), S('marketstall', 2, 26, 8), C(29, 27, 2), C(42, 12, 1), C(17, 26, 3),
     ];
-    const lotsM = progressive(list, OPEN.marche, 1.9);
+    const tower = { x: z(22), y: z(14), w: 4, h: 2 };
+    const clock = () => say(`L'horloge de la tour indique ${DW.Time.str()}. Dong... dong...`);
     district('marche', {
       name: 'Quartier du Marché', prefix: 'maison_m', open: OPEN.marche, seed: 23,
-      lots: lotsM,
+      lots: progressive(list, OPEN.marche, 1.9),
       paint(g) {
         edge(g, 2);
         // grande place de terre battue, bords irréguliers
-        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (Math.hypot((x - 23.5) / 12.5, (y - 16) / 7.2) + (Hh(x, y, 870) - 0.5) * 0.15 < 1) g.set(x, y, '=');
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (Math.hypot((x / Z - 23.5) / 12.5, (y / Z - 16) / 7.2) + (Hh(x, y, 870) - 0.5) * 0.15 < 1) g.set(x, y, '=');
         trail(g, [[-1, 15], [6, 15.5], [12, 15]], 1.1, '=', 7);
-        g.rect(0, 14, 3, 3, '=');
+        gateRows(g, 'left', 14);
         trail(g, [[23.5, 9], [22, 6], [17, 7.5], [10, 7], [6, 8]], 0.9, '=', 8);
         trail(g, [[23.5, 9], [27, 6.5], [33, 7.5], [39, 8]], 0.9, '=', 9);
         trail(g, [[23.5, 23], [22, 27], [24, 31]], 0.95, '=', 10);
         trail(g, [[12, 22], [8, 24.5], [8, 29], [16, 30.5], [32, 31], [40, 30]], 0.85, '=', 11);
         pond(g, 41, 20, 2.6, 1.8);
-        nature(g, protectedSet(lotsM, [[23, 15, 2]]), 2, 0.9);
-        g.set(4, 13, 'S');
+        nature(g, protectedSet(this.lots, [[23, 15, 3]]), 2, 0.9);
+        put(g, 4, 13, 'S');
       },
-      fixed: () => [{ kind: 'clocktower', x: 22, y: 14, w: 3, h: 2 }, { kind: 'digistatue', v: 1, x: 18, y: 17, w: 2, h: 1 }, { kind: 'well', x: 29, y: 17, w: 1, h: 1, small: true }],
-      signs: () => ({ '4,13': 'Quartier du Marché — Étals, boutiques et la grande tour de l\'horloge.  Ouest : Quartier Résidentiel.',
-        '22,15': () => say(`L'horloge de la tour indique ${DW.Time.str()}. Dong... dong...`), '23,15': () => say(`L'horloge de la tour indique ${DW.Time.str()}. Dong... dong...`), '24,15': () => say(`L'horloge de la tour indique ${DW.Time.str()}. Dong... dong...`) }),
-      warps: [{ x: 0, y: 14, w: 1, h: 3, dir: 'left', to: 'residentiel', tx: W - 1, ty: 14 }],
+      fixed: () => [{ kind: 'clocktower', ...tower }, { kind: 'digistatue', v: 1, x: z(17), y: z(17), w: 3, h: 1 }, { kind: 'well', x: z(29), y: z(17), w: 1, h: 1, small: true }],
+      signs: () => {
+        const s = { [`${z(4)},${z(13)}`]: 'Quartier du Marché — Étals, boutiques et la grande tour de l\'horloge.  Ouest : Quartier Résidentiel.' };
+        for (let x = tower.x; x < tower.x + tower.w; x++) s[`${x},${tower.y + tower.h - 1}`] = clock;
+        return s;
+      },
+      warps: [{ x: 0, y: EXIT_Y, w: 1, h: 3, dir: 'left', to: 'residentiel', tx: W - 1, ty: EXIT_Y }],
     });
   }
 
   // ============================================================ QUARTIER NUMÉRIQUE (ouest du Résidentiel) : tours de données dans la nature
   {
-    const list = [
-      { kind: 'datatower', v: 0, x: 9, y: 5, w: 3, h: 2 }, C(14, 3, 2), { kind: 'datatower', v: 1, x: 31, y: 6, w: 3, h: 2 },
-      C(4, 10, 0), { kind: 'apartment', v: 1, x: 36, y: 9, w: 5, h: 3 }, { kind: 'datatower', v: 0, x: 7, y: 21, w: 3, h: 2 },
-      C(29, 19, 1), { kind: 'datatower', v: 1, x: 34, y: 20, w: 3, h: 2 }, C(13, 25, 3), { kind: 'apartment', v: 1, x: 3, y: 26, w: 5, h: 3 },
-      { kind: 'datatower', v: 0, x: 18, y: 19, w: 3, h: 2 }, C(30, 26, 2), C(38, 27, 0), { kind: 'datatower', v: 1, x: 22, y: 3, w: 3, h: 2 },
-    ];
-    const lotsN = progressive(list, OPEN.numerique, 1.9);
+    const T = (v, x, y) => ({ kind: 'datatower', v, x, y }), A = (x, y) => ({ kind: 'apartment', v: 1, x, y });
+    const list = [T(0, 9, 5), C(14, 3, 2), T(1, 31, 6), C(4, 10, 0), A(36, 9), T(0, 7, 21), C(29, 19, 1), T(1, 34, 20), C(13, 25, 3), A(3, 26),
+      T(0, 18, 19), C(30, 26, 2), C(38, 27, 0), T(1, 22, 3)];
     district('numerique', {
       name: 'Quartier Numérique', prefix: 'maison_n', open: OPEN.numerique, seed: 37,
-      lots: lotsN,
+      lots: progressive(list, OPEN.numerique, 1.9),
       paint(g) {
         edge(g, 3);
         // chemins de terre qui serpentent entre les tours et les arbres
         trail(g, [[48, 15], [38, 15.5], [26, 16.5], [14, 15.5], [4, 17]], 1.15, '=', 12);
-        g.rect(W - 3, 14, 3, 3, '=');
+        gateRows(g, 'right', 14);
         trail(g, [[25, 16], [24, 10], [19, 6.5], [12, 8.5]], 0.9, '=', 13);
         trail(g, [[25, 16], [27, 23], [22, 29], [12, 30]], 0.9, '=', 14);
         trail(g, [[38, 15.5], [40, 23], [34, 30]], 0.85, '=', 15);
         // bassin de refroidissement
         pond(g, 30, 11, 3, 1.9);
-        nature(g, protectedSet(lotsN, [[25, 16, 2]]), 3, 0.8);
+        nature(g, protectedSet(this.lots, [[25, 16, 2]]), 3, 0.8);
         // décor numérique : antennes, panneaux de circuit, tuyaux, monolithes
         for (const [x, y, ch] of [[20, 13, '!'], [33, 13, '?'], [15, 19, '$'], [35, 18, '$'], [23, 20, '<'], [29, 14, '<'], [6, 14, '!'], [43, 19, '?']])
-          if ('.f,'.includes(g.get(x, y))) g.set(x, y, ch);
-        g.set(W - 5, 13, 'S');
+          if ('.f,'.includes(g.get(z(x), z(y)))) put(g, x, y, ch);
+        g.set(W - 5, EXIT_Y - 1, 'S');
       },
-      fixed: () => [[11, 14], [40, 13]].map(([x, y]) => ({ kind: 'cablepole', x, y, w: 1, h: 1, small: true })),
-      signs: () => ({ [`${W - 5},13`]: 'Quartier Numérique — Les tours de données relient la ville au réseau de l\'île.  Est : Quartier Résidentiel.' }),
-      warps: [{ x: W - 1, y: 14, w: 1, h: 3, dir: 'right', to: 'residentiel', tx: 0, ty: 14 }],
+      fixed: () => [[11, 14], [40, 13]].map(([x, y]) => ({ kind: 'cablepole', x: z(x), y: z(y), w: 1, h: 1, small: true })),
+      signs: () => ({ [`${W - 5},${EXIT_Y - 1}`]: 'Quartier Numérique — Les tours de données relient la ville au réseau de l\'île.  Est : Quartier Résidentiel.' }),
+      warps: [{ x: W - 1, y: EXIT_Y, w: 1, h: 3, dir: 'right', to: 'residentiel', tx: 0, ty: EXIT_Y }],
     });
   }
 

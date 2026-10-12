@@ -13,8 +13,9 @@
 
   // ------------------------------------------------------------ cache & API
   const cache = {};
-  const RES_BATTLE = { 'Bébé': 44, 'Entraînement': 56, 'Disciple': 72, 'Champion': 96, 'Ultime': 104, 'Méga': 112 };
-  const RES_OW = { 'Bébé': 14, 'Entraînement': 18, 'Disciple': 24, 'Champion': 32, 'Ultime': 34, 'Méga': 36 };
+  // résolutions de rendu (plus grand = plus de détails : les dessins sont des formes, pas des pixels étirés)
+  const RES_BATTLE = { 'Bébé': 50, 'Entraînement': 64, 'Disciple': 82, 'Champion': 104, 'Ultime': 112, 'Méga': 118 };
+  const RES_OW = { 'Bébé': 18, 'Entraînement': 22, 'Disciple': 30, 'Champion': 40, 'Ultime': 44, 'Méga': 46 };
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
   const S = DW.Sprites = {
     mon(sp, res, nFrames = 1) {
