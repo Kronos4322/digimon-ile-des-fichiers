@@ -235,7 +235,7 @@
       name: 'Quartier Résidentiel', prefix: 'maison_r', open: OPEN.residentiel, seed: 11,
       lots: lotsR,
       exits: [{ min: OPEN.numerique, x0: 0, x1: 2, y0: 14, y1: 16 }, { min: OPEN.marche, x0: W - 3, x1: W - 1, y0: 14, y1: 16 }],
-      paint(g) {
+      paint(g, lv) {
         edge(g, 1);
         // ruisseau qui descend du nord vers l'étang, puis repart vers le sud-est
         water(g, [[38, -1], [36, 5], [33, 11], [34, 17]], 0.9);
@@ -251,7 +251,7 @@
         trail(g, [[23.5, 30], [23.5, 33]], 1.1, '=', 6);
         // nature, jardins, petits aménagements
         nature(g, protectedSet(lotsR, [[23, 16, 2], [33, 16, 1]]), 1);
-        gardens(g, lotsR, 1);
+        gardens(g, lotsR.filter(L => lv >= L.min), 1);   // seulement devant les maisons déjà construites
         g.set(21, 31, 'S'); g.set(25, 18, 'e');
         for (const [x, y] of [[21, 9], [26, 22], [20, 17]]) if (g.get(x, y) === '.' || g.get(x, y) === 'f') g.set(x, y, 'i');
       },
