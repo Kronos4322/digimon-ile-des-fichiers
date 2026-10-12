@@ -250,5 +250,5 @@
   // ------------------------------------------------------------ installation dans les sous-zones
   const ACT = { scarabees9: { run: tournament, name: 'tournoi' }, gel3: { run: curling, name: 'curling' }, tunnel2: { run: treasure, name: 'trésor' }, lac3: { run: fishing, name: 'pêche' } };
   for (const id in ACT) if (DW.MAPS[id]) DW.MAPS[id].activity = ACT[id];
-  DW.Activities = { tournament, curling, treasure, fishing };
+  DW.Activities = { tournament, curling, treasure, fishing, scenes: { PackScene, CurlingScene, DigScene, FishScene } };
 })();

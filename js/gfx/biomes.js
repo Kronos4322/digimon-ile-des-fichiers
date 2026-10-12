@@ -57,6 +57,10 @@
       tall: ['#2a4a40', '#4a7062', '#8ab0a0'], trees: [[2, 2], [5, 1], [1, 1]], objMap: { glowshroom: 'glowshroom' }, litter: ['#6a7a6a', '#4a5a4a'], particle: 'mist', leaves: ['#e0f0ee', '#c8e0dc'], mist: true,
       noFlies: true, tint: 'rgba(210,230,230,0.16)', vignette: 'rgba(20,40,40,0.45)', sky: ['#9ab4b4', '#e0ecea'], marks: ['deadtree', 'stonelantern'] },
     // Ville des Jouets
+    // Village des Bébés : lisière de nuages pastel (rose, menthe, lilas), pétales, lumière douce
+    nursery: { grass: ['#5cae6e', '#6ec07c', '#84d08e', '#9edca2', '#bae8b8', '#d6f4d0'], canopy: ['#c87aa8', '#d890bc', '#e6a8ce', '#f0c0dc', '#f8d6ea', '#fdeaf4'],
+      tall: ['#6aa880', '#9ad8a8', '#ffd6ea'], trees: [[0, 1]], objMap: { tree: 'candytree', bush: 'block' }, trees2: [[0, 1], [1, 1], [2, 1]],
+      litter: ['#ff9ac0', '#9ad0ff', '#ffe080'], particle: 'petals', leaves: ['#ffb0d0', '#b0dcff', '#fff0a0', '#c8f0b0'], sky: ['#a8dcff', '#fff4fa'], marks: ['toyball'], vignette: 'rgba(200,120,170,0.18)' },
     toy: { grass: ['#4cae5e', '#5ebe6c', '#74cc7c', '#8cd88e', '#a8e4a6', '#c8f0c2'], canopy: ['#a8508a', '#c066a0', '#d482b6', '#e4a0ca', '#f0bede', '#fadcee'],
       tall: ['#4a9a6a', '#7ac896', '#c4f4d8'], trees: [[0, 1]], objMap: { tree: 'candytree', bush: 'block', mossrock: 'toyball', glowshroom: 'toyball', hollowlog: 'block', stump: 'block' }, trees2: [[0, 1], [1, 1], [2, 1]],
       litter: ['#ff5a7a', '#5ab0ff', '#ffd040'], particle: 'petals', leaves: ['#ff7aa8', '#7ac8ff', '#ffe060', '#a8f070'], sky: ['#80c8ff', '#fff0fa'], marks: ['jackbox', 'toyball'], vignette: 'rgba(120,40,100,0.25)' },

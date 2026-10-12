@@ -32,6 +32,7 @@
   // familles de drapeaux nommés par programme
   DW.FLAG_PREFIXES = {
     pk_: 'objet ramassé sur une carte (pickup)',
+    act_: 'activité du jour : { d: jour, n: parties jouées } (game/activities.js : tournoi, curling, trésor, pêche)',
   };
   DW.flagKnown = k => k in DW.FLAGS || Object.keys(DW.FLAG_PREFIXES).some(p => k.startsWith(p));
 })();

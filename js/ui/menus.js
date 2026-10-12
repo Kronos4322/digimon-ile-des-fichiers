@@ -275,8 +275,13 @@
       UI.text(c, `${DW.state.bits} Bits`, W - 12, 17, { size: 9, align: 'right', color: '#ffe070' });
       UI.box(c, 6, 26, W - 12, 150);
       if (!L.length) UI.text(c, 'Ton sac est vide.', W / 2, 100, { size: 10, align: 'center', color: '#8ae0f0' });
+      // 6 lignes visibles (12 objets) : la liste défile avec le curseur
+      const ROWS = 6, rows = Math.ceil(L.length / 2), top = DW.clamp((this.i >> 1) - 2, 0, Math.max(0, rows - ROWS));
+      if (top > 0) UI.text(c, '▲', W / 2, 33, { size: 7, align: 'center', color: '#8ae0f0' });
+      if (top + ROWS < rows) UI.text(c, '▼', W / 2, 175, { size: 7, align: 'center', color: '#8ae0f0' });
       L.forEach((id, i) => {
-        const col = i % 2, row = i >> 1, x = 14 + col * 150, y = 34 + row * 22;
+        const col = i % 2, row = (i >> 1) - top, x = 14 + col * 150, y = 34 + row * 22;
+        if (row < 0 || row >= ROWS) return;
         if (i === this.i) UI.box(c, x - 4, y - 3, 146, 21, 'dwsel');
         c.drawImage(DW.Icons.item(id), x, y);
         UI.text(c, DW.ITEMS[id].name, x + 20, y + 11, { size: 10, color: '#c8ffd0' });
@@ -318,15 +323,19 @@
     }
     tick(dt) { if (this.msgT > 0) this.msgT -= dt; }
     draw(c) {
-      const st = DW.state, bank = st.bank || {};
+      const st = DW.state, bank = st.bank || {}, L = DW.ITEM_ORDER, ROWS = 5;
+      // liste défilante : 5 objets visibles autour du curseur
+      const top = DW.clamp(this.i - 2, 0, Math.max(0, L.length - ROWS));
       UI.menuBg(c, this.t, 'BANQUE');
       for (let s = 0; s < 2; s++) {
         const x = 8 + s * 156;
         UI.box(c, x, 26, 148, 26, this.side === s ? 'dwsel' : 'dw');
         UI.text(c, s ? 'BANQUE' : `SAC (${DW.BAG_MAX} max)`, x + 74, 43, { size: 9, align: 'center', color: '#ffe070' });
         UI.box(c, x, 56, 148, 122);
-        DW.ITEM_ORDER.forEach((id, i) => {
-          const y = 62 + i * 22, n = (s ? bank : st.bag)[id] || 0;
+        if (top > 0) UI.text(c, '▲', x + 74, 62, { size: 7, align: 'center', color: '#8ae0f0' });
+        if (top + ROWS < L.length) UI.text(c, '▼', x + 74, 177, { size: 7, align: 'center', color: '#8ae0f0' });
+        L.slice(top, top + ROWS).forEach((id, j) => {
+          const i = top + j, y = 64 + j * 22, n = (s ? bank : st.bag)[id] || 0;
           if (i === this.i && this.side === s) UI.box(c, x + 3, y - 2, 142, 21, 'dwsel');
           c.globalAlpha = n ? 1 : 0.4;
           c.drawImage(DW.Icons.item(id), x + 8, y);

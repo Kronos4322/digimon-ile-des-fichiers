@@ -71,15 +71,20 @@
     const g = Array.from({ length: h }, () => Array(w).fill('#'));
     const segD = (px, py, a, b) => {
       const dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy;
-      const t = l ? DW.clamp(((px - a[0]) * dx + (py - a[1]) * dy) / l, 0, 1) : 0;
+      let t = l ? ((px - a[0]) * dx + (py - a[1]) * dy) / l : 0;
+      t = t < 0 ? 0 : t > 1 ? 1 : t;
       return Math.hypot(px - a[0] - dx * t, py - a[1] - dy * t);
     };
     const polyD = (px, py, pts) => { let m = 1e9; for (let i = 0; i < pts.length - 1; i++) m = Math.min(m, segD(px, py, pts[i], pts[i + 1])); return m; };
     const paths = o.paths || [];
-    const pathD = (x, y) => Math.min(1e9, ...paths.map(p => polyD(x, y, p.pts)));
+    // distances aux chemins calculées une seule fois par case (mêmes valeurs qu'avant, beaucoup plus rapide)
+    const PD = paths.map(p => { const a = new Float64Array(w * h); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) a[y * w + x] = polyD(x, y, p.pts); return a; });
+    const DMIN = new Float64Array(w * h).fill(1e9);
+    for (const a of PD) for (let i = 0; i < a.length; i++) if (a[i] < DMIN[i]) DMIN[i] = a[i];
+    const pathD = (x, y) => (x >= 0 && y >= 0 && x < w && y < h ? DMIN[y * w + x] : Math.min(1e9, ...paths.map(p => polyD(x, y, p.pts))));
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const n = Ns(x * 0.3, y * 0.3, 1) - 0.5;
-      if (paths.some(p => polyD(x, y, p.pts) <= p.r + n * 1.3)) g[y][x] = '.';
+      if (paths.some((p, k) => PD[k][y * w + x] <= p.r + n * 1.3)) g[y][x] = '.';
       for (const c of o.clearings || []) if (Math.hypot((x - c.x) / c.rx, (y - c.y) / c.ry) < 1 + n * 0.35) g[y][x] = '.';
     }
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -88,9 +93,9 @@
       for (const l of o.lakes || []) if (Math.hypot((x - l.x) / l.rx, (y - l.y) / l.ry) < 1 + n * 0.3) g[y][x] = '~';
     }
     // chemins de terre et ponts
-    for (const p of paths) for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      if (polyD(x, y, p.pts) < 0.62) { if (g[y][x] === '~') g[y][x] = '_'; else if (p.dirt !== false) g[y][x] = '='; }
-    }
+    paths.forEach((p, k) => { for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (PD[k][y * w + x] < 0.62) { if (g[y][x] === '~') g[y][x] = '_'; else if (p.dirt !== false) g[y][x] = '='; }
+    } });
     // herbes hautes
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       if (g[y][x] !== '.') continue;

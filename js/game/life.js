@@ -53,7 +53,7 @@
       if (h >= BED && h < BED + min / 60 + 0.01 && Life.sleepy(m)) DW.Care.toast(`${m.name} bâille... Il a sommeil. (ENTRÉE → DORMIR)`);
       if (h >= LATE && h < WAKE && st.clock - m.slept > 15 * 60 && !ow.locked && !Life.collapsing) {
         Life.collapsing = true;
-        ow.runScript(async () => { await Life.collapse(m); Life.collapsing = false; });
+        ow.runScript(async () => { try { await Life.collapse(m); } finally { Life.collapsing = false; } });
         return;
       }
       // faim prolongée : erreur au bout de 2 h à 100
@@ -73,7 +73,7 @@
         Life.init(d);
         if (d.age >= d.lifespan && !ow.locked && !Life.reborning) {
           Life.reborning = true;
-          ow.runScript(async () => { await Life.endOfLife(d); Life.reborning = false; });
+          ow.runScript(async () => { try { await Life.endOfLife(d); } finally { Life.reborning = false; } });
           return;
         }
       }

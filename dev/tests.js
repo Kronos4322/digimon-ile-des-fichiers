@@ -95,6 +95,9 @@ test('tous les drapeaux utilisés sont déclarés dans js/data/flags.js', () => 
 });
 
 // ------------------------------------------------------------ données
+test('les drapeaux créés par programme (préfixes) sont déclarés', () => {
+  for (const k of ['act_cup_0', 'act_curling', 'act_dig', 'act_fish', 'pk_clairiere']) yes(DW.flagKnown(k), k + ' non déclaré');
+});
 test('chaque technique a un nom, un élément et un coût en PM (plus de PP)', () => {
   for (const id in DW.MOVES) {
     const mv = DW.MOVES[id];

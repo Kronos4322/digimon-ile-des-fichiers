@@ -75,5 +75,76 @@
         d.poly(pts, col, { shiny: true });
       });
     } },
+    // arche arc-en-ciel posée sur deux nuages (entrée nord du village ; on passe dessous)
+    rainbowarch: { w: 80, h: 56, n: 1, draw(d) {
+      const cols = ['#ff7a8a', '#ffb060', '#ffe070', '#8ee08a', '#7ab8ff', '#b894ff'];
+      cols.forEach((col, i) => {
+        const r = 33 - i * 2.4, pts = [];
+        for (let k = 0; k <= 16; k++) { const a = Math.PI + k * Math.PI / 16; pts.push([40 + Math.cos(a) * r, 50 + Math.sin(a) * r * 0.92]); }
+        d.curve(pts, 2.6, col, i === 0 ? { shiny: true } : {});
+      });
+      for (const s of [-1, 1]) {
+        const x = 40 + s * 31;
+        d.circ(x - 5 * s, 51, 6, '#ffffff', { shiny: true }); d.circ(x + 2 * s, 47, 7, '#ffffff', { shiny: true }); d.circ(x + 7 * s, 52, 5.4, '#f4f8ff');
+        d.deco.circ(x + 1 * s, 44, 2, '#ffffff', { unlit: true });
+      }
+    } },
+    // pile de cubes ABC (trois cubes : deux en bas, un dessus)
+    blockstack: { w: 36, h: 44, n: 2, draw(d, v) {
+      const sets = [['#f25a5a', '#4ea4f2', '#f2c63a'], ['#5ac46a', '#c86af2', '#ff9a4a']][v];
+      const mixc = (col, t, to) => { const c = Art.mix(Art.hex(col), to, t); return '#' + c.map(x => Math.round(x).toString(16).padStart(2, '0')).join(''); };
+      const cube = (ox, oy, col, letter) => {
+        d.poly([[ox, oy + 4], [ox + 8, oy], [ox + 16, oy + 4], [ox + 8, oy + 8]], mixc(col, 0.35, [255, 255, 255]), { flat: true });
+        d.poly([[ox, oy + 4], [ox + 8, oy + 8], [ox + 8, oy + 18], [ox, oy + 14]], col, { flat: true });
+        d.poly([[ox + 8, oy + 8], [ox + 16, oy + 4], [ox + 16, oy + 14], [ox + 8, oy + 18]], mixc(col, 0.35, [40, 20, 60]), { flat: true });
+        const W = '#ffffff', o = { unlit: true }, lx = ox + 2.4, ly = oy + 8;
+        if (letter === 'A') { d.deco.line(lx, ly + 7, lx + 1.8, ly, 0.9, W, o); d.deco.line(lx + 1.8, ly, lx + 3.6, ly + 8, 0.9, W, o); d.deco.line(lx + 0.9, ly + 4.4, lx + 2.8, ly + 4.8, 0.8, W, o); }
+        else if (letter === 'B') { d.deco.line(lx + 0.6, ly, lx + 0.6, ly + 8, 0.9, W, o); d.deco.circ(lx + 2.2, ly + 2, 1.4, W, o); d.deco.circ(lx + 2.4, ly + 5.8, 1.6, W, o); }
+        else { d.deco.circ(lx + 2, ly + 4, 2.4, W, o); d.deco.circ(lx + 2.8, ly + 4, 1.2, col, o); }
+        d.deco.circ(ox + 12, oy + 10.5, 1.5, '#ffffff', { unlit: true });
+      };
+      cube(1, 24, sets[0], 'A'); cube(18, 25, sets[1], 'B'); cube(9, 9, sets[2], 'C');
+    } },
+    // maisonnette en coquille d'œuf (les bébés y dorment) : coquille brisée en zigzag, chapeau de coquille
+    eggcottage: { w: 48, h: 54, n: 3, lights: [[34, 34, 10]], draw(d, v) {
+      const [base, pat] = [['#fff6e4', '#ff9ac0'], ['#eef8ff', '#7ab8ff'], ['#f4ffe8', '#8ad070']][v];
+      d.ell(24, 36, 19, 16.5, base, 0, { shiny: true });
+      // bord brisé de la coquille
+      const zig = [];
+      for (let k = 0; k <= 10; k++) zig.push([5.5 + k * 3.7, 24 + (k % 2 ? -3 : 1)]);
+      for (let k = 0; k < 10; k++) d.deco.line(zig[k][0], zig[k][1], zig[k + 1][0], zig[k + 1][1], 1, '#c8b8a8');
+      // motifs (taches ou vagues) comme les vrais DigiŒufs
+      for (const [x, y, r] of [[12, 34, 2.4], [30, 44, 2], [36, 30, 1.6], [18, 46, 1.4]]) d.deco.circ(x, y, r, pat);
+      // chapeau : le haut de la coquille, posé de travers
+      d.ell(23, 16, 15, 9.5, base, -0.18, { shiny: true });
+      for (let k = 0; k < 7; k++) d.deco.line(10 + k * 4, 22 - (k % 2 ? 2.6 : 0) - k * 0.5, 14 + k * 4, 22 - (k % 2 ? 0 : 2.6) - k * 0.5, 0.9, '#c8b8a8');
+      d.deco.circ(18, 12, 2, pat); d.deco.circ(27, 15, 1.4, pat);
+      // porte ronde, fenêtre, petit paillasson
+      d.rect(17, 38, 11, 14, '#c88a5a', { round: 0.5 });
+      d.deco.circ(25.4, 45, 0.9, '#ffe070');
+      d.circ(34, 33, 3.6, '#bfe8ff', { shiny: true });
+      d.deco.line(34, 29.6, 34, 36.4, 0.6, '#fff6e4'); d.deco.line(30.6, 33, 37.4, 33, 0.6, '#fff6e4');
+      d.deco.ell(22.5, 52.4, 6, 1.4, pat);
+    } },
+    // cheval à bascule
+    rockinghorse: { w: 32, h: 30, n: 2, draw(d, v) {
+      const [body, mane] = [['#ffd2a0', '#ff6a8a'], ['#d8e8ff', '#7a8aff']][v];
+      d.curve([[3, 24], [10, 28], [22, 28], [29, 24]], 2.2, '#c88a5a', { shiny: true });
+      d.tube([[10, 26], [11, 19]], 1.4, 1.4, '#d8a070'); d.tube([[22, 26], [21, 19]], 1.4, 1.4, '#d8a070');
+      d.ell(16, 16, 9, 5, body, 0, { shiny: true });
+      d.tube([[22, 14], [25, 7]], 3.4, 3, body);
+      d.ell(26.5, 6.5, 4.6, 3.4, body, -0.3, { shiny: true });
+      d.deco.circ(27.4, 5.4, 0.9, '#2a1a20');
+      d.tube([[23, 4], [21, 10], [20, 13]], 1.8, 1.4, mane);
+      d.tube([[7, 14], [3, 18]], 1.6, 1.2, mane);
+      d.rect(13, 10, 6, 2.4, '#ff5a5a', { round: 0.5 });
+    } },
+    // grand coussin rond (le nid des DigiŒufs) — on marche dessus
+    eggnest: { w: 176, h: 40, n: 1, draw(d) {
+      d.ell(88, 22, 84, 16, '#f2b8d2', 0, { tex: 0.15 });
+      d.deco.ell(88, 20.6, 76, 12, '#ffd8e8');
+      d.deco.ell(88, 19.6, 66, 8.4, '#ffe8f2');
+      for (let k = 0; k < 28; k++) { const a = k / 28 * Math.PI * 2; d.deco.circ(88 + Math.cos(a) * 80, 22 + Math.sin(a) * 14.6, 1.8, k % 2 ? '#ffffff' : '#ffe070'); }
+    } },
   });
 })();

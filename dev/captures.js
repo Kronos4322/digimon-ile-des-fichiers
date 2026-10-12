@@ -50,8 +50,34 @@
     const a = new DW.Digimon('agumon', 22); a.tr = { hp: 12, atk: 28, def: 10, spd: 8, int: 6 }; a.wins = 14; a.hunger = 35; a.need = 20;
     st.party = [a, new DW.Digimon('palmon', 18), new DW.Digimon('gabumon', 17), new DW.Digimon('gomamon', 15)];
     st.box = [new DW.Digimon('kunemon', 9), new DW.Digimon('biyomon', 12), new DW.Digimon('betamon', 10)];
-    st.bag = { viande: 7, super_viande: 2, remede: 3, reveil: 1, capsule: 9 };
-    st.bank = { viande: 12, capsule: 4 };
+    st.bag = { viande: 7, super_viande: 2, remede: 3, reveil: 1, medoc: 2, bandage: 1, disque_pm: 2, cartes: 1 };
+    st.bank = { viande: 12, pomme: 4 };
+    st.cards = {}; DW.DEX_ORDER.forEach((sp, i) => { if (i % 4 !== 3) st.cards[sp] = 1 + (i % 3 === 0 ? 1 : 0); });
+    st.gears = { dino: true, jungle: true, gel: true };   // les boss des autres régions restent visibles
+  }
+  // vue en jeu (écran 320×240 agrandi ×3) à une position donnée, sans le bandeau de zone
+  async function inGame(id, x, y, hour = 11) {
+    DW.state.clock = Math.floor(DW.state.clock / 1440) * 1440 + hour * 60;
+    DW.state.weather = { type: 'clear', until: DW.state.clock + 600 };
+    await DEV.ensure(id, x, y);
+    DW.ow.banner.t = 99; DW.ow.wildGrace = 99;
+    await wait(700);
+    return copyScreen();
+  }
+  // planche de plusieurs cartes réduites (2 colonnes)
+  async function mapsPlate(ids, labels) {
+    const cvs = [];
+    for (const id of ids) { await DEV.map(id, null, null, 11); cvs.push(DEV.last); }
+    DEV.hide();
+    const cw = 476, ch = 330, big = document.createElement('canvas');
+    big.width = 960; big.height = Math.ceil(ids.length / 2) * (ch + 22) + 6;
+    const g = big.getContext('2d'); g.imageSmoothingEnabled = false; g.fillStyle = '#0c121c'; g.fillRect(0, 0, big.width, big.height);
+    cvs.forEach((cv, i) => {
+      const k = Math.min(cw / cv.width, ch / cv.height), x = 4 + (i % 2) * 480, y = 4 + Math.floor(i / 2) * (ch + 22);
+      g.drawImage(cv, x + (cw - cv.width * k) / 2, y, cv.width * k, cv.height * k);
+      g.fillStyle = '#ffe070'; g.font = '13px sans-serif'; g.fillText(labels[i], x + 4, y + ch + 16);
+    });
+    return big;
   }
 
   async function run() {
@@ -96,7 +122,8 @@
     section('Cartes du jeu', 'Vue d\'ensemble de chaque carte, de jour (taille réelle des pixels, agrandir pour voir les détails).');
     const maps = [['village', 'Ville des Fichiers (ville complète)'], ['champs', 'Quartier des Champs'], ['gym', "Terrain d'entraînement"], ['plage', 'Plage des Cabines'],
       ['clairiere', "Clairière de l'Arrivée"], ['sentier', 'Sentier des Murmures'], ['prairie', 'Prairie des Lucioles'], ['geants', 'Bois des Géants'], ['lisiere', 'Lisière du Ravin'],
-      ['maison', 'Maison de Jijimon'], ['bazar_in', 'Bazar de Gotsumon'], ['dojo_in', "Dojo d'Elecmon"], ['resto_in', 'Restaurant'], ['serre_in', 'Serre / DigiFerme']];
+      ['maison', 'Maison de Jijimon'], ['bazar_in', 'Bazar de Gotsumon'], ['dojo_in', "Dojo d'Elecmon"], ['resto_in', 'Restaurant'], ['serre_in', 'Serre / DigiFerme'],
+      ['berceau', 'Village des Bébés (Elecmon, un DigiŒuf par jour)'], ['usine_in', "Intérieur de l'Usine"], ['manoir', 'Manoir']].filter(([id]) => DW.MAPS[id]);
     for (const [id, cap] of maps) await safe('carte ' + id, async () => { await DEV.map(id, null, null, 11); await save('carte_' + id, DEV.last, cap, true); });
 
     section('La ville selon son niveau', 'La ville se reconstruit avec les habitants ; les futurs bâtiments restent cachés.');
@@ -114,8 +141,41 @@
     for (const [id, x, y, cap] of [['lisiere', 18, 20, 'Lisière du Ravin (automne)'], ['sentier', 20, 20, 'Sentier des Murmures (brume)'], ['plage', 8, 12, 'Plage'], ['maison', 12, 5, 'Maison de Jijimon']])
       await safe('ambiance ' + id, async () => { await DEV.ensure(id, x, y); DW.ow.banner.t = 99; await wait(800); await save('ambiance_' + id, copyScreen(), cap); });
 
+    // ------------------------------------------------------------ régions (16 × 10 sous-zones)
+    const RIDS = Object.keys(DW.REGION_ENTRY || {});
+    section('Régions : vues en jeu', "Chaque région vue comme en jouant : l'entrée (sous-zone 1) et le repaire du boss possédé par un Engrenage Noir (sous-zone 8).");
+    for (const rid of RIDS) await safe('région ' + rid, async () => {
+      for (const k of [0, 7]) {
+        const id = rid + k, M = DW.getMap(id); if (!M) continue;
+        const [hx, hy] = (M.spec && M.spec.hub) || [Math.floor(M.w / 2), Math.floor(M.h / 2)];
+        await save('jeu_' + id, await inGame(id, hx, hy), `${M.regionName} — ${M.name}${k === 7 ? ' (boss)' : ''}`);
+      }
+    });
+    section('Régions : les 10 sous-zones', 'Vue d\'ensemble de toutes les sous-zones de chaque région, réduites sur une planche.');
+    for (const rid of RIDS) await safe('planche ' + rid, async () => {
+      const ids = [...Array(10).keys()].map(k => rid + k).filter(id => DW.MAPS[id]);
+      await save('region_' + rid, await mapsPlate(ids, ids.map(id => `${+id.slice(rid.length) + 1}. ${DW.getMap(id).name}`)), DW.getMap(ids[0]).regionName, true);
+    });
+    section('Ambiances des régions', 'Les mêmes lieux de nuit.');
+    for (const rid of ['montagne', 'marais', 'volcan', 'gel', 'overdell', 'jouets'].filter(r => RIDS.includes(r))) await safe('nuit ' + rid, async () => {
+      const id = rid + 3, M = DW.getMap(id), [hx, hy] = (M.spec && M.spec.hub) || [Math.floor(M.w / 2), Math.floor(M.h / 2)];
+      await save('nuit_' + id, await inGame(id, hx, hy, 23), `${M.regionName} la nuit`);
+    });
+    DW.state.clock = Math.floor(DW.state.clock / 1440) * 1440 + 11 * 60;
+
     // ------------------------------------------------------------ combats
     section('Combats');
+    await safe('fonds régions', async () => {
+      const keys = [...new Set(RIDS.map(r => { const M = DW.getMap(r + '0'); return M.bg === 'foret' && M.theme ? 'foret@' + M.theme : M.bg; }))];
+      await save('combat_fonds_regions', plate(keys.map(k => { const c = document.createElement('canvas'); c.width = 320; c.height = 240; const g = c.getContext('2d'); g.drawImage(DW.World.battleBg(k), 0, 0); DW.World.platform(g, k, 236, 114, 56, 12); DW.World.platform(g, k, 84, 173, 64, 14); return { img: c, w: 320, h: 240, label: k.replace('foret@', '') }; }), 1, '#101820'), 'Fonds de combat des régions');
+    });
+    await safe('combat boss', async () => {
+      await DEV.ensure('volcan7', 10, 10);
+      const b = new DW.BattleScene({ bg: DW.ow.battleKey(), boss: true, enemy: new DW.Digimon('meramon', 25) }); DW.Game.push(b);
+      for (let i = 0; i < 20 && b.mode !== 'cmd'; i++) { key('Space'); await wait(300); }
+      await save('combat_boss', copyScreen(), 'Combat de boss (Volcan)');
+      DW.Game.replaceAll(DW.ow);
+    });
     await safe('fonds', async () => {
       const keys = [['foret@spring', 'Clairière'], ['foret@misty', 'Sentier'], ['foret@meadow', 'Prairie'], ['foret@deep', 'Bois des Géants'], ['foret@autumn', 'Lisière'], ['plage', 'Plage'], ['foret@town', 'Entraînement']];
       await save('combat_fonds', plate(keys.map(([k, l]) => { const c = document.createElement('canvas'); c.width = 320; c.height = 240; const g = c.getContext('2d'); g.drawImage(DW.World.battleBg(k), 0, 0); DW.World.platform(g, k, 236, 114, 56, 12); DW.World.platform(g, k, 84, 173, 64, 14); return { img: c, w: 320, h: 240, label: l }; }), 1, '#101820'), 'Fonds de combat de chaque zone');
@@ -143,14 +203,21 @@
       ['digivolution', 'Table des Digivolutions', () => new DW.EvoTableScene(0)],
       ['sac', 'Sac', () => new DW.BagScene({})],
       ['banque', 'Banque', () => new DW.BankScene()],
-      ['boutique', 'Boutique du Bazar', () => new DW.ShopScene(['viande', 'super_viande', 'remede', 'capsule', 'reveil'])],
+      ['boutique', 'Boutique du Bazar', () => new DW.ShopScene(['viande', 'super_viande', 'remede', 'medoc', 'reveil'])],
       ['digidex', 'DigiDex', () => new DW.DexScene()],
       ['carte_ile', "Carte de l'île", () => new DW.WorldMapScene()],
       ['digiferme', 'DigiFerme', () => new DW.FarmScene()],
       ['options', 'Options', () => new DW.OptionsScene()],
       ['fiche_digimon', 'Fiche de présentation (choix du partenaire)', () => new DW.InfoCard('tanemon')],
-      ['oublier', 'Oublier une technique : avantages et inconvénients', () => { const m = DW.state.party[0]; m.moves = m.moves.slice(0, 6); while (m.moves.length < 6) m.moves.push({ id: ['charge', 'griffe', 'morsure', 'coup_queue', 'souffle_ardent', 'flamme_bebe'][m.moves.length], pp: 10 }); const s = new DW.ForgetScene(m, 'mega_flamme'); s.i = 1; return s; }],
+      ['oublier', 'Oublier une technique : avantages et inconvénients', () => { const m = DW.state.party[0]; m.moves = m.moves.slice(0, 6); while (m.moves.length < 6) m.moves.push({ id: ['charge', 'griffe', 'morsure', 'coup_queue', 'souffle_ardent', 'flamme_bebe'][m.moves.length] }); const s = new DW.ForgetScene(m, 'mega_flamme'); s.i = 1; return s; }],
       ['entrainement', "Séance d'entraînement (mini-jeu)", () => new DW.TrainingScene(DW.state.party[0], 'atk')],
+      ['journal', 'Journal : les Engrenages Noirs', () => new DW.Story.JournalScene()],
+      ['album', 'Album des cartes Digimon', () => new DW.AlbumScene()],
+      ['paquet', "Ouverture d'un paquet de cartes", () => { const s = new DW.Activities.scenes.PackScene(['greymon', 'patamon', 'devimon']); s.flip.v = 3; return s; }],
+      ['oeufs', 'Village des Bébés : choix du DigiŒuf', () => new DW.EggScene()],
+      ['curling', 'Curling de la Terre Gelée', () => { const s = new DW.Activities.scenes.CurlingScene(); s.throws = [{ x: 156, y: 50, pts: 10 }, { x: 175, y: 60, pts: 3 }]; s.score = 13; s.pw = 0.6; return s; }],
+      ['tresor', 'Chasse au trésor (Tunnel Foreur)', () => { const s = new DW.Activities.scenes.DigScene(); s.dug = { 3: true, 9: true }; s.left = 4; s.msg = 'Chaud...'; return s; }],
+      ['peche', 'Pêche au ponton', () => { const s = new DW.Activities.scenes.FishScene(); s.bite = 0.5; s.wait = 0; return s; }],
     ];
     for (const [name, cap, make] of scenes) await safe('écran ' + name, async () => {
       const s = make(); DW.Game.push(s); await wait(700);

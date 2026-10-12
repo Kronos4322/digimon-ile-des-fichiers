@@ -10,28 +10,52 @@
   const { say, st, paint, healAll } = DW.MapKit;
   const Game = DW.Game;
 
-  const rows = paint(36, 26, '#', g => {
-    g.rect(1, 1, 34, 24, 'v');
-    // lisière d'arbres-bonbons
-    for (let x = 1; x < 35; x += 2) { g.set(x, 1, 'h'); g.set(x + 1, 24, 'h'); }
-    for (let y = 2; y < 24; y += 2) { g.set(1, y + 1, 'h'); g.set(34, y, 'h'); }
-    // entrée depuis la prairie (ouest), allée et place centrale pavées
-    g.rect(0, 11, 4, 3, 'o'); g.rect(4, 12, 12, 2, 'o');
-    g.rect(18, 6, 2, 3, 'o');
-    // sentier vers le Bois Brumeux (nord)
-    g.rect(23, 0, 3, 10, 'o');
-    // berceaux de la nurserie (nord-ouest)
-    for (const x of [5, 7, 9, 11]) { g.set(x, 5, 'c'); g.set(x, 8, 'c'); }
-    // jouets
-    for (const [x, y, ch] of [[26, 6, 'B'], [27, 6, 'B'], [26, 7, 'B'], [30, 17, 'B'], [6, 19, 'B'], [8, 21, 'B'], [31, 9, 'B']]) g.set(x, y, ch);
-    // mare des Pichimon (sud-est)
-    for (let y = 17; y < 24; y++) for (let x = 24; x < 34; x++) if (Math.hypot((x - 28.6) / 4.2, (y - 20.6) / 2.4) < 1) g.set(x, y, '~');
-    // fleurs et herbes pastel
-    g.scatter('q', 3, 3, 30, 20, 40, 11, ['v']);
-    g.scatter(':', 3, 15, 10, 8, 14, 12, ['v']);
-    g.scatter(':', 22, 3, 10, 6, 10, 13, ['v']);
-    // panneau
-    g.set(3, 10, 'S');
+  // ------------------------------------------------------------ plan (44 × 32)
+  // Village Primaire de la saison 1 : clairière pastel entourée d'arbres-bonbons et d'une lisière de
+  // nuages roses. Place ronde à mosaïque au centre, nurserie (berceaux) au nord-ouest, aire de jeux
+  // (manège, nounours, chevaux à bascule) au nord-est, mare aux nénuphars au sud-est, maisonnettes
+  // en coquille d'œuf, coussin-nid des DigiŒufs au sud, arche arc-en-ciel à la sortie nord.
+  // Entrées inchangées : ouest (lignes 11-13, depuis la Prairie) et nord (colonnes 23-25, vers le Bois Brumeux).
+  const W = 44, H = 32, Hh = DW.Art.hash;
+  const EGG_X = i => 17 + i * 2, EGG_Y = 23;
+  const rows = paint(W, H, '#', g => {
+    // clairière aux bords arrondis (rectangle « bombé » + léger bruit)
+    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+      const dx = (x - 21.5) / 20.6, dy = (y - 15.5) / 14.6, n = (Hh(x, y, 401) - 0.5) * 0.12;
+      if (dx ** 4 + dy ** 4 < 1 + n) g.set(x, y, 'v');
+    }
+    g.rect(0, 10, 3, 5, 'v'); g.rect(22, 0, 5, 3, 'v');
+    // arbres-bonbons en bordure (avec des trouées sur la lisière de nuages)
+    const edge = (x, y) => g.get(x, y) === 'v' && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => g.get(x + a, y + b) === '#');
+    const ring = [];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (edge(x, y)) ring.push([x, y]);
+    for (const [x, y] of ring) if (Hh(x, y, 402) < 0.62) g.set(x, y, 'h');
+    // allées de sable clair (bords arrondis) : entrée ouest, sortie nord, vers le nid, la mare, l'aire de jeux et la nurserie
+    g.rect(0, 11, 16, 3, 's'); g.rect(23, 0, 3, 11, 's');
+    g.rect(21, 20, 3, 3, 's'); g.rect(27, 18, 5, 2, 's'); g.rect(28, 13, 5, 2, 's'); g.rect(32, 10, 2, 4, 's');
+    g.rect(9, 9, 2, 2, 's'); g.rect(4, 7, 9, 1, 's');
+    // bac à sable (sud-ouest)
+    for (let y = 25; y < 30; y++) for (let x = 15; x < 22; x++) if (Math.hypot((x - 18) / 3.2, (y - 27.2) / 2.1) < 1) g.set(x, y, 's');
+    // bosquets d'arbres-bonbons à l'intérieur du village
+    for (const [x, y] of [[12, 15], [13, 16], [12, 17], [27, 27], [28, 28], [36, 18], [37, 17], [27, 3], [14, 20]]) if (g.get(x, y) === 'v') g.set(x, y, 'h');
+    // pieds de l'arche arc-en-ciel (on passe dessous par l'allée)
+    for (const [x, y] of [[22, 1], [22, 2], [26, 1], [26, 2]]) g.set(x, y, 'x');
+    // nurserie : deux rangées de berceaux
+    for (const x of [5, 7, 9, 11]) { g.set(x, 5, 'c'); g.set(x, 9, 'c'); }
+    // mare des Pichimon (sud-est), avec nénuphars
+    for (let y = 18; y < 29; y++) for (let x = 27; x < 42; x++) {
+      const d = Math.hypot((x - 34) / 5.6, (y - 23.4) / 3.3);
+      if (d < 1) g.set(x, y, Hh(x, y, 403) < 0.12 && d < 0.8 ? 'w' : '~');
+    }
+    // cubes-jouets éparpillés
+    for (const [x, y] of [[14, 4], [27, 7], [12, 27], [38, 15], [16, 17], [29, 29]]) if (g.get(x, y) === 'v') g.set(x, y, 'B');
+    // prairies d'herbes pastel et fleurs
+    g.scatter(':', 2, 24, 12, 6, 34, 12, ['v']);
+    g.scatter(':', 30, 16, 10, 2, 10, 13, ['v']);
+    g.scatter(':', 13, 2, 8, 3, 10, 14, ['v']);
+    g.scatter('q', 2, 2, 40, 28, 70, 11, ['v']);
+    // panneau d'entrée
+    g.set(3, 10, 'Q');
   });
 
   // ------------------------------------------------------------ services d'Elecmon
@@ -92,35 +116,69 @@
   const baby = (sp, x, y, lines, w = 2) => ({ sp, x, y, face: 'right', wander: w, talk: async () => { for (const l of lines) await say(l, DW.SPECIES[sp].name); } });
 
   DW.MAPS.berceau = {
-    name: 'Village des Bébés', music: 'village', bg: 'village', ambient: 'town', climate: 'forest', region: 'foret',
+    name: 'Village des Bébés', music: 'village', bg: 'village', ambient: 'town', climate: 'forest', region: 'foret', theme: 'nursery',
     rows,
-    // place ronde pavée (dessinée au pixel près)
-    plazas: [{ x: 19 * 16, y: 13.5 * 16, rx: 92, ry: 70, t: 'stone' }],
+    // place ronde (pavés pastel) avec une rosace en mosaïque au centre
+    plazas: [{ x: 22 * 16 + 8, y: 15 * 16 + 8, rx: 104, ry: 78, t: 'stone' }],
+    mosaic: [{ x: 22 * 16 + 8, y: 15 * 16 + 8, r: 44 }],
     objects: [
-      { kind: 'house', x: 16, y: 3, w: 4, h: 3 },
-      { kind: 'starmobile', x: 13, y: 6, w: 1, h: 1, small: true },
-      { kind: 'bigbottle', x: 30, y: 4, w: 1, h: 1, small: true },
-      { kind: 'toyball', v: 0, x: 24, y: 10, w: 1, h: 1, small: true }, { kind: 'toyball', v: 1, x: 10, y: 16, w: 1, h: 1, small: true },
-      { kind: 'toyball', v: 2, x: 29, y: 13, w: 1, h: 1, small: true },
-      // le nid des DigiŒufs
-      ...DW.EGG_ORDER.map((sp, i) => ({ kind: 'digitama', v: i, x: 14 + i * 2, y: 19, w: 1, h: 1, small: true })),
+      { kind: 'rainbowarch', x: 22, y: 0, w: 5, h: 3, top: true },
+      { kind: 'house', x: 17, y: 4, w: 4, h: 3 },
+      { kind: 'bigbottle', x: 22, y: 15, w: 1, h: 1, small: true },
+      // nurserie
+      { kind: 'starmobile', x: 8, y: 6, w: 1, h: 1, small: true },
+      { kind: 'flowerbed', v: 0, x: 4, y: 3, w: 1, h: 1, small: true }, { kind: 'flowerbed', v: 1, x: 12, y: 3, w: 1, h: 1, small: true },
+      // entrée ouest : piles de cubes ABC de part et d'autre de l'allée
+      { kind: 'blockstack', v: 0, x: 4, y: 9, w: 2, h: 1 }, { kind: 'blockstack', v: 1, x: 4, y: 15, w: 2, h: 1 },
+      // aire de jeux
+      { kind: 'carousel', x: 33, y: 4, w: 5, h: 3 },
+      { kind: 'rockinghorse', v: 0, x: 29, y: 9, w: 2, h: 1 }, { kind: 'rockinghorse', v: 1, x: 38, y: 9, w: 2, h: 1 },
+      { kind: 'teddy', v: 0, x: 36, y: 11, w: 2, h: 1 }, { kind: 'jackbox', x: 30, y: 4, w: 1, h: 1, small: true },
+      { kind: 'blockstack', v: 1, x: 39, y: 5, w: 2, h: 1 },
+      { kind: 'toyball', v: 0, x: 27, y: 11, w: 1, h: 1, small: true }, { kind: 'toyball', v: 2, x: 35, y: 16, w: 1, h: 1, small: true },
+      { kind: 'toytrain', x: 6, y: 18, w: 4, h: 1 },
+      // maisonnettes en coquille d'œuf
+      { kind: 'eggcottage', v: 0, x: 2, y: 19, w: 3, h: 2 }, { kind: 'eggcottage', v: 1, x: 11, y: 23, w: 3, h: 2 },
+      { kind: 'eggcottage', v: 2, x: 38, y: 13, w: 3, h: 2 },
+      // autour de la mare
+      { kind: 'giantflower', v: 0, x: 27, y: 25, w: 1, h: 1, small: true }, { kind: 'giantflower', v: 2, x: 41, y: 20, w: 1, h: 1, small: true },
+      { kind: 'giantshroom', v: 1, x: 40, y: 27, w: 1, h: 1, small: true },
+      { kind: 'sandcastle', x: 18, y: 27, w: 1, h: 1, small: true },
+      // lanternes (allumées la nuit) et massifs de fleurs
+      { kind: 'stonelantern', x: 22, y: 7, w: 1, h: 1, small: true }, { kind: 'stonelantern', x: 26, y: 7, w: 1, h: 1, small: true },
+      { kind: 'stonelantern', x: 8, y: 10, w: 1, h: 1, small: true }, { kind: 'stonelantern', x: 16, y: 21, w: 1, h: 1, small: true },
+      { kind: 'stonelantern', x: 31, y: 17, w: 1, h: 1, small: true },
+      { kind: 'flowerbed', v: 2, x: 16, y: 6, w: 1, h: 1, small: true }, { kind: 'flowerbed', v: 0, x: 21, y: 6, w: 1, h: 1, small: true },
+      { kind: 'flowerbed', v: 1, x: 5, y: 21, w: 1, h: 1, small: true }, { kind: 'flowerbed', v: 2, x: 14, y: 25, w: 1, h: 1, small: true },
+      { kind: 'flowerbed', v: 0, x: 41, y: 15, w: 1, h: 1, small: true },
+      { kind: 'toyball', v: 1, x: 15, y: 13, w: 1, h: 1, small: true },
+      // le nid des DigiŒufs (on marche sur le coussin)
+      { kind: 'eggnest', x: 16, y: 22, w: 11, h: 3, walk: true },
+      ...DW.EGG_ORDER.map((sp, i) => ({ kind: 'digitama', v: i, x: EGG_X(i), y: EGG_Y, w: 1, h: 1, small: true })),
     ],
     warps: [{ x: 0, y: 11, w: 1, h: 3, dir: 'left', to: 'prairie', tx: 39, ty: 12 }],
     npcs: [
-      { sp: 'elecmon', x: 18, y: 9, face: 'left', talk: elecmonTalk },
+      { sp: 'elecmon', x: 20, y: 8, face: 'right', talk: elecmonTalk },
       baby('botamon', 7, 11, ['Bo-bo... Je fais la sieste dans les berceaux tous les après-midi !', "Elecmon dit que les œufs zébrés de bleu deviennent des Botamon. Comme moi !"]),
-      baby('punimon', 25, 13, ['Puni ! Puni ! On joue à chat ?', 'Les Punimon deviennent des Tsunomon, puis des Gabumon... ou des Elecmon, comme notre gardien !']),
-      baby('yuramon', 11, 19, ["Fuu... Le vent m'a encore emporté jusqu'ici...", "Un jour, je deviendrai Tanemon, puis Palmon. J'aurai une jolie fleur !"]),
-      baby('nyokimon', 21, 22, ['Nyoki ! Ma fleur s\'ouvre quand je suis content !', 'Si tu frottes un œuf, il éclot plus vite. Les bébés adorent les câlins !']),
-      baby('pichimon', 24, 19, ['Pichi ! Viens nager dans la mare !', "Un Digimon qui renaît garde ses techniques. Elecmon l'a dit !"], 1),
+      baby('punimon', 30, 13, ['Puni ! Puni ! On joue à chat ? Le manège tourne toute la journée !', 'Les Punimon deviennent des Tsunomon, puis des Gabumon... ou des Elecmon, comme notre gardien !']),
+      baby('yuramon', 9, 21, ["Fuu... Le vent m'a encore emporté jusqu'ici...", "Un jour, je deviendrai Tanemon, puis Palmon. J'aurai une jolie fleur !"]),
+      baby('nyokimon', 20, 27, ['Nyoki ! Ma fleur s\'ouvre quand je suis content !', 'Si tu frottes un œuf, il éclot plus vite. Les bébés adorent les câlins !']),
+      baby('pichimon', 26, 21, ['Pichi ! Viens nager dans la mare !', "Un Digimon qui renaît garde ses techniques. Elecmon l'a dit !"], 1),
     ],
     signs: {
       '3,10': 'VILLAGE DES BÉBÉS — Ici naissent les Digimon. Merci de marcher doucement !',
-      ...Object.fromEntries(DW.EGG_ORDER.map((sp, i) => [`${14 + i * 2},19`, async () => {
+      ...Object.fromEntries(DW.EGG_ORDER.map((sp, i) => [`${EGG_X(i)},${EGG_Y}`, async () => {
         await say(DW.EGGS[sp].hint);
         await say("(Pour prendre un œuf, parle à Elecmon.)");
       }])),
       '5,5': 'Un petit berceau tout doux. Un bébé Digimon y dort à poings fermés.', '7,5': 'Un berceau vide... On dirait qu\'il attend quelqu\'un.',
+      '33,6': 'Le manège des bébés ! Il tourne en musique toute la journée.', '22,15': 'Un biberon géant, symbole du Village des Bébés. Il sent bon le lait chaud.',
     },
   };
+  // cases sous les décors : pelouse (ni arbre ni canopée dessous)
+  {
+    const M = DW.MAPS.berceau, g = M.rows.map(r => [...r]);
+    for (const o of M.objects) if (!o.walk && !o.top) for (let y = o.y; y < o.y + o.h; y++) for (let x = o.x; x < o.x + o.w; x++) if (g[y] && '#h:qB'.includes(g[y][x])) g[y][x] = 'v';
+    M.rows = g.map(r => r.join(''));
+  }
 })();
