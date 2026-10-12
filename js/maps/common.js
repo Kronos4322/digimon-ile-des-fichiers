@@ -185,5 +185,21 @@
     };
   }
 
-  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC };
+  // ------------------------------------------------------------ chemin de terre sinueux (cartes peintes avec paint)
+  // pts : ligne brisée (en cases), r : demi-largeur ; bords irréguliers ; sur l'eau, le chemin devient un pont
+  function trail(g, w, h, pts, r, ch = '=', seed = 1) {
+    const segD = (x, y, a, b) => {
+      const dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy;
+      let t = l ? ((x - a[0]) * dx + (y - a[1]) * dy) / l : 0; t = t < 0 ? 0 : t > 1 ? 1 : t;
+      return Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t);
+    };
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      let d = 1e9; for (let i = 0; i < pts.length - 1; i++) d = Math.min(d, segD(x, y, pts[i], pts[i + 1]));
+      if (d > r + (DW.Art.hash(x, y, 820 + seed) - 0.5) * 0.7) continue;
+      const c = g.get(x, y);
+      g.set(x, y, c === '~' || c === 'w' || c === '_' ? '_' : ch);
+    }
+  }
+
+  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail };
 })();

@@ -7,7 +7,8 @@
 //  deux allées (haut/bas) qui desservent les 4 commerces, étang et ruisseau à l'ouest.
 // =====================================================================
 (function () {
-  const { say, st, paint, healAll } = DW.MapKit;
+  const { say, st, paint, healAll, trail } = DW.MapKit;
+  const Hh = DW.Art.hash;
   const MAPS = DW.MAPS;
   const T = () => DW.Town;
 
@@ -31,27 +32,32 @@
     m.version = version;
     m.decay = Math.max(0, 1 - lvl / 4);
     m.plazas = [{ x: 320, y: 232, rx: 98, ry: 86 }];
-    const road = lvl >= 3 ? 'z' : '=';
     m.rows = paint(40, 30, '#', g => {
       g.rect(2, 2, 36, 27, '.');
-      // lisière : arbres variés
+      // lisière : arbres variés, deuxième rangée irrégulière (comme une vraie forêt)
       for (let x = 1; x < 39; x++) { g.set(x, 2, 'T'); g.set(x, 28, 'T'); }
       for (let y = 2; y < 29; y++) { g.set(1, y, 'T'); g.set(37, y, 'T'); g.set(38, y, 'T'); }
+      for (let x = 4; x < 36; x++) { if (Hh(x, 3, 71) < 0.3) g.set(x, 3, 'T'); if (Hh(x, 27, 72) < 0.3) g.set(x, 27, 'T'); }
+      for (let y = 4; y < 27; y++) if (Hh(36, y, 73) < 0.3 && (y < 6 || y > 11)) g.set(36, y, 'T');   // pas autour des mannequins du Dojo
       for (const [x, y] of [[36, 3], [36, 4], [36, 27], [35, 27], [36, 26], [4, 27]]) g.set(x, y, 'T');
       // étang et ruisseau à l'ouest (pont sur la route)
       for (let y = 2; y < 7; y++) for (let x = 2; x < 7; x++) if (Math.hypot((x - 3.6) / 2.2, (y - 3.8) / 1.6) < 1) g.set(x, y, '~');
       g.set(4, 4, 'w'); g.set(3, 3, 'w');
       for (let y = 5; y < 30; y++) { g.set(2, y, '~'); g.set(3, y, '~'); }
       g.rect(2, 13, 2, 3, '_');
-      // routes principales
-      g.rect(0, 13, 2, 3, '='); g.rect(4, 13, 2, 3, road); g.rect(6, 14, 8, 1, road);
-      g.rect(26, 14, 10, 1, road); g.rect(36, 13, 4, 3, '=');
-      g.rect(19, 6, 2, 3, 'z'); g.rect(19, 20, 2, 10, road);
-      // chemin vers le Quartier des Champs (sud-ouest)
-      g.rect(5, 22, 2, 8, '=');
-      // allées des commerces
-      g.rect(6, 10, 29, 1, road); g.rect(6, 22, 30, 1, road);
-      g.rect(9, 11, 1, 3, road); g.rect(30, 11, 1, 3, road);
+      // chemins de terre qui serpentent (comme la Ville des Fichiers de Digimon World 1)
+      const tr = (pts, r, s) => trail(g, 40, 30, pts, r, '=', s);
+      tr([[-1, 14], [5, 14], [9, 14.6], [14, 14]], 1.25, 1);                                  // ouest : vers la plage (pont)
+      tr([[25, 14], [30, 14.6], [35, 13.8], [40, 14]], 1.25, 2);                              // est : vers la Montagne
+      tr([[19.5, 9], [19.5, 5.5]], 1.05, 3);                                                  // maison de Jijimon
+      tr([[19.5, 19], [19, 24], [19.5, 30]], 1.05, 4);                                        // sud : Terrain d'entraînement
+      tr([[6, 22.5], [5, 26], [5.5, 30]], 0.95, 5);                                           // sud-ouest : Quartier des Champs
+      tr([[8.5, 10.4], [13, 9.6], [19.5, 9], [26, 9.8], [31.5, 10.4]], 0.85, 6);              // allée nord des commerces
+      tr([[8.5, 22.4], [14, 21.8], [19.5, 21], [25, 21.8], [31.5, 22.4], [34, 23]], 0.85, 7); // allée sud
+      tr([[9, 10.5], [8.4, 14]], 0.8, 8); tr([[30.5, 10.5], [31, 14]], 0.8, 9);
+      tr([[25.5, 6.6], [22, 8.6]], 0.75, 10);                                                 // devant la banque
+      g.rect(0, 13, 2, 3, '='); g.rect(2, 13, 2, 3, '_'); g.rect(37, 13, 3, 3, '=');            // entrées franches
+      g.rect(5, 28, 2, 2, '='); g.rect(19, 28, 2, 2, '=');
       // place pavée
       for (let y = 8; y <= 20; y++) for (let x = 13; x <= 26; x++) if (Math.hypot(x - 19.5, (y - 14) * 1.15) < 6.2) g.set(x, y, 'z');
       // route de l'est : vers le Pont de l'Infini et la Montagne
@@ -102,7 +108,7 @@
       g.rect(BANK.x, BANK.y + BANK.h, BANK.w + 1, 1, '.'); // devant la banque : passage dégagé
       // route du nord vers le Quartier Résidentiel : elle n'existe qu'une fois le quartier construit (niveau 3)
       if (lvl >= NORTH_LEVEL) {
-        g.rect(11, 0, 2, 10, road);
+        tr([[11.5, 10], [12, 5], [11.5, -1]], 0.95, 11); g.rect(11, 0, 2, 2, '=');
         for (const [x, y] of [[9, 2], [10, 2], [13, 2], [14, 2]]) g.set(x, y, 'K');
         if (has('gotsumon')) g.set(13, 8, 'a');
       }
