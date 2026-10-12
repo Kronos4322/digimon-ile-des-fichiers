@@ -170,6 +170,9 @@
       const m = new DW.Digimon(sp, 4);
       m.happy = 70;
       DW.addDigimon(m);
+      // le partenaire prend la place du petit Digimon de la place (pas d'apparition ailleurs)
+      const ow = DW.ow, n = ow && (ow.map.npcs || []).find(q => q.sp === sp && q.talk && !q.story);
+      if (n) Object.assign(ow.f, { x: n.x, y: n.y, sx: n.x, sy: n.y, tx: n.x, ty: n.y, t: 0, moving: false, face: n.x < ow.p.x ? 'right' : 'left' });
       DW.Audio.sfx('fanfare');
       await say(`${name} devient ton partenaire !`);
       await say("Génial ! On va former une super équipe, toi et moi !", name);
@@ -188,9 +191,9 @@
       DW.autosave();
     };
   }
-  // les trois bébés de la place (Tanemon, lui, s'occupe du DigiChamp aux Champs ; Botamon le guide est le grand frère)
+  // les trois petits de la place : Koromon, Pichimon, Yuramon (Tanemon s'occupe du DigiChamp aux Champs ; Botamon, lui, est le guide)
   const STARTERS = [
-    { sp: 'botamon', x: 16, y: 10, face: 'right', wander: 1, talk: starterTalk('botamon', "Bo-bo ! Moi aussi je m'appelle Botamon, comme mon grand frère ! Un jour, je serai un grand Digimon de feu !") },
+    { sp: 'koromon', x: 16, y: 10, face: 'right', wander: 1, talk: starterTalk('koromon', "Ko-ko ! Moi c'est Koromon ! Je saute partout et je fais des bulles roses. Un jour, je serai un grand Digimon de feu !") },
     { sp: 'pichimon', x: 18, y: 11, face: 'right', wander: 1, talk: starterTalk('pichimon', "Pichi pichi ! Moi c'est Pichimon ! Je fais les plus grosses bulles de toute l'île !") },
     { sp: 'yuramon', x: 23, y: 10, face: 'left', wander: 1, talk: starterTalk('yuramon', "Fuu... Je suis Yuramon. Tu veux bien m'emmener avec toi ? J'ai peur du vent...") },
   ];
@@ -202,7 +205,7 @@
   async function botamonTalk() {
     const s = st(), m = s.party[0], next = T().RECRUITS.find(x => !T().has(x.id));
     const urgent = [], tips = [];
-    if (!s.flags.starter) urgent.push("Bo... bonjour ! Trois bébés Digimon t'attendent ici, sur la place (dont mon petit frère !). Parle-leur pour choisir ton partenaire !");
+    if (!s.flags.starter) urgent.push("Bo... bonjour ! Trois petits Digimon t'attendent ici, sur la place : Koromon, Pichimon et Yuramon. Parle-leur pour choisir ton partenaire !");
     else {
       if (m && m.hunger >= 70) urgent.push(`${m.name} a faim ! Tanemon donne 3 Viandes par jour dans son DigiChamp, au Quartier des Champs (sortie sud-ouest).`);
       if (m && m.sick) urgent.push(`${m.name} est malade ! Un Médicament le guérira (Bazar de Gotsumon), ou une nuit chez Jijimon.`);

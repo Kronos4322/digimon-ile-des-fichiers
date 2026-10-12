@@ -176,7 +176,8 @@
       Object.assign(P, { moving: true, sx: P.x, sy: P.y, tx: nx, ty: ny, t: over, run });
       P.step++;
       if (DW.World.isTall(this.tileAt(nx, ny))) this.rustle[nx + ',' + ny] = 0.5;
-      if (this.partner && (F.x !== P.x || F.y !== P.y)) {
+      if (!this.partner) Object.assign(F, { moving: false, x: P.x, y: P.y, sx: P.x, sy: P.y, tx: P.x, ty: P.y });   // sans partenaire : la place reste collée au héros
+      else if (F.x !== P.x || F.y !== P.y) {
         Object.assign(F, { moving: true, sx: F.x, sy: F.y, tx: P.x, ty: P.y, t: over });
         if (P.x > F.x) F.face = 'right'; else if (P.x < F.x) F.face = 'left';
         if (DW.World.isTall(this.tileAt(P.x, P.y))) this.rustle[P.x + ',' + P.y] = 0.5;
