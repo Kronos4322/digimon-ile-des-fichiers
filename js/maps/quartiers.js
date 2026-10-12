@@ -176,6 +176,7 @@
   function district(id, def) {
     MAPS[id] = {
       name: def.name, music: 'village', bg: 'foret', ambient: 'town', theme: def.theme || 'town', climate: 'village', region: 'village',
+      ...DW.MapKit.DW1_GROUND,
       build() {
         const lv = level(), built = def.lots.filter(L => lv >= L.min).length;
         const version = `${built}|${(def.exits || []).map(e => (lv >= e.min ? 1 : 0)).join('')}`;

@@ -201,5 +201,10 @@
     }
   }
 
-  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail };
+  // sol façon Digimon World 1 (voir gfx/terrain.js : map.lush) : verts naturels, terre beige-ocre
+  const DW1_GROUND = { lush: true,
+    grass: ['#2c5418', '#3b6a20', '#4c7f28', '#5f9432', '#76a83e', '#8fbb4e'],
+    dirt: ['#6a5034', '#80643f', '#977a4c', '#ad905c', '#c2a670', '#d6bc86'] };
+
+  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND };
 })();

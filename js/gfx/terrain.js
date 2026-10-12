@@ -83,11 +83,36 @@
     const L12 = half((x, y) => fbm(x * 0.04, y * 0.04, 12)), C21 = half((x, y) => fbm(x * 0.08, y * 0.08, 21));
     // thème de la zone (couleurs propres à chaque zone)
     const TH = World.THEMES && World.THEMES[map.theme];
-    const GRASS = TH ? TH.grass.map(Art.hex) : map.ambient === 'forest' ? PAL.forest : PAL.grass;
+    const GRASS = map.grass ? map.grass.map(Art.hex) : TH ? TH.grass.map(Art.hex) : map.ambient === 'forest' ? PAL.forest : PAL.grass;
+    // map.lush : sol façon Digimon World 1 (herbe en brins fins, tons continus, chemins aux bords fondus, ombre de forêt sur les bords)
+    // actif sur toutes les cartes extérieures (map.lush = false pour le désactiver), jamais en intérieur
+    const LUSH = map.lush != null ? !!map.lush : !map.indoor, TMP = [0, 0, 0];
+    // couleur continue entre les tons de la palette (pas de paliers) ; écrit dans TMP (aucune allocation)
+    const lerpPal = (P, v) => {
+      v = v < 0 ? 0 : v > P.length - 1 ? P.length - 1 : v;
+      const a = Math.floor(v), f = v - a, A = P[a], B = P[Math.min(P.length - 1, a + 1)];
+      TMP[0] = A[0] + (B[0] - A[0]) * f; TMP[1] = A[1] + (B[1] - A[1]) * f; TMP[2] = A[2] + (B[2] - A[2]) * f;
+      return TMP;
+    };
+    const lushGrassV = (px, py, i, tx, ty) => {
+      let v = 2.7 + (G5(px, py) - 0.5) * 2.4 + (noise(px * 0.25, py * 0.25, 6) - 0.5) * 1.0;
+      // brins : petits traits verticaux de 3 pixels (clair à la pointe, sombre au pied)
+      const off = Math.floor(hash(px, 0, 310) * 3), k = Math.floor((py + off) / 3), pos = (py + off) - k * 3;
+      v += (hash(px, k, 311) - 0.5) * 1.6 + (pos === 0 ? 0.35 : pos === 2 ? -0.3 : 0);
+      const tip = hash(px, py, 312); if (tip < 0.04) v += 1.1; else if (tip > 0.965) v -= 0.9;
+      if (hash(px >> 2, py >> 2, 313) < 0.07) v -= 0.6;            // touffes plus sombres
+      v -= SH[i] * 0.2; if (tallAt(tx, ty)) v -= 1;
+      return v;
+    };
+    const lushDirtV = (px, py, i) => {
+      let v = 3.1 + (D7(px, py) - 0.5) * 2 + (noise(px * 0.35, py * 0.35, 95) - 0.5) * 0.8;
+      const p = hash(px, py, 96); if (p < 0.035) v -= 1.2; else if (p > 0.97) v += 1;   // cailloux
+      return v - SH[i] * 0.18;
+    };
     const CANOPY = TH ? TH.canopy.map(Art.hex) : PAL.canopy;
     const LITTER = TH ? TH.litter : ['#c86a2a', '#e09a3a', '#8a5a2a', '#a8a040', '#7a9a38'];
     // biomes : le thème peut remplacer les couleurs de la terre, du sable, de l'eau (lave, marais, glace) et des falaises
-    const DIRT = TH && TH.dirt ? TH.dirt.map(Art.hex) : PAL.dirt, SAND = TH && TH.sand ? TH.sand.map(Art.hex) : PAL.sand;
+    const DIRT = map.dirt ? map.dirt.map(Art.hex) : TH && TH.dirt ? TH.dirt.map(Art.hex) : PAL.dirt, SAND = TH && TH.sand ? TH.sand.map(Art.hex) : PAL.sand;
     const WET = TH && TH.wet ? TH.wet.map(Art.hex) : PAL.wet, WATER = TH && TH.water ? TH.water.map(Art.hex) : PAL.water;
     const CLIFF = TH && TH.cliff ? TH.cliff.map(Art.hex) : PAL.cliff, ROCKY = TH && TH.canopyStyle === 'rock';
     // intérieurs : style du sol (map.floor) et des murs (map.wall) ; sans style = parquet et enduit d'origine
@@ -183,7 +208,21 @@
       const tx = px >> 4, ty = py >> 4, lx = px & 15, ly = py & 15;
       const b = Art.bayer(px, py);
       let col;
-      if (t === TER.grass) {
+      if (t === TER.grass && LUSH) {
+        // près d'un chemin : l'herbe s'éclaircit en touffes mêlées de terre (fondu tramé, sans contour)
+        if (en === TER.dirt && ed <= 2 && hash(px, py, 314) < (3 - ed) / 4) col = lerpPal(DIRT, lushDirtV(px, py, i) - 0.3);
+        else col = lerpPal(GRASS, lushGrassV(px, py, i, tx, ty));
+      } else if (t === TER.dirt && LUSH) {
+        // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre
+        if (en === TER.grass && ed <= 3 && hash(px, py, 98) < (4 - ed) / 6) col = lerpPal(GRASS, lushGrassV(px, py, i, tx, ty) - 0.4);
+        else col = lerpPal(DIRT, lushDirtV(px, py, i) - (en === TER.grass && ed <= 3 ? (4 - ed) * 0.18 : 0));
+        if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.05) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);   // feuilles mortes
+      } else if (t === TER.lawn && LUSH) {
+        // pelouse (Village des Bébés) : mêmes brins fins, palette pastel, fleurs semées
+        if (en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2 && hash(px, py, 315) < (3 - ed) / 4) col = lerpPal(SAND, 3.4 + (hash(px, py, 316) - 0.5));
+        else col = lerpPal(PAL.lawn, lushGrassV(px, py, i, tx, ty) + 0.2);
+        if (hash(px, py, 13) < 0.005) col = Art.hex(['#ffb6d6', '#fff0a0', '#d8c0ff', '#ffffff'][Math.floor(hash(px, py, 14) * 4)]);
+      } else if (t === TER.grass) {
         let v = 2.4 + (G5(px, py) - 0.5) * 3 + (noise(px * 0.3, py * 0.3, 6) - 0.5) * 1.4 + b * 0.8;
         if (en !== TER.grass && en !== TER.canopy && en !== 255) { if (ed === 1) v = 0.2; else if (ed === 2) v -= 1; }
         v -= SH[i] * 0.22;
@@ -348,6 +387,11 @@
         if (en === TER.metal && ed <= 5) col = Art.hex(['#5a6070', '#3a404c', '#7a8292', '#2a2e38', '#1a1d24'][ed - 1]);
       } else {
         col = WATER[3];
+      }
+      // ombre douce de la forêt sur les bords de la carte (façon Digimon World 1)
+      if (LUSH) {
+        const de = Math.min(px, py, GW - 1 - px, GH - 1 - py);
+        if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; put(D, j, col); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; }
       }
       put(D, j, col);
     } }

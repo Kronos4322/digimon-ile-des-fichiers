@@ -333,6 +333,7 @@
   // ------------------------------------------------------------ définition
   MAPS.village = {
     name: 'Ville des Fichiers', music: 'village', bg: 'foret', ambient: 'town', theme: 'town', climate: 'village', region: 'village',
+    ...DW.MapKit.DW1_GROUND,
     respawn: { map: 'maison', x: 12, y: 5 },
     build,
     onEnter: () => DW.Town.reveal(),
