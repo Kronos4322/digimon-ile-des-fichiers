@@ -44,7 +44,7 @@
         c.fillRect(x - 2, 24, 28, 34);
         if (sel) { c.strokeStyle = '#ffe680'; c.lineWidth = 1; c.strokeRect(x - 1.5, 24.5, 27, 33); }
         c.globalAlpha = sel ? 1 : 0.55;
-        c.drawImage(DW.Sprites.hero('down', 0, k).img, x, 26);
+        c.drawImage(DW.Sprites.hero('down', 0, k).img, x - 1, 24.5, 26, 33);
         c.globalAlpha = 1;
       });
       // halo + socle à la couleur du blason
@@ -58,7 +58,7 @@
       const dir = DIRS[Math.floor(t / 0.9) % 4], fr = Math.floor(t * 6) % 4;
       const spr = DW.Sprites.hero(dir, fr, id).img;
       c.imageSmoothingEnabled = false;
-      c.drawImage(spr, Math.round(cx - 30), 77, 60, 75);
+      c.drawImage(spr, Math.round(cx - 29), 76, 58, 75);
       // flèches
       const bob = Math.sin(t * 6) * 2;
       UI.text(c, '◀', 96 - bob, 120, { size: 12, align: 'center', color: '#ffe680' });
@@ -216,7 +216,7 @@
       }
       c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.ellipse(hx, 202, 8 * (1 - this.lift.v * 0.5), 2, 0, 0, 7); c.fill();
       const spr = DW.Sprites.hero(this.heroDir, 0).img;
-      c.drawImage(spr, hx - 12, hy - 30);
+      c.drawImage(spr, hx - 14, hy - 36);
       // le Digivice : traînée en tombant, puis éclat au sol
       if (this.dv.on && this.lift.v < 0.5) {
         const dx = 162, dy = this.dv.y;
@@ -269,7 +269,7 @@
       const spr = DW.Sprites.hero(DIRS[Math.floor(t * 5) % 4], 1).img;
       c.save(); c.translate(cx, cy); c.rotate(Math.sin(t * 1.7) * 0.6); const sc = 1.4 + Math.sin(t * 2) * 0.1; c.scale(sc, sc);
       c.shadowColor = '#c8ffe8'; c.shadowBlur = 8;
-      c.drawImage(spr, -12, -15);
+      c.drawImage(spr, -14, -18);
       c.restore();
     }
 
@@ -296,7 +296,7 @@
       // le héros en chute libre, vu de dos, qui rapetisse en approchant du sol
       const sc = 1.6 - z * 0.9, spr = DW.Sprites.hero('up', Math.floor(t * 8) % 4).img;
       c.save(); c.translate(W / 2 + Math.sin(t * 2) * 6, H / 2 - 20 + Math.cos(t * 1.6) * 4); c.rotate(Math.sin(t * 3) * 0.25); c.scale(sc, sc);
-      c.drawImage(spr, -12, -15); c.restore();
+      c.drawImage(spr, -14, -18); c.restore();
     }
 
     draw(c) {

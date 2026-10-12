@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  HÉROS : rendu en volume (24x30), 4 directions × 4 temps de marche
+//  HÉROS : rendu en volume (28x36, proportions façon Digimon World 1), 4 directions × 4 temps de marche
 //  Sept DigiDestinés au choix (inspirés de la saison 1) : coiffure, couvre-chef,
 //  haut, bas, chaussures et gants paramétrés par DW.HEROES
 // =====================================================================
@@ -36,78 +36,127 @@
   DW.HERO_ORDER = ['tai', 'sora', 'matt', 'mimi', 'izzy', 'joe', 'tk'];
   DW.heroLook = id => DW.HEROES[id || (DW.state && DW.state.hero)] || DW.HEROES.tai;
 
+  // Proportions façon Digimon World 1 : ~2,8 têtes, sprite 28×36 (pieds en bas), détails de vêtements.
   const SWING = [0, 1, 0, -1];
   // teinte plus sombre (k<0) ou plus claire (k>0) d'une couleur #rrggbb
   const tint = (col, k) => '#' + Art.mix(Art.hex(col), k < 0 ? [0, 0, 0] : [255, 255, 255], Math.abs(k)).map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
-  const EYE = '#2a1a10', SOLE = '#f4f0e8', BLUSH = '#ff9a8a', MOUTH = '#b0603a';
+  const SOLE = '#f4f0e8', BLUSH = '#ff9a8a', MOUTH = '#a8503a', WHITE = '#ffffff', SOCK = '#f4f2ec';
+  const HW = 28, HH = 36;
+
+  // ------------------------------------------------------------ pièces communes
+  function shoe(d, x, y, C, o = {}) {
+    d.ell(x, y, 2.9, 1.9, C.shoe, 0, o);
+    d.deco.rect(x - 2.9, y + 0.7, 5.8, 1, SOLE);
+    d.deco.line(x - 1.2, y - 1, x + 1.2, y - 1, 0.6, tint(C.shoe, 0.45));
+  }
+  function bottoms(d, C, cx, w, front) {
+    const x0 = cx - w / 2;
+    if (C.bottom === 'skirt') {
+      d.poly([[x0, 21.8], [x0 + w, 21.8], [x0 + w + 2, 27.6], [x0 - 2, 27.6]], C.bottomCol);
+      for (let k = 1; k < 4; k++) d.deco.line(x0 - 1 + k * (w + 2) / 4, 22.6, x0 - 2 + k * (w + 4) / 4, 27.4, 0.5, tint(C.bottomCol, -0.25));
+      return;
+    }
+    d.rect(x0, 21.8, w, C.bottom === 'pants' ? 4.6 : 5.2, C.bottomCol, { round: 0.4 });
+    if (front) {
+      d.deco.line(cx, 23.4, cx, 26.6, 0.6, tint(C.bottomCol, -0.3));
+      if (C.bottom === 'shorts') { d.deco.line(x0 + 1, 23, x0 + 2.6, 24.6, 0.5, tint(C.bottomCol, -0.25)); d.deco.line(x0 + w - 1, 23, x0 + w - 2.6, 24.6, 0.5, tint(C.bottomCol, -0.25)); }
+    }
+    // ceinture et boucle
+    d.deco.rect(x0, 21.6, w, 1.2, tint(C.bottomCol, -0.45));
+    if (front) d.deco.rect(cx - 1, 21.5, 2, 1.4, '#e8c860');
+  }
+  function legsFront(d, C, s) {
+    const lift = k => (s === k ? 1.8 : 0), legCol = C.bottom === 'pants' ? C.bottomCol : C.skin;
+    for (const [x, k] of [[11.4, 1], [16.6, -1]]) {
+      d.tube([[x, 25], [x, 31.6 - lift(k)]], 3.6, 3.1, legCol);
+      if (C.bottom !== 'pants') d.deco.rect(x - 1.5, 30.2 - lift(k), 3, 1.3, SOCK);
+      else d.deco.rect(x - 1.7, 30.4 - lift(k), 3.4, 0.8, tint(C.bottomCol, -0.3));
+      shoe(d, x, 33 - lift(k), C);
+    }
+  }
+  function armFront(d, C, sx, ay, far, sleeveCol) {
+    const hand = C.glove || C.skin, dir = sx < 14 ? -1 : 1, o = far ? { far: true } : {};
+    d.tube([[sx, 16], [sx + dir * 0.9, 20.4 + ay * 0.5], [sx + dir * 0.6, 23.6 + ay]], 2.8, 2.3, C.skin, o);
+    d.tube([[sx, 15.6], [sx + dir * 0.7, 18.6]], 3.6, 3.2, sleeveCol, o);
+    d.deco.line(sx - 1.6, 18.6, sx + 1.8, 18.6, 0.6, tint(sleeveCol, -0.3));
+    d.circ(sx + dir * 0.6, 24.4 + ay, 1.95, hand, o);
+    if (C.glove) d.deco.rect(sx + dir * 0.6 - 1.7, 22.6 + ay, 3.4, 0.9, tint(C.glove, -0.15));
+  }
+  function torsoFront(d, C, back) {
+    d.blob([[8.6, 14.8], [19.4, 14.8], [19.8, 22.6], [8.2, 22.6]], C.shirt);
+    d.deco.line(10, 20.6, 12.4, 21.4, 0.5, tint(C.shirt, -0.22)); d.deco.line(18, 20.6, 15.8, 21.4, 0.5, tint(C.shirt, -0.22));
+    if (back) { d.deco.line(14, 15.6, 14, 21.6, 0.5, tint(C.shirt, -0.2)); return; }
+    if (C.deco === 'star') {
+      const cx = 14, cy = 18.4, pts = [];
+      for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 1.2 : 2.7; pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); }
+      d.deco.poly(pts, C.decoCol, { unlit: true });
+      d.deco.rect(12.2, 14.6, 3.6, 1.1, SOLE);
+    } else if (C.deco === 'collar') d.deco.poly([[11.2, 14.6], [16.8, 14.6], [14, 17.8]], C.decoCol, { unlit: true });
+    else if (C.deco === 'stripe') { d.deco.rect(8.6, 18, 11, 1.5, C.decoCol); d.deco.rect(12.4, 14.6, 3.2, 1, tint(C.shirt, -0.2)); }
+    else if (C.deco === 'heart') { d.deco.circ(13.2, 17.6, 1, C.decoCol); d.deco.circ(14.8, 17.6, 1, C.decoCol); d.deco.poly([[12.2, 17.9], [15.8, 17.9], [14, 19.8]], C.decoCol); }
+    else d.deco.rect(12.4, 14.6, 3.2, 1, tint(C.shirt, -0.2));
+  }
+  function face(d, C) {
+    const iris = C.eye || '#5a3a20';
+    for (const x of [11.6, 16.4]) {
+      d.deco.ell(x, 9.8, 1.35, 1.7, WHITE, 0, { unlit: true });
+      d.deco.ell(x + 0.15, 10.1, 0.95, 1.35, iris, 0, { unlit: true });
+      d.deco.ell(x + 0.15, 10.3, 0.5, 0.7, '#1a1008', 0, { unlit: true });
+      d.deco.rect(x - 0.4, 9, 0.6, 0.6, WHITE, { unlit: true });
+      d.deco.line(x - 1.3, 7.6, x + 1.2, 7.3, 0.6, tint(C.hair, -0.25));
+    }
+    d.deco.ell(14, 11.6, 0.6, 0.45, tint(C.skin, -0.18));
+    d.deco.line(13.1, 13, 14.9, 13, 0.6, MOUTH, { unlit: true });
+    d.deco.ell(10.4, 12, 1, 0.55, BLUSH); d.deco.ell(17.6, 12, 1, 0.55, BLUSH);
+  }
 
   // ------------------------------------------------------------ face / dos
   function front(d, ph, back, C) {
-    const s = SWING[ph], lift = k => (s === k ? 1.6 : 0);
-    const legCol = C.bottom === 'pants' ? C.bottomCol : C.skin;
-    // cheveux longs : derrière les épaules
-    if (C.style === 'long' && !back) d.blob([[5.2, 8], [18.8, 8], [19.6, 18.4], [4.4, 18.4]], C.hair, { far: true });
-    // jambes et chaussures
-    d.tube([[10, 21], [10, 26.5 - lift(1)]], 3.2, 3, legCol);
-    d.tube([[14, 21], [14, 26.5 - lift(-1)]], 3.2, 3, legCol);
-    d.ell(10, 27.6 - lift(1), 2.4, 1.5, C.shoe); d.ell(14, 27.6 - lift(-1), 2.4, 1.5, C.shoe);
-    d.deco.rect(8, 28.2 - lift(1), 4, 0.8, SOLE); d.deco.rect(12, 28.2 - lift(-1), 4, 0.8, SOLE);
-    // bas du corps
-    if (C.bottom === 'skirt') d.poly([[7.6, 18.4], [16.4, 18.4], [18, 23.4], [6, 23.4]], C.bottomCol);
-    else {
-      d.rect(7.6, 18.6, 8.8, 4, C.bottomCol, { round: 0.5 });
-      d.deco.line(12, 20, 12, 22.4, 0.6, tint(C.bottomCol, -0.3));
-    }
-    // bras (derrière le torse)
-    const ay = s * 0.8, hand = C.glove || C.skin;
-    d.tube([[6.4, 15], [5.6, 20 + ay]], 2.6, 2.2, C.skin, { far: back });
-    d.tube([[17.6, 15], [18.4, 20 - ay]], 2.6, 2.2, C.skin, { far: back });
-    d.circ(5.6, 20.6 + ay, 1.7, hand); d.circ(18.4, 20.6 - ay, 1.7, hand);
-    // torse
-    d.blob([[7, 13], [17, 13], [17.4, 20], [6.6, 20]], C.shirt);
-    d.ell(6.8, 14.4, 2, 1.8, C.sleeve); d.ell(17.2, 14.4, 2, 1.8, C.sleeve);
+    const s = SWING[ph], ay = s * 1.1;
+    if (C.style === 'long' && !back) d.blob([[6.6, 8], [21.4, 8], [22.2, 21], [5.8, 21]], C.hair, { far: true });
+    legsFront(d, C, s);
+    bottoms(d, C, 14, 11, !back);
+    armFront(d, C, 8.2, ay, back, C.sleeve);
+    armFront(d, C, 19.8, -ay, back, C.sleeve);
+    torsoFront(d, C, back);
+    if (back && C.style === 'long') d.blob([[6.8, 8], [21.2, 8], [21.8, 21.4], [6.2, 21.4]], C.hair);
+    // cou et tête
+    d.rect(12.6, 13, 2.8, 2.4, C.skin, { round: 0.3 });
+    d.ell(7.9, 9.6, 1.2, 1.6, C.skin); d.ell(20.1, 9.6, 1.2, 1.6, C.skin);
+    d.ell(14, 8.6, 6.3, 6.2, C.skin);
     if (!back) {
-      if (C.deco === 'star') {
-        d.deco.poly([[12, 14.2], [12.8, 15.8], [14.4, 16], [13.2, 17], [13.6, 18.6], [12, 17.8], [10.4, 18.6], [10.8, 17], [9.6, 16], [11.2, 15.8]], C.decoCol, { unlit: true });
-        d.deco.rect(10.4, 12.8, 3.2, 1, SOLE);
-      } else if (C.deco === 'collar') d.deco.poly([[9.4, 12.8], [14.6, 12.8], [12, 15.6]], C.decoCol, { unlit: true });
-      else if (C.deco === 'stripe') d.deco.rect(7, 16, 10.2, 1.4, C.decoCol);
-      else if (C.deco === 'heart') { d.deco.circ(11.3, 15.6, 0.9, C.decoCol); d.deco.circ(12.7, 15.6, 0.9, C.decoCol); d.deco.poly([[10.4, 15.9], [13.6, 15.9], [12, 17.6]], C.decoCol); }
-    } else if (C.style === 'long') d.blob([[5.4, 8], [18.6, 8], [19.2, 18.6], [4.8, 18.6]], C.hair);
-    // tête
-    d.ell(12, 8.6, 5.8, 5.4, C.skin);
-    if (!back) {
-      if (C.head === 'glasses') { d.deco.circ(10, 9.8, 1.8, C.headCol, { shiny: true }); d.deco.circ(14, 9.8, 1.8, C.headCol, { shiny: true }); d.deco.line(11.8, 9.6, 12.2, 9.6, 0.5, '#5a6a8a'); }
-      d.deco.ell(10, 10, 0.75, 1.2, EYE, 0, { unlit: true }); d.deco.ell(14, 10, 0.75, 1.2, EYE, 0, { unlit: true });
-      d.deco.rect(9.7, 9.1, 0.6, 0.5, '#ffffff', { unlit: true }); d.deco.rect(13.7, 9.1, 0.6, 0.5, '#ffffff', { unlit: true });
-      d.deco.line(11.3, 12.4, 12.7, 12.4, 0.6, MOUTH, { unlit: true });
-      d.deco.ell(8.8, 11.6, 0.9, 0.5, BLUSH); d.deco.ell(15.2, 11.6, 0.9, 0.5, BLUSH);
+      if (C.head === 'glasses') { d.deco.circ(11.6, 9.9, 2.1, C.headCol, { shiny: true }); d.deco.circ(16.4, 9.9, 2.1, C.headCol, { shiny: true }); }
+      face(d, C);
+      if (C.head === 'glasses') d.deco.line(13.6, 9.6, 14.4, 9.6, 0.5, '#5a6a8a');
       hairFront(d, C);
     } else hairBack(d, C);
     hat(d, C, back ? 'back' : 'front');
   }
 
   function hairFront(d, C) {
+    const L = C.hairL, D = tint(C.hair, -0.25);
     if (C.style === 'spiky') {
-      d.poly([[5.4, 10], [3.6, 5], [6.4, 5.6], [5.6, 1.6], [9.4, 3.4], [11, 0.4], [13.6, 2.8], [16.6, 0.8], [17.4, 4.4], [20.4, 4], [18.6, 10], [17.2, 7.2], [14, 6.4], [12, 7.4], [10, 6.4], [6.8, 7.2]], C.hair);
-      d.deco.line(8, 3.6, 10, 5, 0.7, C.hairL); d.deco.line(14, 3, 15.4, 4.8, 0.7, C.hairL);
+      d.poly([[7.2, 10.6], [5, 5.2], [8, 5.6], [7, 1.2], [11, 3], [12.8, -0.2], [15.4, 2.4], [18.8, 0.2], [19.6, 4.2], [23, 3.8], [20.8, 10.6], [19.2, 7.4], [16, 6.6], [14, 7.8], [12, 6.6], [8.8, 7.4]], C.hair);
+      d.deco.line(9.4, 3.2, 11.6, 5, 0.8, L); d.deco.line(15.6, 2.6, 17, 4.6, 0.8, L); d.deco.line(13, 1.4, 13.6, 4, 0.7, L);
+      d.deco.line(8.8, 7.4, 12, 6.6, 0.6, D); d.deco.line(16, 6.6, 19.2, 7.4, 0.6, D);
     } else if (C.style === 'short') {
-      d.poly([[6, 9.6], [5.6, 5], [8, 2.4], [12, 1.6], [16, 2.4], [18.4, 5], [18, 9.6], [16.8, 6.8], [14.4, 7.4], [12, 6], [9.6, 7.4], [7.2, 6.8]], C.hair);
-      d.deco.line(9, 3.4, 11, 4.6, 0.7, C.hairL);
+      d.poly([[7.6, 10.4], [7.2, 5], [9.6, 2.2], [14, 1.4], [18.4, 2.2], [20.8, 5], [20.4, 10.4], [19, 7.2], [16.4, 7.8], [14, 6.2], [11.6, 7.8], [9, 7.2]], C.hair);
+      d.deco.line(10.6, 3.2, 12.8, 4.8, 0.8, L); d.deco.line(15.4, 3, 17, 4.2, 0.6, L);
     } else {
-      // carré (bob) ou cheveux longs : mèches qui encadrent le visage
-      d.poly([[5.4, 13], [5.2, 5], [8, 2.2], [12, 1.6], [16, 2.2], [18.8, 5], [18.6, 13], [16.9, 11.6], [16.8, 7], [13.4, 6.6], [12, 5.6], [10.6, 6.6], [7.2, 7], [7.1, 11.6]], C.hair);
-      d.deco.line(8.4, 3.4, 10.6, 4.6, 0.7, C.hairL); d.deco.line(14, 3, 16, 4.4, 0.7, C.hairL);
+      d.poly([[7, 14.4], [6.8, 5], [9.6, 2], [14, 1.4], [18.4, 2], [21.2, 5], [21, 14.4], [19.2, 12.8], [19, 7.4], [15.4, 6.8], [14, 5.8], [12.6, 6.8], [9, 7.4], [8.8, 12.8]], C.hair);
+      d.deco.line(10, 3.2, 12.4, 4.8, 0.8, L); d.deco.line(15.8, 2.8, 18, 4.4, 0.8, L);
+      d.deco.line(8.2, 8, 8.4, 13.4, 0.6, D); d.deco.line(19.8, 8, 19.6, 13.4, 0.6, D);
     }
   }
   function hairBack(d, C) {
+    const L = C.hairL;
     if (C.style === 'spiky') {
-      d.poly([[5.6, 12.4], [3.6, 7], [5.4, 3], [8.4, 2.2], [11, 0.4], [14, 2], [17, 1], [19, 4], [20.4, 7.4], [18.4, 12.4], [15, 13.6], [9, 13.6]], C.hair);
-      d.deco.line(6.6, 4, 9, 9, 0.7, C.hairL); d.deco.line(13, 3, 14, 10, 0.7, C.hairL); d.deco.line(17.6, 5, 16, 11, 0.7, C.hairL);
+      d.poly([[7.4, 13.4], [5, 7.4], [6.8, 3], [10.2, 2.2], [12.8, 0], [16, 1.8], [19.4, 0.8], [21.4, 4.2], [23, 7.8], [20.6, 13.4], [17, 14.6], [11, 14.6]], C.hair);
+      d.deco.line(8.4, 4, 11, 9.6, 0.8, L); d.deco.line(15, 3, 16, 11, 0.8, L); d.deco.line(20, 5, 18.2, 11.6, 0.8, L);
     } else {
-      const low = C.style === 'short' ? 12.4 : 13.6;
-      d.poly([[6, low], [5.2, 6], [7.6, 2.4], [12, 1.6], [16.4, 2.4], [18.8, 6], [18, low], [12, low + 1]], C.hair);
-      d.deco.line(9, 3.6, 10, 10, 0.7, C.hairL); d.deco.line(15, 3.6, 14, 10, 0.7, C.hairL);
+      const low = C.style === 'short' ? 13.4 : 14.6;
+      d.poly([[7.8, low], [6.8, 6], [9.4, 2.2], [14, 1.4], [18.6, 2.2], [21.2, 6], [20.2, low], [14, low + 1]], C.hair);
+      d.deco.line(10.8, 3.6, 11.8, 11, 0.8, L); d.deco.line(17.2, 3.6, 16.2, 11, 0.8, L);
     }
   }
   // couvre-chef (vue : front | back | side)
@@ -115,70 +164,78 @@
     const col = C.headCol, sd = v === 'side';
     if (C.head === 'goggles') {
       if (v === 'front') {
-        d.deco.line(5.6, 6.8, 18.4, 6.8, 1.1, col);
-        d.deco.circ(9.6, 6.6, 1.7, '#4aa8f0', { shiny: true }); d.deco.circ(14.4, 6.6, 1.7, '#4aa8f0', { shiny: true });
-        d.deco.rect(9, 5.8, 0.7, 0.6, '#ffffff', { unlit: true }); d.deco.rect(13.8, 5.8, 0.7, 0.6, '#ffffff', { unlit: true });
-      } else if (v === 'back') d.deco.line(4.6, 7, 19.4, 7, 1.2, col);
+        d.deco.line(7.4, 6.8, 20.6, 6.8, 1.2, col);
+        for (const x of [11.4, 16.6]) { d.deco.circ(x, 6.6, 1.95, '#2a3a4a'); d.deco.circ(x, 6.6, 1.5, '#4aa8f0', { shiny: true }); d.deco.rect(x - 0.7, 5.6, 0.7, 0.7, WHITE, { unlit: true }); }
+      } else if (v === 'back') d.deco.line(6.6, 7, 21.4, 7, 1.3, col);
       else {
-        d.deco.line(8, 6.4, 18, 6, 1.1, col);
-        d.deco.circ(16.6, 6.2, 1.7, '#4aa8f0', { shiny: true });
-        d.deco.rect(16, 5.4, 0.7, 0.6, '#ffffff', { unlit: true });
+        d.deco.line(10, 6.4, 20.6, 6, 1.2, col);
+        d.deco.circ(19, 6.2, 1.95, '#2a3a4a'); d.deco.circ(19, 6.2, 1.5, '#4aa8f0', { shiny: true });
+        d.deco.rect(18.4, 5.2, 0.7, 0.7, WHITE, { unlit: true });
       }
     } else if (C.head === 'cap') {
-      d.ell(sd ? 12 : 12, 4.4, sd ? 6 : 6.6, 3.6, col);
-      if (v === 'front') d.ell(12, 6.4, 6.8, 1.2, col);
-      if (sd) d.ell(17.2, 6.2, 3, 1, col);
-      d.deco.line(sd ? 8 : 7, 5.6, sd ? 17 : 17, 5.6, 0.6, tint(col, 0.35));
+      d.ell(14, 4.4, 6.9, 3.8, col);
+      if (v === 'front') d.ell(14, 6.6, 7.2, 1.3, col);
+      if (sd) d.ell(19.8, 6.3, 3.4, 1.1, col);
+      d.deco.line(8.6, 5.8, 19.4, 5.8, 0.6, tint(col, 0.35));
+      d.deco.circ(14, 1.2, 0.8, tint(col, 0.3));
     } else if (C.head === 'cowboy') {
-      d.ell(sd ? 12.6 : 12, 5.6, sd ? 8.6 : 9.2, 1.8, col);
-      d.ell(sd ? 12.4 : 12, 3.2, 4.8, 3, col);
-      d.deco.line(sd ? 8 : 7.4, 4.8, sd ? 16.8 : 16.6, 4.8, 0.9, '#ffffff');
+      d.ell(sd ? 14.6 : 14, 5.8, sd ? 9 : 9.8, 1.9, col);
+      d.ell(sd ? 14.4 : 14, 3.2, 5.2, 3.2, col);
+      d.deco.line(sd ? 9.6 : 9, 4.9, sd ? 19 : 19, 4.9, 1, WHITE);
     } else if (C.head === 'bucket') {
-      d.ell(12, 6.4, sd ? 7.4 : 7.8, 1.8, col);
-      d.ell(12, 4, 6, 3.4, col);
-      d.deco.line(sd ? 7 : 6.6, 5.4, 17.4, 5.4, 0.6, tint(col, -0.25));
+      d.ell(14, 6.6, sd ? 7.8 : 8.2, 1.9, col);
+      d.ell(14, 4, 6.4, 3.6, col);
+      d.deco.line(sd ? 8.6 : 8.2, 5.6, 19.8, 5.6, 0.6, tint(col, -0.25));
     } else if (C.head === 'glasses' && sd) {
-      d.deco.circ(16.4, 9.6, 1.6, col, { shiny: true });
-      d.deco.line(10, 9.2, 15, 9.4, 0.5, '#5a6a8a');
+      d.deco.circ(18.8, 9.8, 1.9, col, { shiny: true });
+      d.deco.line(12, 9.4, 17.2, 9.6, 0.5, '#5a6a8a');
     }
   }
 
-  // ------------------------------------------------------------ profil
+  // ------------------------------------------------------------ profil (vers la droite)
   function side(d, ph, C) {
     const s = SWING[ph], legCol = C.bottom === 'pants' ? C.bottomCol : C.skin, hand = C.glove || C.skin;
-    if (C.style === 'long') d.blob([[6, 6], [11, 6], [10.6, 19], [6.2, 19]], C.hair, { far: true });
+    if (C.style === 'long') d.blob([[7.6, 6], [13, 6], [12.6, 21.6], [7.8, 21.6]], C.hair, { far: true });
     // jambe et bras éloignés
-    d.tube([[12, 21], [12 - 2.6 * s, 26.6]], 3.2, 3, legCol, { far: true });
-    d.ell(12.8 - 2.6 * s, 27.6, 2.6, 1.5, C.shoe, 0, { far: true });
-    d.tube([[12, 14.6], [12 + 2.4 * s, 19.6]], 2.4, 2.2, C.skin, { far: true });
-    d.circ(12 + 2.4 * s, 20.2, 1.6, hand, { far: true });
+    d.tube([[14, 25], [14 - 3 * s, 31.6]], 3.6, 3.1, legCol, { far: true });
+    if (C.bottom !== 'pants') d.deco.rect(12.6 - 3 * s, 30.2, 3, 1.3, SOCK);
+    shoe(d, 15 - 3 * s, 33, C, { far: true });
+    d.tube([[15.2, 16.4], [15.2 + 1.2 * s, 20.2], [15.2 + 2.4 * s, 23.4]], 2.7, 2.3, C.skin, { far: true });
+    d.circ(15.2 + 2.4 * s, 24.2, 1.85, hand, { far: true });
     // corps
-    if (C.bottom === 'skirt') d.poly([[8.4, 18.4], [16, 18.4], [17.6, 23.4], [7, 23.4]], C.bottomCol);
-    else d.rect(8.4, 18.6, 7.6, 4, C.bottomCol, { round: 0.5 });
-    d.tube([[12, 21], [12 + 2.6 * s, 26.6]], 3.2, 3, legCol);
-    d.ell(12.8 + 2.6 * s, 27.6, 2.6, 1.5, C.shoe);
-    d.deco.rect(10.4 + 2.6 * s, 28.2, 5, 0.8, SOLE);
-    d.blob([[8.6, 13], [15.4, 13], [16, 20], [8.2, 20]], C.shirt);
-    if (C.deco === 'star' || C.deco === 'heart') d.deco.ell(14.8, 16.4, 1.2, 1.4, C.decoCol, 0, { unlit: true });
-    else if (C.deco === 'stripe') d.deco.rect(8.6, 16, 7.2, 1.4, C.decoCol);
-    else if (C.deco === 'collar') d.deco.poly([[13, 12.8], [15.6, 12.8], [15, 15]], C.decoCol, { unlit: true });
-    d.ell(12, 14.6, 2.2, 1.9, C.sleeve);
-    d.tube([[12, 15], [12 - 2.4 * s, 19.8]], 2.6, 2.2, C.skin);
-    d.circ(12 - 2.4 * s, 20.4, 1.7, hand);
+    bottoms(d, C, 14, 9.8, false);
+    d.tube([[14, 25], [14 + 3 * s, 31.6]], 3.6, 3.1, legCol);
+    if (C.bottom !== 'pants') d.deco.rect(12.6 + 3 * s, 30.2, 3, 1.3, SOCK);
+    shoe(d, 15 + 3 * s, 33, C);
+    d.blob([[9, 14.8], [19, 14.8], [19.4, 22.6], [8.6, 22.6]], C.shirt);
+    d.deco.line(10.4, 21, 12.6, 21.6, 0.5, tint(C.shirt, -0.22));
+    if (C.deco === 'star' || C.deco === 'heart') d.deco.ell(17.4, 18.2, 1.2, 1.5, C.decoCol, 0, { unlit: true });
+    else if (C.deco === 'stripe') d.deco.rect(9, 18, 10.2, 1.5, C.decoCol);
+    else if (C.deco === 'collar') d.deco.poly([[15.6, 14.6], [18.4, 14.6], [17.8, 17]], C.decoCol, { unlit: true });
+    d.tube([[13, 16.6], [13 - 1.2 * s, 20.4], [13 - 2.4 * s, 23.6]], 3, 2.5, C.skin);
+    d.tube([[13, 15.6], [13 - 0.5 * s, 18.8]], 3.9, 3.4, C.sleeve);
+    d.deco.line(11.2 - 0.5 * s, 18.8, 14.8 - 0.5 * s, 18.8, 0.6, tint(C.sleeve, -0.3));
+    d.circ(13 - 2.4 * s, 24.4, 2, hand);
+    if (C.glove) d.deco.rect(13 - 2.4 * s - 1.7, 22.6, 3.4, 0.9, tint(C.glove, -0.15));
     // tête de profil
-    d.ell(12.6, 8.6, 5.4, 5.4, C.skin);
-    d.ell(17.4, 10, 1.2, 1, C.skin, 0, { noline: true });
-    d.deco.ell(15.4, 9.8, 0.7, 1.2, EYE, 0, { unlit: true });
-    d.deco.rect(15.2, 8.9, 0.5, 0.5, '#ffffff', { unlit: true });
-    d.deco.line(15.4, 12.6, 16.6, 12.4, 0.6, MOUTH, { unlit: true });
-    d.deco.ell(14, 11.6, 0.8, 0.5, BLUSH);
+    d.rect(13, 13, 3, 2.4, C.skin, { round: 0.3 });
+    d.ell(14.6, 8.6, 6, 6.2, C.skin);
+    d.ell(20.4, 10.2, 1.2, 1, C.skin, 0, { noline: true });
+    d.ell(12.8, 9.8, 1.2, 1.6, tint(C.skin, -0.05));
+    const iris = C.eye || '#5a3a20';
+    d.deco.ell(17.8, 9.8, 1.1, 1.7, WHITE, 0, { unlit: true });
+    d.deco.ell(18.3, 10.1, 0.75, 1.3, iris, 0, { unlit: true });
+    d.deco.rect(17.8, 9, 0.6, 0.6, WHITE, { unlit: true });
+    d.deco.line(16.6, 7.4, 19.2, 7.2, 0.6, tint(C.hair, -0.25));
+    d.deco.line(18, 13, 19.4, 12.8, 0.6, MOUTH, { unlit: true });
+    d.deco.ell(16.2, 12, 0.9, 0.5, BLUSH);
     if (C.style === 'spiky') {
-      d.poly([[7.4, 12], [5.6, 8.4], [2.6, 7], [5.4, 5], [4.4, 1.6], [8.4, 2.6], [10.6, 0.4], [13, 2.4], [15.6, 1], [16.6, 3.8], [19, 5], [16, 5.8], [13.6, 6.4], [11.4, 7.6], [10.6, 11.6]], C.hair);
-      d.deco.line(7, 4, 9.6, 6.6, 0.7, C.hairL);
+      d.poly([[9.4, 13], [7.4, 9], [4.2, 7.6], [7, 5.2], [6, 1.4], [10.4, 2.6], [12.6, 0.2], [15.2, 2.4], [18, 0.8], [19, 3.8], [21.6, 5.2], [18.4, 6], [15.8, 6.6], [13.4, 7.8], [12.6, 12.6]], C.hair);
+      d.deco.line(8.6, 4, 11.4, 6.8, 0.8, C.hairL); d.deco.line(13.6, 2.6, 15, 4.6, 0.7, C.hairL);
     } else {
-      const low = C.style === 'short' ? 12 : 13.6;
-      d.poly([[7.4, low], [6.6, 6], [8.6, 2.6], [12.6, 1.8], [16.6, 3.2], [18, 6.4], [15, 5.8], [12.6, 7], [11.2, 7.4], [10.8, low]], C.hair);
-      d.deco.line(8.6, 3.6, 11, 6, 0.7, C.hairL);
+      const low = C.style === 'short' ? 13 : 14.6;
+      d.poly([[9.2, low], [8.4, 6], [10.6, 2.4], [15, 1.6], [19.2, 3.2], [20.6, 6.6], [17.4, 6], [15, 7.2], [13.4, 7.6], [12.8, low]], C.hair);
+      d.deco.line(10.6, 3.6, 13.2, 6.2, 0.8, C.hairL);
     }
     hat(d, C, 'side');
   }
@@ -197,7 +254,7 @@
       spr = { img: cv, w: r.w, h: r.h };
     } else {
       const draw = dir === 'right' ? d => side(d, ph, look) : d => front(d, ph, dir === 'up', look);
-      spr = Art.render(draw, 24, 30, { silhouettes: false, dither: 0.05 });
+      spr = Art.render(draw, HW, HH, { silhouettes: false, dither: 0.05 });
     }
     return (cache[key] = spr);
   };

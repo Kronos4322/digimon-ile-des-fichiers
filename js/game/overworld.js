@@ -488,7 +488,7 @@
       const X = Math.round(pp.x * TS + 8 - spr.w / 2), Y = Math.round(pp.y * TS + 17 - spr.h) + bob;
       if (!ghost) {
         c.fillStyle = 'rgba(0,0,0,0.25)';
-        c.beginPath(); c.ellipse(Math.round(pp.x * TS) + 8, Math.round(pp.y * TS) + 15, 6.5, 2.6, 0, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(Math.round(pp.x * TS) + 8, Math.round(pp.y * TS) + 15, 7.5, 2.8, 0, 0, 7); c.fill();
       }
       c.drawImage(spr.img, X, Y);
       return { x: X + 3, y: Y + 2, w: spr.w - 6, h: spr.h - 2 };
