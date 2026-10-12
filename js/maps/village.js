@@ -326,12 +326,8 @@
     warps: [{ x: 0, y: 13, w: 1, h: 3, dir: 'left', to: 'plage', tx: 39, ty: 1 }, { x: 19, y: 29, w: 2, h: 1, dir: 'down', to: 'gym', tx: 15, ty: 0 },
       { x: 5, y: 29, w: 2, h: 1, dir: 'down', to: 'champs', tx: 5, ty: 0 }],
     doors: [],
-    triggers: [
-      { x: 37, y: 13, w: 1, h: 3, run: async ow => {
-        await say("Un éboulement bloque le chemin vers la Montagne de l'Infini... (Prochaine zone en construction !)");
-        await ow.forceStep('left');
-      } },
-    ],
+    // la route de l'est (Montagne de l'Infini) est gardée par la porte de région (regions.js : GATE.montagne)
+    triggers: [],
     signs: {},
   };
   build();

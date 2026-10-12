@@ -95,6 +95,15 @@ test('tous les drapeaux utilisés sont déclarés dans js/data/flags.js', () => 
 });
 
 // ------------------------------------------------------------ données
+test('aucun déclencheur sans condition ne bloque un passage vers une autre carte', () => {
+  for (const id in DW.MAPS) {
+    const m = DW.getMap(id);
+    for (const t of m.triggers || []) if (!t.cond) for (const w of m.warps || []) {
+      const dx = Math.max(0, w.x - (t.x + (t.w || 1) - 1), t.x - (w.x + (w.w || 1) - 1)), dy = Math.max(0, w.y - (t.y + (t.h || 1) - 1), t.y - (w.y + (w.h || 1) - 1));
+      yes(dx + dy > 3, `${id} : déclencheur (${t.x},${t.y}) collé au passage vers ${w.to}`);
+    }
+  }
+});
 test('chaque carte a un climat connu (météo)', () => {
   for (const id in DW.MAPS) { const c = DW.MAPS[id].climate; if (c) yes(DW.Time.CLIMATES[c], `${id} : climat inconnu ${c}`); }
 });
