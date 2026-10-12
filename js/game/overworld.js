@@ -7,7 +7,8 @@
   const W = DW.W, H = DW.H, TS = 16;
   const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
   const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
-  const WALK = 0.24, RUN = 0.13; // secondes par case
+  const SIGN_STAT = ['hp', 'atk', 'def', 'spd', 'int', 'mp'];   // pictogramme des panneaux du Terrain d'entraînement (v) → poste
+  const WALK = 0.2, RUN = 0.11; // secondes par case (×√2 en diagonale : même vitesse dans toutes les directions)
 
   class Overworld extends DW.Scene {
     constructor(mapId, x, y, dir) {
@@ -71,7 +72,7 @@
     update(dt) {
       const P = this.p;
       if (P.moving) {
-        P.t += dt / (P.run ? RUN : WALK);
+        P.t += dt / P.dur;
         if (this.f.moving) this.f.t = Math.min(1, P.t);
         if (P.t < 1) return;
         const over = Math.min(P.t - 1, 0.5);
@@ -79,9 +80,8 @@
         if (P.forced) { P.forced = false; const r = P.forcedR; P.forcedR = null; r && r(); return; }
         const ev = this.checkStep();
         if (ev) { this.runScript(ev); return; }
-        // enchaînement fluide si la touche reste enfoncée
-        const d = !this.locked && Input.dir();
-        if (d) { P.dir = d; this.tryMove(d, Input.isDown('run'), over); }
+        // enchaînement fluide si la direction reste tenue
+        if (!this.locked) { const v = Input.vec(); if (v.x || v.y) this.walk(v, over); }
         return;
       }
       if (this.locked) return;
@@ -90,12 +90,39 @@
       if (wc) { this.runScript(wc); return; }
       if (Input.hit('back') || Input.hit('menu')) { Audio.sfx('select'); this.runScript(async () => { await Game.push(new DW.MenuScene()); }); return; }
       if (Input.hit('ok')) { this.interact(); return; }
-      const d = Input.dir();
-      if (!d) { P.turnT = 0; return; }
-      // appui bref dans une nouvelle direction = se tourner sur place
-      if (d !== P.dir) { P.dir = d; P.turnT = 0.09; return; }
+      const v = Input.vec();
+      if (!v.x && !v.y) { P.turnT = 0; return; }
+      // nouvelle direction : le héros pivote d'abord sur place (on le voit se tourner), puis il marche
+      const d = this.faceFor(v);
+      if (d !== P.dir) { P.dir = d; P.turnT = 0.08; return; }
       if (P.turnT > 0) { P.turnT -= dt; return; }
-      this.tryMove(d, Input.isDown('run'), 0);
+      this.walk(v, 0);
+    }
+    // direction regardée pour un vecteur : en diagonale le héros se met de profil (sens de la marche),
+    // sinon il glisserait de côté en restant de face ou de dos
+    faceFor(v) {
+      const h = v.x < 0 ? 'left' : v.x > 0 ? 'right' : null, w = v.y < 0 ? 'up' : v.y > 0 ? 'down' : null;
+      return h || w;
+    }
+    // diagonale possible : case d'arrivée libre et pas de coin coupé (les deux cases voisines libres), pas de porte
+    canDiag(dx, dy) {
+      const P = this.p, nx = P.x + dx, ny = P.y + dy;
+      if (nx < 0 || ny < 0 || nx >= this.map.w || ny >= this.map.h) return false;
+      if (this.solid(nx, ny) || this.solid(P.x + dx, P.y) || this.solid(P.x, P.y + dy)) return false;
+      const door = (x, y) => (this.map.doors || []).some(o => y === o.y && x >= o.x && x < o.x + (o.w || 1));
+      return !door(nx, ny) && !door(P.x + dx, P.y) && !door(P.x, P.y + dy);
+    }
+    // un pas dans la direction v (8 directions) ; contre un obstacle en diagonale, on glisse le long
+    walk(v, over) {
+      const P = this.p, run = Input.isDown('run');
+      if (!(v.x && v.y)) return this.tryMove(this.faceFor(v), run, over);
+      P.dir = this.faceFor(v);
+      if (this.canDiag(v.x, v.y)) { this.startMove(P.x + v.x, P.y + v.y, run, over); return true; }
+      const h = v.x < 0 ? 'left' : 'right', w = v.y < 0 ? 'up' : 'down', order = P.dir === w ? [w, h] : [h, w];
+      const face = P.dir;
+      if (this.tryMove(order[0], run, over, true) || this.locked || this.tryMove(order[1], run, over)) return true;   // locked : une sortie ou une porte vient de se déclencher
+      P.dir = face;
+      return false;
     }
     tick(dt) {
       if (this.shake > 0) this.shake -= dt;
@@ -148,7 +175,7 @@
         return;
       }
     }
-    tryMove(d, run, over) {
+    tryMove(d, run, over, quiet) {
       const P = this.p;
       P.dir = d;
       const [dx, dy] = DIRS[d], nx = P.x + dx, ny = P.y + dy;
@@ -163,8 +190,11 @@
       }
       const door = (this.map.doors || []).find(o => o.dir === d && nx >= o.x && nx < o.x + (o.w || 1) && ny === o.y && (!o.cond || o.cond(DW.state)));
       if (door) { this.runScript(() => this.enterDoor(door, nx)); return false; }
+      // le héros fonce sur un Digimon sauvage : combat volontaire
+      const wild = this.partner && DW.Wild.at(this, nx, ny);
+      if (wild && !quiet) { this.runScript(DW.Wild.bump(this, wild)); return false; }
       if (this.solid(nx, ny)) {
-        if (!this.bumpT || this.t - this.bumpT > 0.4) { Audio.sfx('bump'); this.bumpT = this.t; }
+        if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; }
         return false;
       }
       this.startMove(nx, ny, run, over);
@@ -173,7 +203,8 @@
     startMove(nx, ny, run, over = 0) {
       const P = this.p, F = this.f;
       DW.Companion.wake(this);
-      Object.assign(P, { moving: true, sx: P.x, sy: P.y, tx: nx, ty: ny, t: over, run });
+      const diag = nx !== P.x && ny !== P.y;
+      Object.assign(P, { moving: true, sx: P.x, sy: P.y, tx: nx, ty: ny, t: over, run, dur: (run ? RUN : WALK) * (diag ? Math.SQRT2 : 1) });
       P.step++;
       if (DW.World.isTall(this.tileAt(nx, ny))) this.rustle[nx + ',' + ny] = 0.5;
       if (!this.partner) Object.assign(F, { moving: false, x: P.x, y: P.y, sx: P.x, sy: P.y, tx: P.x, ty: P.y });   // sans partenaire : la place reste collée au héros
@@ -186,6 +217,8 @@
     finishStep() {
       const P = this.p, F = this.f;
       Object.assign(P, { moving: false, x: P.tx, y: P.ty, sx: P.tx, sy: P.ty, t: 0 });
+      // Chaussures santé (dans le sac) : marcher rend un peu de PV et de PM
+      if (DW.state.bag.chaussures) for (const m of DW.state.party) if (m.hp > 0) { m.hp = Math.min(m.maxHp, m.hp + Math.ceil(m.maxHp * 0.004)); m.mp = Math.min(m.maxMp, m.mp + Math.ceil(m.maxMp * 0.004)); }
       if (F.moving) Object.assign(F, { moving: false, x: F.tx, y: F.ty, sx: F.tx, sy: F.ty, t: 0 });
       DW.state.x = P.x; DW.state.y = P.y;
     }
@@ -240,13 +273,29 @@
       if (sign) { this.runScript(typeof sign === 'function' ? sign : async () => { await DW.say(sign); }); return true; }
       if (DW.Care.poopAt(this.mapId, x, y)) { this.runScript(() => DW.Care.clean(this.mapId, x, y)); return true; }
       const info = DW.World.info(this.tileAt(x, y));
-      if (info.train) { this.runScript(() => DW.Training.atSpot(info.train)); return true; }
+      const ts = this.trainSpot();
+      if (ts) { this.runScript(() => DW.Training.atSpot(ts.k)); return true; }
       if (info.toilet) { this.runScript(() => DW.Care.toilet()); return true; }
       const act = this.map.tileActs && this.map.tileActs[this.tileAt(x, y)];
       if (act) { this.runScript(act); return true; }
       const F = this.f, pt = this.partner;
       if (pt && F.x === x && F.y === y) { this.runScript(() => this.talkPartner(pt)); return true; }
       return false;
+    }
+    // poste d'entraînement devant le héros : la case visée, ou une de ses deux voisines de côté (plus besoin de viser au pixel près)
+    trainSpot() {
+      const P = this.p;
+      if (P.moving) return null;
+      const [dx, dy] = DIRS[P.dir], x = P.x + dx, y = P.y + dy;
+      const signAt = (ax, ay) => (this.map.objects || []).find(o => o.kind === 'stationsign' && ax >= o.x && ax < o.x + (o.w || 1) && ay >= o.y && ay < o.y + (o.h || 1));
+      for (const [ax, ay] of [[x, y], [x + dy, y + dx], [x - dy, y - dx]]) {
+        const I = DW.World.info(this.tileAt(ax, ay));
+        if (I.train) return { x: ax, y: ay, k: I.train };
+        // le panneau à pictogramme devant chaque poste lance aussi la séance
+        const o = signAt(ax, ay);
+        if (o && SIGN_STAT[o.v || 0]) return { x: ax, y: ay, k: SIGN_STAT[o.v || 0] };
+      }
+      return null;
     }
     async talkPartner(m) {
       if (await DW.Life.talk(m)) return;
@@ -290,7 +339,7 @@
       for (const m of st.party) {
         if (!m.evoPending || m.hp <= 0) continue;
         m.evoPending = false;
-        if (!DW.Evo.available(m).length || (DW.AutoEvo && DW.AutoEvo.on())) continue;
+        if (!DW.Evo.available(m).length) continue;
         Audio.play('evolve');
         const r = await DW.ask(`Le Digivice vibre ! ${m.name} peut digivoluer. Ouvrir la table des Digivolutions ?`);
         if (r === 0) await Game.push(new DW.EvoTableScene(st.party.indexOf(m)));
@@ -425,6 +474,15 @@
         DW.Sprites.draw(c, spr, cx + W / 2 + this.big.x, cy + this.big.y, { flip: true, frame: Math.floor(this.t * 6) });
       }
       this.amb.drawWorld(c, cam);
+      // étiquette au-dessus du poste d'entraînement qu'on peut utiliser
+      const ts = !this.locked && Game.top() === this && this.trainSpot();
+      if (ts) {
+        const label = 'ESPACE : ' + DW.Training.STATS[ts.k].name, w = UI.measure(c, label, 7) + 10;
+        const X = Math.round(ts.x * TS + 8 - w / 2), Y = Math.round(ts.y * TS - 18 + Math.sin(this.t * 4) * 1.5);
+        c.fillStyle = 'rgba(8,20,40,0.85)'; c.fillRect(X, Y, w, 12);
+        c.fillStyle = '#ffe070'; c.fillRect(X, Y + 11, w, 1);
+        UI.text(c, label, X + w / 2, Y + 9, { size: 7, align: 'center', color: '#ffffff' });
+      }
       // barrières de données sur les passages encore fermés
       for (const w of this.map.warps || []) if (w.cond && !w.cond(DW.state)) {
         for (let yy = w.y; yy < w.y + (w.h || 1); yy++) for (let xx = w.x; xx < w.x + (w.w || 1); xx++) {
@@ -438,7 +496,13 @@
       c.restore();
       this.amb.drawScreen(c, cam);
       if (!this.map.indoor) this.weather.draw(c);
-      const lights = this.amb.lights().map(L => ({ ...L, x: L.x - cx, y: L.y - cy }));
+      // lumières en coordonnées écran ; celles qui ne touchent pas l'écran sont ignorées (même rendu, moins de calcul)
+      const lights = [];
+      for (const L of this.amb.lights()) {
+        const x = L.x - cx, y = L.y - cy, r = L.r || 0;
+        if (x + r < 0 || y + r < 0 || x - r > W || y - r > H) continue;
+        lights.push({ ...L, x, y });
+      }
       lights.push({ x: Math.round(pp.x * TS) + 8 - cx, y: Math.round(pp.y * TS) + 4 - cy, r: 52 });
       DW.Time.drawLight(c, lights, this.map.indoor ? 0.75 : 1, this.map.dark);
       if (!this.locked || Game.top() === this) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); }

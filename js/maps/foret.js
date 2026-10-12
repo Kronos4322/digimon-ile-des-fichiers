@@ -176,8 +176,8 @@
       set: [[27, 19, 'S'], [22, 12, 'y']],
     })),
     encounters: [
-      { sp: 'kunemon', min: 4, max: 6, w: 30 }, { sp: 'mushroomon', min: 5, max: 6, w: 15, night: 40 },
-      { sp: 'betamon', min: 4, max: 6, w: 20 }, { sp: 'bukamon', min: 4, max: 5, w: 15 }, { sp: 'yokomon', min: 4, max: 5, w: 15 },
+      { sp: 'bukamon', min: 4, max: 5, w: 25 }, { sp: 'yokomon', min: 4, max: 5, w: 25 }, { sp: 'tanemon', min: 4, max: 5, w: 15 },
+      { sp: 'kunemon', min: 5, max: 6, w: 15 }, { sp: 'betamon', min: 5, max: 6, w: 12 }, { sp: 'mushroomon', min: 5, max: 6, w: 8, night: 35 },
     ],
     warps: [
       { x: 29, y: 0, w: 3, h: 1, dir: 'up', to: 'sentier', tx: 29, ty: 35 },
@@ -218,7 +218,7 @@
   MAPS.lisiere = {
     name: 'Lisière du Ravin', music: 'field', bg: 'foret', ambient: 'forest', theme: 'autumn', climate: 'forest', rate: 0.12, region: 'foret',
     rows: lisRows,
-    encounters: [{ sp: 'kunemon', min: 3, max: 5, w: 45 }, { sp: 'mushroomon', min: 4, max: 5, w: 20, night: 45 }, { sp: 'yokomon', min: 3, max: 4, w: 20 }, { sp: 'tanemon', min: 3, max: 4, w: 15 }],
+    encounters: [{ sp: 'yokomon', min: 3, max: 4, w: 25 }, { sp: 'tanemon', min: 3, max: 4, w: 25 }, { sp: 'nyokimon', min: 2, max: 3, w: 15 }, { sp: 'yuramon', min: 2, max: 3, w: 10 }, { sp: 'kunemon', min: 4, max: 5, w: 15 }, { sp: 'mushroomon', min: 4, max: 5, w: 8, night: 30 }],
     warps: [
       { x: 17, y: 0, w: 3, h: 1, dir: 'up', to: 'geants', tx: 13, ty: 35 },
       { x: 17, y: 31, w: 3, h: 1, dir: 'down', to: 'plage', tx: 17, ty: 0 },

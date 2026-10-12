@@ -129,23 +129,15 @@
       const d = Input.hit('left') ? -1 : Input.hit('right') || Input.hit('ok') ? 1 : 0;
       if (d) {
         if (this.i === 0) O.textSpeed = (O.textSpeed + d + O.SPEEDS.length) % O.SPEEDS.length;
-        else if (this.i === 1) Audio.toggleMute();
-        else if (this.i === 2) O.battleMode ^= 1;
-        else if (this.i === 3) DW.state.flags.autoEvo = !DW.state.flags.autoEvo;
-        else { DW.state.flags.solo = !DW.state.flags.solo; this.moved = DW.applyPartyMax(); }
+        else Audio.toggleMute();
         Audio.sfx('move'); O.save();
       }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
     }
-    // les deux dernières lignes sont des règles de la partie en cours (enregistrées dans la sauvegarde)
-    rows() {
-      const O = DW.Options, f = DW.state.flags, r = [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé'], ['Combat', O.battleMode ? 'Ordres (DW1)' : 'Manuel']];
-      if (f.starter) r.push(['Digivolution', f.autoEvo ? "Selon l'âge (DW1)" : 'Au choix'], ['Équipe', f.solo ? '1 partenaire (DW1)' : '6 Digimon']);
-      return r;
-    }
+    rows() { const O = DW.Options; return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé']]; }
     draw(c) {
-      const x = 40, rows = this.rows(), y = 60 - (rows.length - 3) * 10;
-      UI.box(c, x, y, 240, 116 + (rows.length - 3) * 20);
+      const x = 40, rows = this.rows(), y = 70;
+      UI.box(c, x, y, 240, 96);
       UI.label(c, 'OPTIONS', x + 6, y + 5);
       rows.forEach(([k, v], j) => {
         const yy = y + 32 + j * 20;
@@ -153,10 +145,7 @@
         UI.text(c, k, x + 14, yy, { size: 10 });
         UI.text(c, '◀  ' + v + '  ▶', x + 226, yy, { size: 10, align: 'right', color: '#ffe070' });
       });
-      const tip = this.i === 2 ? 'Ordres : ton Digimon se bat tout seul, comme dans Digimon World. Appuie sur ESPACE pendant le combat pour lui donner un ordre.'
-        : this.i === 3 ? "Selon l'âge : ton Digimon digivolue tout seul en grandissant, vers la meilleure forme dont il remplit les conditions."
-        : this.i === 4 ? (this.moved ? `${this.moved} Digimon envoyé(s) à la DigiFerme.` : "1 partenaire : les autres Digimon attendent à la DigiFerme (Jardin de Yokomon).")
-        : 'Astuce : maintiens Maj (ou ESPACE) pour faire défiler les dialogues en accéléré.';
+      const tip = 'Astuce : maintiens Maj (ou ESPACE) pour faire défiler les dialogues en accéléré.';
       const ty = y + 36 + rows.length * 20;
       UI.wrap(c, tip, 220, 8).forEach((l, j) => UI.text(c, l, x + 12, ty + j * 10, { size: 8, color: '#8ae0f0' }));
     }
@@ -241,6 +230,26 @@
     }
     async use(id) {
       const it = DW.ITEMS[id], st = DW.state;
+      if (['home', 'potty', 'bell', 'none', 'passive'].includes(it.use)) {
+        if (it.use === 'none' || it.use === 'passive') { await DW.say(it.desc); return; }
+        if (this.o.battle) { await DW.say("Ça ne sert à rien en plein combat !"); return; }
+        if (it.use === 'bell') { st.bag[id]--; st.bellUntil = st.clock + 120; st.repelUntil = 0; await DW.say('Ding ding ! Tous les Digimon sauvages des environs accourent...'); }
+        if (it.use === 'potty') { if (!DW.Care || !st.party.length) return; st.bag[id]--; this.close(null); await DW.Care.toilet(); return; }
+        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); DW.ow.load('village', 20, 16, 'down'); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
+        this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
+      }
+      if (it.use === 'evo') {
+        if (this.o.battle) { await DW.say("Ce n'est pas le moment !"); return; }
+        const t = await Game.push(new PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
+        if (t == null || t < 0) return;
+        const mon = st.party[t];
+        if (!DW.canUse(id, mon)) { await DW.say(`Ça ne marche que sur un Digimon de stade ${it.from}.`); return; }
+        if ((await DW.ask(`Utiliser ${it.name} : ${mon.name} va digivoluer en ${DW.SPECIES[it.to].name}. D'accord ?`)) !== 0) return;
+        st.bag[id]--; this.close(null);
+        await Game.push(new DW.EvolutionScene(mon, it.to, { manual: true }));
+        mon.evolve(it.to); st.seen[it.to] = true; if (st.owned) st.owned[it.to] = true;
+        await DW.learnEvoMoves(mon); DW.autosave(); return;
+      }
       if (it.use === 'repel') {
         if (this.o.battle) { await DW.say("Ça ne sert à rien en plein combat !"); return; }
         st.bag[id]--; st.repelUntil = st.clock + 120;
@@ -259,6 +268,10 @@
         st.bag[id]--; await DW.Cards.openPack(); this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (!st.party.length) { await DW.say("Tu n'as aucun Digimon !"); return; }
+      if (it.use === 'buff' || it.use === 'protect') {
+        if (!this.o.battle) { await DW.say('Cet objet ne sert que pendant un combat.'); return; }
+        this.close({ item: id, target: 0 }); return;
+      }
       const t = await Game.push(new PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
       if (t == null || t < 0) return;
       const mon = st.party[t];
@@ -398,60 +411,77 @@
 
   // ------------------------------------------------------------ boutique
   class ShopScene extends DW.Scene {
-    constructor(stock) { super(); this.stock = stock; this.i = 0; this.qty = 0; }
+    // stock : liste d'objets, ou nom de boutique (DW.SHOPS, stock selon le niveau de la ville)
+    constructor(stock) { super(); this.src = stock; this.i = 0; this.qty = 0; this.sell = false; this.top = 0; }
+    get stock() { return this.sell ? DW.ITEM_ORDER.filter(id => (DW.state.bag[id] || 0) > 0) : typeof this.src === 'string' ? DW.shopStock(this.src) : this.src; }
+    price(id) { const it = DW.ITEMS[id]; return this.sell ? (it.sell || Math.floor(it.price / 2)) : it.price; }
     update() {
-      const st = DW.state;
+      const st = DW.state, L = this.stock;
       if (this.qty > 0) {
-        const it = DW.ITEMS[this.stock[this.i]], max = Math.max(1, Math.min(DW.bagRoom(this.stock[this.i]), Math.floor(st.bits / it.price)));
+        const id = L[this.i], it = DW.ITEMS[id];
+        const max = this.sell ? st.bag[id] || 0 : Math.max(1, Math.min(DW.bagRoom(id), Math.floor(st.bits / it.price)));
         if (Input.hit('up') || Input.hit('right')) { this.qty = this.qty >= max ? 1 : this.qty + 1; Audio.sfx('move'); }
         if (Input.hit('down') || Input.hit('left')) { this.qty = this.qty <= 1 ? max : this.qty - 1; Audio.sfx('move'); }
         if (Input.hit('back')) { this.qty = 0; Audio.sfx('back'); }
         if (Input.hit('ok')) {
-          const cost = it.price * this.qty;
-          if (cost > st.bits) { Audio.sfx('bump'); this.qty = 0; return; }
-          st.bits -= cost; DW.giveItem(this.stock[this.i], this.qty);
-          Audio.sfx('buy'); this.msg = `Merci ! ${it.name} x${this.qty}`; this.msgT = 2; this.qty = 0;
+          const sum = this.price(id) * this.qty;
+          if (this.sell) { st.bag[id] -= this.qty; st.bits += sum; this.msg = `Vendu ! +${sum} Bits`; this.i = Math.min(this.i, Math.max(0, this.stock.length - 1)); }
+          else { if (sum > st.bits) { Audio.sfx('bump'); this.qty = 0; return; } st.bits -= sum; DW.giveItem(id, this.qty); this.msg = `Merci ! ${it.name} x${this.qty}`; }
+          Audio.sfx('buy'); this.msgT = 2; this.qty = 0;
         }
         return;
       }
-      const n = this.stock.length + 1;
+      const n = L.length + 1;
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
+      if (Input.hit('left') || Input.hit('right')) { this.sell = !this.sell; this.i = 0; this.top = 0; Audio.sfx('move'); }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); return; }
       if (Input.hit('ok')) {
-        if (this.i >= this.stock.length) { Audio.sfx('back'); this.close(); return; }
-        const it = DW.ITEMS[this.stock[this.i]];
-        if (st.bits < it.price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
-        if (!DW.bagRoom(this.stock[this.i])) { Audio.sfx('bump'); this.msg = `Sac plein (${DW.BAG_MAX} max) !`; this.msgT = 2; return; }
+        if (this.i >= L.length) { Audio.sfx('back'); this.close(); return; }
+        const id = L[this.i];
+        if (!this.sell) {
+          if (st.bits < DW.ITEMS[id].price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+          if (!DW.bagRoom(id)) { Audio.sfx('bump'); this.msg = `Sac plein (${DW.BAG_MAX} max) !`; this.msgT = 2; return; }
+        }
         Audio.sfx('select'); this.qty = 1;
       }
+      // fenêtre de 8 lignes qui suit le curseur
+      if (this.i < this.top) this.top = this.i; if (this.i > this.top + 7) this.top = this.i - 7;
     }
     tick(dt) { if (this.msgT > 0) this.msgT -= dt; }
     draw(c) {
-      const st = DW.state;
-      UI.menuBg(c, this.t, 'BOUTIQUE');
+      const st = DW.state, L = this.stock;
+      UI.menuBg(c, this.t, this.sell ? 'VENDRE' : 'BOUTIQUE');
       UI.box(c, 8, 26, 210, 150);
-      this.stock.forEach((id, i) => {
+      UI.text(c, this.sell ? '◀ ACHETER' : 'VENDRE ▶', 210, 22, { size: 7, align: 'right', color: '#9ab0e8' });
+      const rows = L.concat(['__quit']).slice(this.top, this.top + 8);
+      rows.forEach((id, k) => {
+        const y = 44 + k * 16;
+        if (id === '__quit') { UI.text(c, 'QUITTER', 26, y, { size: 10, color: '#9ab0e8' }); return; }
         const it = DW.ITEMS[id];
-        UI.text(c, it.name, 26, 44 + i * 16, { size: 10 });
-        UI.text(c, `${it.price} B`, 208, 44 + i * 16, { size: 10, align: 'right', color: '#ffd860' });
+        c.drawImage(DW.Icons.item(id), 12, y - 11, 12, 12);
+        UI.text(c, it.name + (this.sell ? ` ×${st.bag[id]}` : ''), 26, y, { size: 9 });
+        UI.text(c, `${this.price(id)} B`, 210, y, { size: 9, align: 'right', color: '#ffd860' });
       });
-      UI.text(c, 'QUITTER', 26, 44 + this.stock.length * 16, { size: 10, color: '#9ab0e8' });
-      UI.cursor(c, 15, 40.5 + this.i * 16, this.t);
+      if (this.top > 0) UI.text(c, '▲', 113, 34, { size: 7, align: 'center', color: '#ffe070' });
+      if (this.top + 8 < L.length + 1) UI.text(c, '▼', 113, 174, { size: 7, align: 'center', color: '#ffe070' });
+      UI.cursor(c, 15, 40.5 + (this.i - this.top) * 16, this.t);
       UI.box(c, 224, 26, 88, 56);
       UI.text(c, 'Bits', 232, 42, { size: 9, color: '#9ab0e8' });
       UI.text(c, String(st.bits), 304, 56, { size: 11, align: 'right', bold: true, color: '#ffd860' });
-      const id = this.stock[this.i];
-      if (id) UI.text(c, `Possédé : ${st.bag[id] || 0}`, 232, 74, { size: 8, color: '#9ab0e8' });
-      if (this.qty > 0) {
-        const it = DW.ITEMS[id];
-        UI.box(c, 224, 90, 88, 48, 'orange');
-        UI.text(c, `x ${this.qty}`, 268, 108, { size: 12, align: 'center', bold: true });
-        UI.text(c, `${it.price * this.qty} B`, 268, 128, { size: 10, align: 'center' });
-      }
+      const id = L[this.i];
       UI.box(c, 8, 180, 304, 54);
-      const txt = this.msgT > 0 ? this.msg : this.qty > 0 ? 'Combien ? (Haut/Bas puis ESPACE)' : id ? DW.ITEMS[id].desc : 'À bientôt !';
-      UI.wrap(c, txt, 286, 10).forEach((l, i) => UI.text(c, l, 18, 198 + i * 14));
+      if (id) {
+        const it = DW.ITEMS[id];
+        UI.wrap(c, it.desc, 290, 8).slice(0, 3).forEach((l, k) => UI.text(c, l, 16, 196 + k * 11, { size: 8, color: '#c8f0ff' }));
+        UI.text(c, `Dans le sac : ${st.bag[id] || 0}`, 304, 76, { size: 7, align: 'right', color: '#9ab0e8' });
+      } else UI.text(c, this.sell ? 'Rien à vendre.' : 'La boutique est vide... Fais grandir la ville !', 16, 200, { size: 8, color: '#c8f0ff' });
+      if (this.qty > 0) {
+        UI.box(c, 224, 90, 88, 50);
+        UI.text(c, `× ${this.qty}`, 268, 110, { size: 12, align: 'center', color: '#ffffff' });
+        UI.text(c, `${this.price(id) * this.qty} B`, 268, 128, { size: 9, align: 'center', color: '#ffd860' });
+      }
+      if (this.msgT > 0) UI.text(c, this.msg, 268, 160, { size: 8, align: 'center', color: '#7aff8a' });
     }
   }
   DW.ShopScene = ShopScene;

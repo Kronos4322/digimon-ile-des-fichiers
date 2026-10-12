@@ -8,6 +8,7 @@
 (function () {
   const TS = 16, DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   const GONE_WIN = 180, GONE_RUN = 25;   // minutes de jeu avant réapparition
+  const STAGES = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
   const STAGE_LV = { 'Bébé': -4, 'Entraînement': -2, Disciple: 0, Champion: 2, Ultime: 5, 'Méga': 8 };
 
   // ------------------------------------------------------------ tables des régions
@@ -43,7 +44,7 @@
       if (!T || m.indoor && !m.dark || (m.encounters && m.encounters.length)) continue;
       const idx = +(id.match(/(\d+)$/) || [0, 0])[1], base = T[0] + Math.floor(idx * 0.8);
       m.encounters = parse(T[1]).filter(e => idx >= e.from && DW.SPECIES[e.sp]).map(e => {
-        const lv = base + (STAGE_LV[DW.SPECIES[e.sp].stage] || 0);
+        const lv = Math.max(2, base - 1 + (STAGE_LV[DW.SPECIES[e.sp].stage] || 0));   // 1 niveau sous le joueur attendu : les combats poussent à s'entraîner et à s'équiper
         return { sp: e.sp, min: lv - 1, max: lv + 1, w: e.w, night: e.night };
       });
       m.wildN = m.wildN || DW.clamp(Math.round(m.w * m.h / 240), 3, 6);
@@ -103,7 +104,10 @@
           continue;
         }
         const dx = P.x - w.x, dy = P.y - w.y, dist = Math.abs(dx) + Math.abs(dy);
-        const chase = w.aggro && !(DW.state.repelUntil > DW.state.clock) && dist <= 5 && Math.abs(w.x - w.home[0]) + Math.abs(w.y - w.home[1]) < 10;
+        // un sauvage d'un stade au-dessus de ton partenaire ne te chasse pas : à toi de l'éviter (ou de le défier)
+        const bell = DW.state.bellUntil > DW.state.clock;
+        const chase = (bell || w.aggro && !Wild.stronger(w)) && !(DW.state.repelUntil > DW.state.clock) && dist <= 5 && Math.abs(w.x - w.home[0]) + Math.abs(w.y - w.home[1]) < 10;
+        w.chasing = chase;
         if (chase && !w.seen) { w.seen = true; w.alert = 0.9; w.wt = 0.45; DW.Audio.sfx('select'); }
         if (!chase && dist > 7) w.seen = false;
         w.wt -= dt;
@@ -132,13 +136,28 @@
         }
       }
     },
-    // contact : un Digimon sauvage collé au héros (immobile) déclenche le combat
+    // stade du sauvage au-dessus de celui du partenaire de tête
+    stronger(w) {
+      const lead = DW.state.party.find(m => m.hp > 0);
+      return !!lead && STAGES.indexOf(DW.SPECIES[w.sp].stage) > STAGES.indexOf(lead.d.stage);
+    },
+    // contact : un Digimon sauvage qui te poursuit et te rattrape déclenche le combat
     contact(ow) {
       if (!ow.wilds || ow.wildGrace > 0 || !ow.partner) return null;
       const P = ow.p;
       if (P.moving) return null;
-      const w = ow.wilds.find(w => !w.mv && Math.abs(w.x - P.x) + Math.abs(w.y - P.y) <= 1);
-      if (!w) return null;
+      const w = ow.wilds.find(w => !w.mv && w.chasing && Math.abs(w.x - P.x) + Math.abs(w.y - P.y) <= 1);
+      return w ? Wild.fight(ow, w) : null;
+    },
+    // le héros fonce sur un Digimon sauvage : combat volontaire (prévenu s'il est d'un stade au-dessus)
+    bump(ow, w) {
+      return async () => {
+        if (Wild.stronger(w) && (await DW.ask(`Ce ${DW.SPECIES[w.sp].name} a l'air bien plus fort que ton partenaire... L'affronter quand même ?`)) !== 0) return;
+        await Wild.fight(ow, w)();
+      };
+    },
+    fight(ow, w) {
+      const P = ow.p;
       return async () => {
         if (w.x !== P.x) P.dir = w.x > P.x ? 'right' : 'left'; else P.dir = w.y > P.y ? 'down' : 'up';
         w.face = w.x > P.x ? 'left' : 'right'; w.alert = 0.6;

@@ -82,8 +82,6 @@
           return;
         }
       }
-      // règles Digimon World 1 : Digivolution selon l'âge
-      if (DW.AutoEvo) DW.AutoEvo.check(ow);
     },
     // dormir (menu) : jusqu'à 7 h, l'équipe récupère
     async sleep(forced) {
@@ -96,7 +94,7 @@
         Life.init(d);
         d.slept = st.clock; d.tired = 0; d.mp = d.maxMp;
         if (!forced) d.germs = Math.max(0, (d.germs || 0) - 35);
-        if (d.hp > 0) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.5));
+        if (d.hp > 0) d.hp = st.bag.oreiller ? d.maxHp : Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.5));
         d.hunger = Math.min(100, d.hunger + 30);
         d.need = Math.min(95, d.need + 25);
       }
@@ -112,12 +110,14 @@
     },
     // renaissance : bébé de la lignée, avec un héritage
     babyOf(sp) { for (let k = 0; k < 8; k++) { const p = DW.Evo.prev(sp); if (!p.length) break; sp = p[0]; } return sp; },
-    reborn(m) {
+    reborn(m, sp) {
       Life.init(m);
-      const sp = Life.babyOf(m.sp);
+      const same = !sp || sp === Life.babyOf(m.sp);
+      sp = sp || Life.babyOf(m.sp);
       const iv = {}; for (const k in m.iv) iv[k] = Math.min(15, m.iv[k] + 2);
       const tr = {}; for (const k in m.tr) tr[k] = Math.floor(m.tr[k] / 2);
-      const nm = new DW.Digimon(sp, 4, { iv, tr, happy: Math.max(50, m.happy), wins: m.wins, moves: m.moves.slice(0, DW.MAX_MOVES), nick: m.nick, uid: m.uid });
+      // même lignée : il garde ses techniques et son surnom ; nouvelle lignée : un nouveau Digimon qui hérite d'une partie de la force
+      const nm = new DW.Digimon(sp, 4, same ? { iv, tr, happy: Math.max(50, m.happy), wins: m.wins, moves: m.moves.slice(0, DW.MAX_MOVES), nick: m.nick, uid: m.uid } : { iv, tr, happy: 60 });
       nm.lives = m.lives + 1; nm.lifespan = LIFESPAN + 2 * nm.lives; nm.disc = Math.round(m.disc / 2); nm.mistakes = 0; nm.fat = 0;
       return nm;
     },
@@ -125,12 +125,16 @@
       const st = DW.state, idx = st.party.indexOf(m);
       if (idx < 0) return;
       await DW.say(`${m.name} est arrivé au bout de sa vie de Digimon... Il te regarde une dernière fois avec tendresse.`);
-      await DW.say('Ses données se rassemblent... et forment un DigiŒuf !');
-      const nm = Life.reborn(m);
+      await DW.say('Ses données se rassemblent... et forment un DigiŒuf ! Quel Digimon va en naître ?');
+      const same = Life.babyOf(m.sp), eggs = [same, ...DW.EGG_ORDER.filter(e => e !== same)];
+      let i = -1;
+      while (i < 0) i = await DW.choose(eggs.map((e, k) => DW.SPECIES[e].name + (k ? '' : ' (même lignée)')), { y: 20 });
+      const nm = Life.reborn(m, eggs[i]);
       await DW.fade(1, 0.5, '#ffffff'); await DW.wait(0.3); DW.fade(0, 0.4);
       await DW.Game.push(new DW.HatchScene(nm.sp));
       st.party[idx] = nm; st.seen[nm.sp] = st.owned[nm.sp] = true;
-      await DW.say(`${m.name} renaît en ${DW.SPECIES[nm.sp].name} ! (vie n°${nm.lives + 1}) Il garde ses techniques et une partie de sa force.`);
+      await DW.say(i === 0 ? `${m.name} renaît en ${DW.SPECIES[nm.sp].name} ! (vie n°${nm.lives + 1}) Il garde ses techniques et une partie de sa force.`
+        : `Un ${DW.SPECIES[nm.sp].name} est né ! Il hérite d'une partie de la force de ${m.name}.`);
       DW.autosave();
     },
     // féliciter / gronder en parlant au partenaire ; renvoie true si un moment a été traité

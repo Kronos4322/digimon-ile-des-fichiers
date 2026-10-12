@@ -4,7 +4,7 @@
 //  1) le monde : l'Île des Fichiers, les Digimon, la ville en ruines
 //  2) le mystère : mémoire perdue, Engrenages Noirs, l'arrivée d'un humain et du Digivice
 //  3) l'enquête : ce qu'il faut faire, dans l'ordre
-//  4) les règles : Digivolution (classiques / Digimon World 1) et combats (manuel / ordres), expliquées en détail
+//  4) les règles : en combat tu choisis les techniques ; la Digivolution se fait depuis la table, une fois les critères remplis
 //  5) questions libres (soins, entraînement, combats...) — aussi chez Jijimon, menu « Questions »
 // =====================================================================
 (function () {
@@ -41,7 +41,7 @@
     ['Devenir plus fort', async () => {
       await say("Retiens bien ceci, c'est important : les COMBATS et l'ENTRAÎNEMENT sont deux choses différentes.", J);
       await say("Les combats font monter le NIVEAU. Le niveau fixe le POTENTIEL : jusqu'où ton Digimon peut progresser dans chaque statistique.", J);
-      await say("L'entraînement, au Terrain du sud, remplit ce potentiel : PV, PM, Attaque, Défense, Vitesse, Intelligence. Chaque séance est un petit jeu de rythme.", J);
+      await say("L'entraînement, au Terrain du sud, remplit ce potentiel : PV, PM, Attaque, Défense, Vitesse, Intelligence. Chaque poste a son exercice : ton Digimon court, soulève, frappe... et toi, tu l'aides au bon moment.", J);
       await say("Ce sont les points d'entraînement qui ouvrent les Digivolutions. Regarde la table des Digivolutions (menu) pour savoir quoi travailler.", J);
       await say("Comme dans les vieux récits, les forces se comptent en milliers : un Champion bien entraîné dépasse vite les 2000 PV !", J);
       await say("Et ici, on ne capture pas les Digimon : ils naissent. Elecmon, au Village des Bébés, confie un DigiŒuf par jour.", J);
@@ -55,38 +55,11 @@
     }],
   ];
 
-  // ------------------------------------------------------------ choix des règles (expliquées en détail)
-  async function chooseEvolution() {
-    for (;;) {
-      const r = await DW.ask("Maintenant, une décision importante : comment ton partenaire va-t-il grandir ?", ['Règles classiques', 'Règles Digimon World 1', 'Explique-moi la différence'], J);
-      if (r === 2) {
-        await say("RÈGLES CLASSIQUES : c'est TOI qui décides. Quand ton Digimon remplit les conditions, tu choisis sa Digivolution dans la table, au moment que tu veux.", J);
-        await say("Tu peux garder jusqu'à 6 Digimon dans ton équipe et alterner en combat. Idéal pour découvrir le jeu tranquillement.", J);
-        await say("RÈGLES DIGIMON WORLD 1 : ton Digimon digivolue TOUT SEUL en grandissant. Quand son âge arrive, il prend la meilleure forme dont il remplit les conditions.", J);
-        await say("Tu n'as qu'UN seul partenaire à la fois (les autres attendent à la DigiFerme). Bien soigné et entraîné, il deviendra magnifique. Négligé... il deviendra Numemon.", J);
-        await say("Dans les deux cas, les soins, l'entraînement et la vie du Digimon comptent. Tu pourras changer d'avis plus tard dans les Options.", J);
-        continue;
-      }
-      if (r < 0) continue;
-      st().flags.autoEvo = r === 1; st().flags.solo = r === 1;
-      await say(r === 1 ? "Les règles de Digimon World 1 ! Prends bien soin de ton partenaire : il grandira à son rythme." : "Très bien ! Tu décideras toi-même des Digivolutions de tes Digimon.", J);
-      return;
-    }
-  }
-  async function chooseBattle() {
-    for (;;) {
-      const r = await DW.ask("Et en combat ? Veux-tu commander chaque attaque, ou laisser ton partenaire se battre seul en lui donnant des ordres ?", ['Je choisis chaque attaque', 'Il se bat seul (ordres)', 'Explique-moi'], J);
-      if (r === 2) {
-        await say("CHAQUE ATTAQUE : à chaque tour, tu choisis la technique, l'objet ou le changement de Digimon. Tu contrôles tout.", J);
-        await say("ORDRES, comme dans Digimon World 1 : ton partenaire choisit seul ses attaques. Appuie sur ESPACE pendant son tour pour reprendre la main et lui donner un ordre.", J);
-        await say("Un Digimon peu discipliné peut aussi n'en faire qu'à sa tête... Ce réglage se change à tout moment dans les Options.", J);
-        continue;
-      }
-      if (r < 0) continue;
-      DW.Options.battleMode = r === 1 ? 1 : 0; DW.Options.save();
-      await say(r === 1 ? "Les ordres ! Tu fais confiance à ton partenaire, c'est beau." : "Tu commandes tout. Garde la tête froide !", J);
-      return;
-    }
+  // ------------------------------------------------------------ les règles (les mêmes pour tout le monde)
+  async function explainRules() {
+    await say("En combat, c'est TOI qui commandes : à chaque tour, tu choisis la technique de ton partenaire, un objet, ou un autre Digimon.", J);
+    await say("Pour digivoluer, ton Digimon doit remplir des conditions : niveau, points d'entraînement, combats gagnés, soins... La table des Digivolutions (menu DIGIVOLUTION) te les montre.", J);
+    await say("Quand toutes les conditions sont remplies, le Digivice vibre. C'est alors à toi de décider quand digivoluer, depuis la table.", J);
   }
   // questions libres : renvoie quand le joueur a fini
   async function questions(intro) {
@@ -111,13 +84,12 @@
     await say("Et justement, il l'est.", J);
     await TOPICS[1][1]();   // l'enquête
     await say("Je suis trop vieux pour courir l'île. Mais toi... avec un partenaire Digimon à tes côtés, tu pourrais peut-être y arriver.", J);
-    await say("Ce soir-là, seuls trois bébés sont restés en ville : Botamon, Pichimon et Yuramon. Ils t'attendent sur la place. (Et Koromon, notre petit guide, qui se promène partout !) L'un d'eux sera ton partenaire.", J);
-    await chooseEvolution();
-    await chooseBattle();
+    await say(`Ce soir-là, un seul bébé est resté en ville : ${DW.SPECIES[DW.heroLine().baby].name}. Il t'attend sur la place, comme s'il te connaissait déjà... (Et Koromon, notre petit guide, se promène partout !)`, J);
+    await explainRules();
     await questions("Avant que tu sortes : as-tu des questions ? Je peux t'expliquer comment vit un Digimon, comment il devient fort...");
     await say("Ma porte est toujours ouverte : reviens me poser tes questions, ou dormir ici pour soigner ton équipe.", J);
     await say("(Déplacements : flèches ou ZQSD.  Courir : Maj.  Parler : ESPACE.  Menu : ENTRÉE.)");
   }
 
-  DW.Guide = { TOPICS, opening, questions, chooseEvolution, chooseBattle };
+  DW.Guide = { TOPICS, opening, questions, explainRules };
 })();

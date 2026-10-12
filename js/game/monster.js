@@ -40,16 +40,17 @@
     get name() { return this.nick || this.d.name; }
     // échelle façon Digimon World : PV et PM en milliers (max 9999), autres stats en centaines (max 999)
     // (le calcul « brut » reste celui d'origine, puis il est multiplié par DW.SCALE)
-    bonus(k) { const t = (this.tr && this.tr[k]) || 0; return Math.floor(t * this.level / 100) + Math.round(t / 3) + ((this.chips && this.chips[k]) || 0); }
+    // bonus d'entraînement non arrondi : multiplié par DW.SCALE, chaque point se voit sur la stat (+6 PV, +1 Attaque...)
+    bonus(k) { const t = (this.tr && this.tr[k]) || 0; return t * this.level / 100 + t / 3 + ((this.chips && this.chips[k]) || 0); }
     stat(k) {
       if (k === 'mp') return this.maxMp;
       const S = DW.SCALE, b = this.d.base[k] || 50, iv = this.iv[k] || 0, bonus = this.bonus(k);
-      if (k === 'hp') return Math.min(S.capHp, (Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp);
-      return Math.min(S.capStat, (Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat);
+      if (k === 'hp') return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp));
+      return Math.min(S.capStat, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat));
     }
     get maxHp() { return this.stat('hp'); }
     // PM : dépendent de l'Intelligence et du niveau, et de l'entraînement PM ; rendus par le repos et le sommeil
-    get maxMp() { const S = DW.SCALE, b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.min(S.capHp, (Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + this.bonus('mp')) * S.mp); }
+    get maxMp() { const S = DW.SCALE, b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + this.bonus('mp')) * S.mp)); }
     canPay(id) { return this.mp >= DW.mpCost(id); }
     // âge en jours de jeu depuis l'arrivée dans l'équipe
     get age() { return Math.max(0, Math.floor(((DW.state ? DW.state.clock : 0) - this.born) / 1440)); }
@@ -135,46 +136,65 @@
   };
 
   // ------------------------------------------------------------ objets
+  const STAGES = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
+  // l'objet a-t-il un effet sur ce Digimon ? (battle : utilisé pendant un combat)
   DW.canUse = (id, m, battle) => {
     const it = DW.ITEMS[id];
-    if (it.use === 'heal') return m.hp > 0 && (m.hp < m.maxHp || (!battle && m.hunger >= 5));
-    if (it.use === 'cure') return m.hp > 0 && !!m.status;
-    if (it.use === 'revive') return m.hp <= 0;
-    if (it.use === 'sick') return !!m.sick || (m.germs || 0) >= 50;   // aussi en prévention, quand la santé flanche
-    if (it.use === 'hurt') return !!m.hurt;
-    if (it.use === 'chip') return !battle && m.chips[it.stat] < 20;
-    if (it.use === 'mp') return m.hp > 0 && m.mp < m.maxMp;
-    if (it.use === 'manual') return !battle && !!DW.nextMove(m);
-    return false;
+    switch (it.use) {
+      case 'heal': {
+        if (m.hp <= 0) return false;
+        const special = it.chip || it.boost || it.disc || it.happy || it.fat || it.tired || it.life;
+        return m.hp < m.maxHp || (it.mp || it.mpFull) && m.mp < m.maxMp || (it.cure && m.status) || (!battle && (m.hunger >= 5 || special));
+      }
+      case 'mp': return m.hp > 0 && (m.mp < m.maxMp || (!battle && m.hunger >= 5 && it.food));
+      case 'cure': return m.hp > 0 && !!m.status;
+      case 'revive': return m.hp <= 0;
+      case 'sick': return !!m.sick || !!m.hurt || (m.germs || 0) >= 50;   // aussi en prévention, quand la santé flanche
+      case 'hurt': return !!m.hurt;
+      case 'chip': return !battle;
+      case 'manual': return !battle && !!DW.nextMove(m);
+      case 'buff': case 'protect': return !!battle && m.hp > 0;
+      case 'evo': return !battle && m.hp > 0 && m.d.stage === it.from;
+      default: return false;
+    }
   };
+  // applique les bonus permanents d'un objet (puces, fruits) ; renvoie le texte des gains
+  function applyChips(m, chip) {
+    const NAMES = { hp: 'PV', mp: 'PM', atk: 'Attaque', def: 'Défense', spd: 'Vitesse', int: 'Intelligence' }, hp0 = m.maxHp, mp0 = m.maxMp, out = [];
+    for (const k in chip) { const v0 = k === 'hp' ? hp0 : k === 'mp' ? mp0 : m.stat(k); m.chips[k] = (m.chips[k] || 0) + chip[k]; const v1 = k === 'hp' ? m.maxHp : k === 'mp' ? m.maxMp : m.stat(k); out.push(`${NAMES[k]} +${v1 - v0}`); }
+    m.hp += m.maxHp - hp0; m.mp += m.maxMp - mp0;
+    return out.join(', ');
+  }
   // applique l'objet et renvoie le message
   DW.useItem = (id, m) => {
     const it = DW.ITEMS[id], st = DW.state;
     st.bag[id] = Math.max(0, (st.bag[id] || 0) - 1);
-    if (it.use === 'heal') {
-      const before = m.hp;
-      m.hp = Math.min(m.maxHp, m.hp + it.amt);
-      const fed = DW.Care && DW.Care.feed(m, it.food || 0);
+    if (it.use === 'heal' || it.use === 'mp') {
+      const hp0 = m.hp, mp0 = m.mp, txt = [];
+      if (it.use === 'heal') m.hp = Math.min(m.maxHp, it.full ? m.maxHp : m.hp + (it.amt || 0));
+      if (it.use === 'mp' || it.mp || it.mpFull) m.mp = Math.min(m.maxMp, it.mpFull ? m.maxMp : m.mp + (it.use === 'mp' ? it.amt || 0 : it.mp || 0));
+      if (it.cure) { m.status = null; m.slp = 0; }
+      const fed = it.food && DW.Care && DW.Care.feed(m, it.food);
       if (it.happy) m.addHappy(it.happy);
-      if (it.disc && DW.Life) DW.Life.addDisc(m, it.disc);
-      if (it.fat && DW.Life) DW.Life.addFat(m, it.fat);
-      if (it.risky && Math.random() < 0.2) { m.status = 'psn'; return `${m.name} mange le champignon... Beurk, il était vénéneux !`; }
-      return `${m.name} mange avec appétit${m.hp > before ? ` et récupère ${m.hp - before} PV` : ''}${fed ? ' (faim apaisée)' : ''} !`;
+      if (it.disc && DW.Life) { DW.Life.addDisc(m, it.disc); txt.push(`discipline ${it.disc > 0 ? '+' : ''}${it.disc}`); }
+      if (it.fat && DW.Life) { DW.Life.addFat(m, it.fat); txt.push(it.fat > 0 ? 'il grossit' : 'il maigrit'); }
+      if (it.tired) { m.tired = Math.max(0, m.tired - it.tired); txt.push('plus de fatigue'); }
+      if (it.boost) { m.boost = (m.boost || 0) + it.boost; txt.push(`prochaine séance +${m.boost} point${m.boost > 1 ? 's' : ''}`); }
+      if (it.life) { m.lifespan += it.life; txt.push(`vie +${it.life} jour`); }
+      if (it.chip) txt.push(applyChips(m, it.chip));
+      if (it.risky && Math.random() < it.risky) { m.sick = m.sick || st.clock; txt.push('... mais il tombe malade !'); }
+      if (m.hp > hp0) txt.unshift(`+${m.hp - hp0} PV`);
+      if (m.mp > mp0) txt.unshift(`+${m.mp - mp0} PM`);
+      return `${m.name} ${it.food ? 'mange avec appétit' : 'utilise ' + it.name}${fed ? ' (faim apaisée)' : ''}${txt.length ? ' : ' + txt.join(', ') : ''} !`;
     }
     if (it.use === 'cure') { m.status = null; m.slp = 0; return `${m.name} est en pleine forme !`; }
-    if (it.use === 'revive') { m.hp = Math.floor(m.maxHp / 2); m.status = null; return `${m.name} reprend connaissance !`; }
-    if (it.use === 'sick') { const was = m.sick; m.sick = 0; m.germs = 0; m.addHappy(2); return was ? `${m.name} n'est plus malade !` : `${m.name} reprend des couleurs. Il ne tombera pas malade !`; }
+    if (it.use === 'revive') { m.hp = it.full ? m.maxHp : Math.floor(m.maxHp / 2); if (it.full) m.mp = m.maxMp; m.status = null; return `${m.name} reprend connaissance !`; }
+    if (it.use === 'sick') { const was = m.sick || m.hurt; m.sick = 0; m.hurt = 0; m.germs = 0; m.addHappy(2); return was ? `${m.name} est guéri !` : `${m.name} reprend des couleurs. Il ne tombera pas malade !`; }
     if (it.use === 'hurt') { m.hurt = 0; return `La blessure de ${m.name} est soignée !`; }
-    if (it.use === 'chip') {
-      const hp0 = m.maxHp, mp0 = m.maxMp, v0 = m.stat(it.stat);
-      m.chips[it.stat] += it.amt;
-      if (it.stat === 'hp') m.hp += m.maxHp - hp0;
-      if (it.stat === 'mp') m.mp += m.maxMp - mp0;
-      return `${m.name} absorbe la puce : ${DW.Training.STATS[it.stat].stat} +${m.stat(it.stat) - v0} !`;
-    }
-    if (it.use === 'mp') { const b = m.mp; m.mp = Math.min(m.maxMp, m.mp + it.amt); return `${m.name} récupère ${m.mp - b} PM !`; }
+    if (it.use === 'chip') return `${m.name} absorbe la puce : ${applyChips(m, it.chip)} !`;
     return '';
   };
+  DW.ITEM_STAGES = STAGES;
   // prochaine technique de l'espèce que le Digimon ne connaît pas encore (Manuel de technique)
   DW.nextMove = m => { for (const [l, id] of m.d.learn) if (l > 0 && !m.knows(id) && DW.MOVES[id]) return id; return null; };
   // sac : 10 exemplaires de chaque objet au maximum ; le surplus est mis de côté à la Banque
@@ -195,6 +215,10 @@
   const KEY = 'digimon_ile_des_fichiers_save', BAK = KEY + '_precedente', BROKEN = KEY + '_illisible';
   // échelle des statistiques (façon Digimon World 1) : PV/PM ×20 jusqu'à 9999, Attaque/Défense/Vitesse/Intelligence ×4 jusqu'à 999
   DW.SCALE = { hp: 20, mp: 20, stat: 4, capHp: 9999, capStat: 999 };
+  // réglages d'équilibrage des combats (mesurés avec un simulateur : 4 à 6 tours à niveau égal, ~50 % des PV restants)
+  // wildDmg : les Digimon sauvages frappent moins fort (le partenaire élevé avec soin domine sa zone, comme dans Digimon World 1)
+  // lvGap : ±6 % de dégâts par niveau d'écart entre l'attaquant et sa cible (borné ×0,7 – ×1,5) : grandir compte, même au début
+  DW.BALANCE = { dmg: 0.6, wildDmg: 0.9, lvGap: 0.06 };
   DW.SAVE_V = 5; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20)
   DW.newState = () => ({
     name: 'Tai', hero: 'tai', party: [], box: [], bag: {}, bits: 300, flags: {}, seen: {}, owned: {},
@@ -206,7 +230,7 @@
   DW.addDigimon = mon => {
     const st = DW.state;
     st.seen[mon.sp] = st.owned[mon.sp] = true;
-    if (st.party.length < (DW.partyMax ? DW.partyMax() : 6)) { st.party.push(mon); return 'party'; }
+    if (st.party.length < 6) { st.party.push(mon); return 'party'; }
     st.box.push(mon); return 'box';
   };
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -257,7 +281,8 @@
     st.recruits = st.recruits || {}; st.flags = st.flags || {}; st.bag = st.bag || {}; st.bank = st.bank || {};
     // migration des anciennes sauvegardes
     const v = o.v || 1;
-    if (v < 2) { st.flags.autoEvo = !!st.flags.autoEvo; st.flags.solo = !!st.flags.solo; st.wildGone = {}; st.gears = st.gears || {}; }
+    if (v < 2) { st.wildGone = {}; st.gears = st.gears || {}; }
+      for (const k of ['autoEvo', 'solo']) delete st.flags[k];   // anciennes règles au choix (retirées)
     if (v < 3) { st.owned = Object.assign({}, o.caught || {}, o.owned || {}); delete st.caught; }
     if (v < 4) {   // positions sur les cartes agrandies ×2 (MapKit.ZOOM)
       const Zm = DW.MapKit.ZOOM, zp = (id, x, y) => DW.MapKit.zpt(id, x, y);

@@ -75,7 +75,7 @@
         await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Jardin zen : méditation (Intelligence).  Cristal de données : énergie (PM).");
         await say("Les COMBATS font monter le niveau, et le niveau fixe le POTENTIEL de ton Digimon (6 + 2 × niveau points par stat).");
         await say("L'ENTRAÎNEMENT remplit ce potentiel. Ce sont les points d'entraînement qui permettent de digivoluer !");
-        await say("Pendant une séance, appuie sur ESPACE quand le curseur passe dans la zone verte. Plus ton Digimon est entraîné, plus c'est dur !");
+        await say("Chaque poste a son exercice : course de haies, haltère, sac de frappe, rochers à encaisser, méditation, cristal d'énergie. Parle au poste ou à son panneau pour commencer. Plus ton Digimon est entraîné, plus c'est dur !");
       },
       '7,4': 'Les gradins des spectateurs. Un jour, ils seront remplis pour tes séances !', '8,4': 'Les gradins des spectateurs. Un jour, ils seront remplis pour tes séances !',
       '25,9': 'Un râtelier plein de boucliers cabossés. Parfait pour apprendre à encaisser.',

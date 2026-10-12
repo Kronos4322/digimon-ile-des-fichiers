@@ -8,8 +8,6 @@
   DW.FLAGS = {
     // réglages de partie
     starter: 'espèce du premier partenaire choisi (active la sauvegarde automatique)',
-    autoEvo: 'Digivolutions automatiques (mode « solo » façon DW1)',
-    solo: 'équipe limitée à un seul Digimon',
     // histoire
     kuwagamon: 'Kuwagamon vaincu (forêt)',
     shellmon: 'Shellmon vaincu (plage)',

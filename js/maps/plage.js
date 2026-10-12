@@ -74,11 +74,13 @@
     }),
     objects: [{ kind: 'rowboat', x: 21, y: 23, w: 2, h: 1, oy: 2 }],
     encounters: [
-      { sp: 'betamon', min: 2, max: 4, w: 35 },
-      { sp: 'gotsumon', min: 3, max: 4, w: 30 },
-      { sp: 'bukamon', min: 2, max: 3, w: 25 },
-      { sp: 'pichimon', min: 2, max: 3, w: 15 },
-      { sp: 'kunemon', min: 3, max: 4, w: 10 },
+      // première zone : surtout des bébés et des Digimon d'Entraînement ; les Disciples sont rares (et ne chassent pas un bébé)
+      { sp: 'pichimon', min: 2, max: 3, w: 35 },
+      { sp: 'punimon', min: 2, max: 3, w: 15 },
+      { sp: 'bukamon', min: 3, max: 4, w: 20 },
+      { sp: 'betamon', min: 3, max: 3, w: 12 },
+      { sp: 'gotsumon', min: 3, max: 3, w: 10 },
+      { sp: 'kunemon', min: 3, max: 3, w: 8 },
     ],
     warps: [
       { x: 17, y: 0, w: 3, h: 1, dir: 'up', to: 'lisiere', tx: 17, ty: 31 },

@@ -22,7 +22,9 @@
   set('Insecte', ['Plante', 'Ténèbres'], 2); set('Insecte', ['Feu', 'Air'], 0.5);
   set('Lumière', ['Ténèbres'], 2); set('Lumière', ['Lumière'], 0.5);
   set('Ténèbres', ['Lumière'], 2); set('Ténèbres', ['Ténèbres'], 0.5);
-  DW.typeMult = (atk, defTypes) => defTypes.reduce((m, t) => m * ((EFF[atk] && EFF[atk][t]) || 1), 1);
+  // efficacité adoucie (façon Digimon World : l'élément aide, mais ne décide pas tout seul du combat)
+  // avantage ×1,5, désavantage ×0,7 par type du défenseur ; total borné entre ×0,5 et ×1,8 (mesuré au simulateur)
+  DW.typeMult = (atk, defTypes) => DW.clamp(defTypes.reduce((m, t) => { const f = (EFF[atk] && EFF[atk][t]) || 1; return m * (f > 1 ? 1.5 : f < 1 ? 0.7 : 1); }, 1), 0.5, 1.8);
 
   // Triangle d'attributs (Digimon) : Vaccin > Virus > Données > Vaccin
   DW.ATTR_ADV = { 'Vaccin': 'Virus', 'Virus': 'Données', 'Données': 'Vaccin' };

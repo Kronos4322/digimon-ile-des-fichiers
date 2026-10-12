@@ -27,7 +27,7 @@
   // ------------------------------------------------------------ construction de la carte
   function build() {
     const m = MAPS.village, lvl = T().level(), has = id => T().has(id);
-    const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl;
+    const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl + (st().hero || '');
     if (m.version === version && m.rows) return;
     m.version = version;
     m.decay = Math.max(0, 1 - lvl / 4);
@@ -136,7 +136,7 @@
     }
     // habitants
     // (les commerçants sont dans leur boutique : on y entre par la porte)
-    m.npcs = [...STARTERS, GUIDE];
+    m.npcs = [starterNpc(), GUIDE];
     if (has('betamon')) m.npcs.push({ sp: 'betamon', x: 22, y: 16, face: 'left', wander: 1, talk: SERVICES.betamon });
     if (has('biyomon')) m.npcs.push({ sp: 'biyomon', x: 27, y: 26, face: 'left', wander: 1, talk: SERVICES.biyomon });
     if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: 28, y: 6, face: 'left', wander: 1, talk: SERVICES.kunemon });
@@ -157,16 +157,21 @@
     if (DW.Story.placeKiosks) DW.Story.placeKiosks(m, 'village');   // stands des recrues (story.js)
     DW.World.unprepare(m); delete m.w;
   }
-  // ------------------------------------------------------------ choix du partenaire (sur la place)
-  function starterTalk(sp, line) {
+  // ------------------------------------------------------------ le partenaire (sur la place) : le bébé de la lignée du héros
+  const BABY_LINES = {
+    botamon: "Bo-bo ! Moi c'est Botamon ! Je suis tout petit, mais un jour, je serai un grand Digimon de feu !",
+    punimon: 'Puni puni ! Moi c\'est Punimon ! Je sautille plus haut que tout le monde !',
+    pichimon: "Pichi pichi ! Moi c'est Pichimon ! Je fais les plus grosses bulles de toute l'île !",
+    yuramon: "Fuu... Je suis Yuramon. Tu veux bien m'emmener avec toi ? J'ai peur du vent...",
+    nyokimon: 'Nyoki ! Je suis Nyokimon ! La fleur sur ma tête s\'ouvre quand je suis content... et là, elle est grande ouverte !',
+    pabumon: 'Pabu pabu... *bulles* ... Moi, Pabumon ! Toi... mon ami ?',
+    poyomon: 'Poyo poyo ! Je suis Poyomon ! Je flotte, je flotte... et je te suis partout !',
+  };
+  function starterTalk() {
     return async () => {
-      const s = st(), name = DW.SPECIES[sp].name;
-      await say(line, name);
-      const card = new DW.InfoCard(sp);
-      DW.Game.push(card);
-      const r = await DW.ask(`Choisir ${name} comme partenaire ?`);
-      card.close();
-      if (r !== 0) { await say('Prends ton temps pour choisir !', name); return; }
+      const s = st(), sp = DW.heroLine().baby, name = DW.SPECIES[sp].name;
+      await say(BABY_LINES[sp] || `Je suis ${name} !`, name);
+      await say(`On dirait que ${name} t'attendait, toi et personne d'autre. Ton Digivice s'illumine...`);
       const m = new DW.Digimon(sp, 4);
       m.happy = 70;
       DW.addDigimon(m);
@@ -176,14 +181,7 @@
       DW.Audio.sfx('fanfare');
       await say(`${name} devient ton partenaire !`);
       await say("Génial ! On va former une super équipe, toi et moi !", name);
-      // les deux autres partent explorer l'île
-      const others = STARTERS.filter(n => n.sp !== sp).map(n => DW.SPECIES[n.sp].name);
-      await say(`Bon... Nous, on part explorer l'île ! Prends bien soin de ${name} !`, others.join(' et '));
-      await DW.fade(1, 0.4);
       s.flags.starter = sp;
-      await DW.wait(0.4);
-      await DW.fade(0, 0.4);
-      await say(`${others.join(' et ')} sont partis... La ville est bien vide, maintenant.`);
       DW.giveItem('viande', 5); DW.giveItem('remede', 3);
       DW.Audio.sfx('buy');
       await say('Jijimon avait laissé un colis pour toi : 5 Viandes et 3 Remèdes !');
@@ -191,21 +189,15 @@
       DW.autosave();
     };
   }
-  // les trois bébés de la place : Botamon, Pichimon, Yuramon (Tanemon s'occupe du DigiChamp aux Champs ; Koromon, lui, est le guide qui se promène)
-  const STARTERS = [
-    { sp: 'botamon', x: 16, y: 10, face: 'right', wander: 1, talk: starterTalk('botamon', "Bo-bo ! Moi c'est Botamon ! Je suis tout petit, mais un jour, je serai un grand Digimon de feu !") },
-    { sp: 'pichimon', x: 18, y: 11, face: 'right', wander: 1, talk: starterTalk('pichimon', "Pichi pichi ! Moi c'est Pichimon ! Je fais les plus grosses bulles de toute l'île !") },
-    { sp: 'yuramon', x: 23, y: 10, face: 'left', wander: 1, talk: starterTalk('yuramon', "Fuu... Je suis Yuramon. Tu veux bien m'emmener avec toi ? J'ai peur du vent...") },
-  ];
-  // une fois le partenaire choisi, les autres quittent la ville
-  STARTERS.forEach(n => (n.cond = s => !s.flags.starter));
+  // le bébé de la place (sa lignée dépend du héros choisi ; il disparaît de la place une fois devenu partenaire)
+  const starterNpc = () => ({ sp: DW.heroLine().baby, x: 18, y: 11, face: 'right', wander: 1, talk: starterTalk(), cond: s => !s.flags.starter });
 
   // ------------------------------------------------------------ Koromon : le guide de la ville (le seul Digimon qui se promène en ville au début)
   // conseils selon la situation : d'abord l'urgent (faim, toilettes), puis les objectifs, à tour de rôle
   async function guideTalk() {
     const s = st(), m = s.party[0], next = T().RECRUITS.find(x => !T().has(x.id));
     const urgent = [], tips = [];
-    if (!s.flags.starter) urgent.push("Bo... bonjour ! Ko-ko ! Bonjour ! Trois bébés Digimon t'attendent ici, sur la place : Botamon, Pichimon et Yuramon. Parle-leur pour choisir ton partenaire !");
+    if (!s.flags.starter) urgent.push(`Ko-ko ! Bonjour ! Un bébé Digimon t'attend ici, sur la place : ${DW.SPECIES[DW.heroLine().baby].name}. Va lui parler !`);
     else {
       if (m && m.hunger >= 70) urgent.push(`${m.name} a faim ! Tanemon donne 3 Viandes par jour dans son DigiChamp, au Quartier des Champs (sortie sud-ouest).`);
       if (m && m.sick) urgent.push(`${m.name} est malade ! Un Médicament le guérira (Bazar de Gotsumon), ou une nuit chez Jijimon.`);
@@ -231,7 +223,7 @@
   // ------------------------------------------------------------ Jijimon (dans sa maison)
   async function jijimonTalk() {
     const s = st();
-    if (!s.flags.starter) { await say("Les trois bébés t'attendent dehors, sur la place. Va choisir ton partenaire !", 'Jijimon'); return; }
+    if (!s.flags.starter) { await say(`${DW.SPECIES[DW.heroLine().baby].name} t'attend dehors, sur la place. Va le voir !`, 'Jijimon'); return; }
     if (!s.flags.jiji_tanemon) { s.flags.jiji_tanemon = true; await say("Si ton partenaire a faim, va voir Tanemon au Quartier des Champs : il cultive de la Digiviande et en donne chaque jour.", 'Jijimon'); }
     const r = await DW.ask("Que veux-tu, jeune DigiSélectionné ?", ['Se reposer', 'Des conseils', 'Questions', 'Au revoir'], 'Jijimon');
     if (r === 2) { await DW.Guide.questions('Que veux-tu savoir ?'); return; }
@@ -256,7 +248,7 @@
   const SERVICES = {
     async gotsumon() {
       await say('Bienvenue au Bazar de Gotsumon ! Viande fraîche et remèdes !', 'Gotsumon');
-      await DW.Game.push(new DW.ShopScene(['viande', 'super_viande', 'remede', 'medoc', 'bandage', 'reveil', 'cartes']));
+      await DW.Game.push(new DW.ShopScene('bazar'));
       await say('Reviens vite !', 'Gotsumon');
     },
     async elecmon() {

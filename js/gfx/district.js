@@ -7,7 +7,7 @@
   const OBJ = DW.World.OBJ;
   const WOOD = '#9a6a3a', WOOD_D = '#5a3a1e', WOOD_L = '#c8945a';
   // enseignes : lettres en pixels (3×5), peintes sur un volume existant
-  const GLYPH = { A: '010101111101101', B: '110101110101110', C: '011100100100011', E: '111100110100111', N: '101111111111101', Q: '010101101110011', U: '101101101101111', W: '101101111111101', O: '010101101101010', J: '001001001101010', D: '110101101101110', I: '111010010010111' };
+  const GLYPH = { A: '010101111101101', B: '110101110101110', C: '011100100100011', E: '111100110100111', N: '101111111111101', Q: '010101101110011', U: '101101101101111', W: '101101111111101', O: '010101101101010', J: '001001001101010', D: '110101101101110', I: '111010010010111', T: '111010010010010', L: '100100100100111' };
   const sign = (d, s, x, y, col, k = 1) => { [...s].forEach((ch, i) => { const g = GLYPH[ch]; if (g) for (let p = 0; p < 15; p++) if (g[p] === '1') d.deco.rect(x + (i * 4 + (p % 3)) * k, y + Math.floor(p / 3) * k, k, k, col, { unlit: true }); }); };
   DW.World.signText = sign;
   const shadeK = (hex, k) => { const n = parseInt(hex.slice(1), 16), f = c => Math.max(0, Math.min(255, Math.round(k < 0 ? c * (1 + k) : c + (255 - c) * k))); return '#' + [16, 8, 0].map(b => f((n >> b) & 255).toString(16).padStart(2, '0')).join(''); };
@@ -268,6 +268,25 @@
       d.deco.ell(15, 19, 2.6, 3, '#8a6a3a');
       d.tube([[15, 7], [15, 0]], 0.8, 0.8, '#8a5a32'); d.poly([[15.4, 0.4], [21, 2], [15.4, 3.6]], '#e04848', { noline: true });
       d.deco.circ(7, 18, 1.2, '#ffe0e8'); d.deco.circ(23, 19, 1.2, '#f07a3a');
+    } },
+    // radeau en rondins (Crique du Radeau, épisode 14) : mât, voile rapiécée, lianes
+    raft: { w: 64, h: 58, n: 1, draw(d) {
+      d.ell(32, 54, 30, 3.6, '#3a5a6a', 0, { flat: true });
+      for (let k = 0; k < 7; k++) d.tube([[6, 40 + k * 2], [58, 38 + k * 2]], 2.6, 2.6, k % 2 ? '#a8743c' : '#946232', { tex: 0.35 });
+      for (const x of [14, 32, 50]) d.deco.line(x, 38, x + 1, 54, 1.2, '#5a8a3a');
+      d.tube([[30, 44], [31, 6]], 1.8, 1.4, '#7a5030');
+      d.poly([[32, 8], [52, 14], [50, 34], [32, 36]], '#f0e6d0', { tex: 0.2 });
+      d.deco.rect(38, 18, 7, 6, '#d8c8a8'); d.deco.line(32, 20, 50, 22, 0.6, '#c8b898');
+      d.tube([[31, 6], [34, 4]], 1, 0.8, '#7a5030');
+      d.deco.poly([[34, 4], [40, 5], [34, 7]], '#e84a4a');
+    } },
+    // jet d'eau de Whamon au large (animé)
+    spout: { w: 30, h: 46, n: 1, frames: 4, fps: 6, draw(d, v, f) {
+      d.ell(15, 42, 12, 3, '#2a3c92', 0, { flat: true });
+      d.ell(15, 41, 9, 2.2, '#1a2458', 0, { flat: true });
+      const h = 26 + (f % 2) * 4;
+      d.tube([[15, 40], [15, 40 - h]], 2.6, 1.6, '#c8f0ff', { unlit: true });
+      for (let i = 0; i < 7; i++) { const a = -Math.PI / 2 + (i - 3) * 0.45, r = 8 + ((f + i) % 3) * 2; d.circ(15 + Math.cos(a) * r, 40 - h + 2 + Math.sin(a) * r * 0.6, 2.2, '#e8faff', { unlit: true, noline: true }); }
     } },
     rowboat: { w: 40, h: 22, n: 1, draw(d) {
       d.ell(20, 18, 18, 3, '#1a4a7a', 0, { flat: true });

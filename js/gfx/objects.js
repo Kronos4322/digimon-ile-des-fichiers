@@ -318,13 +318,22 @@
       });
       d.circ(tx - 2, ty + 3, 2.4, '#7a4a28', { shiny: true }); d.circ(tx + 2, ty + 4, 2.4, '#7a4a28', { shiny: true });
     } },
-    booth: { w: 18, h: 32, n: 1, draw(d) {
-      d.rect(2, 9, 14, 22, '#e2e6ee', { round: 0.25 });
-      d.deco.rect(4, 12, 10, 11, '#7ccaf0'); d.deco.rect(4, 12, 3, 11, '#b8e8ff');
-      d.deco.rect(10.5, 15, 2.4, 4, '#2a2a3a', { unlit: true }); d.deco.line(11.7, 19, 11, 22, 0.6, '#2a2a3a');
-      d.deco.rect(4, 25, 10, 1, '#b0b4c0');
-      d.rect(1, 5, 16, 5, '#3f72cc', { round: 0.4, shiny: true });
-      d.deco.rect(5, 6.4, 8, 2, '#ffffff', { unlit: true });
+    // cabine téléphonique de la plage (épisode 2 de l'animé) : grande cabine vitrée, toit bleu « TEL », combiné vert
+    booth: { w: 30, h: 58, n: 1, draw(d) {
+      d.ell(15, 56, 13, 2.4, '#7a6a4a', 0, { flat: true });
+      d.rect(3, 50, 24, 6, '#9aa0aa', { round: 0.2 });                               // socle de béton
+      d.rect(4, 14, 22, 38, '#e8ecf2', { round: 0.08, shiny: true });              // cadre
+      d.deco.rect(6.5, 17, 17, 31, '#7ccaf0');                                       // vitres
+      d.deco.rect(6.5, 17, 5, 31, '#b8e8ff'); d.deco.line(15, 17, 15, 48, 0.8, '#d8e0ea');
+      d.deco.line(6.5, 32, 23.5, 32, 0.8, '#d8e0ea');
+      d.deco.rect(16.5, 22, 5.4, 9, '#3aa060');                                      // téléphone vert
+      d.deco.rect(17.2, 23, 4, 2.4, '#c8f0d0', { unlit: true });
+      d.deco.rect(15.6, 24, 1.4, 6, '#1a5a30'); d.deco.curve([[16.3, 30], [15, 34], [18, 36]], 0.5, '#1a1a1a');
+      d.deco.rect(16, 18.4, 7, 1.4, '#ff7a3a', { unlit: true });                    // voyant
+      d.rect(2, 7, 26, 8, '#3f72cc', { round: 0.35, shiny: true });                  // toit
+      d.deco.rect(8, 9, 14, 4, '#ffffff', { unlit: true });
+      const W = DW.World.signText; if (W) W(d, 'TEL', 9.5, 9.6, '#3f72cc', 0.8);
+      d.rect(13, 2, 4, 6, '#3f72cc', { round: 0.4 }); d.deco.circ(15, 3.4, 1.2, '#ffe060', { unlit: true });
     } },
     sign: { w: 18, h: 20, n: 1, draw(d) {
       d.tube([[5, 19], [5, 8]], 2.6, 2.4, '#7a5230'); d.tube([[13, 19], [13, 8]], 2.6, 2.4, '#7a5230', { far: true });

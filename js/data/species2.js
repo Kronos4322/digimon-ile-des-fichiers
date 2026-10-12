@@ -33,12 +33,13 @@
   mv('missile_noir', { name: 'Missile Ténébreux', type: 'Ténèbres', pow: 125, acc: 85, desc: 'Un missile organique lancé depuis sa colonne vertébrale.' }, 'missiles');
   mv('salve_destructrice', { name: 'Salve Destructrice', type: 'Air', pow: 125, acc: 85, desc: 'Ses bras se transforment en missiles qui fondent sur la cible.' }, 'missiles');
   mv('bombe_pixie', { name: 'Bombe Pixie', type: 'Lumière', pow: 115, acc: 95, desc: 'Une bombe d\'énergie lancée avec une précision redoutable.' }, 'meteor');
+  mv('jet_arrow', { name: 'Jet Arrow', type: 'Eau', pow: 110, acc: 90, desc: "Un jet d'eau à très haute pression craché par l'évent de sa tête." }, 'waterbeam');
   // complète la table des coups spéciaux définie dans data/moves.js (chargé avant)
   Object.assign(DW.SIG, {
     tentomon: 'super_choc', patamon: 'bulle_air', penguinmon: 'glissade', kabuterimon: 'mega_decharge', angemon: 'poing_celeste', monochromon: 'frappe_volcan',
     frigimon: 'poing_givre', leomon: 'poing_bete', ogremon: 'poing_demon', seadramon: 'souffle_glacial', gekomon: 'symphonie', drimogemon: 'foreuse',
     unimon: 'canon_aerien', centarumon: 'fleche_solaire', bakemon: 'griffe_fantome', devimon: 'main_ombre', andromon: 'lame_spirale', etemon: 'concert_noir',
-    skullgreymon: 'missile_noir', megadramon: 'salve_destructrice', piximon: 'bombe_pixie',
+    skullgreymon: 'missile_noir', megadramon: 'salve_destructrice', piximon: 'bombe_pixie', whamon: 'jet_arrow',
   });
 
   // ------------------------------------------------------------ espèces
@@ -49,6 +50,9 @@
     learn: [[1, 'charge'], [1, 'bulle_air'], [1, 'grondement'], [10, 'vive_attaque'], [14, 'tornade'], [18, 'vol_plane']], desc: 'Un petit Digimon qui vole grâce à ses grandes oreilles. On dit qu\'il cache un pouvoir sacré.' });
   def('penguinmon', { name: 'Penguinmon', stage: 'Disciple', types: ['Glace', 'Eau'], attr: 'Données', base: D(56, 52, 54, 56, 52), kg: 9, rate: 120, xp: 70,
     learn: [[1, 'charge'], [1, 'glissade'], [1, 'bulles'], [10, 'souffle_glace'], [14, 'jet_hydro'], [18, 'fleche_glace']], desc: 'Un pingouin de la Terre Gelée qui adore glisser sur la glace. Champion de curling !' });
+  // Whamon : boss de la Crique du Radeau (plage), comme dans l'épisode 14 de l'animé — pas encore élevable (npc)
+  def('whamon', { name: 'Whamon', stage: 'Champion', types: ['Eau'], attr: 'Vaccin', base: D(125, 82, 88, 34, 72), kg: 260, rate: 0, xp: 260, npc: true,
+    learn: [[1, 'charge'], [1, 'jet_hydro'], [1, 'grande_vague'], [1, 'coup_tete'], [1, 'jet_arrow']], desc: "Une baleine des profondeurs du Net Ocean. Ses yeux ont disparu à force de vivre dans le noir. Elle crache l'eau de son évent avec une force terrible." });
   const champ = (id, name, types, attr, base, kg, sig, extra, desc) => def(id, { name, stage: 'Champion', types, attr, base, kg, rate: 45, xp: 150,
     learn: [[0, sig], ...extra.map((m, i) => [i < 3 ? 1 : 22 + (i - 3) * 4, m])], desc });
   champ('kabuterimon', 'Kabuterimon', ['Insecte', 'Électrique'], 'Vaccin', D(84, 82, 86, 70, 84), 60, 'mega_decharge', ['electro_choc', 'charge', 'pince', 'vol_plane', 'petit_tonnerre'], "Un scarabée géant qui gouverne le ciel du Pays des Scarabées. Sa Méga Décharge foudroie tout.");

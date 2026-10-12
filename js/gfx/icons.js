@@ -77,9 +77,29 @@
     d.deco.rect(5, 5, 6, 6, col); d.deco.rect(6, 6, 2, 2, '#ffffff', { unlit: true });
   }
   const cache = {};
+  // familles d'objets (catalogue Digimon World 1) : un dessin par famille, à la couleur de l'objet
+  const GENERIC = {
+    potion: (d, c) => { d.rect(6, 2, 4, 3, '#c8c0b0'); d.blob([[4, 6], [12, 6], [13.4, 11], [11, 14.4], [5, 14.4], [2.6, 11]], c, { shiny: true }); d.deco.ell(6, 9, 1.4, 2.4, '#ffffff', 0, { unlit: true }); },
+    disk: (d, c) => { d.rect(2.4, 2.4, 11.2, 11.2, c, { round: 0.12, shiny: true }); d.deco.rect(5, 2.4, 6, 4, '#d8dce8'); d.deco.rect(4.4, 9, 7.2, 4.6, '#f4f4f8'); },
+    chip: (d, c) => chip(d, c),
+    shield: (d, c) => { d.poly([[8, 1.6], [14, 4], [13, 10], [8, 14.6], [3, 10], [2, 4]], c, { shiny: true }); d.deco.poly([[8, 4], [11, 5.4], [10.4, 9.6], [8, 12], [5.6, 9.6], [5, 5.4]], '#ffffff'); },
+    bandage: (d, c) => { d.rect(2, 5.4, 12, 5.2, c, { round: 0.4 }); d.deco.rect(6, 5.4, 4, 5.2, '#e8d8c8'); d.deco.circ(7, 7, 0.5, '#a89888', { unlit: true }); d.deco.circ(9, 9, 0.5, '#a89888', { unlit: true }); },
+    pill: (d, c) => { d.tube([[4, 11], [12, 5]], 4, 4, '#f4f4f8', { shiny: true }); d.tube([[4, 11], [8, 8]], 4, 4, c, { shiny: true }); },
+    tool: (d, c) => { d.ell(8, 9, 5.4, 5, c, 0, { shiny: true }); d.deco.circ(8, 9, 2, '#ffffff'); d.rect(7, 2, 2, 3, '#8a8a92'); },
+    book: (d, c) => { d.rect(3, 2.4, 10, 11.6, c, { round: 0.15, shiny: true }); d.deco.rect(4.4, 3.4, 7.6, 9.6, '#f0e6c8'); d.deco.line(6, 6, 10.6, 6, 0.6, '#8a6a4a'); d.deco.line(6, 8, 10.6, 8, 0.6, '#8a6a4a'); },
+    meat: (d, c) => { d.tube([[3, 13], [6, 10]], 1.6, 1.6, '#f4f0e0'); d.circ(3, 13.4, 1.4, '#f4f0e0'); d.ell(9.4, 7, 5, 4.4, c, -0.6, { shiny: true }); d.deco.ell(8, 5.6, 1.6, 1, '#ffd0b0', -0.6); },
+    mush: (d, c) => { d.rect(6.4, 8, 3.2, 6, '#f0e6d0'); d.ell(8, 7.4, 6, 4, c, 0, { shiny: true }); d.deco.circ(5.4, 6.6, 1, '#ffffff'); d.deco.circ(9.6, 5.6, 1.1, '#ffffff'); },
+    veg: (d, c) => { d.poly([[5, 4], [11, 4], [8, 15]], c, { shiny: true }); d.ell(6.4, 2.6, 1.4, 2.6, '#4ab048', -0.4); d.ell(9.6, 2.6, 1.4, 2.6, '#4ab048', 0.4); },
+    fruit: (d, c) => { d.circ(8, 9.4, 5, c, { shiny: true }); d.deco.ell(6, 7.4, 1.6, 1.2, '#ffffff', 0, { unlit: true }); d.tube([[8, 5], [9, 2]], 0.8, 0.6, '#6a4a2a'); d.ell(11, 3.4, 2.4, 1.2, '#4ab048', -0.4); },
+    fish: (d, c) => { d.ell(7.6, 8, 5.4, 3.2, c, 0, { shiny: true }); d.poly([[12, 8], [15, 5], [15, 11]], c); d.deco.circ(4.6, 7.4, 0.9, '#1a1a22', { unlit: true }); },
+    evo: (d, c) => { d.poly([[8, 1], [10.4, 6], [15, 8], [10.4, 10], [8, 15], [5.6, 10], [1, 8], [5.6, 6]], c, { shiny: true }); d.deco.circ(8, 8, 2.2, '#ffffff', { unlit: true }); },
+  };
   const make = (set, id) => {
     const k = (set === ITEM ? 'i_' : 'm_') + id;
-    if (!cache[k]) cache[k] = Art.render(set[id] || ITEM.capsule, 16, 16, { silhouettes: false, dither: 0.04 }).img;
+    if (!cache[k]) {
+      const gen = set === ITEM && !set[id] && DW.ITEMS[id] && DW.ITEMS[id].icon;   // icône générique par famille (data/items.js)
+      cache[k] = Art.render(gen ? d => GENERIC[gen[0]](d, gen[1]) : set[id] || ITEM.capsule, 16, 16, { silhouettes: false, dither: 0.04 }).img;
+    }
     return cache[k];
   };
   DW.Icons = { item: id => make(ITEM, id), menu: id => make(MENU, id) };

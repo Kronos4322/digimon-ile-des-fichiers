@@ -170,7 +170,7 @@
     constructor() {
       super(); this.cols = 6; this.rows = 4; this.cur = 0; this.left = 6; this.found = []; this.dug = {};
       const cells = [...Array(24).keys()].sort(() => Math.random() - 0.5);
-      this.tre = cells.slice(0, 3).map((k, i) => ({ k, id: ['cartes', 'reveil', 'super_viande'][i] }));
+      this.tre = cells.slice(0, 3).map((k, i) => ({ k, id: [DW.pick(['gland_or', 'cartes', 'puce_pv']), DW.pick(['reveil', 'soin_m', 'pm_m']), DW.pick(['super_viande', 'digipomme', 'pomme_bleue'])][i] }));
       this.msg = 'Choisis où creuser ! (6 coups de pioche)';
     }
     update() {
@@ -243,7 +243,7 @@
     const r = await Game.push(new FishScene());
     if (r !== 'catch') return;
     const x = Math.random();
-    const prize = x < 0.12 ? reward('cartes') : x < 0.4 ? reward('super_viande') : reward('viande', 2);
+    const prize = x < 0.02 ? reward('digibar') : x < 0.06 ? reward('truite_noire') : x < 0.12 ? reward('digisilure') : x < 0.3 ? reward('digitruite') : x < 0.6 ? reward('digivivaneau') : reward('digianchois', 2);
     await say(`Tu remontes : ${prize} !`);
   }
 

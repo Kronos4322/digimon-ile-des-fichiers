@@ -42,20 +42,21 @@
     el.addEventListener('pointerdown', down);
     el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); el.addEventListener('lostpointercapture', up);
   }
-  // croix : la direction suit le doigt (on peut glisser d'une direction à l'autre)
+  // croix : la direction suit le doigt (on peut glisser d'une direction à l'autre), 8 directions comme le stick
+  const SECT = ['right', 'right,down', 'down', 'down,left', 'left', 'left,up', 'up', 'up,right'];
   function dpad(el) {
     let cur = null;
     const set = d => {
       if (d === cur) return;
-      if (cur) Input.release('touch:pad', cur);
+      if (cur) for (const a of cur.split(',')) Input.release('touch:pad:' + a, a);
       cur = d;
-      if (d && !Input.textMode) Input.press('touch:pad', d);
+      if (d && !Input.textMode) for (const a of d.split(',')) Input.press('touch:pad:' + a, a);
       el.classList.toggle('on', !!d);
     };
     const at = e => {
       const r = el.getBoundingClientRect(), x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
       if (x * x + y * y < 14 * 14) return null;
-      return Math.abs(x) > Math.abs(y) ? (x > 0 ? 'right' : 'left') : (y > 0 ? 'down' : 'up');
+      return SECT[Math.round((Math.atan2(y, x) / (Math.PI / 4) + 8)) % 8];
     };
     el.addEventListener('pointerdown', e => { e.preventDefault(); capture(el, e); set(at(e)); });
     el.addEventListener('pointermove', e => { if (cur !== null || e.buttons) set(at(e)); });

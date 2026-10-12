@@ -13,6 +13,8 @@
     pichimon: { base: '#d6eaff', pat: 'waves', col: '#3a86e0', hint: "Un œuf bleu ciel orné de vagues. On dirait qu'il fait des bulles." },
     yuramon: { base: '#f6fbea', pat: 'fluff', col: '#9ac860', hint: 'Un œuf blanc couvert de duvet vert tendre. Il est léger comme une plume.' },
     nyokimon: { base: '#e6f6c8', pat: 'leaves', col: '#4aa848', hint: 'Un œuf vert clair décoré de petites feuilles. Il sent bon les fleurs.' },
+    pabumon: { base: '#eef8de', pat: 'spots', col: '#a8d070', hint: 'Un œuf vert tendre, un peu collant. Des petites bulles en sortent.' },
+    poyomon: { base: '#f4f6ff', pat: 'waves', col: '#a8c0f0', hint: 'Un œuf presque transparent aux reflets bleutés. Il flotte au-dessus du coussin !' },
   };
   DW.EGG_ORDER = Object.keys(DW.EGGS);
 

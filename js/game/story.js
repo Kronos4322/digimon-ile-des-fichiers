@@ -214,13 +214,17 @@
 
   // ------------------------------------------------------------ combats de l'histoire
   const lvOf = rid => (DW.Wild.TABLES[rid] || [10])[0];
+  // niveau des boss possédés, réglé au simulateur : ~65 % de victoire (médiane sur 7 lignées de partenaires)
+  // pour un partenaire entraîné arrivé au bout de la région (niveau de la région + 4)
+  const BOSS_LV = { montagne: 10, lac: 12, brumes: 12, marais: 12, savane: 14, volcan: 21, usine: 23, decharge: 22, tunnel: 24,
+    jouets: 23, canyon: 28, scarabees: 26, dino: 28, jungle: 29, gel: 32, overdell: 35 };
   async function bossFight(rid, ow) {
     const R = REG[rid], name = DW.SPECIES[R.boss].name, s = st();
     await say(`Un Engrenage Noir tourne dans le dos de ${name}... Ses yeux sont vides.`);
     await say('GRRR... DÉTRUIRE... TOUT DÉTRUIRE...', name);
     if (!s.party.some(m => m.hp > 0)) { await say('Il te faut un Digimon en forme pour l\'affronter !'); return; }
     if ((await DW.ask(`Affronter ${name} et briser l'Engrenage Noir ?`)) !== 0) return;
-    const res = await ow.battle({ enemy: new DW.Digimon(R.boss, lvOf(rid) + 9), boss: true, canLose: true, intro: `${name}, possédé par l'Engrenage Noir, attaque !` });
+    const res = await ow.battle({ enemy: new DW.Digimon(R.boss, BOSS_LV[rid] || lvOf(rid) + 4), boss: true, canLose: true, intro: `${name}, possédé par l'Engrenage Noir, attaque !` });
     if (res !== 'win') { await say(`${name} est trop fort pour l'instant... Entraîne-toi et reviens.`); return; }
     s.gears = s.gears || {}; s.gears[rid] = true;
     DW.Audio.sfx('super');
@@ -248,7 +252,7 @@
     await say('Ainsi, c\'est toi qui brises mes Engrenages Noirs...', 'Devimon');
     await say("Cette île m'appartient. Les Digimon sans mémoire sont de si dociles serviteurs... Je vais t'effacer, toi et ton partenaire !", 'Devimon');
     if ((await DW.ask('Affronter Devimon ?')) !== 0) { await say('Fuis donc... Je t\'attendrai.', 'Devimon'); return; }
-    const res = await ow.battle({ enemy: new DW.Digimon('devimon', 42), boss: true, canLose: true, music: 'boss', intro: 'Devimon déploie ses ailes noires !' });
+    const res = await ow.battle({ enemy: new DW.Digimon('devimon', 40), boss: true, canLose: true, music: 'boss', intro: 'Devimon déploie ses ailes noires !' });
     if (res !== 'win') { await say('Pathétique. Reviens quand tu seras digne de moi.', 'Devimon'); return; }
     await say('Impossible... Battu par... un enfant...', 'Devimon');
     s.flags.devimon = true;
@@ -298,7 +302,7 @@
     if (d && DW.Quartiers && DW.Quartiers.open(d)) return d;
     return TOWN[sp] ? TOWN[sp].home : 'champs';
   }
-  const shop = list => DW.Game.push(new DW.ShopScene(list));
+  const shop = list => DW.Game.push(new DW.ShopScene(list));   // liste ou nom de boutique (DW.SHOPS)
   const closed = async name => { await say(`C'est fermé ! Reviens entre 6 h et 22 h.`, name); };
   const TOWN = {
     centarumon: { home: 'village', async talk(n) {
@@ -307,13 +311,13 @@
       for (const m of st().party) { m.heal(); m.sick = 0; m.hurt = 0; }
       DW.Audio.sfx('heal'); await say('Voilà : PV, PM, maladies et blessures, tout est soigné !', n);
     } },
-    andromon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Puces de données. Installation instantanée. Effet permanent.', n); await shop(['puce_pv', 'puce_pm', 'puce_atk', 'puce_def', 'puce_spd', 'puce_int']); } },
-    meramon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Le Restaurant est ouvert ! Tout est cuit au feu de Meramon !', n); await shop(['riz', 'poisson', 'super_viande', 'gateau']); } },
-    frigimon: { home: 'village', async talk(n) { await say('Une glace ? Elles sont fraîches de ce matin !', n); await shop(['glace', 'bonbon']); } },
-    etemon: { home: 'village', async talk(n) { await say('Yeah baby ! Des cartes, des cartes, encore des cartes !', n); await shop(['cartes']); } },
-    tentomon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Je répare les vieux Disques. Il en faut ?', n); await shop(['disque_pm', 'repousse']); } },
-    togemon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Un Digimon doit apprendre en lisant, pas seulement en se battant !', n); await shop(['manuel']); } },
-    bakemon: { home: 'village', cond: () => hour() >= 20 || hour() < 5, async talk(n) { await say('Hihihi... La boutique de nuit est ouverte...', n); await shop(['reveil', 'medoc', 'champi', 'repousse']); } },
+    andromon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Puces de données. Installation instantanée. Effet permanent.', n); await shop('puces'); } },
+    meramon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Le Restaurant est ouvert ! Tout est cuit au feu de Meramon !', n); await shop('resto'); } },
+    frigimon: { home: 'village', async talk(n) { await say('Une glace ? Elles sont fraîches de ce matin !', n); await shop('fruits'); } },
+    etemon: { home: 'village', async talk(n) { await say('Yeah baby ! Des cartes, des cartes, encore des cartes !', n); await shop('cartes'); } },
+    tentomon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Je répare les vieux Disques. Il en faut ?', n); await shop('disques'); } },
+    togemon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Un Digimon doit apprendre en lisant, pas seulement en se battant !', n); await shop('savoir'); } },
+    bakemon: { home: 'village', cond: () => hour() >= 20 || hour() < 5, async talk(n) { await say('Hihihi... La boutique de nuit est ouverte...', n); await shop('nuit'); } },
     numemon: { home: 'village', async talk(n) { await say("Le panneau des rumeurs ! Voyons voir...", n); await rumor(n); } },
     birdramon: { home: 'village', async talk(n) { await say('Je peux te porter dans les airs !', n); if (DW.Story.services && DW.Story.services.biyomon) await DW.Story.services.biyomon(); } },
     monzaemon: { home: 'village', async talk(n) {
@@ -326,15 +330,18 @@
     } },
     piximon: { home: 'village', async talk(n) {
       const m = st().party[0]; if (!m) return;
+      const r = await DW.ask('Pix ! Entraînement spécial, ou objets de Digivolution ?', ['Entraînement', 'Objets', 'Au revoir'], n);
+      if (r === 1) { await shop('evolution'); return; }
+      if (r !== 0) return;
       if (!daily('piximon')) return say('Pix ! Un entraînement spécial par jour, pas plus !', n);
       let g = 0; for (const k of ['hp', 'mp', 'atk', 'def', 'spd', 'int']) g += DW.Training.gain(m, k, 1);
       m.tired = Math.min(100, m.tired + 40);
       await say(g ? `Pix pix ! Entraînement spécial terminé : ${m.name} gagne ${g} points d'entraînement !` : `${m.name} a atteint son potentiel... Gagne des niveaux en combat !`, n);
     } },
-    sukamon: { home: 'champs', async talk(n) { if (!daily('sukamon')) return say('Les poubelles sont vides pour aujourd\'hui...', n); await gift(n, ['pomme', 'champi', 'bonbon', 'disque_pm', 'medoc', 'cartes'], 'J\'ai trouvé ça dans les ordures !'); } },
-    drimogemon: { home: 'champs', async talk(n) { if (!daily('drimogemon')) return say('Mes griffes sont usées pour aujourd\'hui.', n); await gift(n, ['super_viande', 'reveil', 'disque_pm', 'puce_pv', 'puce_pm', 'puce_atk', 'puce_def', 'puce_spd', 'puce_int', 'manuel'], 'Je creuse, je creuse... Trouvé !'); } },
-    lillymon: { home: 'champs', async talk(n) { if (!daily('lillymon')) return say('Les fruits repoussent... Reviens demain !', n); await gift(n, ['pomme', 'pomme', 'glace'], 'Une récolte fraîche, rien que pour toi !'); } },
-    shellmon: { home: 'champs', async talk(n) { if (!daily('shellmon')) return say('Plus de poisson aujourd\'hui.', n); await gift(n, ['poisson'], 'Belle pêche aujourd\'hui !'); } },
+    sukamon: { home: 'champs', async talk(n) { if (!daily('sukamon')) return say('Les poubelles sont vides pour aujourd\'hui...', n); await gift(n, ['viande_moisie', 'digichampi', 'champi_joie', 'disque_pm', 'medoc', 'cartes', 'gland_or'], 'J\'ai trouvé ça dans les ordures !'); } },
+    drimogemon: { home: 'champs', async talk(n) { if (!daily('drimogemon')) return say('Mes griffes sont usées pour aujourd\'hui.', n); await gift(n, ['super_viande', 'reveil', 'pm_m', 'soin_m', 'gland_or', 'fruit_force', 'glace_force', 'feuille_vite', 'fruit_sage', 'manuel'], 'Je creuse, je creuse... Trouvé !'); } },
+    lillymon: { home: 'champs', async talk(n) { if (!daily('lillymon')) return say('Les fruits repoussent... Reviens demain !', n); await gift(n, ['pomme_bleue', 'baie_rouge', 'figue', 'noix_douce', 'orange_bana'], 'Une récolte fraîche, rien que pour toi !'); } },
+    shellmon: { home: 'champs', async talk(n) { if (!daily('shellmon')) return say('Plus de poisson aujourd\'hui.', n); await gift(n, ['digianchois', 'digivivaneau', 'digitruite'], 'Belle pêche aujourd\'hui !'); } },
     seadramon: { home: 'champs', still: true,
       spot: (ow) => { for (let y = 2; y < ow.map.h - 2; y++) for (let x = 2; x < ow.map.w - 2; x++) if (!ow.solid(x, y) && ow.tileAt(x + 1, y) === '~' && !ow.npcAt(x, y)) return [x, y]; return null; },
       cond: () => { const h = hour(); return (h >= 7.5 && h < 9) || (h >= 16.5 && h < 18); },

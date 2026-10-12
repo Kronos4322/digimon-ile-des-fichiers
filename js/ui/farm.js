@@ -29,7 +29,7 @@
         return;
       }
       const m = this.box[this.i];
-      if (st.party.length < DW.partyMax()) {
+      if (st.party.length < 6) {
         this.box.splice(this.i, 1); st.party.push(m);
         await DW.say(`${m.name} rejoint ton équipe !`);
       } else {

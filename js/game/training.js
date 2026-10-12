@@ -5,8 +5,8 @@
 //    plafond de points d'entraînement par stat = 6 + 2 × niveau (max 64).
 //  - L'ENTRAÎNEMENT remplit ce potentiel : les points augmentent les stats
 //    et sont la condition principale des Digivolutions.
-//  - Une séance = mini-jeu de timing en 3 essais (ESPACE au bon moment).
-//    Plus la stat est entraînée, plus la zone est étroite et le curseur rapide.
+//  - Une séance = un mini-jeu propre au poste, en 3 essais (game/trainingames.js) :
+//    le Digimon court, soulève, frappe... Plus la stat est entraînée, plus c'est dur.
 //    Raté = 0, réussi = 1, parfait = 2 points. Fatigue +30, 1 h 30.
 // =====================================================================
 (function () {
@@ -36,68 +36,81 @@
     },
     // difficulté du mini-jeu selon les points déjà acquis (0 facile → 1 très dur)
     difficulty: (m, k) => Math.min(1, m.tr[k] / 48),
-    // script lancé en parlant à un poste d'entraînement (k = stat travaillée)
+    // raison qui empêche une séance (null : tout va bien)
+    blocked(m, k) {
+      const S = STATS[k];
+      if (m.hp <= 0) return `${m.name} est K.O. Soigne-le d'abord !`;
+      if (m.sick) return `${m.name} est malade... Donne-lui un Médicament avant de l'entraîner.`;
+      if (m.hurt) return `${m.name} est blessé... Soigne-le avec un Bandage d'abord.`;
+      if (m.tired >= 100) return `${m.name} est épuisé... Fais-le dormir ou mange au restaurant.`;
+      if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat pour l'augmenter !`;
+      if (this.total(m) >= TOTAL) return `${m.name} ne peut plus progresser davantage...`;
+      if (DW.Care && DW.Care.tooHungry(m)) return `${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`;
+      return null;
+    },
+    // en parlant à un poste : le partenaire de tête s'entraîne (ou un autre, au choix), séances enchaînées depuis l'écran de résultats
     async atSpot(k) {
       const st = DW.state, S = STATS[k];
       if (!S) return;
       if (!st.party.length) { await DW.say("Un poste d'entraînement... Il te faudrait un partenaire Digimon !"); return; }
-      await DW.say(`Poste « ${S.name} » (${S.stat}) : ${S.desc} Une séance dure 1 h 30 et fatigue beaucoup.`);
-      while (true) {
-        const i = await Game.push(new DW.PartyScene({ mode: 'select', title: 'ENTRAÎNEMENT' }));
-        if (i == null || i < 0) return;
-        const m = st.party[i];
-        if (m.hp <= 0) { await DW.say(`${m.name} est K.O. Soigne-le d'abord !`); continue; }
-        if (m.sick) { await DW.say(`${m.name} est malade... Donne-lui un Médicament avant de l'entraîner.`); continue; }
-        if (m.hurt) { await DW.say(`${m.name} est blessé... Soigne-le avec un Bandage d'abord.`); continue; }
-        if (m.tired >= 100) { await DW.say(`${m.name} est épuisé... Fais-le dormir chez Jijimon ou mange au restaurant.`); continue; }
-        if (m.tr[k] >= this.cap(m)) { await DW.say(`${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat pour l'augmenter !`); continue; }
-        if (this.total(m) >= TOTAL) { await DW.say(`${m.name} ne peut plus progresser davantage...`); continue; }
-        if (DW.Care && DW.Care.tooHungry(m)) { await DW.say(`${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`); continue; }
-        await Game.push(new TrainingScene(m, k));
-        if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} est prêt à digivoluer ! Consulte la table des Digivolutions (ENTRÉE).`);
-        const again = await DW.ask('Encore une séance ?');
-        if (again !== 0) return;
+      let m = st.party[0];
+      if (st.party.length > 1) {
+        const r = await DW.ask(`Poste « ${S.name} » (${S.stat}). Qui s'entraîne ?`, [m.name, 'Un autre Digimon', 'Annuler']);
+        if (r === 1) {
+          const i = await Game.push(new DW.PartyScene({ mode: 'select', title: 'ENTRAÎNEMENT' }));
+          if (i == null || i < 0) return;
+          m = st.party[i];
+        } else if (r !== 0) return;
       }
+      const why = this.blocked(m, k);
+      if (why) { await DW.say(why); return; }
+      while ((await Game.push(new TrainingScene(m, k))) === 'again') { /* séance suivante */ }
+      if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre la table des Digivolutions (ENTRÉE → DIGIVOLUTION).`);
     },
   };
 
-  // ------------------------------------------------------------ séance (mini-jeu de timing)
+  // ------------------------------------------------------------ séance : écran « prêt », mini-jeu du poste (trainingames.js), résultats
   class TrainingScene extends DW.Scene {
     constructor(m, k) {
       super();
       this.m = m; this.k = k; this.S = STATS[k];
-      this.round = 0; this.hits = []; this.pt = []; this.flash = 0;
-      const dif = Training.difficulty(m, k);
-      this.zone = 0.28 - dif * 0.17;            // largeur de la zone réussie (fraction de la jauge)
-      this.speed = 0.9 + dif * 1.3;             // allers-retours par seconde
-      if (m.tired >= 60) this.speed *= 1.15;    // fatigué : plus difficile
+      this.hits = []; this.pt = []; this.flash = 0; this.shake = 0;
+      this.dif = Training.difficulty(m, k);
       this.before = m.stat(k);
-      this.state = 'play';
-      this.newRound();
-      Audio.sfx('buff');
+      this.state = 'ready';   // ready → play (3 essais) → done
     }
-    newRound() { this.zx = 0.12 + Math.random() * (0.76 - this.zone); this.ph = Math.random() * 0.3; this.wait = 0.5; }
-    get cursor() { const p = this.ph % 2; return p < 1 ? p : 2 - p; }
+    start() { this.state = 'play'; this.game = new DW.TRAIN_GAMES[this.k](this); this.endT = 1; this.readyT = 1.1; Audio.sfx('buff'); }
+    // un essai noté par le mini-jeu : 0 raté, 1 bien, 2 parfait (x, y : où faire jaillir les étincelles)
+    hit(res, x = 160, y = 110) {
+      if (this.hits.length >= 3) return;
+      this.hits.push(res); this.lastRes = res; this.flash = 0.6; this.fx = [x, y];
+      Audio.sfx(res === 2 ? 'super' : res ? 'hit' : 'weak');
+      const n = res ? 8 + res * 4 : 3;
+      for (let i = 0; i < n; i++) this.pt.push({ x, y, vx: (Math.random() - 0.5) * 130, vy: -40 - Math.random() * 70, life: 0.7, col: res === 2 ? '#fff080' : res ? '#e8c860' : '#8a8a8a' });
+    }
     update(dt) {
-      if (this.state === 'done') { if (Input.hit('ok') || Input.hit('back')) { Audio.sfx('select'); this.close(); } return; }
-      if (this.wait > 0) { this.wait -= dt; return; }
-      this.ph += dt * this.speed * 2;
-      if (Input.hit('ok')) {
-        const c = this.cursor, mid = this.zx + this.zone / 2;
-        const res = Math.abs(c - mid) <= this.zone * 0.17 ? 2 : Math.abs(c - mid) <= this.zone / 2 ? 1 : 0;
-        this.hits.push(res); this.lastRes = res; this.flash = 0.45;
-        Audio.sfx(res === 2 ? 'super' : res ? 'hit' : 'weak');
-        const n = res ? 8 + res * 4 : 3;
-        for (let i = 0; i < n; i++) this.pt.push({ x: 196, y: 124, vx: (Math.random() - 0.4) * 130, vy: -40 - Math.random() * 70, life: 0.7, col: res === 2 ? '#fff080' : res ? '#e8c860' : '#8a8a8a' });
-        if (++this.round >= 3) this.finish(); else this.newRound();
+      if (this.state === 'ready') {
+        if (Input.hit('ok')) this.start();
+        else if (Input.hit('back')) { Audio.sfx('back'); this.close('stop'); }
+        return;
       }
+      if (this.state === 'done') {
+        if (Input.hit('ok')) { Audio.sfx('select'); this.close(this.next ? 'again' : 'stop'); }
+        else if (Input.hit('back')) { Audio.sfx('back'); this.close('stop'); }
+        return;
+      }
+      if (this.readyT > 0) { this.readyT -= dt; return; }
+      this.game.update(dt);
+      if (this.hits.length >= 3 && (this.endT -= dt) <= 0) this.finish();
     }
     finish() {
       const m = this.m, k = this.k;
       const score = this.hits.reduce((a, b) => a + b, 0);                 // 0 à 6
       const bonus = score > 0 ? (DW.Town.has('elecmon') ? 1 : 0) + Math.min(2, DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) : 0; // Dojo d'Elecmon + coachs recrutés
       this.score = score;
-      this.g = Training.gain(m, k, score + bonus);
+      const extra = score > 0 ? (m.boost || 0) + (DW.state.bag.manuel_entr ? 1 : 0) : 0;   // Super carotte, Radis... et Manuel d'entraînement
+      if (score > 0) m.boost = 0;
+      this.g = Training.gain(m, k, score + bonus + extra);
       m.tired = Math.min(100, m.tired + TIRE);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);
       DW.Life.addFat(m, -1);
@@ -106,58 +119,56 @@
       if (k === 'hp') m.hp = Math.min(m.maxHp, m.hp + (this.after - this.before));
       if (k === 'mp') m.mp = Math.min(m.maxMp, m.mp + (this.after - this.before));
       this.state = 'done';
+      this.next = !Training.blocked(m, k);              // une autre séance est-elle possible ?
+      this.evo = DW.Evo.available(m).length > 0;
       Audio.sfx(this.g ? 'levelup' : 'back');
     }
     tick(dt) {
       if (this.flash > 0) this.flash -= dt;
+      if (this.shake > 0) this.shake -= dt;
       for (let i = this.pt.length - 1; i >= 0; i--) { const p = this.pt[i]; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 140 * dt; p.life -= dt; if (p.life <= 0) this.pt.splice(i, 1); }
     }
     draw(c) {
       const t = this.t, k = this.k, m = this.m, S = this.S, play = this.state === 'play';
-      c.drawImage(DW.World.battleBg('foret@town'), 0, 0);
-      DW.World.platform(c, 'foret@town', 160, 168, 100, 18);
-      // poste d'entraînement
-      const O = DW.World.obj(S.obj, 0);
-      c.drawImage(O.img, 222 - O.w, 168 - O.h * 2, O.w * 2, O.h * 2);
-      // Digimon : petite animation d'effort, élan quand on appuie
-      const hit = this.flash > 0;
-      let x = 130, y = 170;
-      if (play && k === 'spd') x = 130 + Math.sin(t * 7) * 24;
-      if (play && k === 'hp') y = 170 - Math.abs(Math.sin(t * 4)) * 4;
-      if (hit && this.lastRes) x += Math.sin((0.45 - this.flash) / 0.45 * Math.PI) * 40;
-      if ((k === 'int' || k === 'mp') && play) {
-        c.save(); c.globalCompositeOperation = 'lighter';
-        for (let i = 0; i < 3; i++) { c.strokeStyle = `rgba(120,220,255,${0.35 - i * 0.1})`; c.lineWidth = 1.5; c.beginPath(); c.ellipse(x, y - 30, 36 + i * 10 + Math.sin(t * 4) * 4, 12 + i * 4, 0, 0, 7); c.stroke(); }
-        c.restore();
+      c.save();
+      if (this.shake > 0) c.translate(Math.round((Math.random() - 0.5) * 6), 0);
+      if (play) this.game.draw(c);
+      else {
+        // écran de préparation / résultats : le Digimon devant son poste
+        c.drawImage(DW.World.battleBg('foret@town'), 0, 0);
+        DW.World.platform(c, 'foret@town', 160, 168, 100, 18);
+        const O = DW.World.obj(S.obj, 0);
+        c.drawImage(O.img, 222 - O.w, 168 - O.h * 2, O.w * 2, O.h * 2);
+        const happy = this.state === 'done' && this.g;
+        DW.Sprites.draw(c, happy ? DW.Sprites.pose(m.sp, 'attack') : DW.Sprites.battle(m.sp), 130, 170 - (happy ? Math.abs(Math.sin(t * 6)) * 4 : 0), { frame: Math.floor(t * 4) });
       }
-      const pose = hit ? (this.lastRes ? 'attack' : 'hurt') : null;
-      DW.Sprites.draw(c, pose ? DW.Sprites.pose(m.sp, pose) : DW.Sprites.battle(m.sp), x, y, { frame: Math.floor(t * (play ? 7 : 4)) });
       for (const p of this.pt) { c.fillStyle = p.col; c.fillRect(p.x, p.y, 2, 2); }
-      if (hit) UI.text(c, ['RATÉ...', 'BIEN !', 'PARFAIT !'][this.lastRes], 196, 92 - (0.45 - this.flash) * 30, { size: 11, align: 'center', color: ['#ff8a8a', '#ffe070', '#7aff8a'][this.lastRes] });
+      if (play && this.readyT > 0) UI.text(c, this.readyT > 0.35 ? 'Prêt ?' : 'Partez !', W / 2, 110, { size: 16, align: 'center', color: '#ffffff' });
+      if (this.flash > 0 && this.fx) UI.text(c, ['RATÉ...', 'BIEN !', 'PARFAIT !'][this.lastRes], this.fx[0], this.fx[1] - 16 - (0.6 - this.flash) * 30, { size: 11, align: 'center', color: ['#ff8a8a', '#ffe070', '#7aff8a'][this.lastRes] });
+      c.restore();
       // en-tête
       UI.box(c, 6, 6, W - 12, 34);
       UI.label(c, 'ENTRAÎNEMENT', 12, 10);
       UI.text(c, `${m.name} — ${S.name} (${S.stat})`, 100, 19, { size: 10, color: '#ffe070' });
       UI.text(c, `Points ${m.tr[k]} / potentiel ${Training.cap(m)}   ·   Fatigue ${m.tired} %`, 12, 33, { size: 8, color: '#c8f0ff' });
-      // jauge
+      // panneau du bas
       UI.box(c, 6, 188, W - 12, 46);
-      if (play) {
-        const bx = 18, bw = W - 82, by = 198;
-        c.fillStyle = '#06121a'; c.fillRect(bx - 1, by - 1, bw + 2, 12);
-        c.fillStyle = '#28465a'; c.fillRect(bx, by, bw, 10);
-        c.fillStyle = '#3cbc6c'; c.fillRect(bx + this.zx * bw, by, this.zone * bw, 10);
-        c.fillStyle = '#ffe060'; c.fillRect(bx + (this.zx + this.zone * 0.33) * bw, by, this.zone * 0.34 * bw, 10);
-        const cx = bx + this.cursor * bw;
-        c.fillStyle = '#ffffff'; c.fillRect(Math.round(cx) - 1, by - 3, 3, 16);
+      if (this.state === 'ready') {
+        const stars = 1 + Math.round(this.dif * 4);
+        UI.text(c, S.desc, 16, 202, { size: 8, color: '#ffffff' });
+        UI.text(c, `Difficulté ${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}   ·   ${S.stat} actuel : ${this.before}   ·   1 h 30, fatigue +${TIRE} %`, 16, 214, { size: 7, color: '#8ae0f0' });
+        UI.text(c, 'ESPACE : commencer      ÉCHAP : annuler', W / 2, 228, { size: 8, align: 'center', color: '#ffe070' });
+      } else if (play) {
+        UI.wrap(c, this.game.hint, W - 80, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 16, 204 + j * 11, { size: 8, color: '#c8f0ff' }));
         for (let j = 0; j < 3; j++) {
           const h = this.hits[j];
-          UI.text(c, h == null ? '·' : h === 2 ? '★' : h ? '●' : '✘', W - 54 + j * 14, 208, { size: 10, align: 'center', color: h == null ? '#5a8aa0' : h ? '#ffe060' : '#ff7a7a' });
+          UI.text(c, h == null ? '·' : h === 2 ? '★' : h ? '●' : '✘', W - 50 + j * 14, 212, { size: 10, align: 'center', color: h == null ? '#5a8aa0' : h ? '#ffe060' : '#ff7a7a' });
         }
-        UI.text(c, `Essai ${Math.min(3, this.round + 1)}/3 — ESPACE dans la zone verte (jaune = parfait)`, 18, 226, { size: 7, color: '#8ae0f0' });
+        UI.text(c, `Essai ${Math.min(3, this.hits.length + 1)}/3`, W - 36, 228, { size: 7, align: 'center', color: '#8ae0f0' });
       } else {
         UI.text(c, this.g ? `${S.stat} : ${this.before} → ${this.after}   (+${this.g} pts d'entraînement)` : this.score ? `Potentiel atteint en ${S.stat} : gagne des niveaux !` : 'Séance ratée... Aucun progrès.', 16, 205, { size: 9, color: this.g ? '#7aff8a' : '#ffb070' });
-        UI.text(c, `Réussite ${this.score}/6   ·   Fatigue ${m.tired} %   ·   1 h 30 a passé`, 16, 221, { size: 8, color: '#8ae0f0' });
-        UI.downArrow(c, W - 18, 222, t);
+        UI.text(c, this.evo ? 'Le Digivice vibre : Digivolution possible !' : `Réussite ${this.score}/6   ·   Fatigue ${m.tired} %   ·   1 h 30 a passé`, 16, 217, { size: 8, color: this.evo ? '#ffe070' : '#8ae0f0' });
+        UI.text(c, this.next ? 'ESPACE : encore une séance      ÉCHAP : terminer' : 'ESPACE : terminer', W / 2, 230, { size: 7, align: 'center', color: '#ffe070' });
       }
     }
   }

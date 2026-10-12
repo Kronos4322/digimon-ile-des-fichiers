@@ -42,11 +42,6 @@
       }
       const o = this.opts[this.sel];
       if (!o) return;
-      if (DW.AutoEvo && DW.AutoEvo.on()) {
-        const h = DW.AutoEvo.hoursLeft(m);
-        await DW.say(`Règles Digimon World 1 : ${m.name} digivoluera tout seul${h != null && h > 0 ? ` dans ${Math.ceil(h)} h` : ' très bientôt'}, vers la meilleure forme dont il remplit les conditions.`);
-        return;
-      }
       const chk = DW.Evo.check(m, o);
       if (!chk.ok) { Audio.sfx('bump'); await DW.say('Les conditions ne sont pas encore remplies. Entraîne-toi et gagne des combats !'); return; }
       Audio.sfx('select');

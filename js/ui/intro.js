@@ -67,6 +67,9 @@
       UI.text(c, L.name, W / 2, 170, { size: 14, align: 'center', bold: true });
       crest(c, W / 2 - 48, 181, 4, L.crestCol, t);
       UI.text(c, 'Blason : ' + L.crest, W / 2 + 4, 184, { size: 8, align: 'center', color: L.crestCol });
+      const line = DW.heroLine(id);
+      UI.text(c, `Partenaire : ${DW.SPECIES[line.partner].name}`, W / 2 + 70, 150, { size: 7, align: 'left', color: '#ffe680' });
+      UI.text(c, `(${DW.SPECIES[line.baby].name})`, W / 2 + 70, 160, { size: 7, align: 'left', color: '#c8d0e8' });
       UI.box(c, 14, 190, 292, 44, 'dark');
       UI.wrap(c, L.desc, 276, 9).forEach((l, k) => UI.text(c, l, 24, 205 + k * 12, { size: 9 }));
       UI.text(c, '◀ ▶ choisir   ESPACE valider', W - 20, 229, { size: 7, align: 'right', color: '#7a8ab8' });

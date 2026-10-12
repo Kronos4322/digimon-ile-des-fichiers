@@ -93,6 +93,39 @@
       d.poly([[51, 33], [58, 35.5], [62.5, 41.5], [57.5, 39], [54, 38.5]], K, { shiny: true });
       for (const [x, y] of [[57.5, 26], [60, 27], [56.5, 37], [59, 38.5]]) d.deco.poly([[x, y], [x + 1, y + 1.6], [x + 2, y]], '#5a5466');
     },
+    whamon(d) {
+      // baleine des profondeurs (wikimon) : corps bleu nuit aux nageoires déchiquetées, grosse tête osseuse gris-brun
+      // sans yeux visibles, zone striée derrière la tête, gueule hérissée de crocs (intérieur rose)
+      const Nv = '#2c3c92', Nd = '#1a2458', Nl = '#5a72d8', Hd = '#8c7c68', Hl = '#bcae96', Hdd = '#54463a';
+      // queue : nageoire caudale déchiquetée, dressée vers le haut à gauche
+      d.poly([[2, 10], [6, 2], [9, 8], [12, 1], [15, 9], [19, 3], [21, 12], [16, 18], [8, 17]], Nv, { far: true });
+      for (const [x, y] of [[5, 6], [11, 5], [17, 7]]) d.deco.line(x, y, x + 3, y + 8, 0.7, Nd);
+      // corps qui descend vers la tête
+      d.tube([[12, 14], [20, 26], [32, 36]], 6, 15, Nv, { shiny: true, tex: 0.15 });
+      // arête dorsale en dents de scie
+      for (let k = 0; k < 5; k++) { const x = 18 + k * 4.4, y = 18 + k * 3.6; d.poly([[x - 2, y + 1], [x + 1.5, y - 5], [x + 3, y + 2]], Nl); }
+      // nageoire pectorale déchiquetée (côté lointain puis proche)
+      d.poly([[30, 44], [20, 46], [16, 52], [21, 51], [19, 56], [26, 52], [28, 57], [34, 48]], Nd, { far: true });
+      // zone striée derrière la tête
+      d.ell(36, 38, 9, 11, Nd, -0.5, { tex: 0.2 });
+      for (let k = 0; k < 6; k++) d.deco.curve([[30 + k * 2, 30 + k], [33 + k * 2, 38 + k * 0.6], [32 + k * 2, 46]], 0.7, '#4a3a2a');
+      for (let k = 0; k < 4; k++) d.deco.line(30, 32 + k * 4, 42, 30 + k * 4, 0.5, '#4a3a2a');
+      // tête osseuse
+      d.ell(47, 42, 15, 12.5, Hd, 0.15, { shiny: true, tex: 0.2 });
+      d.deco.ell(44, 36, 8, 4, Hl, 0.2);
+      d.deco.curve([[36, 46], [44, 50], [56, 48]], 0.8, Hdd);
+      // gueule ouverte en bas, crocs et intérieur rose
+      d.poly([[40, 50], [61, 47], [58, 58], [44, 58]], '#4a0e22');
+      d.deco.ell(51, 54, 7, 2.6, '#e0507a');
+      for (const [x, y] of [[47, 54], [52, 55.5], [56, 53.5]]) d.deco.circ(x, y, 0.8, '#ffe060', { unlit: true });
+      for (let k = 0; k < 6; k++) {
+        d.deco.poly([[41 + k * 3.4, 50 - k * 0.5], [42.6 + k * 3.4, 54 - k * 0.5], [44 + k * 3.4, 49.6 - k * 0.5]], '#fff8e8', { unlit: true });
+        d.deco.poly([[44 + k * 2.6, 58], [45.3 + k * 2.6, 55], [46.6 + k * 2.6, 58]], '#fff8e8', { unlit: true });
+      }
+      // nageoire proche
+      d.poly([[38, 52], [28, 58], [33, 58], [31, 62], [38, 59], [40, 62], [44, 55]], Nv);
+      d.deco.line(32, 58, 40, 55, 0.6, Nd);
+    },
     shellmon(d) {
       // crabe-ermite magenta à quatre pattes, mèches jaune-vert, grosse conque bleu-gris hérissée sur le dos
       const Pk = '#e2408c', Pd = '#a8226a', Pl = '#f47ab0', Sh = '#8a98c0', Shd = '#5a6688', Sp = '#c8d0e4', Hair = '#b8d83a', Hd = '#7a9a1e';

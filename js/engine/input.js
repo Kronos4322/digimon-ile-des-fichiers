@@ -30,13 +30,21 @@
       // sinon une direction appuyée puis relâchée pendant la même image (tape très brève sur l'écran)
       return DIRS.find(d => this.held[d]) || DIRS.find(d => this.pressed[d]) || null;
     },
+    // direction sur 2 axes (-1, 0, 1) pour les déplacements en diagonale ; deux flèches opposées : la plus récente gagne
+    vec() {
+      const axis = (a, b) => (this.held[a] && this.held[b] ? (this.dirStack.lastIndexOf(a) > this.dirStack.lastIndexOf(b) ? -1 : 1) : this.held[a] ? -1 : this.held[b] ? 1 : 0);
+      let x = axis('left', 'right'), y = axis('up', 'down');
+      if (!x && !y) { const d = this.dir(); if (d) { x = d === 'left' ? -1 : d === 'right' ? 1 : 0; y = d === 'up' ? -1 : d === 'down' ? 1 : 0; } }
+      return { x, y };
+    },
+    padActive: false,   // la dernière direction vient de la manette (pas de « se tourner sur place »)
     clear() { this.pressed = {}; this.typed = []; },
     // une source (touche, bouton) enfonce une action ; repeat = répétition automatique du clavier
     press(src, a, repeat = false) {
       DW.Audio.init();
       if (!repeat || DIRS.includes(a)) this.pressed[a] = true;
       (sources[a] = sources[a] || new Set()).add(src);
-      if (DIRS.includes(a) && !repeat) { this.dirStack = this.dirStack.filter(d => d !== a); this.dirStack.push(a); }
+      if (DIRS.includes(a) && !repeat) { this.dirStack = this.dirStack.filter(d => d !== a); this.dirStack.push(a); this.padActive = src.startsWith('pad') || src.startsWith('touch:pad'); }
       this.held[a] = true;
       if (a === 'mute' && !repeat) DW.Audio.toggleMute();
     },
@@ -71,7 +79,18 @@
   // ------------------------------------------------------------ manette (disposition « standard » des navigateurs)
   // A / Croix = valider, B / Rond = retour, X / Carré = courir, Y / Triangle et START = menu, croix directionnelle ou stick gauche
   const PAD_BTN = { 0: 'ok', 1: 'back', 2: 'run', 3: 'menu', 9: 'menu', 8: 'back', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
-  const DEAD = 0.5;
+  // stick gauche : zone morte circulaire, puis 8 secteurs de 45° (avec une marge pour ne pas hésiter entre deux secteurs)
+  const DEAD = 0.32, SECT = ['right', 'right,down', 'down', 'down,left', 'left', 'left,up', 'up', 'up,right'];
+  const padSector = {};        // secteur retenu par manette
+  function stick(p) {
+    const x = p.axes[0] || 0, y = p.axes[1] || 0;
+    if (Math.hypot(x, y) < DEAD) { padSector[p.index] = -1; return []; }
+    const a = (Math.atan2(y, x) / (Math.PI / 4) + 8) % 8, prev = padSector[p.index];
+    let s = Math.round(a) % 8;
+    if (prev >= 0) { const d = Math.abs(((a - prev + 12) % 8) - 4); if (d < 0.62) s = prev; }   // ~28° de marge autour du secteur actuel
+    padSector[p.index] = s;
+    return SECT[s].split(',');
+  }
   const padHeld = new Set();   // sources de manette actuellement enfoncées
   function pollPads() {
     if (!navigator.getGamepads) return;
@@ -81,9 +100,7 @@
     for (const p of pads) {
       if (!p || !p.connected) continue;
       for (const i in PAD_BTN) { const b = p.buttons[i]; if (b && (b.pressed || b.value > 0.5)) now.add(`pad${p.index}:b${i}:${PAD_BTN[i]}`); }
-      const x = p.axes[0] || 0, y = p.axes[1] || 0;
-      if (x < -DEAD) now.add(`pad${p.index}:ax:left`); else if (x > DEAD) now.add(`pad${p.index}:ax:right`);
-      if (y < -DEAD) now.add(`pad${p.index}:ay:up`); else if (y > DEAD) now.add(`pad${p.index}:ay:down`);
+      for (const d of stick(p)) now.add(`pad${p.index}:st:${d}`);
     }
     const action = src => src.slice(src.lastIndexOf(':') + 1);
     for (const src of padHeld) if (!now.has(src)) { padHeld.delete(src); Input.release(src, action(src)); }

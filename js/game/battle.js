@@ -141,15 +141,6 @@
       this.spr.p.vis = false;
     }
     async playerTurn() {
-      // mode « Ordres » (Digimon World 1) : le partenaire agit seul ; ESPACE pour reprendre la main
-      if (DW.Options.battleMode === 1) {
-        const P = this.active;
-        this.text = `${P.name} se bat tout seul... (ESPACE : donner un ordre)`; this.shown = 999;
-        let t = 0, take = false;
-        while (t < 0.9) { await DW.wait(0.05); t += 0.05; if (DW.Input.isDown('ok')) { take = true; break; } }
-        if (!take) return this.autoPick();
-        while (DW.Input.isDown('ok')) await DW.wait(0.05);
-      }
       while (true) {
         const P = this.active;
         this.text = `Que doit faire ${P.name} ?`; this.shown = 999;
@@ -175,23 +166,6 @@
         }
         return { type: 'run' };
       }
-    }
-    // choix automatique du partenaire (mode « Ordres ») : coup spécial dès que possible, sinon la technique
-    // la plus adaptée (efficacité, élément, soin quand il faut), en ménageant ses PM
-    autoPick() {
-      const P = this.active, E = this.enemy;
-      if (this.energy.p >= 100 && DW.sigOf(P)) return { type: 'move', special: true, auto: true };
-      const opts = P.moves.map((m, i) => ({ m, i })).filter(o => P.canPay(o.m.id));
-      if (!opts.length) return { type: 'move', slot: -1, auto: true };
-      const scored = opts.map(o => {
-        const mv = DW.MOVES[o.m.id], cost = DW.mpCost(o.m.id);
-        let w = mv.pow ? mv.pow * DW.typeMult(mv.type, E.d.types) * (P.d.types.includes(mv.type) ? 1.5 : 1) : 25;
-        if (mv.heal) w = P.hp < P.maxHp * 0.4 ? 200 : 1;
-        if (mv.st && !mv.pow && E.status) w = 2;
-        if (P.mp < P.maxMp * 0.3) w /= 1 + cost / (4 * DW.SCALE.mp);
-        return { o, w: Math.max(1, w * w) };
-      });
-      return { type: 'move', slot: DW.weighted(scored).o.i, auto: true };
     }
     aiPick() {
       const E = this.enemy, P = this.active;
@@ -220,7 +194,13 @@
         return this.enemyOnly();
       }
       if (action.type === 'item') {
-        const mon = this.st.party[action.target];
+        const mon = this.st.party[action.target], it = DW.ITEMS[action.item];
+        if (it.use === 'buff' || it.use === 'protect') {
+          this.st.bag[action.item]--;
+          if (it.use === 'protect') { this.protect = true; Audio.sfx('buff'); await this.msg(`${this.active.name} est protégé contre les altérations !`); }
+          else for (const k in it.st) await this.statChange('p', k, it.st[k]);
+          return this.enemyOnly();
+        }
         const before = mon.hp;
         Audio.sfx('heal');
         const txt = DW.useItem(action.item, mon);
@@ -235,7 +215,7 @@
       // attaques (un Digimon mal discipliné n'en fait parfois qu'à sa tête)
       const P = this.active, E = this.enemy;
       let pm = action.special ? { id: DW.sigOf(P), special: true } : action.slot < 0 ? { id: 'lutte' } : P.moves[action.slot];
-      if (!action.special && !action.auto && P === this.st.party[0] && DW.Life.disobeys(P)) {
+      if (!action.special && P === this.st.party[0] && DW.Life.disobeys(P)) {
         const usable = P.moves.filter(mm => P.canPay(mm.id));
         if (Math.random() < 0.5 || !usable.length) { await this.msg(`${P.name} n'en fait qu'à sa tête et regarde ailleurs...`); return this.enemyOnly(); }
         pm = DW.pick(usable);
@@ -318,7 +298,8 @@
       const tSide = uSide === 'p' ? 'e' : 'p';
       const A = this.eff(uSide, mv.contact ? 'atk' : 'int'), Dd = this.eff(tSide, mv.contact ? 'def' : 'int');
       // formule d'origine, mise à l'échelle des PV (×20, façon Digimon World)
-      const base = (Math.floor(2 * user.level / 5 + 2) * mv.pow * A / Dd / 50 + 2) * DW.SCALE.hp;
+      const base = (Math.floor(2 * user.level / 5 + 2) * mv.pow * A / Dd / 50 + 2) * DW.SCALE.hp * DW.BALANCE.dmg * (uSide === 'e' && this.wild ? DW.BALANCE.wildDmg : 1)
+        * DW.clamp(1 + DW.BALANCE.lvGap * (user.level - tgt.level), 0.7, 1.5);
       const stab = user.d.types.includes(mv.type) ? 1.5 : 1;
       const tm = DW.typeMult(mv.type, tgt.d.types);
       const attr = DW.ATTR_ADV[user.d.attr] === tgt.d.attr ? 1.2 : 1;
@@ -393,6 +374,7 @@
     async inflict(side, s, announce) {
       const m = this.mon(side);
       const immune = (s === 'brn' && m.d.types.includes('Feu')) || (s === 'par' && m.d.types.includes('Électrique'));
+      if (side === 'p' && this.protect) { if (announce) await this.msg(`La Protection repousse l'altération !`); return; }
       if (m.status || immune) { if (announce) await this.msg(`Ça n'a aucun effet sur ${this.label(side)}...`); return; }
       m.status = s;
       if (s === 'slp') m.slp = DW.rand(1, 3);
