@@ -16,7 +16,7 @@
   const MAPS = DW.MAPS, Hh = DW.Art.hash;
   const level = () => DW.Town.level();
   // agrandissement des quartiers (bâtiments plus grands, plus d'espace) : plan d'origine 48×34 × Z
-  const Z = 1.3, W = Math.round(48 * Z), H = Math.round(34 * Z);
+  const Z = 1.8, W = Math.round(48 * Z), H = Math.round(34 * Z);
   // herbe non praticable (invisible) : derrière les grands bâtiments, là où le toit déborde de l'emprise
   DW.World.CH['ŧ'] = { t: 'grass', solid: true }; DW.SOLID.add('ŧ');
 

@@ -424,8 +424,10 @@
   // (vraie résolution, pas de pixels étirés), posé sur la même case (ancrage en bas au centre).
   const OBJ_SCALE = {};
   for (const k of ['tree', 'oak', 'birch', 'pine', 'palm', 'candytree', 'cycad', 'jungletree', 'mangrove', 'swamptree', 'acacia', 'baobab', 'deadtree']) OBJ_SCALE[k] = 1.55;
-  for (const k of ['bigtree', 'cactus', 'giantshroom', 'giantflower', 'giantstump', 'spire']) OBJ_SCALE[k] = 1.45;
-  for (const k of ['bush', 'fern', 'bigfern', 'junglebush', 'snowbush', 'drybush', 'reeds', 'glowshroom', 'hedge']) OBJ_SCALE[k] = 1.4;
+  for (const k of ['bigtree', 'cactus', 'giantstump', 'spire']) OBJ_SCALE[k] = 1.45;
+  for (const k of ['bush', 'fern', 'bigfern', 'junglebush', 'snowbush', 'drybush', 'reeds', 'hedge']) OBJ_SCALE[k] = 1.3;
+  // fleurs et champignons (même « géants ») restent plus petits que les arbres et les maisons
+  for (const k of ['giantflower', 'giantshroom', 'glowshroom']) OBJ_SCALE[k] = 0.9;
   for (const k of ['rock', 'boulder', 'mossrock', 'icerock', 'lavarock', 'searock', 'rockpile', 'basalt', 'crystal', 'stalagmite', 'icecrystal', 'termite', 'log', 'hollowlog', 'stump']) OBJ_SCALE[k] = 1.3;
   World.OBJ_SCALE = OBJ_SCALE;
   const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;

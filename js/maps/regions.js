@@ -17,6 +17,8 @@
   const { forestGen, paint } = DW.MapKit;
   const MAPS = DW.MAPS, Hh = DW.Art.hash;
   const OPP = { left: 'right', right: 'left', up: 'down', down: 'up' };
+  // échelle des régions (façon Digimon World) : zones ~2 fois plus grandes en surface, passages 2 fois plus larges
+  const K = 1.45;
   const PLAN = [[0, 0], [1, 0], [2, 0], [3, 0], [3, 1], [2, 1], [1, 1], [0, 1], [0, 2], [1, 2]];
   const PLINKS = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [1, 6], [2, 5], [6, 9]];
 
@@ -63,7 +65,7 @@
       free.push([inn[0], inn[1], 2]);
     }
     // espaces ouverts (voir addRooms) : un chemin depuis le carrefour jusqu'au bord de chacun
-    for (const R of o.rooms || []) { paths.push({ pts: [hub, mid(hub, R.door, 6), R.door], r: 1.45 }); free.push([R.x, R.y, Math.min(R.rx, R.ry) * 0.6]); }   // centre dégagé (pas de rochers)
+    for (const R of o.rooms || []) { paths.push({ pts: [hub, mid(hub, R.door, 6 * K), R.door], r: 2.6 }); free.push([R.x, R.y, Math.min(R.rx, R.ry) * 0.6]); }   // centre dégagé (pas de rochers)
     const lm = (o.lm || []).map(([ch, n]) => [ch, Math.round(n * (o.lmMul || 1))]);
     let rows = forestGen({ w, h, seed, paths, free, clearings: [{ x: hub[0], y: hub[1], rx: o.hubR, ry: o.hubR * 0.75 }, ...(o.clearings || [])],
       lakes: o.lakes, rivers: o.rivers, autoTall: o.autoTall, deco: o.deco, landmarks: lm, bigtrees: o.bigtrees, tall: o.tall });
@@ -126,14 +128,19 @@
     R.subs.forEach(([name, kind, x = {}], i) => {
       const id = ids[i], s = Hh(i, rid.length * 13 + rid.charCodeAt(0), 501) * 1000 | 0;
       // cartes larges (comme Digimon World) : de la place pour explorer et contourner les Digimon sauvages
-      const w = 60 + Math.floor(Hh(i, 1, s) * 3) * 4, h = 44 + Math.floor(Hh(i, 2, s) * 3) * 3;
+      const w = 88 + Math.floor(Hh(i, 1, s) * 3) * 6, h = 64 + Math.floor(Hh(i, 2, s) * 3) * 4;
       const exits = {};
       for (const side in sides[i]) {
         const span = side === 'left' || side === 'right' ? h : w, off = Math.round((Hh(i, side.length, s) - 0.5) * (span > 32 ? 8 : 6));
-        exits[side] = [Math.floor(span / 2) - 1 + off, 3];
+        exits[side] = [Math.floor(span / 2) - 3 + off, 6];   // passages de 6 cases
       }
       const hub = [Math.floor(w / 2) + Math.round((Hh(i, 3, s) - 0.5) * 8), Math.floor(h / 2) + Math.round((Hh(i, 4, s) - 0.5) * 5)];
       const theme = x.theme || R.theme, k = kindOpts(kind, w, h, hub, s + i);
+      // gabarits pensés pour des cartes plus petites : carrefour, clairières, îlots, rivières et méandres agrandis
+      k.hubR = Math.round(k.hubR * K); if (k.wiggle != null) k.wiggle *= K;
+      for (const c of k.clearings || []) { c.rx *= K; c.ry *= K; }
+      if (kind === 'islands') for (const l of k.lakes || []) { l.rx *= K; l.ry *= K; }
+      for (const rv of k.rivers || []) rv.r *= 1.6;
       const cave = kind === 'cave';
       const spec = Object.assign({ seed: s + 13, hub, lm: [...(x.lm || []), ...(x.noRegionLm ? [] : R.lm || [])] }, k, x.opts || {}, { post: x.post });
       const m = MAPS[id] = {
@@ -164,10 +171,10 @@
   // Placés loin du carrefour, des sorties et de la pièce maîtresse, et espacés entre eux.
   function addRooms(m, kind, seed) {
     const o = m.spec, { w, h } = m, hub = o.hub, r = k => Hh(seed, k, 613);
-    const avoid = [[hub[0], hub[1], 12]], lanes = [];
+    const avoid = [[hub[0], hub[1], 17]], lanes = [];
     for (const side in m.exits) {
       const [pos, len] = m.exits[side], c = pos + len / 2, inn = { left: [2, c], right: [w - 3, c], up: [c, 2], down: [c, h - 3] }[side];
-      avoid.push([...inn, 7]); lanes.push([inn, hub]);
+      avoid.push([...inn, 10]); lanes.push([inn, hub]);
     }
     // distance d'une case au trajet sortie → carrefour (les espaces ne se posent pas dessus)
     const segD = (x, y, [a, b]) => {
@@ -175,23 +182,23 @@
       let t = l ? ((x - a[0]) * dx + (y - a[1]) * dy) / l : 0; t = t < 0 ? 0 : t > 1 ? 1 : t;
       return Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t);
     };
-    for (const L of o.lakes || []) avoid.push([L.x, L.y, Math.max(L.rx, L.ry) + 3]);
+    for (const L of o.lakes || []) avoid.push([L.x, L.y, Math.max(L.rx, L.ry) + 4]);
     const P = m.piece, inPiece = (x, y) => P && x < P.x + P.w + 7 && y < P.y + P.h + 6;
     const cand = [];
-    for (let y = 7; y <= h - 8; y += 2) for (let x = 8; x <= w - 9; x += 2) {
-      if (inPiece(x, y) || avoid.some(([ax, ay, d]) => Math.hypot(x - ax, y - ay) < d) || lanes.some(L => segD(x, y, L) < 8)) continue;
+    for (let y = 10; y <= h - 11; y += 2) for (let x = 11; x <= w - 12; x += 2) {
+      if (inPiece(x, y) || avoid.some(([ax, ay, d]) => Math.hypot(x - ax, y - ay) < d) || lanes.some(L => segD(x, y, L) < 11)) continue;
       cand.push([Hh(x, y, seed), x, y]);
     }
     cand.sort((a, b) => a[0] - b[0]);
     const n = 4 + (r(1) < 0.4 ? 1 : 0), rooms = [];
     for (const [, x, y] of cand) {
       if (rooms.length >= n) break;
-      if (rooms.some(R => Math.hypot(R.x - x, R.y - y) < 15.5)) continue;
+      if (rooms.some(R => Math.hypot(R.x - x, R.y - y) < 22)) continue;
       rooms.push({ x, y });
     }
     const KINDS = kind === 'cave' ? ['pond', 'meadow', 'grove'] : ['meadow', 'pond', 'grove', 'meadow'];
     o.rooms = rooms.map((R, j) => {
-      const rx = 7.8 + r(10 + j) * 3.6, ry = rx * 0.74, type = KINDS[(j + Math.floor(r(2) * 4)) % KINDS.length];
+      const rx = 11 + r(10 + j) * 5, ry = rx * 0.74, type = KINDS[(j + Math.floor(r(2) * 4)) % KINDS.length];
       const dx = hub[0] - R.x, dy = hub[1] - R.y, d = Math.hypot(dx, dy) || 1;
       // entrée de l'espace : sur son bord, du côté du carrefour
       const door = [Math.round(R.x + dx / d * rx * 0.55), Math.round(R.y + dy / d * ry * 0.55)];

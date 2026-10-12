@@ -93,7 +93,7 @@ reste exactement celui d'origine (parquet et enduit).
 Comme dans Digimon World 1 / 2003, une sous-zone n'est pas un simple couloir entre ses sorties : `addRooms` (regions.js)
 place 4 ou 5 grands espaces (étang avec berges, prairie d'herbes hautes où se cachent les Digimon sauvages, bosquet calme)
 loin du carrefour, des sorties, de la pièce maîtresse et des trajets sortie → carrefour, chacun relié par un chemin.
-Cartes de 60-68 × 44-50 cases. Mesure (octobre 2026) : 41 % de cases praticables (19 % avant), ~140 cases libres par
+Cartes de 88-100 × 64-72 cases (facteur K = 1,45), passages de 6 cases, chemins 2 fois plus larges. Mesure (octobre 2026) : 41 % de cases praticables (19 % avant), ~140 cases libres par
 Digimon sauvage (~50 avant). `forestGen` calcule une seule fois la distance de chaque case à chaque chemin
 (résultat identique, génération 6 fois plus rapide).
 
