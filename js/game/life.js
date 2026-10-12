@@ -10,6 +10,10 @@
 //  - DISCIPLINE (0-100) : après une bêtise ou un exploit, parle à ton partenaire pour le féliciter
 //    ou le gronder. Mal discipliné, il désobéit parfois en combat.
 //  - SOMMEIL : il a sommeil à partir de 21 h (Menu → DORMIR). Sans dodo à 2 h, il s'écroule (erreur).
+//  - MALADIE : jamais au hasard. Elle vient d'une ACCUMULATION de négligences (m.germs, 0-100, affiché
+//    « Santé » dans la fiche) : crottes laissées par terre, faim, épuisement, blessure non soignée,
+//    nuit blanche, accidents, corpulence extrême... Bien soigné, il se rétablit peu à peu (sommeil, toilettes).
+//    À 50 : il n'a pas l'air bien. À 80 : il tousse. Au-delà, il peut tomber malade ; à 100, c'est sûr.
 //  - MALADIE / BLESSURE : soignées par Médicament / Bandage (ou une nuit chez Jijimon).
 // =====================================================================
 (function () {
@@ -25,6 +29,7 @@
       if (m.fat == null) m.fat = 0;
       if (m.lives == null) m.lives = 0;
       if (m.lifespan == null) m.lifespan = LIFESPAN;
+      if (m.germs == null) m.germs = 0;
       if (m.slept == null) m.slept = DW.state ? DW.state.clock : 0;
       return m;
     },
@@ -33,6 +38,7 @@
     mistake(m, why) {
       Life.init(m);
       m.mistakes++; m.lifespan = Math.max(6, m.lifespan - 0.5);
+      Life.addGerms(m, 5);
       DW.Care.toast(`Erreur de soin : ${why} (${m.mistakes})`, '#ffb070');
     },
     addFat(m, n) { Life.init(m); m.fat = DW.clamp(m.fat + n, -10, 10); },
@@ -65,9 +71,8 @@
         if (k === 'sick') m.lifespan = Math.max(m.age + 1, m.lifespan - 1);   // une maladie non soignée raccourcit la vie
       }
       if (m.sick && Math.random() < min / 120) m.addHappy(-1);
-      // tomber malade : faim extrême, saleté (crottes non ramassées)
-      const dirt = Object.values(st.poops).reduce((a, L) => a + L.length, 0);
-      if (!m.sick && Math.random() < min * (0.0004 + (m.hunger >= 100 ? 0.002 : 0) + dirt * 0.0006)) { m.sick = st.clock; DW.Care.toast(`${m.name} a l'air malade... (Médicament)`, '#ff8a8a'); }
+      // santé : les négligences s'accumulent (jamais de maladie « au hasard »)
+      Life.health(m, min);
       // fin de vie (pour tous les Digimon de l'équipe)
       for (const d of st.party) {
         Life.init(d);
@@ -90,6 +95,7 @@
       for (const d of st.party) {
         Life.init(d);
         d.slept = st.clock; d.tired = 0; d.mp = d.maxMp;
+        if (!forced) d.germs = Math.max(0, (d.germs || 0) - 35);
         if (d.hp > 0) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.5));
         d.hunger = Math.min(100, d.hunger + 30);
         d.need = Math.min(95, d.need + 25);
@@ -100,7 +106,7 @@
     },
     async collapse(m) {
       await DW.say(`${m.name} n'en peut plus... Il s'endort d'épuisement au beau milieu du chemin !`);
-      Life.mistake(m, 'nuit blanche'); m.addHappy(-5);
+      Life.mistake(m, 'nuit blanche'); m.addHappy(-5); Life.addGerms(m, 20);
       await Life.sleep(true);
       await DW.say(`${m.name} se réveille tard, encore tout grognon.`);
     },
@@ -143,6 +149,43 @@
       }
       return true;
     },
+    // ---------------------------------------------------------- santé (accumulation de négligences)
+    // causes en cours (points par heure de jeu), pour l'affichage et pour Botamon
+    causes(m) {
+      const st = DW.state, h = Life.hour(), out = [];
+      const dirt = Math.min(6, Object.values(st.poops).reduce((a, L) => a + L.length, 0));
+      if (dirt) out.push([dirt * 1.5, dirt > 1 ? `${dirt} crottes traînent par terre` : 'une crotte traîne par terre']);
+      if (m.hunger >= 100) out.push([6, 'il meurt de faim']); else if (m.hunger >= 90) out.push([2, 'il a très faim']);
+      if (m.need >= 90) out.push([2, 'il se retient depuis trop longtemps']);
+      if (m.tired >= 80) out.push([4, 'il est épuisé']);
+      if (m.hurt) out.push([4, "sa blessure n'est pas soignée"]);
+      if (Life.sleepy(m) && (h >= 23 || h < 5)) out.push([3, 'il veille beaucoup trop tard']);
+      if (Math.abs(m.fat) >= 6) out.push([2, m.fat > 0 ? 'il est trop gros' : 'il est trop maigre']);
+      return out;
+    },
+    addGerms(m, n) {
+      Life.init(m);
+      const g0 = m.germs;
+      m.germs = DW.clamp(m.germs + n, 0, 100);
+      if (m !== DW.Care.lead() || m.sick) return;
+      if (g0 < 50 && m.germs >= 50) DW.Care.toast(`${m.name} n'a pas l'air dans son assiette... (fiche : Santé)`, '#ffb070');
+      if (g0 < 80 && m.germs >= 80) DW.Care.toast(`${m.name} tousse... Il va tomber malade si ça continue !`, '#ff8a8a');
+    },
+    health(m, min) {
+      if (m.sick) return;
+      const c = Life.causes(m), rate = c.reduce((a, [n]) => a + n, 0);
+      Life.addGerms(m, rate ? rate * min / 60 : -3 * min / 60);   // bien soigné : il se rétablit peu à peu
+      // au-delà de 70, il peut tomber malade ; à 100, c'est certain
+      if (m.germs >= 100 || (m.germs > 70 && Math.random() < min * (m.germs - 70) / 30 / 600)) Life.fallSick(m, c);
+    },
+    fallSick(m, c = Life.causes(m)) {
+      m.sick = DW.state.clock; m.germs = 60;
+      const why = c.length ? ` (${c.sort((a, b) => b[0] - a[0]).slice(0, 2).map(x => x[1]).join(', ')})` : '';
+      DW.Care.toast(`${m.name} est tombé malade${why}... Donne-lui un Médicament !`, '#ff8a8a');
+      Life.moment('bad', 'il est tombé malade');
+    },
+    healthLabel: m => (Life.init(m), m.sick ? 'Malade' : m.germs >= 80 ? 'Fiévreux' : m.germs >= 50 ? 'Fragile' : m.germs >= 25 ? 'Correcte' : 'Excellente'),
+
     // désobéissance en combat (discipline basse)
     disobeys(m) { Life.init(m); return Math.random() < Math.max(0, (45 - m.disc) / 100); },
     // affichage : petite bulle d'état (maladie, blessure, sommeil)

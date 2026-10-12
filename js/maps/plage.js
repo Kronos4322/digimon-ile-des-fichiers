@@ -3,7 +3,7 @@
 //  PLAGE DES CABINES
 // =====================================================================
 (function () {
-  const { say, st, rle, paint, healAll, recruitNPC } = DW.MapKit;
+  const { say, st, rle, paint, healAll, recruitNPC, zoomMap } = DW.MapKit;
   const MAPS = DW.MAPS;
   async function boothEvent(ow) {
     const s = st();
@@ -98,5 +98,6 @@
     },
     tileActs: { P: boothEvent },
   };
+  zoomMap(MAPS.plage, 'plage');   // plan agrandi ×2 (maps/common.js)
 
 })();

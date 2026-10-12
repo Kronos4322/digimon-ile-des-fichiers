@@ -36,6 +36,9 @@
   DW.getMap = id => {
     const m = MAPS[id];
     if (!m.rows && m.build) m.build(); // cartes générées à la demande (régions)
+    // arrivées vers les cartes agrandies (écrites dans leur plan d'origine)
+    for (const w of m.warps || []) DW.MapKit.zTarget(w);
+    for (const d of m.doors || []) DW.MapKit.zTarget(d);
     if (!m.w) {
       m.w = Math.max(...m.rows.map(r => r.length));
       m.rows.forEach((r, i) => { if (r.length !== m.w) console.warn(`[carte ${id}] ligne ${i} : ${r.length} au lieu de ${m.w}`); });
@@ -49,7 +52,7 @@
   async function healAll(msg) {
     await DW.fade(0.7, 0.3, '#ffffff');
     DW.Audio.sfx('heal');
-    st().party.forEach(m => { m.heal(); m.slept = st().clock; m.sick = 0; m.hurt = 0; });
+    st().party.forEach(m => { m.heal(); m.slept = st().clock; m.sick = 0; m.hurt = 0; m.germs = Math.floor((m.germs || 0) / 2); });
     await DW.wait(1.0);
     await DW.fade(0, 0.3);
     if (msg) await say(msg);
@@ -94,7 +97,7 @@
     }
     // chemins de terre et ponts
     paths.forEach((p, k) => { for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      if (PD[k][y * w + x] < 0.62) { if (g[y][x] === '~') g[y][x] = '_'; else if (p.dirt !== false) g[y][x] = '='; }
+      if (PD[k][y * w + x] < (o.dirtW || 0.62)) { if (g[y][x] === '~') g[y][x] = '_'; else if (p.dirt !== false) g[y][x] = '='; }
     } });
     // herbes hautes
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -206,5 +209,110 @@
     grass: ['#2c5418', '#3b6a20', '#4c7f28', '#5f9432', '#76a83e', '#8fbb4e'],
     dirt: ['#6a5034', '#80643f', '#977a4c', '#ad905c', '#c2a670', '#d6bc86'] };
 
-  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND };
+  // ------------------------------------------------------------ cartes agrandies (×2, échelle Digimon World)
+  // Les cartes faites à la main sont écrites dans leur plan d'origine (dimensions ci-dessous) puis agrandies :
+  // le sol, les chemins, l'eau et les lisières doublent ; les objets gardent leur taille (ils sont recentrés
+  // dans leur nouvel emplacement) ; PNJ, panneaux, sorties et arrivées suivent. Une coordonnée d'arrivée
+  // (tx, ty) vers une de ces cartes s'écrit elle aussi dans le plan d'origine : elle est convertie ici.
+  const ZOOM = {
+    clairiere: [2, 36, 30], sentier: [2, 44, 36], prairie: [2, 40, 30], geants: [2, 44, 36], lisiere: [2, 38, 32],
+    plage: [2, 40, 28], village: [2, 40, 30], champs: [2, 40, 28], gym: [2, 32, 22], berceau: [2, 44, 32],
+  };
+  // une case du plan d'origine → case du plan agrandi (les bords restent collés aux bords)
+  const zc = (Z, c, n) => (c <= 0 ? 0 : c >= n - 1 ? n * Z - 1 : Math.floor(c * Z));
+  const zpt = (id, x, y) => { const [Z, w, h] = ZOOM[id]; return [zc(Z, x, w), zc(Z, y, h)]; };
+  // rectangle (sortie, déclencheur) : il double, sauf l'épaisseur d'une sortie collée au bord
+  const zspan = (Z, a, len, n) => {
+    if (len === 1 && (a <= 0 || a >= n - 1)) return [a <= 0 ? 0 : n * Z - 1, 1];
+    const lo = Math.floor(a * Z), hi = a + len >= n ? n * Z : (a + len) * Z;
+    return [lo, hi - lo];
+  };
+  const zrect = (Z, r, w, h) => { const [x, ww] = zspan(Z, r.x, r.w || 1, w), [y, hh] = zspan(Z, r.y, r.h || 1, h); return { x, y, w: ww, h: hh }; };
+  // objet de plusieurs cases : même taille, recentré dans son emplacement agrandi (collé au bord s'il l'était)
+  const zobj = (Z, o, w, h) => ({
+    x: o.x <= 0 ? 0 : o.x + o.w >= w ? w * Z - o.w : Z * o.x + Math.floor((Z - 1) * o.w / 2),
+    y: o.y <= 0 ? 0 : o.y + o.h >= h ? h * Z - o.h : Z * o.y + Math.floor((Z - 1) * o.h / 2),
+  });
+  // sol sous un objet isolé (le reste de son bloc agrandi)
+  const GROUND = { grass: '.', sand: 's', lawn: 'v', cobble: 'z', dirt: '=', water: '~', stone: 'o', wood: '1', pastel: 'v' };
+  // objets qui forment des lisières, des haies ou des massifs : ils remplissent tout leur bloc
+  const BLOCKY = 'TbrRpKhM|#5';
+  // le sol est agrandi en « Scale2x » : les bords en escalier (étangs, lisières, chemins en biais) restent
+  // arrondis au lieu de devenir de gros carrés ; les objets isolés sont reposés dans le coin de leur bloc
+  function zoomRows(rows, Z) {
+    const CH = DW.World.CH, h = rows.length, w = rows[0].length, H = h * Z, W = w * Z;
+    const isSingle = ch => { const I = CH[ch] || CH['.']; return !!I.obj && !BLOCKY.includes(ch); };
+    const base = rows.map(r => [...r].map(ch => (isSingle(ch) ? GROUND[(CH[ch] || CH['.']).t] || '.' : ch)));
+    const at = (x, y, d) => (x < 0 || y < 0 || x >= w || y >= h ? d : base[y][x]);
+    const g = Array.from({ length: H }, () => Array(W));
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const P = base[y][x], A = at(x, y - 1, P), B = at(x + 1, y, P), C = at(x - 1, y, P), D = at(x, y + 1, P);
+      const q = Z === 2 ? [
+        C === A && C !== D && A !== B ? A : P, A === B && A !== C && B !== D ? B : P,
+        D === C && D !== B && C !== A ? C : P, B === D && B !== A && D !== C ? D : P] : null;
+      for (let dy = 0; dy < Z; dy++) for (let dx = 0; dx < Z; dx++) g[y * Z + dy][x * Z + dx] = q ? q[dy * 2 + dx] : P;
+      if (isSingle(rows[y][x])) g[y * Z][x * Z] = rows[y][x];
+    }
+    return g.map(r => r.join(''));
+  }
+  // arrivée vers une carte agrandie : convertie une seule fois
+  function zTarget(w) {
+    if (!w || w._zt) return;
+    w._zt = true;
+    if (ZOOM[w.to] && w.tx != null) [w.tx, w.ty] = zpt(w.to, w.tx, w.ty);
+  }
+  // agrandit la carte id : rows (si opts.rows), objets, PNJ, panneaux, portes, places (à chaque construction),
+  // sorties et déclencheurs (une seule fois)
+  function zoomMap(m, id, opts = {}) {
+    const [Z, w, h] = ZOOM[id];
+    if (opts.rows !== false) m.rows = zoomRows(m.rows, Z);
+    // objets : chacun recentré ; un objet posé sur un plus grand (œufs sur le nid) suit celui-ci
+    const src = m.objects || [], moved = src.map(o => zobj(Z, { ...o, w: o.w || 1, h: o.h || 1 }, w, h));
+    const inside = (o, x, y) => x >= o.x && x < o.x + (o.w || 1) && y >= o.y && y < o.y + (o.h || 1);
+    const host = (x, y, skip) => { let best = -1; src.forEach((o, i) => { if (i !== skip && inside(o, x, y) && (best < 0 || o.w * o.h > src[best].w * src[best].h)) best = i; }); return best; };
+    const shift = i => [moved[i].x - src[i].x, moved[i].y - src[i].y];
+    m.objects = src.map((o, i) => {
+      const k = host(o.x, o.y, i);
+      if (k >= 0 && src[k].w * src[k].h > (o.w || 1) * (o.h || 1)) { const [dx, dy] = shift(k); return { ...o, x: o.x + dx, y: o.y + dy }; }
+      return { ...o, ...moved[i] };
+    });
+    // un point (panneau, porte) posé sur un objet suit l'objet ; sinon il est agrandi
+    const pt = (x, y) => { const k = host(x, y, -1); if (k >= 0) { const [dx, dy] = shift(k); return [x + dx, y + dy]; } return [zc(Z, x, w), zc(Z, y, h)]; };
+    if (m.npcs) m.npcs = m.npcs.map(n => { const [x, y] = pt(n.x, n.y); return Object.assign(Object.create(Object.getPrototypeOf(n)), n, { x, y }); });
+    if (m.signs) m.signs = Object.fromEntries(Object.entries(m.signs).map(([k, v]) => { const [x, y] = k.split(',').map(Number); return [pt(x, y).join(','), v]; }));
+    if (m.doors) m.doors = m.doors.map(d => { const [x, y] = pt(d.x, d.y), o = { ...d, x, y }; delete o._zt; zTarget(o); return o; });
+    for (const k of ['plazas', 'mosaic']) if (m[k]) m[k] = m[k].map(p => ({ ...p, x: p.x * Z, y: p.y * Z, ...(p.rx != null ? { rx: p.rx * Z, ry: p.ry * Z } : {}), ...(p.r != null ? { r: p.r * Z } : {}) }));
+    if (!m._zs) {
+      m._zs = true;
+      m.warps = (m.warps || []).map(wp => { const o = { ...wp, ...zrect(Z, wp, w, h) }; zTarget(o); return o; });
+      m.triggers = (m.triggers || []).map(t => ({ ...t, ...zrect(Z, t, w, h) }));
+    }
+    // dégagements : une lisière ou un buisson ne doit pas tomber sur un PNJ, ni sur une sortie et l'entrée de la carte
+    const g = m.rows.map(r => [...r]), SOFT = '#TbrMkGLHng|f,mj';
+    const clear = (x, y) => { if (g[y] && g[y][x] !== undefined && SOFT.includes(g[y][x])) g[y][x] = '.'; };
+    for (const n of m.npcs || []) { clear(n.x, n.y); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) clear(n.x + dx, n.y + dy); }
+    for (const wp of m.warps || []) {
+      const [ix, iy] = { left: [1, 0], right: [-1, 0], up: [0, 1], down: [0, -1] }[wp.dir] || [0, 0];
+      for (let y = wp.y; y < wp.y + (wp.h || 1); y++) for (let x = wp.x; x < wp.x + (wp.w || 1); x++) for (let k = 0; k < 3; k++) clear(x + ix * k, y + iy * k);
+    }
+    m.rows = g.map(r => r.join(''));
+    return m;
+  }
+  // options du générateur de forêt exprimées dans le plan d'origine → plan agrandi
+  function zoomGen(o, Z = 2) {
+    const P = ([x, y]) => [x * Z, y * Z];
+    return { ...o, w: o.w * Z, h: o.h * Z, dirtW: 0.62 * Z,
+      paths: (o.paths || []).map(p => ({ ...p, pts: p.pts.map(P), r: p.r * Z })),
+      rivers: (o.rivers || []).map(p => ({ ...p, pts: p.pts.map(P), r: p.r * Z })),
+      clearings: (o.clearings || []).map(c => ({ x: c.x * Z, y: c.y * Z, rx: c.rx * Z, ry: c.ry * Z })),
+      lakes: (o.lakes || []).map(c => ({ x: c.x * Z, y: c.y * Z, rx: c.rx * Z, ry: c.ry * Z })),
+      tall: (o.tall || []).map(t => ({ x: t.x * Z, y: t.y * Z, r: t.r * Z })),
+      bigtrees: (o.bigtrees || []).map(P), avoid: (o.avoid || []).map(P),
+      free: (o.free || []).map(([x, y, r]) => [x * Z, y * Z, r * Z]),
+      set: (o.set || []).map(([x, y, ch]) => [x * Z, y * Z, ch]),
+      landmarks: (o.landmarks || []).map(([ch, n]) => [ch, n * 2]),
+    };
+  }
+
+  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows };
 })();

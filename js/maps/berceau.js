@@ -181,4 +181,5 @@
     for (const o of M.objects) if (!o.walk && !o.top) for (let y = o.y; y < o.y + o.h; y++) for (let x = o.x; x < o.x + o.w; x++) if (g[y] && '#h:qB'.includes(g[y][x])) g[y][x] = 'v';
     M.rows = g.map(r => r.join(''));
   }
+  DW.MapKit.zoomMap(DW.MAPS.berceau, 'berceau');   // plan agrandi ×2 (maps/common.js)
 })();

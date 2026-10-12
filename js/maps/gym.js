@@ -9,7 +9,7 @@
 //  + gradins, torches, toilettes (y), panneau
 // =====================================================================
 (function () {
-  const { say, paint } = DW.MapKit;
+  const { say, paint, zoomMap } = DW.MapKit;
   const TRACK = { x: 16, y: 12.5, rx: 6.2, ry: 3.9 };
 
   const rows = paint(32, 22, '#', g => {
@@ -79,4 +79,5 @@
       '25,9': 'Un râtelier plein de boucliers cabossés. Parfait pour apprendre à encaisser.',
     },
   };
+  DW.MapKit.zoomMap(DW.MAPS.gym, 'gym');   // plan agrandi ×2 (maps/common.js)
 })();

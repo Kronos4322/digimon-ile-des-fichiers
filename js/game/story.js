@@ -112,19 +112,86 @@
     }
     return out;
   }
+  // ------------------------------------------------------------ stands des recrues (comme les boutiques de la Ville des Fichiers de DW1)
+  // Chaque recrue qui rend un service tient un stand avec une enseigne : on voit tout de suite qui fait quoi.
+  // Placés à la construction de la carte (ville, Champs, quartiers), sur un terrain libre près des chemins.
+  // [pictogramme du stand, texte de l'enseigne]
+  const KIOSK = {
+    centarumon: [0, 'Clinique de Centarumon — Soins complets : PV, PM, maladies et blessures. Ouvert de 6 h à 22 h.'],
+    andromon: [1, "Atelier d'Andromon — Puces de données : des statistiques augmentées pour toujours. Ouvert de 6 h à 22 h."],
+    meramon: [2, 'Grill de Meramon — Riz, poisson, Super Viande et gâteaux, cuits au feu de Meramon. Ouvert de 6 h à 22 h.'],
+    frigimon: [3, 'Glacier de Frigimon — Glaces et bonbons, toute la journée.'],
+    etemon: [4, "Stand d'Etemon — Paquets de cartes Digimon pour compléter ton album."],
+    tentomon: [5, 'Réparations de Tentomon — Disques PM et Repousse. Ouvert de 6 h à 22 h.'],
+    togemon: [6, "Librairie de Togemon — Manuels pour apprendre de nouvelles techniques. Ouvert de 6 h à 22 h."],
+    bakemon: [7, 'Boutique de nuit de Bakemon — Ouverte de 20 h à 5 h... Hihihi.'],
+    numemon: [8, "Panneau des rumeurs de Numemon — Toutes les nouvelles de l'île."],
+    birdramon: [9, 'Relais de Birdramon — Vols vers les lieux que tu as déjà visités.'],
+    monzaemon: [10, 'Maison des câlins de Monzaemon — Un câlin géant par jour : toute ton équipe est plus heureuse.'],
+    gekomon: [11, 'Scène de Gekomon — Une berceuse par jour qui chasse la fatigue de ton équipe.'],
+    piximon: [12, 'Dojo de Piximon — Un entraînement spécial par jour, sur toutes les statistiques.'],
+    sukamon: [13, 'Brocante de Sukamon — Une trouvaille par jour (on ne demande pas d\'où elle vient).'],
+    drimogemon: [13, 'Fouilles de Drimogemon — Une trouvaille par jour, déterrée pour toi.'],
+    lillymon: [13, 'Verger de Lillymon — Des fruits frais chaque jour.'],
+    shellmon: [13, 'Poissonnerie de Shellmon — Un poisson par jour.'],
+    agumon: [14, "Ring d'Agumon — Un combat d'entraînement par jour, sans rien perdre."],
+    ogremon: [14, "Ring d'Ogremon — Un combat d'entraînement par jour, sans rien perdre."],
+    gabumon: [15, 'Bureau de Gabumon — Des conseils sur les Digivolutions de ton partenaire.'],
+  };
+  Story.KIOSK = KIOSK;
+  Story.placeKiosks = (m, id) => {
+    m.kiosks = {};
+    const who = DW.Town.RECRUITS.filter(r => r.region && KIOSK[r.id] && DW.Town.has(r.id) && homeOf(r.id) === id);
+    if (!who.length) return;
+    const rows = m.rows, H = rows.length, W = rows[0].length, GROUND = '.f=zvoj';
+    const busy = new Set();
+    const mark = (x0, y0, w, h, pad) => { for (let y = y0 - pad; y < y0 + h + pad; y++) for (let x = x0 - pad; x < x0 + w + pad; x++) busy.add(x + ',' + y); };
+    for (const o of m.objects || []) mark(o.x, o.y, o.w || 1, o.h || 1, 1);
+    for (const d of [...(m.doors || []), ...(m.warps || [])]) mark(d.x, d.y, d.w || 1, d.h || 1, 4);
+    for (const n of m.npcs || []) mark(n.x, n.y, 1, 1, 2);
+    for (const [x, y] of m.walkSpots || []) mark(x, y, 1, 1, 2);   // promeneurs des quartiers
+    for (const k in m.signs || {}) { const [x, y] = k.split(',').map(Number); mark(x, y, 1, 1, 1); }
+    const fits = (kx, ky) => {
+      for (let y = ky - 2; y <= ky + 3; y++) for (let x = kx - 1; x <= kx + 3; x++) {
+        if (y < 2 || x < 2 || y >= H - 2 || x >= W - 2 || !GROUND.includes(rows[y][x]) || busy.has(x + ',' + y)) return false;
+        if (y <= ky && '=zo'.includes(rows[y][x])) return false;   // le stand borde le chemin sans le barrer
+      }
+      return true;
+    };
+    // près des chemins et des places, mais pas dessus en plein milieu
+    const cand = [];
+    for (let y = 3; y < H - 4; y++) for (let x = 3; x < W - 5; x++) {
+      if (!fits(x, y)) continue;
+      let paths = 0;
+      for (let dy = -3; dy <= 4; dy++) for (let dx = -3; dx <= 5; dx++) { const ch = (rows[y + dy] || '')[x + dx]; if (ch === '=' || ch === 'z' || ch === 'o') paths++; }
+      if (paths < 4) continue;
+      cand.push([-paths + DW.Art.hash(x, y, 515) * 12, x, y]);
+    }
+    cand.sort((a, b) => a[0] - b[0]);
+    const placed = [];
+    for (const r of who) {
+      const c = cand.find(([, x, y]) => !placed.some(([px, py]) => Math.abs(px - x) < 8 && Math.abs(py - y) < 6));
+      if (!c) continue;
+      const [, x, y] = c, [v, text] = KIOSK[r.id];
+      placed.push([x, y]);
+      m.objects.push({ kind: 'kiosk', v, x, y, w: 3, h: 1 });
+      for (let i = 0; i < 3; i++) m.signs[`${x + i},${y}`] = text;
+      m.kiosks[r.id] = [x + 1, y + 1];
+    }
+  };
   // appelé par Overworld.load une fois la carte prête
   Story.decorate = ow => {
     const m = ow.map, id = ow.mapId, s = st();
     m.npcs = (m.npcs || []).filter(n => !n.story);
-    const avoid = m.npcs.map(n => [n.x, n.y]).concat([[ow.p.x, ow.p.y]]);
+    const avoid = m.npcs.map(n => [n.x, n.y]).concat([[ow.p.x, ow.p.y]], Object.values(m.kiosks || {}));
     if (id === 'village' || id === 'champs' || DISTRICT_HOME_IDS.includes(id)) {
       const here = DW.Town.RECRUITS.filter(r => r.region && DW.Town.has(r.id) && homeOf(r.id) === id);
       if (!here.length) return;
       const spots = freeSpots(ow, avoid, 3);
       here.forEach((r, i) => {
-        const T = TOWN[r.id] || {}, p = T.spot ? T.spot(ow, spots) : spots[i];
+        const T = TOWN[r.id] || {}, kp = (m.kiosks || {})[r.id], p = kp || (T.spot ? T.spot(ow, spots) : spots[i]);
         if (!p) return;
-        m.npcs.push({ sp: r.id, x: p[0], y: p[1], face: i % 2 ? 'left' : 'right', wander: T.still ? 0 : 1, story: true, cond: T.cond, talk: ow2 => talkRecruit(r.id, ow2) });
+        m.npcs.push({ sp: r.id, x: p[0], y: p[1], face: kp ? 'down' : i % 2 ? 'left' : 'right', wander: kp || T.still ? 0 : 1, story: true, cond: T.cond, talk: ow2 => talkRecruit(r.id, ow2) });
       });
       return;
     }
@@ -193,7 +260,7 @@
     await DW.fade(1, 1.2, '#ffffff');
     await DW.Game.push(new EndingScene());
     s.flags.ending = true;
-    ow.load('village', 20, 16, 'down');
+    ow.load('village', ...DW.MapKit.zpt('village', 20, 16), 'down');
     await DW.fade(0, 1);
     await say('Bravo, mon enfant ! L\'île est libérée et la ville n\'a jamais été aussi vivante.', 'Jijimon');
     await say("L'aventure continue : il reste des Digimon à élever, des tournois à gagner et des cartes à collectionner !", 'Jijimon');

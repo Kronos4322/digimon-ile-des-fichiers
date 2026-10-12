@@ -80,6 +80,10 @@
       for (let k = 0; k < 3; k++) heart(c, 20 + k * 11, 117, r > k / 3 + 0.01);
       const cond = m.hp <= 0 ? 'K.O.' : m.status ? DW.STATUS_NAME[m.status] : m.sick ? 'Malade' : m.hurt ? 'Blessé' : DW.Life.sleepy(m) ? 'Somnolent' : 'En forme';
       UI.text(c, cond, 18, 134, { size: 9, color: cond === 'En forme' ? '#a0ffb0' : '#ff8a8a' });
+      // santé : négligences accumulées (life.js) — plus la barre baisse, plus la maladie guette
+      const hl = DW.Life.healthLabel(m), hv = 1 - (m.germs || 0) / 100, hc = m.sick || m.germs >= 80 ? '#ff5a5a' : m.germs >= 50 ? '#f0a040' : '#5ad07a';
+      UI.text(c, `Santé : ${hl}`, 84, 165, { size: 7, color: hc });
+      UI.bar(c, 84, 168, 40, 4, m.sick ? 0 : hv, hc);
       UI.text(c, 'Bonheur', 18, 148, { size: 7, color: '#ff8ac0' });
       UI.bar(c, 18, 151, 60, 4, m.happy / 100, '#ff6ab0');
       UI.text(c, `Fatigue ${m.tired} %`, 84, 148, { size: 7, color: m.tired >= 100 ? '#ff7a7a' : '#ffd070' });

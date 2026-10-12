@@ -396,18 +396,21 @@
   DW.REGION_GATE = GATE;
 
   // sorties ajoutées aux cartes existantes (cases ouvertes dans leurs fichiers)
-  const EXTRA = { village: { right: [13, 3] }, berceau: { up: [23, 3] }, clairiere: { up: [16, 3] }, champs: { left: [19, 3], down: [20, 3] } };
-  const DIM = { village: [40, 30], champs: [40, 28] };
+  // (plan d'origine des cartes agrandies ×2 : voir MapKit.ZOOM)
+  const EXTRA0 = { village: { right: [13, 3] }, berceau: { up: [23, 3] }, clairiere: { up: [16, 3] }, champs: { left: [19, 3], down: [20, 3] } };
+  const EXTRA = {}, DIM = {};
+  for (const id in EXTRA0) { const [Z] = DW.MapKit.ZOOM[id]; EXTRA[id] = {}; for (const k in EXTRA0[id]) { const [p, l] = EXTRA0[id][k]; EXTRA[id][k] = [p * Z, l * Z]; } }
+  for (const id of ['village', 'champs']) { const [Z, w, h] = DW.MapKit.ZOOM[id]; DIM[id] = [w * Z, h * Z]; }
   const dims = id => DIM[id] || (MAPS[id].spec ? [MAPS[id].w, MAPS[id].h] : [DW.getMap(id).w, DW.getMap(id).h]);
   const exitOf = (id, side) => (EXTRA[id] && EXTRA[id][side]) || MAPS[id].exits[side];
   for (const [a, sa, b] of LINKS) {
     const sb = OPP[sa], [wa, ha] = dims(a), [wb, hb] = dims(b);
     const [pa, la] = exitOf(a, sa), [pb, lb] = exitOf(b, sb), len = Math.min(la, lb);
     const mk = (side, p, w, h, to, tp, tw, th) => {
-      if (side === 'left') return { x: 0, y: p, w: 1, h: len, dir: 'left', to, tx: tw - 1, ty: tp };
-      if (side === 'right') return { x: w - 1, y: p, w: 1, h: len, dir: 'right', to, tx: 0, ty: tp };
-      if (side === 'up') return { x: p, y: 0, w: len, h: 1, dir: 'up', to, tx: tp, ty: th - 1 };
-      return { x: p, y: h - 1, w: len, h: 1, dir: 'down', to, tx: tp, ty: 0 };
+      if (side === 'left') return { x: 0, y: p, w: 1, h: len, dir: 'left', to, tx: tw - 1, ty: tp, _zt: true };
+      if (side === 'right') return { x: w - 1, y: p, w: 1, h: len, dir: 'right', to, tx: 0, ty: tp, _zt: true };
+      if (side === 'up') return { x: p, y: 0, w: len, h: 1, dir: 'up', to, tx: tp, ty: th - 1, _zt: true };
+      return { x: p, y: h - 1, w: len, h: 1, dir: 'down', to, tx: tp, ty: 0, _zt: true };
     };
     const wa1 = mk(sa, pa, wa, ha, b, pb, wb, hb), rb = MAPS[b].region, ra = MAPS[a].region;
     // entrée d'une région depuis l'extérieur : porte éventuelle

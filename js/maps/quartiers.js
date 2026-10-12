@@ -192,7 +192,7 @@
       ...DW.MapKit.DW1_GROUND,
       build() {
         const lv = level(), built = def.lots.filter(L => lv >= L.min).length;
-        const version = `${built}|${(def.exits || []).map(e => (lv >= e.min ? 1 : 0)).join('')}`;
+        const version = `${built}|${(def.exits || []).map(e => (lv >= e.min ? 1 : 0)).join('')}|${DW.Town.level()}`;
         if (this.version === version && this.rows) return;
         this.version = version;
         this.rows = paint(W, H, '.', g => {
@@ -222,6 +222,7 @@
           if (L.door) this.doors.push({ ...L.door, dir: 'up', to: L.home, tx: DOOR_X, ty: ROOM_H + 2 });
         }
         this.signs = { ...(def.signs ? def.signs(lv) : {}) };
+        if (DW.Story.placeKiosks) DW.Story.placeKiosks(this, id);   // stands des recrues (story.js)
         DW.World.unprepare(this); delete this.w;
       },
       populate() {

@@ -28,6 +28,7 @@
       this.lifespan = o.lifespan || 16;                    // durée de vie (jours)
       this.slept = o.slept != null ? o.slept : this.born;  // dernier sommeil
       this.sick = o.sick || 0; this.hurt = o.hurt || 0;    // maladie, blessure
+      this.germs = o.germs || 0;                           // négligences accumulées (risque de maladie, voir life.js)
       this.moves = o.moves ? o.moves.map(m => ({ id: m.id })) : this.defaultMoves();
       this.nick = o.nick || null;
       this.uid = o.uid || Math.random().toString(36).slice(2, 10);
@@ -93,7 +94,7 @@
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), mp: this.mp,
-        mistakes: this.mistakes, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, slept: this.slept, sick: this.sick, hurt: this.hurt, chips: this.chips, evoAt: this.evoAt };
+        mistakes: this.mistakes, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);
@@ -136,7 +137,7 @@
     if (it.use === 'heal') return m.hp > 0 && (m.hp < m.maxHp || (!battle && m.hunger >= 5));
     if (it.use === 'cure') return m.hp > 0 && !!m.status;
     if (it.use === 'revive') return m.hp <= 0;
-    if (it.use === 'sick') return !!m.sick;
+    if (it.use === 'sick') return !!m.sick || (m.germs || 0) >= 50;   // aussi en prévention, quand la santé flanche
     if (it.use === 'hurt') return !!m.hurt;
     if (it.use === 'chip') return !battle && m.chips[it.stat] < 20;
     if (it.use === 'mp') return m.hp > 0 && m.mp < m.maxMp;
@@ -159,7 +160,7 @@
     }
     if (it.use === 'cure') { m.status = null; m.slp = 0; return `${m.name} est en pleine forme !`; }
     if (it.use === 'revive') { m.hp = Math.floor(m.maxHp / 2); m.status = null; return `${m.name} reprend connaissance !`; }
-    if (it.use === 'sick') { m.sick = 0; m.addHappy(2); return `${m.name} n'est plus malade !`; }
+    if (it.use === 'sick') { const was = m.sick; m.sick = 0; m.germs = 0; m.addHappy(2); return was ? `${m.name} n'est plus malade !` : `${m.name} reprend des couleurs. Il ne tombera pas malade !`; }
     if (it.use === 'hurt') { m.hurt = 0; return `La blessure de ${m.name} est soignée !`; }
     if (it.use === 'chip') {
       const hp0 = m.maxHp;
@@ -188,7 +189,7 @@
   // Trois emplacements : la sauvegarde, la copie précédente (écrite juste avant chaque sauvegarde)
   // et une copie « illisible » mise de côté si le chargement échoue (jamais écrasée par une nouvelle partie).
   const KEY = 'digimon_ile_des_fichiers_save', BAK = KEY + '_precedente', BROKEN = KEY + '_illisible';
-  DW.SAVE_V = 3; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP
+  DW.SAVE_V = 4; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2
   DW.newState = () => ({
     name: 'Tai', hero: 'tai', party: [], box: [], bag: {}, bits: 300, flags: {}, seen: {}, owned: {},
     map: 'maison', x: 12, y: 5, dir: 'down', heal: { map: 'maison', x: 12, y: 5 }, time: 0, recruits: {},
@@ -252,6 +253,12 @@
     const v = o.v || 1;
     if (v < 2) { st.flags.autoEvo = !!st.flags.autoEvo; st.flags.solo = !!st.flags.solo; st.wildGone = {}; st.gears = st.gears || {}; }
     if (v < 3) { st.owned = Object.assign({}, o.caught || {}, o.owned || {}); delete st.caught; }
+    if (v < 4) {   // positions sur les cartes agrandies ×2 (MapKit.ZOOM)
+      const Zm = DW.MapKit.ZOOM, zp = (id, x, y) => DW.MapKit.zpt(id, x, y);
+      if (Zm[st.map]) [st.x, st.y] = zp(st.map, st.x, st.y);
+      if (Zm[st.heal.map]) [st.heal.x, st.heal.y] = zp(st.heal.map, st.heal.x, st.heal.y);
+      for (const id in st.poops || {}) if (Zm[id]) st.poops[id] = st.poops[id].map(([x, y]) => zp(id, x, y));
+    }
     st.v = DW.SAVE_V;
     for (const box of [st.bag, st.bank]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
     const orphans = (st.orphans || []).slice();

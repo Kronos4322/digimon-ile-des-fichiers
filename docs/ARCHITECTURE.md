@@ -97,6 +97,23 @@ Cartes de 88-100 × 64-72 cases (facteur K = 1,45), passages de 6 cases, chemins
 Digimon sauvage (~50 avant). `forestGen` calcule une seule fois la distance de chaque case à chaque chemin
 (résultat identique, génération 6 fois plus rapide).
 
+## Cartes faites à la main agrandies ×2
+Forêt (Clairière, Sentier, Prairie, Bois des Géants, Lisière), Plage, Ville des Fichiers, Champs, Terrain d'entraînement
+et Village des Bébés sont **écrits dans leur plan d'origine** puis agrandis ×2 par `MapKit.zoomMap` (common.js ; table
+`MapKit.ZOOM` : facteur et dimensions d'origine). Le sol est agrandi en « Scale2x » (`zoomRows` : bords arrondis, pas
+d'escaliers), les lisières/haies/rochers (`BLOCKY`) remplissent leur bloc, les autres objets restent seuls ; les objets
+de plusieurs cases gardent leur taille et sont recentrés ; un point posé sur un objet (porte, panneau, œuf sur le nid)
+suit l'objet. Les forêts sont régénérées directement à la bonne taille (`zoomGen` agrandit les options de `forestGen`).
+**Toute coordonnée d'arrivée (tx, ty) vers ces cartes s'écrit dans le plan d'origine** : `zTarget` la convertit
+(une seule fois, marque `_zt`). Coordonnée codée en dur dans un script : `MapKit.zpt(id, x, y)`.
+Sauvegarde v4 : positions converties à la lecture.
+
+## Santé du partenaire (life.js)
+La maladie n'arrive jamais au hasard : `m.germs` (0-100, « Santé » dans la fiche) accumule les négligences
+(`Life.causes` : crottes par terre, faim, envie pressante, épuisement, blessure, veille tardive, corpulence extrême ;
+accidents +12, nuit blanche +20, erreur de soin +5) et baisse quand tout va bien (-3/h), en dormant (-35), aux toilettes.
+Au-delà de 70 il peut tomber malade, à 100 c'est certain. Le Médicament guérit et sert aussi de prévention (santé ≤ 50).
+
 ## Conventions
 - Textes du jeu en français ; commentaires en français.
 - Aucune image externe : tout est dessiné par le code (pas de sprites officiels copiés).

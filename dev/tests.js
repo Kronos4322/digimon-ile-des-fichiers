@@ -225,6 +225,30 @@ test('migration v2 → v3 : « caught » devient « owned », les PP disparaisse
   yes(DW.state.party[0].moves.every(mv => !('pp' in mv)), 'PP conservés');
 });
 
+test('migration v3 → v4 : positions sur les cartes agrandies ×2', () => {
+  fresh();
+  const old = { ...DW.newState(), v: 3, map: 'village', x: 20, y: 16, heal: { map: 'clairiere', x: 9, y: 9 }, poops: { plage: [[10, 10]] }, party: [new DW.Digimon('agumon', 6).toJSON()] };
+  store.set(SAVE, JSON.stringify(old));
+  yes(DW.load()); eq(DW.state.x, 40); eq(DW.state.y, 32); eq(DW.state.heal.x, 18); eq(DW.state.poops.plage[0][0], 20);
+});
+test('arrivées vers les cartes agrandies converties une seule fois', () => {
+  const m = DW.getMap('maison'), w = m.warps.find(w => w.to === 'village');
+  eq(w.tx, 38); eq(w.ty, 12);
+  DW.getMap('maison'); eq(w.tx, 38);
+});
+test('maladie : jamais au hasard, seulement par accumulation de négligences', () => {
+  fresh();
+  const m = new DW.Digimon('agumon', 6); DW.state.party = [m]; DW.state.clock = 12 * 60; m.slept = DW.state.clock;
+  const r = Math.random; Math.random = () => 0;   // le pire tirage possible
+  try {
+    for (let i = 0; i < 48; i++) DW.Life.health(m, 30);   // 24 h bien soigné
+    eq(!!m.sick, false); eq(m.germs, 0);
+    DW.state.poops = { village: [[1, 1], [2, 2], [3, 3], [4, 4]] }; m.hunger = 100;
+    for (let i = 0; i < 24 && !m.sick; i++) DW.Life.health(m, 30);
+    yes(!!m.sick, 'jamais malade malgré les négligences');
+  } finally { Math.random = r; DW.state.poops = {}; }
+});
+
 // ------------------------------------------------------------ lancement
 (async () => {
   for (const [name, fn] of tests) {

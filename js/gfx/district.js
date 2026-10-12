@@ -10,6 +10,7 @@
   const GLYPH = { A: '010101111101101', B: '110101110101110', C: '011100100100011', E: '111100110100111', N: '101111111111101', Q: '010101101110011', U: '101101101101111', W: '101101111111101', O: '010101101101010', J: '001001001101010', D: '110101101101110', I: '111010010010111' };
   const sign = (d, s, x, y, col, k = 1) => { [...s].forEach((ch, i) => { const g = GLYPH[ch]; if (g) for (let p = 0; p < 15; p++) if (g[p] === '1') d.deco.rect(x + (i * 4 + (p % 3)) * k, y + Math.floor(p / 3) * k, k, k, col, { unlit: true }); }); };
   DW.World.signText = sign;
+  const shadeK = (hex, k) => { const n = parseInt(hex.slice(1), 16), f = c => Math.max(0, Math.min(255, Math.round(k < 0 ? c * (1 + k) : c + (255 - c) * k))); return '#' + [16, 8, 0].map(b => f((n >> b) & 255).toString(16).padStart(2, '0')).join(''); };
   const rot = (cx, cy, a, pts) => pts.map(([x, y]) => [cx + x * Math.cos(a) - y * Math.sin(a), cy + x * Math.sin(a) + y * Math.cos(a)]);
 
   Object.assign(OBJ, {
@@ -403,5 +404,48 @@
       for (const x of [5, 43]) for (let y = 20; y < 48; y += 7) d.deco.circ(x + ((y / 7) % 2 ? 1.4 : -1.4), y, 1.8, '#4aa046');
       for (const x of [5, 43]) for (let y = 23; y < 48; y += 9) d.deco.circ(x, y, 1, '#ff8ac0', { unlit: true });
     } },
+    // ---------------------------------------------------------- stand d'une recrue (3×1) : comptoir, auvent rayé, enseigne à pictogramme
+    // v : 0 clinique  1 puce  2 grill  3 glace  4 cartes  5 disque  6 livre  7 lune  8 rumeurs  9 plume  10 cœur
+    //     11 note  12 étoile  13 paquet-cadeau  14 poing  15 conseil
+    kiosk: { w: 60, h: 66, n: 16, draw(d, v) {
+      const COL = ['#e84a5a', '#4a8ad8', '#e8682a', '#6ac8e8', '#c8a030', '#5a7ab8', '#4aa05a', '#5a4a9a', '#9a7a5a', '#e8a040', '#ff7ab0', '#3ab8a0', '#d8b828', '#c85aa8', '#c84a3a', '#5a9ae0'];
+      const c = COL[v], cd = shadeK(c, -0.25);
+      d.ell(30, 63, 27, 2.6, '#2a2018', 0, { flat: true });
+      // poteaux et fond
+      d.tube([[7, 62], [7, 20]], 1.6, 1.4, WOOD_D); d.tube([[53, 62], [53, 20]], 1.6, 1.4, WOOD_D);
+      d.rect(9, 26, 42, 16, '#e8dcc0', { round: 0.05, far: true, tex: 0.15 });
+      // comptoir (façade à la couleur du stand, planches)
+      d.rect(4, 44, 52, 18, WOOD, { round: 0.06, tex: 0.3 });
+      d.deco.rect(4, 44, 52, 2.4, WOOD_L);
+      d.deco.rect(10, 49, 40, 10, c); for (let x = 14; x < 50; x += 6) d.deco.line(x, 49, x, 59, 0.6, cd);
+      // marchandises sur le comptoir
+      const goods = [c, '#f8f0e0', shadeK(c, 0.3)];
+      for (let k = 0; k < 7; k++) d.circ(10 + k * 6.6, 42, 2.4, goods[k % 3], { shiny: true });
+      // auvent rayé, bord festonné
+      d.poly([[0, 28], [60, 28], [55, 16], [5, 16]], c);
+      for (let x = 8; x < 54; x += 9) d.deco.poly([[x, 16], [x + 4.5, 16], [x + 5.2, 28], [x + 0.7, 28]], '#fff6e8');
+      for (let x = 2; x < 60; x += 7) d.deco.ell(x + 2.5, 28, 3, 2, c);
+      // enseigne
+      d.rect(16, 1, 28, 16, '#f4ead0', { round: 0.25 });
+      d.deco.rect(17.5, 2.5, 25, 13, '#fffaf0');
+      const x = 30, y = 9, P = (col, o) => Object.assign({ unlit: true }, o);
+      if (v === 0) { d.deco.rect(x - 1.8, y - 5, 3.6, 10, '#e83a4a', P()); d.deco.rect(x - 5, y - 1.8, 10, 3.6, '#e83a4a', P()); }
+      else if (v === 1) { d.deco.rect(x - 4, y - 4, 8, 8, '#2a3a4a'); for (let k = -3; k <= 3; k += 2) { d.deco.line(x + k, y - 6, x + k, y - 4, 0.7, '#e8c860'); d.deco.line(x + k, y + 4, x + k, y + 6, 0.7, '#e8c860'); } d.deco.rect(x - 2, y - 2, 4, 4, '#5ae8a8', P()); }
+      else if (v === 2) { d.deco.poly([[x, y - 6], [x + 4, y], [x + 2, y + 5], [x - 2, y + 5], [x - 4, y]], '#ff7a2a', P()); d.deco.poly([[x, y - 2], [x + 2, y + 2], [x, y + 5], [x - 2, y + 2]], '#ffe040', P()); }
+      else if (v === 3) { d.deco.poly([[x - 3, y], [x + 3, y], [x, y + 6]], '#d8a060'); d.deco.circ(x - 1.4, y - 1.6, 2.6, '#ff9ac0', P()); d.deco.circ(x + 1.6, y - 2.4, 2.4, '#8ae0ff', P()); }
+      else if (v === 4) { d.deco.rect(x - 6, y - 4, 6, 8, '#4a8ad8'); d.deco.rect(x - 2, y - 5, 6, 8, '#e84a5a'); d.deco.rect(x + 1, y - 3, 6, 8, '#ffd040'); }
+      else if (v === 5) { d.deco.circ(x, y, 5, '#3a3a4a'); d.deco.circ(x, y, 3.4, '#8ac8ff', P()); d.deco.circ(x, y, 1.2, '#fffaf0'); }
+      else if (v === 6) { d.deco.poly([[x - 6, y - 4], [x, y - 3], [x, y + 5], [x - 6, y + 4]], '#4aa05a'); d.deco.poly([[x + 6, y - 4], [x, y - 3], [x, y + 5], [x + 6, y + 4]], '#5ab86a'); d.deco.line(x, y - 3, x, y + 5, 0.6, '#2a5a2a'); }
+      else if (v === 7) { d.deco.circ(x, y, 5, '#ffe070', P()); d.deco.circ(x + 2.4, y - 1.4, 4.4, '#fffaf0'); }
+      else if (v === 8) { d.deco.ell(x, y - 1, 7, 4.6, '#9a7a5a'); d.deco.poly([[x - 3, y + 2], [x - 5, y + 6], [x, y + 3]], '#9a7a5a'); for (const k of [-3, 0, 3]) d.deco.circ(x + k, y - 1, 0.9, '#fffaf0'); }
+      else if (v === 9) { d.deco.poly([[x - 5, y + 5], [x + 5, y - 6], [x + 2, y + 2]], '#e8a040'); d.deco.poly([[x - 5, y + 5], [x + 5, y - 6], [x - 2, y - 1]], '#ffc860'); }
+      else if (v === 10) { d.deco.circ(x - 2.4, y - 1.4, 3, '#ff5a8a', P()); d.deco.circ(x + 2.4, y - 1.4, 3, '#ff5a8a', P()); d.deco.poly([[x - 5.2, y], [x + 5.2, y], [x, y + 5.6]], '#ff5a8a', P()); }
+      else if (v === 11) { d.deco.ell(x - 2.6, y + 3, 2.4, 1.8, '#3ab8a0'); d.deco.line(x - 0.6, y + 3, x - 0.6, y - 5, 1, '#3ab8a0'); d.deco.poly([[x - 0.6, y - 5], [x + 4, y - 3], [x - 0.6, y - 2]], '#3ab8a0'); }
+      else if (v === 12) { const s = []; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 2.4 : 6; s.push([x + Math.cos(a) * r, y + 0.6 + Math.sin(a) * r]); } d.deco.poly(s, '#ffd030', P()); }
+      else if (v === 13) { d.deco.rect(x - 5, y - 2, 10, 7, '#c85aa8'); d.deco.rect(x - 6, y - 4, 12, 3, '#d87ab8'); d.deco.rect(x - 1, y - 4, 2, 9, '#ffe060'); }
+      else if (v === 14) { d.deco.ell(x, y, 5, 4.4, '#f0b080'); for (let k = -3; k <= 3; k += 2) d.deco.line(x + k, y - 3, x + k, y - 1, 0.6, '#a86040'); }
+      else { d.deco.circ(x, y - 2, 4, '#5a9ae0', P()); d.deco.circ(x, y - 2, 1.8, '#fffaf0'); d.deco.rect(x - 1, y + 1, 2, 2.4, '#5a9ae0', P()); d.deco.circ(x, y + 5, 1.1, '#5a9ae0', P()); }
+    } },
   });
+  OBJ.kiosk.scale = 1.15;
 })();

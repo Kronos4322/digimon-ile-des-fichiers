@@ -6,7 +6,7 @@
 //  Habitants (cachés tant qu'ils ne sont pas venus) : Palmon (grange, tout le quartier cultivé), Gomamon (ponton).
 // =====================================================================
 (function () {
-  const { say, st, paint } = DW.MapKit;
+  const { say, st, paint, zoomMap } = DW.MapKit;
   const MAPS = DW.MAPS;
   const T = () => DW.Town;
   const BARN = { x: 8, y: 6, w: 5, h: 3 };
@@ -17,7 +17,7 @@
   function build() {
     const m = MAPS.champs, has = id => T().has(id);
     const ripe = st().flags.meat !== today();
-    const version = ['palmon', 'gomamon'].map(id => (has(id) ? 1 : 0)).join('') + (ripe ? 'm' : '-');
+    const version = ['palmon', 'gomamon'].map(id => (has(id) ? 1 : 0)).join('') + (ripe ? 'm' : '-') + T().level();
     if (m.version === version && m.rows) return;
     m.version = version;
     const farm = has('palmon');
@@ -79,6 +79,8 @@
       '3,8': "La cabane à outils de Tanemon : arrosoir, fourche et graines de Digiviande.", '4,8': "La cabane à outils de Tanemon : arrosoir, fourche et graines de Digiviande.",
     };
     FIELDS.forEach(([x, y], k) => { for (let i = 0; i < 3; i++) m.signs[`${x + i},${y + 1}`] = () => fieldLook(k < MEAT); });
+    zoomMap(m, 'champs');   // plan agrandi ×2 (maps/common.js)
+    if (DW.Story.placeKiosks) DW.Story.placeKiosks(m, 'champs');   // stands des recrues (story.js)
     DW.World.unprepare(m); delete m.w;
   }
   async function fieldLook(meat) {

@@ -45,7 +45,7 @@
     // accident : une petite crotte apparaît là où se trouve le partenaire
     accident(ow, m) {
       const st = DW.state;
-      m.need = 0; m.addHappy(-6);
+      m.need = 0; m.addHappy(-6); DW.Life.addGerms(m, 12);
       const F = ow.f, x = F.moving ? F.tx : F.x, y = F.moving ? F.ty : F.y;
       const L = st.poops[ow.mapId] = st.poops[ow.mapId] || [];
       if (!L.some(p => p[0] === x && p[1] === y) && !(x === ow.p.x && y === ow.p.y) && L.length < 12) L.push([x, y]);
@@ -83,7 +83,7 @@
       Audio.sfx('flush');
       await DW.wait(0.7);
       const gain = m.need >= 75 ? 6 : m.need >= 40 ? 4 : 2;
-      m.need = 0; m.addHappy(gain);
+      m.need = 0; m.addHappy(gain); m.germs = Math.max(0, (m.germs || 0) - 4);
       await DW.fade(0, 0.25);
       await DW.say(`${m.name} ressort tout content, les mains lavées. Ouf, quel soulagement ! (bonheur +${gain})`);
     },

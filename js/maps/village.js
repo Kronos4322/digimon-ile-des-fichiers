@@ -7,7 +7,7 @@
 //  deux allées (haut/bas) qui desservent les 4 commerces, étang et ruisseau à l'ouest.
 // =====================================================================
 (function () {
-  const { say, st, paint, healAll, trail } = DW.MapKit;
+  const { say, st, paint, healAll, trail, zoomMap, zpt } = DW.MapKit;
   const Hh = DW.Art.hash;
   const MAPS = DW.MAPS;
   const T = () => DW.Town;
@@ -153,6 +153,8 @@
     };
     for (let x = 18; x < 22; x++) for (const y of [13, 14]) m.signs[`${x},${y}`] = fountainUse;
     if (has('kunemon')) for (let x = BANK.x; x < BANK.x + BANK.w; x++) m.signs[`${x},${BANK.y + BANK.h - 1}`] = SERVICES.kunemon;
+    zoomMap(m, 'village');   // plan agrandi ×2 (maps/common.js)
+    if (DW.Story.placeKiosks) DW.Story.placeKiosks(m, 'village');   // stands des recrues (story.js)
     DW.World.unprepare(m); delete m.w;
   }
   // ------------------------------------------------------------ choix du partenaire (sur la place)
@@ -203,6 +205,8 @@
     if (!s.flags.starter) urgent.push("Bo... bonjour ! Trois bébés Digimon t'attendent ici, sur la place (dont mon petit frère !). Parle-leur pour choisir ton partenaire !");
     else {
       if (m && m.hunger >= 70) urgent.push(`${m.name} a faim ! Tanemon donne 3 Viandes par jour dans son DigiChamp, au Quartier des Champs (sortie sud-ouest).`);
+      if (m && m.sick) urgent.push(`${m.name} est malade ! Un Médicament le guérira (Bazar de Gotsumon), ou une nuit chez Jijimon.`);
+      else if (m && (m.germs || 0) >= 50) { const c = DW.Life.causes(m).map(x => x[1]); urgent.push(`${m.name} n'a pas l'air bien...${c.length ? ' Fais attention : ' + c.join(', ') + '.' : ''} S'il accumule les négligences, il tombera malade. Le sommeil l'aide à se rétablir.`); }
       if (m && m.need >= 60) urgent.push("Vite ! Il y a des toilettes au sud de la ville, près de la route du Terrain d'entraînement.");
       if (m && DW.Evo.available(m).length) urgent.push(`${m.name} peut digivoluer ! Ouvre le menu (ENTRÉE), puis DIGIVOLUTION.`);
       tips.push("Les Digimon ne se capturent pas : ils naissent ! Elecmon confie un DigiŒuf par jour au Village des Bébés, à l'est de la Prairie. Ensuite, entraîne-les pour qu'ils digivoluent !");
@@ -293,7 +297,7 @@
   async function flyMenu() {
     const s = st(), R = DW.REGION_ENTRY || {};
     const dest = [['Ville des Fichiers', 'village', 20, 16], ['Village des Bébés', 'berceau', 18, 15], ['Plage des Cabines', 'plage', 20, 8], ["Clairière de l'Arrivée", 'clairiere', 17, 14]]
-      .filter(([, id]) => s.visited[id]);
+      .filter(([, id]) => s.visited[id]).map(([n, id, x, y]) => [n, id, ...zpt(id, x, y)]);
     for (const rid in R) {
       const subs = Object.keys(MAPS).filter(id => MAPS[id].region === rid && MAPS[id].spec);
       if (subs.some(id => s.visited[id])) { const m = MAPS[R[rid]]; dest.push([m.regionName, R[rid], m.spec.hub[0], m.spec.hub[1]]); }
@@ -312,7 +316,7 @@
       // case praticable la plus proche du point d'arrivée
       const m = DW.getMap(id), free = (X, Y) => X > 0 && Y > 0 && X < m.w - 1 && Y < m.h - 1 && !DW.SOLID.has(m.rows[Y][X]);
       let best = [x, y];
-      for (let r = 0; r < 12 && !free(best[0], best[1]); r++)
+      for (let r = 0; r < 20 && !free(best[0], best[1]); r++)
         for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++)
           if (free(x + dx, y + dy) && !free(best[0], best[1])) best = [x + dx, y + dy];
       DW.ow.load(id, best[0], best[1], 'down');
@@ -326,7 +330,7 @@
     if (!T().has('betamon')) { await say("La fontaine est à sec. Quelqu'un qui aime l'eau saurait peut-être la réparer..."); return; }
     const r = await DW.ask("L'eau claire de la fontaine scintille. Y abreuver tes Digimon ?");
     if (r !== 0) return;
-    s.heal = { map: 'village', x: 20, y: 16 };
+    const [hx, hy] = zpt('village', 20, 16); s.heal = { map: 'village', x: hx, y: hy };
     await healAll('Tes Digimon sont en pleine forme !');
   }
 
