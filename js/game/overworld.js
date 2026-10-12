@@ -34,9 +34,12 @@
       st.map = mapId; st.x = x; st.y = y;
       this.p = { x, y, dir, moving: false, sx: x, sy: y, tx: x, ty: y, t: 0, step: 0, run: false, turnT: 0 };
       this.f = { x, y, sx: x, sy: y, tx: x, ty: y, t: 0, moving: false, face: dir === 'left' ? 'left' : 'right' };
-      // le partenaire se place derrière le joueur
+      // le partenaire se place derrière le joueur (sinon sur une case libre à côté : il doit rester visible)
       const [bx, by] = DIRS[OPP[dir]];
-      if (!this.solid(x + bx, y + by)) Object.assign(this.f, { x: x + bx, y: y + by, sx: x + bx, sy: y + by, tx: x + bx, ty: y + by });
+      for (const [ox, oy] of [[bx, by], [-1, 0], [1, 0], [0, 1], [0, -1]]) if (!this.solid(x + ox, y + oy)) {
+        Object.assign(this.f, { x: x + ox, y: y + oy, sx: x + ox, sy: y + oy, tx: x + ox, ty: y + oy, face: ox < 0 ? 'right' : 'left' });
+        break;
+      }
       st.visited[mapId] = true;
       // une ville atteinte devient le point de réapparition
       const rs = this.map.respawn;
@@ -361,11 +364,12 @@
       await DW.fade(1, 0.6);
       st.bits = Math.floor(st.bits / 2);
       st.party.forEach(m => m.heal());
-      const hp = st.heal;
-      this.load(hp.map, hp.x, hp.y, 'down');
+      // toujours chez Jijimon (combat ordinaire ou boss) : il te ramène et soigne ton équipe
+      this.load('maison', 12, 5, 'down');
       await DW.wait(0.5);
       await DW.fade(0, 0.6);
-      await DW.say('Tu te réveilles. Tes Digimon ont récupéré... mais tu as perdu la moitié de tes Bits.');
+      await DW.say("Hohoho... Te voilà réveillé ! On t'a retrouvé évanoui, ton Digimon à tes côtés. Je vous ai ramenés ici et soignés.", 'Jijimon');
+      await DW.say('Tes Digimon ont récupéré... mais tu as perdu la moitié de tes Bits.');
     }
 
     // ---------------------------------------------------------- rendu
@@ -505,7 +509,7 @@
       }
       lights.push({ x: Math.round(pp.x * TS) + 8 - cx, y: Math.round(pp.y * TS) + 4 - cy, r: 52 });
       DW.Time.drawLight(c, lights, this.map.indoor ? 0.75 : 1, this.map.dark);
-      if (!this.locked || Game.top() === this) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); }
+      if (!this.locked || Game.top() === this) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); DW.Care.drawMood(c, DW.Care.lead(), W - 88, H - 28); }
       DW.Care.drawToasts(c);
       if (DW.saveFlash > 0) {
         c.globalAlpha = Math.min(1, DW.saveFlash);

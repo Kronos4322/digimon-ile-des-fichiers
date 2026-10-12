@@ -51,6 +51,7 @@
       const st = DW.state;
       if (k === 'digimon') {
         if (!st.party.length) await DW.say("Tu n'as pas encore de partenaire Digimon !");
+        else if (st.party.length === 1) await Game.push(new DW.SummaryScene(0));   // un seul Digimon : directement sa fiche
         else await Game.push(new PartyScene({ mode: 'view' }));
       } else if (k === 'evo') {
         if (!st.party.length) await DW.say("Tu n'as pas encore de partenaire Digimon !");

@@ -178,8 +178,8 @@
           if (!st().party.some(m => m.hp > 0)) { await say('Reviens avec un Digimon en forme !', name); return; }
           const r = await DW.ask(`Relever le défi de ${name} ?`);
           if (r !== 0) { await say('Reviens quand tu seras prêt !', name); return; }
-          const res = await ow.battle({ enemy: new DW.Digimon(o.sp, o.lvl), boss: true, canLose: true, intro: `${name} veut tester ta force !` });
-          if (res !== 'win') { await say(o.lose || "Tu n'es pas encore assez fort... Entraîne-toi et reviens !", name); return; }
+          const res = await ow.battle({ enemy: new DW.Digimon(o.sp, o.lvl), boss: true, canLose: false, intro: `${name} veut tester ta force !` });
+          if (res !== 'win') { await say(`(${name} était trop fort... Entraîne-toi et retourne le défier !)`); return; }
           st().party.forEach(m => m.heal());
         }
         await say(o.win, name);

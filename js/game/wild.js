@@ -12,29 +12,30 @@
   const STAGE_LV = { 'Bébé': -4, 'Entraînement': -2, Disciple: 0, Champion: 2, Ultime: 5, 'Méga': 8 };
 
   // ------------------------------------------------------------ tables des régions
-  // 'espèce:poids' ; '@n' = à partir de la sous-zone n ; 'nP' = poids la nuit (0 le jour si 'j0')
+  // 'espèce:poids' ; '@n' = à partir de la sous-zone n ; 'nP' = poids la nuit ; 'hA-B' = visible seulement de A h à B h
+  //  (raretés à horaire, comme Coelamon dans Digimon World 1 : une par région)
   const TABLES = {
-    montagne: [8, 'gotsumon:30 biyomon:20 elecmon:15 gabumon:15 monochromon:8@6 leomon:5@8'],
-    lac: [9, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 seadramon:6@7'],
-    brumes: [10, 'mushroomon:30n50 kunemon:20 patamon:15 palmon:15 bakemon:0n25@3 unimon:5@7'],
-    marais: [10, 'betamon:25 mushroomon:25n40 palmon:20 gekomon:12@3 numemon:8@4n12 sukamon:6@5n12'],
-    savane: [12, 'elecmon:30 agumon:20 biyomon:20 leomon:10@4 monochromon:8@5 centarumon:6@7'],
-    volcan: [16, 'agumon:30 gotsumon:20 meramon:20@2 monochromon:12 birdramon:8@5 skullmeramon:3@9'],
-    usine: [18, 'kunemon:25 tentomon:25 elecmon:20 numemon:15 kabuterimon:10@4 andromon:3@8'],
-    decharge: [18, 'numemon:30 sukamon:30 kunemon:15 mushroomon:15 ogremon:8@4 etemon:2@9'],
-    tunnel: [18, 'gotsumon:30 kunemon:15 numemon:15 bakemon:10n25 drimogemon:20@2 devimon:3@8'],
-    jouets: [20, 'patamon:25 biyomon:20 penguinmon:20 numemon:15 monzaemon:2@8 piximon:2@9'],
-    canyon: [20, 'gotsumon:25 monochromon:20 birdramon:10 ogremon:15@2 leomon:12@4 centarumon:8@6'],
-    scarabees: [20, 'tentomon:30 kunemon:25 kuwagamon:15@2 kabuterimon:12@4 okuwamon:3@8'],
-    dino: [24, 'monochromon:25 agumon:20 greymon:20 drimogemon:10 skullgreymon:3@8 metalgreymon:2@9'],
-    jungle: [24, 'palmon:25 togemon:20 biyomon:15 kuwagamon:15 birdramon:10@3 lillymon:3@8'],
-    gel: [24, 'gabumon:25 penguinmon:25 frigimon:20 garurumon:15@2 ikkakumon:12@3 weregarurumon:3@8'],
-    overdell: [28, 'bakemon:30n50 numemon:15 sukamon:10 mushroomon:15 devimon:12@3 skullgreymon:4@7 megadramon:3@8'],
+    montagne: [8, 'gotsumon:30 biyomon:20 elecmon:15 gabumon:15 monochromon:8@6 leomon:5@8h5-8'],
+    lac: [9, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 seadramon:6@7h5-9'],
+    brumes: [10, 'mushroomon:30n50 kunemon:20 patamon:15 palmon:15 bakemon:0n25@3 unimon:5@7h4-7'],
+    marais: [10, 'betamon:25 mushroomon:25n40 palmon:20 gekomon:12@3 numemon:8@4n12 sukamon:6@5h22-4'],
+    savane: [12, 'elecmon:30 agumon:20 biyomon:20 leomon:10@4 monochromon:8@5 centarumon:6@7h16-19'],
+    volcan: [16, 'agumon:30 gotsumon:20 meramon:20@2 monochromon:12 birdramon:8@5 skullmeramon:3@9h18-22'],
+    usine: [18, 'kunemon:25 tentomon:25 elecmon:20 numemon:15 kabuterimon:10@4 andromon:3@8h14-17'],
+    decharge: [18, 'numemon:30 sukamon:30 kunemon:15 mushroomon:15 ogremon:8@4 etemon:2@9h19-23'],
+    tunnel: [18, 'gotsumon:30 kunemon:15 numemon:15 bakemon:10n25 drimogemon:20@2 devimon:3@8h22-2'],
+    jouets: [20, 'patamon:25 biyomon:20 penguinmon:20 numemon:15 monzaemon:2@8 piximon:2@9h12-14'],
+    canyon: [20, 'gotsumon:25 monochromon:20 birdramon:10 ogremon:15@2 leomon:12@4 centarumon:8@6h6-9'],
+    scarabees: [20, 'tentomon:30 kunemon:25 kuwagamon:15@2 kabuterimon:12@4 okuwamon:3@8h20-24'],
+    dino: [24, 'monochromon:25 agumon:20 greymon:20 drimogemon:10 skullgreymon:3@8h0-3 metalgreymon:2@9'],
+    jungle: [24, 'palmon:25 togemon:20 biyomon:15 kuwagamon:15 birdramon:10@3 lillymon:3@8h6-10'],
+    gel: [24, 'gabumon:25 penguinmon:25 frigimon:20 garurumon:15@2 ikkakumon:12@3 weregarurumon:3@8h0-5'],
+    overdell: [28, 'bakemon:30n50 numemon:15 sukamon:10 mushroomon:15 devimon:12@3 skullgreymon:4@7 megadramon:3@8h0-4'],
   };
   function parse(str) {
     return str.split(/\s+/).map(t => {
-      const [sp, rest] = t.split(':'), n = rest.match(/n(\d+)/), at = rest.match(/@(\d+)/);
-      return { sp, w: parseInt(rest, 10), night: n ? +n[1] : null, from: at ? +at[1] : 0 };
+      const [sp, rest] = t.split(':'), n = rest.match(/n(\d+)/), at = rest.match(/@(\d+)/), h = rest.match(/h(\d+)-(\d+)/);
+      return { sp, w: parseInt(rest, 10), night: n ? +n[1] : null, from: at ? +at[1] : 0, hours: h ? [+h[1], +h[2]] : null };
     });
   }
   // remplit les rencontres des sous-zones de région (appelé une fois au chargement)
@@ -45,7 +46,7 @@
       const idx = +(id.match(/(\d+)$/) || [0, 0])[1], base = T[0] + Math.floor(idx * 0.8);
       m.encounters = parse(T[1]).filter(e => idx >= e.from && DW.SPECIES[e.sp]).map(e => {
         const lv = Math.max(2, base - 1 + (STAGE_LV[DW.SPECIES[e.sp].stage] || 0));   // 1 niveau sous le joueur attendu : les combats poussent à s'entraîner et à s'équiper
-        return { sp: e.sp, min: lv - 1, max: lv + 1, w: e.w, night: e.night };
+        return { sp: e.sp, min: lv - 1, max: lv + 1, w: e.w, night: e.night, hours: e.hours };
       });
       m.wildN = m.wildN || DW.clamp(Math.round(m.w * m.h / 240), 3, 6);
     }
@@ -61,9 +62,20 @@
       return g[mapId] || [];
     },
     // un Digimon sauvage, placé loin du héros, de préférence dans les herbes
+    // poids d'une espèce à l'heure actuelle : Ténèbres surtout la nuit ; Lumière, Air et Plante surtout le jour ;
+    // une rareté à créneau (hours) n'apparaît que dans son créneau, et y est alors bien plus fréquente
+    weight(x, night, hour) {
+      if (x.hours) { const [a, b] = x.hours, inside = a <= b ? hour >= a && hour < b : hour >= a || hour < b; return inside ? x.w * 4 : 0; }
+      if (night && x.night != null) return x.night;
+      const T = DW.SPECIES[x.sp].types || [];
+      let k = 1;
+      if (T.includes('Ténèbres')) k = night ? 3 : 0.25;
+      else if (T.includes('Lumière') || T.includes('Air') || T.includes('Plante')) k = night ? 0.35 : 1.3;
+      return x.w * k;
+    },
     spawnOne(ow, minDist) {
-      const map = ow.map, P = ow.p, night = DW.Time.isNight();
-      const list = map.encounters.map(x => ({ ...x, w: night && x.night != null ? x.night : x.w })).filter(x => x.w > 0);
+      const map = ow.map, P = ow.p, night = DW.Time.isNight(), hour = DW.Time.hour();
+      const list = map.encounters.map(x => ({ ...x, w: Wild.weight(x, night, hour) })).filter(x => x.w > 0);
       if (!list.length) return null;
       const e = DW.weighted(list);
       let best = null;
@@ -82,7 +94,7 @@
     },
     spawn(ow) {
       if (!fillRegions.done) { fillRegions(); fillRegions.done = true; }
-      ow.wilds = []; ow.wildT = 0; ow.wildGrace = 2.5;
+      ow.wilds = []; ow.wildT = 0; ow.wildNight = DW.Time.isNight(); ow.wildHour = Math.floor(DW.Time.hour()); ow.wildGrace = 2.5;
       const n = Wild.target(ow.map) - Wild.gone(ow.mapId).length;
       for (let i = 0; i < n; i++) Wild.spawnOne(ow, 6);
     },
@@ -92,6 +104,16 @@
       const P = ow.p, F = ow.f;
       if (ow.wildGrace > 0) ow.wildGrace -= dt;
       // réapparitions (hors de vue)
+      const hNow = Math.floor(DW.Time.hour());
+      if (ow.wildHour == null) ow.wildHour = hNow;
+      if (hNow !== ow.wildHour) {
+        const nightChange = DW.Time.isNight() !== ow.wildNight;
+        ow.wildHour = hNow; ow.wildNight = DW.Time.isNight();
+        const P = ow.p, far = w => Math.abs(w.x - P.x) + Math.abs(w.y - P.y) > 10 && !w.chasing;
+        // les espèces qui ne sont plus de leur heure s'en vont (hors de vue) ; d'autres arrivent
+        ow.wilds = ow.wilds.filter(w => !far(w) || (!nightChange && Wild.weight(ow.map.encounters.find(e => e.sp === w.sp) || { w: 1, sp: w.sp }, ow.wildNight, hNow) > 0));
+        while (ow.wilds.length + Wild.gone(ow.mapId).length < Wild.target(ow.map) && Wild.spawnOne(ow, 11)) { /* complète */ }
+      }
       ow.wildT += dt;
       if (ow.wildT > 20) { ow.wildT = 0; if (ow.wilds.length + Wild.gone(ow.mapId).length < Wild.target(ow.map)) Wild.spawnOne(ow, 11); }
       for (const w of ow.wilds) {

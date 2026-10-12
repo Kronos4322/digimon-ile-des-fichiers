@@ -75,7 +75,10 @@
   // ------------------------------------------------------------ la grande discussion d'arrivée
   async function opening() {
     await DW.wait(0.6);
+    const baby = DW.state.party[0] ? DW.state.party[0].name : 'Ton Digimon';
     await say('Mmh... Où est-ce que je suis ? Ma tête tourne...');
+    await say(`... ! Un petit Digimon est blotti contre toi. Il ouvre les yeux en même temps que toi.`);
+    await say(`Tu es réveillé ! Je m'appelle ${baby}. Je ne t'ai pas quitté une seconde !`, baby);
     await say("Hohoho ! Doucement, doucement. Tu as dormi presque une journée entière.", J);
     await say("Je suis Jijimon, le doyen de la Ville des Fichiers. Je t'ai trouvé évanoui sur la plage, au milieu des cabines téléphoniques.", J);
     await say("Tu es sur l'Île des Fichiers, dans le monde digital. Un monde fait de données... très loin de chez toi, je le crains.", J);
@@ -84,7 +87,10 @@
     await say("Et justement, il l'est.", J);
     await TOPICS[1][1]();   // l'enquête
     await say("Je suis trop vieux pour courir l'île. Mais toi... avec un partenaire Digimon à tes côtés, tu pourrais peut-être y arriver.", J);
-    await say(`Ce soir-là, un seul bébé est resté en ville : ${DW.SPECIES[DW.heroLine().baby].name}. Il t'attend sur la place, comme s'il te connaissait déjà... (Et Koromon, notre petit guide, se promène partout !)`, J);
+    await say(`Et ce petit ${baby}... Il dormait à tes pieds sur la plage. Il ne t'a pas quitté depuis : c'est ton partenaire, ça ne fait aucun doute !`, J);
+    DW.Audio.sfx('fanfare');
+    await say(`${baby} devient ton partenaire !`);
+    await say("J'avais préparé un colis pour toi : 5 Viandes et 3 Remèdes. (Et si tu te perds, Koromon, notre petit guide, se promène sur la place !)", J);
     await explainRules();
     await questions("Avant que tu sortes : as-tu des questions ? Je peux t'expliquer comment vit un Digimon, comment il devient fort...");
     await say("Ma porte est toujours ouverte : reviens me poser tes questions, ou dormir ici pour soigner ton équipe.", J);

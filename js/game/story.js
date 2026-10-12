@@ -40,6 +40,12 @@
     overdell: { boss: 'megadramon', mate: 'bakemon', lore: 'un dragon mécanique survole le cimetière' },
   };
   const RID = Object.keys(REG);
+  // certains boss ne se montrent qu'à certaines heures (comme Coelamon dans Digimon World 1)
+  const BOSS_TIME = { lac: [5, 10, "à l'aube"], brumes: [20, 5, 'la nuit'], marais: [18, 24, 'le soir'], decharge: [19, 24, 'le soir, pendant son concert'],
+    gel: [21, 5, 'la nuit'], overdell: [0, 5, 'au cœur de la nuit'] };
+  const inHours = (a, b) => { const h = DW.Time.hour(); return a <= b ? h >= a && h < b : h >= a || h < b; };
+  const bossHere = rid => !BOSS_TIME[rid] || inHours(BOSS_TIME[rid][0], BOSS_TIME[rid][1]);
+  DW.Story.BOSS_TIME = BOSS_TIME;
 
   // services des recrues (dans la ville) : rôle affiché à leur arrivée + effet
   const ROLES = {
@@ -200,7 +206,7 @@
     const near = () => freeSpots(ow, avoid, 3, m.spec.hub[0] - 3, m.spec.hub[1] + 1)[0];
     if (k === 7) {
       const p = near(); if (!p) return;
-      m.npcs.push({ sp: R.boss, x: p[0], y: p[1], face: 'left', gear: true, story: true, cond: s => !(s.gears || {})[rid], talk: ow2 => bossFight(rid, ow2) });
+      m.npcs.push({ sp: R.boss, x: p[0], y: p[1], face: 'left', gear: true, story: true, cond: s => !(s.gears || {})[rid] && bossHere(rid), talk: ow2 => bossFight(rid, ow2) });
     }
     if (k === 4) {
       const p = near(); if (!p) return;
@@ -224,8 +230,8 @@
     await say('GRRR... DÉTRUIRE... TOUT DÉTRUIRE...', name);
     if (!s.party.some(m => m.hp > 0)) { await say('Il te faut un Digimon en forme pour l\'affronter !'); return; }
     if ((await DW.ask(`Affronter ${name} et briser l'Engrenage Noir ?`)) !== 0) return;
-    const res = await ow.battle({ enemy: new DW.Digimon(R.boss, BOSS_LV[rid] || lvOf(rid) + 4), boss: true, canLose: true, intro: `${name}, possédé par l'Engrenage Noir, attaque !` });
-    if (res !== 'win') { await say(`${name} est trop fort pour l'instant... Entraîne-toi et reviens.`); return; }
+    const res = await ow.battle({ enemy: new DW.Digimon(R.boss, BOSS_LV[rid] || lvOf(rid) + 4), boss: true, canLose: false, intro: `${name}, possédé par l'Engrenage Noir, attaque !` });
+    if (res !== 'win') { await say(`(${name} était trop fort... Entraîne-toi, équipe-toi, et retourne le libérer !)`); return; }   // défaite : déjà ramené chez Jijimon
     s.gears = s.gears || {}; s.gears[rid] = true;
     DW.Audio.sfx('super');
     ow.shake = 0.6;
@@ -241,6 +247,7 @@
     if (!(s.gears || {})[rid]) {
       await say(`Chut... Ne fais pas de bruit. Plus loin dans la région, ${R.lore}.`, name);
       await say(`C'est ${DW.SPECIES[R.boss].name}... Il n'est plus lui-même depuis qu'un Engrenage Noir est tombé du ciel. Si tu le libères, je te suivrai !`, name);
+      if (BOSS_TIME[rid]) await say(`On ne le voit que ${BOSS_TIME[rid][2]}, entre ${BOSS_TIME[rid][0]} h et ${BOSS_TIME[rid][1] % 24} h. Le reste du temps, il disparaît...`, name);
       return;
     }
     await say(`Tu as libéré ${DW.SPECIES[R.boss].name} ! La région respire de nouveau.`, name);
@@ -252,8 +259,8 @@
     await say('Ainsi, c\'est toi qui brises mes Engrenages Noirs...', 'Devimon');
     await say("Cette île m'appartient. Les Digimon sans mémoire sont de si dociles serviteurs... Je vais t'effacer, toi et ton partenaire !", 'Devimon');
     if ((await DW.ask('Affronter Devimon ?')) !== 0) { await say('Fuis donc... Je t\'attendrai.', 'Devimon'); return; }
-    const res = await ow.battle({ enemy: new DW.Digimon('devimon', 40), boss: true, canLose: true, music: 'boss', intro: 'Devimon déploie ses ailes noires !' });
-    if (res !== 'win') { await say('Pathétique. Reviens quand tu seras digne de moi.', 'Devimon'); return; }
+    const res = await ow.battle({ enemy: new DW.Digimon('devimon', 40), boss: true, canLose: false, music: 'boss', intro: 'Devimon déploie ses ailes noires !' });
+    if (res !== 'win') { await say('(Devimon était trop fort... Prépare-toi mieux avant de retourner au sommet.)'); return; }
     await say('Impossible... Battu par... un enfant...', 'Devimon');
     s.flags.devimon = true;
     await ending(ow);
@@ -419,7 +426,7 @@
       UI.box(c, 6, 176, W - 12, 58);
       const txt = !seen ? 'Région encore inexplorée. Consulte la carte (Menu → CARTE).'
         : g[r] ? `${DW.SPECIES[R.boss].name} a été libéré${DW.Town.has(R.mate) ? ` et ${DW.SPECIES[R.mate].name} s'est installé en ville` : `. ${DW.SPECIES[R.mate].name} t'attend quelque part dans la région`}.`
-        : `On raconte ${/^[aeiouyéh]/i.test(R.lore) ? "qu'" : 'que '}${R.lore}. Un Digimon possédé se cache au fond de la région.`;
+        : `On raconte ${/^[aeiouyéh]/i.test(R.lore) ? "qu'" : 'que '}${R.lore}. Un Digimon possédé se cache au fond de la région${BOSS_TIME[r] ? ` (seulement ${BOSS_TIME[r][2]}, ${BOSS_TIME[r][0]} h – ${BOSS_TIME[r][1] % 24} h)` : ''}.`;
       UI.wrap(c, txt, 290, 8).slice(0, 3).forEach((l, j) => UI.text(c, l, 14, 192 + j * 11, { size: 8, color: '#c8f0ff' }));
       const fin = Story.gears() >= FINAL ? (s.flags.devimon ? 'Devimon est vaincu !' : "Devimon t'attend au sommet de la Montagne de l'Infini !") : `Brise ${FINAL} engrenages pour affronter leur maître.`;
       UI.text(c, fin, 14, 228, { size: 7, color: '#ffe070' });

@@ -8,6 +8,12 @@
 
   DW.startGame = isNew => {
     const st = DW.state;
+    // nouvelle partie : le bébé de la lignée du héros est déjà là, à ses côtés, au réveil
+    if (isNew && !st.party.length) {
+      const sp = DW.heroLine().baby, m = new DW.Digimon(sp, 4);
+      m.happy = 70; DW.addDigimon(m); st.flags.starter = sp;
+      DW.giveItem('viande', 5); DW.giveItem('remede', 3);
+    }
     const ow = new DW.Overworld(st.map, st.x, st.y, st.dir);
     Game.replaceAll(ow);
     DW.fade(0, 0.8);

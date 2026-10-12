@@ -134,6 +134,18 @@
       row(y + 6, 'Faim', m.hunger, '#f0b040', m.hunger >= 70);
       row(y + 15, 'WC', m.need, '#a07850', m.need >= 75);
     },
+    // jauges de bonheur et de discipline du partenaire (en bas à droite de l'écran)
+    drawMood(c, m, x, y) {
+      if (!m) return;
+      UI.box(c, x, y, 82, 22);
+      const disc = m.disc != null ? m.disc : 40;
+      const row = (yy, label, v, col, warn) => {
+        UI.text(c, label, x + 5, yy + 4, { size: 7, color: warn ? '#ff8a8a' : '#c8f0ff' });
+        UI.bar(c, x + 48, yy, 29, 4, v / 100, warn ? '#ff5a5a' : col);
+      };
+      row(y + 6, 'Bonheur', m.happy, '#ff7ab8', m.happy < 25);
+      row(y + 15, 'Discipline', disc, '#5ab0ff', disc < 20);
+    },
     drawToasts(c) {
       this.toasts.forEach((o, i) => {
         const a = Math.min(1, o.t / 0.2, (4.5 - o.t) / 0.5);

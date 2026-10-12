@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Digimon — L'Aventure de l'Île des Fichiers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,6 +35,19 @@
       window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ask = e; btn.style.display = 'block'; });
       window.addEventListener('appinstalled', () => { btn.style.display = 'none'; });
       btn.addEventListener('click', async () => { if (!ask) return; ask.prompt(); await ask.userChoice; ask = null; btn.style.display = 'none'; });
+    })();
+    // plein écran : téléphone dès le premier toucher (en paysage), PC avec F11 ou un double-clic sur le jeu
+    (function () {
+      const full = () => document.fullscreenElement || document.webkitFullscreenElement;
+      const go = () => {
+        if (full()) return;
+        const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (!req) return;
+        Promise.resolve(req.call(el, { navigationUI: 'hide' })).then(() => { try { screen.orientation.lock('landscape').catch(() => {}); } catch (e) { /* pas de verrouillage */ } }).catch(() => {});
+      };
+      window.addEventListener('touchend', go, { passive: true });
+      document.getElementById('game').addEventListener('dblclick', () => (full() ? document.exitFullscreen() : go()));
+      window.addEventListener('keydown', e => { if (e.code === 'F11') { e.preventDefault(); full() ? document.exitFullscreen() : go(); } });
     })();
   </script>
 </body>
