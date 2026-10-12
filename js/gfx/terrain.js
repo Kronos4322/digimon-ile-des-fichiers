@@ -1,0 +1,529 @@
+'use strict';
+// =====================================================================
+//  MONDE — sol peint au pixel (terrains, eau animée, ombres) et herbes hautes
+// =====================================================================
+(function () {
+  const Art = DW.Art, hash = Art.hash, noise = Art.noise, fbm = Art.fbm;
+  const TS = 16;
+  const World = DW.World, TER = World.TER, OBJ = World.OBJ;
+
+  // ------------------------------------------------------------ palettes du sol
+  const P = s => s.map(Art.hex);
+  const PAL = {
+    grass: P(['#2c7432', '#3a8a3a', '#4aa046', '#5cb452', '#74c860', '#94dc78']),
+    forest: P(['#1e5a2c', '#286e32', '#34843a', '#469c44', '#5eb252', '#80c866']),
+    dirt: P(['#6e4224', '#8a5a34', '#a47244', '#ba8a56', '#d0a46c', '#e2be88']),
+    sand: P(['#c09a60', '#d6b476', '#e6ca8e', '#f2dcaa', '#f8eac6', '#fff6e2']),
+    wet: P(['#a07c4c', '#b48e5c', '#c6a06c', '#d6b27e']),
+    water: P(['#9cf0ec', '#62d6e4', '#40b8e2', '#3098da', '#277ccc', '#205fb4', '#1a4a9a']),
+    lawn: P(['#5eb078', '#76c488', '#90d69a', '#a8e4ac', '#c2f0c0', '#ddfad8']),
+    canopy: P(['#0e2a16', '#153a1e', '#1d4c24', '#27612c', '#337634', '#468e40']),
+    cliff: P(['#4a3a2e', '#5e4a3a', '#76604a', '#8e7658', '#a88e6a', '#c0a67e']),
+    pink: P(['#b86a96', '#dc8ab4', '#f4a8cc', '#ffc6e0', '#ffe2f0']),
+    mint: P(['#5a9c8a', '#78c0a6', '#9ee0c2', '#c2f4dc', '#e2fff0']),
+    lilac: P(['#7a6ab0', '#9a88d0', '#baa8ec', '#d6c8ff', '#eee6ff']),
+  };
+  const put = (D, i, c, k = 1) => { D[i] = c[0] * k; D[i + 1] = c[1] * k; D[i + 2] = c[2] * k; D[i + 3] = 255; };
+
+  // ------------------------------------------------------------ préparation d'une carte
+  // Générateur : rend la main régulièrement (yield) pour pouvoir préparer une carte
+  // par petites tranches pendant le jeu (cartes voisines préparées à l'avance).
+  function* prep(map) {
+    if (!map.rows && map.build) map.build();
+    const t0 = performance.now(), prof = {};
+    let tp = t0; const lap = k => { const n = performance.now(); prof[k] = Math.round(n - tp); tp = n; };
+    const GW = map.w * TS, GH = map.h * TS, N = GW * GH;
+    const tt = map.rows.map(r => [...r].map(ch => TER[World.info(ch).t]));
+    const tAt = (x, y) => tt[DW.clamp(y, 0, map.h - 1)][DW.clamp(x, 0, map.w - 1)];
+    const HW = (GW >> 1) + 1;
+    const half = fn => { const A = new Float32Array(HW * ((GH >> 1) + 1)).fill(NaN); return (px, py) => { const k = (py >> 1) * HW + (px >> 1); let v = A[k]; if (v !== v) v = A[k] = fn(px & ~1, py & ~1); return v; }; };
+    const WX = half((x, y) => noise(x * 0.07, y * 0.07, 1)), WY = half((x, y) => noise(x * 0.07, y * 0.07, 2));
+    const G5 = half((x, y) => fbm(x * 0.035, y * 0.035, 5)), D7 = half((x, y) => fbm(x * 0.06, y * 0.06, 7));
+    const S8 = half((x, y) => fbm(x * 0.04, y * 0.04, 8)), S9 = half((x, y) => fbm(x * 0.05, y * 0.05, 9));
+    const L12 = half((x, y) => fbm(x * 0.04, y * 0.04, 12)), C21 = half((x, y) => fbm(x * 0.08, y * 0.08, 21));
+    // thème de la zone (couleurs propres à chaque zone)
+    const TH = World.THEMES && World.THEMES[map.theme];
+    const GRASS = TH ? TH.grass.map(Art.hex) : map.ambient === 'forest' ? PAL.forest : PAL.grass;
+    const CANOPY = TH ? TH.canopy.map(Art.hex) : PAL.canopy;
+    const LITTER = TH ? TH.litter : ['#c86a2a', '#e09a3a', '#8a5a2a', '#a8a040', '#7a9a38'];
+    // biomes : le thème peut remplacer les couleurs de la terre, du sable, de l'eau (lave, marais, glace) et des falaises
+    const DIRT = TH && TH.dirt ? TH.dirt.map(Art.hex) : PAL.dirt, SAND = TH && TH.sand ? TH.sand.map(Art.hex) : PAL.sand;
+    const WET = TH && TH.wet ? TH.wet.map(Art.hex) : PAL.wet, WATER = TH && TH.water ? TH.water.map(Art.hex) : PAL.water;
+    const CLIFF = TH && TH.cliff ? TH.cliff.map(Art.hex) : PAL.cliff, ROCKY = TH && TH.canopyStyle === 'rock';
+    const HARD = new Set([TER.cliff, TER.bridge, TER.stairs, TER.stone, TER.cobble, TER.wood, TER.wall, TER.void, TER.metal]);
+    // terrain au pixel (frontières organiques)
+    const T = new Uint8Array(N);
+    // vote bilinéaire entre les 4 cases voisines (coins arrondis) + légère déformation
+    const wsum = new Float32Array(16);
+    // case entourée de 8 voisines du même terrain : aucune frontière possible, pas de vote
+    const uni = new Uint8Array(map.w * map.h);
+    for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+      const t = tt[ty][tx];
+      let u = 1;
+      for (let dy = -1; dy <= 1 && u; dy++) for (let dx = -1; dx <= 1; dx++) if (tAt(tx + dx, ty + dy) !== t) { u = 0; break; }
+      uni[ty * map.w + tx] = u;
+    }
+    for (let py = 0; py < GH; py++) { if ((py & 3) === 3) yield; for (let px = 0; px < GW; px++) {
+      const base = tt[py >> 4][px >> 4];
+      if (HARD.has(base) || uni[(py >> 4) * map.w + (px >> 4)]) { T[py * GW + px] = base; continue; }
+      const wx = px + 0.5 + (WX(px, py) - 0.5) * 10, wy = py + 0.5 + (WY(px, py) - 0.5) * 10;
+      const u = wx / TS - 0.5, v = wy / TS - 0.5, i0 = Math.floor(u), j0 = Math.floor(v), fu = u - i0, fv = v - j0;
+      const a = tAt(i0, j0), b = tAt(i0 + 1, j0), c = tAt(i0, j0 + 1), d = tAt(i0 + 1, j0 + 1);
+      if (a === b && a === c && a === d) { T[py * GW + px] = HARD.has(a) ? base : a; continue; }
+      wsum.fill(0);
+      if (!HARD.has(a)) wsum[a] += (1 - fu) * (1 - fv);
+      if (!HARD.has(b)) wsum[b] += fu * (1 - fv);
+      if (!HARD.has(c)) wsum[c] += (1 - fu) * fv;
+      if (!HARD.has(d)) wsum[d] += fu * fv;
+      wsum[base] += 0.001;
+      let best = base, bw = -1;
+      for (let k = 0; k < 11; k++) if (wsum[k] > bw) { bw = wsum[k]; best = k; }
+      T[py * GW + px] = best;
+    } }
+    lap('vote');
+    // places rondes (ex. la place de la ville, la piste du terrain) : cercle net au lieu des cases
+    for (const pl of map.plazas || []) {
+      for (let py = Math.max(0, Math.floor(pl.y - pl.ry - 4)); py < Math.min(GH, pl.y + pl.ry + 4); py++) for (let px = Math.max(0, Math.floor(pl.x - pl.rx - 4)); px < Math.min(GW, pl.x + pl.rx + 4); px++) {
+        // pl.t : terrain (pavés par défaut) ; pl.inner : anneau (ex. piste ovale) au lieu d'un disque plein
+        const d = Math.hypot((px - pl.x) / pl.rx, (py - pl.y) / pl.ry), i = py * GW + px, tp = pl.t ? TER[pl.t] : TER.cobble;
+        if (d < 1 && d >= (pl.inner || 0)) T[i] = tp; else if (!pl.inner && T[i] === tp) T[i] = TER.grass;
+      }
+    }
+    // distance au terrain voisin (BFS)
+    const ED = new Uint8Array(N), EN = new Uint8Array(N).fill(255);
+    const Q = new Int32Array(N);
+    let qh = 0, qt = 0;
+    for (let py = 0; py < GH; py++) { if ((py & 31) === 31) yield; for (let px = 0; px < GW; px++) {
+      const i = py * GW + px, t = T[i];
+      let n = -1;
+      if (px > 0 && T[i - 1] !== t) n = i - 1;
+      else if (px < GW - 1 && T[i + 1] !== t) n = i + 1;
+      else if (py > 0 && T[i - GW] !== t) n = i - GW;
+      else if (py < GH - 1 && T[i + GW] !== t) n = i + GW;
+      if (n >= 0) { ED[i] = 1; EN[i] = T[n]; Q[qt++] = i; }
+    } }
+    const visit = (n, i, d) => { if (!ED[n] && T[n] === T[i]) { ED[n] = d + 1; EN[n] = EN[i]; Q[qt++] = n; } };
+    while (qh < qt) {
+      if ((qh & 32767) === 32767) yield;
+      const i = Q[qh++], px = i % GW, d = ED[i];
+      if (d >= 40) continue;
+      if (px > 0) visit(i - 1, i, d);
+      if (px < GW - 1) visit(i + 1, i, d);
+      if (i >= GW) visit(i - GW, i, d);
+      if (i < N - GW) visit(i + GW, i, d);
+    }
+    for (let i = 0; i < N; i++) if (!ED[i]) ED[i] = 60;
+    lap('bfs');
+    // ombre portée sous la canopée et les falaises
+    const SH = new Uint8Array(N);
+    for (let px = 0; px < GW; px++) {
+      if ((px & 63) === 63) yield;
+      let run = 99;
+      for (let py = 0; py < GH; py++) {
+        const i = py * GW + px, t = T[i];
+        const tx = px >> 4, ty = py >> 4;
+        const caster = t === TER.canopy || t === TER.pastel || (t === TER.cliff && tAt(tx, ty + 1) !== TER.cliff) || (t === TER.wall && tAt(tx, ty + 1) !== TER.wall);
+        if (caster) run = 0; else run++;
+        if (!caster && run <= 10 && t !== TER.water) SH[i] = 11 - run;
+      }
+    }
+    const tallGrid = map.rows.map(r => [...r].map(ch => World.isTall(ch)));
+    const tallAt = (x, y) => tallGrid[y][x];
+    // couleur de base
+    const base = new Uint8ClampedArray(N * 4);
+    const D = base;
+    // canopée (bruit de Worley) : un point par cellule de 7 px, calculé une seule fois
+    const CW = Math.ceil(GW / 7) + 3, CF = new Float32Array(CW * (Math.ceil(GH / 7) + 3) * 2).fill(NaN);
+    const cell7 = (cx, cy) => { const k = ((cy + 1) * CW + cx + 1) * 2; if (CF[k] !== CF[k]) { CF[k] = cx * 7 + hash(cx, cy, 16) * 7; CF[k + 1] = cy * 7 + hash(cx, cy, 17) * 7; } return k; };
+    for (let py = 0; py < GH; py++) { if (py & 1) yield; for (let px = 0; px < GW; px++) {
+      const i = py * GW + px, j = i * 4, t = T[i], ed = ED[i], en = EN[i];
+      const tx = px >> 4, ty = py >> 4, lx = px & 15, ly = py & 15;
+      const b = Art.bayer(px, py);
+      let col;
+      if (t === TER.grass) {
+        let v = 2.4 + (G5(px, py) - 0.5) * 3 + (noise(px * 0.3, py * 0.3, 6) - 0.5) * 1.4 + b * 0.8;
+        if (en !== TER.grass && en !== TER.canopy && en !== 255) { if (ed === 1) v = 0.2; else if (ed === 2) v -= 1; }
+        v -= SH[i] * 0.22;
+        if (tallAt(tx, ty)) v -= 1.2;
+        col = GRASS[DW.clamp(Math.round(v), 0, 5)];
+        if (map.ambient === 'forest' && SH[i] > 2 && hash(px >> 1, py >> 1, 90) < 0.02) col = Art.hex(['#c8a040', '#a8c050', '#d08a3a'][Math.floor(hash(px, py, 91) * 3)]);
+      } else if (t === TER.dirt) {
+        let v = 3 + (D7(px, py) - 0.5) * 2.4 + b * 0.8;
+        if (ed <= 2 && en !== TER.dirt) v -= 3 - ed;
+        if (ed === 3 && hash(px, py, 94) < 0.08) v += 2;
+        if (py > 2 && (T[i - GW] === TER.grass || T[i - 2 * GW] === TER.grass)) v -= 1;
+        v -= SH[i] * 0.2;
+        col = DIRT[DW.clamp(Math.round(v), 0, 5)];
+        if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.06) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);
+      } else if (t === TER.sand) {
+        const r = Math.sin(px * 0.2 + S8(px, py) * 9 + py * 0.55);
+        let v = 3.2 + (S9(px, py) - 0.5) * 1.6 + b * 0.7 + (r > 0.9 ? -1 : r < -0.96 ? 1 : 0);
+        if (hash(px, py, 10) < 0.03) v += hash(px, py, 11) < 0.5 ? -1 : 1;
+        v -= SH[i] * 0.2;
+        if (en === TER.water && ed <= 7) col = WET[DW.clamp(Math.round(v * 0.5 + ed * 0.35 - 1), 0, 3)];
+        else col = SAND[DW.clamp(Math.round(v), 0, 5)];
+      } else if (t === TER.lawn) {
+        let v = 3 + (L12(px, py) - 0.5) * 2 + b * 0.6;
+        if (ed === 1 && en !== TER.lawn && en !== 255) v = 1;
+        v -= SH[i] * 0.2;
+        if (tallAt(tx, ty)) v -= 1;
+        col = PAL.lawn[DW.clamp(Math.round(v), 0, 5)];
+        const h = hash(px, py, 13);
+        if (h < 0.006) col = Art.hex(['#ffb6d6', '#fff0a0', '#d8c0ff', '#ffffff'][Math.floor(hash(px, py, 14) * 4)]);
+      } else if (t === TER.stone) {
+        const row = Math.floor(py / 6), bx = Math.floor((px + (row % 2) * 4) / 8);
+        const ix = (px + (row % 2) * 4) % 8, iy = py % 6;
+        const tone = ['#f6dccc', '#f2d0c4', '#fae6d8', '#ecd4e4'][Math.floor(hash(bx, row, 15) * 4)];
+        let c = Art.hex(tone);
+        if (ix === 0 || iy === 0) c = Art.hex('#c4a2ac');
+        else if (ix === 1 || iy === 1) c = Art.mix(c, [255, 255, 255], 0.35);
+        else if (ix === 7 || iy === 5) c = Art.mix(c, [150, 110, 130], 0.25);
+        if (ed === 1 && en !== TER.stone) c = Art.hex('#b49098');
+        for (const m of map.mosaic || []) {
+          const dx = px - m.x, dy = (py - m.y) * 1.25, r = Math.hypot(dx, dy);
+          if (r < m.r) {
+            const ring = Math.floor(r / 5), ang = (Math.atan2(dy, dx) + Math.PI) / (Math.PI * 2) * (8 + ring * 6);
+            c = Art.hex(['#ffd2e4', '#cfe4ff', '#fff2c8', '#d8f4dc'][(ring + Math.floor(ang)) % 4]);
+            if (r % 5 < 1 || ang % 1 < 0.08) c = Art.hex('#c8a8b8');
+            if (r > m.r - 1.5) c = Art.hex('#a88898');
+          }
+        }
+        col = c;
+      } else if (t === TER.cobble) {
+        const row = Math.floor(py / 5), bx = Math.floor((px + (row % 2) * 3) / 7);
+        const ix = (px + (row % 2) * 3) % 7, iy = py % 5, decay = map.decay || 0, hb = hash(bx, row, 160);
+        let c = Art.hex(['#a8a49c', '#9c9890', '#b4b0a6', '#a09a90'][Math.floor(hash(bx, row, 161) * 4)]);
+        if (ix === 0 || iy === 0) c = Art.hex(decay > 0.3 && hash(px, py, 162) < decay * 0.5 ? '#4a8a3a' : '#6a665e');
+        else if (ix === 1 || iy === 1) c = Art.mix(c, [255, 255, 255], 0.25);
+        else if (ix === 6 || iy === 4) c = Art.mix(c, [40, 36, 30], 0.25);
+        if (hb < decay * 0.32) c = Art.hex(hash(px, py, 163) < 0.5 ? '#8a6a44' : (hash(px >> 1, py >> 1, 164) < 0.4 ? '#4a9a3e' : '#7a5a3a'));
+        if (ed <= 3 && en !== TER.cobble) c = Art.hex(ed === 1 ? '#4e4a44' : (ix === 0 || iy === 0) ? '#5e5a52' : '#8a8478');
+        col = Art.mix(c, [0, 0, 0], SH[i] * 0.03);
+      } else if (t === TER.canopy) {
+        // bruit de Worley : touffes de feuilles
+        const cx = Math.floor(px / 7), cy = Math.floor(py / 7);
+        let d1 = 99, d2 = 99, ox = 0, oy = 0;
+        for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+          const k = cell7(cx + xx, cy + yy), fx = CF[k], fy = CF[k + 1], ex = px - fx, ey = py - fy;
+          const dd = Math.sqrt(ex * ex + ey * ey);
+          if (dd < d1) { d2 = d1; d1 = dd; ox = px - fx; oy = py - fy; } else if (dd < d2) d2 = dd;
+        }
+        let v = 3.6 - d1 * 0.45 - (ox + oy) * 0.12 + b * 0.6 + (hash(px >> 1, py >> 1, 18) - 0.5) * 0.8 - Math.min(ed, 40) * 0.035;
+        if (ROCKY) {
+          // roche : facettes éclairées par le haut-gauche, fissures franches
+          v = 3.4 - d1 * 0.2 - (ox + oy) * 0.24 + b * 0.5 - Math.min(ed, 40) * 0.02;
+          if (d2 - d1 < 1) v -= 2;
+        } else if (d2 - d1 < 1.2) v -= 1.3;
+        col = CANOPY[DW.clamp(Math.round(v), 0, 5)];
+      } else if (t === TER.pastel) {
+        const cx = Math.floor(px / 8), cy = Math.floor(py / 8);
+        let d1 = 99, d2 = 99, ox = 0, oy = 0, cell = 0;
+        for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+          const fx = (cx + xx) * 8 + hash(cx + xx, cy + yy, 16) * 8, fy = (cy + yy) * 8 + hash(cx + xx, cy + yy, 17) * 8;
+          const dd = Math.sqrt((px - fx) * (px - fx) + (py - fy) * (py - fy));
+          if (dd < d1) { d2 = d1; d1 = dd; ox = px - fx; oy = py - fy; cell = hash(cx + xx, cy + yy, 19); } else if (dd < d2) d2 = dd;
+        }
+        const pal = cell < 0.33 ? PAL.pink : cell < 0.66 ? PAL.mint : PAL.lilac;
+        let v = 3.2 - d1 * 0.38 - (ox + oy) * 0.11 + b * 0.6;
+        if (d2 - d1 < 1.2) v -= 1.4;
+        col = pal[DW.clamp(Math.round(v), 0, 4)];
+      } else if (t === TER.cliff) {
+        const face = tAt(tx, ty + 1) !== TER.cliff;
+        const above = tAt(tx, ty - 1) !== TER.cliff;
+        if (face) {
+          let v = 3 + (noise(px * 0.5, py * 0.12, 19) - 0.5) * 2.6 + b * 0.7 - (ly / 16) * 1.4;
+          if (noise(px * 0.9, py * 0.05, 20) > 0.72) v -= 1.5;
+          if (ly >= 14) v = 0.5;
+          col = CLIFF[DW.clamp(Math.round(v), 0, 5)];
+          if (above && ly < 3) col = ly === 2 ? GRASS[0] : GRASS[ly ? 2 : 4];
+        } else {
+          let v = 2.6 + (C21(px, py) - 0.5) * 2 + b;
+          col = GRASS[DW.clamp(Math.round(v), 0, 4)];
+        }
+      } else if (t === TER.stairs) {
+        const s = ly % 4;
+        col = Art.hex(s === 0 ? '#e0d0b0' : s === 3 ? '#7a6a50' : '#bca888');
+        if (lx < 2 || lx > 13) col = CLIFF[lx < 2 ? 2 : 1];
+      } else if (t === TER.bridge) {
+        const vertical = !(tAt(tx - 1, ty) === TER.bridge || tAt(tx + 1, ty) === TER.bridge);
+        const a = vertical ? ly : lx, bb = vertical ? lx : ly;
+        const plank = Math.floor((vertical ? py : px) / 4);
+        const tone = ['#a8743c', '#b8844c', '#9a6a36'][Math.floor(hash(plank, 3, 22) * 3)];
+        let c = Art.hex(tone);
+        if (a % 4 === 3) c = Art.hex('#4a3018');
+        else if (a % 4 === 0) c = Art.mix(c, [255, 240, 200], 0.2);
+        c = Art.mix(c, [60, 30, 10], (noise(px * 0.6, py * 0.15, 23) - 0.5) * 0.3);
+        if (bb <= 1 || bb >= 14) c = Art.hex(bb === 0 || bb === 15 ? '#4a2c14' : '#6a4422');
+        if ((bb === 3 || bb === 12) && a % 4 === 1) c = Art.hex('#d8d0c0');
+        col = c;
+      } else if (t === TER.wood) {
+        // parquet : lames de longueur variable, joints sombres, veinage
+        const row = Math.floor(py / 5), off = Math.floor(hash(row, 7, 170) * 40), bx = Math.floor((px + off) / 22);
+        const ix = (px + off) % 22, iy = py % 5;
+        let c = Art.hex(['#b07a46', '#a46e3e', '#ba8650', '#9e683a'][Math.floor(hash(bx, row, 171) * 4)]);
+        c = Art.mix(c, [70, 40, 20], (noise(px * 0.5, py * 0.12 + row * 3, 172) - 0.5) * 0.35);
+        if (iy === 0) c = Art.hex('#5a3618'); else if (iy === 1) c = Art.mix(c, [255, 230, 190], 0.18);
+        else if (ix === 0) c = Art.hex('#6a4222');
+        if (hash(px >> 1, py, 173) < 0.012) c = Art.mix(c, [60, 30, 10], 0.4);
+        // ombre au pied des murs et sur les côtés de la pièce
+        if (en !== TER.wood && ed <= 5) c = Art.mix(c, [30, 14, 6], (6 - ed) * 0.09);
+        col = Art.mix(c, [20, 10, 4], SH[i] * 0.045);
+      } else if (t === TER.wall) {
+        // mur vu de face : poutre en haut, enduit, lambris et plinthe en bas
+        const top = tAt(tx, ty - 1) !== TER.wall, bottom = tAt(tx, ty + 1) !== TER.wall;
+        let c = Art.hex('#ead8b4');
+        c = Art.mix(c, [150, 110, 70], (fbm(px * 0.12, py * 0.12, 174) - 0.5) * 0.35 + b * 0.05);
+        if (top && ly < 4) c = Art.hex(ly === 3 ? '#3a2412' : ly === 0 ? '#4a2e16' : '#7a5230');
+        if (bottom) {
+          if (ly >= 8 && ly < 14) { c = Art.hex(((px >> 2) & 1) ? '#8a5a32' : '#7e522c'); if ((px & 3) === 0) c = Art.hex('#5a3a1e'); if (ly === 8) c = Art.hex('#a87a4a'); }
+          if (ly >= 14) c = Art.hex(ly === 15 ? '#2a1a0c' : '#4a2e16');
+        }
+        // poteaux de colombage toutes les 5 cases
+        if (tx % 5 === 0 && lx < 3 && !(top && ly < 4)) c = Art.hex(lx === 0 ? '#3a2412' : '#6a4424');
+        col = c;
+      } else if (t === TER.metal) {
+        // tôle d'acier : plaques rivetées, rainures, traces d'usure et bandes de sécurité
+        const bx = px >> 4, by = py >> 4;
+        let c = Art.hex(['#8a92a0', '#848c9a', '#9098a6', '#7e8694'][Math.floor(hash(bx, by, 175) * 4)]);
+        c = Art.mix(c, [40, 44, 56], (fbm(px * 0.1, py * 0.1, 176) - 0.5) * 0.4);
+        if ((ly === 4 || ly === 11) && lx > 2 && lx < 13) c = Art.mix(c, [255, 255, 255], 0.12);
+        if (lx === 0 || ly === 0) c = Art.hex('#4a505e'); else if (lx === 1 || ly === 1) c = Art.mix(c, [255, 255, 255], 0.25);
+        if ((lx === 2 || lx === 13) && (ly === 2 || ly === 13)) c = Art.hex('#c8ccd6');
+        if (map.hazard && map.hazard.some(([x0, y0, x1, y1]) => tx >= x0 && tx <= x1 && ty >= y0 && ty <= y1)) c = Art.hex(((px + py) >> 2) & 1 ? '#f0c020' : '#2a2a30');
+        if (hash(px >> 1, py >> 1, 177) < 0.01) c = Art.mix(c, [120, 70, 30], 0.5);
+        col = Art.mix(c, [10, 10, 16], SH[i] * 0.04);
+      } else if (t === TER.void) {
+        // hors de la pièce : noir, avec le dessus des murs au bord du parquet
+        col = Art.hex('#0e0a12');
+        if (en === TER.wood && ed <= 4) col = Art.hex(ed === 1 ? '#2a1a0e' : ed === 4 ? '#3a2614' : '#6a4a2c');
+        if (en === TER.wall && ed <= 4 && tAt(tx, ty + 1) !== TER.wall) col = Art.hex(ed === 4 ? '#3a2614' : '#6a4a2c');
+        if (en === TER.metal && ed <= 5) col = Art.hex(['#5a6070', '#3a404c', '#7a8292', '#2a2e38', '#1a1d24'][ed - 1]);
+      } else {
+        col = WATER[3];
+      }
+      put(D, j, col);
+    } }
+    lap('couleur');
+    // décor peint (fleurs, champignons)
+    const decorate = (tx, ty, kind) => {
+      const n = kind === 'mushrooms' ? 3 : 5;
+      for (let k = 0; k < n; k++) {
+        const x = tx * TS + 2 + Math.floor(hash(tx, ty, 30 + k) * 12), y = ty * TS + 3 + Math.floor(hash(tx, ty, 40 + k) * 11);
+        const set = (xx, yy, c) => { if (xx < 0 || yy < 0 || xx >= GW || yy >= GH) return; put(D, (yy * GW + xx) * 4, Art.hex(c)); };
+        if (kind === 'shells') {
+          if (k > 2) continue;
+          const r = hash(tx, ty, 60 + k);
+          if (r < 0.4) { const c = ['#ffe0e8', '#fff4e0', '#ffd0b8'][k]; set(x, y, c); set(x - 1, y + 1, c); set(x + 1, y + 1, c); set(x, y + 1, '#d8a8a8'); }
+          else if (r < 0.7) { const c = k % 2 ? '#f07a3a' : '#e85a6a'; set(x, y - 1, c); set(x - 1, y, c); set(x, y, c); set(x + 1, y, c); set(x - 1, y + 1, c); set(x + 1, y + 1, c); }
+          else { set(x, y, '#f8f4ec'); set(x + 1, y, '#e8dcc8'); }
+          continue;
+        }
+        if (kind === 'weeds') {
+          ['#7a8a3a', '#9aaa48', '#6a7a30'].forEach((c, j) => { set(x - 1 + j, y - j % 2, c); set(x - 1 + j, y + 1, '#5a6a2a'); });
+          set(x, y - 2, '#b8b858');
+        } else if (kind === 'mushrooms') {
+          set(x, y + 2, '#f4ead8'); set(x, y + 1, '#f4ead8');
+          ['#a01818', '#e04040', '#e04040', '#e04040', '#a01818'].forEach((c, i) => set(x - 2 + i, y, c));
+          set(x - 1, y - 1, '#e04040'); set(x, y - 1, '#ff7070'); set(x + 1, y - 1, '#e04040'); set(x, y, '#ffffff');
+          set(x - 2, y + 3, '#2c6a2c'); set(x + 2, y + 3, '#2c6a2c');
+        } else {
+          const cols = kind === 'flowers2' ? ['#ff9ac8', '#fff2a0', '#c8b4ff', '#ffffff'] : ['#ff5a7a', '#ffd84a', '#ffffff', '#b48aff', '#ff9a4a'];
+          const c = cols[Math.floor(hash(tx, ty, 50 + k) * cols.length)];
+          set(x, y + 2, '#2e7a2c'); set(x, y + 1, '#3a8a30');
+          set(x - 1, y, c); set(x + 1, y, c); set(x, y - 1, c); set(x, y + 1, c);
+          set(x, y, k % 2 ? '#ffe070' : '#f0a020');
+        }
+      }
+    };
+    for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+      const inf = World.info(map.rows[ty][tx]);
+      if (inf.deco && !(TH && TH.noFlowers && (inf.deco === 'flowers' || inf.deco === 'mushrooms'))) decorate(tx, ty, inf.deco);
+    }
+    // touffes d'herbe, trèfles et brindilles sur l'herbe des forêts
+    if (map.ambient === 'forest') {
+      const set = (xx, yy, c) => { if (xx >= 0 && yy >= 0 && xx < GW && yy < GH && T[yy * GW + xx] === TER.grass) put(D, (yy * GW + xx) * 4, typeof c === 'string' ? Art.hex(c) : c); };
+      const g0 = GRASS[0], g1 = GRASS[1], g2 = GRASS[2], g3 = GRASS[3], g4 = GRASS[4];
+      for (let k = 0; k < GW * GH / 90; k++) {
+        const x = Math.floor(hash(k, 1, 200) * GW), y = Math.floor(hash(k, 2, 200) * GH), r = hash(k, 3, 200);
+        if (T[y * GW + x] !== TER.grass || ED[y * GW + x] < 3) continue;
+        if (r < 0.6) { set(x, y, g0); set(x - 1, y - 1, g2); set(x + 1, y - 1, g2); set(x, y - 2, g4); set(x - 2, y - 2, g3); set(x + 2, y - 2, g3); }
+        else if (r < 0.85) { set(x, y, g2); set(x + 1, y, g2); set(x, y + 1, g2); set(x + 1, y + 1, g1); set(x - 1, y + 1, g3); }
+        else if (TH && TH.litter && r < 0.95) { const c = LITTER[Math.floor(hash(k, 4, 200) * LITTER.length)]; set(x, y, c); set(x + 1, y, c); set(x, y + 1, c); }
+        else { set(x, y, '#8a6a3a'); set(x + 1, y + 1, '#8a6a3a'); set(x + 2, y + 1, '#6a4a2a'); }
+      }
+    }
+    if (TH && TH.sparkle) {
+      const sp = TH.sparkle.map(Art.hex);
+      for (let k = 0; k < GW * GH / 60; k++) {
+        const x = Math.floor(hash(k, 5, 210) * GW), y = Math.floor(hash(k, 6, 210) * GH), i = y * GW + x;
+        if (T[i] === TER.grass || T[i] === TER.dirt || T[i] === TER.sand) put(D, i * 4, sp[k % sp.length]);
+      }
+    }
+    lap('decor');
+    // objets
+    const objs = [];
+    const solid = new Set();
+    for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+      const inf = World.info(map.rows[ty][tx]);
+      if (!inf.obj) continue;
+      const kind = (TH && TH.objMap && TH.objMap[inf.obj]) || inf.obj;
+      const o = OBJ[kind];
+      let v = Math.floor(hash(tx, ty, 60) * o.n);
+      if (inf.obj === 'tree' && kind !== 'tree') {
+        const h = hash(tx, ty, 60);
+        if (TH.trees2) { const tot = TH.trees2.reduce((a, t) => a + t[1], 0); let r = h * tot; v = TH.trees2[0][0]; for (const [tv, w] of TH.trees2) { if (r < w) { v = tv; break; } r -= w; } }
+      } else if (inf.obj === 'tree') {
+        const h = hash(tx, ty, 60);
+        if (TH) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; v = TH.trees[0][0]; for (const [tv, w] of TH.trees) { if (r < w) { v = tv; break; } r -= w; } }
+        else { v = h < 0.5 ? Math.floor(h * 6) : h < 0.82 ? 3 : h < 0.9 ? 4 : Math.floor(hash(tx, ty, 62) * 3); if (map.ambient !== 'forest') v = Math.floor(h * 3); }
+      }
+      const jx = inf.obj === 'tree' || inf.obj === 'fern' ? Math.round((hash(tx, ty, 61) - 0.5) * 4) : 0;
+      if (!World.objReady(kind, v)) { if (o.frames) for (let fr = 0; fr < o.frames; fr++) { World.objFrame(kind, v, fr); yield; } else { World.obj(kind, v); yield; } }
+      const anim = o.frames ? World.objFrames(kind, v) : null;
+      objs.push({ kind, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
+    }
+    // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
+    for (const o of map.objects || []) {
+      const D = OBJ[o.kind], vv = o.v || 0;
+      if (!World.objReady(o.kind, vv)) { if (D.frames) for (let fr = 0; fr < D.frames; fr++) { World.objFrame(o.kind, vv, fr); yield; } else { World.obj(o.kind, vv); yield; } }
+      const anim = OBJ[o.kind].frames ? World.objFrames(o.kind, o.v || 0) : null;
+      const spr = anim ? anim[0] : World.obj(o.kind, o.v || 0);
+      if (!o.walk && !o.top) for (let yy = 0; yy < o.h; yy++) for (let xx = 0; xx < o.w; xx++) solid.add((o.x + xx) + ',' + (o.y + yy));
+      const flat = o.walk || o.back;
+      objs.push({ kind: o.kind, spr, sprs: anim, fps: OBJ[o.kind].fps || 4, x: (o.x + o.w / 2) * TS + (o.ox || 0), y: (o.y + o.h) * TS - 1 + (o.oy || 0), sort: flat ? -10 + o.y * 0.01 : o.top ? 1000 : o.y + o.h - 0.5, big: !flat && !o.small && !o.top, flat: flat || o.top, tx: o.x, ty: o.y, def: o });
+    }
+    // herbes hautes
+    const tall = [];
+    for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+      const inf = World.info(map.rows[ty][tx]);
+      if (inf.tall) tall.push({ tx, ty, kind: World.tallKind(map, inf.tall), v: Math.floor(hash(tx, ty, 70) * 4) });
+    }
+    const puddles = [];
+    if (map.ambient === 'town') for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+      const t = tt[ty][tx];
+      if ((t === TER.cobble || t === TER.dirt) && hash(tx, ty, 180) < 0.11 && !World.info(map.rows[ty][tx]).solid)
+        puddles.push({ x: tx * TS + 4 + hash(tx, ty, 181) * 8, y: ty * TS + 5 + hash(tx, ty, 182) * 6, rx: 3 + hash(tx, ty, 183) * 4, ry: 1.6 + hash(tx, ty, 184) * 1.4 });
+    }
+    lap('objets');
+    // eau animée : calque limité à la zone d'eau (transparent ailleurs), 8 images
+    const WI = [];
+    let wx0 = GW, wy0 = GH, wx1 = -1, wy1 = -1;
+    for (let i = 0; i < N; i++) if (T[i] === TER.water) {
+      WI.push(i);
+      const px = i % GW, py = (i / GW) | 0;
+      if (px < wx0) wx0 = px; if (px > wx1) wx1 = px; if (py < wy0) wy0 = py; if (py > wy1) wy1 = py;
+    }
+    const lilies = [];
+    for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) if (World.info(map.rows[ty][tx]).lily) lilies.push([tx, ty]);
+    yield;
+    const ground = Art.canvas(GW, GH);
+    ground.getContext('2d').putImageData(new ImageData(base, GW, GH), 0, 0);
+    const water = WI.length ? { x: wx0, y: wy0, frames: [] } : null;
+    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof };
+    lap('sol');
+    if (!water) { map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }
+    else {
+      const NW = WI.length, BW = wx1 - wx0 + 1, BH = wy1 - wy0 + 1;
+      // parties indépendantes du temps, calculées une seule fois par pixel d'eau
+      const V0 = new Float32Array(NW), F26 = new Float32Array(NW), F27 = new Float32Array(NW), OUT = new Int32Array(NW);
+      for (let k = 0; k < NW; k++) {
+        if ((k & 2047) === 2047) yield;
+        const i = WI[k], px = i % GW, py = (i / GW) | 0;
+        V0[k] = Math.min(6, ED[i] / 3.2) + Art.bayer(px, py) * 0.6;
+        F26[k] = px * 0.06 + py * 0.4 + fbm(px * 0.03, py * 0.03, 26) * 6;
+        F27[k] = px * 0.07 + py * 0.05 + fbm(px * 0.05, py * 0.05, 27) * 5;
+        OUT[k] = ((py - wy0) * BW + (px - wx0)) * 4;
+      }
+      const NF = 8, frames = water.frames;
+      const FOAM = Art.hex(TH && TH.foam ? TH.foam[0] : '#f4feff'), FOAM2 = Art.hex(TH && TH.foam ? TH.foam[1] : '#c4f2f8'), WHITE = Art.hex(TH && TH.foam ? TH.foam[0] : '#ffffff');
+      for (let f = 0; f < NF; f++) {
+        const id = new ImageData(BW, BH), W8 = id.data;
+        const ph = f / NF, a = ph * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
+        for (let k = 0; k < NW; k++) {
+          if ((k & 2047) === 2047) yield;
+          const i = WI[k], px = i % GW, py = (i / GW) | 0, ed = ED[i], en = EN[i];
+          let v = V0[k];
+          if (ed > 4) {
+            const c1 = noise(px * 0.13 + ca * 1.4, py * 0.13 + sa * 1.4, 24), c2 = noise(px * 0.13 - ca * 1.4 + 40, py * 0.13 - sa * 1.4 + 20, 25);
+            if (Math.abs(c1 - c2) < 0.035) v -= 2;
+            if (ed > 5 && Math.sin(F26[k] + a) > 0.94) v -= 1.6;
+          }
+          let col = WATER[DW.clamp(Math.round(v), 0, 6)];
+          if (en === TER.bridge && ed <= 3) col = Art.mix(col, [10, 30, 60], 0.35);
+          if (en !== TER.bridge && en !== 255) {
+            const fo = 1.6 + 1.3 * Math.sin(a + F27[k]);
+            if (ed <= fo) col = FOAM;
+            else if (ed <= fo + 1.4) col = FOAM2;
+          }
+          if (ed > 3 && hash(px, py, 100 + f) < 0.0012) col = WHITE;
+          put(W8, OUT[k], col);
+        }
+        // nénuphars
+        const putL = (X, Y, c2) => { if (X >= wx0 && Y >= wy0 && X <= wx1 && Y <= wy1) put(W8, ((Y - wy0) * BW + (X - wx0)) * 4, c2); };
+        for (const [lx, ly] of lilies) {
+          for (let k = 0; k < 2; k++) {
+            const cx = lx * TS + 4 + Math.floor(hash(lx, ly, 120 + k) * 8), cy = ly * TS + 4 + Math.floor(hash(lx, ly, 130 + k) * 8) + (f % 4 < 2 ? 0 : (k ? 0 : 1));
+            const r = 3 + (k ? 0 : 1);
+            for (let yy = -r; yy <= r; yy++) for (let xx = -r - 1; xx <= r + 1; xx++) {
+              const dd = (xx * xx) / ((r + 1) * (r + 1)) + (yy * yy) / (r * r);
+              if (dd > 1) continue;
+              if (xx > 0 && Math.abs(yy) <= Math.max(0, xx - 1) * 0.6 && yy >= 0) continue;
+              putL(cx + xx, cy + yy, dd > 0.7 ? [30, 90, 40] : (xx + yy < -1 ? [120, 200, 90] : [70, 160, 70]));
+            }
+            if (hash(lx, ly, 140 + k) < 0.4) [[0, -1], [-1, 0], [1, 0], [0, 0]].forEach(([a2, b2]) => putL(cx - 1 + a2, cy - 1 + b2, b2 === 0 && a2 === 0 ? [255, 230, 120] : [255, 150, 200]));
+          }
+        }
+        const cv = Art.canvas(BW, BH);
+        cv.getContext('2d').putImageData(id, 0, 0);
+        frames.push(cv);
+        if (f === 0) { lap('eau'); map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }
+      }
+    }
+  }
+  // préparation immédiate (jusqu'à ce que la carte soit affichable)
+  World.prepare = map => {
+    if (map.gfx) return map.gfx;
+    const it = map._prep || (map._prep = prep(map));
+    for (;;) { const res = it.next(); if (res.done) { map._prep = null; break; } if (res.value === 'ready') break; }
+    return map.gfx;
+  };
+  // avance la préparation pendant au plus ms millisecondes ; true quand tout est prêt (eau comprise)
+  World.prepareSome = (map, ms) => {
+    if (map.gfx && !map._prep) return true;
+    const it = map._prep || (map._prep = prep(map)), t = performance.now();
+    while (performance.now() - t < ms) if (it.next().done) { map._prep = null; return true; }
+    return false;
+  };
+  World.unprepare = map => { delete map.gfx; delete map._prep; };
+
+  // ------------------------------------------------------------ herbes hautes (sprites 16x24, 3 positions de vent)
+  const TALL = { grass: ['#1c5a22', '#36923a', '#6cca58', 34], dune: ['#6a7228', '#9aac40', '#d4e07a', 18], pastel: ['#3e9a6e', '#72cc96', '#c4f4d8', 30] };
+  const tallCache = {};
+  World.tall = (kind, v, f) => {
+    const key = kind + v + f;
+    if (tallCache[key]) return tallCache[key];
+    // « grass@automne » : herbes hautes aux couleurs du thème de la zone
+    const [base, theme] = kind.split('@');
+    const [c0, c1, c2, n] = theme ? [...World.THEMES[theme].tall, TALL[base][3]] : TALL[kind];
+    const cv = Art.canvas(16, 24), x = cv.getContext('2d');
+    const cols = [Art.hex(c0), Art.hex(c1), Art.hex(c2)];
+    const blades = [];
+    for (let k = 0; k < n; k++) blades.push({ bx: Math.floor(hash(v, k, 80) * 16), by: 12 + Math.floor(hash(v, k, 81) * 12), h: 7 + Math.floor(hash(v, k, 82) * (kind === 'dune' ? 9 : 6)), dir: hash(v, k, 83) < 0.5 ? -1 : 1 });
+    blades.sort((a, b) => a.by - b.by);
+    for (const bl of blades) {
+      for (let s = 0; s <= bl.h; s++) {
+        const k = s / bl.h;
+        const sx = bl.bx + Math.round((f - 1) * k * k * 2 + bl.dir * k * 1.2);
+        const c = k < 0.3 ? cols[0] : k < 0.75 ? cols[1] : cols[2];
+        x.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+        x.fillRect(((sx % 16) + 16) % 16, bl.by - s, 1, 1);
+      }
+      if (kind === 'pastel' && hash(v, bl.bx, 84) < 0.25) { x.fillStyle = '#ffb0d0'; x.fillRect(bl.bx, bl.by - bl.h - 1, 1, 1); }
+      if (kind === 'grass' && hash(v, bl.bx + bl.by * 7, 85) < 0.07) { x.fillStyle = hash(v, bl.bx, 86) < 0.5 ? '#fff6c0' : '#ffffff'; x.fillRect(((bl.bx + (f - 1)) % 16 + 16) % 16, bl.by - bl.h - 1, 1, 1); }
+    }
+    return (tallCache[key] = cv);
+  };
+
+  World.tallKind = (map, kind) => (kind === 'grass' && World.THEMES && World.THEMES[map.theme] && World.THEMES[map.theme].tall ? kind + '@' + map.theme : kind);
+  World.PAL = PAL;
+})();

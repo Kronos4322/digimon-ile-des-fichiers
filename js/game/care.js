@@ -1,0 +1,148 @@
+'use strict';
+// =====================================================================
+//  SOINS DU PARTENAIRE (comme Digimon World 1) — Digimon de tête uniquement
+//  - FAIM (0-100) : monte avec le temps (+1 toutes les 10 min de jeu).
+//    Équilibre : 1 journée = 1440 min = +144 de faim ≈ 2 Viandes et demie (60 chacune),
+//    le DigiChamp de Tanemon en donne 3 par jour → de quoi tenir dès le début, sans surplus.
+//    À 70 : il réclame à manger. À 100 : il perd du bonheur et ne s'entraîne plus.
+//    Viande / Super Viande (SAC) ou le Restaurant de Mushroomon le nourrissent.
+//  - TOILETTES (0-100) : montent avec le temps et après chaque repas.
+//    À 75 : il faut trouver des toilettes. À 100 : petit accident sur la carte
+//    (bonheur -6). On nettoie en se plaçant devant et en appuyant sur ESPACE.
+//  Les Digimon qui ne sont pas en tête ne changent pas.
+// =====================================================================
+(function () {
+  const { UI, Audio } = DW;
+  const HUNGER_RATE = 1 / 10, NEED_RATE = 1 / 14;   // toilettes : ≈ 2 passages par jour (temps + repas)
+
+  const Care = DW.Care = {
+    toasts: [],
+    lead: () => DW.state.party[0] || null,
+    tooHungry: m => m === Care.lead() && m.hunger >= 90,
+    toast(text, col = '#ffe070') { this.toasts.push({ text, col, t: 0 }); if (this.toasts.length > 3) this.toasts.shift(); Audio.sfx('status'); },
+    // appelé à chaque image depuis l'exploration (le temps de jeu écoulé est lu sur l'horloge)
+    update(ow, dt) {
+      for (let i = this.toasts.length - 1; i >= 0; i--) if ((this.toasts[i].t += dt) > 4.5) this.toasts.splice(i, 1);
+      const st = DW.state, m = this.lead();
+      if (st.careClock == null || st.careClock > st.clock) st.careClock = st.clock;
+      const min = Math.min(600, st.clock - st.careClock);
+      if (min < 1) return;
+      st.careClock = st.clock;
+      if (!m) return;
+      const h0 = m.hunger, n0 = m.need;
+      m.hunger = Math.min(100, m.hunger + min * HUNGER_RATE);
+      m.need = Math.min(100, m.need + min * NEED_RATE);
+      if (h0 < 70 && m.hunger >= 70) this.toast(`${m.name} a faim ! (Viande : ENTRÉE → SAC)`);
+      if (h0 < 100 && m.hunger >= 100) this.toast(`${m.name} meurt de faim !`, '#ff8a8a');
+      if (m.hunger >= 100) {
+        m.starve = (m.starve || 0) + min;
+        if (m.starve >= 30) { m.starve -= 30; m.addHappy(-2); }
+      }
+      if (n0 < 75 && m.need >= 75) this.toast(`${m.name} doit aller aux toilettes !`);
+      if (m.need >= 100) this.accident(ow, m);
+      DW.Life.update(ow, min);
+    },
+    // accident : une petite crotte apparaît là où se trouve le partenaire
+    accident(ow, m) {
+      const st = DW.state;
+      m.need = 0; m.addHappy(-6);
+      const F = ow.f, x = F.moving ? F.tx : F.x, y = F.moving ? F.ty : F.y;
+      const L = st.poops[ow.mapId] = st.poops[ow.mapId] || [];
+      if (!L.some(p => p[0] === x && p[1] === y) && !(x === ow.p.x && y === ow.p.y) && L.length < 12) L.push([x, y]);
+      st.poopCount = (st.poopCount || 0) + 1;
+      this.toast(`Oh non... ${m.name} n'a pas pu se retenir ! (bonheur -6)`, '#ffb070');
+      DW.Life.mistake(m, 'accident'); DW.Life.moment('bad', 'un accident');
+    },
+    poopAt(mapId, x, y) { const L = DW.state.poops[mapId]; return !!L && L.some(p => p[0] === x && p[1] === y); },
+    async clean(mapId, x, y) {
+      const L = DW.state.poops[mapId];
+      await DW.say('Une petite crotte... Tu la ramasses et tu nettoies.');
+      L.splice(L.findIndex(p => p[0] === x && p[1] === y), 1);
+      Audio.sfx('swoosh');
+    },
+    // nourrir : renvoie un message
+    feed(m, amt) {
+      const before = m.hunger;
+      m.hunger = Math.max(0, m.hunger - amt);
+      const eaten = before - m.hunger;
+      m.need = Math.min(99, m.need + eaten * 0.5);
+      if (before >= 40) m.addHappy(3);
+      DW.Life.addFat(m, eaten / 30);
+      m.starve = 0;
+      return eaten > 0;
+    },
+    // toilettes : on peut y aller dès que l'envie est là ; plus on attend, plus le soulagement est grand
+    async toilet() {
+      const m = this.lead();
+      if (!m) { await DW.say('Des toilettes toutes propres, avec un petit lavabo. Il y a même du papier !'); return; }
+      if (m.need < 15) { await DW.say(`Des toilettes toutes propres. ${m.name} n'a pas envie pour l'instant.`); return; }
+      if ((await DW.ask(`Emmener ${m.name} aux toilettes ?`)) !== 0) return;
+      Audio.sfx('door');
+      await DW.fade(1, 0.25);
+      await DW.wait(0.5);
+      Audio.sfx('flush');
+      await DW.wait(0.7);
+      const gain = m.need >= 75 ? 6 : m.need >= 40 ? 4 : 2;
+      m.need = 0; m.addHappy(gain);
+      await DW.fade(0, 0.25);
+      await DW.say(`${m.name} ressort tout content, les mains lavées. Ouf, quel soulagement ! (bonheur +${gain})`);
+    },
+    // phrase du partenaire selon ses besoins (ou null)
+    talkLine(m) {
+      if (m !== this.lead()) return null;
+      if (m.hunger >= 90) return `${m.name} : J'ai trop faiiim... Donne-moi de la viande, s'il te plaît !`;
+      if (m.need >= 75) return `${m.name} se tortille... Il faut vite trouver des toilettes !`;
+      if (m.hunger >= 70) return `${m.name} : Mon ventre gargouille... On mange bientôt ?`;
+      return null;
+    },
+
+    // ---------------------------------------------------------- affichage
+    // bulle au-dessus du partenaire quand il a un besoin
+    drawBubble(c, m, x, y, t) {
+      if (!m || m !== this.lead()) return;
+      const icon = m.need >= 75 ? 'need' : m.hunger >= 70 ? 'food' : DW.Life.bubbleIcon(m);
+      if (!icon || Math.floor(t * 1.2) % 3 === 2) return;
+      const by = Math.round(y - 30 + Math.sin(t * 4) * 1.2);
+      c.fillStyle = '#fff'; c.strokeStyle = '#203040'; c.lineWidth = 1;
+      c.beginPath(); c.ellipse(x + 8, by, 7, 6, 0, 0, 7); c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(x + 4, by + 5); c.lineTo(x + 2, by + 9); c.lineTo(x + 7, by + 5.5); c.fill();
+      if (icon === 'food') c.drawImage(DW.Icons.item('viande'), x + 2, by - 6, 12, 12);
+      else if (icon === 'need') this.drawPoop(c, x + 8, by + 3, 0.7);
+      else if (icon === 'sick') { c.fillStyle = '#7ac040'; c.beginPath(); c.arc(x + 8, by, 3.6, 0, 7); c.fill(); c.fillStyle = '#1a2a10'; c.fillRect(x + 6, by - 1, 1, 1); c.fillRect(x + 9, by - 1, 1, 1); c.fillRect(x + 6, by + 1.5, 4, 1); }
+      else if (icon === 'hurt') { c.fillStyle = '#f0e0c8'; c.fillRect(x + 3, by - 2, 10, 4); c.fillStyle = '#d84a4a'; c.fillRect(x + 7, by - 2, 2, 4); }
+      else { c.fillStyle = '#3a5ab0'; c.font = DW.UI.font(8); c.textAlign = 'center'; c.fillText('Zz', x + 8, by + 3); }
+    },
+    drawPoop(c, x, y, s = 1) {
+      c.save(); c.translate(x, y); c.scale(s, s);
+      c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(0, 1, 6, 2, 0, 0, 7); c.fill();
+      const tiers = [[0, 0, 5.5, 2.6], [0, -2.8, 4.2, 2.2], [0.4, -5.2, 2.8, 1.8]];
+      for (const [dx, dy, rx, ry] of tiers) {
+        c.fillStyle = '#5a3a1c'; c.beginPath(); c.ellipse(dx, dy, rx, ry, 0, 0, 7); c.fill();
+        c.fillStyle = '#8a5a2c'; c.beginPath(); c.ellipse(dx - rx * 0.25, dy - ry * 0.35, rx * 0.6, ry * 0.5, 0, 0, 7); c.fill();
+      }
+      c.fillStyle = '#c89060'; c.fillRect(-2, -7, 1, 1);
+      c.restore();
+    },
+    // jauges en haut à gauche (sous le bandeau de zone)
+    drawHUD(c, m, x, y) {
+      if (!m) return;
+      UI.box(c, x, y, 58, 22);
+      const row = (yy, label, v, col, warn) => {
+        UI.text(c, label, x + 5, yy + 4, { size: 7, color: warn ? '#ff8a8a' : '#c8f0ff' });
+        UI.bar(c, x + 24, yy, 29, 4, v / 100, warn ? '#ff5a5a' : col);
+      };
+      row(y + 6, 'Faim', m.hunger, '#f0b040', m.hunger >= 70);
+      row(y + 15, 'WC', m.need, '#a07850', m.need >= 75);
+    },
+    drawToasts(c) {
+      this.toasts.forEach((o, i) => {
+        const a = Math.min(1, o.t / 0.2, (4.5 - o.t) / 0.5);
+        c.globalAlpha = Math.max(0, a);
+        const w = UI.measure(c, o.text, 8) + 16, y = DW.H - 30 - (this.toasts.length - 1 - i) * 20;
+        UI.box(c, (DW.W - w) / 2, y, w, 17);
+        UI.text(c, o.text, DW.W / 2, y + 12, { size: 8, align: 'center', color: o.col });
+        c.globalAlpha = 1;
+      });
+    },
+  };
+})();

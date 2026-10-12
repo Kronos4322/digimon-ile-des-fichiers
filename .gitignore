@@ -1,0 +1,8 @@
+# Captures générées automatiquement (dev/captures.js, dev/islandmap.js) : régénérables
+captures/
+# Fichiers système
+Thumbs.db
+desktop.ini
+.DS_Store
+__pycache__/
+node_modules/

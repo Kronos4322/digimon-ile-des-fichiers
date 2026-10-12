@@ -1,0 +1,17 @@
+/* Page du jeu : le canvas est centré et agrandi en gardant les pixels nets */
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #05060f;
+  overflow: hidden;
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  box-shadow: 0 0 40px rgba(60, 120, 255, .25);
+}
