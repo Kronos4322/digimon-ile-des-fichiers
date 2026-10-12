@@ -150,7 +150,7 @@
       return true;
     },
     // ---------------------------------------------------------- santé (accumulation de négligences)
-    // causes en cours (points par heure de jeu), pour l'affichage et pour Botamon
+    // causes en cours (points par heure de jeu), pour l'affichage et pour Koromon (le guide)
     causes(m) {
       const st = DW.state, h = Life.hour(), out = [];
       const dirt = Math.min(6, Object.values(st.poops).reduce((a, L) => a + L.length, 0));

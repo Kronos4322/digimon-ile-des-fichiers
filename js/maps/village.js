@@ -136,7 +136,7 @@
     }
     // habitants
     // (les commerçants sont dans leur boutique : on y entre par la porte)
-    m.npcs = [...STARTERS, BOTAMON];
+    m.npcs = [...STARTERS, GUIDE];
     if (has('betamon')) m.npcs.push({ sp: 'betamon', x: 22, y: 16, face: 'left', wander: 1, talk: SERVICES.betamon });
     if (has('biyomon')) m.npcs.push({ sp: 'biyomon', x: 27, y: 26, face: 'left', wander: 1, talk: SERVICES.biyomon });
     if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: 28, y: 6, face: 'left', wander: 1, talk: SERVICES.kunemon });
@@ -187,25 +187,25 @@
       DW.giveItem('viande', 5); DW.giveItem('remede', 3);
       DW.Audio.sfx('buy');
       await say('Jijimon avait laissé un colis pour toi : 5 Viandes et 3 Remèdes !');
-      await say("(Botamon, le petit Digimon noir qui se promène sur la place, connaît bien la ville : demande-lui conseil !)");
+      await say("(Koromon, le petit Digimon rose qui se promène sur la place, connaît bien la ville : demande-lui conseil !)");
       DW.autosave();
     };
   }
-  // les trois petits de la place : Koromon, Pichimon, Yuramon (Tanemon s'occupe du DigiChamp aux Champs ; Botamon, lui, est le guide)
+  // les trois bébés de la place : Botamon, Pichimon, Yuramon (Tanemon s'occupe du DigiChamp aux Champs ; Koromon, lui, est le guide qui se promène)
   const STARTERS = [
-    { sp: 'koromon', x: 16, y: 10, face: 'right', wander: 1, talk: starterTalk('koromon', "Ko-ko ! Moi c'est Koromon ! Je saute partout et je fais des bulles roses. Un jour, je serai un grand Digimon de feu !") },
+    { sp: 'botamon', x: 16, y: 10, face: 'right', wander: 1, talk: starterTalk('botamon', "Bo-bo ! Moi c'est Botamon ! Je suis tout petit, mais un jour, je serai un grand Digimon de feu !") },
     { sp: 'pichimon', x: 18, y: 11, face: 'right', wander: 1, talk: starterTalk('pichimon', "Pichi pichi ! Moi c'est Pichimon ! Je fais les plus grosses bulles de toute l'île !") },
     { sp: 'yuramon', x: 23, y: 10, face: 'left', wander: 1, talk: starterTalk('yuramon', "Fuu... Je suis Yuramon. Tu veux bien m'emmener avec toi ? J'ai peur du vent...") },
   ];
   // une fois le partenaire choisi, les autres quittent la ville
   STARTERS.forEach(n => (n.cond = s => !s.flags.starter));
 
-  // ------------------------------------------------------------ Botamon : le guide de la ville
+  // ------------------------------------------------------------ Koromon : le guide de la ville (le seul Digimon qui se promène en ville au début)
   // conseils selon la situation : d'abord l'urgent (faim, toilettes), puis les objectifs, à tour de rôle
-  async function botamonTalk() {
+  async function guideTalk() {
     const s = st(), m = s.party[0], next = T().RECRUITS.find(x => !T().has(x.id));
     const urgent = [], tips = [];
-    if (!s.flags.starter) urgent.push("Bo... bonjour ! Trois petits Digimon t'attendent ici, sur la place : Koromon, Pichimon et Yuramon. Parle-leur pour choisir ton partenaire !");
+    if (!s.flags.starter) urgent.push("Bo... bonjour ! Ko-ko ! Bonjour ! Trois bébés Digimon t'attendent ici, sur la place : Botamon, Pichimon et Yuramon. Parle-leur pour choisir ton partenaire !");
     else {
       if (m && m.hunger >= 70) urgent.push(`${m.name} a faim ! Tanemon donne 3 Viandes par jour dans son DigiChamp, au Quartier des Champs (sortie sud-ouest).`);
       if (m && m.sick) urgent.push(`${m.name} est malade ! Un Médicament le guérira (Bazar de Gotsumon), ou une nuit chez Jijimon.`);
@@ -221,12 +221,12 @@
       if (Object.values(s.bag).some(n => n >= DW.BAG_MAX)) tips.push(`Ton sac ne peut pas contenir plus de ${DW.BAG_MAX} exemplaires d'un même objet. Le surplus est mis de côté...`);
       tips.push("Jijimon te laisse dormir chez lui : ça soigne toute l'équipe.", "Ton partenaire a besoin d'aller aux toilettes de temps en temps. Sinon... gare aux accidents !");
     }
-    if (urgent.length) { await say(urgent[0], 'Botamon'); return; }
+    if (urgent.length) { await say(urgent[0], 'Koromon'); return; }
     const k = (s.flags.bota || 0) % tips.length;
     s.flags.bota = k + 1;
-    await say(tips[k], 'Botamon');
+    await say(tips[k], 'Koromon');
   }
-  const BOTAMON = { sp: 'botamon', x: 21, y: 11, face: 'left', wander: 3, talk: botamonTalk };
+  const GUIDE = { sp: 'koromon', x: 21, y: 11, face: 'left', wander: 3, talk: guideTalk };
 
   // ------------------------------------------------------------ Jijimon (dans sa maison)
   async function jijimonTalk() {

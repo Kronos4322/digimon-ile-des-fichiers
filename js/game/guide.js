@@ -111,7 +111,7 @@
     await say("Et justement, il l'est.", J);
     await TOPICS[1][1]();   // l'enquête
     await say("Je suis trop vieux pour courir l'île. Mais toi... avec un partenaire Digimon à tes côtés, tu pourrais peut-être y arriver.", J);
-    await say("Ce soir-là, seuls trois petits Digimon sont restés en ville : Koromon, Pichimon et Yuramon. Ils t'attendent sur la place. L'un d'eux sera ton partenaire.", J);
+    await say("Ce soir-là, seuls trois bébés sont restés en ville : Botamon, Pichimon et Yuramon. Ils t'attendent sur la place. (Et Koromon, notre petit guide, qui se promène partout !) L'un d'eux sera ton partenaire.", J);
     await chooseEvolution();
     await chooseBattle();
     await questions("Avant que tu sortes : as-tu des questions ? Je peux t'expliquer comment vit un Digimon, comment il devient fort...");

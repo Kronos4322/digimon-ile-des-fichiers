@@ -19,7 +19,7 @@
     tanemon: 'premier échange avec Tanemon au DigiChamp',
     gift_tanemon: 'cadeau de Tanemon reçu (sentier)',
     jiji_tanemon: 'conseil de Jijimon sur le DigiChamp entendu',
-    bota: 'prochain conseil de Botamon (compteur)',
+    bota: 'prochain conseil de Koromon, le guide de la ville (compteur)',
     cups: 'coupes du Colisée remportées { nom: true }',
     // limites quotidiennes / horaires (valeur = jour ou heure de jeu)
     meat: 'jour de la dernière récolte de Digiviande',
