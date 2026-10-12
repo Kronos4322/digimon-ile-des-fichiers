@@ -8,12 +8,34 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23f8a832%22/%3E%3Ccircle cx=%2210%22 cy=%226%22 r=%222%22 fill=%22%232ea040%22/%3E%3C/svg%3E">
+  <!-- application installable (PC : « Installer », téléphone : « Ajouter à l'écran d'accueil ») -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#08143a">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    #installer { position: fixed; right: 12px; bottom: 12px; z-index: 50; display: none; padding: 10px 14px; border: 2px solid #8ae0ff;
+      border-radius: 8px; background: #08143a; color: #fff; font: 12px 'Press Start 2P', monospace; cursor: pointer; box-shadow: 0 0 12px #2a6ad8; }
+    #installer:hover { background: #12306a; }
+  </style>
 </head>
 <body>
   <canvas id="game"></canvas>
+  <button id="installer" type="button">Installer le jeu</button>
 
   <!-- tous les scripts du jeu, dans l'ordre : voir js/scripts.js -->
   <script src="js/scripts.js"></script>
+  <script>
+    // hors ligne + mises à jour automatiques (sw.js) ; bouton d'installation quand le navigateur le permet
+    if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+    (function () {
+      const btn = document.getElementById('installer');
+      let ask = null;
+      window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ask = e; btn.style.display = 'block'; });
+      window.addEventListener('appinstalled', () => { btn.style.display = 'none'; });
+      btn.addEventListener('click', async () => { if (!ask) return; ask.prompt(); await ask.userChoice; ask = null; btn.style.display = 'none'; });
+    })();
+  </script>
 </body>
 </html>
