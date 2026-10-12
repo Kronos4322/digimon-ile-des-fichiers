@@ -6,6 +6,17 @@
 // =====================================================================
 (function () {
   const W = '#fbf6ea';
+// ---- insectes (Kuwagamon, Kabuterimon) : trois griffes en éventail
+  const claw3 = (d, x, y, ang, l, col, far) => {
+    for (let i = -1; i <= 1; i++) { const a = ang + i * 0.45; d.tube([[x, y], [x + Math.cos(a) * l, y + Math.sin(a) * l]], 1.4, 0.3, col, { shiny: true, far }); }
+  };
+  // bras segmenté : épaule → coude → main + griffes
+  const insectArm = (d, s, e, h, col, claw, far) => {
+    d.tube([s, e, h], 3.6, 2.6, col, { far, shiny: true });
+    d.circ(e[0], e[1], 2, col, { far });
+    claw3(d, h[0], h[1], Math.atan2(h[1] - e[1], h[0] - e[0]), 4.8, claw, far);
+  };
+
   Object.assign(DW.DRAW, {
     ikkakumon(d) {
       const Wt = '#eef2fa', Gy = '#aab6ce', Or = '#eaa848', Hm = '#56688c';
@@ -48,38 +59,69 @@
       d.deco.curve([[52, 33], [56, 34], [58, 38]], 0.9, '#a01818');
     },
     kuwagamon(d) {
-      const R = '#d42c2c', Rd = '#8e1a1a', S = '#cacce0', Wg = '#e8dca8';
-      d.ell(15, 30, 9, 21, Wg, 0.35, { far: true });
-      d.deco.line(10, 15, 20, 45, 0.8, '#c8b880');
-      d.tube([[31, 46], [36, 62]], 3.6, 3, Rd, { far: true });
-      d.tube([[30, 33], [43, 40]], 3.2, 2.6, Rd, { far: true });
-      d.ell(26, 36, 13, 18, R, 0, { shiny: true });
-      d.deco.line(20, 22, 30, 50, 1, Rd);
-      d.tube([[21, 46], [15, 62]], 3.8, 3, Rd);
-      d.tube([[31, 32], [46, 42]], 3.4, 3, Rd); d.poly([[45, 40], [52.5, 43], [46, 46]], S, { shiny: true });
-      d.tube([[29, 41], [43, 53]], 3.4, 3, Rd); d.poly([[42, 51], [49.5, 55], [43, 57]], S, { shiny: true });
-      d.ell(39, 16, 9, 8, R, 0, { shiny: true });
-      d.poly([[40, 10], [53, 0.5], [63.5, 5], [51, 6.5], [46, 14]], S, { shiny: true });
-      d.deco.poly([[52, 4], [54, 7.5], [56, 4]], '#8a8ca0'); d.deco.poly([[57, 4.5], [59, 8], [60, 4.5]], '#8a8ca0');
-      d.poly([[44, 19], [59, 17], [63.5, 25], [54, 22], [45, 23]], S, { shiny: true });
-      d.deco.poly([[55, 19.5], [57, 23], [59, 19.5]], '#8a8ca0');
-      d.eye(43, 14, 2.6, 2.2, '#f4e030');
-      d.deco.line(44, 21, 47, 23, 1, '#202020', { unlit: true });
+      // insecte rouge en vol : élytres dressées, ailes translucides, 4 bras griffus, mandibules noires dentelées
+      const R = '#d83a2a', Rd = '#9a2018', K = '#1e1a22', Wg = '#d4e4f6', Wl = '#8aa8d0', M = '#8a4aa8', G = '#a8a4b4';
+      d.ell(14, 17, 5.5, 15, Wg, -0.55, { far: true }); d.deco.line(10, 6, 17, 30, 0.6, Wl); d.deco.line(13, 8, 13, 28, 0.5, Wl);
+      d.ell(27, 12, 5, 14, Wg, 0.3, { far: true }); d.deco.line(25, 0, 29, 25, 0.6, Wl);
+      d.ell(19, 18, 6.6, 14, R, -0.4, { shiny: true });
+      d.ell(31, 16, 6, 13, R, 0.28, { shiny: true });
+      for (const [x, y, r] of [[16, 11, 1.3], [20, 19, 1.1], [18, 25, 0.9], [30, 9, 1.2], [32, 18, 1], [31, 24, 0.8]]) d.deco.circ(x, y, r, Rd);
+      // abdomen gris segmenté puis queue rouge pointue vers le bas
+      d.ell(29, 40, 6, 5, G, 0.2, { shiny: true });
+      for (let k = 0; k < 3; k++) d.deco.line(24 + k, 37 + k * 2, 34 - k, 38 + k * 2, 0.6, '#6a6878');
+      d.tube([[29, 44], [27.5, 52], [26, 58]], 5.6, 2.4, R);
+      for (const y of [47, 51, 55]) d.deco.line(23.5, y, 30, y - 0.5, 0.7, Rd);
+      d.poly([[23.5, 56.5], [28.5, 56.5], [26, 63.5]], R, { shiny: true });
+      // bras lointains
+      insectArm(d, [35, 30], [43, 22], [50, 28], Rd, K, true);
+      insectArm(d, [34, 37], [41, 42], [47, 48], Rd, K, true);
+      // thorax
+      d.ell(33, 32, 9, 7.5, R, -0.2, { shiny: true });
+      d.deco.curve([[27, 29], [33, 27], [39, 30]], 1, Rd);
+      // bras proches
+      insectArm(d, [31, 34], [38, 41], [43, 51], R, K, false);
+      insectArm(d, [29, 38], [32, 47], [37, 56], R, K, false);
+      // tête rayée de noir, bouche violette
+      d.ell(46, 27, 8.4, 7, R, 0.12, { shiny: true });
+      d.deco.curve([[40, 22], [43.5, 24.5], [46, 21.5]], 1.3, K); d.deco.curve([[42, 30], [45, 28.5], [48, 30.5]], 1.1, K);
+      d.deco.line(39.5, 26, 43, 26.5, 1, K);
+      d.eye(49, 24.4, 1.9, 1.6, '#f6e040');
+      d.deco.ell(51.5, 31, 3, 2, M);
+      for (const x of [50, 52, 54]) d.deco.poly([[x, 29.6], [x + 0.8, 31.6], [x + 1.6, 29.6]], '#ffffff', { unlit: true });
+      // mandibules noires dentelées, vers l'avant
+      d.poly([[50, 26], [57, 22.5], [63.5, 27], [59, 26.5], [56.5, 29], [53, 29]], K, { shiny: true });
+      d.poly([[51, 33], [58, 35.5], [62.5, 41.5], [57.5, 39], [54, 38.5]], K, { shiny: true });
+      for (const [x, y] of [[57.5, 26], [60, 27], [56.5, 37], [59, 38.5]]) d.deco.poly([[x, y], [x + 1, y + 1.6], [x + 2, y]], '#5a5466');
     },
     shellmon(d) {
-      const Sh = '#a2a8b2', Shd = '#6a707a', Pk = '#ee94b0', Hair = '#3e9a5a';
-      d.poly([[5, 58], [18, 8], [33, 4], [47, 30], [43, 58]], Sh, { tex: 0.22, round: 0.6 });
-      d.deco.curve([[13, 50], [22, 18], [30, 10]], 1.6, Shd); d.deco.curve([[22, 54], [31, 14]], 1.6, Shd); d.deco.curve([[31, 55], [39, 22]], 1.6, Shd);
-      d.tube([[44, 48], [56, 53]], 4.4, 4, Pk, { far: true }); d.circ(58, 53.5, 4, Pk, { far: true });
-      d.ell(36, 58, 6, 4, Pk, 0, { far: true });
-      d.ell(41, 44, 12, 14, Pk);
-      d.deco.ell(44, 48, 6, 7, '#f8bcd0');
-      d.ell(47, 58, 6, 4, Pk);
-      d.tube([[45, 39], [57, 34]], 4.6, 4.2, Pk); d.circ(59, 33, 4.4, Pk);
-      d.ell(47, 25, 9, 8, Pk);
-      d.blob([[38, 22], [40, 12], [46, 9], [52, 12], [56, 20], [45, 20]], Hair);
-      d.eye(51, 25.5, 2.6, 2.6, '#e02020');
-      d.deco.line(49, 31, 54, 31, 1, '#802040', { unlit: true });
+      // crabe-ermite magenta à quatre pattes, mèches jaune-vert, grosse conque bleu-gris hérissée sur le dos
+      const Pk = '#e2408c', Pd = '#a8226a', Pl = '#f47ab0', Sh = '#8a98c0', Shd = '#5a6688', Sp = '#c8d0e4', Hair = '#b8d83a', Hd = '#7a9a1e';
+      // conque (derrière)
+      d.blob([[6, 40], [8, 22], [18, 10], [30, 9], [37, 20], [36, 38], [26, 46], [12, 46]], Sh, { tex: 0.25 });
+      for (const [a, b, c] of [[[8, 22], [3, 14], [12, 18]], [[18, 10], [16, 1], [24, 9]], [[30, 9], [34, 1], [34, 12]], [[37, 20], [44, 16], [38, 26]], [[6, 34], [0, 34], [7, 40]], [[14, 44], [10, 51], [19, 46]]])
+        d.poly([a, b, c], Sp, { shiny: true });
+      d.deco.curve([[12, 40], [12, 26], [22, 18], [30, 22], [28, 32], [20, 34]], 1.4, Shd);
+      for (const [x, y] of [[16, 22], [27, 15], [23, 38]]) { d.deco.circ(x, y, 1.8, '#f0a030'); d.deco.circ(x, y, 0.8, '#7a3a10'); }
+      // pattes lointaines
+      d.tube([[30, 50], [26, 58]], 4.6, 4, Pd, { far: true }); d.ell(25, 59.5, 4, 2.4, Pd, 0, { far: true });
+      d.tube([[46, 50], [50, 58]], 4.6, 4, Pd, { far: true }); d.ell(51.5, 59.5, 4, 2.4, Pd, 0, { far: true });
+      // corps
+      d.ell(38, 46, 13, 9, Pk, 0, { shiny: true });
+      for (const [x, y, r] of [[30, 44, 1.4], [36, 50, 1.2], [42, 43, 1], [45, 51, 1.3]]) d.deco.ell(x, y, r * 1.4, r, '#7ab8f0');
+      // pattes proches (doigts ronds)
+      d.tube([[33, 52], [31, 59]], 5, 4.4, Pk); d.ell(31, 60.5, 4.6, 2.6, Pk);
+      d.tube([[48, 51], [53, 58]], 5, 4.4, Pk); d.ell(54.5, 60, 4.6, 2.6, Pk);
+      for (const x of [28.5, 31, 33.5, 52, 54.5, 57]) d.deco.circ(x, 61.6, 1, Pl);
+      // tête : grande gueule ouverte aux dents irrégulières
+      d.ell(49, 34, 11, 9, Pk, 0.1, { shiny: true });
+      d.poly([[44, 35], [61, 31], [62, 40], [46, 41]], '#5a1028');
+      for (let k = 0; k < 5; k++) { d.deco.poly([[46 + k * 3.2, 35 - k * 0.8], [47.4 + k * 3.2, 38 - k * 0.6], [48.6 + k * 3.2, 34.6 - k * 0.8]], '#fff8e8', { unlit: true }); d.deco.poly([[47 + k * 3, 41], [48.2 + k * 3, 38.4], [49.4 + k * 3, 41]], '#fff8e8', { unlit: true }); }
+      d.deco.ell(51, 39.6, 3.4, 1.2, '#e05a7a');
+      d.eye(52, 27, 2.6, 2.4, '#3a8ae0');
+      // mèches jaune-vert
+      for (const [x, y, ex, ey] of [[42, 27, 34, 17], [44, 25, 38, 14], [47, 24, 44, 13], [50, 24, 51, 14], [53, 25, 58, 17], [45, 27, 36, 24]])
+        d.tube([[x, y], [(x + ex) / 2 + 1.5, (y + ey) / 2 - 1.5], [ex, ey]], 2.6, 1.2, Hair, { shiny: true });
+      d.deco.line(40, 20, 44, 26, 0.6, Hd);
     },
     garurumon(d) {
       const Wt = '#e8f0ff', Bl = '#3a64c8', Bd = '#24408e', Sh = '#b8c8e8';

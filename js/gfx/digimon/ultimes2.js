@@ -89,22 +89,39 @@
     },
     // flamme bleue enchaînée, masque de métal
     skullmeramon(d) {
-      const F = '#4a6af0', Fd = '#2a3ab0', Fl = '#a8c8ff', M = '#9aa2b4', Ch = '#7a808e';
-      // corps de flammes bleues (silhouette en langues de feu)
-      d.poly([[18, 60], [14, 46], [16, 34], [12, 26], [18, 22], [16, 12], [24, 16], [26, 6], [32, 12], [36, 4], [40, 12], [46, 8], [46, 18], [52, 22], [48, 30], [50, 44], [46, 60]], F, { tex: 0.2 });
-      d.deco.poly([[24, 58], [21, 44], [24, 30], [30, 22], [38, 24], [42, 36], [40, 58]], Fl);
-      d.deco.poly([[28, 56], [27, 42], [31, 32], [35, 34], [36, 48], [34, 56]], '#ffffff');
-      // jambes
-      d.tube([[26, 50], [24, 61]], 6, 5, Fd, { far: true }); d.tube([[36, 50], [38, 61]], 6.4, 5.4, F);
-      // chaînes enroulées
-      for (let i = 0; i < 3; i++) { const y = 30 + i * 8; d.curve([[16, y + 2], [32, y - 2], [50, y + 3]], 2, Ch, { shiny: true }); for (let k = 0; k < 6; k++) d.deco.circ(18 + k * 6, y + (k % 2 ? -1 : 1), 1, '#c8ccd6'); }
-      d.tube([[46, 34], [58, 40], [62, 48]], 2, 2, Ch, { shiny: true }); d.ell(62, 50, 3, 3, M, 0, { shiny: true });
-      // tête : masque de métal en forme de crâne
-      d.ell(36, 15, 8, 7.4, M, 0, { shiny: true });
-      d.deco.ell(33.4, 14, 2.2, 2.6, '#1a1a2a', 0, { unlit: true }); d.deco.ell(40, 14, 2.2, 2.6, '#1a1a2a', 0, { unlit: true });
-      d.deco.ell(33.6, 14.4, 0.9, 0.9, '#ff3a3a', 0, { unlit: true }); d.deco.ell(40.2, 14.4, 0.9, 0.9, '#ff3a3a', 0, { unlit: true });
-      for (let i = 0; i < 5; i++) d.deco.rect(31 + i * 2.2, 19, 1.4, 2.2, '#f0f0f0');
-      d.deco.line(36.6, 8, 36.6, 12, 0.6, '#5a6070');
+      // colosse de flammes bleu pâle, cheveux noirs hérissés, chaînes, pantalon noir à flammes, bottes rayées à crâne
+      const F = '#b8d4f4', Fd = '#7a9cd0', Fl = '#eef6ff', Hair = '#1c2448', Pt = '#1c1c24', Fo = '#f08a20', Ch = '#d4d8e4', Bw = '#f0f0f4';
+      // bottes rayées (crâne sur le devant)
+      for (const [x, far] of [[24, true], [37, false]]) {
+        d.rect(x - 4.6, 48, 9.2, 10, Pt, { round: 0.25, far });
+        for (const y of [50, 54]) d.deco.rect(x - 4.6, y, 9.2, 1.8, Bw);
+        d.ell(x + 2, 59.6, 7, 3.2, Pt, 0, { far, shiny: true });
+        d.deco.circ(x + 3, 58.6, 2.2, Bw); d.deco.circ(x + 2.2, 58.2, 0.6, Pt); d.deco.circ(x + 3.8, 58.2, 0.6, Pt);
+      }
+      // pantalon noir à flammes
+      d.rect(21, 37, 20, 12, Pt, { round: 0.3 });
+      d.deco.poly([[26, 48], [27.5, 42], [29, 46], [30, 40], [31.5, 47]], Fo); d.deco.poly([[35, 48], [36.5, 43], [38, 46.5], [39, 41.5], [40, 48]], Fo);
+      d.deco.rect(21, 37, 20, 1.6, '#4a4a56'); d.deco.rect(29.5, 36.6, 3, 2.4, Ch);
+      // bras lointain (poing énorme)
+      d.tube([[22, 22], [15, 31], [15, 38]], 5, 4.4, Fd, { far: true }); d.circ(15, 41, 5, Fd, { far: true });
+      // torse de flammes
+      d.blob([[19, 20], [43, 20], [42, 37], [21, 37]], F, { shiny: true });
+      for (const [x, y, a] of [[19, 24, 3.4], [18, 31, 3.2], [43, 25, -0.1], [44, 32, 0.1], [26, 19, -1.7], [36, 19, -1.4]])
+        d.poly([[x, y - 2], [x + Math.cos(a) * 4, y + Math.sin(a) * 4], [x, y + 2]], Fl);
+      d.deco.curve([[24, 28], [31, 31], [38, 28]], 0.8, Fd); d.deco.line(31, 22, 31, 35, 0.6, Fd);
+      // chaînes en travers du torse
+      d.deco.curve([[19, 22], [30, 30], [42, 36]], 1.4, Ch); d.deco.curve([[42, 21], [32, 28], [21, 36]], 1.4, Ch);
+      for (let k = 0; k < 7; k++) { d.deco.circ(21 + k * 3.4, 23.2 + k * 2, 0.7, '#8a90a0'); d.deco.circ(40 - k * 3, 22.6 + k * 2.1, 0.7, '#8a90a0'); }
+      // bras proche, poing énorme et chaîne qui pend
+      d.tube([[41, 22], [48, 30], [48, 37]], 5.4, 4.6, F, { shiny: true }); d.circ(48.5, 40.5, 5.4, F, { shiny: true });
+      d.deco.curve([[44, 26], [49, 32], [46, 38]], 1.2, Ch);
+      d.tube([[52, 42], [55, 50], [54, 58]], 1.4, 1.4, Ch);
+      for (const y of [45, 49, 53, 57]) d.deco.circ(54.4, y, 0.8, '#8a90a0');
+      // tête de flammes, cheveux noirs hérissés
+      d.ell(32, 13, 6.6, 7, F, 0, { shiny: true });
+      d.poly([[24, 12], [22, 3], [27, 6], [28, -0.5], [32, 4], [36, -0.5], [37, 6], [42, 3], [40, 12], [36, 8], [28, 8]], Hair, { shiny: true });
+      d.eye(34.5, 13, 1.6, 1.4, '#e03020'); d.eye(29.5, 13, 1.5, 1.4, '#e03020');
+      d.deco.line(29, 17.6, 35.6, 17.2, 0.8, '#3a4a80', { unlit: true });
     },
     // oiseau-guerrier rouge aux grandes ailes
     garudamon(d) {

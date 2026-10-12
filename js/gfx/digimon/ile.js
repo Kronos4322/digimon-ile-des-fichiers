@@ -6,6 +6,20 @@
 (function () {
   const CL = '#f6f2e6', K = '#1a1a22';
   const legs = (d, x, y, col, far) => { d.tube([[x, y], [x, y + 8]], 4, 3.6, col, { far }); d.ell(x + 1.5, y + 9, 3.4, 1.8, col, 0, { far }); };
+// ---- insectes (Kuwagamon, Kabuterimon) : trois griffes en éventail
+  const claw3 = (d, x, y, ang, l, col, far) => {
+    for (let i = -1; i <= 1; i++) { const a = ang + i * 0.45; d.tube([[x, y], [x + Math.cos(a) * l, y + Math.sin(a) * l]], 1.4, 0.3, col, { shiny: true, far }); }
+  };
+  // bras segmenté : épaule → coude → main + griffes
+  const insectArm = (d, s, e, h, col, claw, far) => {
+    d.tube([s, e, h], 3.6, 2.6, col, { far, shiny: true });
+    d.circ(e[0], e[1], 2, col, { far });
+    claw3(d, h[0], h[1], Math.atan2(h[1] - e[1], h[0] - e[0]), 4.8, claw, far);
+  };
+
+  // lissage d'une ligne brisée (Chaikin) : corps de serpent sans angles
+  const smooth = (pts, n = 3) => { for (let k = 0; k < n; k++) { const o = [pts[0]]; for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]]; o.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]); } o.push(pts[pts.length - 1]); pts = o; } return pts; };
+
   Object.assign(DW.DRAW, {
     // ---------------------------------------------------------- Disciples
     tentomon(d) {
@@ -38,16 +52,31 @@
     },
     // ---------------------------------------------------------- Champions
     kabuterimon(d) {
-      const B = '#3a5ab8', Bd = '#24387a', Bl = '#7a9ae8', Wg = '#c8e0f0';
-      d.poly([[22, 24], [4, 6], [2, 30], [18, 36]], Wg, { far: true, shiny: true }); d.deco.line(6, 10, 18, 32, 0.6, '#8aa8c8');
-      legs(d, 26, 50, Bd, true); legs(d, 38, 50, B);
-      d.ell(32, 40, 15, 16, B, 0, { shiny: true }); d.deco.line(32, 26, 32, 54, 1, Bd); d.deco.ell(26, 32, 5, 3, Bl, -0.4);
-      d.tube([[22, 34], [16, 44], [18, 50]], 4, 3.4, Bd, { far: true });
-      d.tube([[42, 32], [50, 38], [56, 36]], 4, 3.4, B); d.tube([[42, 42], [50, 46], [56, 46]], 4, 3.4, B);
-      for (const y of [36, 46]) for (let i = 0; i < 3; i++) d.tube([[56, y], [60, y - 2 + i * 2]], 1.2, 0.5, CL);
-      d.ell(40, 20, 9, 8, B, 0, { shiny: true });
-      d.tube([[44, 14], [48, 4], [44, 0.6]], 3, 1, '#d8c070', { shiny: true });
-      d.deco.ell(44, 21, 3, 2.4, '#e03a3a', 0, { unlit: true }); d.deco.ell(44.6, 20.6, 1, 0.8, '#ffd0c0', 0, { unlit: true });
+      // insecte bleu nuit cuirassé : grande corne recourbée, bouche rouge à crocs, 4 bras, deux paires d'ailes pâles
+      const B = '#3c4c9e', Bd = '#242d68', Bl = '#7a8ad0', K = '#20202c', Wg = '#f2eec8', Wl = '#c8bc7a';
+      d.ell(15, 15, 5.4, 16, Wg, -0.6, { far: true }); d.deco.line(10, 4, 18, 30, 0.6, Wl);
+      d.ell(24, 11, 5, 15, Wg, -0.1, { far: true }); d.deco.line(23, -2, 25, 25, 0.6, Wl);
+      d.ell(30, 14, 4.6, 13, Wg, 0.4, { far: true }); d.deco.line(32, 2, 29, 26, 0.6, Wl);
+      // abdomen segmenté terminé par des griffes
+      d.tube([[29, 42], [27, 51], [25, 58]], 7, 3, B, { shiny: true });
+      for (const y of [45, 49, 53]) d.deco.line(23, y, 31.5, y - 0.6, 0.8, Bd);
+      claw3(d, 25, 58, 1.7, 5, K);
+      insectArm(d, [36, 29], [44, 22], [51, 27], Bd, K, true);
+      insectArm(d, [35, 36], [42, 41], [48, 46], Bd, K, true);
+      // thorax cuirassé
+      d.ell(33, 33, 10, 8.5, B, -0.2, { shiny: true });
+      d.deco.curve([[26, 30], [33, 27], [41, 31]], 1.1, Bd); d.deco.curve([[27, 36], [33, 34], [40, 37]], 0.9, Bd);
+      insectArm(d, [31, 35], [38, 42], [44, 51], B, K, false);
+      insectArm(d, [28, 39], [31, 48], [36, 56], B, K, false);
+      // tête et grande corne recourbée vers l'avant
+      d.ell(46, 27, 8.6, 7.4, B, 0.1, { shiny: true });
+      d.deco.ell(44, 23, 4, 2, Bl);
+      d.tube([[44, 21], [47, 12], [53, 5], [59, 4]], 4.6, 1, K, { shiny: true });
+      d.tube([[49, 20], [54, 17]], 2, 0.6, K);
+      d.eye(48.6, 25, 1.7, 1.5, '#ff5040');
+      // bouche rouge et crocs blancs
+      d.deco.ell(51.6, 31.2, 3.6, 2.4, '#d02840');
+      d.poly([[49, 30], [50.6, 35], [52, 30]], '#f8f4ea', { shiny: true }); d.poly([[53, 30.4], [54.4, 34.4], [55.6, 30.4]], '#f8f4ea', { shiny: true });
     },
     angemon(d) {
       const W = '#f8f6f0', Wd = '#c8c4b8', S = '#b8c0d0', Bl = '#3a5ad8', Sk = '#f0c8a0';
@@ -110,15 +139,25 @@
       d.deco.poly([[37, 16.6], [38, 19], [39, 16.8]], CL, { unlit: true });
     },
     seadramon(d) {
-      const B = '#3a8ad0', Bd = '#2a5a98', Bl = '#8ac8f0', O = '#f0a030';
-      d.tube([[4, 58], [14, 54], [22, 58], [32, 54], [38, 44], [36, 32], [40, 22]], 12, 9, B, { shiny: true });
-      d.deco.tube([[5, 60], [14, 56.4], [22, 60], [32, 56.4]], 4, 3, Bl);
-      for (let i = 0; i < 5; i++) d.deco.poly([[8 + i * 7, 52 - (i % 2) * 2], [10 + i * 7, 46 - (i % 2) * 2], [12 + i * 7, 52 - (i % 2) * 2]], O);
-      d.ell(46, 18, 11, 8, B, 0.1, { shiny: true });
-      d.poly([[38, 12], [44, 4], [54, 8], [56, 16], [44, 16]], '#d8c070', { shiny: true, round: 0.4 });
-      d.poly([[38, 12], [30, 4], [40, 8]], O);
-      d.deco.ell(50, 14, 2, 1.6, '#f0e040', 0, { unlit: true }); d.deco.ell(50.4, 14, 0.8, 1.1, K, 0, { unlit: true });
-      d.deco.curve([[44, 22], [52, 23], [58, 20]], 1, '#1a2a4a', { unlit: true });
+      // serpent de mer bleu-vert enroulé, nageoires rouges, grande tête cuirassée jaune, gueule ouverte
+      const T = '#2aa6b8', Td = '#16707e', Tb = '#d8f0e8', Y = '#f2c628', Yd = '#b8860e', Rf = '#e2402e';
+      const body = [[12, 2], [8, 10], [10, 20], [18, 28], [28, 30], [34, 24], [32, 16], [24, 14], [18, 20], [18, 30], [22, 40], [32, 48], [42, 50]];
+      d.tube(smooth(body), 3, 9, T, { shiny: true });
+      d.deco.tube([[20, 26], [26, 28.5], [31, 26]], 1.8, 1.4, Tb); d.deco.tube([[21, 34], [25, 42], [32, 46.5], [40, 48]], 2.2, 2.4, Tb);
+      // nageoires rouges sur le dos et nageoire de queue
+      for (const [x, y, a] of [[9, 14, -2.6], [13, 24, -2.2], [26, 31, 1.6], [36, 21, 0.2], [17, 34, 3.1], [24, 44, 2.4]])
+        d.poly([[x, y], [x + Math.cos(a) * 5, y + Math.sin(a) * 5], [x + Math.cos(a + 0.7) * 3, y + Math.sin(a + 0.7) * 3]], Rf, { shiny: true });
+      d.poly([[12, 2], [9, -1], [16, 0], [13, 5]], Rf, { shiny: true }); d.poly([[12, 3], [16, -1], [18, 4]], Rf);
+      // tête cuirassée
+      d.ell(48, 46, 10, 7.5, Y, -0.1, { shiny: true });
+      d.poly([[40, 42], [44, 33], [47, 41]], Y, { shiny: true }); d.poly([[45, 40], [51, 32], [52, 40]], Yd, { shiny: true });
+      d.poly([[52, 44], [63, 46], [56, 49]], Y, { shiny: true });
+      d.deco.line(43, 45, 56, 43.5, 0.8, Yd);
+      d.eye(50, 43, 2.2, 2, '#2a6ae0');
+      // gueule ouverte : langue violette, dents blanches
+      d.poly([[46, 50], [60, 49], [57, 57], [46, 54]], '#5a1830');
+      d.deco.ell(52, 53, 4, 1.6, '#a050c0');
+      for (const x of [48, 51, 54, 57]) d.deco.poly([[x, 49.6], [x + 0.9, 52], [x + 1.8, 49.6]], '#ffffff', { unlit: true });
     },
     gekomon(d) {
       const G = '#4aa84a', Gd = '#2e7a30', Y = '#f0d860', R = '#e04a4a';
@@ -229,16 +268,29 @@
       d.tube([[38, 34], [46, 40]], 2.6, 2, B); for (let i = 0; i < 3; i++) d.tube([[46, 40], [50, 37 + i * 3]], 1.2, 0.4, B);
     },
     megadramon(d) {
-      const P = '#8a3a8a', Pd = '#5a2460', M = '#b8c0d0', R = '#e03a3a', Wg = '#c84a4a';
-      d.poly([[26, 22], [4, 2], [10, 14], [0, 18], [12, 26], [4, 34], [22, 32]], Wg, { far: true, shiny: true });
-      d.tube([[18, 46], [8, 52], [2, 60]], 8, 2, P);
-      d.ell(30, 40, 15, 13, P, 0, { shiny: true }); d.deco.ell(34, 44, 8, 8, '#e0b0d0');
-      d.tube([[26, 50], [24, 59]], 6, 5, Pd, { far: true }); d.tube([[36, 50], [38, 59]], 6.4, 5.4, P);
-      d.tube([[40, 30], [52, 34], [60, 32]], 6, 5, M, { shiny: true }); d.poly([[60, 29], [64, 32], [60, 35]], R);
-      d.tube([[22, 30], [14, 40]], 5, 4, M, { far: true, shiny: true });
-      d.tube([[36, 30], [42, 20]], 7, 6, P);
-      d.ell(48, 14, 9, 6, M, 0.1, { shiny: true }); d.ell(56, 18, 6, 3, P, 0.2);
-      d.deco.ell(50, 13, 1.8, 1.4, R, 0, { unlit: true }); d.poly([[44, 10], [40, 2], [48, 8]], M);
+      // dragon rouge serpentin, tête de métal, deux bras-canons argentés, grandes ailes violettes déchiquetées
+      const R = '#c8322a', Rd = '#8a1c18', Bel = '#f0a83a', M = '#6a6e7a', Md = '#3a3e48', Ml = '#c8ccd6', Wv = '#5a48b0', Wd = '#3a2c80';
+      // ailes (derrière)
+      d.blob([[24, 18], [34, 4], [52, 1], [63, 6], [54, 10], [60, 14], [50, 16], [56, 21], [44, 22], [48, 28], [34, 26]], Wv, { far: true, tex: 0.2 });
+      for (const [x0, y0, x1, y1] of [[30, 18, 52, 4], [32, 21, 56, 12], [34, 24, 52, 20]]) d.deco.line(x0, y0, x1, y1, 0.7, Wd);
+      // corps serpentin rouge enroulé (ventre jaune-orangé)
+      d.tube(smooth([[26, 26], [22, 36], [24, 46], [32, 52], [39, 49], [38, 42], [31, 42], [28, 48], [30, 56], [22, 62]]), 9, 3, R, { shiny: true });
+      d.deco.tube([[24.5, 30], [22.5, 38], [25.5, 46], [32, 50]], 2.6, 2.2, Bel);
+      for (const [x, y] of [[23, 34], [23.5, 40], [26, 46], [30, 49.5]]) d.deco.line(x - 2, y, x + 2, y + 0.8, 0.6, '#c87a20');
+      // tête de métal
+      d.ell(26, 14, 8, 6.4, M, -0.2, { shiny: true });
+      d.poly([[30, 13], [44, 10], [46, 16], [32, 19]], M, { shiny: true });
+      d.poly([[31, 18], [44, 18], [41, 22], [31, 21]], Md, { shiny: true });
+      for (const x of [34, 37, 40]) d.deco.poly([[x, 17.6], [x + 0.9, 19.6], [x + 1.8, 17.6]], '#ffffff', { unlit: true });
+      d.poly([[20, 9], [14, 2], [24, 7]], Md); d.poly([[24, 8], [22, 0], [28, 7]], Md);
+      d.eye(30, 12, 1.8, 1.4, '#ffd020');
+      // épaulières et bras-canons
+      d.ell(34, 30, 6, 5, Ml, 0, { shiny: true }); d.deco.line(31, 28, 37, 32, 0.6, Md);
+      d.tube([[36, 30], [50, 33], [58, 36]], 6, 5, Ml, { shiny: true }); d.poly([[57, 32.5], [64, 37], [57, 40]], M, { shiny: true });
+      d.deco.line(42, 29, 42, 35, 0.7, Md); d.deco.line(48, 30, 48, 36.6, 0.7, Md);
+      d.tube([[34, 38], [46, 44], [54, 48]], 5.6, 4.6, Ml, { shiny: true }); d.poly([[53, 44.6], [60, 50], [52.6, 51.6]], M, { shiny: true });
+      d.deco.line(42, 39.6, 40.4, 45, 0.7, Md); d.deco.line(48, 42.6, 46.6, 48, 0.7, Md);
+      d.deco.circ(60, 36.5, 1, '#ff6030', { unlit: true }); d.deco.circ(56.6, 49.4, 1, '#ff6030', { unlit: true });
     },
     piximon(d) {
       const P = '#f0a0c0', Pd = '#d07aa0', W = '#fff4f8', Wg = '#e0f0ff';
