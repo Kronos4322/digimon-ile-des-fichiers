@@ -100,7 +100,11 @@
       if (inBlob || auto) g[y][x] = ',';
     }
     const walk = ch => ch !== '#' && ch !== 'T';
-    const near = (x, y, f) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && g[y + dy] && g[y + dy][x + dx] !== undefined && f(g[y + dy][x + dx])) return true; return false; };
+    const near = (x, y, f) => {
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++)
+        if ((dx || dy) && g[y + dy] && g[y + dy][x + dx] !== undefined && f(g[y + dy][x + dx])) return true;
+      return false;
+    };
     // nénuphars
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (g[y][x] === '~' && Hs(x, y, 4) < 0.1 && !near(x, y, c => c === '_')) g[y][x] = 'w';
     // lisière d'arbres

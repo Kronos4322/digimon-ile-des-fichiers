@@ -98,7 +98,7 @@
       UI.text(c, `${st.bits} Bits`, 148, 34, { size: 9, align: 'right' });
       const m = Math.floor(st.time / 60), h = Math.floor(m / 60);
       UI.text(c, `Temps de jeu  ${h}h${String(m % 60).padStart(2, '0')}`, 14, 47, { size: 8, color: '#8ae0f0' });
-      UI.text(c, `DigiDex  ${Object.keys(st.caught).length} / ${DW.DEX_ORDER.length}`, 14, 59, { size: 8, color: '#8ae0f0' });
+      UI.text(c, `DigiDex  ${Object.keys(st.owned).length} / ${DW.DEX_ORDER.length}`, 14, 59, { size: 8, color: '#8ae0f0' });
       const pt = st.party[0];
       if (pt) DW.Sprites.draw(c, DW.Sprites.ow(pt.sp), 130, 64, { frame: Math.floor(this.t * 2) });
       // zone + horloge
@@ -299,7 +299,12 @@
       const from = this.side ? st.bank : st.bag, have = from[id] || 0;
       let n = all ? have : Math.min(1, have);
       if (!this.side) { st.bank[id] = (st.bank[id] || 0) + n; st.bag[id] = have - n; }
-      else { n = Math.min(n, DW.bagRoom(id)); if (!n && have) { Audio.sfx('bump'); this.msg = 'Ton sac est plein pour cet objet !'; this.msgT = 2; return; } st.bag[id] = (st.bag[id] || 0) + n; st.bank[id] = have - n; }
+      else {
+        n = Math.min(n, DW.bagRoom(id));
+        if (!n && have) { Audio.sfx('bump'); this.msg = 'Ton sac est plein pour cet objet !'; this.msgT = 2; return; }
+        st.bag[id] = (st.bag[id] || 0) + n;
+        st.bank[id] = have - n;
+      }
       if (n) { Audio.sfx('buy'); this.msg = `${DW.ITEMS[id].name} x${n} ${this.side ? 'retiré' : 'déposé'}${n > 1 ? 's' : ''}`; this.msgT = 1.6; } else Audio.sfx('bump');
     }
     update() {
@@ -351,7 +356,7 @@
     draw(c) {
       const st = DW.state;
       UI.menuBg(c, this.t, 'DIGIDEX');
-      UI.text(c, `Vus : ${Object.keys(st.seen).length}   Obtenus : ${Object.keys(st.caught).length}`, 312, 17, { size: 9, align: 'right', color: '#9ab0e8' });
+      UI.text(c, `Vus : ${Object.keys(st.seen).length}   Obtenus : ${Object.keys(st.owned).length}`, 312, 17, { size: 9, align: 'right', color: '#9ab0e8' });
       UI.box(c, 8, 26, 130, 208);
       for (let k = 0; k < 12; k++) {
         const idx = this.scroll + k, sp = DW.DEX_ORDER[idx];
@@ -359,7 +364,7 @@
         const y = 42 + k * 16, seen = st.seen[sp];
         UI.text(c, String(idx + 1).padStart(3, '0'), 24, y, { size: 8, color: '#9ab0e8' });
         UI.text(c, seen ? DW.SPECIES[sp].name : '- - - - -', 46, y, { size: 10, color: seen ? '#fff' : '#6a7aa8' });
-        if (st.caught[sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(128, y - 3.5, 2.5, 0, 7); c.fill(); }
+        if (st.owned[sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(128, y - 3.5, 2.5, 0, 7); c.fill(); }
       }
       UI.cursor(c, 13, 38.5 + (this.i - this.scroll) * 16, this.t);
       const sp = DW.DEX_ORDER[this.i], d = DW.SPECIES[sp];
@@ -373,7 +378,7 @@
         d.types.forEach(t => { x += UI.typeTag(c, t, x, 153) + 3; });
         UI.tag(c, d.attr.toUpperCase(), x + 2, 153, '#4a5a90');
         UI.text(c, d.stage, 304, 148, { size: 8, align: 'right', color: '#d8f6ff' });
-        const txt = st.caught[sp] ? d.desc : 'Obtiens ce Digimon (DigiŒuf, Digivolution) pour en savoir plus.';
+        const txt = st.owned[sp] ? d.desc : 'Obtiens ce Digimon (DigiŒuf, Digivolution) pour en savoir plus.';
         UI.wrap(c, txt, 152, 9).slice(0, 6).forEach((l, i) => UI.text(c, l, 152, 178 + i * 10.5, { size: 9, color: '#e0f8ff' }));
       } else {
         UI.text(c, '???', 228, 90, { size: 20, align: 'center', bold: true, color: '#8a94c0', shadow: false });
@@ -465,7 +470,7 @@
       UI.box(c, 70, 96, 180, 24, 'dark');
       const caret = Math.floor(this.t * 2) % 2 ? '_' : ' ';
       UI.text(c, this.name + caret, 160, 113, { size: 13, align: 'center', color: '#ffd860' });
-      UI.text(c, 'Tape ton nom au clavier puis ENTRÉE', 160, 140, { size: 8, align: 'center', color: '#9ab0e8' });
+      UI.text(c, DW.Touch && DW.Touch.on ? 'Touche le champ pour écrire, puis OK' : 'Tape ton nom au clavier puis ENTRÉE', 160, 140, { size: 8, align: 'center', color: '#9ab0e8' });
       UI.text(c, `(vide = "${this.def}")`, 160, 151, { size: 8, align: 'center', color: '#6a7aa8' });
     }
   }

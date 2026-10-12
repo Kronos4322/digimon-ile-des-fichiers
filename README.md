@@ -2,63 +2,58 @@
 
 Jeu de fan non officiel inspiré de la saison 1 de Digimon Adventure, avec une ambiance visuelle
 façon *Digimon World* (sprites « pré-rendus 3D », interface bleu-canard) et une logique de jeu
-à la Pokémon (combats au tour par tour, capture, niveaux, Digivolution).
+à la Pokémon (combats au tour par tour, niveaux, Digivolution). Tout est dessiné par le code :
+aucune image officielle n'est utilisée.
 
 ## Lancer le jeu
 Double-clique sur `index.html` (navigateur récent). Internet sert uniquement aux polices.
+Pour développer : `python dev/serve.py 8766` puis ouvrir `http://localhost:8766`.
 
 ## Commandes
-| Action | Touches |
-|---|---|
-| Se déplacer | Flèches ou ZQSD |
-| Courir | Maj (Shift) |
-| Parler / interagir / valider | Espace |
-| Menu | Entrée (ou Échap) |
-| Retour | Échap ou Retour arrière |
-| Couper le son | M |
+| Action | Clavier | Manette | Écran tactile |
+|---|---|---|---|
+| Se déplacer | Flèches ou ZQSD | Croix ou stick gauche | Croix à gauche |
+| Courir | Maj (Shift) | X / Carré | COURIR |
+| Parler / interagir / valider | Espace | A / Croix | OK |
+| Menu | Entrée (ou Tab) | Y / Triangle, START | MENU |
+| Retour | Échap ou Retour arrière | B / Rond | RETOUR |
+| Couper le son | M | | |
 
+Les commandes tactiles apparaissent au premier toucher de l'écran (téléphone, tablette).
+
+## Sauvegarde
 La partie est **sauvegardée automatiquement** à chaque changement de zone, après chaque combat
-et au choix du partenaire (icône de disquette en bas à droite). « Continuer » sur l'écran titre.
+et au choix du partenaire (icône de disquette). « Continuer » sur l'écran titre.
+- Avant chaque sauvegarde, la précédente est gardée en **copie de secours** : si la dernière est abîmée,
+  le jeu charge la copie et prévient le joueur (la sauvegarde abîmée est conservée à part, jamais effacée).
+- Un Digimon d'une espèce retirée du jeu n'empêche pas le chargement : il est **mis de côté** et revient
+  si l'espèce revient.
+- « Nouvelle partie » demande confirmation quand une partie existe déjà.
 
-## Contenu actuel (v0.9)
-- **Départ en ville** : on se réveille dans la maison de Jijimon, puis on choisit son partenaire sur la place
-  (Koromon, Bukamon ou Tanemon) ; les deux autres partent explorer l'île. La ville est alors **vide** : seul **Botamon**
-  s'y promène et donne des conseils selon la situation. Un autre **Tanemon** tient le **DigiChamp** (Quartier des Champs) :
-  3 Viandes par jour. Faim : +1 toutes les 10 min de jeu (≈ 2,5 Viandes par jour), toilettes ≈ 2 fois par jour.
-- **Sac limité à 10 exemplaires par objet** : le surplus est mis de côté ; la **Banque** (à reconstruire) permet de
-  déposer et retirer les objets.
-- **Ville redessinée** : étang et ruisseau, grande fontaine, grand arbre, potager, allées, fenêtres éclairées la nuit,
-  cheminées qui fument, Digimon qui se promènent. Les futurs bâtiments restent cachés jusqu'à leur construction.
-- **Quartiers** : la ville grandit en plusieurs cartes. **Quartier des Champs** (sud-ouest) : moulin, champs, verger,
-  étang avec cascade et rondins vers un îlot. Intérieurs du Bazar, du Dojo, du Restaurant et de la Serre (DigiFerme).
-  9 habitants à retrouver (Gotsumon, Betamon, Elecmon, Mushroomon, Yokomon, Palmon, Biyomon, Kunemon, Gomamon) :
-  Ruines → Campement → Hameau → Petit village → Village → Bourg → Petite ville → Ville → Grande ville (puis Cité, Métropole, Mégapole).
-- **Combats** : jauge d'énergie et **coup spécial** de chaque Digimon (Flamme Bébé, Méga Flamme, Torpille Harpon…),
-  apprentissage des techniques **observées** chez l'ennemi, écran de comparaison avant d'oublier une technique.
-- **Zones** : chaque zone a son identité (printemps, sous-bois brumeux, prairie dorée, bois profond, automne, plage vivante),
-  Terrain d'entraînement façon Digimon World (piste ovale, panneaux à pictogrammes, jardin zen, gradins).
-- Vie de quartier : visiteurs selon l'heure, linge, enseignes qui se balancent ; flaques et reflets sous la pluie.
-- **Reconstruction** : 5 Digimon à retrouver et convaincre (souvent en les battant). Chacun construit son bâtiment :
-  Gotsumon (Plage) → Bazar · Betamon (Bois des Géants) → Fontaine de soins · Elecmon (Sentier) → Dojo ·
-  Mushroomon (Prairie, la nuit) → Restaurant · Yokomon (Clairière, après Kuwagamon) → Jardin et DigiFerme.
-  À chaque arrivée, la ville monte de niveau (0 à 5) et s'embellit : pavés réparés, fleurs, lanternes, bancs, fanions.
-- **Exploration depuis la ville** : Plage → Lisière du Ravin → Bois des Géants → Sentier des Murmures (+ Prairie des Lucioles)
-  → Clairière au cœur de la forêt, gardée par **Kuwagamon**. Les Digimon sauvages sont plus forts loin de la ville.
-- **Combats ≠ entraînement** : les combats donnent de l'EXP → le **niveau** fixe le **potentiel** (6 + 2 × niveau points
-  d'entraînement par stat, max 64). Le **Terrain d'entraînement** (au sud de la ville) remplit ce potentiel avec un
-  mini-jeu de timing (3 essais, ESPACE dans la zone verte, de plus en plus dur). Les **Digivolutions** demandent un niveau
-  + des **points d'entraînement** (+ victoires, bonheur) et se déclenchent depuis la **table des Digivolutions** (jamais automatiques).
-- **Soins du partenaire** (Digimon de tête, comme DW1) : **faim** (Viande, Super Viande, Restaurant) et **toilettes**
-  (Ville, Terrain d'entraînement, Bois des Géants). Sinon : petit accident sur la carte, bonheur en baisse, à nettoyer avec ESPACE.
-- Rencontres dans toutes les herbes hautes (une au plus tard tous les 9 pas), aucune en ville.
-- Jour/nuit, météo, carte de l'île, fiche Digimon, entraînement, sauvegarde automatique, retour à l'écran titre depuis le menu.
+## Contenu actuel (v1.4)
+- **Début de partie** : on choisit son héros parmi 7 DigiSélectionnés, cinématique (camp → Digivice → tunnel numérique →
+  chute sur l'île), réveil chez Jijimon. Le premier partenaire est un **bébé** (Botamon, Pichimon ou Yuramon).
+- **Pas de capture** : les Digimon naissent de **DigiŒufs** (Village des Bébés, un par jour) puis grandissent par
+  Digivolution et entraînement. 61 espèces, du Bébé au Méga (lignée complète Botamon → WarGreymon).
+- **Combats ≠ entraînement** : les combats donnent de l'EXP et le **niveau** ; le **Terrain d'entraînement** donne
+  des **points d'entraînement** (mini-jeu de timing, volontairement difficile). Les **Digivolutions** demandent les deux
+  et se déclenchent depuis la **table des Digivolutions** (jamais automatiques, sauf option « règles DW1 »).
+- **Combat** : PM (points de magie) au lieu des PP, jauge d'énergie et **coup spécial** de chaque Digimon, techniques
+  **observées** chez l'ennemi, écran de comparaison avant d'oublier une technique (6 au maximum), mode « Ordres »
+  (le partenaire se bat seul, façon Digimon World).
+- **Vie du partenaire** (façon DW1) : faim, toilettes, sommeil, maladie, blessure, discipline, corpulence,
+  erreurs de soin, durée de vie et renaissance.
+- **La ville se reconstruit** : chaque Digimon recruté construit son bâtiment ; la ville grandit de Ruines à Mégapole,
+  en plusieurs quartiers. Les bâtiments pas encore construits restent cachés.
+- **Grand monde** : forêt, plage, Quartier des Champs, Village des Bébés, et **16 régions de 10 sous-zones** chacune
+  (montagne, lac, marais, volcan, usine...), avec Engrenages Noirs et boss à libérer, jusqu'à Devimon.
+- **Activités** : tournois du Colisée, curling, chasse au trésor, pêche, cartes Digimon (menu ALBUM).
+- Jour/nuit, météo, carte de l'île avec zoom sur les sous-zones, voyage rapide (Biyomon).
 
 ## Organisation du code
-Voir **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** (arborescence, ordre de chargement, recettes pour ajouter
-un Digimon, une attaque, une zone). Outils : `python dev/serve.py` puis `dev/gallery.html` (sprites) et
-`dev/check.html` (vérification des cartes).
-
-## Pistes pour la suite
-- Améliorer la plage et le village au même niveau que la forêt
-- Montagne de l'Infini, Devimon, Leomon / Ogremon, l'Usine, Andromon...
-- Autres enfants DigiDestinés, Écussons et Tags
+Voir **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** : arborescence, ordre de chargement, recettes pour ajouter
+un Digimon, une attaque, une zone.
+- La liste des scripts du jeu est dans **un seul fichier** : `js/scripts.js`.
+- Outils : `dev/gallery.html` (sprites), `dev/check.html` (vérification des 177 cartes et de l'arbre des Digivolutions),
+  `node dev/tests.js` (tests de la logique : sauvegarde, combat, expérience, drapeaux).
+- Le projet est suivi avec **Git** (`git log` pour l'historique).

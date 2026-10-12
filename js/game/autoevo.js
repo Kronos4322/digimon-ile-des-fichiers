@@ -45,7 +45,7 @@
         await DW.say(`${m.name} se met à briller... Il a assez grandi : il digivolue !`);
         await DW.Game.push(new DW.EvolutionScene(m, to, { manual: true }));
         m.evolve(to);
-        st.seen[to] = st.caught[to] = true;
+        st.seen[to] = st.owned[to] = true;
         await DW.learnEvoMoves(m);
         DW.autosave();
       });

@@ -69,7 +69,7 @@
     const nm = DW.Life.reborn(m);
     DW.fade(0, 0.4);
     await Game.push(new DW.HatchScene(sp));
-    s.party[idx] = nm; s.seen[sp] = s.caught[sp] = true;
+    s.party[idx] = nm; s.seen[sp] = s.owned[sp] = true;
     await say(`${m.name} est revenu au monde en ${DW.SPECIES[sp].name} ! Ses données innées se sont renforcées.`);
     DW.autosave();
   }

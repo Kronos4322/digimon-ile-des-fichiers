@@ -42,7 +42,15 @@
       if (rs) st.heal = Array.isArray(rs) ? { map: mapId, x: rs[0], y: rs[1] } : { ...rs };
       if (DW.Story.decorate) DW.Story.decorate(this);
       // Digimon qui se promènent : position affichée interpolée
-      for (const n of this.map.npcs || []) { n.hx = n.hx != null ? n.hx : n.x; n.hy = n.hy != null ? n.hy : n.y; if (n.wander) { n.x = n.home ? n.home[0] : n.x; n.y = n.home ? n.home[1] : n.y; n.home = [n.x, n.y]; n.mv = null; n.wt = Math.random() * 3; } }
+      for (const n of this.map.npcs || []) {
+        n.hx = n.hx != null ? n.hx : n.x;
+        n.hy = n.hy != null ? n.hy : n.y;
+        if (n.wander) {
+          n.x = n.home ? n.home[0] : n.x;
+          n.y = n.home ? n.home[1] : n.y;
+          n.home = [n.x, n.y]; n.mv = null; n.wt = Math.random() * 3;
+        }
+      }
       DW.Wild.spawn(this);
       this.banner = { t: 0 };
       this.bannerT = 2.6;
@@ -216,7 +224,7 @@
     async runScript(fn) {
       if (this.locked) return;
       this.locked = true;
-      try { await fn(this); } catch (e) { console.error(e); }
+      try { await fn(this); } catch (e) { DW.reportError(e, 'script'); }
       this.locked = false;
     }
     interact() {
@@ -266,6 +274,12 @@
     }
     async battle(o) {
       const st = DW.state;
+      // toute l'équipe K.O. (après une défaite sans conséquence) : pas de combat possible
+      if (!st.party.some(m => m.hp > 0)) {
+        await DW.say("Tes Digimon sont trop épuisés pour se battre... Fais-les soigner d'abord !");
+        Audio.play(this.map.music);
+        return 'none';
+      }
       Audio.play(o.music || (o.boss ? 'boss' : 'battle'));
       await this.encounterFx({ enemy: o.enemy, bg: o.bg || this.battleKey() });
       if (!o.boss) { const zs = st.zoneSeen[this.mapId] = st.zoneSeen[this.mapId] || {}; zs[o.enemy.sp] = true; }
@@ -283,7 +297,10 @@
       Audio.play(this.map.music);
       const lead = DW.state.party[0];
       if (lead && res === 'win') DW.Life.moment('good', 'une belle victoire');
-      if (lead && lead.hp > 0 && lead.hp < lead.maxHp / 4 && !lead.hurt && Math.random() < 0.35) { lead.hurt = DW.state.clock; DW.Care.toast(`${lead.name} s'est blessé pendant le combat ! (Bandage)`, '#ff8a8a'); }
+      if (lead && lead.hp > 0 && lead.hp < lead.maxHp / 4 && !lead.hurt && Math.random() < 0.35) {
+        lead.hurt = DW.state.clock;
+        DW.Care.toast(`${lead.name} s'est blessé pendant le combat ! (Bandage)`, '#ff8a8a');
+      }
       if (res === 'lose' && !o.canLose) await this.blackout();
       else DW.autosave();
       return res;
@@ -381,7 +398,11 @@
         }
         if (e.ent === 'poop') DW.Care.drawPoop(c, e.x * TS + 8, e.y * TS + 12);
         else if (e.ent === 'npc' && e.n.pickup) this.drawPickup(c, e.n.x * TS + 8, e.n.y * TS + 13);
-        else if (e.ent === 'npc') { const n = e.n, X = n.hx != null ? n.hx : n.x, Y = n.hy != null ? n.hy : n.y; this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv); if (n.gear) DW.Story.drawGear(c, X * TS + 8, Y * TS + 15, this.t, n.sp); }
+        else if (e.ent === 'npc') {
+          const n = e.n, X = n.hx != null ? n.hx : n.x, Y = n.hy != null ? n.hy : n.y;
+          this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv);
+          if (n.gear) DW.Story.drawGear(c, X * TS + 8, Y * TS + 15, this.t, n.sp);
+        }
         else if (e.ent === 'wild') DW.Wild.draw(this, c, e.w);
         else if (e.ent === 'follower') DW.Companion.draw(this, c, pt, e.fp.x * TS + 8, e.fp.y * TS + 15);
         else { playerIdx = i; playerRect = this.drawPlayer(c, pp); }

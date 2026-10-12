@@ -97,28 +97,59 @@ window.DW = window.DW || {};
     top() { return this.stack[this.stack.length - 1]; },
   };
 
+  // ------------------------------------------------------------ erreurs
+  // Une erreur ne doit jamais figer le jeu : on la note dans la console (une seule fois par message)
+  // et on l'affiche quelques secondes en bas de l'écran, puis la boucle continue.
+  const seenErr = new Set();
+  let errShow = null;
+  DW.reportError = (e, where = '') => {
+    const text = (e && e.message) || String(e);
+    if (!seenErr.has(where + text)) { seenErr.add(where + text); console.error(`[${where || 'jeu'}]`, e); }
+    errShow = { text: `Erreur ${where ? '(' + where + ') ' : ''}: ${text}`, t: 6 };
+  };
+  window.addEventListener('error', e => DW.reportError(e.error || e.message, 'script'));
+  window.addEventListener('unhandledrejection', e => DW.reportError(e.reason, 'script'));
+  function drawError(dt) {
+    if (!errShow) return;
+    errShow.t -= dt;
+    if (errShow.t <= 0) { errShow = null; return; }
+    ctx.font = '7px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(120,0,0,0.85)'; ctx.fillRect(0, H - 12, W, 12);
+    ctx.fillStyle = '#fff'; ctx.fillText(errShow.text.slice(0, 90) + ' — voir la console (F12)', 4, H - 4);
+  }
+
   let last = performance.now();
   function frame(now) {
+    requestAnimationFrame(frame); // demandé en premier : la boucle survit à une erreur dans une scène
     const dt = Math.min(0.05, (now - last) / 1000) * (DW.timeScale || 1); // timeScale : debug
     last = now;
+    if (DW.Input.poll) DW.Input.poll(); // manettes
     const top = Game.top();
-    for (const s of Game.stack.slice()) { s.t += dt; s.tick(dt); }
-    if (top) top.update(dt);
+    for (const s of Game.stack.slice()) {
+      try { s.t += dt; s.tick(dt); } catch (e) { DW.reportError(e, s.constructor.name + '.tick'); }
+    }
+    if (top) try { top.update(dt); } catch (e) { DW.reportError(e, top.constructor.name + '.update'); }
     updateTimers(dt);
     updateFade(dt);
 
     ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
     ctx.imageSmoothingEnabled = false;
+    ctx.globalAlpha = 1;
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, W, H);
     let start = 0;
     for (let i = Game.stack.length - 1; i >= 0; i--) if (!Game.stack[i].overlay) { start = i; break; }
-    for (let i = start; i < Game.stack.length; i++) Game.stack[i].draw(ctx);
+    for (let i = start; i < Game.stack.length; i++) {
+      const s = Game.stack[i];
+      ctx.save();
+      try { s.draw(ctx); } catch (e) { DW.reportError(e, s.constructor.name + '.draw'); }
+      ctx.restore();
+    }
     if (Fade.a > 0) {
       ctx.globalAlpha = Fade.a; ctx.fillStyle = Fade.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
     }
+    drawError(dt);
     DW.Input.clear();
-    requestAnimationFrame(frame);
   }
   DW.start = () => requestAnimationFrame(t => { last = t; frame(t); });
 })();

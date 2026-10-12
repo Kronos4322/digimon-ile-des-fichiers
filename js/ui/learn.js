@@ -4,7 +4,7 @@
 //  Haut/Bas : technique à oublier (la dernière ligne = ne pas apprendre)
 //  ESPACE : confirmer   ÉCHAP : ne pas apprendre
 //  Pour la technique sélectionnée, on compare avec la nouvelle :
-//  puissance, précision, PP, élément (bonus si c'est celui du Digimon), contact/distance, effet,
+//  puissance, précision, coût en PM, élément (bonus si c'est celui du Digimon), contact/distance, effet,
 //  puis les AVANTAGES et INCONVÉNIENTS de l'échange.
 // =====================================================================
 (function () {
@@ -33,7 +33,8 @@
     if (nw.pow && !old.pow) pros.push('Inflige des dégâts (l\'ancienne n\'en fait pas)');
     if (!nw.pow && old.pow) cons.push('N\'inflige aucun dégât');
     const an = nw.acc || 100, ao = old.acc || 100;
-    if (an > ao) pros.push(`Plus précise (${nw.acc ? an + ' %' : 'infaillible'} contre ${ao} %)`); else if (an < ao) cons.push(`Moins précise (${an} % contre ${old.acc ? ao + ' %' : 'infaillible'})`);
+    if (an > ao) pros.push(`Plus précise (${nw.acc ? an + ' %' : 'infaillible'} contre ${ao} %)`);
+    else if (an < ao) cons.push(`Moins précise (${an} % contre ${old.acc ? ao + ' %' : 'infaillible'})`);
     const cn = DW.mpCost(nw), co = DW.mpCost(old);
     if (cn < co) pros.push(`Moins coûteuse (${cn} PM contre ${co})`); else if (cn > co) cons.push(`Plus coûteuse (${cn} PM contre ${co})`);
     const sn = mon.d.types.includes(nw.type), so = mon.d.types.includes(old.type);
@@ -59,12 +60,12 @@
       if (Input.hit('back')) { Audio.sfx('back'); this.close(-1); return; }
       if (Input.hit('ok')) { Audio.sfx('select'); this.close(this.i < this.mon.moves.length ? this.i : -1); }
     }
-    row(c, mv, y, sel, tag, pp) {
+    row(c, mv, y, sel, tag, cost) {
       UI.box(c, 6, y, 150, 16, sel ? 'dwsel' : 'dw');
       UI.text(c, mv.name, 12, y + 11, { size: 8, color: tag ? '#ffe070' : sel ? '#ffffff' : '#c8f0ff' });
       UI.typeTag(c, mv.type, 98, y + 4, 6);
       if (tag) UI.text(c, tag, 150, y + 11, { size: 6, align: 'right', color: '#ffe070' });
-      else if (pp != null) UI.text(c, DW.mpCost(mv) ? `${DW.mpCost(mv)} PM` : 'Gratuit', 150, y + 11, { size: 6, align: 'right', color: '#8ae0f0' });
+      else if (cost) UI.text(c, DW.mpCost(mv) ? `${DW.mpCost(mv)} PM` : 'Gratuit', 150, y + 11, { size: 6, align: 'right', color: '#8ae0f0' });
     }
     draw(c) {
       const m = this.mon, nw = this.nw, t = this.t;

@@ -117,7 +117,7 @@
           d.y += d.v * dt; d.x -= d.v * 0.25 * dt;
           if (d.y > H * (0.3 + (i % 7) / 10)) { if (Math.random() < 0.5) this.splash.push({ x: d.x, y: d.y, t: 0 }); this.drops[i] = this.drop(false); }
         }
-        if (Math.random() < dt * 0.04) { this.flash = 1; setTimeout(() => DW.Audio.sfx('thunder'), 300); }
+        if (Math.random() < dt * 0.04) { this.flash = 1; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }
       }
       for (let i = this.splash.length - 1; i >= 0; i--) { this.splash[i].t += dt; if (this.splash[i].t > 0.25) this.splash.splice(i, 1); }
       this.fog.forEach(f => { f.x += f.v * dt; if (f.x - f.r > W) f.x = -f.r; });

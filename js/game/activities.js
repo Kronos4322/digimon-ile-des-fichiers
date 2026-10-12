@@ -113,7 +113,7 @@
       if (res !== 'win') { await say(`Éliminé à la manche ${i + 1}... Entraîne-toi et reviens tenter ta chance !`); st.party.forEach(p => { if (p.hp <= 0) p.hp = 1; }); return; }
       if (i < 2) await say(`Victoire ! Manche ${i + 2} : tiens-toi prêt !`);
     }
-    Audio.sfx('caught');
+    Audio.sfx('fanfare');
     st.flags.cups = st.flags.cups || {}; const first = !st.flags.cups[cup.name]; st.flags.cups[cup.name] = true;
     st.bits += cup.prize;
     await say(`Tu remportes la ${cup.name} ! ${first ? 'Un trophée rejoint ta collection ! ' : ''}Prix : ${cup.prize} Bits et ${reward('cartes', first ? 3 : 1)} !`);

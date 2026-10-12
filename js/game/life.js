@@ -69,7 +69,14 @@
       const dirt = Object.values(st.poops).reduce((a, L) => a + L.length, 0);
       if (!m.sick && Math.random() < min * (0.0004 + (m.hunger >= 100 ? 0.002 : 0) + dirt * 0.0006)) { m.sick = st.clock; DW.Care.toast(`${m.name} a l'air malade... (Médicament)`, '#ff8a8a'); }
       // fin de vie (pour tous les Digimon de l'équipe)
-      for (const d of st.party) { Life.init(d); if (d.age >= d.lifespan && !ow.locked && !Life.reborning) { Life.reborning = true; ow.runScript(async () => { await Life.endOfLife(d); Life.reborning = false; }); return; } }
+      for (const d of st.party) {
+        Life.init(d);
+        if (d.age >= d.lifespan && !ow.locked && !Life.reborning) {
+          Life.reborning = true;
+          ow.runScript(async () => { await Life.endOfLife(d); Life.reborning = false; });
+          return;
+        }
+      }
       // règles Digimon World 1 : Digivolution selon l'âge
       if (DW.AutoEvo) DW.AutoEvo.check(ow);
     },
@@ -80,7 +87,13 @@
       const day = Math.floor(st.clock / 1440) + (Life.hour() >= WAKE ? 1 : 0);
       st.clock = day * 1440 + (forced ? WAKE + 1 : WAKE) * 60;
       st.careClock = st.clock;
-      for (const d of st.party) { Life.init(d); d.slept = st.clock; d.tired = 0; d.mp = d.maxMp; if (d.hp > 0) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.5)); d.hunger = Math.min(100, d.hunger + 30); d.need = Math.min(95, d.need + 25); }
+      for (const d of st.party) {
+        Life.init(d);
+        d.slept = st.clock; d.tired = 0; d.mp = d.maxMp;
+        if (d.hp > 0) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.5));
+        d.hunger = Math.min(100, d.hunger + 30);
+        d.need = Math.min(95, d.need + 25);
+      }
       if (m && m.hurt && !forced) { m.hurt = 0; }
       await DW.wait(0.6);
       await DW.fade(0, 0.6);
@@ -110,7 +123,7 @@
       const nm = Life.reborn(m);
       await DW.fade(1, 0.5, '#ffffff'); await DW.wait(0.3); DW.fade(0, 0.4);
       await DW.Game.push(new DW.HatchScene(nm.sp));
-      st.party[idx] = nm; st.seen[nm.sp] = st.caught[nm.sp] = true;
+      st.party[idx] = nm; st.seen[nm.sp] = st.owned[nm.sp] = true;
       await DW.say(`${m.name} renaît en ${DW.SPECIES[nm.sp].name} ! (vie n°${nm.lives + 1}) Il garde ses techniques et une partie de sa force.`);
       DW.autosave();
     },

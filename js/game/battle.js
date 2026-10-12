@@ -39,7 +39,8 @@
       this.clouds = [0, 1, 2, 3].map(i => ({ x: i * 90 + Math.random() * 40, y: 10 + Math.random() * 30, s: 0.6 + Math.random() * 0.6 }));
     }
     enter() {
-      this.run().then(async r => {
+      // une erreur pendant le combat ne doit pas laisser l'écran de combat bloqué : on le referme
+      this.run().catch(e => { DW.reportError(e, 'combat'); return 'error'; }).then(async r => {
         this.mode = 'none';
         await DW.fade(1, 0.45);
         this.close(r);
@@ -115,6 +116,7 @@
       this.hud.e = true;
       await this.msg(this.o.intro || (this.wild ? `Un ${this.enemy.name} sauvage apparaît !` : `${this.enemy.name} attaque !`));
       const idx = this.st.party.findIndex(m => m.hp > 0);
+      if (idx < 0) throw new Error('aucun Digimon en état de se battre');
       await this.sendOut(idx);
     }
     async sendOut(idx) {
@@ -374,7 +376,14 @@
           // soin : rend une part des PV max
           const n = Math.min(user.maxHp - user.hp, Math.floor(user.maxHp * mv.heal));
           if (n <= 0) await this.msg(`Les PV de ${who} sont déjà au maximum !`);
-          else { Audio.sfx('heal'); this.sparkle(uSide, '#80ff90'); const from = user.hp; user.hp += n; this.hpShow[uSide] = from; await DW.tween(this.hpShow, { [uSide]: user.hp }, 0.5); await this.msg(`${who} récupère ${n} PV !`); }
+          else {
+            Audio.sfx('heal'); this.sparkle(uSide, '#80ff90');
+            const from = user.hp;
+            user.hp += n;
+            this.hpShow[uSide] = from;
+            await DW.tween(this.hpShow, { [uSide]: user.hp }, 0.5);
+            await this.msg(`${who} récupère ${n} PV !`);
+          }
         }
         if (mv.st) await this.inflict(tSide, mv.st.s, true);
         if (mv.sc) await this.statChange(mv.sc.who === 'self' ? uSide : tSide, mv.sc.s, mv.sc.n);
@@ -466,7 +475,7 @@
       const s = this.spr[side];
       if (tm === 0) return;
       Audio.sfx(tm > 1 ? 'super' : tm < 1 ? 'weak' : 'hit');
-      s.blink = 0.45; s.pose = 'hurt'; setTimeout(() => { if (s.pose === 'hurt') s.pose = null; }, 500);
+      s.blink = 0.45; s.pose = 'hurt'; DW.wait(0.5).then(() => { if (s.pose === 'hurt') s.pose = null; });
       if (tm > 1) { this.shake = 0.5; this.flash = 0.6; }
       const c = this.center(side);
       for (let i = 0; i < 14; i++) {
@@ -503,6 +512,10 @@
       for (const s of Object.values(this.spr)) if (s.blink > 0) s.blink -= dt;
       if (this.shake > 0) this.shake -= dt;
       if (this.flash > 0) this.flash -= dt * 2;
+      if (this.banner) this.banner.t += dt;
+      // jauges d'énergie affichées : rattrapent la valeur réelle à la même vitesse quel que soit l'écran (60, 120, 144 Hz)
+      const ek = 1 - Math.pow(0.85, dt * 60);
+      for (const k of ['p', 'e']) this.energyShow[k] = DW.lerp(this.energyShow[k], this.energy[k], ek);
       for (let i = this.fxd.length - 1; i >= 0; i--) { this.fxd[i].t += dt; if (this.fxd[i].t > this.fxd[i].dur) this.fxd.splice(i, 1); }
       this.weather.update(dt);
       for (let i = this.fx.length - 1; i >= 0; i--) { this.fx[i].t += dt; if (this.fx[i].t > this.fx[i].dur) this.fx.splice(i, 1); }
@@ -567,7 +580,7 @@
         let x = 15;
         E.d.types.forEach(t => { x += UI.typeTag(c, t, x, 38, 6) + 2; });
         UI.tag(c, E.d.attr.toUpperCase(), x + 1, 38, '#4a5a90', 6);
-        if (this.st.caught[E.sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(137, 42, 2.4, 0, 7); c.fill(); }
+        if (this.st.owned[E.sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(137, 42, 2.4, 0, 7); c.fill(); }
         if (DW.sigOf(E)) this.drawEnergy(c, 'e', 12, 54, 88);
       }
       if (this.hud.p && this.active) {
@@ -587,7 +600,7 @@
       }
     }
     drawEnergy(c, side, x, y, w) {
-      const v = this.energyShow[side] = DW.lerp(this.energyShow[side], this.energy[side], 0.15), full = this.energy[side] >= 100;
+      const v = this.energyShow[side], full = this.energy[side] >= 100;
       c.fillStyle = '#0a1426'; c.fillRect(x - 1, y - 1, w + 2, 5);
       const g = c.createLinearGradient(x, 0, x + w, 0);
       g.addColorStop(0, '#ff9a3a'); g.addColorStop(1, full ? '#fff070' : '#ffd040');
@@ -598,7 +611,6 @@
     drawBanner(c) {
       const b = this.banner;
       if (!b) return;
-      b.t += 1 / 60;
       const k = Math.min(1, b.t * 4), y = b.side === 'p' ? 70 : 96;
       c.fillStyle = 'rgba(10,10,30,0.75)'; c.fillRect(0, y - 16, W, 30);
       c.fillStyle = b.side === 'p' ? '#ffb040' : '#ff5a5a'; c.fillRect(0, y - 16, W, 2); c.fillRect(0, y + 12, W, 2);

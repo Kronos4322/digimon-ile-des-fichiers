@@ -90,7 +90,10 @@
       this.streaks.forEach((s, i) => { s.r *= 1 + s.v * sp * dt; s.r += 6 * dt; if (s.r > 260) this.streaks[i] = this.streak(false); });
       // particules de l'élément (flammes, bulles, feuilles, flocons, étincelles)
       const n = this.v.glow * 26;
-      if (this.parts.length < n) this.parts.push({ x: W / 2 + (Math.random() - 0.5) * 140, y: CY + 40 + Math.random() * 40, vy: -20 - Math.random() * 40, ph: Math.random() * 6, life: 0, max: 1.4 + Math.random() * 1.6, s: 1 + Math.random() * 2 });
+      if (this.parts.length < n) this.parts.push({
+        x: W / 2 + (Math.random() - 0.5) * 140, y: CY + 40 + Math.random() * 40, vy: -20 - Math.random() * 40,
+        ph: Math.random() * 6, life: 0, max: 1.4 + Math.random() * 1.6, s: 1 + Math.random() * 2,
+      });
       this.parts.forEach(p => { p.life += dt; p.y += p.vy * dt; p.x += Math.sin(this.t * 3 + p.ph) * 12 * dt; });
       this.parts = this.parts.filter(p => p.life < p.max);
       this.shards.forEach(s => { s.t += dt; s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 30 * dt; });

@@ -154,7 +154,7 @@
       const m = new DW.Digimon(sp, 4);
       m.happy = 70;
       DW.addDigimon(m);
-      DW.Audio.sfx('caught');
+      DW.Audio.sfx('fanfare');
       await say(`${name} devient ton partenaire !`);
       await say("Génial ! On va former une super équipe, toi et moi !", name);
       // les deux autres partent explorer l'île
@@ -298,7 +298,9 @@
       // case praticable la plus proche du point d'arrivée
       const m = DW.getMap(id), free = (X, Y) => X > 0 && Y > 0 && X < m.w - 1 && Y < m.h - 1 && !DW.SOLID.has(m.rows[Y][X]);
       let best = [x, y];
-      for (let r = 0; r < 12 && !free(best[0], best[1]); r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (free(x + dx, y + dy) && !free(best[0], best[1])) best = [x + dx, y + dy];
+      for (let r = 0; r < 12 && !free(best[0], best[1]); r++)
+        for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++)
+          if (free(x + dx, y + dy) && !free(best[0], best[1])) best = [x + dx, y + dy];
       DW.ow.load(id, best[0], best[1], 'down');
       await DW.wait(0.3);
       await DW.fade(0, 0.6);

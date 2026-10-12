@@ -84,7 +84,7 @@
       this.phase = 'out';
       DW.tween(this.v, { flash: 0 }, 0.8);
       await DW.tween(this.v, { mon: 1 }, 0.6);
-      Audio.sfx('caught');
+      Audio.sfx('fanfare');
       this.phase = 'done';
       DW.tween(this.v, { glow: 0.35 }, 1.2);
     }

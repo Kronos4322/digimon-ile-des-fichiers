@@ -46,7 +46,7 @@
     const st = DW.state = DW.newState();
     st.name = 'Tai'; st.clock = 11 * 60; st.bits = 1280; st.flags.starter = 'koromon'; st.flags.tanemon = true;
     DW.Town.RECRUITS.forEach(r => (st.recruits[r.id] = true));
-    DW.DEX_ORDER.forEach((sp, i) => { st.seen[sp] = true; if (i % 3 !== 2) st.caught[sp] = true; });
+    DW.DEX_ORDER.forEach((sp, i) => { st.seen[sp] = true; if (i % 3 !== 2) st.owned[sp] = true; });
     const a = new DW.Digimon('agumon', 22); a.tr = { hp: 12, atk: 28, def: 10, spd: 8, int: 6 }; a.wins = 14; a.hunger = 35; a.need = 20;
     st.party = [a, new DW.Digimon('palmon', 18), new DW.Digimon('gabumon', 17), new DW.Digimon('gomamon', 15)];
     st.box = [new DW.Digimon('kunemon', 9), new DW.Digimon('biyomon', 12), new DW.Digimon('betamon', 10)];

@@ -55,7 +55,7 @@
       if (r !== 0) return;
       await Game.push(new DW.EvolutionScene(m, o.to, { manual: true }));
       m.evolve(o.to);
-      st.seen[o.to] = st.caught[o.to] = true;
+      st.seen[o.to] = st.owned[o.to] = true;
       await DW.learnEvoMoves(m);
       this.sel = 0;
       DW.autosave();

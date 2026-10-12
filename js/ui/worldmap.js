@@ -200,7 +200,13 @@
       if (!subs.length) return false;
       // disposition des sous-zones d'après leurs passages
       const step = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }, grid = { [subs[0]]: [0, 0] }, q = [subs[0]];
-      while (q.length) { const id = q.shift(); for (const w of DW.MAPS[id].warps) if (subs.includes(w.to) && !grid[w.to]) { grid[w.to] = [grid[id][0] + step[w.dir][0], grid[id][1] + step[w.dir][1]]; q.push(w.to); } }
+      while (q.length) {
+        const id = q.shift();
+        for (const w of DW.MAPS[id].warps) if (subs.includes(w.to) && !grid[w.to]) {
+          grid[w.to] = [grid[id][0] + step[w.dir][0], grid[id][1] + step[w.dir][1]];
+          q.push(w.to);
+        }
+      }
       const xs = Object.values(grid).map(p => p[0]), ys = Object.values(grid).map(p => p[1]), x0 = Math.min(...xs), y0 = Math.min(...ys);
       const cols = Math.max(...xs) - x0 + 1, rows = Math.max(...ys) - y0 + 1;
       const cw = 66, ch = 34, gx = 10, gy = 14, ox = Math.round((W - (cols * cw + (cols - 1) * gx)) / 2), oy = Math.round(26 + (MH - 26 - (rows * ch + (rows - 1) * gy)) / 2);
@@ -215,7 +221,10 @@
       const dir = ['left', 'right', 'up', 'down'].find(d => Input.hit(d));
       if (this.zoom) {
         const cells = this.zoom.cells, cur = cells[this.zsel];
-        if (dir) { const p = this.pick(cells.map(cl => ({ k: cl.k, x: cl.cx, y: cl.cy })), { k: cur.k, x: cur.cx, y: cur.cy }, dir); if (p) { this.zsel = cells.findIndex(cl => cl.k === p.k); Audio.sfx('move'); } }
+        if (dir) {
+          const p = this.pick(cells.map(cl => ({ k: cl.k, x: cl.cx, y: cl.cy })), { k: cur.k, x: cur.cx, y: cur.cy }, dir);
+          if (p) { this.zsel = cells.findIndex(cl => cl.k === p.k); Audio.sfx('move'); }
+        }
         if (Input.hit('back') || Input.hit('ok')) { Audio.sfx('back'); this.zoom = null; }
         return;
       }
@@ -354,9 +363,9 @@
       if (list.length) {
         const zs = this.st.zoneSeen[mapId] || {};
         list.forEach((sp, j) => {
-          const x = W - 18 - (list.length - 1 - j) * 20, seen = zs[sp] || this.st.caught[sp];
+          const x = W - 18 - (list.length - 1 - j) * 20, seen = zs[sp] || this.st.owned[sp];
           DW.Sprites.draw(c, DW.Sprites.ow(sp), x, y0 + 50, { silhouette: !seen, frame: Math.floor(this.t * 2 + j) });
-          if (this.st.caught[sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(x + 7, y0 + 30, 2, 0, 7); c.fill(); }
+          if (this.st.owned[sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(x + 7, y0 + 30, 2, 0, 7); c.fill(); }
         });
       }
       const all = Object.keys(NODES), explored = all.filter(k => this.visited(k)).length;

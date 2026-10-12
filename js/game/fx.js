@@ -75,7 +75,7 @@
     async claw(B, a, b, side) {
       await lunge(B, side, 24, 0.12);
       for (let i = 0; i < 3; i++) {
-        setTimeout(() => A.sfx('slash'), i * 70);
+        DW.wait(i * 0.07).then(() => A.sfx('slash'));
         add(B, 0.3, (c, k) => {
           const o = (i - 1) * 7, p = Math.min(1, k * 3);
           c.strokeStyle = `rgba(255,255,255,${1 - k})`; c.lineWidth = 2.2 * (1 - k) + 0.6;

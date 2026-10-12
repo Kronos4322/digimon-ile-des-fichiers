@@ -89,7 +89,7 @@
         case 'sendout': this.tone(300, t, 0.15, 'square', 0.1, null, 1200); break;
         case 'capsule': this.tone(400, t, 0.3, 'triangle', 0.2, null, 1600); break;
         case 'shake': this.tone(180, t, 0.07, 'square', 0.15); this.tone(140, t + 0.08, 0.07, 'square', 0.15); break;
-        case 'caught': this.seq(['C5', 'E5', 'G5', 'E5', 'G5', 'C6', '', 'C6'], 0.08, 'square', 0.12); break;
+        case 'fanfare': this.seq(['C5', 'E5', 'G5', 'E5', 'G5', 'C6', '', 'C6'], 0.08, 'square', 0.12); break;
         case 'ring': for (let i = 0; i < 10; i++) this.tone(i % 2 ? 1400 : 1700, t + i * 0.05, 0.05, 'square', 0.08); for (let i = 0; i < 10; i++) this.tone(i % 2 ? 1400 : 1700, t + 0.7 + i * 0.05, 0.05, 'square', 0.08); break;
         case 'roar': this.noise(t, 1.0, 0.5, 900); this.tone(90, t, 0.9, 'sawtooth', 0.2, null, 45); break;
         case 'evotick': this.tone(1600, t, 0.04, 'triangle', 0.08); break;

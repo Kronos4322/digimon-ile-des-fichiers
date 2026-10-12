@@ -39,7 +39,8 @@
         const r = this.info(id);
         if (!r.building) { await DW.say(`${DW.SPECIES[id].name} s'est installé en ville !`); await DW.say(r.role); continue; }
         const where = r.district ? ` (${DW.MAPS[r.district].name})` : '';
-        await DW.say(`${DW.SPECIES[id].name} s'est installé en ville : voici ${/^[AEIOUÉ]/.test(r.building) ? "l'" : ['Grange', 'Poste', 'Fontaine', 'Banque'].includes(r.building) ? 'la ' : 'le '}${r.building}${where} !`);
+        const art = /^[AEIOUÉ]/.test(r.building) ? "l'" : ['Grange', 'Poste', 'Fontaine', 'Banque'].includes(r.building) ? 'la ' : 'le ';
+        await DW.say(`${DW.SPECIES[id].name} s'est installé en ville : voici ${art}${r.building}${where} !`);
         await DW.say(r.role);
       }
       await DW.say(`La ville passe au niveau ${this.level()} : « ${this.levelName()} ».`);

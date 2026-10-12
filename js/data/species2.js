@@ -11,7 +11,7 @@
   const S = DW.SPECIES, M = DW.MOVES;
   const def = (id, o) => (S[id] = Object.assign({ id }, o));
   // ------------------------------------------------------------ techniques signature
-  const mv = (id, o, fx) => { M[id] = Object.assign({ acc: 95, pp: 10 }, o); M[id].fx = fx || (o.contact ? 'tackle' : 'orb'); };
+  const mv = (id, o, fx) => { M[id] = Object.assign({ acc: 95 }, o); M[id].fx = fx || (o.contact ? 'tackle' : 'orb'); };
   mv('super_choc', { name: 'Super Choc', type: 'Électrique', pow: 45, desc: 'Une petite décharge lancée par les antennes.' }, 'shock');
   mv('bulle_air', { name: "Bulle d'Air", type: 'Air', pow: 45, desc: "Gonfle ses joues et souffle une bulle d'air comprimé." }, 'tornado');
   mv('glissade', { name: 'Glissade Éclair', type: 'Glace', pow: 50, contact: true, desc: 'Glisse sur le ventre à toute allure.' }, 'dash');
@@ -28,12 +28,13 @@
   mv('fleche_solaire', { name: 'Flèche Solaire', type: 'Lumière', pow: 90, acc: 100, desc: 'Une flèche de lumière qui ne manque jamais sa cible.' }, 'orb');
   mv('griffe_fantome', { name: 'Griffe Fantôme', type: 'Ténèbres', pow: 80, contact: true, st: { s: 'par', ch: 0.2 }, desc: 'Une griffe glacée venue de l\'au-delà.' }, 'claw');
   mv('main_ombre', { name: 'Main des Ténèbres', type: 'Ténèbres', pow: 105, acc: 90, desc: 'Des griffes d\'ombre jaillissent pour transpercer l\'ennemi.' }, 'bite');
-  mv('lame_spirale', { name: 'Lame Spirale', type: 'Neutre', pow: 120, acc: 90, pp: 6, desc: 'Une tornade de lames métalliques sort de ses bras.' }, 'tornado');
-  mv('concert_noir', { name: 'Concert Ténébreux', type: 'Ténèbres', pow: 115, acc: 90, pp: 6, desc: 'Une chanson si terrible qu\'elle sape le moral de l\'ennemi.' }, 'shock');
-  mv('missile_noir', { name: 'Missile Ténébreux', type: 'Ténèbres', pow: 125, acc: 85, pp: 5, desc: 'Un missile organique lancé depuis sa colonne vertébrale.' }, 'missiles');
-  mv('salve_destructrice', { name: 'Salve Destructrice', type: 'Air', pow: 125, acc: 85, pp: 5, desc: 'Ses bras se transforment en missiles qui fondent sur la cible.' }, 'missiles');
-  mv('bombe_pixie', { name: 'Bombe Pixie', type: 'Lumière', pow: 115, acc: 95, pp: 6, desc: 'Une bombe d\'énergie lancée avec une précision redoutable.' }, 'meteor');
-  Object.assign(DW.SIG = DW.SIG || {}, {
+  mv('lame_spirale', { name: 'Lame Spirale', type: 'Neutre', pow: 120, acc: 90, desc: 'Une tornade de lames métalliques sort de ses bras.' }, 'tornado');
+  mv('concert_noir', { name: 'Concert Ténébreux', type: 'Ténèbres', pow: 115, acc: 90, desc: 'Une chanson si terrible qu\'elle sape le moral de l\'ennemi.' }, 'shock');
+  mv('missile_noir', { name: 'Missile Ténébreux', type: 'Ténèbres', pow: 125, acc: 85, desc: 'Un missile organique lancé depuis sa colonne vertébrale.' }, 'missiles');
+  mv('salve_destructrice', { name: 'Salve Destructrice', type: 'Air', pow: 125, acc: 85, desc: 'Ses bras se transforment en missiles qui fondent sur la cible.' }, 'missiles');
+  mv('bombe_pixie', { name: 'Bombe Pixie', type: 'Lumière', pow: 115, acc: 95, desc: 'Une bombe d\'énergie lancée avec une précision redoutable.' }, 'meteor');
+  // complète la table des coups spéciaux définie dans data/moves.js (chargé avant)
+  Object.assign(DW.SIG, {
     tentomon: 'super_choc', patamon: 'bulle_air', penguinmon: 'glissade', kabuterimon: 'mega_decharge', angemon: 'poing_celeste', monochromon: 'frappe_volcan',
     frigimon: 'poing_givre', leomon: 'poing_bete', ogremon: 'poing_demon', seadramon: 'souffle_glacial', gekomon: 'symphonie', drimogemon: 'foreuse',
     unimon: 'canon_aerien', centarumon: 'fleche_solaire', bakemon: 'griffe_fantome', devimon: 'main_ombre', andromon: 'lame_spirale', etemon: 'concert_noir',

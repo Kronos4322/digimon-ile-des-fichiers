@@ -196,15 +196,32 @@
       const n = this.opts.length;
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
-      if (Input.hit('ok')) {
+      if (Input.hit('ok') && !this.busy) this.choose(this.i === 1);
+    }
+    // NOUVELLE PARTIE demande confirmation si une partie existe ; CONTINUER ne lance jamais
+    // une nouvelle partie en silence quand la sauvegarde est illisible
+    async choose(cont) {
+      this.busy = true;
+      try {
+        if (cont && !DW.load()) {
+          Audio.sfx('back');
+          await DW.say('Impossible de lire la sauvegarde... Elle est conservée telle quelle : rien n\'a été effacé.');
+          return;
+        }
+        if (!cont && this.info && (await DW.ask('Une partie est déjà sauvegardée. Elle sera remplacée dès ta prochaine sauvegarde. Commencer quand même ?', ['Non', 'Oui'])) !== 1) return;
         Audio.sfx('evolve');
-        const cont = this.i === 1;
         this.wipe = { t: 0, done: () => {
-          if (cont && DW.load()) { DW.fade(1, 0.01).then(() => DW.startGame(false)); return; }
+          if (cont) {
+            DW.fade(1, 0.01).then(() => {
+              DW.startGame(false);
+              if (DW.loadNote && DW.ow) { const note = DW.loadNote; DW.ow.runScript(() => DW.say(note)); }
+            });
+            return;
+          }
           DW.state = DW.newState();
           DW.fade(1, 0.01).then(() => { Game.replaceAll(new DW.IntroScene()); DW.fade(0, 0.6); });
         } };
-      }
+      } finally { this.busy = false; }
     }
     tick(dt) {
       const t = this.t;
