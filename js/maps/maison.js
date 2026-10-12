@@ -8,6 +8,7 @@
 
   DW.MAPS.maison = {
     name: 'Maison de Jijimon', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
+    wall: { base: '#f2dcbc', alt: '#e6cba4', pattern: 'stripes', wood: '#8a5a32' },
     rows: [
       '0'.repeat(16),
       rle('0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 0'),
@@ -33,6 +34,8 @@
       { kind: 'chest', x: 14, y: 7, w: 1, h: 1, small: true },
       { kind: 'plant', v: 0, x: 1, y: 10, w: 1, h: 1, small: true }, { kind: 'plant', v: 1, x: 14, y: 10, w: 1, h: 1, small: true },
       { kind: 'staff', x: 11, y: 8, w: 1, h: 1, small: true },
+      { kind: 'armchair', v: 0, x: 9, y: 5, w: 1, h: 1, small: true }, { kind: 'floorlamp', x: 13, y: 9, w: 1, h: 1, small: true },
+      { kind: 'cushion', v: 2, x: 4, y: 9, w: 1, h: 1, small: true }, { kind: 'poster', v: 0, x: 5, y: 1, w: 1, h: 1, back: true, oy: 15 },
     ],
     npcs: [{ sp: 'jijimon', x: 10, y: 6, face: 'left', talk: () => DW.Story.jijimonTalk() }],
     warps: [{ x: 7, y: 11, w: 2, h: 1, dir: 'down', to: 'village', tx: 19, ty: 6 }],

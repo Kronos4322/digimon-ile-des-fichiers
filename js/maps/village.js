@@ -20,6 +20,7 @@
     yokomon: { kind: 'garden', x: 29, y: 19, w: 5, h: 3, in: ['serre_in', 7, 9], sign: [3, 34, 21] },
   };
   const FREE_LOT = { x: 24, y: 23, w: 5, h: 3 };
+  const NORTH_LEVEL = 3;   // ouverture du Quartier Résidentiel (maps/quartiers.js)
   const BANK = { x: 23, y: 3, w: 5, h: 3 };
 
   // ------------------------------------------------------------ construction de la carte
@@ -99,6 +100,12 @@
       vacant.forEach((L, i) => { g.scatter('j', L.x, L.y, L.w, L.h, 9, 40 + i, ['.']); g.scatter('r', L.x, L.y, L.w, L.h, 1, 50 + i, ['.']); });
       g.rect(17, 3, 6, 3, '.');
       g.rect(BANK.x, BANK.y + BANK.h, BANK.w + 1, 1, '.'); // devant la banque : passage dégagé
+      // route du nord vers le Quartier Résidentiel : elle n'existe qu'une fois le quartier construit (niveau 3)
+      if (lvl >= NORTH_LEVEL) {
+        g.rect(11, 0, 2, 10, road);
+        for (const [x, y] of [[9, 2], [10, 2], [13, 2], [14, 2]]) g.set(x, y, 'K');
+        if (has('gotsumon')) g.set(13, 8, 'a');
+      }
       // panneaux
       g.set(4, 12, 'S'); g.set(18, 26, 'S'); g.set(7, 25, 'S');
     });
@@ -112,6 +119,7 @@
     if (has('biyomon')) m.objects.push({ kind: 'poste', ...FREE_LOT }, { kind: 'hangsign', v: 4, x: 29, y: 25, w: 1, h: 1, small: true });
     if (has('kunemon')) m.objects.push({ kind: 'bank', ...BANK });
     if (lvl >= 1) m.objects.push({ kind: 'laundry', x: 14, y: 7, w: 3, h: 1 });
+    if (lvl >= NORTH_LEVEL) m.objects.push({ kind: 'districtgate', v: 0, x: 9, y: 0, w: 6, h: 3, top: true });
     // clôtures : jardins des maisons (réparées à partir du niveau 2)
     if (lvl >= 2) {
       m.objects.push({ kind: 'fence', v: 4, x: 33, y: 25, w: 4, h: 1, oy: 0 });
@@ -323,7 +331,7 @@
     build,
     onEnter: () => DW.Town.reveal(),
     rows: null, objects: [], npcs: [],
-    warps: [{ x: 0, y: 13, w: 1, h: 3, dir: 'left', to: 'plage', tx: 39, ty: 1 }, { x: 19, y: 29, w: 2, h: 1, dir: 'down', to: 'gym', tx: 15, ty: 0 },
+    warps: [{ x: 0, y: 13, w: 1, h: 3, dir: 'left', to: 'plage', tx: 39, ty: 1 }, { x: 11, y: 0, w: 2, h: 1, dir: 'up', to: 'residentiel', tx: 23, ty: 33 }, { x: 19, y: 29, w: 2, h: 1, dir: 'down', to: 'gym', tx: 15, ty: 0 },
       { x: 5, y: 29, w: 2, h: 1, dir: 'down', to: 'champs', tx: 5, ty: 0 }],
     doors: [],
     // la route de l'est (Montagne de l'Infini) est gardée par la porte de région (regions.js : GATE.montagne)

@@ -25,6 +25,46 @@
   };
   const put = (D, i, c, k = 1) => { D[i] = c[0] * k; D[i + 1] = c[1] * k; D[i + 2] = c[2] * k; D[i + 3] = 255; };
 
+  // ------------------------------------------------------------ sols et murs d'intérieur stylés
+  // map.floor = { type: 'tile' | 'tatami' | 'stone' | 'carpet' | 'herring', cols: [couleur claire, couleur foncée, joint] }
+  // map.wall  = { base, alt, pattern: 'stripes' | 'dots' | 'diamond' | 'brick' | 'plain', wood: lambris }
+  function floorPx(F, px, py, lx, ly, ed, en, sh, b) {
+    const [A, B, J] = [F.c[0] || [220, 200, 170], F.c[1] || [190, 170, 140], F.c[2] || [120, 100, 80]];
+    let c;
+    if (F.type === 'tile') {               // carrelage en damier, joints, petit reflet
+      const tx = px >> 3, ty = py >> 3, ix = px & 7, iy = py & 7;
+      c = (tx + ty) & 1 ? B : A;
+      if (ix === 0 || iy === 0) c = J; else if (ix === 1 && iy > 1 && iy < 4) c = Art.mix(c, [255, 255, 255], 0.35);
+    } else if (F.type === 'tatami') {      // tatamis 32×16 alternés, bordure tressée
+      const row = py >> 4, vert = (row + (px >> 5)) & 1, ix = vert ? (py & 15) : (px & 31), iy = vert ? (px & 31) : (py & 15);
+      c = Art.mix(A, B, (hash(px >> 1, py, 180) - 0.5) * 0.3 + ((vert ? px : py) & 1) * 0.12);
+      if (iy === 0 || iy === 15) c = J; else if (iy === 1 || iy === 14) c = Art.mix(c, J, 0.45);
+      if (ix === 0) c = Art.mix(J, [0, 0, 0], 0.3);
+    } else if (F.type === 'stone') {       // dalles irrégulières
+      const row = Math.floor(py / 10), off = (row & 1) * 7, bx = Math.floor((px + off) / 14), ix = (px + off) % 14, iy = py % 10;
+      c = Art.mix(A, B, hash(bx, row, 181));
+      if (ix === 0 || iy === 0) c = J; else if (ix === 1 || iy === 1) c = Art.mix(c, [255, 255, 255], 0.18);
+    } else if (F.type === 'herring') {     // parquet en chevrons
+      const k = ((px >> 2) + (py >> 3)) & 1, s = (k ? px + py : px - py) & 15;
+      c = Art.mix(A, B, hash(Math.floor((px + (k ? py : -py)) / 16), k, 182) * 0.8);
+      if (s === 0) c = J;
+    } else {                               // moquette (carpet) : uni, grain fin, frise sur les bords
+      c = Art.mix(A, B, (hash(px, py, 183) - 0.5) * 0.25 + 0.2);
+      if (ed >= 2 && ed <= 3 && en !== TER.wood) c = J;
+    }
+    c = Art.mix(c, [40, 30, 20], b * 0.04);
+    if (en !== TER.wood && ed <= 5) c = Art.mix(c, [30, 14, 6], (6 - ed) * 0.08);
+    return Art.mix(c, [20, 10, 4], sh * 0.045);
+  }
+  function wallPx(W, px, py) {
+    const p = W.pattern;
+    if (p === 'stripes') return ((px >> 2) % 3) ? W.base : W.alt;
+    if (p === 'dots') return ((px & 7) === 3 && (py & 7) === 3) || ((px & 7) === 7 && (py & 7) === 7) ? W.alt : W.base;
+    if (p === 'diamond') { const x = px & 15, y = py & 15; return Math.abs(x - 8) + Math.abs(y - 8) === 7 ? W.alt : W.base; }
+    if (p === 'brick') { const row = py >> 2, ix = (px + (row & 1) * 4) & 7; return (py & 3) === 0 || ix === 0 ? W.alt : W.base; }
+    return W.base;
+  }
+
   // ------------------------------------------------------------ préparation d'une carte
   // Générateur : rend la main régulièrement (yield) pour pouvoir préparer une carte
   // par petites tranches pendant le jeu (cartes voisines préparées à l'avance).
@@ -50,6 +90,9 @@
     const DIRT = TH && TH.dirt ? TH.dirt.map(Art.hex) : PAL.dirt, SAND = TH && TH.sand ? TH.sand.map(Art.hex) : PAL.sand;
     const WET = TH && TH.wet ? TH.wet.map(Art.hex) : PAL.wet, WATER = TH && TH.water ? TH.water.map(Art.hex) : PAL.water;
     const CLIFF = TH && TH.cliff ? TH.cliff.map(Art.hex) : PAL.cliff, ROCKY = TH && TH.canopyStyle === 'rock';
+    // intérieurs : style du sol (map.floor) et des murs (map.wall) ; sans style = parquet et enduit d'origine
+    const FLOOR = map.floor ? { ...map.floor, c: (map.floor.cols || []).map(Art.hex) } : null;
+    const WALL = map.wall ? { ...map.wall, base: Art.hex(map.wall.base || '#ead8b4'), alt: Art.hex(map.wall.alt || map.wall.base || '#ead8b4'), wood: map.wall.wood ? Art.hex(map.wall.wood) : null } : null;
     const HARD = new Set([TER.cliff, TER.bridge, TER.stairs, TER.stone, TER.cobble, TER.wood, TER.wall, TER.void, TER.metal]);
     // terrain au pixel (frontières organiques)
     const T = new Uint8Array(N);
@@ -256,6 +299,8 @@
         if (bb <= 1 || bb >= 14) c = Art.hex(bb === 0 || bb === 15 ? '#4a2c14' : '#6a4422');
         if ((bb === 3 || bb === 12) && a % 4 === 1) c = Art.hex('#d8d0c0');
         col = c;
+      } else if (t === TER.wood && FLOOR) {
+        col = floorPx(FLOOR, px, py, lx, ly, ed, en, SH[i], b);
       } else if (t === TER.wood) {
         // parquet : lames de longueur variable, joints sombres, veinage
         const row = Math.floor(py / 5), off = Math.floor(hash(row, 7, 170) * 40), bx = Math.floor((px + off) / 22);
@@ -271,11 +316,14 @@
       } else if (t === TER.wall) {
         // mur vu de face : poutre en haut, enduit, lambris et plinthe en bas
         const top = tAt(tx, ty - 1) !== TER.wall, bottom = tAt(tx, ty + 1) !== TER.wall;
-        let c = Art.hex('#ead8b4');
-        c = Art.mix(c, [150, 110, 70], (fbm(px * 0.12, py * 0.12, 174) - 0.5) * 0.35 + b * 0.05);
+        let c = WALL ? wallPx(WALL, px, py) : Art.hex('#ead8b4');
+        c = Art.mix(c, [150, 110, 70], (fbm(px * 0.12, py * 0.12, 174) - 0.5) * (WALL ? 0.18 : 0.35) + b * 0.05);
         if (top && ly < 4) c = Art.hex(ly === 3 ? '#3a2412' : ly === 0 ? '#4a2e16' : '#7a5230');
         if (bottom) {
-          if (ly >= 8 && ly < 14) { c = Art.hex(((px >> 2) & 1) ? '#8a5a32' : '#7e522c'); if ((px & 3) === 0) c = Art.hex('#5a3a1e'); if (ly === 8) c = Art.hex('#a87a4a'); }
+          if (ly >= 8 && ly < 14) {
+            if (WALL && WALL.wood) { c = Art.mix(WALL.wood, [0, 0, 0], ((px >> 2) & 1) ? 0 : 0.08); if ((px & 3) === 0) c = Art.mix(WALL.wood, [20, 10, 0], 0.4); if (ly === 8) c = Art.mix(WALL.wood, [255, 255, 255], 0.25); }
+            else { c = Art.hex(((px >> 2) & 1) ? '#8a5a32' : '#7e522c'); if ((px & 3) === 0) c = Art.hex('#5a3a1e'); if (ly === 8) c = Art.hex('#a87a4a'); }
+          }
           if (ly >= 14) c = Art.hex(ly === 15 ? '#2a1a0c' : '#4a2e16');
         }
         // poteaux de colombage toutes les 5 cases

@@ -134,6 +134,13 @@
     await safe('champs 0', async () => { DW.state.recruits = {}; await DEV.map('champs', 5, 3, 11); await save('champs_debut', DEV.last, 'Quartier des Champs au début (DigiChamp de Tanemon)', true); });
     DW.Town.RECRUITS.forEach(r => (DW.state.recruits[r.id] = true));
 
+    section('La mégapole : quartiers périphériques', 'Ouverts au fil des niveaux de la ville ; chaumières, étals, tours de données. Ici : ville au complet.');
+    for (const [id, cap] of [['residentiel', 'Quartier Résidentiel (hameau de chaumières)'], ['marche', 'Quartier du Marché'], ['numerique', 'Quartier Numérique']].filter(([id]) => DW.MAPS[id]))
+      await safe('quartier ' + id, async () => { await DEV.map(id, null, null, 11); await save('quartier_' + id, DEV.last, cap, true); });
+    section('Intérieurs', 'Maisons visitables (aménagements générés) et commerces.');
+    for (const id of ['maison', 'bazar_in', 'dojo_in', 'resto_in', 'serre_in', 'maison_r0', 'maison_r1', 'maison_r2', 'maison_r3'].filter(id => DW.MAPS[id]))
+      await safe('intérieur ' + id, async () => { const M = DW.getMap(id); await DEV.ensure(id, M.entry ? M.entry.x : 7, M.entry ? M.entry.y - 2 : 8); DW.ow.banner.t = 99; await wait(800); await save('interieur_' + id, copyScreen(), M.name); });
+
     section('Ambiances', 'Nuit, crépuscule sous la pluie, intérieur.');
     await safe('nuit', async () => { await DEV.ensure('village', 14, 13); DW.state.clock = 22 * 60; DW.ow.banner.t = 99; await wait(800); await save('ambiance_nuit_ville', copyScreen(), 'La ville la nuit : fenêtres et lanternes allumées'); });
     await safe('pluie', async () => { DW.state.clock = 19 * 60; DW.state.weather = { type: 'rain', until: DW.state.clock + 300 }; await DEV.ensure('village', 17, 15); DW.ow.wet = 1; DW.ow.banner.t = 99; await wait(900); await save('ambiance_pluie', copyScreen(), 'Crépuscule sous la pluie : flaques et reflets'); });

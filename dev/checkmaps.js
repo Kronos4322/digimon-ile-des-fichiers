@@ -3,6 +3,9 @@
 // Point de départ = première sortie de la carte. Ouvrir dev/check.html (via dev/serve.py).
 (function () {
   const lines = [];
+  // vérification sur la ville au complet (toutes les recrues) : quartiers, routes et maisons ouverts.
+  // (À bas niveau, certains passages sont fermés exprès : ils n'existent pas encore.)
+  DW.Town.RECRUITS.forEach(r => (DW.state.recruits[r.id] = true));
   // tout objet cité par la légende ou par une carte doit exister
   const OBJ = DW.World.OBJ, miss = new Set();
   for (const ch in DW.World.CH) { const o = DW.World.CH[ch].obj; if (o && !OBJ[o]) miss.add(o + ' (case ' + ch + ')'); }

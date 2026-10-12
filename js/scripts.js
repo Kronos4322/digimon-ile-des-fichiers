@@ -21,7 +21,7 @@
     'gfx/digimon/entrainement.js', 'gfx/digimon/disciples.js', 'gfx/digimon/champions.js', 'gfx/digimon/ultimes.js',
     'gfx/digimon/ultimes2.js', 'gfx/digimon/ile.js', 'gfx/digimon/agumon.js', 'gfx/digimon/bebes.js',
     'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/town.js', 'gfx/district.js', 'gfx/themes.js',
-    'gfx/interior.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/sites.js', 'gfx/terrain.js', 'gfx/ambient.js',
+    'gfx/interior.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/sites.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js',
     'gfx/battlebg.js', 'engine/time.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/training.js', 'game/care.js', 'game/life.js', 'game/autoevo.js',
@@ -32,7 +32,7 @@
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/foret.js', 'maps/plage.js', 'maps/village.js', 'maps/maison.js', 'maps/interieurs.js',
-    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/regions.js',
+    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/regions.js',
     'game/activities.js', 'game/story.js',
     // démarrage
     'main.js',

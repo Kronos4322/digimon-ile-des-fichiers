@@ -117,8 +117,8 @@
     const m = ow.map, id = ow.mapId, s = st();
     m.npcs = (m.npcs || []).filter(n => !n.story);
     const avoid = m.npcs.map(n => [n.x, n.y]).concat([[ow.p.x, ow.p.y]]);
-    if (id === 'village' || id === 'champs') {
-      const here = DW.Town.RECRUITS.filter(r => r.region && DW.Town.has(r.id) && (TOWN[r.id] ? TOWN[r.id].home : 'champs') === id);
+    if (id === 'village' || id === 'champs' || DISTRICT_HOME_IDS.includes(id)) {
+      const here = DW.Town.RECRUITS.filter(r => r.region && DW.Town.has(r.id) && homeOf(r.id) === id);
       if (!here.length) return;
       const spots = freeSpots(ow, avoid, 3);
       here.forEach((r, i) => {
@@ -219,6 +219,18 @@
   }
 
   // ------------------------------------------------------------ recrues en ville : place et services
+  // quand un quartier périphérique existe (maps/quartiers.js), certaines recrues y déménagent
+  const DISTRICT_HOME = {
+    frigimon: 'marche', etemon: 'marche', togemon: 'marche', bakemon: 'marche', meramon: 'marche',
+    andromon: 'numerique', tentomon: 'numerique',
+    centarumon: 'residentiel', monzaemon: 'residentiel', numemon: 'residentiel', gekomon: 'residentiel', piximon: 'residentiel',
+  };
+  const DISTRICT_HOME_IDS = ['residentiel', 'marche', 'numerique'];
+  function homeOf(sp) {
+    const d = DISTRICT_HOME[sp];
+    if (d && DW.Quartiers && DW.Quartiers.open(d)) return d;
+    return TOWN[sp] ? TOWN[sp].home : 'champs';
+  }
   const shop = list => DW.Game.push(new DW.ShopScene(list));
   const closed = async name => { await say(`C'est fermé ! Reviens entre 6 h et 22 h.`, name); };
   const TOWN = {
