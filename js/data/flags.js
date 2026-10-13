@@ -19,6 +19,9 @@
     jiji_tanemon: 'conseil de Jijimon sur le DigiChamp entendu',
     bota: 'prochain conseil de Koromon, le guide de la ville (compteur)',
     cups: 'coupes du Colisée remportées { nom: true }',
+    cuisineTip: 'explication de la cuisine entendue (game/cuisine.js)',
+    cookIntro: 'présentation de la cuisine en ville entendue (maps/village.js)',
+    homeIntro: 'première visite de la maison du joueur (maps/joueur.js)',
     // limites quotidiennes / horaires (valeur = jour ou heure de jeu)
     meat: 'jour de la dernière récolte de Digiviande',
     harvest: 'jour de la dernière récolte de Palmon',
