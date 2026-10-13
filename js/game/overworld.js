@@ -484,7 +484,12 @@
         else if (e.ent === 'npc' && e.n.pickup) this.drawPickup(c, e.n.x * TS + 8, e.n.y * TS + 13);
         else if (e.ent === 'npc') {
           const n = e.n, X = n.hx != null ? n.hx : n.x, Y = n.hy != null ? n.hy : n.y;
-          if (n.item) {   // trouvaille au sol : l'objet posé, qui brille un peu
+          if (n.shadow) {   // ombre qui nage sous l'eau (Gomamon, façon Coelamon)
+            const bx = X * TS + 8 + Math.sin(this.t * 1.4) * 5, by = Y * TS + 9 + Math.cos(this.t * 1.1) * 2;
+            c.fillStyle = 'rgba(10,30,60,0.55)'; c.beginPath(); c.ellipse(bx, by, 10, 4.5, Math.sin(this.t) * 0.3, 0, 7); c.fill();
+            c.beginPath(); c.moveTo(bx - 9, by); c.lineTo(bx - 15, by - 3); c.lineTo(bx - 15, by + 3); c.fill();
+            c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = 1; const r = (this.t * 8) % 12; c.beginPath(); c.ellipse(bx, by, 6 + r, 2 + r * 0.4, 0, 0, 7); c.stroke();
+          } else if (n.item) {   // trouvaille au sol : l'objet posé, qui brille un peu
             const bx = Math.round(X * TS + 8), by = Math.round(Y * TS + 13), b = Math.sin(this.t * 3 + n.x) * 1.2;
             c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(bx, by + 2, 6, 2, 0, 0, 7); c.fill();
             c.drawImage(DW.Icons.item(n.item), bx - 7, by - 12 + b, 14, 14);

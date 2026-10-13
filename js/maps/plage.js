@@ -45,6 +45,25 @@
     }
   }
 
+  // ------------------------------------------------------------ Gomamon : une ombre dans l'eau (comme Coelamon dans Digimon World)
+  // On ne le voit qu'entre 16 h et 19 h : une ombre qui nage près du rivage, au sud de la plage. On lui parle depuis le sable.
+  const GOMA_HOURS = [16, 19];
+  function gomamonShadow() {
+    const n = recruitNPC({ sp: 'gomamon', x: 21, y: 32, lvl: 12, face: 'up',
+      lines: ["Yo ! Moi c'est Gomamon ! Les vagues, la pêche... la belle vie !", "Je ne sors de l'eau que pour les dresseurs vraiment forts. Montre-moi ce que tu vaux !"],
+      win: "Bien joué ! Allez, je viens en ville. J'ai repéré un endroit parfait pour pêcher..." });
+    const cond = n.cond, talk = n.talk;
+    n.shadow = true;   // dessiné comme une ombre sous l'eau (game/overworld.js)
+    n.cond = s => cond(s) && (h => h >= GOMA_HOURS[0] && h < GOMA_HOURS[1])(DW.Time.hour());
+    n.talk = async ow => {
+      await say("Une grande ombre nage juste sous la surface... Elle s'approche du rivage !");
+      DW.Audio.sfx('water');
+      await say("PLOUF ! Un Digimon blanc à la crête orange jaillit de l'eau !");
+      await talk(ow);
+    };
+    return n;
+  }
+
   // ------------------------------------------------------------ Whamon (épisode 14) : le radeau de la crique
   async function raftTalk(ow) {
     const s = st();
@@ -164,9 +183,7 @@
       recruitNPC({ sp: 'gotsumon', x: 30, y: 9, lvl: 5, face: 'left',
         lines: ["Grrr ! Je suis Gotsumon. Je casse des cailloux pour me calmer...", "Avant, j'avais une place en ville. Mais je n'ai plus le cœur à rien. Sauf si tu me bats !"],
         win: "Bah... T'es costaud ! Allez, je rentre en ville. Tu vas voir ce que tu vas voir !" }),
-      recruitNPC({ sp: 'gomamon', x: 25, y: 22, lvl: 6, face: 'right',
-        lines: ["Yo ! Moi c'est Gomamon ! Les vagues, la pêche... la belle vie !", "Mais j'aimerais bien un coin d'eau douce tranquille. Bats-moi et je te suis !"],
-        win: "Bien joué ! Allez, je viens en ville. J'ai repéré un endroit parfait..." }),
+      gomamonShadow(),
     ],
     triggers: [],
     signs: {
