@@ -28,7 +28,7 @@
       const near = new Set([mapId, ...(this.map.warps || []).map(w => w.to), ...(this.map.doors || []).map(d => d.to)]);
       this.near = [...near].filter(id => id !== mapId && DW.MAPS[id]);
       for (const id in DW.MAPS) if (!near.has(id) && DW.MAPS[id].gfx) DW.World.unprepare(DW.MAPS[id]);
-      this.amb = new DW.World.Ambient(this.map);
+      this.amb = new DW.World.Ambient(this.map); DW.Vivant.init(this);
       this.rustle = {};
       const st = DW.state;
       st.map = mapId; st.x = x; st.y = y;
@@ -137,6 +137,7 @@
       this.wet = DW.clamp((this.wet || 0) + (rain ? 0.25 : -0.02) * dt, 0, 1);
       if (DW.saveFlash > 0) DW.saveFlash -= dt;
       this.amb.update(dt);
+      DW.Vivant.update(this, dt);
       if (!this.locked && Game.top() === this) DW.Wild.update(this, dt);
       if (!this.locked) this.wanderNpcs(dt); else for (const n of this.map.npcs || []) if (n.mv) this.stepNpc(n, dt);
       for (const k in this.rustle) { this.rustle[k] -= dt; if (this.rustle[k] <= 0) delete this.rustle[k]; }
@@ -393,6 +394,7 @@
       if (g.water && g.water.frames.length) { const w = g.water, fr = w.frames[Math.floor(this.t * g.fps) % w.frames.length]; c.drawImage(fr, w.x, w.y); }
       const vx0 = cx - 48, vx1 = cx + W + 48, vy0 = cy - 16, vy1 = cy + H + 64;
       if (this.wet > 0.02 && g.puddles) this.drawPuddles(c, g.puddles, vx0, vx1, vy0, vy1);
+      DW.Vivant.drawGround(this, c, vx0, vx1, vy0, vy1);
       // herbes hautes (couche arrière)
       const tallFrame = (tx, ty) => this.rustle[tx + ',' + ty] ? Math.floor(this.t * 14) % 3 : [0, 1, 2, 1][Math.floor(this.t * 1.6 + tx * 0.4 + ty * 0.25) % 4];
       for (const tg of g.tall) {
@@ -480,6 +482,7 @@
         DW.Sprites.draw(c, spr, cx + W / 2 + this.big.x, cy + this.big.y, { flip: true, frame: Math.floor(this.t * 6) });
       }
       this.amb.drawWorld(c, cam);
+      DW.Vivant.drawAir(this, c);
       // étiquette au-dessus du poste d'entraînement qu'on peut utiliser
       const ts = !this.locked && Game.top() === this && this.trainSpot();
       if (ts) {

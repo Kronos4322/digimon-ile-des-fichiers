@@ -444,6 +444,15 @@
         else { set(x, y, '#8a6a3a'); set(x + 1, y + 1, '#8a6a3a'); set(x + 2, y + 1, '#6a4a2a'); }
       }
     }
+    // cailloux le long des bords des chemins (sol façon DW1)
+    if (LUSH) {
+      const P0 = [150, 140, 128], P1 = [204, 196, 182], P2 = [96, 88, 80];
+      for (let k = 0; k < GW * GH / 60; k++) {
+        const x = Math.floor(hash(k, 7, 220) * (GW - 1)), y = Math.floor(hash(k, 8, 220) * (GH - 1)), i = y * GW + x;
+        if (T[i] !== TER.dirt || ED[i] > 4 || T[i + 1] !== TER.dirt || T[i + GW] !== TER.dirt) continue;
+        put(D, i * 4, P1); put(D, (i + 1) * 4, P0); put(D, (i + GW) * 4, P2); put(D, (i + GW + 1) * 4, P2);
+      }
+    }
     if (TH && TH.sparkle) {
       const sp = TH.sparkle.map(Art.hex);
       for (let k = 0; k < GW * GH / 60; k++) {
