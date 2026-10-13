@@ -314,6 +314,15 @@
           if (lv < L.min) continue;
           this.objects.push({ kind: L.kind, v: L.v || 0, x: L.x, y: L.y, w: L.w, h: L.h });
           if (L.door) this.doors.push({ ...L.door, dir: 'up', to: L.home, tx: DOOR_X, ty: ROOM_H + 2 });
+          // façade : jardinière à gauche, boîte aux lettres (couleur de l'habitant, lanterne le soir) à droite
+          if (L.door && L.home && !FOOD_SHOPS[L.kind]) {
+            const fy = L.y + L.h, dx0 = L.door.x, dx1 = L.door.x + L.door.w - 1, hm = MAPS[L.home], res = hm && hm.npcs && hm.npcs[0] && hm.npcs[0].sp;
+            const t0 = res ? (DW.SPECIES[res].types || ['Neutre'])[0] : 'Neutre';
+            const v = { 'Feu': 0, 'Eau': 1, 'Plante': 2, 'Insecte': 2, 'Électrique': 3, 'Glace': 4, 'Air': 4, 'Ténèbres': 5 }[t0] ?? 6;
+            const free = x => x < dx0 - 1 || x > dx1 + 1;
+            if (free(L.x + L.w - 1) && '.f,'.includes(this.rows[fy][L.x + L.w - 1])) this.objects.push({ kind: 'housebox', v, x: L.x + L.w - 1, y: fy, w: 1, h: 1, small: true });
+            if (free(L.x) && L.w >= 3 && '.f,'.includes(this.rows[fy][L.x])) this.objects.push({ kind: 'planter', v: (L.x + L.y) % 3, x: L.x, y: fy, w: 1, h: 1, small: true });
+          }
         }
         this.signs = { ...(def.signs ? def.signs(lv) : {}) };
         if (DW.Story.placeKiosks) DW.Story.placeKiosks(this, id);   // stands des recrues (story.js)

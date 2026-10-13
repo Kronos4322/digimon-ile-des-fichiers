@@ -79,4 +79,21 @@
       d.rect(x - 3.4, 77, 6.8, 5, '#f4e0c8', { round: 0.2 }); d.rect(x - 3.4, 75, 6.8, 2.6, c, { round: 0.3 }); d.circ(x, 74.4, 1, '#e03a4a');
     }
   }
+  // ------------------------------------------------------------ façades : boîte aux lettres + lanterne, jardinière fleurie
+  // v = couleur de l'élément de l'habitant (0 Feu, 1 Eau, 2 Plante, 3 Électrique, 4 Glace/Air, 5 Ténèbres, 6 Lumière/neutre)
+  const MAILCOL = ['#d84a3a', '#3a7ad8', '#4aa046', '#e8c030', '#8ad0f0', '#7a4aa8', '#f0e8d0'];
+  Object.assign(OBJ, {
+    housebox: { w: 18, h: 40, n: 7, lights: [[9, 6, 24, 'rgba(255,210,120,0.6)']], draw(d, v) {
+      d.tube([[9, 39], [9, 18]], 1.6, 1.6, '#5a4030');
+      d.rect(3, 14, 12, 9, MAILCOL[v], { round: 0.35, shiny: true }); d.deco.rect(5, 17, 8, 1.2, '#2a2020');
+      d.rect(13, 10, 1.4, 6, '#d83a2a'); d.rect(13, 10, 3.4, 2.4, '#d83a2a');
+      // petite lanterne au sommet
+      d.rect(6, 2, 6, 8, '#3a3440', { round: 0.2 }); d.deco.rect(7, 3.4, 4, 5, '#ffe090', { unlit: true }); d.rect(5, 1, 8, 1.6, '#2a2430');
+    } },
+    planter: { w: 34, h: 22, n: 3, draw(d, v) {
+      d.rect(2, 12, 30, 9, '#9a6a3a', { round: 0.2, tex: 0.3 }); d.deco.rect(2, 12, 30, 2, '#c08a52');
+      const F = [['#f04a6a', '#ffd040', '#ffffff'], ['#a87af0', '#f0a0d0', '#ffffff'], ['#f08a20', '#e03a3a', '#ffe070']][v];
+      for (let k = 0; k < 7; k++) { const x = 5 + k * 4; d.circ(x, 10 - (k % 2) * 2, 2.6, '#4aa046'); d.circ(x + 0.6, 8 - (k % 2) * 2, 1.6, F[k % 3], { shiny: true }); }
+    } },
+  });
 })();

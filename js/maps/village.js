@@ -105,6 +105,7 @@
       if (!has('kunemon')) vacant.push(BANK);
       vacant.forEach((L, i) => { g.scatter('j', L.x, L.y, L.w, L.h, 9, 40 + i, ['.']); g.scatter('r', L.x, L.y, L.w, L.h, 1, 50 + i, ['.']); });
       g.rect(17, 3, 6, 3, '.');
+      g.rect(29, 3, 5, 4, '.');   // maison du joueur (maps/joueur.js)
       g.rect(BANK.x, BANK.y + BANK.h, BANK.w + 1, 1, '.'); // devant la banque : passage dégagé
       // route du nord vers le Quartier Résidentiel : elle n'existe qu'une fois le quartier construit (niveau 3)
       if (lvl >= NORTH_LEVEL) {
@@ -116,7 +117,7 @@
       g.set(4, 12, 'S'); g.set(18, 26, 'S'); g.set(7, 25, 'S');
     });
     // objets : maison de Jijimon, bâtiments ou chantiers, fontaine, clôtures
-    m.objects = [{ kind: 'jhouse', x: 17, y: 3, w: 6, h: 3 }, { kind: 'mailbox', x: 22, y: 6, w: 1, h: 1, small: true }];
+    m.objects = [{ kind: 'jhouse', x: 17, y: 3, w: 6, h: 3 }, { kind: 'mailbox', x: 22, y: 6, w: 1, h: 1, small: true }, { kind: 'cottage', v: 2, x: 29, y: 3, w: 5, h: 3, home: true }];
     for (const id in LOTS) {
       const L = LOTS[id];
       if (has(id)) m.objects.push({ kind: L.kind, x: L.x, y: L.y, w: L.w, h: L.h }, { kind: 'hangsign', v: L.sign[0], x: L.sign[1], y: L.sign[2], w: 1, h: 1, small: true });
@@ -154,6 +155,10 @@
     for (let x = 18; x < 22; x++) for (const y of [13, 14]) m.signs[`${x},${y}`] = fountainUse;
     if (has('kunemon')) for (let x = BANK.x; x < BANK.x + BANK.w; x++) m.signs[`${x},${BANK.y + BANK.h - 1}`] = SERVICES.kunemon;
     zoomMap(m, 'village');   // plan agrandi ×2 (maps/common.js)
+    // porte de la maison du joueur, placée sur la maison une fois le plan agrandi
+    { const o = m.objects.find(o => o.home); DW.HOME_DOOR = { x: o.x + 2, y: o.y + o.h - 1 };
+      m.doors.push({ x: o.x + 2, y: o.y + o.h - 1, w: 1, dir: 'up', to: 'maison_joueur', tx: 7, ty: 10, _zt: true });
+      m.signs[`${o.x + 3},${o.y + o.h - 1}`] = 'Ta maison. (Meubles en vente au Bazar de Gotsumon.)'; }
     if (DW.Story.placeKiosks) DW.Story.placeKiosks(m, 'village');   // stands des recrues (story.js)
     DW.World.unprepare(m); delete m.w;
   }
@@ -248,6 +253,9 @@
   const SERVICES = {
     async gotsumon() {
       await say('Bienvenue au Bazar de Gotsumon ! Viande fraîche et remèdes !', 'Gotsumon');
+      const r = await DW.ask('Que veux-tu voir ?', ['Boutique', 'Meubles pour ta maison', 'Au revoir'], 'Gotsumon');
+      if (r === 1) { await DW.Home.furnitureShop(); return; }
+      if (r !== 0) return;
       await DW.Game.push(new DW.ShopScene('bazar'));
       await say('Reviens vite !', 'Gotsumon');
     },
