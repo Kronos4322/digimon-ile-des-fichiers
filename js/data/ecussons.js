@@ -28,6 +28,8 @@
     ORDER, ULTIMES, OF,
     name: k => (DW.HEROES && DW.HEROES[k] ? DW.HEROES[k].crest : k),
     color: k => (DW.HEROES && DW.HEROES[k] ? DW.HEROES[k].crestCol : '#c8d0e0'),
+    // « du Courage », « de l'Amitié », « de la Pureté »...
+    of: k => { const n = Crests.name(k); return /^[AEIOU]/.test(n) ? "de l'" + n : ['Pureté', 'Sincérité'].includes(n) ? 'de la ' + n : 'du ' + n; },
     has: k => !!(st().crests || {})[k],
     count: () => ORDER.filter(k => Crests.has(k)).length,
     give(k) { const s = st(); s.crests = s.crests || {}; s.crests[k] = true; },
@@ -38,7 +40,7 @@
       const sp = DW.SPECIES[to];
       if (!sp) return null;
       if (sp.stage === 'Méga') { const n = Crests.count(); return { label: 'Écussons réunis', need: ORDER.length, have: n, ok: n >= ORDER.length }; }
-      if (sp.stage === 'Ultime' && OF[to]) { const k = OF[to], ok = Crests.has(k); return { label: `Écusson ${Crests.name(k)}`, need: 1, have: ok ? 1 : 0, ok, crest: k }; }
+      if (sp.stage === 'Ultime' && OF[to]) { const k = OF[to], ok = Crests.has(k); return { label: 'Écusson ' + Crests.of(k), need: '', have: ok ? 'trouvé' : 'à trouver', ok, crest: k }; }
       return null;
     },
   };

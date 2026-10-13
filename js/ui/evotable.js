@@ -56,8 +56,8 @@
       DW.autosave();
     }
     icon(c, sp, x, y, known) {
-      const spr = DW.Sprites.ow(sp);
-      DW.Sprites.draw(c, spr, x, y, { silhouette: !known, frame: known ? Math.floor(this.t * 2) : 0 });
+      const spr = DW.Sprites.ow(sp), k = Math.min(1, 22 / spr.h, 22 / spr.w);   // tient dans le cadre
+      DW.Sprites.draw(c, spr, x, y, { silhouette: !known, frame: known ? Math.floor(this.t * 2) : 0, scale: k });
     }
     draw(c) {
       const m = this.m, st = DW.state, t = this.t;
@@ -74,7 +74,7 @@
       this.icon(c, m.sp, 124, 51, true);
       UI.text(c, m.name, 140, 38, { size: 9, color: '#ffe070' });
       UI.text(c, `N.${m.level}  ${m.d.stage}`, 140, 49, { size: 7, color: '#c8f0ff' });
-      DW.Sprites.draw(c, DW.Sprites.battle(m.sp), 159, 164, { frame: Math.floor(t * 4) });
+      { const sp = DW.Sprites.battle(m.sp); DW.Sprites.draw(c, sp, 159, 164, { frame: Math.floor(t * 4), scale: Math.min(1, 96 / sp.w, 104 / sp.h) }); }   // reste dans la colonne du milieu
       // flèches
       const opts = this.opts, prev = this.prev;
       c.strokeStyle = '#5ad8f0'; c.fillStyle = '#5ad8f0'; c.lineWidth = 1.4;
@@ -83,10 +83,11 @@
         const d = Math.sign(x2 - x1) || 1;
         c.beginPath(); c.moveTo(x2, y2); c.lineTo(x2 - d * 4, y2 - 3); c.lineTo(x2 - d * 4, y2 + 3); c.fill();
       };
-      if (opts.length) {
-        const yl = 66 + (opts.length - 1) * 30;
+      const VIS = 4, top = Math.max(0, Math.min(this.sel - VIS + 1, opts.length - VIS)), shown = opts.slice(top, top + VIS);
+      if (shown.length) {
+        const yl = 66 + (shown.length - 1) * 28;
         c.beginPath(); c.moveTo(196, 54); c.lineTo(196, yl); c.stroke();
-        opts.forEach((o, j) => arrow(196, 66 + j * 30, 212, 66 + j * 30));
+        shown.forEach((o, j) => arrow(196, 66 + j * 28, 212, 66 + j * 28));
       }
       if (prev) { c.beginPath(); c.moveTo(122, 54); c.lineTo(122, 66); c.stroke(); arrow(122, 66, 104, 66); }
       // dé-digivolution
@@ -98,12 +99,14 @@
         UI.text(c, 'Possible !', 34, 75, { size: 7, color: OK });
       } else UI.text(c, '—', 54, 66, { size: 9, align: 'center', color: '#5a8aa0' });
       // digivolutions
-      opts.forEach((o, j) => {
-        const y = 52 + j * 30, sel = this.col === 1 && j === this.sel;
+      if (top > 0) UI.text(c, '▲', 306, 50, { size: 7, color: '#8ae0f0' });
+      if (top + VIS < opts.length) UI.text(c, '▼', 306, 166, { size: 7, color: '#8ae0f0' });
+      shown.forEach((o, jj) => {
+        const j = top + jj, y = 52 + jj * 28, sel = this.col === 1 && j === this.sel;
         const known = st.seen[o.to], chk = DW.Evo.check(m, o);
-        UI.box(c, 214, y, 100, 28, sel ? 'dwsel' : 'dw');
-        this.icon(c, o.to, 228, y + 25, known);
-        UI.text(c, known ? DW.SPECIES[o.to].name : '???', 242, y + 12, { size: 8, color: sel ? '#ffffff' : '#c8f0ff' });
+        UI.box(c, 214, y, 100, 26, sel ? 'dwsel' : 'dw');
+        this.icon(c, o.to, 228, y + 24, known);
+        { const nf = UI.fit(c, known ? DW.SPECIES[o.to].name : '???', 68, 8); UI.text(c, nf.s, 242, y + 12, { size: nf.size, color: sel ? '#ffffff' : '#c8f0ff' }); }
         UI.text(c, chk.ok ? 'Possible !' : 'Pas encore...', 242, y + 23, { size: 7, color: chk.ok ? OK : NO });
       });
       if (!opts.length) UI.text(c, m.d.stage === 'Méga' ? 'Stade maximal' : 'Aucune connue', 264, 66, { size: 8, align: 'center', color: '#5a8aa0' });
@@ -124,7 +127,7 @@
           UI.text(c, `(${r.have})`, x + 140, y, { size: 7, align: 'right', color: r.ok ? '#8ae0a0' : '#e09090' });
         });
       }
-      UI.text(c, 'ENTRÉE : Digimon suivant   ÉCHAP : retour', W - 12, 238, { size: 7, align: 'right', color: '#6ab8d0' });
+      UI.hints(c, [['ok', 'digivoluer'], ['back', 'retour']], W - 12, 238);
     }
   }
   DW.EvoTableScene = EvoTableScene;
