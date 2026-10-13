@@ -103,6 +103,7 @@ test('tous les drapeaux utilisés sont déclarés dans js/data/flags.js', () => 
 // ------------------------------------------------------------ données
 test('aucun déclencheur sans condition ne bloque un passage vers une autre carte', () => {
   for (const id in DW.MAPS) {
+    if (DW.MAPS[id].spec && !(DW.MAPS[id].triggers || []).length) continue;   // sous-zones générées sans déclencheur : inutile de les construire (lent)
     const m = DW.getMap(id);
     for (const t of m.triggers || []) if (!t.cond) for (const w of m.warps || []) {
       const dx = Math.max(0, w.x - (t.x + (t.w || 1) - 1), t.x - (w.x + (w.w || 1) - 1)), dy = Math.max(0, w.y - (t.y + (t.h || 1) - 1), t.y - (w.y + (w.h || 1) - 1));
@@ -291,7 +292,7 @@ test('écussons : un Ultime exige l\'écusson de sa famille, la Méga les sept ;
 // ------------------------------------------------------------ lancement
 (async () => {
   for (const [name, fn] of tests) {
-    try { await fn(); ok++; console.log('  OK  ' + name); }
+    const t0 = Date.now(); try { await fn(); ok++; console.log('  OK  ' + name + '  (' + ((Date.now() - t0) / 1000).toFixed(1) + ' s)'); }
     catch (e) { ko++; console.log('  ÉCHEC  ' + name + '\n        ' + (e && e.message)); }
   }
   console.log(`\n${ok} réussi(s), ${ko} échoué(s)`);

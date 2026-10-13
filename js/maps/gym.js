@@ -39,7 +39,7 @@
     g.set(4, 10, 'W'); g.set(4, 13, 'E'); g.set(6, 13, 'E');
     g.set(10, 12, 'N'); g.set(22, 12, 'N');
     g.set(27, 9, 'A');
-    g.set(26, 16, 'F');
+    // (l'Intelligence s'entraîne désormais dans la salle de classe : maps/classe.js)
     g.set(10, 17, 'Ψ');   // cristal de données (PM)
     // toilettes et panneau
     g.set(5, 18, 'y'); g.set(14, 6, 'S');
@@ -55,7 +55,7 @@
       { kind: 'mat', x: 3, y: 12, w: 5, h: 3, walk: true },
       { kind: 'zenrakes', x: 23, y: 14, w: 6, h: 4, walk: true },
       // gradins, torches, râtelier à boucliers, rochers, bancs
-      { kind: 'bleachers', x: 7, y: 3, w: 4, h: 2 }, { kind: 'bleachers', x: 21, y: 3, w: 4, h: 2 },
+      { kind: 'bleachers', x: 7, y: 3, w: 4, h: 2 }, { kind: 'ecole', x: 21, y: 3, w: 4, h: 2 },   // école : la salle de classe (Intelligence)
       { kind: 'torch', x: 13, y: 7, w: 1, h: 1, small: true }, { kind: 'torch', x: 18, y: 7, w: 1, h: 1, small: true },
       { kind: 'shieldrack', x: 25, y: 9, w: 1, h: 1, small: true },
       { kind: 'kanjirock', x: 6, y: 9, w: 2, h: 1 },
@@ -63,13 +63,14 @@
       // panneaux à pictogramme devant chaque poste
       { kind: 'stationsign', v: 0, x: 3, y: 9, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 12, w: 1, h: 1, small: true },
       { kind: 'stationsign', v: 3, x: 9, y: 12, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 2, x: 28, y: 8, w: 1, h: 1, small: true },
-      { kind: 'stationsign', v: 4, x: 25, y: 15, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 9, y: 17, w: 1, h: 1, small: true },
+      { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 9, y: 17, w: 1, h: 1, small: true },
       { kind: 'rock', v: 1, x: 24, y: 16, w: 1, h: 1, small: true }, { kind: 'rock', v: 0, x: 28, y: 15, w: 1, h: 1, small: true },
       { kind: 'bench', x: 12, y: 18, w: 1, h: 1, small: true }, { kind: 'bench', x: 19, y: 18, w: 1, h: 1, small: true },
       { kind: 'barrel', v: 0, x: 3, y: 16, w: 1, h: 1, small: true }, { kind: 'barrel', v: 1, x: 28, y: 12, w: 1, h: 1, small: true },
       { kind: 'bunting', v: 6, x: 13, y: 4, w: 6, h: 1, top: true, oy: -14 },
     ],
     warps: [{ x: 15, y: 0, w: 2, h: 1, dir: 'up', to: 'village', tx: 19, ty: 29 }],
+    doors: [{ x: 22, y: 4, w: 2, dir: 'up', to: 'classe', tx: 7, ty: 10 }],
     signs: {
       '14,6': async () => {
         await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Jardin zen : méditation (Intelligence).  Cristal de données : énergie (PM).");

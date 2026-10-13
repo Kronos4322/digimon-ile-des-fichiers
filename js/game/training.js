@@ -64,7 +64,8 @@
       }
       const why = this.blocked(m, k);
       if (why) { await DW.say(why); return; }
-      while ((await Game.push(new TrainingScene(m, k))) === 'again') { /* séance suivante */ }
+      // séances enchaînées ; après chaque séance d'Intelligence, une technique peut être retenue (maps/classe.js)
+      for (;;) { const sc = new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
       if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre la table des Digivolutions (ENTRÉE → DIGIVOLUTION).`);
     },
   };
