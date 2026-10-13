@@ -50,8 +50,11 @@
     dw: ['#13506a', '#062434', '#01080e', '#62dcf4'],
     dwsel: ['#1f7a96', '#0b3a52', '#01080e', '#c8f6ff'],
   };
+  // couleur de l'écusson du héros (Courage orange, Amitié bleu...) : liseré intérieur des fenêtres
+  UI.accent = () => (DW.state && DW.state.hero && DW.heroLook ? DW.heroLook().crestCol : null);
   UI.box = (c, x, y, w, h, style = 'dw') => {
-    const [a, b, out, inner] = BOX[style] || BOX.blue;
+    let [a, b, out, inner] = BOX[style] || BOX.blue;
+    if (style === 'dw' || style === 'dwsel') inner = UI.accent() || inner;
     const g = c.createLinearGradient(0, y, 0, y + h);
     g.addColorStop(0, a); g.addColorStop(1, b);
     rr(c, x, y, w, h, 4);

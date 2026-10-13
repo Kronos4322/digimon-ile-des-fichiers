@@ -51,9 +51,11 @@
     draw(c) {
       UI.box(c, 6, 180, 308, 56);
       if (this.o.speaker) {
+        const por = portrait(this.o.speaker), lx = por ? 66 : 12;
+        if (por) drawPortrait(c, por, this.t);
         const w = UI.measure(c, this.o.speaker, 9, true) + 14;
-        UI.box(c, 12, 167, w, 16, 'orange');
-        UI.text(c, this.o.speaker, 19, 178.5, { size: 9, bold: true });
+        UI.box(c, lx, 167, w, 16, 'orange');
+        UI.text(c, this.o.speaker, lx + 7, 178.5, { size: 9, bold: true });
       }
       let n = Math.floor(this.shown);
       this.pages[this.page].forEach((ln, i) => {
@@ -74,6 +76,33 @@
         UI.cursor(c, x + 8, y + 12.5 + this.choice * 14, this.t);
       }
     }
+  }
+  // ------------------------------------------------------------ portrait de celui qui parle (Digimon ou héros)
+  let byName = null;
+  function portrait(name) {
+    if (!byName) { byName = {}; for (const id in DW.SPECIES) byName[DW.SPECIES[id].name.toLowerCase()] = id; }
+    const sp = byName[String(name).toLowerCase()];
+    if (sp && DW.SPECIES[sp]) return { sp };
+    const st = DW.state;
+    if (st && (name === st.name || (DW.HEROES && DW.HEROES[st.hero] && name === DW.HEROES[st.hero].name))) return { hero: true };
+    return null;
+  }
+  function drawPortrait(c, p, t) {
+    const x = 6, y = 118, s = 56;
+    UI.box(c, x, y, s, s);
+    c.save(); UI.rr(c, x + 3, y + 3, s - 6, s - 6, 3); c.clip();
+    const g = c.createRadialGradient(x + s / 2, y + s * 0.4, 4, x + s / 2, y + s / 2, s * 0.7);
+    g.addColorStop(0, '#2a7a96'); g.addColorStop(1, '#06202c'); c.fillStyle = g; c.fillRect(x, y, s, s);
+    if (p.hero) {
+      const spr = DW.Sprites.hero('down', 0);
+      c.imageSmoothingEnabled = false; c.drawImage(spr.img, 0, 0, spr.w, spr.h * 0.6, x + s / 2 - spr.w, y + 6, spr.w * 2, spr.h * 1.2);
+    } else {
+      const spr = DW.Sprites.battle(p.sp), k = Math.min(1.4, (s + 10) / Math.max(spr.w, spr.h));
+      // cadré sur le haut du corps (la tête), petite respiration
+      const by = Math.sin(t * 2) * 0.8;
+      DW.Sprites.draw(c, spr, x + s / 2, y + s + spr.h * k * 0.18 + by, { scale: k, frame: 0 });
+    }
+    c.restore();
   }
   DW.DialogScene = DialogScene;
   DW.say = (text, speaker) => Game.push(new DialogScene(text, { speaker }));
