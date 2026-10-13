@@ -28,7 +28,7 @@
     'game/companion.js', 'game/wild.js', 'game/town.js', 'game/fx.js', 'game/battle.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus
-    'ui/menus.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/hatch.js', 'ui/farm.js', 'ui/worldmap.js',
+    'ui/menus.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/hatch.js', 'ui/farm.js', 'ui/worldmap.js',
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/village.js', 'maps/maison.js', 'maps/interieurs.js',
