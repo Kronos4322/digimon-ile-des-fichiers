@@ -50,6 +50,7 @@
       const rs = this.map.respawn;
       if (rs) st.heal = Array.isArray(rs) ? { map: mapId, x: rs[0], y: rs[1] } : { ...rs };
       if (DW.Story.decorate) DW.Story.decorate(this);
+      if (DW.Ground) DW.Ground.decorate(this);   // trouvailles au sol du jour (game/sol.js)
       // Digimon qui se promènent : position affichée interpolée
       for (const n of this.map.npcs || []) {
         n.hx = n.hx != null ? n.hx : n.x;
@@ -467,7 +468,12 @@
         else if (e.ent === 'npc' && e.n.pickup) this.drawPickup(c, e.n.x * TS + 8, e.n.y * TS + 13);
         else if (e.ent === 'npc') {
           const n = e.n, X = n.hx != null ? n.hx : n.x, Y = n.hy != null ? n.hy : n.y;
-          if (n.hero) DW.Sprites.draw(c, DW.Sprites.hero(n.face || 'down', n.mv ? Math.floor(this.t * 8) : 0, n.hero), X * TS + 8, Y * TS + 16);   // enfant DigiSélectionné
+          if (n.item) {   // trouvaille au sol : l'objet posé, qui brille un peu
+            const bx = Math.round(X * TS + 8), by = Math.round(Y * TS + 13), b = Math.sin(this.t * 3 + n.x) * 1.2;
+            c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(bx, by + 2, 6, 2, 0, 0, 7); c.fill();
+            c.drawImage(DW.Icons.item(n.item), bx - 7, by - 12 + b, 14, 14);
+            if (Math.sin(this.t * 4 + n.y) > 0.8) { c.fillStyle = '#ffffff'; c.fillRect(bx + 4, by - 12 + b, 2, 2); }
+          } else if (n.hero) DW.Sprites.draw(c, DW.Sprites.hero(n.face || 'down', n.mv ? Math.floor(this.t * 8) : 0, n.hero), X * TS + 8, Y * TS + 16);   // enfant DigiSélectionné
           else if (n.obj) {   // « PNJ objet » : barrière, vasque... (aspect selon l'état : n.ov(state))
             const v = typeof n.ov === 'function' ? n.ov(DW.state) : n.ov || 0, O = DW.World.OBJ[n.obj];
             const fr = O.frames ? DW.World.objFrames(n.obj, v) : null, s2 = fr ? fr[Math.floor(this.t * (O.fps || 4)) % fr.length] : DW.World.obj(n.obj, v);

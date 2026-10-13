@@ -114,11 +114,10 @@
       if (st.flags.findDay !== day) { st.flags.findDay = day; st.flags.findN = 0; }
       if (st.flags.findN >= 3) return null;
       C.steps = 0; C.findAt = 180 + Math.floor(Math.random() * 180);
-      // trouvaille discrète (3 par jour au plus) : pas de dialogue ni de notification, juste un « ! » au-dessus du partenaire
+      // une Digiviande ou un DigiChampignon apparaît au sol près du héros (game/sol.js) : le partenaire le signale
+      // d'un « ! », mais c'est au joueur d'aller le ramasser (3 par jour au plus)
+      if (!DW.Ground || !DW.Ground.spawn(ow)) return null;
       st.flags.findN++;
-      const id = DW.weighted([{ id: 'viande', w: 30 }, { id: 'digichampi', w: 20 }, { id: 'soin_p', w: 15 }, { id: 'remede', w: 12 }, { id: 'disque_pm', w: 10 }, { id: 'super_viande', w: 8 }, { id: 'super_carotte', w: 4 }, { id: 'gland_or', w: 1 }]).id;
-      DW.giveItem(id, 1);
-      pt.addHappy(1); Audio.sfx('buy');
       Companion.emote(ow, '!', 1.4);
       return null;
     },

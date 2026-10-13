@@ -91,11 +91,19 @@
       this.streaks = Array.from({ length: 70 }, () => this.streak(true));
       this.clouds = Array.from({ length: 16 }, () => this.cloud(true));
       this.buf = DW.Art.canvas(W, H); this.small = DW.Art.canvas(W, H);
-      this.heroDir = 'down';
+      this.heroDir = 'up';   // le héros est toujours vu de dos (c'est le joueur)
     }
     streak(init) { return { a: Math.random() * Math.PI * 2, r: init ? Math.random() * 200 : 4 + Math.random() * 10, v: 1.6 + Math.random() * 1.6, h: Math.random() }; }
     cloud(init) { return { a: Math.random() * Math.PI * 2, r: init ? Math.random() * 220 : 2 + Math.random() * 8, s: 0.5 + Math.random() * 0.8 }; }
     enter() { this.run(); }
+    // fondu enchaîné : l'image actuelle est gardée, puis s'efface sur la nouvelle scène
+    cut(mode, dur = 0.9) {
+      if (!this.xbuf) this.xbuf = DW.Art.canvas(W, H);
+      const x = this.xbuf.getContext('2d'); x.clearRect(0, 0, W, H);
+      const cap = this.cap.a; this.cap.a = 0; this.draw(x); this.cap.a = cap;
+      this.mode = mode; this.xf = { v: 1 };
+      return DW.tween(this.xf, { v: 0 }, dur);
+    }
     // légende de bas d'écran (bandes cinéma)
     async show(txt, hold = 3.0) {
       this.line = txt; this.skip = false;
@@ -112,7 +120,7 @@
       st.name = await Game.push(new DW.NameScene(DW.HEROES[st.hero].name));
       // les autres enfants du camp (ils seront séparés en arrivant sur l'île)
       const others = Object.keys(DW.HEROES).filter(k => k !== st.hero);
-      const SPOTS = [[40, 202, 'right'], [68, 194, 'right'], [104, 206, 'right'], [190, 206, 'left'], [238, 198, 'left'], [270, 204, 'left']];
+      const SPOTS = [[24, 206, 'right'], [124, 208, 'right'], [180, 210, 'left'], [238, 200, 'left'], [266, 208, 'left'], [294, 202, 'left']];   // loin de la tente (x 48-110)
       this.kids = others.map((k, i) => ({ id: k, x: SPOTS[i][0], y: SPOTS[i][1], dir: SPOTS[i][2] }));
       // 2) le camp d'été
       await DW.fade(1, 0.4);
@@ -130,7 +138,7 @@
       await DW.tween(this.dv, { y: 194 }, 1.3, t => t * t);
       this.dv.landed = true; Audio.sfx('hit'); this.flash = 1;
       await DW.wait(0.4);
-      this.heroDir = 'down';
+      this.heroDir = 'up';   // le héros reste de dos : c'est toi
       await this.show('Sept petits objets lumineux tombent du ciel, un aux pieds de chaque enfant : des Digivices !');
       // 4) ils s'illuminent et emportent tout le monde
       DW.tween(this.dv, { glow: 1 }, 1.2);
@@ -142,11 +150,11 @@
       Audio.sfx('super');
       await DW.tween(this.pix, { v: 1 }, 0.9, DW.linear);
       // 5) tunnel numérique : les sept enfants ensemble
-      this.mode = 'tunnel'; this.flash = 1; Audio.sfx('evolve');
+      this.cut('tunnel', 0.7); this.flash = 0.6; Audio.sfx('evolve');
       this.show("Une vague de lumière vous emporte tous vers un autre monde...", 2.6);
       await DW.wait(4.2);
       // 6) au-dessus de l'île : les enfants sont séparés, chacun tombe ailleurs (au hasard)
-      this.mode = 'sky'; this.flash = 1; Audio.sfx('swoosh');
+      this.cut('sky', 1.2); Audio.sfx('swoosh');
       this.scatter = { v: 0, pts: this.landingPoints(others.length) };
       this.show("Le Digimonde... L'Île des Fichiers. Mais la lumière se brise : les enfants sont séparés !", 3.2);
       await DW.tween(this.scatter, { v: 1 }, 3.4, t => t * (2 - t));
@@ -155,12 +163,11 @@
       this.show('Chacun tombe ailleurs sur l\'île... Et toi, droit vers une plage.', 2.6);
       await DW.tween(this.zoom, { v: 1 }, 4.2, t => t * t * (3 - 2 * t));
       Audio.sfx('swoosh');
-      await DW.fade(1, 0.15, '#ffffff');
       // 7) la plage des cabines : on voit le héros tomber, puis un DigiŒuf, qui éclot
       const baby = DW.heroLine().baby, bname = DW.SPECIES[baby].name;
       const B = this.B = { baby, hero: { y: -60, landed: 0, rot: 0 }, puff: 0, egg: { x: 196, y: -40, rot: 0, crack: 0, open: 0 }, mon: { a: 0, x: 196 }, jiji: { x: 360 } };
-      this.mode = 'beach'; Audio.play('beach');
-      await DW.fade(0, 0.5);
+      Audio.play('beach');
+      await this.cut('beach', 1.1);
       await DW.tween(B.hero, { y: 186, rot: Math.PI * 2.5 }, 1.0, t => t * t);
       B.hero.landed = 1; this.flash = 0.7; this.shake = 0.6; Audio.sfx('hit');
       DW.tween(B, { puff: 1 }, 0.9);
@@ -178,11 +185,12 @@
       await DW.tween(B.mon, { a: 1 }, 0.5);
       await this.show(`${bname} est né ! Il vient se blottir contre toi.`, 2.4);
       await DW.tween(B.mon, { x: 172 }, 0.8);
-      DW.tween(B.jiji, { x: 262 }, 2.6);
+      DW.tween(B.jiji, { x: 228 }, 2.8);
       await this.show("Au loin, une silhouette s'approche lentement sur le sable...", 2.6);
       await DW.fade(1, 0.8);
       await DW.wait(0.4);
-      // carton du chapitre 1 (game/chapitre1.js)
+      // carton du chapitre 1 (game/chapitre1.js) ; la vidéo reste au noir derrière (pas de retour furtif sur la plage)
+      this.mode = 'black';
       DW.fade(0, 0.01);
       await Game.push(new DW.ChapterScene('CHAPITRE 1', "L'Île des Fichiers", 'Une île faite de données... et des Digimon qui ont tout oublié.'));
       await DW.fade(1, 0.01);
@@ -337,7 +345,7 @@
         c.shadowColor = '#c8ffe8'; c.shadowBlur = 6; c.drawImage(sp, -14, -18); c.restore();
       });
       // le héros qui tournoie au centre, nimbé de lumière
-      const spr = DW.Sprites.hero(DIRS[Math.floor(t * 5) % 4], 1).img;
+      const spr = DW.Sprites.hero('up', Math.floor(t * 6) % 4).img;   // de dos
       c.save(); c.translate(cx, cy); c.rotate(Math.sin(t * 1.7) * 0.6); const sc = 1.4 + Math.sin(t * 2) * 0.1; c.scale(sc, sc);
       c.shadowColor = '#c8ffe8'; c.shadowBlur = 8;
       c.drawImage(spr, -14, -18);
@@ -348,10 +356,22 @@
     drawSky(c) {
       const t = this.t, z = this.zoom.v;
       // la mer tout autour, l'île qui grandit, centrée peu à peu sur la plage
-      c.fillStyle = '#103278'; c.fillRect(0, 0, W, H);
       const s = 0.4 + z * z * 2.8, fx = DW.lerp(160, 122, z), fy = DW.lerp(122, 206, z);
+      // l'océan, avec sa houle, sur tout l'écran
+      const og = c.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, 260); og.addColorStop(0, '#1e5aa8'); og.addColorStop(1, '#0a2a66');
+      c.fillStyle = og; c.fillRect(0, 0, W, H);
+      c.strokeStyle = 'rgba(160,210,255,0.18)'; c.lineWidth = 1;
+      for (let i = 0; i < 26; i++) { const yy = ((i * 23 + t * 6) % (H + 20)) - 10, xx = (i * 61) % W; c.beginPath(); c.moveTo(xx, yy); c.quadraticCurveTo(xx + 8, yy - 3, xx + 16, yy); c.stroke(); }
+      // l'île, détourée (masque radial : pas de rectangle)
+      if (!this.isle) {
+        const im = DW.islandImage(), cv = DW.Art.canvas(im.width, im.height), x = cv.getContext('2d');
+        x.drawImage(im, 0, 0); x.globalCompositeOperation = 'destination-in';
+        const mg = x.createRadialGradient(160, 122, 70, 160, 122, 150); mg.addColorStop(0, 'rgba(0,0,0,1)'); mg.addColorStop(1, 'rgba(0,0,0,0)');
+        x.fillStyle = mg; x.fillRect(0, 0, im.width, im.height);
+        this.isle = cv;
+      }
       c.save(); c.translate(W / 2, H / 2); c.scale(s, s); c.translate(-fx, -fy);
-      c.imageSmoothingEnabled = false; c.drawImage(DW.islandImage(), 0, 0);
+      c.imageSmoothingEnabled = false; c.drawImage(this.isle, 0, 0);
       c.restore();
       // brume d'altitude qui se dissipe
       c.fillStyle = `rgba(200,230,255,${0.45 * (1 - z) * (this.scatter ? 1 - this.scatter.v * 0.6 : 1)})`; c.fillRect(0, 0, W, H);
@@ -421,41 +441,54 @@
       for (let i = 0; i < 70; i++) { const x = (i * 97) % W, y = 142 + (i * 53) % 96; c.fillStyle = i % 3 ? 'rgba(180,140,80,0.35)' : 'rgba(255,250,230,0.5)'; c.fillRect(x, y, 1, 1); }
       for (const [x, y, col] of [[40, 210, '#f0a0b8'], [118, 222, '#f8e0c0'], [260, 216, '#f0a040'], [212, 230, '#f8e0c0']]) { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, 2.4, 1.6, 0, 0, 7); c.fill(); }
       // les cabines téléphoniques (avec leur ombre), deux palmiers
-      for (const x of [40, 64, 88]) { const b = O('booth'); c.fillStyle = 'rgba(80,60,30,0.25)'; c.beginPath(); c.ellipse(x + b.w * 0.35 + 6, 133, 10, 2, 0, 0, 7); c.fill(); c.drawImage(b.img, x, 133 - b.h * 0.7, b.w * 0.7, b.h * 0.7); }
-      const p = O('palm'); c.drawImage(p.img, W - 70, 200 - p.h * 1.3, p.w * 1.3, p.h * 1.3);
-      const p2 = O('palm', 1); c.drawImage(p2.img, -14, 232 - p2.h * 1.5, p2.w * 1.5, p2.h * 1.5);
+      // mouettes au loin
+      c.strokeStyle = '#4a4a5a'; c.lineWidth = 1;
+      for (let i = 0; i < 3; i++) { const bx = ((t * (14 + i * 5) + i * 110) % (W + 40)) - 20, by = 40 + i * 12 + Math.sin(t * 2 + i) * 3, wv = Math.sin(t * 8 + i) * 2; c.beginPath(); c.moveTo(bx - 4, by - wv); c.lineTo(bx, by); c.lineTo(bx + 4, by - wv); c.stroke(); }
+      // reflets qui scintillent sur la mer
+      for (let i = 0; i < 14; i++) { const sx = (i * 47 + 13) % W, sy = 92 + (i * 17) % 34; if (Math.sin(t * 5 + i * 1.7) > 0.7) { c.fillStyle = '#ffffff'; c.fillRect(sx, sy, 2, 1); } }
+      // les cabines (au fond, à droite des palmiers) et deux palmiers en arrière-plan, loin du chemin de Jijimon
+      for (const x of [112, 136, 160]) { const b = O('booth'); c.fillStyle = 'rgba(80,60,30,0.25)'; c.beginPath(); c.ellipse(x + b.w * 0.33 + 4, 134, 9, 2, 0, 0, 7); c.fill(); c.drawImage(b.img, x, 134 - b.h * 0.66, b.w * 0.66, b.h * 0.66); }
+      const p = O('palm'), p2 = O('palm', 1);
+      c.fillStyle = 'rgba(80,60,30,0.25)'; c.beginPath(); c.ellipse(36, 160, 16, 3, 0, 0, 7); c.fill(); c.beginPath(); c.ellipse(W - 30, 156, 16, 3, 0, 0, 7); c.fill();
+      c.drawImage(p2.img, 8, 160 - p2.h * 1.1, p2.w * 1.1, p2.h * 1.1);
+      c.drawImage(p.img, W - 58, 156 - p.h * 1.0, p.w * 1.0, p.h * 1.0);
       // le héros : il tombe du ciel dans une traînée de lumière, soulève un nuage de sable, puis reste étendu
-      const hs = DW.Sprites.hero('down', 0), hc = (DW.HEROES[DW.state.hero] || {}).crestCol || '#ffffff';
+      const hb = DW.Sprites.hero('up', 0), hs = { img: hb.img, w: hb.w * 1.4, h: hb.h * 1.4 }, hc = (DW.HEROES[DW.state.hero] || {}).crestCol || '#ffffff';   // de dos
       if (!B.hero.landed) {
         c.save(); c.globalCompositeOperation = 'lighter'; const tg = c.createLinearGradient(0, B.hero.y - 90, 0, B.hero.y);
         tg.addColorStop(0, 'rgba(255,255,255,0)'); tg.addColorStop(1, hc); c.fillStyle = tg; c.globalAlpha = 0.6; c.fillRect(146, B.hero.y - 90, 8, 90); c.restore();
-        c.save(); c.translate(150, B.hero.y - 10); c.rotate(B.hero.rot); c.drawImage(hs.img, -hs.w / 2, -hs.h / 2); c.restore();
+        c.save(); c.translate(150, B.hero.y - 10); c.rotate(B.hero.rot); c.drawImage(hs.img, -hs.w / 2, -hs.h / 2, hs.w, hs.h); c.restore();
       } else {
-        c.fillStyle = 'rgba(80,60,30,0.3)'; c.beginPath(); c.ellipse(150, 192, 18, 4, 0, 0, 7); c.fill();
-        c.save(); c.translate(150, 186); c.rotate(-Math.PI / 2); c.drawImage(hs.img, -hs.w / 2, -hs.h / 2); c.restore();
+        c.fillStyle = 'rgba(80,60,30,0.3)'; c.beginPath(); c.ellipse(150, 194, 26, 5, 0, 0, 7); c.fill();
+        c.save(); c.translate(150, 186); c.rotate(-Math.PI / 2); c.drawImage(hs.img, -hs.w / 2, -hs.h / 2, hs.w, hs.h); c.restore();
         if (B.puff > 0 && B.puff < 1) for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI, r = 6 + B.puff * 26; c.fillStyle = `rgba(240,220,170,${0.8 * (1 - B.puff)})`; c.beginPath(); c.arc(150 + Math.cos(a) * r * 1.4, 190 - Math.sin(a) * r * 0.6, 4 + B.puff * 5, 0, 7); c.fill(); }
       }
       // l'œuf, qui tremble, se fend, puis s'ouvre
       if (B.egg.open < 1) {
-        const e = DW.eggSprite(B.baby);
-        c.save(); c.translate(B.egg.x, B.egg.y); c.rotate(B.egg.rot); c.drawImage(e.img, -e.w / 2, -e.h);
+        const e = DW.eggSprite(B.baby), es = 0.62;
+        c.fillStyle = 'rgba(80,60,30,0.3)'; c.beginPath(); c.ellipse(B.egg.x, B.egg.y, 8, 2, 0, 0, 7); c.fill();
+        c.save(); c.translate(B.egg.x, B.egg.y); c.rotate(B.egg.rot); c.scale(es, es); c.drawImage(e.img, -e.w / 2, -e.h);
         if (B.egg.crack > 0) { c.strokeStyle = '#3a2a1a'; c.lineWidth = 1; c.beginPath(); c.moveTo(-8, -20); c.lineTo(-3, -16 - 6 * B.egg.crack); c.lineTo(2, -21); c.lineTo(7, -15 - 4 * B.egg.crack); c.stroke(); }
         c.restore();
       } else if (B.mon.a < 1) {
         c.fillStyle = '#fff8e8'; c.beginPath(); c.arc(B.egg.x - 8, B.egg.y - 4, 6, 0, Math.PI); c.fill(); c.beginPath(); c.arc(B.egg.x + 8, B.egg.y - 4, 6, 0, Math.PI); c.fill();
       }
       if (B.mon.a > 0) {
-        const sp = DW.Sprites.battle(B.baby), sc = Math.min(1, 30 / sp.h);
+        const sp = DW.Sprites.battle(B.baby), sc = Math.min(1, 26 / sp.h);
         c.globalAlpha = B.mon.a;
         DW.Sprites.draw(c, sp, B.mon.x, 190 - Math.abs(Math.sin(t * 6)) * 3, { frame: Math.floor(t * 4), scale: sc, flip: true });
         c.globalAlpha = 1;
       }
       // Jijimon qui arrive
-      if (B.jiji.x < W + 30) { const j = DW.Sprites.ow('jijimon'); DW.Sprites.draw(c, j, B.jiji.x, 184 + Math.abs(Math.sin(t * 5)) * 1.5, { frame: Math.floor(t * 4) }); }
+      if (B.jiji.x < W + 30) { const j = DW.Sprites.ow('jijimon'); c.fillStyle = 'rgba(80,60,30,0.3)'; c.beginPath(); c.ellipse(B.jiji.x, 204, 12, 3, 0, 0, 7); c.fill(); DW.Sprites.draw(c, j, B.jiji.x, 204 + Math.abs(Math.sin(t * 5)) * 1.5, { frame: Math.floor(t * 4) }); }
+      // lumière du matin : halo chaud et coins assombris
+      const lg = c.createRadialGradient(72, 70, 10, 140, 120, 260); lg.addColorStop(0, 'rgba(255,220,160,0.18)'); lg.addColorStop(0.6, 'rgba(255,200,140,0)'); lg.addColorStop(1, 'rgba(20,10,30,0.35)');
+      c.fillStyle = lg; c.fillRect(0, 0, W, H);
       c.restore();
     }
 
     draw(c) {
+      if (this.mode === 'black') { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); return; }
       if (this.mode === 'beach') this.drawBeach(c);
       else if (this.mode === 'camp') {
         if (this.pix.v > 0) {
@@ -469,15 +502,16 @@
         } else this.drawCamp(c);
       } else if (this.mode === 'tunnel') this.drawTunnel(c);
       else this.drawSky(c);
+      if (this.xf && this.xf.v > 0) { c.globalAlpha = this.xf.v; c.drawImage(this.xbuf, 0, 0); c.globalAlpha = 1; }
       if (this.flash > 0) { c.fillStyle = `rgba(255,255,255,${Math.min(1, this.flash)})`; c.fillRect(0, 0, W, H); }
       // bandes cinéma + légende
       const bh = Math.round(22 * this.bars.v);
       c.fillStyle = '#000'; c.fillRect(0, 0, W, bh); c.fillRect(0, H - bh, W, bh);
       if (this.cap.a > 0) {
         c.globalAlpha = this.cap.a;
-        const ls = UI.wrap(c, this.line, 290, 10), y0 = ls.length > 1 ? H - 26 : H - 18;
-        c.fillStyle = 'rgba(0,0,0,0.55)'; c.fillRect(0, y0 - 14, W, ls.length * 13 + 8);
-        ls.forEach((l, i) => UI.text(c, l, W / 2, y0 + i * 13, { size: 10, align: 'center' }));
+        const ls = UI.wrap(c, this.line, 296, 9).slice(0, 2), y0 = H - 26 - (ls.length - 1) * 12;
+        c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillRect(0, y0 - 12, W, ls.length * 12 + 7);
+        ls.forEach((l, i) => UI.text(c, l, W / 2, y0 + i * 12, { size: 9, align: 'center' }));
         c.globalAlpha = 1;
       }
     }

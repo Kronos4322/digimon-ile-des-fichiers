@@ -32,8 +32,8 @@
     fish: 'heure de la dernière pêche',
     whamonDay: 'jour du dernier trésor de Whamon (Crique du Radeau)',
     eggDay: 'jour du dernier DigiŒuf pris',
-    findDay: 'jour des trouvailles du partenaire',
-    findN: 'nombre de trouvailles du partenaire ce jour-là (3 max)',
+    findDay: 'jour des trouvailles au sol (game/sol.js)',
+    findN: 'nombre de trouvailles apparues au sol ce jour-là (3 max)',
   };
   // familles de drapeaux nommés par programme
   DW.FLAG_PREFIXES = {

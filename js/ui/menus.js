@@ -33,17 +33,32 @@
   }
   DW.InfoCard = InfoCard;
 
-  // ------------------------------------------------------------ menu principal (ENTRÉE ou Échap)
+  // ------------------------------------------------------------ menu principal : le Digivice (ENTRÉE ou Échap)
+  // Un anneau d'icônes hexagonales qui tourne : l'entrée choisie vient à gauche, son nom s'affiche en bandeau.
+  // À droite, les fiches de l'équipe ; en bas, les Bits et l'aide. Haut/Bas ou Gauche/Droite : tourner l'anneau.
+  const RING = {   // [clé, nom, couleur de l'hexagone, aide]
+    digimon: ['Digimon', '#e8a030', 'Voir la fiche de ton partenaire et de ton équipe.'],
+    evo: ['Digivolution', '#3ab868', 'La table des Digivolutions : les conditions, et digivoluer quand tout est prêt.'],
+    sac: ['Objets', '#c8783a', 'Ton sac : nourriture, remèdes, objets de combat...'],
+    dex: ['DigiDex', '#d84a4a', 'Tous les Digimon que tu as rencontrés ou élevés.'],
+    cartes: ['Album', '#4a7ad8', 'Ta collection de cartes Digimon.'],
+    journal: ['Journal', '#e8c840', 'Ton enquête : ce que tu as découvert sur l\'île.'],
+    carte: ['Carte', '#5ab8a8', 'La carte de l\'Île des Fichiers et des lieux visités.'],
+    dormir: ['Dormir', '#7a5ad8', 'Faire dormir ton partenaire jusqu\'au matin (quand il a sommeil).'],
+    sauver: ['Sauvegarder', '#5a6a8a', 'Sauvegarder ta progression.'],
+    options: ['Options', '#9a5ad0', 'Vitesse du texte, son...'],
+    titre: ['Écran titre', '#6a7a8a', 'Revenir à l\'écran titre (pense à sauvegarder).'],
+  };
   class MenuScene extends DW.Scene {
-    constructor() { super(); this.overlay = true; this.i = 0; }
-    get items() {
-      return [['digimon', 'DIGIMON'], ['evo', 'DIGIVOLUTION'], ['sac', 'OBJETS'], ['dex', 'DIGIDEX'], ['cartes', 'ALBUM'], ['journal', 'JOURNAL'], ['carte', 'CARTE'], ['dormir', 'DORMIR'],
-        ['sauver', 'SAUVEGARDER'], ['options', 'OPTIONS'], ['titre', 'ÉCRAN TITRE'], ['retour', 'RETOUR']];
-    }
-    update() {
+    constructor() { super(); this.overlay = true; this.i = 0; this.rot = 0; }
+    get items() { return Object.keys(RING).map(k => [k, RING[k][0]]); }
+    update(dt) {
       const n = this.items.length;
-      if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
-      if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
+      const d = Input.hit('up') || Input.hit('left') ? -1 : Input.hit('down') || Input.hit('right') ? 1 : 0;
+      if (d) { this.i = (this.i + d + n) % n; Audio.sfx('move'); }
+      // l'anneau rattrape doucement la sélection (le plus court chemin)
+      let diff = this.i - this.rot; diff = ((diff % n) + n * 1.5) % n - n / 2;
+      this.rot += diff * Math.min(1, (dt || 0.016) * 12);
       if (Input.hit('back') || Input.hit('menu')) { Audio.sfx('back'); this.close(); return; }
       if (Input.hit('ok')) { Audio.sfx('select'); this.act(this.items[this.i][0]); }
     }
@@ -90,47 +105,90 @@
       }
       else this.close();
     }
-    // fenêtre façon Digimon World 1 : onglet, fiche du DigiSélectionné (portrait en pied + champs), commandes en tuiles
+    // le Digivice : anneau d'icônes, fiches de l'équipe, Bits, aide
     draw(c) {
-      const st = DW.state, look = DW.heroLook(), t = this.t;
-      c.fillStyle = 'rgba(0,8,14,0.92)'; c.fillRect(0, 0, W, H);
-      UI.tabs(c, ['Digisélectionné'], 0, 8, 110);
-      UI.box(c, 4, 22, W - 8, H - 26);
-      // --- fiche : portrait en pied du héros (et son partenaire) sur fond quadrillé
-      const px = 10, py = 28, pw = 86, ph = 118;
-      c.fillStyle = 'rgba(0,14,22,0.75)'; c.fillRect(px, py, pw, ph);
-      c.strokeStyle = 'rgba(90,220,240,0.12)'; c.lineWidth = 0.6;
-      for (let x = px + 8; x < px + pw; x += 8) { c.beginPath(); c.moveTo(x, py); c.lineTo(x, py + ph); c.stroke(); }
-      for (let y = py + 8; y < py + ph; y += 8) { c.beginPath(); c.moveTo(px, y); c.lineTo(px + pw, y); c.stroke(); }
-      c.strokeStyle = look.crestCol || '#3a8aa0'; c.lineWidth = 1; c.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
-      const g = c.createRadialGradient(px + pw / 2, py + ph - 14, 4, px + pw / 2, py + ph - 14, 44);
-      g.addColorStop(0, 'rgba(120,220,255,0.22)'); g.addColorStop(1, 'rgba(120,220,255,0)'); c.fillStyle = g; c.fillRect(px, py, pw, ph);
-      DW.Sprites.draw(c, DW.Sprites.heroPortrait(2.4), px + 32, py + ph - 8);   // rendu net à la bonne taille
-      const pt = st.party[0];
-      if (pt) { const sp = DW.Sprites.battle(pt.sp); DW.Sprites.draw(c, sp, px + 66, py + ph - 8, { frame: Math.floor(t * 4), scale: Math.min(1, 34 / sp.h, 36 / sp.w) }); }
-      UI.text(c, look.crest ? `Écusson : ${look.crest}` : '', px + pw / 2, py + 11, { size: 7, align: 'center', color: look.crestCol || '#8ae0f0' });
-      // --- champs (Nam, Tamer Level, Raised, Bits, Time...)
-      const fx = 101, lw = 47, vw = 62, row = (k, label, val, col) => { const y = 34 + k * 15; UI.fieldName(c, label, fx, y + 8, 7); UI.field(c, fx + lw, y, vw, val, col); };
-      const m = Math.floor(st.time / 60), h = Math.floor(m / 60), town = DW.Town;
-      row(0, 'NOM', st.name, '#ffe070');
-      row(1, 'VILLE', town ? town.levelName() : '—');
-      row(2, 'PARTENAIRE', pt ? `${pt.name} N.${pt.level}` : '—');
-      row(3, 'BITS', `${st.bits}`, '#ffe070');
-      row(4, 'TEMPS', `${h} h ${String(m % 60).padStart(2, '0')}`);
-      row(5, 'DIGIDEX', `${Object.keys(st.owned).length} / ${DW.DEX_ORDER.length}`);
-      row(6, 'LIEU', DW.ow ? DW.ow.map.name : '—');
-      DW.Time.drawClock(c, 98, 142);
-      // --- commandes : tuiles à icône
-      const items = this.items, tw = 98, th = 13.4, gx = W - 10 - tw;
-      items.forEach(([ic, s], i) => {
-        const x = gx, y = 27 + i * (th + 1.6), on = i === this.i;
-        UI.box(c, x, y, tw, th, on ? 'dwsel' : 'dw');
-        if (on) { c.strokeStyle = `rgba(160,255,255,${0.5 + 0.4 * Math.sin(t * 6)})`; c.lineWidth = 1; c.strokeRect(x - 0.5, y - 0.5, tw + 1, th + 1); }
-        c.drawImage(DW.Icons.menu(ic), x + 3, y + 0.7, 12, 12);
-        UI.text(c, s, x + 19, y + 10, { size: 8, color: on ? '#ffffff' : '#bfeaf6' });
+      const st = DW.state, t = this.t, items = this.items, n = items.length, look = DW.heroLook();
+      // fond bleu nuit, quadrillage de circuits, bandes lumineuses
+      const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#062a5a'); g.addColorStop(0.55, '#0a1c44'); g.addColorStop(1, '#04102a');
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+      c.strokeStyle = 'rgba(80,180,255,0.10)'; c.lineWidth = 0.6;
+      for (let x = (t * 8) % 16; x < W; x += 16) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); }
+      for (let y = 0; y < H; y += 16) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+      c.fillStyle = 'rgba(255,210,80,0.5)'; c.fillRect(0, 64, W, 1); c.fillRect(0, 170, W, 1);
+      // --- l'anneau (à gauche)
+      const cx = 86, cy = 118, R = 70;
+      const rg = c.createRadialGradient(cx, cy, 10, cx, cy, R + 16); rg.addColorStop(0, '#2a5aa8'); rg.addColorStop(0.6, '#123a78'); rg.addColorStop(1, 'rgba(10,30,70,0)');
+      c.fillStyle = rg; c.beginPath(); c.arc(cx, cy, R + 16, 0, 7); c.fill();
+      c.strokeStyle = '#8ad0ff'; c.lineWidth = 2; c.beginPath(); c.arc(cx, cy, R + 12, 0, 7); c.stroke();
+      c.strokeStyle = 'rgba(160,220,255,0.5)'; c.lineWidth = 1; c.beginPath(); c.arc(cx, cy, R - 14, 0, 7); c.stroke();
+      for (let k = 0; k < 48; k++) { const a = k / 48 * Math.PI * 2 + t * 0.2; c.fillStyle = k % 4 ? 'rgba(160,220,255,0.35)' : '#cfeaff'; c.fillRect(cx + Math.cos(a) * (R + 7) - 0.5, cy + Math.sin(a) * (R + 7) - 0.5, 1.4, 1.4); }
+      // centre : l'écusson du héros
+      c.fillStyle = '#0a2a5a'; c.beginPath(); c.arc(cx, cy, 26, 0, 7); c.fill();
+      c.strokeStyle = '#cfeaff'; c.lineWidth = 1.5; c.beginPath(); c.arc(cx, cy, 26, 0, 7); c.stroke();
+      const ci = DW.Crests ? DW.Crests.ORDER.indexOf(st.hero) : -1;
+      if (ci >= 0) { const cr = DW.World.obj('crest', ci); c.drawImage(cr.img, cx - 8, cy - 30, 16, 19); }   // au-dessus du bandeau
+      // les hexagones : l'entrée choisie est à gauche (angle π)
+      const hex = (x, y, r, col, on) => {
+        c.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + Math.PI / 6; c.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } c.closePath();
+        const hg = c.createLinearGradient(x, y - r, x, y + r); hg.addColorStop(0, col); hg.addColorStop(1, '#1a1a2a');
+        c.fillStyle = hg; c.fill(); c.lineWidth = on ? 2 : 1.4; c.strokeStyle = on ? '#ffffff' : '#cfe0f0'; c.stroke();
+      };
+      items.forEach(([k], i) => {
+        const a = Math.PI + (i - this.rot) / n * Math.PI * 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R, on = i === this.i;
+        const r = on ? 14 + Math.sin(t * 6) * 0.6 : 11;
+        hex(x, y, r, RING[k][1], on);
+        const ic = DW.Icons.menu(k), z = on ? 16 : 12; c.drawImage(ic, x - z / 2, y - z / 2, z, z);
       });
-      // --- aide
-      UI.hints(c, [['ok', 'choisir'], ['back', 'fermer']], W - 10, H - 9);
+      // bandeau du choix (au travers de l'anneau, comme dans le modèle)
+      const [label, col, help] = RING[items[this.i][0]];
+      const by = cy - 8;
+      c.fillStyle = 'rgba(10,40,90,0.9)'; c.beginPath(); c.moveTo(cx - R + 16, by); c.lineTo(cx + R + 20, by); c.lineTo(cx + R + 12, by + 16); c.lineTo(cx - R + 16, by + 16); c.fill();
+      c.strokeStyle = '#8ad0ff'; c.lineWidth = 1; c.stroke();
+      UI.text(c, label, cx + 6, by + 12, { size: 11, align: 'center', color: '#ffffff' });
+      // titre « Digivice »
+      c.fillStyle = 'rgba(10,40,90,0.9)'; c.beginPath(); c.moveTo(0, 4); c.lineTo(98, 4); c.lineTo(88, 22); c.lineTo(0, 22); c.fill();
+      c.strokeStyle = '#8ad0ff'; c.stroke();
+      UI.text(c, 'Digivice', 8, 18, { size: 12, color: '#ffffff' });
+      // --- la fiche du partenaire (à droite) : un seul Digimon à la fois
+      const px = 178, pw = W - px - 6, m = st.party[0];
+      c.fillStyle = 'rgba(10,40,90,0.9)'; c.beginPath(); c.moveTo(px + 10, 6); c.lineTo(W - 6, 6); c.lineTo(W - 16, 22); c.lineTo(px, 22); c.fill(); c.strokeStyle = '#8ad0ff'; c.stroke();
+      UI.text(c, 'Partenaire', px + pw / 2, 18, { size: 9, align: 'center', color: '#ffffff' });
+      { const y = 30, h = 168;
+        const cg = c.createLinearGradient(px, y, px, y + h); cg.addColorStop(0, 'rgba(225,242,255,0.96)'); cg.addColorStop(1, 'rgba(150,200,240,0.92)');
+        c.fillStyle = cg; c.beginPath(); c.moveTo(px, y); c.lineTo(px + pw - 10, y); c.lineTo(px + pw, y + 10); c.lineTo(px + pw, y + h); c.lineTo(px + 10, y + h); c.lineTo(px, y + h - 10); c.closePath(); c.fill();
+        c.strokeStyle = '#ffffff'; c.lineWidth = 1; c.stroke();
+        if (!m) UI.text(c, "Pas encore de partenaire.", px + pw / 2, y + 80, { size: 8, align: 'center', color: '#3a5a7a', shadow: false });
+        else {
+          const d = m.d, dark = '#0a2a5a';
+          // portrait sur un disque lumineux
+          const dg = c.createRadialGradient(px + 38, y + 44, 4, px + 38, y + 44, 34); dg.addColorStop(0, 'rgba(255,255,255,0.95)'); dg.addColorStop(1, 'rgba(160,210,250,0)');
+          c.fillStyle = dg; c.beginPath(); c.arc(px + 38, y + 44, 34, 0, 7); c.fill();
+          const sp = DW.Sprites.battle(m.sp); DW.Sprites.draw(c, sp, px + 38, y + 72, { frame: Math.floor(t * 4), scale: Math.min(1, 56 / sp.h, 60 / sp.w) });
+          const nf = UI.fit(c, m.name, pw - 82, 10); UI.text(c, nf.s, px + 78, y + 16, { size: nf.size, color: dark, shadow: false });
+          UI.text(c, d.stage, px + 78, y + 28, { size: 7, color: '#3a6a9a', shadow: false });
+          UI.text(c, `N.${m.level}`, px + pw - 8, y + 28, { size: 9, align: 'right', color: dark, shadow: false });
+          let tx = px + 78; d.types.forEach(tp => { tx += UI.typeTag(c, tp, tx, y + 34, 6) + 2; });
+          const bar = (yy, lab, v, max, col2, txt) => {
+            UI.text(c, lab, px + 8, yy + 3, { size: 7, color: dark, shadow: false });
+            c.fillStyle = '#0a1a30'; c.fillRect(px + 52, yy - 2, pw - 60, 5); c.fillStyle = col2; c.fillRect(px + 52, yy - 2, (pw - 60) * Math.max(0, Math.min(1, v / max)), 5);
+            if (txt) UI.text(c, txt, px + pw - 8, yy - 4, { size: 6, align: 'right', color: dark, shadow: false });
+          };
+          bar(y + 88, 'PV', m.hp, m.maxHp, UI.hpColor(m.hp / m.maxHp), `${m.hp} / ${m.maxHp}`);
+          bar(y + 104, 'PM', m.mp, m.maxMp, '#4a8aff', `${m.mp} / ${m.maxMp}`);
+          bar(y + 120, 'Bonheur', m.happy, 100, '#ff6ab0');
+          bar(y + 134, 'Faim', Math.round(m.hunger || 0), 100, (m.hunger || 0) >= 70 ? '#ff5a5a' : '#f0b040');
+          const hl = DW.Life ? DW.Life.healthLabel(m) : '';
+          UI.text(c, `Santé : ${hl}`, px + 8, y + 154, { size: 7, color: m.sick || (m.germs || 0) >= 80 ? '#c83a3a' : '#2a7a4a', shadow: false });
+          if (DW.Life) UI.text(c, `${DW.Life.daysLeft(m)} j de vie`, px + pw - 8, y + 154, { size: 7, align: 'right', color: dark, shadow: false });
+        }
+      }
+      // --- Bits (porte-monnaie) et ligne d'aide
+      c.fillStyle = 'rgba(10,40,90,0.95)'; c.fillRect(0, 206, 172, 14); c.strokeStyle = '#ffd040'; c.lineWidth = 1; c.strokeRect(0.5, 206.5, 171, 13);
+      UI.text(c, 'BITS', 6, 216, { size: 8, color: '#ffd040' });
+      UI.text(c, `${st.bits}`, 164, 216, { size: 9, align: 'right', color: '#ffffff' });
+      c.fillStyle = 'rgba(4,16,40,0.95)'; c.fillRect(0, 224, W, 16);
+      const hf = UI.fit(c, help, 196, 7); UI.text(c, hf.s, 6, 235, { size: hf.size, color: '#cfeaff' });
+      UI.hints(c, [['ok', 'OK'], ['back', 'Retour']], W - 6, 235);
     }
   }
   DW.MenuScene = MenuScene;
