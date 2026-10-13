@@ -245,11 +245,11 @@
     }
     async doWarp(w) {
       const P = this.p;
-      await DW.fade(1, 0.3);
+      await DW.fade(1, 0.38, null, 'digi');
       const nx = w.tx + (P.x - w.x), ny = w.ty + (P.y - w.y);
       this.load(w.to, nx, ny, P.dir);
       DW.autosave();
-      await DW.fade(0, 0.3);
+      await DW.fade(0, 0.38, null, 'digi');
     }
     async enterDoor(o, nx) {
       Audio.sfx('door');

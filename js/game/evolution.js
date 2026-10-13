@@ -29,7 +29,9 @@
       super();
       this.mon = mon; this.from = mon.sp; this.to = to; this.o = o;
       this.E = elemOf(o.dedigi ? mon.sp : to);
-      this.v = { white: 0, flash: 0, glow: 0, morph: 0, ring: 0, banner: 0, shake: 0 };
+      this.v = { white: 0, flash: 0, glow: 0, morph: 0, ring: 0, banner: 0, shake: 0, dv: 0, beam: 0, grid: 0, call: 0 };
+      this.crest = (DW.heroLook && DW.heroLook().crestCol) || '#f08020';
+      this.off = document.createElement('canvas'); this.off.width = W; this.off.height = H;
       this.showNew = false; this.cancelReq = false;
       this.streaks = Array.from({ length: 50 }, () => this.streak(true));
       this.parts = [];
@@ -47,8 +49,18 @@
     async run() {
       const oldName = this.mon.name, newName = DW.SPECIES[this.to].name;
       Audio.play('evolve');
+      // 0) gros plan sur le Digivice : l'écran s'allume, un rayon de la couleur de l'écusson jaillit
+      if (!this.o.dedigi) {
+        await DW.tween(this.v, { dv: 1 }, 0.35);
+        Audio.sfx('evotick'); await DW.wait(0.45);
+        Audio.sfx('super'); await DW.tween(this.v, { beam: 1 }, 0.5);
+        await DW.wait(0.4);
+        this.v.flash = 1; DW.tween(this.v, { flash: 0 }, 0.6);
+        this.v.dv = 0; this.v.beam = 0;
+      }
       await DW.say(this.o.dedigi ? `Le Digivice libère les données de ${oldName}...` : this.o.story ? `Le Digivice s'illumine ! ${oldName} est enveloppé d'une lumière éclatante !` : `Le Digivice réagit ! ${oldName} rassemble ses données...`);
       DW.tween(this.v, { glow: 1 }, 1.0);
+      DW.tween(this.v, { grid: 1 }, 1.2);
       await DW.tween(this.v, { white: 1 }, 0.9);
       this.burst(30, 60);
       // alternance des silhouettes, de plus en plus rapide, la taille glisse vers la nouvelle forme
@@ -72,6 +84,7 @@
       }
       // explosion de lumière : la nouvelle forme apparaît
       this.showNew = true; this.v.morph = 1;
+      DW.tween(this.v, { grid: 0 }, 0.8);
       this.v.flash = 1; this.v.ring = 0; this.v.shake = 1;
       this.burst(60, 140);
       Audio.sfx('evolve'); Audio.sfx('super');
@@ -80,6 +93,12 @@
       DW.tween(this.v, { shake: 0 }, 0.6);
       await DW.tween(this.v, { white: 0 }, 1.0);
       Audio.play('victory');
+      // appel du nom, comme dans la série : « AGUMON digivolve en... GREYMON ! »
+      await DW.tween(this.v, { call: 1 }, 0.5);
+      await DW.wait(0.5);
+      await DW.tween(this.v, { call: 2 }, 0.4);
+      this.v.shake = 0.5; DW.tween(this.v, { shake: 0 }, 0.4);
+      await DW.wait(0.9);
       await DW.tween(this.v, { banner: 1 }, 0.4);
       await DW.say(this.o.dedigi ? `${oldName} dé-digivolue en... ${newName} !` : `${oldName} digivolve en... ${newName} !`);
       return true;
@@ -165,7 +184,33 @@
       // pendant la transformation, les deux formes sont ramenées vers une taille intermédiaire
       const k = this.v.white > 0.5 && this.v.morph < 1 ? DW.lerp(1, other.h / spr.h, 0.5 * Math.sin(this.v.morph * Math.PI)) : 1;
       const bob = Math.sin(t * 2) * 2 * this.v.glow;
-      DW.Sprites.draw(c, spr, W / 2, CY + spr.h * k / 2 + bob, { white: this.v.white, frame: Math.floor(t * 4), scale: k });
+      const o = this.off.getContext('2d'), gy = CY + spr.h * k / 2 + bob, hh = spr.h * k;
+      o.setTransform(1, 0, 0, 1, 0, 0); o.globalCompositeOperation = 'source-over'; o.clearRect(0, 0, W, H); o.imageSmoothingEnabled = false;
+      DW.Sprites.draw(o, spr, W / 2, gy, { white: this.v.white, frame: Math.floor(t * 4), scale: k });
+      if (this.v.grid > 0) {
+        o.globalCompositeOperation = 'source-atop';
+        o.fillStyle = E.a; o.globalAlpha = 0.75 * this.v.grid;
+        const sc = (t * 40) % 4;
+        for (let y = gy - hh - 4 + sc; y < gy + 4; y += 4) o.fillRect(0, Math.round(y), W, 1);
+        for (let x = W / 2 - 80 + ((t * 20) % 6); x < W / 2 + 80; x += 6) o.fillRect(Math.round(x), gy - hh - 4, 1, hh + 8);
+        // bande de balayage qui monte et descend
+        const sy = gy - hh / 2 + Math.sin(t * 3) * hh / 2;
+        o.fillStyle = '#ffffff'; o.globalAlpha = 0.9 * this.v.grid; o.fillRect(0, Math.round(sy) - 1, W, 3);
+        o.globalAlpha = 1;
+      }
+      c.drawImage(this.off, 0, 0);
+      // anneaux de données (code binaire) qui montent autour du corps
+      if (this.v.grid > 0) {
+        c.font = 'bold 6px monospace'; c.textAlign = 'center';
+        for (let i = 0; i < 3; i++) {
+          const z = (t * 0.45 + i / 3) % 1, ry = gy - z * (hh + 20), rx = 26 + (spr.w || 40) * k * 0.35;
+          c.globalAlpha = Math.sin(z * Math.PI) * this.v.grid;
+          c.strokeStyle = E.b; c.lineWidth = 1; c.beginPath(); c.ellipse(W / 2, ry, rx, rx * 0.22, 0, 0, 7); c.stroke();
+          c.fillStyle = E.a;
+          for (let j = 0; j < 12; j++) { const an = j / 12 * Math.PI * 2 + t * 2 * (i % 2 ? 1 : -1); if (Math.sin(an) < 0) continue; c.fillText((j + i + Math.floor(t * 6)) % 3 ? '1' : '0', W / 2 + Math.cos(an) * rx, ry + Math.sin(an) * rx * 0.22 + 2); }
+        }
+        c.globalAlpha = 1; c.textAlign = 'left';
+      }
       // éclats de données
       this.shards.forEach(s => { c.fillStyle = s.t < 0.2 ? '#ffffff' : E.b; c.globalAlpha = Math.max(0, 1 - s.t / s.life); c.fillRect(Math.round(s.x), Math.round(s.y), s.sz, s.sz); });
       c.globalAlpha = 1;
@@ -189,9 +234,48 @@
         UI.text(c, DW.SPECIES[this.to].stage, W / 2 + w / 2 - 8, y + 5, { size: 7, align: 'right', color: '#c8d0e8' });
         c.globalAlpha = 1;
       }
+      if (this.v.call > 0 && this.v.banner < 1) this.drawCall(c);
+      if (this.v.dv > 0) this.drawDigivice(c);
       if (this.v.flash > 0) { c.fillStyle = `rgba(255,255,255,${this.v.flash})`; c.fillRect(0, 0, W, H); }
       if (!this.o.story && !this.o.manual && !this.o.dedigi && this.v.white > 0.5) UI.text(c, 'ÉCHAP : annuler', W - 6, 12, { size: 7, align: 'right', color: '#8a9ad0' });
     }
   }
+  Object.assign(EvolutionScene.prototype, {
+    drawCall(c) {
+      const eo = k => 1 - Math.pow(1 - k, 3);
+      const E = this.E, a = Math.min(1, this.v.call), b = Math.max(0, this.v.call - 1);
+      const old = DW.SPECIES[this.from].name.toUpperCase(), nw = DW.SPECIES[this.to].name.toUpperCase();
+      c.fillStyle = 'rgba(0,0,0,0.55)'; c.fillRect(0, 8, W, 50);
+      c.fillStyle = E.a; c.fillRect(0, 8, W * a, 2); c.fillRect(W * (1 - a), 56, W * a, 2);
+      UI.text(c, old, -60 + 80 * eo(a), 26, { size: 10, bold: true, color: '#ffffff' });
+      c.globalAlpha = a; UI.text(c, this.o.dedigi ? 'dé-digivolue en...' : 'digivolve en...', 22 + 90 * eo(a), 26, { size: 8, color: '#c8d0e8' }); c.globalAlpha = 1;
+      if (b > 0) {
+        const x = W + 40 - (W / 2 + 40) * eo(b);
+        UI.text(c, nw + ' !', x + 1, 51, { size: 18, align: 'center', bold: true, color: '#000000' });
+        UI.text(c, nw + ' !', x, 50, { size: 18, align: 'center', bold: true, color: E.b === '#ffffff' ? E.a : E.b });
+      }
+    },
+    drawDigivice(c) {
+      const a = this.v.dv, t = this.t, col = this.crest;
+      c.save(); c.globalAlpha = Math.min(1, a * 3);
+      const g = c.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, 200);
+      g.addColorStop(0, col); g.addColorStop(0.35, '#10182a'); g.addColorStop(1, '#02040a');
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+      // lignes de vitesse
+      c.strokeStyle = 'rgba(255,255,255,0.25)'; c.lineWidth = 1;
+      for (let i = 0; i < 24; i++) { const an = i / 24 * Math.PI * 2 + t * 0.4, r0 = 60 + ((t * 120 + i * 37) % 120); c.beginPath(); c.moveTo(W / 2 + Math.cos(an) * r0, H / 2 + 20 + Math.sin(an) * r0); c.lineTo(W / 2 + Math.cos(an) * (r0 + 20), H / 2 + 20 + Math.sin(an) * (r0 + 20)); c.stroke(); }
+      // rayon vers le ciel
+      if (this.v.beam > 0) {
+        c.globalCompositeOperation = 'lighter';
+        const bw = 8 + 22 * this.v.beam, bg = c.createLinearGradient(W / 2 - bw, 0, W / 2 + bw, 0);
+        bg.addColorStop(0, 'rgba(255,255,255,0)'); bg.addColorStop(0.5, 'rgba(255,255,255,0.95)'); bg.addColorStop(1, 'rgba(255,255,255,0)');
+        c.fillStyle = bg; c.fillRect(W / 2 - bw, 0, bw * 2, (H / 2) * this.v.beam + 40);
+        c.globalCompositeOperation = 'source-over';
+      }
+      c.globalAlpha = a; c.save(); c.translate(W / 2, H / 2 + 24 + (1 - a) * 30); c.scale(1.5, 1.5); DW.drawDigivice(c, 0, 0, 1, t); c.restore();
+      UI.text(c, 'DIGIVOLUTION', W / 2, 40, { size: 14, align: 'center', bold: true, color: '#ffffff' });
+      c.restore();
+    },
+  });
   DW.EvolutionScene = EvolutionScene;
 })();

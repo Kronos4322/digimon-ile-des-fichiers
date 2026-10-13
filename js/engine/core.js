@@ -56,9 +56,11 @@ window.DW = window.DW || {};
   }
 
   // ------------------------------------------------------------ fondu
-  const Fade = { a: 0, from: 0, to: 0, t: 0, dur: 0, r: null, color: '#000' };
-  DW.fade = (to, dur = 0.35, color) => new Promise(r => {
+  const Fade = { a: 0, from: 0, to: 0, t: 0, dur: 0, r: null, color: '#000', style: null };
+  // style 'digi' : l'écran se décompose en blocs de données (balayage en diagonale, bords verts lumineux)
+  DW.fade = (to, dur = 0.35, color, style) => new Promise(r => {
     if (Fade.r) Fade.r();
+    Fade.style = style || null;
     if (color) Fade.color = color; else if (to > 0 && Fade.a === 0) Fade.color = '#000';
     Object.assign(Fade, { from: Fade.a, to, t: 0, dur, r });
   });
@@ -145,11 +147,28 @@ window.DW = window.DW || {};
       try { s.draw(ctx); } catch (e) { DW.reportError(e, s.constructor.name + '.draw'); }
       ctx.restore();
     }
-    if (Fade.a > 0) {
+    if (Fade.a > 0 && Fade.style === 'digi' && Fade.a < 1) drawDigiFade(ctx, Fade.a);
+    else if (Fade.a > 0) {
       ctx.globalAlpha = Fade.a; ctx.fillStyle = Fade.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
     }
     drawError(dt);
     DW.Input.clear();
+  }
+  function drawDigiFade(c, a) {
+    const B = 10, cols = W / B, rows = H / B;
+    c.font = 'bold 7px monospace'; c.textAlign = 'center';
+    for (let by = 0; by < rows; by++) for (let bx = 0; bx < cols; bx++) {
+      const h = ((bx * 73 + by * 151) % 97) / 97, thr = ((bx + by) / (cols + rows)) * 0.7 + h * 0.3;
+      const k = Math.max(0, Math.min(1, (a * 1.35 - thr) / 0.35));
+      if (k <= 0) continue;
+      const x = bx * B, y = by * B;
+      if (k >= 1) { c.fillStyle = '#000'; c.fillRect(x, y, B, B); continue; }
+      const sz = Math.ceil(B * k);
+      c.fillStyle = '#04140c'; c.fillRect(x + (B - sz) / 2, y + (B - sz) / 2, sz, sz);
+      c.fillStyle = `rgba(90,255,170,${0.9 * (1 - k)})`; c.fillRect(x + (B - sz) / 2, y + (B - sz) / 2, sz, 1); c.fillRect(x + (B - sz) / 2, y + (B - sz) / 2, 1, sz);
+      if (h < 0.35) { c.fillStyle = `rgba(160,255,200,${1 - k})`; c.fillText(h < 0.17 ? '1' : '0', x + B / 2, y + B - 2); }
+    }
+    c.textAlign = 'left';
   }
   DW.start = () => requestAnimationFrame(t => { last = t; frame(t); });
 })();
