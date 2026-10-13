@@ -14,13 +14,13 @@
     // interface de base : widgets et dialogues
     'ui/widgets.js', 'ui/dialog.js',
     // données du jeu
-    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/items.js',
+    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/items.js',
     'data/music.js', 'data/flags.js',
     // graphismes
     'gfx/sprites.js',
     'gfx/digimon/entrainement.js', 'gfx/digimon/disciples.js', 'gfx/digimon/champions.js', 'gfx/digimon/ultimes.js',
     'gfx/digimon/ultimes2.js', 'gfx/digimon/ile.js', 'gfx/digimon/agumon.js', 'gfx/digimon/bebes.js', 'gfx/digimon/lignees.js',
-    'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/town.js', 'gfx/district.js', 'gfx/littoral.js', 'gfx/themes.js',
+    'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/town.js', 'gfx/district.js', 'gfx/littoral.js', 'gfx/ecussons.js', 'gfx/themes.js',
     'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js',
     'gfx/battlebg.js', 'engine/time.js',
     // logique de jeu
@@ -32,7 +32,7 @@
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/village.js', 'maps/joueur.js', 'maps/maison.js', 'maps/interieurs.js',
-    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/regions.js',
+    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/enigmes.js', 'maps/donjons.js', 'maps/regions.js',
     'game/activities.js', 'game/services.js', 'game/story.js', 'game/requests.js', 'game/cuisine.js', 'game/guide.js',
     // démarrage
     'main.js',

@@ -241,10 +241,19 @@
 
   // ------------------------------------------------------------ journal de quête (Menu → JOURNAL)
   class JournalScene extends DW.Scene {
-    constructor() { super(); this.i = 0; this.tab = 0; }
+    // trois pages : 0 Engrenages Noirs, 1 Requêtes des habitants, 2 Écussons et enfants perdus
+    constructor() { super(); this.i = 0; this.ci = 0; this.tab = 0; }
     update() {
-      if (DW.Input.hit('left') || DW.Input.hit('right')) { this.tab ^= 1; DW.Audio.sfx('move'); }
-      if (this.tab === 1) { if (DW.Input.hit('back') || DW.Input.hit('ok') || DW.Input.hit('menu')) { DW.Audio.sfx('back'); this.close(); } return; }
+      const In = DW.Input, d = In.hit('left') ? -1 : In.hit('right') ? 1 : 0;
+      if (d) { this.tab = (this.tab + d + 3) % 3; DW.Audio.sfx('move'); }
+      if (In.hit('back') || In.hit('ok') || In.hit('menu')) { DW.Audio.sfx('back'); this.close(); return; }
+      if (this.tab === 2) {
+        const n = DW.Crests.ORDER.length;
+        if (In.hit('up')) { this.ci = (this.ci + n - 1) % n; DW.Audio.sfx('move'); }
+        if (In.hit('down')) { this.ci = (this.ci + 1) % n; DW.Audio.sfx('move'); }
+        return;
+      }
+      if (this.tab === 1) return;
       if (DW.Input.hit('up')) { this.i = (this.i + RID.length - 1) % RID.length; DW.Audio.sfx('move'); }
       if (DW.Input.hit('down')) { this.i = (this.i + 1) % RID.length; DW.Audio.sfx('move'); }
       if (DW.Input.hit('back') || DW.Input.hit('ok') || DW.Input.hit('menu')) { DW.Audio.sfx('back'); this.close(); }
@@ -252,9 +261,10 @@
     draw(c) {
       const UI = DW.UI, s = st(), g = s.gears || {}, W = DW.W;
       if (this.tab === 1) return this.drawRequests(c);
+      if (this.tab === 2) return this.drawCrests(c);
       UI.menuBg(c, this.t, 'JOURNAL');
       UI.text(c, `Engrenages Noirs : ${Story.gears()} / ${RID.length}`, W - 12, 17, { size: 8, align: 'right', color: '#ffe070' });
-      UI.text(c, 'REQUÊTES ▶', W - 12, 27, { size: 6, align: 'right', color: '#9ab0e8' });
+      UI.text(c, '◀ ÉCUSSONS · REQUÊTES ▶', W - 12, 27, { size: 6, align: 'right', color: '#9ab0e8' });
       const top = Math.max(0, Math.min(this.i - 4, RID.length - 9));
       RID.slice(top, top + 9).forEach((r, j) => {
         const idx = top + j, y = 34 + j * 15, M = DW.MAPS[DW.REGION_ENTRY[r]], seen = Object.keys(DW.MAPS).some(id => DW.MAPS[id].region === r && s.visited[id]);
@@ -276,7 +286,7 @@
   JournalScene.prototype.drawRequests = function (c) {
     const UI = DW.UI, W = DW.W, L = DW.Requests ? DW.Requests.list() : [];
     UI.menuBg(c, this.t, 'JOURNAL — REQUÊTES');
-    UI.text(c, '◀ ENGRENAGES', W - 12, 17, { size: 7, align: 'right', color: '#9ab0e8' });
+    UI.text(c, '◀ ENGRENAGES · ÉCUSSONS ▶', W - 12, 17, { size: 7, align: 'right', color: '#9ab0e8' });
     if (!L.length) UI.wrap(c, "Aucune requête en cours. Les habitants qui ont besoin d'aide ont un « ! » au-dessus de la tête : va leur parler en ville !", 280, 9).forEach((l, j) => UI.text(c, l, 18, 50 + j * 14, { size: 9, color: '#c8f0ff' }));
     L.slice(0, 9).forEach(([sp, q], j) => {
       const y = 40 + j * 20, ok = DW.Requests.ready(sp, q);
@@ -285,6 +295,29 @@
       UI.text(c, what, 96, y, { size: 7, color: ok ? '#7aff8a' : '#c8f0ff' });
       if (ok) UI.text(c, 'Prêt !', W - 14, y, { size: 7, align: 'right', color: '#7aff8a' });
     });
+  };
+  // onglet Écussons : les sept écussons, les enfants perdus, et où chercher (data/ecussons.js, maps/donjons.js)
+  JournalScene.prototype.drawCrests = function (c) {
+    const UI = DW.UI, W = DW.W, C = DW.Crests, s = st();
+    UI.menuBg(c, this.t, 'JOURNAL — ÉCUSSONS');
+    UI.text(c, '◀ REQUÊTES · ENGRENAGES ▶', W - 12, 17, { size: 7, align: 'right', color: '#9ab0e8' });
+    UI.text(c, `Écussons : ${C.count()} / ${C.ORDER.length}`, W - 12, 28, { size: 8, align: 'right', color: '#ffe070' });
+    C.ORDER.forEach((k, j) => {
+      const y = 46 + j * 17, on = j === this.ci, has = C.has(k), own = s.hero === k, H = DW.HEROES[k];
+      if (on) { c.fillStyle = 'rgba(255,255,255,0.12)'; c.fillRect(8, y - 12, W - 16, 16); }
+      const ic = DW.World.obj('crest', j);
+      c.globalAlpha = has ? 1 : 0.35; c.drawImage(ic.img, 14, y - 11, 11, 13); c.globalAlpha = 1;
+      UI.text(c, `Écusson ${C.name(k)}`, 32, y, { size: 8, color: has ? C.color(k) : '#7a8ab8' });
+      UI.text(c, own ? 'ton écusson' : H.name, 150, y, { size: 7, color: '#c8f0ff' });
+      UI.text(c, has ? 'Trouvé' : own ? 'Caché' : C.kidFound(k) ? 'Délivré' : 'Disparu', W - 16, y, { size: 7, align: 'right', color: has ? '#7aff9a' : '#ff8a8a' });
+    });
+    const k = C.ORDER[this.ci], D = DW.Donjons && DW.Donjons.LIST.find(x => x.kid === k), own = s.hero === k;
+    const where = D ? DW.MAPS[DW.REGION_ENTRY[D.region]].regionName : '?';
+    const txt = C.has(k) ? `Débloque les Ultimes : ${C.ULTIMES[k].map(sp => DW.SPECIES[sp].name).join(', ')}. (Les sept écussons réunis : la Méga.)`
+      : own ? `Ton propre écusson repose dans un lieu secret de « ${where} ». Cherche un portail ancien gravé de son symbole.`
+      : `${DW.HEROES[k].name} a disparu. On raconte qu'un portail ancien, gravé du symbole ${C.name(k)}, se cache dans « ${where} »...`;
+    UI.box(c, 6, 176, W - 12, 58);
+    UI.wrap(c, txt, 290, 8).slice(0, 4).forEach((l, j) => UI.text(c, l, 14, 192 + j * 11, { size: 8, color: '#c8f0ff' }));
   };
   Story.JournalScene = JournalScene;
 })();

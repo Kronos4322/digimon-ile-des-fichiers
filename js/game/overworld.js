@@ -64,10 +64,12 @@
     }
     tileAt(x, y) { return (this.map.rows[y] || '')[x] || '#'; }
     npcVisible(n) { return !n.cond || n.cond(DW.state); }
+    // un PNJ « walk » (dalle, marque au sol) se traverse ; les autres bloquent le passage
+    npcBlocks(x, y) { const n = this.npcAt(x, y); return !!n && !n.walk; }
     npcAt(x, y) { return (this.map.npcs || []).find(n => n.x === x && n.y === y && this.npcVisible(n)); }
     solid(x, y) {
       if (x < 0 || y < 0 || x >= this.map.w || y >= this.map.h) return true;
-      return DW.SOLID.has(this.tileAt(x, y)) || this.gfx.solid.has(x + ',' + y) || !!this.npcAt(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y);
+      return DW.SOLID.has(this.tileAt(x, y)) || this.gfx.solid.has(x + ',' + y) || this.npcBlocks(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y);
     }
     get partner() { return DW.state.party.find(m => m.hp > 0) || null; }
 
@@ -272,6 +274,7 @@
       const n = this.npcAt(x, y);
       if (n) {
         if (P.dir === 'left') n.face = 'right'; else if (P.dir === 'right') n.face = 'left';
+        if (n.hero) n.face = { up: 'down', down: 'up', left: 'right', right: 'left' }[P.dir];   // un enfant se tourne vers toi
         this.runScript(async ow => { await n.talk(ow, n); if (DW.Cuisine) await DW.Cuisine.afterTalk(n); });
         return true;
       }
@@ -428,7 +431,7 @@
       for (const n of this.map.npcs || []) {
         if (!this.npcVisible(n)) continue;
         const hy = n.hy != null ? n.hy : n.y;
-        list.push({ s: hy, ent: 'npc', n, tile: [n.x, n.y] });
+        list.push({ s: n.walk ? hy - 0.6 : hy, ent: 'npc', n, tile: [n.x, n.y] });   // une dalle se dessine sous les pieds
       }
       DW.Wild.entries(this, list);
       const P = this.p, F = this.f, pt = this.partner;
@@ -458,7 +461,12 @@
         else if (e.ent === 'npc' && e.n.pickup) this.drawPickup(c, e.n.x * TS + 8, e.n.y * TS + 13);
         else if (e.ent === 'npc') {
           const n = e.n, X = n.hx != null ? n.hx : n.x, Y = n.hy != null ? n.hy : n.y;
-          this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv);
+          if (n.hero) DW.Sprites.draw(c, DW.Sprites.hero(n.face || 'down', n.mv ? Math.floor(this.t * 8) : 0, n.hero), X * TS + 8, Y * TS + 16);   // enfant DigiSélectionné
+          else if (n.obj) {   // « PNJ objet » : barrière, vasque... (aspect selon l'état : n.ov(state))
+            const v = typeof n.ov === 'function' ? n.ov(DW.state) : n.ov || 0, O = DW.World.OBJ[n.obj];
+            const fr = O.frames ? DW.World.objFrames(n.obj, v) : null, s2 = fr ? fr[Math.floor(this.t * (O.fps || 4)) % fr.length] : DW.World.obj(n.obj, v);
+            c.drawImage(s2.img || s2, Math.round(X * TS + 8 - s2.w / 2), Math.round(Y * TS + 16 - s2.h));
+          } else this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv);
           if (n.gear) DW.Story.drawGear(c, X * TS + 8, Y * TS + 15, this.t, n.sp);
           // « ! » au-dessus des habitants qui ont une demande (game/requests.js)
           if (n.story && DW.Requests && DW.Requests.has(n.sp)) { const h = DW.Sprites.ow(n.sp).h, bx = Math.round(X * TS + 8), by = Math.round(Y * TS + 15 - h - 8 + Math.sin(this.t * 4) * 1.5); c.fillStyle = '#1a0e22'; c.fillRect(bx - 4, by - 1, 8, 11); c.fillStyle = '#ffe060'; c.fillRect(bx - 3, by, 6, 9); c.fillStyle = '#1a0e22'; c.fillRect(bx - 1, by + 1, 2, 4); c.fillRect(bx - 1, by + 6, 2, 2); }

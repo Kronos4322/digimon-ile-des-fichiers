@@ -176,5 +176,5 @@
       m.objects.push({ kind: S.corner, v: (x + y) % 2, x, y, w: 1, h: 1, small: S.corner === 'crates' });
   }
 
-  DW.Palais = { room, side, stairs, treasure };
+  DW.Palais = { room, side, stairs, treasure, entrance };
 })();

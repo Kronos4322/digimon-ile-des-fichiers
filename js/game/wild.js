@@ -42,7 +42,7 @@
   function fillRegions() {
     for (const id in DW.MAPS) {
       const m = DW.MAPS[id], T = TABLES[m.region];
-      if (!T || m.indoor && !m.dark || (m.encounters && m.encounters.length)) continue;
+      if (!T || m.calm || m.indoor && !m.dark || (m.encounters && m.encounters.length)) continue;   // calm : lieu paisible (sanctuaire)
       const idx = +(id.match(/(\d+)$/) || [0, 0])[1], base = T[0] + Math.floor(idx * 0.8);
       m.encounters = parse(T[1]).filter(e => idx >= e.from && DW.SPECIES[e.sp]).map(e => {
         const lv = Math.max(2, base - 1 + (STAGE_LV[DW.SPECIES[e.sp].stage] || 0));   // 1 niveau sous le joueur attendu : les combats poussent à s'entraîner et à s'équiper

@@ -30,6 +30,14 @@
       await say("Chaque Digimon qui retrouve la mémoire revient en ville et y ouvre un service : boutique, restaurant, clinique... La ville grandit, de « Ruines » à « Mégapole » !", J);
       await say("Et plus la ville grandit, plus de chemins s'ouvrent sur l'île. Certains passages ne s'ouvriront qu'avec l'aide d'un habitant précis.", J);
     }],
+    ['Les écussons et les enfants perdus', async () => {
+      await say("Tu n'es peut-être pas le seul humain sur l'île... Mon vieux Digivice a capté d'autres signaux : six autres enfants, perdus quelque part.", J);
+      await say("Les vieux récits parlent aussi des écussons : un pour chaque DigiSélectionné. Courage, Amitié, Amour, Savoir, Pureté, Sincérité, Espoir.", J);
+      await say("Sans écusson, un Digimon ne dépasse pas le stade Champion. Chaque écusson réveille le stade Ultime d'une famille de Digimon. Les sept réunis... la Méga !", J);
+      await say("On dit qu'ils sont gardés dans des lieux secrets : de vieux portails couverts de lierre, gravés d'un symbole. Il faudra résoudre leurs énigmes et vaincre leurs gardiens.", J);
+      await say("Les enfants perdus y sont peut-être retenus. Délivre-les : ils te confieront leur écusson. Et ton écusson à toi t'attend aussi quelque part...", J);
+      await say("Ton partenaire ne vivra pas éternellement : le jour venu, tu choisiras un autre œuf. Les écussons trouvés serviront alors à toutes les familles. (Menu → JOURNAL → ÉCUSSONS)", J);
+    }],
     ['Prendre soin de son partenaire', async () => {
       await say("Un Digimon est vivant. Il a FAIM (donne-lui de la viande), il doit aller aux TOILETTES, et il a SOMMEIL le soir (menu → DORMIR).", J);
       await say("S'il ne trouve pas de toilettes à temps... il fait sur place. Ramasse toujours ses crottes : la saleté le rend malade.", J);
@@ -86,6 +94,7 @@
     await say("C'est bien la première fois que je vois un humain ici. Les vieux récits parlent d'enfants « DigiSélectionnés », appelés quand le monde digital est en danger...", J);
     await say("Et justement, il l'est.", J);
     await TOPICS[1][1]();   // l'enquête
+    await say("Ce n'est pas tout. Mon vieux Digivice a capté d'autres signaux humains... D'autres enfants sont perdus sur l'île. Retrouve-les : je t'en reparlerai (demande-moi « les écussons »).", J);
     await say("Je suis trop vieux pour courir l'île. Mais toi... avec un partenaire Digimon à tes côtés, tu pourrais peut-être y arriver.", J);
     await say(`Et ce petit ${baby}... Il dormait à tes pieds sur la plage. Il ne t'a pas quitté depuis : c'est ton partenaire, ça ne fait aucun doute !`, J);
     DW.Audio.sfx('fanfare');

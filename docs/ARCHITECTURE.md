@@ -122,6 +122,19 @@ La maladie n'arrive jamais au hasard : `m.germs` (0-100, « Santé » dans la fi
 accidents +12, nuit blanche +20, erreur de soin +5) et baisse quand tout va bien (-3/h), en dormant (-35), aux toilettes.
 Au-delà de 70 il peut tomber malade, à 100 c'est certain. Le Médicament guérit et sert aussi de prévention (santé ≤ 50).
 
+## Écussons et enfants perdus (quête parallèle)
+Au début, aucun Digimon ne dépasse le stade **Champion**. `data/ecussons.js` (`DW.Crests`) rattache chaque Ultime à un
+écusson (Courage → MetalGreymon, SkullGreymon, Etemon ; Amitié → WereGarurumon, Megadramon ; Amour → Garudamon,
+SkullMeramon ; Savoir → Andromon, Okuwamon ; Pureté → Lillymon, Monzaemon ; Sincérité → Zudomon ; Espoir → Piximon) ;
+les sept réunis débloquent la Méga. La condition s'ajoute à `DW.Evo.check` (ligne « Écusson … » de la table).
+`maps/donjons.js` : un donjon secret par enfant (portail `crestgate` posé dans une sous-zone par `regions.js` via
+`DW.Donjons.pieceFor`) : hall (stèle d'indice + énigme 1) → galerie (énigme 2) → sanctuaire (gardien à Engrenage Noir,
+enfant, piédestal). Délivrer l'enfant donne son écusson ; il attend ensuite chez Jijimon. Ton propre écusson est seul
+dans ton donjon. Énigmes réutilisables : `maps/enigmes.js` (`DW.Enigmes` : barrière, vasques dans l'ordre, dalles, stèle
+à question), état dans `state.enigmes`. Écussons : `state.crests`, enfants : `state.kids`. Journal → page ÉCUSSONS.
+Ajouter un donjon = une entrée dans `LIST` de donjons.js. PNJ spéciaux : `hero` (enfant dessiné en héros),
+`obj` + `ov` (objet dont l'aspect dépend de l'état), `walk` (se traverse) ; `map.calm` : pas de Digimon sauvage.
+
 ## Conventions
 - Textes du jeu en français ; commentaires en français.
 - Aucune image externe : tout est dessiné par le code (pas de sprites officiels copiés).

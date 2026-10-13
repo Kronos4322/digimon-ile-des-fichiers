@@ -270,6 +270,24 @@ test('migration v4 → v5 : PV et PM restants passent à l\'échelle ×20', () =
   yes(DW.load()); eq(DW.state.party[0].hp, 200); eq(DW.state.party[0].mp, 100);
 });
 
+test('écussons : un Ultime exige l\'écusson de sa famille, la Méga les sept ; chaque donjon est relié à sa région', () => {
+  fresh();
+  const g = new DW.Digimon('greymon', 40); g.tr = { hp: 64, mp: 64, atk: 64, def: 64, spd: 64, int: 64 }; g.wins = 999; g.happy = 100; g.disc = 100;
+  const opt = DW.Evo.options('greymon').find(o => o.to === 'metalgreymon');
+  const row = () => DW.Evo.check(g, opt).rows.find(r => /Écusson/.test(r.label));
+  yes(row() && !row().ok, 'MetalGreymon devrait demander l\'écusson du Courage');
+  DW.Crests.give('tai');
+  yes(row().ok, 'avec l\'écusson du Courage, la condition est remplie');
+  const mega = DW.Evo.options('metalgreymon').find(o => DW.SPECIES[o.to].stage === 'Méga');
+  if (mega) { const r = () => DW.Evo.check(g, mega).rows.find(x => /Écussons/.test(x.label)); yes(!r().ok); DW.Crests.ORDER.forEach(k => DW.Crests.give(k)); yes(r().ok); }
+  for (const D of DW.Donjons.LIST) {
+    const hall = DW.MAPS['donjon_' + D.kid + '_hall'], out = hall.warps.find(w => w.dir === 'down');
+    yes(out && DW.MAPS[out.to] && out.to.startsWith(D.region), `donjon ${D.kid} : sortie vers ${out && out.to}`);
+    const M = DW.getMap(out.to);
+    yes((M.doors || []).some(d => d.to === hall.id || d.to === 'donjon_' + D.kid + '_hall'), `${out.to} : pas de portail vers le donjon de ${D.kid}`);
+  }
+});
+
 // ------------------------------------------------------------ lancement
 (async () => {
   for (const [name, fn] of tests) {

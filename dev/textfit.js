@@ -48,6 +48,8 @@
       ['Digivolutions', new DW.EvoTableScene(0)],
       ['Album', new DW.AlbumScene()],
       ['Journal', DW.Story.JournalScene ? new DW.Story.JournalScene() : null],
+      ['Journal Requêtes', DW.Story.JournalScene ? new DW.Story.JournalScene() : null, sc => (sc.tab = 1)],
+      ['Journal Écussons', DW.Story.JournalScene ? new DW.Story.JournalScene() : null, sc => (sc.tab = 2)],
       ['Carte du monde', new DW.WorldMapScene()],
       ['DigiFerme', new DW.FarmScene()],
     ];

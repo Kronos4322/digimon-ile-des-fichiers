@@ -11,7 +11,7 @@
   for (const ch in DW.World.CH) { const o = DW.World.CH[ch].obj; if (o && !OBJ[o]) miss.add(o + ' (case ' + ch + ')'); }
   for (const id in DW.MAPS) { const m = DW.MAPS[id]; if (m.build) m.build(); for (const o of m.objects || []) if (!OBJ[o.kind]) miss.add(o.kind + ' (' + id + ')'); }
   if (miss.size) lines.push(`<span class="ko">objets manquants : ${[...miss].join(', ')}</span>`);
-  const solidAt = (m, g, x, y) => x < 0 || y < 0 || x >= m.w || y >= m.h || DW.SOLID.has(m.rows[y][x]) || g.solid.has(x + ',' + y) || (m.npcs || []).some(n => n.x === x && n.y === y);
+  const solidAt = (m, g, x, y) => x < 0 || y < 0 || x >= m.w || y >= m.h || DW.SOLID.has(m.rows[y][x]) || g.solid.has(x + ',' + y) || (m.npcs || []).some(n => n.x === x && n.y === y && !n.walk && !n.gate);   // barrière d'énigme : supposée levée ; dalle : on marche dessus
   for (const id of Object.keys(DW.MAPS)) {
     const m = DW.getMap(id), g = DW.World.prepare(m), p = [];
     // départ : le premier passage de bord, sinon la case devant le premier escalier (étages, greniers, caves)

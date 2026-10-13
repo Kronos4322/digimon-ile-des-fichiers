@@ -129,6 +129,9 @@
     for (const [i, s] of ext) { if (sides[i][s]) throw new Error(`région ${rid} : sortie ${s} déjà prise sur ${ids[i]}`); sides[i][s] = 'ext'; }
     ENTRY[rid] = ids[0];
     R.subs.forEach(([name, kind, x = {}], i) => {
+      // portail d'un donjon secret des écussons (maps/donjons.js)
+      const dj = DW.Donjons && DW.Donjons.pieceFor(rid, i);
+      if (dj && !x.piece) x = { ...x, ...dj };
       const id = ids[i], s = Hh(i, rid.length * 13 + rid.charCodeAt(0), 501) * 1000 | 0;
       // cartes larges (comme Digimon World) : de la place pour explorer et contourner les Digimon sauvages
       const w = 88 + Math.floor(Hh(i, 1, s) * 3) * 6, h = 64 + Math.floor(Hh(i, 2, s) * 3) * 4;
