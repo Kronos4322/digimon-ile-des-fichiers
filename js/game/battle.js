@@ -15,6 +15,10 @@
   const SFX = { 'Feu': 'fire', 'Eau': 'water', 'Électrique': 'elec', 'Plante': 'leaf', 'Glace': 'water' };
   const STAT_NAME = { atk: "L'Attaque", def: 'La Défense', spd: 'La Vitesse' };
   const ST_TXT = { brn: 'est brûlé', psn: 'est empoisonné', par: 'est paralysé', slp: "s'endort" };
+  // statuts stables et prévisibles : chacun dure un nombre fixe de tours (affiché), puis s'en va tout seul
+  const STATUS_TURNS = { psn: 4, brn: 4, par: 3, slp: 2 };
+  const ST_END = { psn: "n'est plus empoisonné", brn: "n'est plus brûlé", par: "n'est plus paralysé" };
+  const MP_REGEN = 0.06;   // PM rendus à la fin de chaque tour (part des PM max) : on n'est jamais à sec bien longtemps
 
   class BattleScene extends DW.Scene {
     constructor(o) {
@@ -246,12 +250,13 @@
     }
     async endOfTurn() {
       this.gainEnergy('p', 6); this.gainEnergy('e', 6);
+      for (const side of ['p', 'e']) { const m = this.mon(side); if (m && m.hp > 0) m.mp = Math.min(m.maxMp, m.mp + Math.ceil(m.maxMp * MP_REGEN)); }
       if (this.energyFull) { this.energyFull = 0; await this.msg(`Énergie au maximum ! ${this.active.name} peut lancer ${DW.MOVES[DW.sigOf(this.active)].name} (ATTAQUE puis ENTRÉE) !`, 1.4); }
       for (const side of ['p', 'e']) {
         const m = this.mon(side);
         if (!m || m.hp <= 0) continue;
         if (m.status === 'psn' || m.status === 'brn') {
-          const dmg = Math.max(1, Math.floor(m.maxHp / (m.status === 'psn' ? 8 : 16)));
+          const dmg = Math.max(1, Math.floor(m.maxHp / (m.status === 'psn' ? 12 : 16)));   // toujours la même part des PV
           this.spr[side].blink = 0.3;
           await this.applyDamage(side, dmg);
           await this.msg(`${this.label(side)} souffre ${m.status === 'psn' ? 'du poison' : 'de sa brûlure'} !`);
@@ -259,6 +264,9 @@
           if (r) return r;
           if (this.switchedAfterKO) { this.switchedAfterKO = false; return null; }
         }
+        // les statuts s'usent : poison, brûlure, paralysie disparaissent au bout de quelques tours
+        if (m.status && m.stT == null) m.stT = STATUS_TURNS[m.status];   // statut venu d'avant le combat
+        if (m.status && m.status !== 'slp' && --m.stT <= 0) { await this.msg(`${this.label(side)} ${ST_END[m.status]} !`); m.status = null; }
       }
       return null;
     }
@@ -315,7 +323,7 @@
         if (user.slp <= 0) { user.status = null; await this.msg(`${who} se réveille !`); }
         else { await this.msg(`${who} dort profondément...`); return; }
       }
-      if (user.status === 'par' && Math.random() < 0.25) {
+      if (user.status === 'par' && Math.random() < 0.2) {
         this.sparkle(uSide, '#ffe030');
         await this.msg(`${who} est paralysé ! Il ne peut pas attaquer !`); return;
       }
@@ -377,7 +385,8 @@
       if (side === 'p' && this.protect) { if (announce) await this.msg(`La Protection repousse l'altération !`); return; }
       if (m.status || immune) { if (announce) await this.msg(`Ça n'a aucun effet sur ${this.label(side)}...`); return; }
       m.status = s;
-      if (s === 'slp') m.slp = DW.rand(1, 3);
+      if (s === 'slp') m.slp = STATUS_TURNS.slp;   // dort exactement 2 tours
+      m.stT = STATUS_TURNS[s];
       Audio.sfx('status');
       this.sparkle(side, DW.STATUS_COL[s]);
       await this.msg(`${this.label(side)} ${ST_TXT[s]} !`);

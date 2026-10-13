@@ -231,7 +231,7 @@
   // ------------------------------------------------------------ Énergie : l'éclair du cristal
   class Crystal {
     constructor(sc) { this.sc = sc; this.wait = 0.6; this.cycle(); this.beam = 0; this.hint = 'Le cristal se charge... ESPACE pile au moment de l\'éclair !'; }
-    cycle() { const d = this.sc.dif; this.build = (1.3 + Math.random() * 1.1) * (1 - d * 0.25); this.win = 0.3 - d * 0.14; this.c = 0; this.used = false; }
+    cycle() { const d = this.sc.dif; this.build = (1.5 + Math.random() * 0.8) * (1 - d * 0.2); this.win = 0.42 - d * 0.14; this.c = 0; this.used = false; }   // plus facile : fenêtre plus large
     update(dt) {
       const sc = this.sc;
       if (this.beam > 0) this.beam -= dt;

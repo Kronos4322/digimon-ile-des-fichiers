@@ -232,6 +232,8 @@
     finishStep() {
       const P = this.p, F = this.f;
       Object.assign(P, { moving: false, x: P.tx, y: P.ty, sx: P.tx, sy: P.ty, t: 0 });
+      // les PM reviennent doucement en marchant (pas besoin de dormir pour retrouver ses techniques)
+      for (const m of DW.state.party) if (m.hp > 0 && m.mp < m.maxMp && this.p.step % 4 === 0) m.mp = Math.min(m.maxMp, m.mp + Math.ceil(m.maxMp * 0.01));
       // Chaussures santé (dans le sac) : marcher rend un peu de PV et de PM
       if (DW.state.bag.chaussures) for (const m of DW.state.party) if (m.hp > 0) { m.hp = Math.min(m.maxHp, m.hp + Math.ceil(m.maxHp * 0.004)); m.mp = Math.min(m.maxMp, m.mp + Math.ceil(m.maxMp * 0.004)); }
       if (F.moving) Object.assign(F, { moving: false, x: F.tx, y: F.ty, sx: F.tx, sy: F.ty, t: 0 });

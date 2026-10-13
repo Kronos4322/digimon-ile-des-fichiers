@@ -52,7 +52,7 @@
         UI.box(c, 8, 10, 136, 40);
         UI.text(c, E.name, 15, 24, { size: 10, bold: true });
         UI.text(c, `N.${E.level}`, 137, 24, { size: 9, align: 'right', color: '#ffd860' });
-        if (E.status) UI.tag(c, DW.STATUS_NAME[E.status], 15 + UI.measure(c, E.name, 10, true) + 4, 15, DW.STATUS_COL[E.status]);
+        if (E.status) UI.tag(c, DW.STATUS_NAME[E.status] + (E.stT > 0 && E.status !== 'slp' ? ' ' + E.stT : ''), 15 + UI.measure(c, E.name, 10, true) + 4, 15, DW.STATUS_COL[E.status]);
         UI.text(c, 'PV', 15, 35, { size: 7, bold: true, color: '#ffd860' });
         const r = this.hpShow.e / E.maxHp;
         UI.bar(c, 29, 30, 108, 4, r, UI.hpColor(r));
@@ -67,7 +67,7 @@
         UI.box(c, 172, 122, 142, 52);
         UI.text(c, P.name, 179, 136, { size: 10, bold: true });
         UI.text(c, `N.${P.level}`, 307, 136, { size: 9, align: 'right', color: '#ffd860' });
-        if (P.status) UI.tag(c, DW.STATUS_NAME[P.status], 179 + UI.measure(c, P.name, 10, true) + 4, 127, DW.STATUS_COL[P.status]);
+        if (P.status) UI.tag(c, DW.STATUS_NAME[P.status] + (P.stT > 0 && P.status !== 'slp' ? ' ' + P.stT : ''), 179 + UI.measure(c, P.name, 10, true) + 4, 127, DW.STATUS_COL[P.status]);
         UI.text(c, 'PV', 179, 147, { size: 7, bold: true, color: '#ffd860' });
         const r = this.hpShow.p / P.maxHp;
         UI.bar(c, 193, 142, 114, 4, r, UI.hpColor(r));
