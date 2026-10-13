@@ -7,29 +7,7 @@
   const { say, st, healAll, forestGen, recruitNPC, zoomGen, zoomMap, zpt } = DW.MapKit;
   const MAPS = DW.MAPS;
 
-  // ------------------------------------------------------------ scripts
-  async function kuwagamonEvent(ow) {
-    const s = st(), partner = s.party.find(m => m.hp > 0) || s.party[0];
-    DW.Audio.stop();
-    DW.Audio.sfx('roar'); ow.shake = 1.2;
-    await DW.wait(1.0);
-    await say('BZZZZZZZZZZ !!!');
-    ow.big = { sp: 'kuwagamon', x: 0, y: -40 };
-    DW.Audio.sfx('swoosh');
-    await DW.tween(ow.big, { y: 120 }, 0.7);
-    await say("Un gigantesque insecte rouge surgit des arbres ! C'est lui qui terrorise les Yokomon de la clairière !");
-    await say("C'est Kuwagamon ! Il est super dangereux... mais on ne peut pas reculer !", partner.name);
-    ow.big = null;
-    const kuwa = new DW.Digimon('kuwagamon', 9);
-    const res = await ow.battle({ enemy: kuwa, boss: true, intro: "Kuwagamon passe à l'attaque !" });
-    if (res !== 'win') return;
-    s.flags.kuwagamon = true;
-    await say("Kuwagamon s'écrase dans les buissons... puis s'envole en titubant vers la montagne !");
-    await say('On a réussi ! La clairière est enfin tranquille.', partner.name);
-    await say('Des petits Digimon sortent timidement des herbes pour vous remercier...');
-    DW.autosave();
-    await DW.Chapter.end1();   // fin du chapitre 1 (game/chapitre1.js)
-  }
+  // Kuwagamon, premier boss, se cache dans le Grand Arbre de la clairière : maps/kuwagamon.js
 
   // objet ramassable (sphère brillante posée au sol)
   const pickup = (x, y, id, n, flag) => ({ pickup: true, x, y, cond: s => !s.flags[flag], talk: async () => {
@@ -48,27 +26,34 @@
       clearings: [{ x: 18, y: 12, rx: 12, ry: 7.5 }, { x: 9, y: 9, rx: 4, ry: 3.5 }],
       paths: [{ pts: [[17, 14], [17, 20], [18, 25], [17, 30]], r: 1.8 }, { pts: [[17, -1], [17, 4], [17, 10]], r: 1.6 }],
       tall: [{ x: 27, y: 8, r: 3 }, { x: 25, y: 16, r: 2.2 }],
-      bigtrees: [[28, 12]],
-      free: [[17, 12, 5], [9, 9, 3]],
+      bigtrees: [],
+      free: [[17, 12, 5], [9, 9, 3], [28, 10, 4.5]],   // dégagé autour du Grand Arbre
       set: [[9, 8, 'O'], [19, 21, 'S']],
     })),
     encounters: [{ sp: 'botamon', min: 3, max: 4, w: 10 }, { sp: 'yuramon', min: 3, max: 4, w: 10 }, { sp: 'nyokimon', min: 3, max: 4, w: 8 }, { sp: 'yokomon', min: 6, max: 7, w: 35 }, { sp: 'kunemon', min: 6, max: 8, w: 35 }, { sp: 'tanemon', min: 6, max: 7, w: 15 }, { sp: 'mushroomon', min: 6, max: 8, w: 15, night: 40 }],
     warps: [{ x: 16, y: 29, w: 3, h: 1, dir: 'down', to: 'sentier', tx: 21, ty: 0 }],
+    // le Grand Arbre où se cache Kuwagamon : une énigme dans l'écorce ouvre le tronc (maps/kuwagamon.js)
+    objects: [{ kind: 'grandarbre', v: 0, x: 26, y: 8, w: 4, h: 3 }],
+    doors: [{ x: 27, y: 10, w: 2, dir: 'up', to: 'arbre_kuwagamon', tx: 9, ty: 12, cond: () => DW.Enigmes.solved('kuwa_arbre') }],
+    populate() { const o = this.objects.find(x => x.kind === 'grandarbre'), v = DW.Enigmes.solved('kuwa_arbre') ? 1 : 0; if (o && o.v !== v) { o.v = v; DW.World.unprepare(this); } },
     npcs: [
+      { sp: 'yokomon', x: 24, y: 13, face: 'right', cond: s => !s.flags.kuwagamon, talk: async () => {
+        await say("Chut ! Tu entends ce bourdonnement ? Il vient du Grand Arbre...", 'Yokomon');
+        await say("Depuis qu'un énorme insecte rouge s'y est caché, on n'ose plus jouer dans la clairière. Il y a des mots bizarres gravés sur le tronc...", 'Yokomon');
+      } },
       recruitNPC({ sp: 'yokomon', x: 17, y: 11, face: 'left', noBattle: true, cond: s => s.flags.kuwagamon,
         lines: ["Merci d'avoir chassé Kuwagamon ! On avait si peur qu'on n'osait plus rentrer...", 'On se souvient maintenant : on vivait à la Ville des Fichiers !'],
         win: "On rentre en ville ! On a plein d'idées... Tu verras bien !" }),
       pickup(30, 15, 'viande', 2, 'pk_clairiere'),
     ],
-    triggers: [
-      { x: 0, y: 23, w: 36, h: 1, cond: s => !s.flags.kuwagamon, run: kuwagamonEvent },
-    ],
+    triggers: [],
     signs: {
       '9,8': async () => {
         const r = await DW.ask("Une source scintillante... Des chiffres lumineux s'en échappent. Se reposer ici ?");
         if (r === 0) { const [hx, hy] = zpt('clairiere', 9, 9); st().heal = { map: 'clairiere', x: hx, y: hy + 1 }; await healAll('Tes Digimon sont en pleine forme !'); DW.autosave(); }
       },
       '19,21': "Clairière de l'Arrivée, au cœur de la forêt. Sud : Sentier des Murmures.",
+      ...Object.fromEntries([26, 27, 28, 29].map(x => [`${x},10`, ow => DW.Kuwa.tree(ow)])),   // l'énigme du Grand Arbre
     },
   };
 

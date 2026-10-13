@@ -133,8 +133,9 @@
         const hg = c.createLinearGradient(x, y - r, x, y + r); hg.addColorStop(0, col); hg.addColorStop(1, '#1a1a2a');
         c.fillStyle = hg; c.fill(); c.lineWidth = on ? 2 : 1.4; c.strokeStyle = on ? '#ffffff' : '#cfe0f0'; c.stroke();
       };
+      // l'entrée suivante est en dessous de la sélection : Bas descend le long de l'anneau
       items.forEach(([k], i) => {
-        const a = Math.PI + (i - this.rot) / n * Math.PI * 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R, on = i === this.i;
+        const a = Math.PI - (i - this.rot) / n * Math.PI * 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R, on = i === this.i;
         const r = on ? 14 + Math.sin(t * 6) * 0.6 : 11;
         hex(x, y, r, RING[k][1], on);
         const ic = DW.Icons.menu(k), z = on ? 16 : 12; c.drawImage(ic, x - z / 2, y - z / 2, z, z);

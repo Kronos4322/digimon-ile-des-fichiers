@@ -9,7 +9,8 @@
     // réglages de partie
     starter: 'espèce du premier partenaire choisi (active la sauvegarde automatique)',
     // histoire
-    kuwagamon: 'Kuwagamon vaincu (forêt)',
+    kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière, fin du chapitre 1)',
+    kuwaSeen: 'entré dans le Grand Arbre (les racines se sont refermées)',
     shellmon: 'Shellmon vaincu (plage)',
     whamon: 'Whamon libéré de son Engrenage Noir (Crique du Radeau)',
     devimon: 'Devimon vaincu',

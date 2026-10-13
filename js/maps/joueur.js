@@ -117,7 +117,8 @@
       const s = st();
       if (!s.home) s.home = { owned: { lit: true, coffre: true } };
       if (DW.HOME_DOOR) Object.assign(this.warps[0], { tx: DW.HOME_DOOR.x, ty: DW.HOME_DOOR.y + 1 });
-      const version = ORDER.filter(owned).join(',');
+      const cave = DW.Trophies && DW.Trophies.count() > 0;   // le premier trophée ouvre la cave (game/trophees.js)
+      const version = ORDER.filter(owned).join(',') + (cave ? '|cave' : '');
       if (this.version === version && this.objects.length) return;
       this.version = version;
       this.objects = [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'window', v: 0, x: 6, y: 1, w: 2, h: 2, back: true, oy: -6 }];
@@ -128,6 +129,13 @@
         for (let x = o.x; x < o.x + (o.w || 1); x++) for (let y = o.y + (o.h || 1) - 1; y < o.y + (o.h || 1); y++) this.signs[`${x},${y}`] = () => USE[id]();
       }
       if (owned('tableau')) this.signs['9,2'] = this.signs['10,2'] = this.signs['12,2'] = this.signs['13,2'] = () => USE.tableau();
+      // escalier de la cave aux trophées
+      this.doors = [];
+      if (cave) {
+        this.objects = this.objects.filter(o => !(o.x < 14 && o.x + (o.w || 1) > 12 && (o.back || o.y <= 4)));
+        this.objects.push({ kind: 'stairsdown', x: 12, y: 1, w: 2, h: 2, back: true });
+        this.doors.push({ x: 12, y: 2, w: 2, dir: 'up', to: 'cave_joueur', tx: 7, ty: 3 });
+      }
       DW.World.unprepare(this);
     },
     async onEnter() {
