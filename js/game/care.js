@@ -150,7 +150,7 @@
       this.toasts.forEach((o, i) => {
         const a = Math.min(1, o.t / 0.2, (4.5 - o.t) / 0.5);
         c.globalAlpha = Math.max(0, a);
-        const w = UI.measure(c, o.text, 8) + 16, y = DW.H - 30 - (this.toasts.length - 1 - i) * 20;
+        const w = UI.measure(c, o.text, 8) + 16, y = DW.H - 52 - (this.toasts.length - 1 - i) * 20;   // au-dessus des jauges du bas
         UI.box(c, (DW.W - w) / 2, y, w, 17);
         UI.text(c, o.text, DW.W / 2, y + 12, { size: 8, align: 'center', color: o.col });
         c.globalAlpha = 1;
