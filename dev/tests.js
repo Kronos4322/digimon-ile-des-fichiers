@@ -83,6 +83,12 @@ test('aucune page HTML ne recopie la liste des scripts', () => {
   }
 });
 
+test('fins de ligne Unix (LF) partout : jamais de CRLF (règle du projet)', () => {
+  const files = [...srcFiles(path.join(ROOT, 'js')), ...srcFiles(path.join(ROOT, 'dev'))];
+  const bad = files.filter(f => fs.readFileSync(f, 'utf8').includes(String.fromCharCode(13))).map(f => path.relative(ROOT, f));
+  yes(!bad.length, 'fichiers en CRLF (à normaliser) : ' + bad.join(', '));
+});
+
 // ------------------------------------------------------------ drapeaux
 test('tous les drapeaux utilisés sont déclarés dans js/data/flags.js', () => {
   const unknown = new Set();
