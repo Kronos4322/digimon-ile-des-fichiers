@@ -89,7 +89,7 @@
     await say('BZZZZZZZZZ !!!', 'Kuwagamon');
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Donne-lui de quoi se soigner (menu → OBJETS)."); return; }
     if ((await DW.ask('Affronter Kuwagamon ?')) !== 0) return;
-    const res = await ow.battle({ enemy: new DW.Digimon('kuwagamon', 9), boss: true, canLose: true, intro: 'Kuwagamon fond sur vous, pinces grandes ouvertes !' });
+    const res = await ow.battle({ enemy: new DW.Digimon('kuwagamon', 13), boss: true, canLose: true, intro: 'Kuwagamon fond sur vous, pinces grandes ouvertes !' });
     if (res !== 'win') return;
     s.flags.kuwagamon = true;
     await victory(ow);
