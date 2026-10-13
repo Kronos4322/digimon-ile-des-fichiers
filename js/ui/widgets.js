@@ -52,15 +52,22 @@
     c.textAlign = 'left';
     return r * 2;
   };
+  // largeur du bouton dessiné par UI.btn (sans le dessiner)
+  UI.btnW = (c, action) => {
+    const I = DW.Input, dev = I.device === 'pad' ? I.padKind : I.device, label = I.names()[action] || action;
+    if (dev === 'key' || dev === 'touch') return UI.measure(c, label, 7) + 8;
+    if (dev !== 'ps' && label.length > 1) return UI.measure(c, label, 6) + 8;
+    return 11;
+  };
   // ligne d'aide : [[action, 'texte'], ...] alignée à droite en x (ou à gauche si o.left)
   UI.hints = (c, list, x, y, o = {}) => {
-    const parts = list.map(([a, t]) => ({ a, t, w: 0 }));
+    const GAP = 8, parts = list.map(([a, t]) => ({ a, t, bw: UI.btnW(c, a), tw: UI.measure(c, t, 7) }));
+    const total = parts.reduce((s, p) => s + p.bw + 3 + p.tw, 0) + GAP * (parts.length - 1);
     c.save();
-    let total = 0;
-    for (const p of parts) { p.w = 13 + UI.measure(c, p.t, 7) + 10; total += p.w; }
     let cx = o.left ? x : x - total;
-    for (const p of parts) { const bw = UI.btn(c, p.a, cx, y); UI.text(c, p.t, cx + bw + 3, y, { size: 7, color: o.color || '#a8d8f0' }); cx += p.w + Math.max(0, bw - 11); }
+    for (const p of parts) { UI.btn(c, p.a, cx, y); UI.text(c, p.t, cx + p.bw + 3, y, { size: 7, color: o.color || '#a8d8f0' }); cx += p.bw + 3 + p.tw + GAP; }
     c.restore();
+    return total;
   };
   UI.wrap = (c, s, maxW, size = 10) => {
     c.font = UI.font(size);
@@ -107,6 +114,34 @@
     c.lineWidth = 1.4; c.strokeStyle = out; c.stroke();
     rr(c, x + 1.6, y + 1.6, w - 3.2, h - 3.2, 3);
     c.lineWidth = 0.8; c.strokeStyle = inner; c.stroke();
+  };
+  // case de valeur façon Digimon World : fond sombre, liseré cyan
+  UI.field = (c, x, y, w, txt, col = '#ffffff', size = 8) => {
+    c.fillStyle = 'rgba(0,10,16,0.6)'; c.fillRect(x, y, w, size + 3);
+    c.strokeStyle = '#3a8aa0'; c.lineWidth = 0.6; c.strokeRect(x + 0.3, y + 0.3, w - 0.6, size + 2.4);
+    const fit = UI.fit(c, String(txt), w - 6, size);
+    UI.text(c, fit.s, x + 3, y + size + 0.6, { size: fit.size, color: col });
+  };
+  // texte qui doit tenir dans une largeur : taille réduite d'un ou deux crans, puis coupure « … »
+  UI.fit = (c, s, maxW, size = 8, minSize = size - 2) => {
+    for (let z = size; z >= minSize; z--) if (UI.measure(c, s, z) <= maxW) return { s, size: z };
+    let t = s;
+    while (t.length > 1 && UI.measure(c, t + '…', minSize) > maxW) t = t.slice(0, -1);
+    return { s: t.trimEnd() + '…', size: minSize };
+  };
+  // nom de champ bleu à liseré blanc (NAME, DIGI, AGE... dans Digimon World)
+  UI.fieldName = (c, s, x, y, size = 8) => {
+    c.font = UI.font(size); c.textAlign = 'left';
+    c.fillStyle = '#ffffff'; for (const [dx, dy] of [[-0.7, 0], [0.7, 0], [0, -0.7], [0, 0.7]]) c.fillText(s, x + dx, y + dy);
+    c.fillStyle = '#3a6af0'; c.fillText(s, x, y);
+  };
+  // onglets du haut d'une fenêtre (Status / Tech dans Digimon World) ; renvoie rien
+  UI.tabs = (c, names, sel, x = 8, w = 78) => {
+    names.forEach((s, k) => {
+      const xx = x + k * w, on = k === sel;
+      UI.box(c, xx, on ? 3 : 6, w - 4, on ? 20 : 17, on ? 'dwsel' : 'dw');
+      UI.text(c, s, xx + (w - 4) / 2, on ? 17 : 18, { size: 10, align: 'center', color: on ? '#ffffff' : '#7ac8dc' });
+    });
   };
   // étiquette jaune façon Digimon World (PROFIL, CONDITION...)
   UI.label = (c, s, x, y, col = '#f8d040') => {

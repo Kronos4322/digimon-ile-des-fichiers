@@ -324,4 +324,9 @@
     }
     return (cache[key] = spr);
   };
+  // portrait en pied, de face, rendu k fois plus fin (menu, fiche du DigiSélectionné)
+  DW.Sprites.heroPortrait = (k = 3, id) => {
+    const look = DW.heroLook(id), key = 'portrait' + look.name + k;
+    return cache[key] || (cache[key] = Art.render(d => front(d, 0, false, look), Math.round(HW * k), Math.round(HH * k), { box: [HW, HH], silhouettes: false, dither: 0.05 }));
+  };
 })();

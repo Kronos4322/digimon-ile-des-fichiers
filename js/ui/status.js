@@ -13,11 +13,7 @@
     c.beginPath(); c.moveTo(x - 4.4, y + 0.8); c.lineTo(x, y + 5); c.lineTo(x + 4.4, y + 0.8); c.fill();
     if (full) { c.fillStyle = '#ffd0e0'; c.fillRect(x - 3, y - 1.4, 1, 1); }
   };
-  const field = (c, x, y, w, txt, col = '#ffffff') => {
-    c.fillStyle = 'rgba(0,10,16,0.6)'; c.fillRect(x, y, w, 11);
-    c.strokeStyle = '#3a8aa0'; c.lineWidth = 0.6; c.strokeRect(x + 0.3, y + 0.3, w - 0.6, 10.4);
-    UI.text(c, txt, x + 3, y + 8.6, { size: 8, color: col });
-  };
+  const field = (c, x, y, w, txt, col) => UI.field(c, x, y, w, txt, col);
   const PARAMS = [['hp', 'PV', '#ff5a8a'], ['mp', 'PM', '#4ad0e8'], ['atk', 'Att', '#ff8a3a'], ['def', 'Déf', '#ffd040'], ['spd', 'Vit', '#5ae0a0'], ['int', 'Int', '#7ab0ff']];
 
   class SummaryScene extends DW.Scene {
@@ -40,11 +36,7 @@
       const m = this.mon, d = m.d;
       UI.menuBg(c, this.t);
       // onglets
-      ['Statut', 'Techniques'].forEach((s, k) => {
-        const x = 8 + k * 78, sel = k === this.tab;
-        UI.box(c, x, sel ? 3 : 6, 74, sel ? 20 : 17, sel ? 'dwsel' : 'dw');
-        UI.text(c, s, x + 37, sel ? 17 : 18, { size: 10, align: 'center', color: sel ? '#ffffff' : '#7ac8dc' });
-      });
+      UI.tabs(c, ['Statut', 'Techniques'], this.tab);
       UI.text(c, `${this.i + 1} / ${DW.state.party.length}`, W - 10, 16, { size: 8, align: 'right', color: '#7ac8dc' });
       UI.box(c, 4, 22, W - 8, H - 26);
       if (this.tab === 0) this.drawStatus(c, m, d); else this.drawTech(c, m);

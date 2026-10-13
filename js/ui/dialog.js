@@ -68,9 +68,9 @@
       if (done && !(last && this.o.choices)) UI.downArrow(c, 302, 226, this.t);
       // aide : bouton à presser (clavier ou manette), en onglet au-dessus du coin droit de la boîte
       if (!(done && last && this.o.choices)) {
-        const txt = done ? (last ? 'fermer' : 'suivant') : 'maintenir : accélérer', w = UI.measure(c, txt, 7) + 30;
+        const txt = done ? (last ? 'fermer' : 'suivant') : 'maintenir : accélérer', w = UI.btnW(c, 'ok') + 3 + UI.measure(c, txt, 7) + 10;
         c.globalAlpha = 0.92; UI.box(c, 314 - w, 168, w, 14); c.globalAlpha = 1;
-        UI.hints(c, [['ok', txt]], 312, 178);
+        UI.hints(c, [['ok', txt]], 309, 178);
       }
       if (done && last && this.o.choices) {
         const ch = this.o.choices;

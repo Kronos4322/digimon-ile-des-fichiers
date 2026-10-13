@@ -90,31 +90,47 @@
       }
       else this.close();
     }
+    // fenêtre façon Digimon World 1 : onglet, fiche du DigiSélectionné (portrait en pied + champs), commandes en tuiles
     draw(c) {
-      const st = DW.state;
-      // carte du joueur
-      UI.box(c, 6, 6, 150, 62);
-      UI.label(c, 'DIGISÉLECTIONNÉ', 12, 11);
-      UI.text(c, st.name, 14, 34, { size: 12, color: '#ffe070' });
-      UI.text(c, `${st.bits} Bits`, 148, 34, { size: 9, align: 'right' });
-      const m = Math.floor(st.time / 60), h = Math.floor(m / 60);
-      UI.text(c, `Temps de jeu  ${h}h${String(m % 60).padStart(2, '0')}`, 14, 47, { size: 8, color: '#8ae0f0' });
-      UI.text(c, `DigiDex  ${Object.keys(st.owned).length} / ${DW.DEX_ORDER.length}`, 14, 59, { size: 8, color: '#8ae0f0' });
+      const st = DW.state, look = DW.heroLook(), t = this.t;
+      c.fillStyle = 'rgba(0,8,14,0.92)'; c.fillRect(0, 0, W, H);
+      UI.tabs(c, ['Digisélectionné'], 0, 8, 110);
+      UI.box(c, 4, 22, W - 8, H - 26);
+      // --- fiche : portrait en pied du héros (et son partenaire) sur fond quadrillé
+      const px = 10, py = 28, pw = 86, ph = 118;
+      c.fillStyle = 'rgba(0,14,22,0.75)'; c.fillRect(px, py, pw, ph);
+      c.strokeStyle = 'rgba(90,220,240,0.12)'; c.lineWidth = 0.6;
+      for (let x = px + 8; x < px + pw; x += 8) { c.beginPath(); c.moveTo(x, py); c.lineTo(x, py + ph); c.stroke(); }
+      for (let y = py + 8; y < py + ph; y += 8) { c.beginPath(); c.moveTo(px, y); c.lineTo(px + pw, y); c.stroke(); }
+      c.strokeStyle = look.crestCol || '#3a8aa0'; c.lineWidth = 1; c.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+      const g = c.createRadialGradient(px + pw / 2, py + ph - 14, 4, px + pw / 2, py + ph - 14, 44);
+      g.addColorStop(0, 'rgba(120,220,255,0.22)'); g.addColorStop(1, 'rgba(120,220,255,0)'); c.fillStyle = g; c.fillRect(px, py, pw, ph);
+      DW.Sprites.draw(c, DW.Sprites.heroPortrait(2.4), px + 32, py + ph - 8);   // rendu net à la bonne taille
       const pt = st.party[0];
-      if (pt) DW.Sprites.draw(c, DW.Sprites.ow(pt.sp), 130, 64, { frame: Math.floor(this.t * 2) });
-      // zone + horloge
-      UI.box(c, 6, 72, 150, 22);
-      UI.text(c, DW.ow ? DW.ow.map.name : '', 12, 86, { size: 8 });
-      DW.Time.drawClock(c, 6, 98);
-      // liste
-      const items = this.items, w = 118, x = W - w - 6, rowH = 16.5;
-      UI.box(c, x, 6, w, items.length * rowH + 10);
+      if (pt) { const sp = DW.Sprites.battle(pt.sp); DW.Sprites.draw(c, sp, px + 66, py + ph - 8, { frame: Math.floor(t * 4), scale: Math.min(1, 34 / sp.h, 36 / sp.w) }); }
+      UI.text(c, look.crest ? `Écusson : ${look.crest}` : '', px + pw / 2, py + 11, { size: 7, align: 'center', color: look.crestCol || '#8ae0f0' });
+      // --- champs (Nam, Tamer Level, Raised, Bits, Time...)
+      const fx = 101, lw = 47, vw = 62, row = (k, label, val, col) => { const y = 34 + k * 15; UI.fieldName(c, label, fx, y + 8, 7); UI.field(c, fx + lw, y, vw, val, col); };
+      const m = Math.floor(st.time / 60), h = Math.floor(m / 60), town = DW.Town;
+      row(0, 'NOM', st.name, '#ffe070');
+      row(1, 'VILLE', town ? town.levelName() : '—');
+      row(2, 'PARTENAIRE', pt ? `${pt.name} N.${pt.level}` : '—');
+      row(3, 'BITS', `${st.bits}`, '#ffe070');
+      row(4, 'TEMPS', `${h} h ${String(m % 60).padStart(2, '0')}`);
+      row(5, 'DIGIDEX', `${Object.keys(st.owned).length} / ${DW.DEX_ORDER.length}`);
+      row(6, 'LIEU', DW.ow ? DW.ow.map.name : '—');
+      DW.Time.drawClock(c, 98, 142);
+      // --- commandes : tuiles à icône
+      const items = this.items, tw = 98, th = 13.4, gx = W - 10 - tw;
       items.forEach(([ic, s], i) => {
-        const y = 11 + i * rowH;
-        if (i === this.i) UI.box(c, x + 4, y, w - 8, rowH - 2, 'dwsel');
-        c.drawImage(DW.Icons.menu(ic), x + 8, y + 1);
-        UI.text(c, s, x + 28, y + 12, { size: 9, color: i === this.i ? '#ffffff' : '#bfeaf6' });
+        const x = gx, y = 27 + i * (th + 1.6), on = i === this.i;
+        UI.box(c, x, y, tw, th, on ? 'dwsel' : 'dw');
+        if (on) { c.strokeStyle = `rgba(160,255,255,${0.5 + 0.4 * Math.sin(t * 6)})`; c.lineWidth = 1; c.strokeRect(x - 0.5, y - 0.5, tw + 1, th + 1); }
+        c.drawImage(DW.Icons.menu(ic), x + 3, y + 0.7, 12, 12);
+        UI.text(c, s, x + 19, y + 10, { size: 8, color: on ? '#ffffff' : '#bfeaf6' });
       });
+      // --- aide
+      UI.hints(c, [['ok', 'choisir'], ['back', 'fermer']], W - 10, H - 9);
     }
   }
   DW.MenuScene = MenuScene;
