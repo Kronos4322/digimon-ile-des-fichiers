@@ -425,7 +425,7 @@
           if (events.length && m.evoTarget()) m.evoPending = true;
         }
       }
-      const bits = Math.floor(E.level * (this.wild ? 5 : 25) + DW.rand(0, E.level * 2));
+      const bits = Math.floor((E.level * (this.wild ? 5 : 25) + DW.rand(0, E.level * 2)) * 2.5);   // ×2,5 : les combats durs financent soins et objets
       this.st.bits += bits;
       await this.msg(`Tu récupères ${bits} Bits !`, 0.9);
     }

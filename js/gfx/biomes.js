@@ -9,6 +9,7 @@
 (function () {
   const OBJ = DW.World.OBJ, TH = DW.World.THEMES;
   const LAVA = ['#fff6b0', '#ffd848', '#ffa424', '#f47a18', '#d85414', '#a83612', '#76220c'];
+  DW.World.LAVA = LAVA;   // reconnu par terrain.js (pas de nénuphars sur la lave)
   const ICE = ['#f2fbff', '#d4f0fc', '#b4e2f6', '#94d0f0', '#74bae6', '#5aa0d8', '#4484c4'];
 
   Object.assign(TH, {

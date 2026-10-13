@@ -97,7 +97,7 @@
       if (!v.x && !v.y) { P.turnT = 0; return; }
       // nouvelle direction : le héros pivote d'abord sur place (on le voit se tourner), puis il marche
       const d = this.faceFor(v);
-      if (d !== P.dir) { P.dir = d; P.turnT = 0.08; return; }
+      if (d !== P.dir || (P.face8 && !(v.x && v.y))) { P.dir = d; P.face8 = null; P.turnT = 0.08; return; }
       if (P.turnT > 0) { P.turnT -= dt; return; }
       this.walk(v, 0);
     }
@@ -120,7 +120,7 @@
       const P = this.p, run = Input.isDown('run');
       if (!(v.x && v.y)) return this.tryMove(this.faceFor(v), run, over);
       P.dir = this.faceFor(v);
-      if (this.canDiag(v.x, v.y)) { this.startMove(P.x + v.x, P.y + v.y, run, over); return true; }
+      if (this.canDiag(v.x, v.y)) { P.face8 = (v.y > 0 ? 'down' : 'up') + (v.x > 0 ? 'right' : 'left'); this.startMove(P.x + v.x, P.y + v.y, run, over); return true; }   // vue de trois-quarts
       const h = v.x < 0 ? 'left' : 'right', w = v.y < 0 ? 'up' : 'down', order = P.dir === w ? [w, h] : [h, w];
       const face = P.dir;
       if (this.tryMove(order[0], run, over, true) || this.locked || this.tryMove(order[1], run, over)) return true;   // locked : une sortie ou une porte vient de se déclencher
@@ -180,7 +180,7 @@
     }
     tryMove(d, run, over, quiet) {
       const P = this.p;
-      P.dir = d;
+      P.dir = d; P.face8 = null;
       const [dx, dy] = DIRS[d], nx = P.x + dx, ny = P.y + dy;
       if (nx < 0 || ny < 0 || nx >= this.map.w || ny >= this.map.h) {
         const w = (this.map.warps || []).find(w => w.dir === d && P.x >= w.x && P.x < w.x + (w.w || 1) && P.y >= w.y && P.y < w.y + (w.h || 1));
@@ -456,6 +456,8 @@
           const n = e.n, X = n.hx != null ? n.hx : n.x, Y = n.hy != null ? n.hy : n.y;
           this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv);
           if (n.gear) DW.Story.drawGear(c, X * TS + 8, Y * TS + 15, this.t, n.sp);
+          // « ! » au-dessus des habitants qui ont une demande (game/requests.js)
+          if (n.story && DW.Requests && DW.Requests.has(n.sp)) { const h = DW.Sprites.ow(n.sp).h, bx = Math.round(X * TS + 8), by = Math.round(Y * TS + 15 - h - 8 + Math.sin(this.t * 4) * 1.5); c.fillStyle = '#1a0e22'; c.fillRect(bx - 4, by - 1, 8, 11); c.fillStyle = '#ffe060'; c.fillRect(bx - 3, by, 6, 9); c.fillStyle = '#1a0e22'; c.fillRect(bx - 1, by + 1, 2, 4); c.fillRect(bx - 1, by + 6, 2, 2); }
         }
         else if (e.ent === 'wild') DW.Wild.draw(this, c, e.w);
         else if (e.ent === 'follower') DW.Companion.draw(this, c, pt, e.fp.x * TS + 8, e.fp.y * TS + 15);
@@ -552,7 +554,7 @@
       const P = this.p;
       // cycle de marche à 4 temps : pied droit, passage, pied gauche, passage
       const frame = P.moving ? ((P.step % 2) * 2 + (P.t < 0.5 ? 1 : 2)) % 4 : 0;
-      const spr = DW.Sprites.hero(P.dir, frame);
+      const spr = DW.Sprites.hero(P.face8 || P.dir, frame);   // diagonale : vue de trois-quarts
       const bob = P.moving && frame % 2 === 1 ? -1 : 0;
       const X = Math.round(pp.x * TS + 8 - spr.w / 2), Y = Math.round(pp.y * TS + 17 - spr.h) + bob;
       if (!ghost) {

@@ -197,7 +197,7 @@
       here.forEach((r, i) => {
         const T = TOWN[r.id] || {}, kp = (m.kiosks || {})[r.id], p = kp || (T.spot ? T.spot(ow, spots) : spots[i]);
         if (!p) return;
-        m.npcs.push({ sp: r.id, x: p[0], y: p[1], face: kp ? 'down' : i % 2 ? 'left' : 'right', wander: kp || T.still ? 0 : 1, story: true, cond: T.cond, talk: ow2 => talkRecruit(r.id, ow2) });
+        m.npcs.push({ sp: r.id, x: p[0], y: p[1], face: kp ? 'down' : i % 2 ? 'left' : 'right', wander: kp || T.still ? 0 : 1, story: true, cond: T.cond, talk: async ow2 => { if (DW.Requests && (await DW.Requests.talk(r.id))) return; await talkRecruit(r.id, ow2); } });
       });
       return;
     }
@@ -405,16 +405,20 @@
 
   // ------------------------------------------------------------ journal de quête (Menu → JOURNAL)
   class JournalScene extends DW.Scene {
-    constructor() { super(); this.i = 0; }
+    constructor() { super(); this.i = 0; this.tab = 0; }
     update() {
+      if (DW.Input.hit('left') || DW.Input.hit('right')) { this.tab ^= 1; DW.Audio.sfx('move'); }
+      if (this.tab === 1) { if (DW.Input.hit('back') || DW.Input.hit('ok') || DW.Input.hit('menu')) { DW.Audio.sfx('back'); this.close(); } return; }
       if (DW.Input.hit('up')) { this.i = (this.i + RID.length - 1) % RID.length; DW.Audio.sfx('move'); }
       if (DW.Input.hit('down')) { this.i = (this.i + 1) % RID.length; DW.Audio.sfx('move'); }
       if (DW.Input.hit('back') || DW.Input.hit('ok') || DW.Input.hit('menu')) { DW.Audio.sfx('back'); this.close(); }
     }
     draw(c) {
       const UI = DW.UI, s = st(), g = s.gears || {}, W = DW.W;
+      if (this.tab === 1) return this.drawRequests(c);
       UI.menuBg(c, this.t, 'JOURNAL');
       UI.text(c, `Engrenages Noirs : ${Story.gears()} / ${RID.length}`, W - 12, 17, { size: 8, align: 'right', color: '#ffe070' });
+      UI.text(c, 'REQUÊTES ▶', W - 12, 27, { size: 6, align: 'right', color: '#9ab0e8' });
       const top = Math.max(0, Math.min(this.i - 4, RID.length - 9));
       RID.slice(top, top + 9).forEach((r, j) => {
         const idx = top + j, y = 34 + j * 15, M = DW.MAPS[DW.REGION_ENTRY[r]], seen = Object.keys(DW.MAPS).some(id => DW.MAPS[id].region === r && s.visited[id]);
@@ -432,5 +436,19 @@
       UI.text(c, fin, 14, 228, { size: 7, color: '#ffe070' });
     }
   }
+  // onglet Requêtes : les demandes acceptées des habitants
+  JournalScene.prototype.drawRequests = function (c) {
+    const UI = DW.UI, W = DW.W, L = DW.Requests ? DW.Requests.list() : [];
+    UI.menuBg(c, this.t, 'JOURNAL — REQUÊTES');
+    UI.text(c, '◀ ENGRENAGES', W - 12, 17, { size: 7, align: 'right', color: '#9ab0e8' });
+    if (!L.length) UI.wrap(c, "Aucune requête en cours. Les habitants qui ont besoin d'aide ont un « ! » au-dessus de la tête : va leur parler en ville !", 280, 9).forEach((l, j) => UI.text(c, l, 18, 50 + j * 14, { size: 9, color: '#c8f0ff' }));
+    L.slice(0, 9).forEach(([sp, q], j) => {
+      const y = 40 + j * 20, ok = DW.Requests.ready(sp, q);
+      UI.text(c, DW.SPECIES[sp].name, 16, y, { size: 8, color: '#ffe070' });
+      const what = q.k === 'item' ? `${q.n} × ${DW.ITEMS[q.a].name} (${Math.min(q.n, DW.state.bag[q.a] || 0)}/${q.n})` : q.k === 'defeat' ? `Vaincre ${q.n} sauvage(s)${q.a ? ' ' + q.a : ''} (${q.prog}/${q.n})` : `Partenaire : ${q.n} en ${{ hp: 'PV', atk: 'Attaque', def: 'Défense', spd: 'Vitesse', int: 'Intelligence' }[q.a]}`;
+      UI.text(c, what, 96, y, { size: 7, color: ok ? '#7aff8a' : '#c8f0ff' });
+      if (ok) UI.text(c, 'Prêt !', W - 14, y, { size: 7, align: 'right', color: '#7aff8a' });
+    });
+  };
   Story.JournalScene = JournalScene;
 })();

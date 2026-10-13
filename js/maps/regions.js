@@ -162,6 +162,43 @@
       }
       addRooms(m, kind, s + i * 7);
     });
+    linkWater(ids, sides);
+  }
+
+  // ------------------------------------------------------------ continuité entre sous-zones voisines
+  // un lac qui touche un bord se prolonge (coupé) dans la sous-zone d'à côté ; une rivière qui sort
+  // par un bord y entre et va se jeter dans un petit étang. Les chemins qui la croisent deviennent des ponts.
+  function linkWater(ids, sides) {
+    const MARGIN = 6, add = (m, key, v) => { m.spec[key] = [...(m.spec[key] || []), v]; };
+    ids.forEach((id, i) => {
+      const A = MAPS[id];
+      for (const side in sides[i]) {
+        const nid = sides[i][side];
+        if (!nid || nid === 'ext' || !MAPS[nid] || !MAPS[nid].spec) continue;
+        const B = MAPS[nid];
+        // même point, vu depuis B (position proportionnelle le long du bord commun)
+        const to = (x, y) => side === 'right' ? [x - A.w, y * B.h / A.h] : side === 'left' ? [B.w + x, y * B.h / A.h]
+          : side === 'down' ? [x * B.w / A.w, y - A.h] : [x * B.w / A.w, B.h + y];
+        const inward = { right: [1, 0], left: [-1, 0], down: [0, 1], up: [0, -1] }[side];
+        for (const L of (A.spec.lakes || []).filter(l => !l.bleed)) {
+          const gap = side === 'right' ? A.w - (L.x + L.rx) : side === 'left' ? L.x - L.rx : side === 'down' ? A.h - (L.y + L.ry) : L.y - L.ry;
+          if (gap > MARGIN) continue;
+          const [x, y] = to(L.x, L.y);
+          add(B, 'lakes', { x, y, rx: L.rx, ry: L.ry, bleed: true });
+        }
+        for (const Rv of (A.spec.rivers || []).filter(r => !r.bleed)) {
+          for (const p of [Rv.pts[0], Rv.pts[Rv.pts.length - 1]]) {
+            const onEdge = side === 'right' ? p[0] >= A.w - 1 : side === 'left' ? p[0] <= 0 : side === 'down' ? p[1] >= A.h - 1 : p[1] <= 0;
+            if (!onEdge) continue;
+            const [x, y] = to(p[0], p[1]), j = (Hh(x | 0, y | 0, 917) - 0.5) * 10, perp = [inward[1], inward[0]];
+            const e1 = [x + inward[0] * 10 + perp[0] * j * 0.5, y + inward[1] * 10 + perp[1] * j * 0.5];
+            const e2 = [x + inward[0] * 18 + perp[0] * j, y + inward[1] * 18 + perp[1] * j];
+            add(B, 'rivers', { pts: [[x - inward[0] * 2, y - inward[1] * 2], e1, e2], r: Rv.r, bleed: true });
+            add(B, 'lakes', { x: e2[0], y: e2[1], rx: 4 + Rv.r, ry: 3 + Rv.r * 0.7, bleed: true });
+          }
+        }
+      }
+    });
   }
 
   // ------------------------------------------------------------ espaces ouverts (« zones exploitables »)

@@ -16,7 +16,7 @@
   // résolutions de rendu (plus grand = plus de détails : les dessins sont des formes, pas des pixels étirés)
   // chaque stade est nettement plus grand que le précédent (Bébé < Entraînement < Disciple < Champion < Ultime < Méga)
   const RES_BATTLE = { 'Bébé': 42, 'Entraînement': 56, 'Disciple': 74, 'Champion': 102, 'Ultime': 114, 'Méga': 124 };
-  const RES_OW = { 'Bébé': 15, 'Entraînement': 20, 'Disciple': 28, 'Champion': 44, 'Ultime': 52, 'Méga': 58 };
+  const RES_OW = { 'Bébé': 22, 'Entraînement': 27, 'Disciple': 33, 'Champion': 46, 'Ultime': 54, 'Méga': 60 };   // bien visibles, surtout sur téléphone
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
   const S = DW.Sprites = {
     mon(sp, res, nFrames = 1) {

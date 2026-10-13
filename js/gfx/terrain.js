@@ -506,7 +506,7 @@
       if (px < wx0) wx0 = px; if (px > wx1) wx1 = px; if (py < wy0) wy0 = py; if (py > wy1) wy1 = py;
     }
     const lilies = [];
-    for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) if (World.info(map.rows[ty][tx]).lily) lilies.push([tx, ty]);
+    if (!(TH && TH.water === World.LAVA)) for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) if (World.info(map.rows[ty][tx]).lily) lilies.push([tx, ty]);   // pas de nénuphars sur la lave
     yield;
     const ground = Art.canvas(GW, GH);
     ground.getContext('2d').putImageData(new ImageData(base, GW, GH), 0, 0);

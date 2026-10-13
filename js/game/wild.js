@@ -185,6 +185,7 @@
         w.face = w.x > P.x ? 'left' : 'right'; w.alert = 0.6;
         await DW.wait(0.25);
         const res = await ow.battle({ enemy: new DW.Digimon(w.sp, w.lv) });
+        if (res === 'win' && DW.Requests) DW.Requests.onWin(w.sp);
         ow.wilds = ow.wilds.filter(o => o !== w);
         const st = DW.state, g = st.wildGone = st.wildGone || {};
         (g[ow.mapId] = g[ow.mapId] || []).push(st.clock + (res === 'win' ? GONE_WIN : GONE_RUN));

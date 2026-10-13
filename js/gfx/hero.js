@@ -240,20 +240,86 @@
     hat(d, C, 'side');
   }
 
+  // ------------------------------------------------------------ trois-quarts (diagonales, vers la droite)
+  // même dessin que la face / le dos, mais tourné : tête et visage décalés vers la droite, bras et jambe
+  // du fond en retrait, une seule oreille visible, foulée en diagonale
+  // d décalé de dx (réutilise les pièces de face : cheveux, chapeau, décor du tee-shirt)
+  function shifted(d, dx) {
+    const X = p => p.map(([x, y]) => [x + dx, y]);
+    const wrap = k => ({
+      ell: (x, ...a) => k.ell(x + dx, ...a), circ: (x, ...a) => k.circ(x + dx, ...a), rect: (x, ...a) => k.rect(x + dx, ...a),
+      poly: (p, ...a) => k.poly(X(p), ...a), blob: (p, ...a) => k.blob(X(p), ...a), curve: (p, ...a) => k.curve(X(p), ...a), tube: (p, ...a) => k.tube(X(p), ...a),
+      line: (x1, y1, x2, y2, ...a) => k.line(x1 + dx, y1, x2 + dx, y2, ...a),
+    });
+    const o = wrap(d); o.deco = wrap(d.deco); o.eye = (x, ...a) => d.eye(x + dx, ...a);
+    return o;
+  }
+  function threeQuarter(d, ph, back, C) {
+    const s = SWING[ph], legCol = C.bottom === 'pants' ? C.bottomCol : C.skin, hand = C.glove || C.skin;
+    if (C.style === 'long' && !back) shifted(d, -1.4).blob([[6.6, 8], [21.4, 8], [22.2, 21], [5.8, 21]], C.hair, { far: true });
+    // jambes : foulée en diagonale (celle du fond en retrait)
+    const lift = k => (s === k ? 1.6 : 0);
+    for (const [x, k, far] of [[11.8, 1, true], [16.6, -1, false]]) {
+      const o = far ? { far: true } : {}, sx = x + (far ? -1 : 1) * s * 0.9;
+      d.tube([[x, 25], [sx, 31.6 - lift(k)]], 3.6, 3.1, legCol, o);
+      if (C.bottom !== 'pants') d.deco.rect(sx - 1.5, 30.2 - lift(k), 3, 1.3, SOCK);
+      shoe(d, sx + 0.6, 33 - lift(k), C, o);
+    }
+    bottoms(d, C, 14.4, 10.4, !back);
+    // bras du fond (à gauche, à moitié caché), torse, bras de devant
+    d.tube([[9.4, 16], [8.8, 20.4 + s * 0.6], [9 , 23.4 + s]], 2.6, 2.2, C.skin, { far: true });
+    d.circ(9, 24.2 + s, 1.8, hand, { far: true });
+    d.blob([[9, 14.8], [19.4, 14.8], [19.8, 22.6], [8.6, 22.6]], C.shirt);
+    if (!back) {
+      const t = shifted(d, 1.4);
+      if (C.deco === 'star') { const pts = []; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 1.1 : 2.4; pts.push([14 + Math.cos(a) * r, 18.4 + Math.sin(a) * r]); } t.deco.poly(pts, C.decoCol, { unlit: true }); }
+      else if (C.deco === 'collar') t.deco.poly([[11.6, 14.6], [16.4, 14.6], [14, 17.6]], C.decoCol, { unlit: true });
+      else if (C.deco === 'stripe') d.deco.rect(9, 18, 10.8, 1.5, C.decoCol);
+      else if (C.deco === 'heart') { t.deco.circ(13.3, 17.6, 0.9, C.decoCol); t.deco.circ(14.7, 17.6, 0.9, C.decoCol); t.deco.poly([[12.4, 17.9], [15.6, 17.9], [14, 19.6]], C.decoCol); }
+    } else d.deco.line(13.2, 15.6, 13.2, 21.6, 0.5, tint(C.shirt, -0.2));
+    d.tube([[19.2, 16], [19.9, 20.4 - s * 0.6], [19.6, 23.6 - s]], 2.8, 2.3, C.skin);
+    d.tube([[19.2, 15.6], [19.8, 18.6]], 3.6, 3.2, C.sleeve);
+    d.deco.line(17.6, 18.6, 21.2, 18.6, 0.6, tint(C.sleeve, -0.3));
+    d.circ(19.8, 24.4 - s, 1.95, hand);
+    if (C.glove) d.deco.rect(18.1, 22.6 - s, 3.4, 0.9, tint(C.glove, -0.15));
+    // cou et tête (oreille du côté opposé au regard)
+    d.rect(12.8, 13, 2.8, 2.4, C.skin, { round: 0.3 });
+    if (!back) d.ell(8.4, 9.8, 1.2, 1.6, C.skin); else d.ell(20.2, 9.8, 1.2, 1.6, C.skin);
+    d.ell(14.4, 8.6, 6.2, 6.2, C.skin);
+    if (!back) {
+      const iris = C.eye || '#5a3a20';
+      for (const [x, rx] of [[12.6, 1.05], [17.4, 1.35]]) {
+        d.deco.ell(x, 9.8, rx, 1.7, WHITE, 0, { unlit: true });
+        d.deco.ell(x + 0.35, 10.1, rx * 0.72, 1.35, iris, 0, { unlit: true });
+        d.deco.ell(x + 0.35, 10.3, rx * 0.38, 0.7, '#1a1008', 0, { unlit: true });
+        d.deco.rect(x - 0.3, 9, 0.6, 0.6, WHITE, { unlit: true });
+        d.deco.line(x - rx, 7.6, x + rx, 7.3, 0.6, tint(C.hair, -0.25));
+      }
+      if (C.head === 'glasses') { d.deco.circ(12.6, 9.9, 1.8, C.headCol, { shiny: true }); d.deco.circ(17.4, 9.9, 2.1, C.headCol, { shiny: true }); d.deco.line(14.4, 9.6, 15.3, 9.6, 0.5, '#5a6a8a'); }
+      d.deco.ell(15.6, 11.6, 0.6, 0.45, tint(C.skin, -0.18));
+      d.deco.line(14.6, 13, 16.4, 13, 0.6, MOUTH, { unlit: true });
+      d.deco.ell(11.4, 12, 0.8, 0.5, BLUSH); d.deco.ell(18.8, 12, 1, 0.55, BLUSH);
+      hairFront(shifted(d, 0.6), C);
+    } else hairBack(shifted(d, -0.6), C);
+    hat(shifted(d, back ? -0.6 : 0.6), C, back ? 'back' : 'front');
+  }
+
   // ------------------------------------------------------------ cache
+  // directions : down, up, right, left, et diagonales downright, upright, downleft, upleft
   const cache = {};
   DW.Sprites.hero = (dir, frame = 0, id) => {
     const look = DW.heroLook(id), key = look.name + dir + frame;
     if (cache[key]) return cache[key];
     const ph = frame % 4;
     let spr;
-    if (dir === 'left') {
-      const r = DW.Sprites.hero('right', frame, id);
+    if (dir.endsWith('left')) {   // gauche = miroir de la droite (profil et trois-quarts)
+      const r = DW.Sprites.hero(dir.replace('left', 'right'), frame, id);
       const cv = Art.canvas(r.w, r.h), x = cv.getContext('2d');
       x.translate(r.w, 0); x.scale(-1, 1); x.drawImage(r.img, 0, 0);
       spr = { img: cv, w: r.w, h: r.h };
     } else {
-      const draw = dir === 'right' ? d => side(d, ph, look) : d => front(d, ph, dir === 'up', look);
+      const draw = dir === 'right' ? d => side(d, ph, look) : dir === 'downright' ? d => threeQuarter(d, ph, false, look)
+        : dir === 'upright' ? d => threeQuarter(d, ph, true, look) : d => front(d, ph, dir === 'up', look);
       spr = Art.render(draw, HW, HH, { silhouettes: false, dither: 0.05 });
     }
     return (cache[key] = spr);
