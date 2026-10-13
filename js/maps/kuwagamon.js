@@ -58,7 +58,7 @@
   }
 
   // ------------------------------------------------------------ 2) dans l'arbre
-  const room = DW.Palais.room('arbre_kuwagamon', 'foret', { name: 'Cœur du Grand Arbre', w: 20, h: 15,
+  const room = DW.Palais.room('arbre_kuwagamon', 'foret', { music: 'cave', name: 'Cœur du Grand Arbre', w: 20, h: 15,
     floor: { type: 'herring', cols: ['#6a4a2a', '#4a321c', '#2a1a0e'] }, wall: { base: '#5a3a22', alt: '#4a2e1a', pattern: 'stripes', wood: '#2a1a0e' },
     dark: { d: 0.4, col: '#2a1a10' },
     objects: [

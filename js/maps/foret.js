@@ -20,7 +20,7 @@
 
   // ------------------------------------------------------------ 1. CLAIRIÈRE DE L'ARRIVÉE (36x30)
   MAPS.clairiere = {
-    name: "Clairière de l'Arrivée", music: 'field', bg: 'foret', ambient: 'forest', theme: 'spring', climate: 'forest', rate: 0.13, region: 'foret', wildN: 9,
+    name: "Clairière de l'Arrivée", music: 'forest', bg: 'foret', ambient: 'forest', theme: 'spring', climate: 'forest', rate: 0.13, region: 'foret', wildN: 9,
     rows: forestGen(zoomGen({ landmarks: [['<', 3], ['?', 3]], avoid: [[17, 11], [30, 15]],
       w: 36, h: 30, seed: 1,
       clearings: [{ x: 18, y: 12, rx: 12, ry: 7.5 }, { x: 9, y: 9, rx: 4, ry: 3.5 }],
@@ -59,7 +59,7 @@
 
   // ------------------------------------------------------------ 2. SENTIER DES MURMURES (44x36)
   MAPS.sentier = {
-    name: 'Sentier des Murmures', music: 'field', bg: 'foret', ambient: 'forest', theme: 'misty', climate: 'forest', rate: 0.11, region: 'foret', wildN: 9,
+    name: 'Sentier des Murmures', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'misty', climate: 'forest', rate: 0.11, region: 'foret', wildN: 9,
     rows: forestGen(zoomGen({ landmarks: [['>', 4], ['$', 3]], avoid: [[4, 13], [6, 24], [37, 12], [4, 13]],
       w: 44, h: 36, seed: 2, autoTall: 0.54,
       paths: [
@@ -108,7 +108,7 @@
 
   // ------------------------------------------------------------ 2b. PRAIRIE DES LUCIOLES (40x30) — beaucoup de Digimon sauvages
   MAPS.prairie = {
-    name: 'Prairie des Lucioles', music: 'field', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', rate: 0.16, region: 'foret', wildN: 9,
+    name: 'Prairie des Lucioles', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', rate: 0.16, region: 'foret', wildN: 9,
     rows: forestGen(zoomGen({ landmarks: [['{', 7], ['!', 2]], avoid: [[7, 15], [31, 9], [21, 17], [18, 4]],
       w: 40, h: 30, seed: 5, autoTall: 0.42, deco: 0.7,
       clearings: [{ x: 20, y: 15, rx: 17, ry: 11 }],
@@ -146,7 +146,7 @@
 
   // ------------------------------------------------------------ 3. BOIS DES GÉANTS (44x36)
   MAPS.geants = {
-    name: 'Bois des Géants', music: 'field', bg: 'foret', ambient: 'forest', theme: 'deep', climate: 'forest', rate: 0.12, region: 'foret', wildN: 9,
+    name: 'Bois des Géants', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'deep', climate: 'forest', rate: 0.12, region: 'foret', wildN: 9,
     rows: forestGen(zoomGen({ landmarks: [['}', 5], ['$', 2], ['?', 2]], avoid: [[14, 11], [28, 14], [28, 16], [7, 15], [35, 29]],
       w: 44, h: 36, seed: 3, autoTall: 0.53,
       paths: [
@@ -202,7 +202,7 @@
     return [...r].map((ch, x) => (x >= 34 && x <= 39 ? '^' : (x > 4 && x < 70 ? 'C' : ch))).join('');
   });
   MAPS.lisiere = {
-    name: 'Lisière du Ravin', music: 'field', bg: 'foret', ambient: 'forest', theme: 'autumn', climate: 'forest', rate: 0.12, region: 'foret', wildN: 9,
+    name: 'Lisière du Ravin', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'autumn', climate: 'forest', rate: 0.12, region: 'foret', wildN: 9,
     rows: lisRows,
     encounters: [{ sp: 'yokomon', min: 3, max: 4, w: 25 }, { sp: 'tanemon', min: 3, max: 4, w: 25 }, { sp: 'nyokimon', min: 2, max: 3, w: 15 }, { sp: 'yuramon', min: 2, max: 3, w: 10 }, { sp: 'kunemon', min: 4, max: 5, w: 15 }, { sp: 'mushroomon', min: 4, max: 5, w: 8, night: 30 }],
     warps: [

@@ -15,7 +15,7 @@
     'ui/widgets.js', 'ui/dialog.js',
     // données du jeu
     'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/techniques_classe.js', 'data/items.js',
-    'data/music.js', 'data/flags.js',
+    'data/music.js', 'data/musiques_regions.js', 'data/flags.js',
     // graphismes
     'gfx/sprites.js',
     'gfx/digimon/entrainement.js', 'gfx/digimon/disciples.js', 'gfx/digimon/champions.js', 'gfx/digimon/ultimes.js',

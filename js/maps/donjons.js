@@ -72,11 +72,11 @@
     const id = 'donjon_' + D.kid, R = D.region, k = D.kid, crest = C.name(k);
     const floor = { type: 'stone', cols: D.floor }, wall = { base: D.wall[0], alt: D.wall[1], pattern: D.wall[2], wood: D.floor[2] };
     const dark = D.dark ? { d: D.dark, col: D.wall[1] } : null, enc = encOf(R);
-    const hall = room(id + '_hall', R, { name: `${D.name} — Entrée`, w: W, h: H, floor, wall, dark, enc,
+    const hall = room(id + '_hall', R, { music: 'dungeon', name: `${D.name} — Entrée`, w: W, h: H, floor, wall, dark, enc,
       objects: [{ kind: 'torch', x: 2, y: 3, w: 1, h: 1, small: true }, { kind: 'torch', x: 17, y: 3, w: 1, h: 1, small: true }, { kind: 'gargoyle', x: 2, y: 11, w: 1, h: 1 }] });
-    const gal = room(id + '_galerie', R, { name: `${D.name} — Galerie`, w: W, h: H, floor, wall, dark, enc,
+    const gal = room(id + '_galerie', R, { music: 'dungeon', name: `${D.name} — Galerie`, w: W, h: H, floor, wall, dark, enc,
       objects: [{ kind: 'torch', x: 2, y: 3, w: 1, h: 1, small: true }, { kind: 'torch', x: 17, y: 3, w: 1, h: 1, small: true }] });
-    const sanc = room(id + '_sanctuaire', R, { name: `${D.name} — Sanctuaire`, w: W, h: H, floor, wall, dark: dark ? { d: dark.d * 0.6, col: dark.col } : null,
+    const sanc = room(id + '_sanctuaire', R, { music: 'dungeon', name: `${D.name} — Sanctuaire`, w: W, h: H, floor, wall, dark: dark ? { d: dark.d * 0.6, col: dark.col } : null,
       objects: [{ kind: 'pedestal', v: IDX(k), x: 9, y: 4, w: 1, h: 1 }, { kind: 'gargoyle', x: 4, y: 4, w: 1, h: 1 }, { kind: 'gargoyle', x: 15, y: 4, w: 1, h: 1 }] });
     sanc.calm = true;   // aucun Digimon sauvage dans le sanctuaire
     side(id + '_hall', id + '_galerie'); side(id + '_galerie', id + '_sanctuaire');
