@@ -19,21 +19,42 @@
     snow: [['clear', 45], ['cloudy', 35], ['fog', 20]],
     volcano: [['clear', 55], ['cloudy', 45]],
   };
-  const WNAME = { clear: 'Beau temps', cloudy: 'Nuageux', rain: 'Pluie', fog: 'Brume' };
+  const WNAME = { clear: 'Beau temps', cloudy: 'Nuageux', rain: 'Pluie', fog: 'Brume', snow: 'Neige' };
+  // calendrier : 10 jours par mois, 3 mois par saison, 120 jours par an ; l'aventure commence le 1er mars
+  const MONTHS = ['Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre', 'Janvier', 'Février'];
+  const MSHORT = ['mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.', 'janv.', 'févr.'];
+  const SEASONS = ['Printemps', 'Été', 'Automne', 'Hiver'];
+  const SEASON_COL = ['#8ae070', '#ffd040', '#f08a3a', '#bfe4ff'];
+  const WEEK = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  const DAYS_M = 10;
+  // durée du jour : autour de midi, l'heure « solaire » est étirée (été : jours longs) ou serrée (hiver : jours courts)
+  const DAYLEN = [1, 0.86, 1, 1.14];
+  // météo selon la saison (zones tempérées : forêt, village, plage) : multiplicateurs, la pluie devient neige en hiver
+  const SEASON_W = [{ rain: 1.4, clear: 0.9 }, { rain: 0.5, clear: 1.4, fog: 0.5 }, { fog: 1.8, cloudy: 1.4 }, { snow: 1, clear: 0.8 }];
 
   const T = DW.Time = {
     RATE: 1, CLIMATES: CLIMATE,
     get st() { return DW.state; },
     hour() { return (this.st.clock / 60) % 24; },
     day() { return Math.floor(this.st.clock / 1440) + 1; },
+    MONTHS, SEASONS, SEASON_COL, WEEK,
+    // { d (1-10), m (0-11), month, season (0-3), seasonName, year, weekday }
+    date(dayN) {
+      const n = (dayN || this.day()) - 1, m = Math.floor(n / DAYS_M) % 12;
+      return { d: n % DAYS_M + 1, m, month: MONTHS[m], short: MSHORT[m], season: Math.floor(m / 3), seasonName: SEASONS[Math.floor(m / 3)], year: Math.floor(n / (DAYS_M * 12)) + 1, weekday: WEEK[n % 7] };
+    },
+    season() { return Math.floor((Math.floor((this.day() - 1) / DAYS_M) % 12) / 3); },
+    dateStr() { const D = this.date(); return `${D.weekday} ${D.d} ${D.month}, an ${D.year}`; },
+    // heure « solaire » (sert à la lumière et à la nuit)
+    solar() { const h = this.hour(), f = DAYLEN[this.season()]; return Math.max(0, Math.min(23.99, 12 + (h - 12) * f)); },
     str() { const h = Math.floor(this.hour()), m = Math.floor(this.st.clock % 60); return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; },
-    isNight() { const h = this.hour(); return h >= 19.5 || h < 5.5; },
+    isNight() { const h = this.solar(); return h >= 19.5 || h < 5.5; },
     phase() { const h = this.hour(); return h < 5.5 ? 'Nuit' : h < 8 ? 'Aube' : h < 17 ? 'Jour' : h < 19.5 ? 'Crépuscule' : 'Nuit'; },
     weather() { return this.st.weather.type; },
     weatherName() { return WNAME[this.weather()]; },
     // { dark, col:[r,g,b] } interpolés
     light() {
-      const h = this.hour();
+      const h = this.solar();
       let i = 0;
       while (i < KEYS.length - 2 && KEYS[i + 1][0] <= h) i++;
       const [h0, d0, c0] = KEYS[i], [h1, d1, c1] = KEYS[i + 1];
@@ -43,16 +64,30 @@
       const w = this.weather();
       if (w === 'rain') { dark = Math.max(dark, 0.22); col = Art.mix(col, [90, 100, 130], 0.5); }
       else if (w === 'cloudy') { dark = Math.max(dark, 0.1); col = Art.mix(col, [140, 150, 170], 0.4); }
+      else if (w === 'snow') { dark = Math.max(dark, 0.12); col = Art.mix(col, [200, 215, 240], 0.5); }
+      // teinte de la saison en plein jour : été doré, automne cuivré, hiver bleuté
+      const se = this.season();
+      if (se && dark < 0.2) { const k = 1 - dark / 0.2; dark = Math.max(dark, [0, 0.05, 0.08, 0.07][se] * k); col = Art.mix(col, [[255, 255, 255], [255, 236, 170], [255, 196, 130], [190, 214, 255]][se], k * 0.9); }
       return { dark, col };
     },
+    // liste météo de la zone, ajustée à la saison
+    climateList(climate) {
+      const base = CLIMATE[climate] || CLIMATE.village;
+      if (!['forest', 'village', 'beach'].includes(climate || 'village')) return base;
+      const se = this.season(), M = SEASON_W[se];
+      let list = base.map(([t, w]) => [t, w * (M[t] || 1)]);
+      if (se === 3) list = list.map(([t, w]) => [t === 'rain' ? 'snow' : t, t === 'rain' ? w * 2 : w]);
+      return list;
+    },
     advance(dt, climate) {
-      const st = this.st;
+      const st = this.st, se0 = this.season();
       st.clock += dt * this.RATE;
+      if (this.season() !== se0) { const D = this.date(); DW.Care && DW.Care.toast(`${D.seasonName} arrive sur l'île ! (${D.d} ${D.month})`, SEASON_COL[D.season]); this.newWeather(climate); }
       if (st.clock >= st.weather.until) this.newWeather(climate);
-      else if (climate && CLIMATE[climate] && !CLIMATE[climate].some(([w]) => w === st.weather.type)) this.newWeather(climate);
+      else if (climate && !this.climateList(climate).some(([w]) => w === st.weather.type)) this.newWeather(climate);
     },
     newWeather(climate) {
-      const st = this.st, list = CLIMATE[climate] || CLIMATE.village;
+      const st = this.st, list = this.climateList(climate);
       let type = DW.weighted(list.map(([t, w]) => ({ t, w }))).t;
       const h = this.hour();
       if (type === 'fog' && !(h > 4 && h < 11)) type = 'cloudy';
@@ -62,6 +97,7 @@
     weatherMult(type) {
       const w = this.weather();
       if (w === 'rain') return type === 'Eau' ? 1.2 : type === 'Feu' ? 0.8 : 1;
+      if (w === 'snow') return type === 'Glace' ? 1.2 : type === 'Feu' ? 0.9 : 1;
       return 1;
     },
   };
@@ -109,7 +145,9 @@
       this.splash = [];
       this.fog = Array.from({ length: 7 }, (_, i) => ({ x: Math.random() * W, y: Math.random() * H, r: 60 + Math.random() * 60, v: 3 + Math.random() * 5 }));
       this.flash = 0; this.t = 0;
+      this.flakes = Array.from({ length: 110 }, () => this.flake(true));
     }
+    flake(init) { return { x: Math.random() * (W + 40), y: init ? Math.random() * H : -6, v: 14 + Math.random() * 22, ph: Math.random() * 6, s: Math.random() < 0.3 ? 2 : 1 }; }
     drop(init) { return { x: Math.random() * (W + 60), y: init ? Math.random() * H : -10 - Math.random() * 40, v: 220 + Math.random() * 80, l: 5 + Math.random() * 4 }; }
     update(dt) {
       this.t += dt;
@@ -121,6 +159,11 @@
           if (d.y > H * (0.3 + (i % 7) / 10)) { if (Math.random() < 0.5) this.splash.push({ x: d.x, y: d.y, t: 0 }); this.drops[i] = this.drop(false); }
         }
         if (Math.random() < dt * 0.04) { this.flash = 1; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }
+      }
+      if (w === 'snow') for (let i = 0; i < this.flakes.length; i++) {
+        const f = this.flakes[i];
+        f.y += f.v * dt; f.x += (Math.sin(this.t * 1.4 + f.ph) * 10 - 6) * dt;
+        if (f.y > H + 4) this.flakes[i] = this.flake(false);
       }
       for (let i = this.splash.length - 1; i >= 0; i--) { this.splash[i].t += dt; if (this.splash[i].t > 0.25) this.splash.splice(i, 1); }
       this.fog.forEach(f => { f.x += f.v * dt; if (f.x - f.r > W) f.x = -f.r; });
@@ -136,6 +179,10 @@
         c.strokeStyle = 'rgba(210,225,255,0.5)';
         for (const s of this.splash) { c.beginPath(); c.ellipse(s.x, s.y, 1 + s.t * 10, 0.5 + s.t * 3, 0, 0, 7); c.stroke(); }
         if (this.flash > 0) { c.fillStyle = `rgba(230,240,255,${this.flash * 0.5})`; c.fillRect(0, 0, W, H); }
+      } else if (w === 'snow') {
+        c.fillStyle = 'rgba(255,255,255,0.92)';
+        for (const f of this.flakes) c.fillRect(Math.round(f.x), Math.round(f.y), f.s, f.s);
+        c.fillStyle = 'rgba(225,235,250,0.10)'; c.fillRect(0, 0, W, H);
       } else if (w === 'fog') {
         for (const f of this.fog) {
           const g = c.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
@@ -162,10 +209,13 @@
     else { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(sx, sy, 2.4, 0, 7); c.fill(); }
     c.strokeStyle = '#0a1830'; c.lineWidth = 0.8; c.beginPath(); c.arc(cx, cy, 7, 0, 7); c.stroke();
     UI.text(c, T.str(), x + 23, y + 11, { size: 9, color: '#ffffff' });
-    UI.text(c, `Jour ${T.day()}`, x + 23, y + 19, { size: 6, color: '#8ae0f0' });
+    const D = T.date();
+    UI.text(c, `${D.d} ${D.short} · an ${D.year}`, x + 23, y + 19, { size: 6, color: '#8ae0f0' });
+    c.fillStyle = SEASON_COL[D.season]; c.fillRect(x + 4, y + 19, 3, 2);
     // icône météo
     const wx = x + 74, wy = y + 11, wt = T.weather();
-    if (wt === 'rain') { c.fillStyle = '#b8c4d8'; c.beginPath(); c.ellipse(wx, wy - 2, 6, 3.4, 0, 0, 7); c.fill(); c.fillStyle = '#7ab8ff'; for (let i = -1; i <= 1; i++) c.fillRect(wx + i * 3, wy + 3, 1, 3); }
+    if (wt === 'snow') { c.fillStyle = '#ffffff'; for (const [ox, oy] of [[-3, -3], [2, -1], [-1, 2], [3, 3]]) { c.fillRect(wx + ox - 1, wy + oy, 3, 1); c.fillRect(wx + ox, wy + oy - 1, 1, 3); } }
+    else if (wt === 'rain') { c.fillStyle = '#b8c4d8'; c.beginPath(); c.ellipse(wx, wy - 2, 6, 3.4, 0, 0, 7); c.fill(); c.fillStyle = '#7ab8ff'; for (let i = -1; i <= 1; i++) c.fillRect(wx + i * 3, wy + 3, 1, 3); }
     else if (wt === 'cloudy' || wt === 'fog') { c.fillStyle = wt === 'fog' ? '#e0e6ee' : '#c8d0dc'; c.beginPath(); c.ellipse(wx, wy, 6, 3.6, 0, 0, 7); c.ellipse(wx + 2, wy - 2, 4, 3, 0, 0, 7); c.fill(); }
     else if (night) { c.fillStyle = '#fff0b0'; for (const [ox, oy] of [[-3, -3], [2, 1], [-1, 3]]) c.fillRect(wx + ox, wy + oy, 1, 1); }
     else { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(wx, wy, 3.4, 0, 7); c.fill(); }

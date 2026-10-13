@@ -75,4 +75,42 @@
       particle: 'pollen', leaves: ['#ffffff', '#f0f8ff'],
     },
   };
+
+  // ---------------------------------------------------------------- SAISONS
+  // Les zones tempérées changent avec la saison : « town~2 » = thème town en automne (généré à la demande).
+  // Printemps = thème d'origine. Les cartes déjà préparées sont refaites quand la saison change.
+  const Art = DW.Art, TH = DW.World.THEMES;
+  const SEASONAL = new Set(['spring', 'misty', 'meadow', 'deep', 'autumn', 'town', 'farm', 'beach']);
+  const mixAll = (arr, col, k) => arr.map(c => { const m = Art.mix(Art.hex(c), Art.hex(col), k); return '#' + m.map(v => Math.round(v).toString(16).padStart(2, '0')).join(''); });
+  function variant(base, se) {
+    const b = TH[base], o = { ...b };
+    if (se === 1) {   // été : herbe plus jaune et chaude
+      o.grass = mixAll(b.grass, '#c8c040', 0.26); o.tall = mixAll(b.tall, '#d8c850', 0.3); o.canopy = mixAll(b.canopy, '#3a5a10', 0.12);
+      o.particle = b.particle === 'mist' ? 'mist' : 'pollen'; o.leaves = ['#fff2a0', '#ffffff', '#ffe070'];
+    } else if (se === 2) {   // automne : herbe dorée, feuillages roux, feuilles qui tombent
+      o.grass = mixAll(b.grass, '#c8902e', 0.4); o.tall = mixAll(b.tall, '#d89a3a', 0.45); o.canopy = mixAll(b.canopy, '#8a4416', 0.5);
+      o.trees = [[5, 4], [6, 3], [7, 3], [3, 1]]; o.litter = ['#e0702a', '#c84a22', '#f0b030', '#a8602a'];
+      o.particle = 'autumn'; o.leaves = ['#e8702a', '#d84a2a', '#f0b030', '#c8902a'];
+    } else if (se === 3) {   // hiver : sol givré, cimes enneigées, flocons
+      o.grass = mixAll(b.grass, '#e8f0f8', 0.66); o.tall = mixAll(b.tall, '#e0eaf4', 0.55); o.canopy = mixAll(b.canopy, '#d0deea', 0.4);
+      o.trees = [[10, 5], [11, 3], [4, 1]]; o.litter = ['#ffffff', '#e0e8f0', '#c8d8e8']; o.particle = 'snow'; o.leaves = ['#ffffff'];
+    }
+    return o;
+  }
+  DW.World.themeKey = map => {
+    const base = map.theme && TH[map.theme] ? map.theme.split('~')[0] : null;
+    const temperate = base ? SEASONAL.has(base) : !map.indoor && ['forest', 'village', 'beach'].includes(map.climate);
+    if (!temperate || map.indoor || !DW.Time || !DW.state || !DW.state.clock && DW.state.clock !== 0) return base;
+    const se = DW.Time.season();
+    if (!se) return base;
+    const b = base || 'town', key = b + '~' + se;
+    if (!TH[key]) TH[key] = variant(b, se);
+    return key;
+  };
+  // herbe propre à une carte (sol façon DW1) : même teinte de saison que le thème
+  DW.World.seasonGrass = (map, cols) => {
+    const k = DW.World.themeKey(map), se = k && k.includes('~') ? +k.split('~')[1] : 0;
+    return se === 1 ? mixAll(cols, '#c8c040', 0.26) : se === 2 ? mixAll(cols, '#c8902e', 0.4) : se === 3 ? mixAll(cols, '#e8f0f8', 0.66) : cols;
+  };
+  DW.World.themeOf = map => TH[DW.World.themeKey(map)];
 })();

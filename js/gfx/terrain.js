@@ -82,8 +82,8 @@
     const S8 = half((x, y) => fbm(x * 0.04, y * 0.04, 8)), S9 = half((x, y) => fbm(x * 0.05, y * 0.05, 9));
     const L12 = half((x, y) => fbm(x * 0.04, y * 0.04, 12)), C21 = half((x, y) => fbm(x * 0.08, y * 0.08, 21));
     // thème de la zone (couleurs propres à chaque zone)
-    const TH = World.THEMES && World.THEMES[map.theme];
-    const GRASS = map.grass ? map.grass.map(Art.hex) : TH ? TH.grass.map(Art.hex) : map.ambient === 'forest' ? PAL.forest : PAL.grass;
+    const TH = World.themeOf ? World.themeOf(map) : World.THEMES && World.THEMES[map.theme];
+    const GRASS = map.grass ? (World.seasonGrass ? World.seasonGrass(map, map.grass) : map.grass).map(Art.hex) : TH ? TH.grass.map(Art.hex) : map.ambient === 'forest' ? PAL.forest : PAL.grass;
     // map.lush : sol façon Digimon World 1 (herbe en brins fins, tons continus, chemins aux bords fondus, ombre de forêt sur les bords)
     // actif sur toutes les cartes extérieures (map.lush = false pour le désactiver), jamais en intérieur
     const LUSH = map.lush != null ? !!map.lush : !map.indoor, TMP = [0, 0, 0];
@@ -573,17 +573,23 @@
     }
   }
   // préparation immédiate (jusqu'à ce que la carte soit affichable)
+  // la saison a changé depuis la préparation : on refait la carte
+  const stale = map => { if (map.gfx && map.gfx.tk !== undefined && World.themeKey && map.gfx.tk !== World.themeKey(map)) World.unprepare(map); };
+  const stamp = map => { if (map.gfx && map.gfx.tk === undefined) map.gfx.tk = World.themeKey ? World.themeKey(map) : null; };
   World.prepare = map => {
+    stale(map);
     if (map.gfx) return map.gfx;
     const it = map._prep || (map._prep = prep(map));
     for (;;) { const res = it.next(); if (res.done) { map._prep = null; break; } if (res.value === 'ready') break; }
+    stamp(map);
     return map.gfx;
   };
   // avance la préparation pendant au plus ms millisecondes ; true quand tout est prêt (eau comprise)
   World.prepareSome = (map, ms) => {
+    if (!map._prep) stale(map);
     if (map.gfx && !map._prep) return true;
     const it = map._prep || (map._prep = prep(map)), t = performance.now();
-    while (performance.now() - t < ms) if (it.next().done) { map._prep = null; return true; }
+    while (performance.now() - t < ms) if (it.next().done) { map._prep = null; stamp(map); return true; }
     return false;
   };
   World.unprepare = map => { delete map.gfx; delete map._prep; };
@@ -616,6 +622,6 @@
     return (tallCache[key] = cv);
   };
 
-  World.tallKind = (map, kind) => (kind === 'grass' && World.THEMES && World.THEMES[map.theme] && World.THEMES[map.theme].tall ? kind + '@' + map.theme : kind);
+  World.tallKind = (map, kind) => { const k = World.themeKey ? World.themeKey(map) : map.theme; return kind === 'grass' && k && World.THEMES[k] && World.THEMES[k].tall ? kind + '@' + k : kind; };
   World.PAL = PAL;
 })();

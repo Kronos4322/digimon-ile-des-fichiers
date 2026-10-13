@@ -402,7 +402,7 @@
       }
       // objets & personnages triés en profondeur
       // direction et intensité des ombres selon l'heure
-      const hr = DW.Time.hour(), L = DW.Time.light();
+      const hr = DW.Time.solar(), L = DW.Time.light();
       this.sun = { dx: DW.clamp((hr - 12.5) / 6, -1.2, 1.2), a: this.map.indoor ? 0 : 0.24 * (1 - Math.min(1, L.dark * 1.6)) * (DW.Time.weather() === 'clear' ? 1 : 0.45) };
       // liste réutilisée d'une image à l'autre ; les objets du décor y entrent tels quels (clé de tri o.s)
       const list = this._list || (this._list = []);
@@ -532,7 +532,7 @@
     // flaques après la pluie : reflet du ciel (bleu le jour, orangé au crépuscule, sombre la nuit),
     // reflets des lanternes la nuit, ronds de pluie
     drawPuddles(c, list, x0, x1, y0, y1) {
-      const hr = DW.Time.hour(), L = DW.Time.light(), dusk = (hr > 17 && hr < 20.5) || (hr > 5 && hr < 7.5);
+      const hr = DW.Time.solar(), L = DW.Time.light(), dusk = (hr > 17 && hr < 20.5) || (hr > 5 && hr < 7.5);
       const sky = L.dark > 0.55 ? [40, 56, 110] : dusk ? [236, 150, 110] : [150, 196, 236];
       const a = this.wet, rain = DW.Time.weather() === 'rain', lamps = L.dark > 0.3 ? this.amb.lights() : [];
       for (const p of list) {

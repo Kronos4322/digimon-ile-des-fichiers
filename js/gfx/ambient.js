@@ -13,7 +13,7 @@
       this.type = map.ambient || 'forest';
       this.map = map;
       this.p = []; this.t = 0;
-      const th = World.THEMES && World.THEMES[map.theme];
+      const th = World.themeOf(map);
       const n = th && this.type === 'forest' ? { autumn: 30, petals: 26, spores: 22, pollen: 20, mist: 14, snow: 60, ember: 30, ash: 34, dust: 22, drip: 16 }[th.particle] || 18 : { forest: 18, beach: 6, village: 22, town: 8, home: 14 }[this.type] || 10;
       this.mist = !!(th && th.mist);
       for (let i = 0; i < n; i++) this.p.push(this.spawn(true));
@@ -44,7 +44,7 @@
     spawn(init) {
       const r = Math.random;
       if (this.type === 'forest') {
-        const th = World.THEMES && World.THEMES[this.map.theme], cols = th ? th.leaves : ['#8ad860', '#c8d860', '#5ab848', '#e8c050'], pk = th ? th.particle : 'leaf';
+        const th = World.themeOf(this.map), cols = th ? th.leaves : ['#8ad860', '#c8d860', '#5ab848', '#e8c050'], pk = th ? th.particle : 'leaf';
         const c = cols[Math.floor(r() * cols.length)];
         // spores et pollen : montent doucement en brillant ; pétales et feuilles : tombent en tourbillonnant
         if (pk === 'spores' || pk === 'pollen') return { kind: 'glow', x: r() * DW.W, y: init ? r() * DW.H : DW.H + 4, vx: -2 + r() * 4, vy: -(3 + r() * 6), ph: r() * 6, c };
@@ -156,7 +156,7 @@
     drawScreen(c, cam) {
       const t = this.t, W = DW.W, H = DW.H;
       if (this.type === 'forest') {
-        const thm = World.THEMES && World.THEMES[this.map.theme];
+        const thm = World.themeOf(this.map);
         c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = thm && thm.noRays ? 0 : Math.max(0, 1 - DW.Time.light().dark * 3) * (DW.Time.weather() === 'clear' ? 1 : 0.3);
         for (let i = 0; i < 4; i++) {
           const x = ((i * 97 - cam.cx * 0.3) % (W + 160) + W + 160) % (W + 160) - 80;

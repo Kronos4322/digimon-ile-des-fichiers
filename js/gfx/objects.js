@@ -60,7 +60,7 @@
       // [feuillage, ombre, lumière] : 0-2 verts, 5 orange, 6 rouge, 7 doré, 8 vert profond, 9 moussu
       const P = { 0: ['#45a03e', '#2f7a34', '#6cc458'], 1: ['#3c9444', '#2c7040', '#62bc62'], 2: ['#52a83a', '#3a8030', '#7ac850'],
         5: ['#e07a2a', '#b0521c', '#f4a84a'], 6: ['#cc4a30', '#962a1e', '#ee7a52'], 7: ['#e2b232', '#b4861c', '#f6d868'],
-        8: ['#2a6e3a', '#1a4c2a', '#3e8c4a'], 9: ['#3a9474', '#26705a', '#64ba96'] }[v] || ['#45a03e', '#2f7a34', '#6cc458'];
+        8: ['#2a6e3a', '#1a4c2a', '#3e8c4a'], 9: ['#3a9474', '#26705a', '#64ba96'], 10: ['#2e6a48', '#1e4c36', '#4a8a62'], 11: ['#9ab8c0', '#6e8e9a', '#cfe2e8'] }[v] || ['#45a03e', '#2f7a34', '#6cc458'];
       const tr = v === 8 ? '#5a3a22' : v === 9 ? '#6a5a3a' : '#7a5230', lf = P[0], ld = P[1], lt = P[2];
       d.ell(18, 44, 9, 2.4, '#5a3a20', 0, { flat: true });
       d.tube([[11, 45], [15, 41]], 3, 2, tr, { far: true }); d.tube([[25, 45], [21, 41]], 3, 2, tr);
@@ -73,6 +73,8 @@
       d.circ(18, 27, 9, lf, { tex: 0.55, texSize: 1 });
       d.circ(13, 9, 5.5, lt, { tex: 0.45, texSize: 1 });
       if (v === 9) { d.deco.ell(17, 36, 2.6, 5, '#5aa040'); d.deco.ell(20, 41, 2, 3, '#4a9036'); d.deco.circ(10, 22, 1, '#d8f0a0', { unlit: true }); }
+      // 10-11 (hiver) : neige posée sur les cimes
+      if (v >= 10) for (const [x, y, rx] of [[18, 4, 8], [8, 15, 5.5], [28, 14, 5.5], [8, 21, 4.5], [28, 21, 4.5], [18, 19, 6]]) { d.ell(x, y, rx, rx * 0.42, '#f4f8ff', 0, { shiny: true }); d.deco.ell(x - rx * 0.3, y - 0.4, rx * 0.4, rx * 0.14, '#ffffff', 0, { unlit: true }); }
       if (v >= 5 && v <= 7) { d.deco.circ(9, 30, 1.2, lt, { unlit: true }); d.deco.circ(27, 14, 1, lt, { unlit: true }); }
     } },
     oak: { w: 36, h: 46, n: 1, draw(d) {
