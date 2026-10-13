@@ -114,7 +114,7 @@ multiplié : PV et PM ×20 (max 9999), Attaque / Défense / Vitesse / Intelligen
 multipliés par le même facteur que les PV (combats aussi longs qu'avant), le coût des techniques par celui des PM,
 les soins des objets sont écrits directement à la nouvelle échelle (items.js). Sauvegarde v5 : PV/PM restants ×20.
 Les PM s'entraînent (poste « Énergie », cristal de données Ψ au Terrain d'entraînement, m.tr.mp) et ont leur puce
-(puce_pm, Atelier d'Andromon). Points d'entraînement : 6 stats, 300 au total, plafond par stat 6 + 2 × niveau (max 64).
+(puce_pm, Atelier d'Andromon). Points d'entraînement : 6 stats, 300 au total, plafond par stat 10 + 3 × niveau + 4 × ABI (max 99) ; ABI +1 par Digivolution, +2 par dé-digivolution (Cyber Sleuth).
 
 ## Santé du partenaire (life.js)
 La maladie n'arrive jamais au hasard : `m.germs` (0-100, « Santé » dans la fiche) accumule les négligences

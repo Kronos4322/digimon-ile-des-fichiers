@@ -32,7 +32,7 @@
       if (this.col === 0 && this.prev) {
         const to = this.prev;
         Audio.sfx('select');
-        const r = await DW.ask(`Faire dé-digivoluer ${m.name} en ${DW.SPECIES[to].name} ? (le niveau est conservé)`);
+        const r = await DW.ask(`Faire dé-digivoluer ${m.name} en ${DW.SPECIES[to].name} ? (niveau et entraînement conservés, ABI +2 : son potentiel augmente)`);
         if (r !== 0) return;
         await Game.push(new DW.EvolutionScene(m, to, { dedigi: true }));
         m.evolve(to);

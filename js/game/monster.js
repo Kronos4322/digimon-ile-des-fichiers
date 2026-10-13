@@ -18,6 +18,8 @@
       this.wins = o.wins || 0;
       this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
       this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
+      this.raw = Object.assign({}, o.raw || {});                                    // entraînement « Statistique »
+      this.abi = o.abi || 0;                                                         // ABI : repousse les plafonds d'entraînement
       this.tired = o.tired || 0;                                                     // fatigue 0-100
       this.hunger = o.hunger || 0; this.need = o.need || 0;                          // faim / toilettes 0-100 (voir care.js)
       // vie (voir life.js) : erreurs de soin, discipline, corpulence, renaissances, durée de vie, sommeil, maladie, blessure
@@ -41,7 +43,8 @@
     // échelle façon Digimon World : PV et PM en milliers (max 9999), autres stats en centaines (max 999)
     // (le calcul « brut » reste celui d'origine, puis il est multiplié par DW.SCALE)
     // bonus d'entraînement non arrondi : multiplié par DW.SCALE, chaque point se voit sur la stat (+6 PV, +1 Attaque...)
-    bonus(k) { const t = (this.tr && this.tr[k]) || 0; return t * this.level / 100 + t / 3 + ((this.chips && this.chips[k]) || 0); }
+    // entraînement (tr : compte pour les Digivolutions), entraînement « Statistique » (raw : stat directe), puces
+    bonus(k) { const t = (this.tr && this.tr[k]) || 0, r = (this.raw && this.raw[k]) || 0; return t * this.level / 100 + t / 3 + r * 0.8 + ((this.chips && this.chips[k]) || 0); }
     stat(k) {
       if (k === 'mp') return this.maxMp;
       const S = DW.SCALE, b = this.d.base[k] || 50, iv = this.iv[k] || 0, bonus = this.bonus(k);
@@ -91,6 +94,9 @@
     }
     evolve(to) {
       const oldMax = this.maxHp;
+      // ABI (Cyber Sleuth) : +1 en digivoluant, +2 en dé-digivoluant (le stade d'arrivée est plus bas)
+      const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
+      this.abi = (this.abi || 0) + (ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage) ? 2 : 1);
       this.sp = to;
       this.evoAt = DW.state ? DW.state.clock : 0;
       this.hp = DW.clamp(this.hp + (this.maxHp - oldMax), 1, this.maxHp);
@@ -98,7 +104,7 @@
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), mp: this.mp,
-        mistakes: this.mistakes, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt };
+        mistakes: this.mistakes, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {} };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);

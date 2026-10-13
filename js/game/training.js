@@ -2,7 +2,9 @@
 // =====================================================================
 //  ENTRAÎNEMENT (Terrain d'entraînement, au sud de la ville)
 //  - Les COMBATS font monter le niveau → le niveau fixe le POTENTIEL :
-//    plafond de points d'entraînement par stat = 6 + 2 × niveau (max 64).
+//    plafond de points d'entraînement par stat = 10 + 3 × niveau + 4 × ABI (max 99).
+//  - ABI (comme dans Cyber Sleuth) : +1 à chaque Digivolution, +2 à chaque dé-digivolution ;
+//    dé-digivoluer permet donc de dépasser un plafond trop bas.
 //  - L'ENTRAÎNEMENT remplit ce potentiel : les points augmentent les stats
 //    et sont la condition principale des Digivolutions.
 //  - Une séance = un mini-jeu propre au poste, en 3 essais (game/trainingames.js) :
@@ -25,15 +27,24 @@
   const Training = DW.Training = {
     STATS, TOTAL,
     // potentiel : ce que le niveau (gagné en combat) permet d'atteindre
-    cap: m => Math.min(64, 6 + m.level * 2),
+    cap: m => Math.min(99, 10 + m.level * 3 + (m.abi || 0) * 4),
     total: m => Object.values(m.tr).reduce((a, b) => a + b, 0),
+    totalCap: m => Math.min(600, TOTAL + (m.abi || 0) * 30),
     // ajoute des points (bornés par le potentiel) et renvoie le gain réel
-    gain(m, k, n) {
-      const room = Math.min(this.cap(m) - m.tr[k], TOTAL - this.total(m));
+    gain(m, k, n, mode = 'evo') {
+      if (mode === 'stat') {   // objectif « Statistiques » : la stat monte directement (ne compte pas pour les Digivolutions)
+        m.raw = m.raw || {};
+        const g = Math.max(0, Math.min(n, this.cap(m) - (m.raw[k] || 0)));
+        m.raw[k] = (m.raw[k] || 0) + g;
+        return g;
+      }
+      const room = Math.min(this.cap(m) - m.tr[k], this.totalCap(m) - this.total(m));
       const g = Math.max(0, Math.min(n, room));
       m.tr[k] += g;
       return g;
     },
+    // niveaux de difficulté des séances : facile (moins de points), moyen, difficile (deux fois plus de points)
+    LEVELS: [{ name: 'Facile', dif: -0.35, mul: 0.5, tire: 20 }, { name: 'Moyen', dif: 0, mul: 1, tire: 30 }, { name: 'Difficile', dif: 0.3, mul: 2, tire: 40 }],
     // difficulté du mini-jeu selon les points déjà acquis (0 facile → 1 très dur)
     difficulty: (m, k) => Math.min(1, m.tr[k] / 48),
     // raison qui empêche une séance (null : tout va bien)
@@ -43,8 +54,8 @@
       if (m.sick) return `${m.name} est malade... Donne-lui un Médicament avant de l'entraîner.`;
       if (m.hurt) return `${m.name} est blessé... Soigne-le avec un Bandage d'abord.`;
       if (m.tired >= 100) return `${m.name} est épuisé... Fais-le dormir ou mange au restaurant.`;
-      if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat pour l'augmenter !`;
-      if (this.total(m) >= TOTAL) return `${m.name} ne peut plus progresser davantage...`;
+      if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat, ou dé-digivolue-le (son ABI monte) pour l'augmenter !`;
+      if (this.total(m) >= this.totalCap(m)) return `${m.name} ne peut plus progresser davantage... Dé-digivoluer (table des Digivolutions) augmente son ABI et repousse cette limite.`;
       if (DW.Care && DW.Care.tooHungry(m)) return `${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`;
       return null;
     },
@@ -64,6 +75,12 @@
       }
       const why = this.blocked(m, k);
       if (why) { await DW.say(why); return; }
+      // objectif et difficulté de la séance (comme dans Digimon World : on peut aussi monter les stats directement)
+      const goal = await DW.ask(`Objectif de l'entraînement « ${S.name} » ?`, ["Digivolution (points d'entraînement)", `Statistique (${S.stat} directement)`, 'Annuler']);
+      if (goal < 0 || goal > 1) return;
+      const lv = await DW.ask('Quel niveau de difficulté ?', this.LEVELS.map(L => `${L.name}${L.mul === 1 ? '' : L.mul > 1 ? ' (points ×2)' : ' (points ÷2)'}`).concat(['Annuler']));
+      if (lv < 0 || lv > 2) return;
+      this.opts = { mode: goal === 1 ? 'stat' : 'evo', level: this.LEVELS[lv] };
       // séances enchaînées ; après chaque séance d'Intelligence, une technique peut être retenue (maps/classe.js)
       for (;;) { const sc = new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
       if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre la table des Digivolutions (ENTRÉE → DIGIVOLUTION).`);
@@ -76,7 +93,8 @@
       super();
       this.m = m; this.k = k; this.S = STATS[k];
       this.hits = []; this.pt = []; this.flash = 0; this.shake = 0;
-      this.dif = Training.difficulty(m, k);
+      this.opts = Training.opts || { mode: 'evo', level: Training.LEVELS[1] };
+      this.dif = DW.clamp(Training.difficulty(m, k) + this.opts.level.dif, 0, 1);
       this.before = m.stat(k);
       this.state = 'ready';   // ready → play (3 essais) → done
     }
@@ -111,8 +129,9 @@
       this.score = score;
       const extra = score > 0 ? (m.boost || 0) + (DW.state.bag.manuel_entr ? 1 : 0) : 0;   // Super carotte, Radis... et Manuel d'entraînement
       if (score > 0) m.boost = 0;
-      this.g = Training.gain(m, k, score + bonus + extra);
-      m.tired = Math.min(100, m.tired + TIRE);
+      const L = this.opts.level, raw = score + bonus + extra;
+      this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
+      m.tired = Math.min(100, m.tired + L.tire);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);
       DW.Life.addFat(m, -1);
       DW.state.clock += MINUTES;
@@ -151,7 +170,7 @@
       UI.box(c, 6, 6, W - 12, 34);
       UI.label(c, 'ENTRAÎNEMENT', 12, 10);
       UI.text(c, `${m.name} — ${S.name} (${S.stat})`, 100, 19, { size: 10, color: '#ffe070' });
-      UI.text(c, `Points ${m.tr[k]} / potentiel ${Training.cap(m)}   ·   Fatigue ${m.tired} %`, 12, 33, { size: 8, color: '#c8f0ff' });
+      { const st = this.opts.mode === 'stat', cur = st ? ((m.raw || {})[k] || 0) : m.tr[k]; UI.text(c, `${st ? 'Statistique' : 'Digivolution'} · ${this.opts.level.name}   ·   Points ${cur} / ${Training.cap(m)}   ·   Fatigue ${m.tired} %`, 12, 33, { size: 8, color: '#c8f0ff' }); }
       // panneau du bas
       UI.box(c, 6, 188, W - 12, 46);
       if (this.state === 'ready') {
