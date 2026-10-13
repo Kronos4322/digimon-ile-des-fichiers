@@ -21,7 +21,7 @@
     'gfx/digimon/entrainement.js', 'gfx/digimon/disciples.js', 'gfx/digimon/champions.js', 'gfx/digimon/ultimes.js',
     'gfx/digimon/ultimes2.js', 'gfx/digimon/ile.js', 'gfx/digimon/agumon.js', 'gfx/digimon/bebes.js', 'gfx/digimon/lignees.js',
     'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/town.js', 'gfx/district.js', 'gfx/themes.js',
-    'gfx/interior.js', 'gfx/interior2.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js',
+    'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js',
     'gfx/battlebg.js', 'engine/time.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/training.js', 'game/trainingames.js', 'game/care.js', 'game/life.js',

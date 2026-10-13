@@ -13,6 +13,11 @@
   const FIELDS = [[4, 12], [8, 12], [12, 12], [16, 12], [4, 16], [8, 16], [12, 16], [16, 16]];
   const MEAT = 2; // les 2 premières parcelles : la Digiviande de Tanemon
   const today = () => Math.floor(st().clock / 1440);
+  // cultures de Palmon (parcelles 3 à 8) et vergers : une cueillette par plant et par jour, 4 au plus par jour
+  const CROPS = [[0, 'Carottes', 'super_carotte'], [1, 'Choux', 'super_legume'], [2, 'Citrouilles', 'melon'], [4, 'Maïs', 'radis'], [5, 'Tournesols', 'noix_douce'], [6, 'Tomates', 'baie_rouge']];
+  const ORCHARD = [[4, 22, 0], [7, 23, 1], [10, 22, 2], [13, 23, 0], [16, 22, 1]];
+  const FRUIT = [['Pommier', 'baie_rouge'], ['Oranger', 'orange_bana'], ['Pommier bleu', 'pomme_bleue']];
+  const PICKS = 4;
 
   function build() {
     const m = MAPS.champs, has = id => T().has(id);
@@ -43,7 +48,7 @@
       // champs (terre labourée sous les potagers)
       for (const [x, y] of FIELDS) g.rect(x, y, 3, 2, '=');
       // verger et décor
-      for (const [x, y] of [[4, 22], [7, 23], [10, 22], [13, 23], [16, 22], [24, 23], [36, 23], [2, 7], [36, 7]]) g.set(x, y, 'T');
+      for (const [x, y] of [[24, 23], [36, 23], [2, 7], [36, 7]]) g.set(x, y, 'T');
       g.scatter(farm ? 'f' : 'j', 2, 2, 20, 23, farm ? 20 : 40, 61, ['.']);
       if (farm) { g.set(14, 8, '7'); g.set(15, 9, '7'); g.set(3, 8, 'a'); }
       else { g.scatter('r', 3, 6, 16, 3, 2, 62, ['.']); }
@@ -55,19 +60,28 @@
       // décor numérique : tuyau d'irrigation, antenne près du moulin, panneau de circuit dans le verger
       g.set(23, 10, '$'); g.set(19, 7, '!'); g.set(18, 23, '?');
       g.rect(3, 7, 2, 2, '.');
+      // décor de ferme : épouvantail, foin, brouette, ruches, étal, serre (cases dégagées)
+      for (const [x, y] of [...ORCHARD, [15, 14], [19, 14], [19, 15], [11, 18], [8, 24], [11, 24], [3, 3], [4, 3], [31, 23], [32, 23], [33, 23], [34, 23]]) g.set(x, y, '.');
       // sorties : ouest vers le Marais des Geko, sud vers le Tunnel Foreur
       g.rect(0, 19, 4, 3, '='); g.rect(20, 22, 3, 6, '=');
     });
     m.objects = [
       { kind: 'windmill', v: farm ? 1 : 0, x: 16, y: 6, w: 3, h: 2 },
       { kind: 'waterfall', x: 30, y: 4, w: 2, h: 2, oy: 8 },
-      ...FIELDS.map(([x, y], i) => (i < MEAT ? { kind: 'meatpatch', v: ripe ? 1 : 0, x, y, w: 3, h: 2 } : { kind: 'vegpatch', v: farm ? 1 : 0, x, y, w: 3, h: 2 })),
+      ...FIELDS.map(([x, y], i) => (i < MEAT ? { kind: 'meatpatch', v: ripe ? 1 : 0, x, y, w: 3, h: 2 } : farm ? { kind: 'cropbed', v: CROPS[i - MEAT][0], x, y, w: 3, h: 2 } : { kind: 'vegpatch', v: 0, x, y, w: 3, h: 2 })),
+      ...ORCHARD.map(([x, y, v]) => ({ kind: 'fruittree', v, x, y, w: 2, h: 1 })),
+      { kind: 'scarecrow', x: 15, y: 14, w: 1, h: 1, small: true },
+      { kind: 'haybale', v: 0, x: 19, y: 14, w: 1, h: 1, small: true }, { kind: 'haybale', v: 1, x: 19, y: 15, w: 1, h: 1, small: true },
+      { kind: 'wheelbarrow', x: 11, y: 18, w: 1, h: 1, small: true },
+      { kind: 'beehive', x: 8, y: 24, w: 1, h: 1, small: true }, { kind: 'beehive', x: 11, y: 24, w: 1, h: 1, small: true },
+      { kind: 'producestand', x: 3, y: 3, w: 2, h: 1 },
       { kind: 'fence', v: 4, x: 22, y: 7, w: 4, h: 1 },
       // DigiChamp de Tanemon : cabane à outils et clôture
       { kind: 'shed', x: 3, y: 7, w: 2, h: 2 },
       { kind: 'fence', v: 9, x: 3, y: 11, w: 9, h: 1, oy: 4 },
     ];
     m.doors = farm ? [{ x: BARN.x + 2, y: BARN.y + BARN.h - 1, w: 1, dir: 'up', to: 'grange_in', tx: 9, ty: 13 }] : [];
+    if (farm) m.objects.push({ kind: 'greenhouse', x: 31, y: 23, w: 4, h: 1 });
     if (farm) m.objects.push({ kind: 'barn', ...BARN }, { kind: 'laundry', x: 22, y: 9, w: 3, h: 1 }, { kind: 'hangsign', v: 3, x: 13, y: 8, w: 1, h: 1, small: true });
     if (has('gomamon')) m.objects.push({ kind: 'fishing', x: 29, y: 16, w: 1, h: 1, small: true });
     m.npcs = [{ sp: 'tanemon', x: 7, y: 14, face: 'left', wander: 1, talk: tanemonTalk }];
@@ -79,10 +93,39 @@
       '2,11': 'DigiChamp de Tanemon — Digiviande fraîche tous les jours ! (Demande à Tanemon.)',
       '3,8': "La cabane à outils de Tanemon : arrosoir, fourche et graines de Digiviande.", '4,8': "La cabane à outils de Tanemon : arrosoir, fourche et graines de Digiviande.",
     };
-    FIELDS.forEach(([x, y], k) => { for (let i = 0; i < 3; i++) m.signs[`${x + i},${y + 1}`] = () => fieldLook(k < MEAT); });
+    FIELDS.forEach(([x, y], k) => { for (let i = 0; i < 3; i++) m.signs[`${x + i},${y + 1}`] = () => (k >= MEAT && farm ? pick('c' + k, CROPS[k - MEAT][1], CROPS[k - MEAT][2]) : fieldLook(k < MEAT)); });
+    ORCHARD.forEach(([x, y, v], k) => { for (let i = 0; i < 2; i++) m.signs[`${x + i},${y}`] = () => pick('t' + k, FRUIT[v][0], FRUIT[v][1], true); });
+    Object.assign(m.signs, {
+      '15,14': "Un épouvantail coiffé d'un chapeau de paille. Les Digimon oiseaux le regardent de travers...",
+      '19,14': 'Des bottes de foin bien sèches. Ça sent bon l\'été.', '19,15': 'Des bottes de foin bien sèches. Ça sent bon l\'été.',
+      '11,18': 'Une brouette pleine de légumes frais, prête pour le marché.',
+      '8,24': () => hive(), '11,24': () => hive(),
+      '3,3': () => stand(), '4,3': () => stand(),
+    });
+    if (farm) for (let i = 0; i < 4; i++) m.signs[`${31 + i},23`] = 'La serre de Palmon : tomates, poivrons et fleurs de toutes les couleurs poussent même en hiver.';
     zoomMap(m, 'champs');   // plan agrandi ×2 (maps/common.js)
     if (DW.Story.placeKiosks) DW.Story.placeKiosks(m, 'champs');   // stands des recrues (story.js)
     DW.World.unprepare(m); delete m.w;
+  }
+  // cueillette : une par plant et par jour, PICKS au plus par jour
+  async function pick(key, name, item, tree) {
+    const s = st(), d = today();
+    if (!s.harvest || s.harvest.day !== d) s.harvest = { day: d, got: [] };
+    if (s.harvest.got.includes(key)) { await say(tree ? `${name} : tu as déjà cueilli ses fruits aujourd'hui.` : `${name} : déjà récoltés aujourd'hui. Ça repousse pour demain !`); return; }
+    if (s.harvest.got.length >= PICKS) { await say('Tu as les bras chargés ! Reviens demain pour cueillir encore.'); return; }
+    if ((await DW.ask(tree ? `${name} chargé de fruits. Cueillir ?` : `${name} bien mûrs. Récolter ?`, ['Oui', 'Non'])) !== 0) return;
+    s.harvest.got.push(key);
+    const extra = DW.giveItem(item); DW.Audio.sfx('buy');
+    await say(`Tu récoltes : ${DW.ITEMS[item].name} !${DW.extraMsg(extra)}`);
+  }
+  async function hive() {
+    if (!T().has('palmon')) { await say('Des ruches bourdonnantes. Mieux vaut ne pas les déranger...'); return; }
+    await pick('ruche', 'Les ruches', 'noix_douce');
+  }
+  async function stand() {
+    if (!T().has('palmon')) { await say("Un étal vide. Les produits de la ferme y seront vendus quand le quartier sera cultivé."); return; }
+    await say('L\'étal de la ferme : fruits et légumes du Quartier des Champs !', 'Palmon');
+    DW.Game.push(new DW.ShopScene('fruits'));
   }
   async function fieldLook(meat) {
     if (meat) { await say(st().flags.meat === today() ? 'Les plants de Digiviande repoussent... La prochaine récolte sera prête demain.' : 'De belles Digiviandes bien mûres pendent aux plants ! Tanemon les récolte pour toi.'); return; }
