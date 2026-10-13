@@ -164,11 +164,42 @@
 
   DW.drawDigivice = digivice;
 
+  // ------------------------------------------------------------ choix d'un des 3 emplacements de sauvegarde
+  class SlotScene extends DW.Scene {
+    constructor(mode) { super(); this.overlay = true; this.mode = mode; this.info = [1, 2, 3].map(n => DW.saveInfo(n)); this.i = Math.max(0, this.info.findIndex(x => (mode === 'load' ? !!x : !x))); }
+    update() {
+      if (Input.hit('up')) { this.i = (this.i + 2) % 3; Audio.sfx('move'); }
+      if (Input.hit('down')) { this.i = (this.i + 1) % 3; Audio.sfx('move'); }
+      if (Input.hit('back')) { Audio.sfx('back'); this.close(-1); return; }
+      if (Input.hit('ok')) {
+        if (this.mode === 'load' && !this.info[this.i]) { Audio.sfx('bump'); return; }
+        Audio.sfx('select'); this.close(this.i + 1);
+      }
+    }
+    draw(c) {
+      c.fillStyle = 'rgba(0,8,20,0.82)'; c.fillRect(0, 0, W, H);
+      UI.box(c, 40, 16, W - 80, 20, 'dwsel');
+      UI.text(c, this.mode === 'load' ? 'CONTINUER — choisis ta partie' : 'NOUVELLE PARTIE — choisis un emplacement', W / 2, 30, { size: 9, align: 'center' });
+      this.info.forEach((o, k) => {
+        const y = 46 + k * 56, on = k === this.i;
+        UI.box(c, 24, y, W - 48, 50, on ? 'dwsel' : 'dw');
+        UI.text(c, `Emplacement ${k + 1}`, 34, y + 14, { size: 8, color: '#8ae0f0' });
+        if (!o) { UI.text(c, '— vide —', W / 2, y + 32, { size: 9, align: 'center', color: '#7a8ab8' }); return; }
+        if (o.partner) { const sp = DW.Sprites.battle(o.partner); DW.Sprites.draw(c, sp, 60, y + 46, { scale: Math.min(1, 30 / sp.h, 34 / sp.w), frame: on ? Math.floor(this.t * 4) : 0 }); }
+        UI.text(c, o.name, 90, y + 28, { size: 10, color: '#ffe070' });
+        UI.text(c, `${o.partner ? DW.SPECIES[o.partner].name + ' N.' + o.level : ''}   Jour ${o.day}   ${Math.floor(o.time / 3600)} h ${String(Math.floor(o.time / 60) % 60).padStart(2, '0')}`, 90, y + 41, { size: 7, color: '#c8f0ff' });
+        UI.text(c, UI.fit(c, o.place, 110, 7).s, W - 34, y + 14, { size: 7, align: 'right', color: '#c8f0ff' });
+      });
+      UI.hints(c, [['ok', 'choisir'], ['back', 'retour']], W - 12, H - 8);
+    }
+  }
+  DW.SlotScene = SlotScene;
+
   // ------------------------------------------------------------ scène
   class TitleScene extends DW.Scene {
     constructor() {
       super();
-      this.phase = 'boot'; this.started = false; this.info = DW.saveInfo(); this.i = this.info ? 1 : 0;
+      this.phase = 'boot'; this.started = false; this.info = [1, 2, 3].map(n => DW.saveInfo(n)).filter(Boolean).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))[0] || null; this.i = this.info ? 1 : 0;   // la partie la plus récente (3 emplacements)
       this.rain = Array.from({ length: 34 }, (_, i) => ({ x: i * 10 + 3, y: Math.random() * -H, s: 60 + Math.random() * 90, n: 6 + Math.floor(Math.random() * 10) }));
       this.motes = Array.from({ length: 26 }, () => this.mote(true));
       this.birds = Array.from({ length: 5 }, (_, i) => ({ x: Math.random() * W, y: 30 + Math.random() * 50, v: 8 + Math.random() * 8, ph: Math.random() * 6 }));
@@ -203,12 +234,17 @@
     async choose(cont) {
       this.busy = true;
       try {
+        // choix de l'emplacement (3 sauvegardes)
+        const slot = await Game.push(new SlotScene(cont ? 'load' : 'new'));
+        if (!(slot >= 1)) return;
+        const had = DW.saveInfo(slot);
+        DW.slot = slot;
         if (cont && !DW.load()) {
           Audio.sfx('back');
           await DW.say('Impossible de lire la sauvegarde... Elle est conservée telle quelle : rien n\'a été effacé.');
           return;
         }
-        if (!cont && this.info && (await DW.ask('Une partie est déjà sauvegardée. Elle sera remplacée dès ta prochaine sauvegarde. Commencer quand même ?', ['Non', 'Oui'])) !== 1) return;
+        if (!cont && had && (await DW.ask(`L'emplacement ${slot} contient déjà une partie (${had.name}). Elle sera remplacée dès ta prochaine sauvegarde. Commencer quand même ?`, ['Non', 'Oui'])) !== 1) return;
         Audio.sfx('evolve');
         this.wipe = { t: 0, done: () => {
           if (cont) {

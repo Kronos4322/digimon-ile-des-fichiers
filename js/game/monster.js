@@ -212,7 +212,11 @@
   // ------------------------------------------------------------ état de partie & sauvegarde
   // Trois emplacements : la sauvegarde, la copie précédente (écrite juste avant chaque sauvegarde)
   // et une copie « illisible » mise de côté si le chargement échoue (jamais écrasée par une nouvelle partie).
-  const KEY = 'digimon_ile_des_fichiers_save', BAK = KEY + '_precedente', BROKEN = KEY + '_illisible';
+  // 3 emplacements de sauvegarde (DW.slot = 1, 2 ou 3) ; l'emplacement 1 garde le nom d'origine (anciennes parties)
+  const BASE = 'digimon_ile_des_fichiers_save';
+  DW.slot = 1; DW.SLOTS = 3;
+  const keyOf = n => (n > 1 ? BASE + '_' + n : BASE);
+  const K = { get KEY() { return keyOf(DW.slot); }, get BAK() { return keyOf(DW.slot) + '_precedente'; }, get BROKEN() { return keyOf(DW.slot) + '_illisible'; } };
   // échelle des statistiques (façon Digimon World 1) : PV/PM ×20 jusqu'à 9999, Attaque/Défense/Vitesse/Intelligence ×4 jusqu'à 999
   DW.SCALE = { hp: 20, mp: 20, stat: 4, capHp: 9999, capStat: 999 };
   // réglages d'équilibrage des combats (mesurés avec un simulateur : 4 à 6 tours à niveau égal, ~50 % des PV restants)
@@ -236,19 +240,20 @@
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const write = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
   // résumé affiché sur l'écran titre
-  DW.saveInfo = () => {
+  DW.saveInfo = (slot = DW.slot) => {
+    const keep = DW.slot; DW.slot = slot;
     try {
-      const o = JSON.parse(read(KEY) || read(BAK));
+      const o = JSON.parse(read(K.KEY) || read(K.BAK));
       if (!o) return null;
       const m = DW.MAPS[o.map], lead = o.party && o.party[0];
       return { name: o.name, time: o.time || 0, place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
         level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
-    } catch (e) { return null; }
+    } catch (e) { return null; } finally { DW.slot = keep; }
   };
   // sauvegarde automatique silencieuse (changement de zone, après un combat)
   const warnedFlags = new Set();
   DW.autosave = () => { if (DW.state.flags.starter) { DW.save(); DW.saveFlash = 2; } };
-  DW.hasSave = () => !!(read(KEY) || read(BAK));
+  DW.hasSave = () => !!(read(K.KEY) || read(K.BAK));
   DW.save = () => {
     const st = DW.state;
     if (DW.ow) { st.map = DW.ow.mapId; st.x = DW.ow.p.x; st.y = DW.ow.p.y; st.dir = DW.ow.p.dir; }
@@ -257,9 +262,9 @@
     if (unknown.length) { unknown.forEach(k => warnedFlags.add(k)); console.warn('Drapeaux non déclarés dans js/data/flags.js :', unknown.join(', ')); }
     let json;
     try { json = JSON.stringify(st); } catch (e) { DW.reportError(e, 'sauvegarde'); return false; }
-    const old = read(KEY);
-    if (old && old !== json) write(BAK, old);
-    return write(KEY, json);
+    const old = read(K.KEY);
+    if (old && old !== json) write(K.BAK, old);
+    return write(K.KEY, json);
   };
 
   // Digimon d'une sauvegarde : une espèce ou une technique disparue du jeu ne doit pas tout casser.
@@ -306,13 +311,13 @@
   DW.loadNote = null;
   DW.load = () => {
     DW.loadNote = null;
-    const main = read(KEY);
+    const main = read(K.KEY);
     try {
       if (!main) throw new Error('aucune sauvegarde');
       DW.state = parseState(main);
     } catch (e) {
-      const bak = read(BAK);
-      if (main) { write(BROKEN, main); DW.reportError(e, 'chargement'); }
+      const bak = read(K.BAK);
+      if (main) { write(K.BROKEN, main); DW.reportError(e, 'chargement'); }
       try { DW.state = parseState(bak); } catch (e2) { return false; }
       DW.loadNote = 'La dernière sauvegarde était illisible : la sauvegarde précédente a été chargée (l\'autre est conservée à part).';
     }
