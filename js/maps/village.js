@@ -258,7 +258,12 @@
     async mushroomon() {
       const s = st();
       await say("Hihi ! Bienvenue au Restaurant aux Champignons !", 'Mushroomon');
-      const r = await DW.ask('Commander un Champi-repas pour toute l\'équipe ? (80 Bits)');
+      const r = await DW.ask('Que veux-tu faire ?', ['Champi-repas (80 Bits)', 'Cuisiner', 'Au revoir'], 'Mushroomon');
+      if (r === 1) {
+        if (!s.flags.cookIntro) { s.flags.cookIntro = true; await say("Mes fourneaux sont à toi ! Apporte les ingrédients que t'offrent les habitants : je t'apprends les recettes.", 'Mushroomon'); await say('Les plats cuisinés rendent ton partenaire plus fort, pour toujours !', 'Mushroomon'); }
+        await DW.Cuisine.cook('Restaurant');
+        return;
+      }
       if (r !== 0) return;
       if (s.bits < 80) { await say("Tu n'as pas assez de Bits...", 'Mushroomon'); return; }
       s.bits -= 80;

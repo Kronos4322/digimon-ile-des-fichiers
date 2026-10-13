@@ -269,7 +269,7 @@
       const n = this.npcAt(x, y);
       if (n) {
         if (P.dir === 'left') n.face = 'right'; else if (P.dir === 'right') n.face = 'left';
-        this.runScript(ow => n.talk(ow, n));
+        this.runScript(async ow => { await n.talk(ow, n); if (DW.Cuisine) await DW.Cuisine.afterTalk(n); });
         return true;
       }
       const sign = this.map.signs && this.map.signs[`${x},${y}`];

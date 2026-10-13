@@ -94,6 +94,8 @@
     fish: (d, c) => { d.ell(7.6, 8, 5.4, 3.2, c, 0, { shiny: true }); d.poly([[12, 8], [15, 5], [15, 11]], c); d.deco.circ(4.6, 7.4, 0.9, '#1a1a22', { unlit: true }); },
     bread: (d, c) => { d.ell(8, 9.4, 6.4, 3.8, c, -0.2, { shiny: true }); for (let k = 0; k < 3; k++) d.deco.line(4.6 + k * 3, 7.2 + k * 0.4, 6.4 + k * 3, 10.4 + k * 0.4, 0.7, '#8a5224'); },
     cake: (d, c) => { d.rect(3, 8, 10, 5.6, '#f4e0c8', { round: 0.2, shiny: true }); d.rect(3, 6, 10, 2.8, c, { round: 0.3 }); d.circ(8, 5, 1.4, '#e03a4a', { shiny: true }); },
+    jar: (d, c) => { d.rect(4, 5, 8, 9, c, { round: 0.3, shiny: true }); d.rect(3.4, 3, 9.2, 2.6, '#c8a060', { round: 0.3 }); d.deco.rect(5, 8, 6, 3, '#ffffff'); },
+    bowl: (d, c) => { d.ell(8, 8, 6.4, 2.6, c, 0, { shiny: true }); d.poly([[1.6, 8], [14.4, 8], [12, 13.4], [4, 13.4]], '#f4f0e8', { shiny: true }); d.deco.rect(4, 11, 8, 1, '#4a8ad0'); d.deco.ell(6, 7, 1.6, 0.8, '#ffffff', 0, { unlit: true }); },
     evo: (d, c) => { d.poly([[8, 1], [10.4, 6], [15, 8], [10.4, 10], [8, 15], [5.6, 10], [1, 8], [5.6, 6]], c, { shiny: true }); d.deco.circ(8, 8, 2.2, '#ffffff', { unlit: true }); },
   };
   const make = (set, id) => {
