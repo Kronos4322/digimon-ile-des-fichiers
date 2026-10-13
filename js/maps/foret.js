@@ -35,7 +35,7 @@
     // le Grand Arbre où se cache Kuwagamon : une énigme dans l'écorce ouvre le tronc (maps/kuwagamon.js)
     objects: [{ kind: 'grandarbre', v: 0, x: 26, y: 8, w: 4, h: 3 }],
     doors: [{ x: 27, y: 10, w: 2, dir: 'up', to: 'arbre_kuwagamon', tx: 9, ty: 12, cond: () => DW.Enigmes.solved('kuwa_arbre') }],
-    populate() { const o = this.objects.find(x => x.kind === 'grandarbre'), v = DW.Enigmes.solved('kuwa_arbre') ? 1 : 0; if (o && o.v !== v) { o.v = v; DW.World.unprepare(this); } },
+    populate() { const o = this.objects.find(x => x.kind === 'grandarbre'), v = DW.Kuwa_level ? DW.Kuwa_level() : 0; if (o && o.v !== v) { o.v = v; DW.World.unprepare(this); } },
     npcs: [
       { sp: 'yokomon', x: 24, y: 13, face: 'right', cond: s => !s.flags.kuwagamon, talk: async () => {
         await say("Chut ! Tu entends ce bourdonnement ? Il vient du Grand Arbre...", 'Yokomon');

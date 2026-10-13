@@ -2,13 +2,14 @@
 // =====================================================================
 //  DÉCOR DU CHAPITRE 1
 //  - grandarbre (4×3) : l'arbre immense de la Clairière de l'Arrivée, où se cache Kuwagamon.
-//    v0 : tronc fermé, une énigme gravée dans l'écorce ; v1 : le tronc s'est ouvert (passage sombre)
+//    v0 : écorce gravée ; v1, v2 : une, puis deux fissures (énigmes résolues) ; v3 : écorce éclatée, passage ouvert
+//  - treeroots, kuwanest : décor du Cœur du Grand Arbre
 //  - trophystand (1×1) : présentoir de trophée de la cave du joueur ; v0 vide, v1 Kuwagamon (et les suivants)
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
   Object.assign(OBJ, {
-    grandarbre: { w: 132, h: 150, n: 2, draw(d, v) {
+    grandarbre: { w: 132, h: 150, n: 4, draw(d, v) {
       const Tr = '#6a4626', Td = '#4a2e18', Tl = '#8a6038', L1 = '#2f7a34', L2 = '#45a03e', L3 = '#6cc458';
       d.ell(66, 146, 60, 5, '#20301a', 0, { flat: true });
       // racines
@@ -17,12 +18,17 @@
       d.tube([[66, 146], [64, 100], [66, 60]], 36, 24, Tr, { tex: 0.4 });
       for (const x of [44, 56, 76, 88]) d.deco.line(x, 140, x + 2, 70, 1.2, Td);
       d.deco.ell(54, 96, 4, 7, Td); d.deco.ell(84, 118, 3, 5, Td);
-      // l'entrée : fermée (écorce gravée de l'énigme) ou ouverte (passage sombre)
-      if (v) { d.ell(66, 128, 15, 19, '#120a06'); d.deco.ell(66, 124, 11, 14, '#1e120a'); d.deco.circ(62, 118, 1.2, '#ff3a2a', { unlit: true }); d.deco.circ(70, 118, 1.2, '#ff3a2a', { unlit: true }); }
+      // l'entrée : écorce gravée (v0), fissurée (v1, v2), puis éclatée sur un passage sombre (v3)
+      // éclats d'écorce au sol
+      if (v >= 3) for (const [x, y, a] of [[40, 140, -0.4], [92, 142, 0.5], [50, 146, 0.2], [84, 132, -0.6], [30, 132, 0.8]]) d.poly([[x, y], [x + 8 * Math.cos(a), y - 3], [x + 6, y + 2]], '#a07848');
+      if (v >= 3) { d.ell(66, 128, 15, 19, '#120a06'); d.deco.ell(66, 124, 11, 14, '#1e120a'); d.deco.circ(62, 118, 1.2, '#ff3a2a', { unlit: true }); d.deco.circ(70, 118, 1.2, '#ff3a2a', { unlit: true }); }
       else {
         d.ell(66, 126, 13, 17, Tl, 0, { tex: 0.3 });
         for (let k = 0; k < 5; k++) d.deco.line(58, 116 + k * 4, 74, 116 + k * 4, 0.8, '#3a2412');
         d.deco.circ(66, 110, 3, '#5af0c0', { unlit: true });   // un symbole qui luit faiblement
+        // fissures lumineuses, une par énigme résolue
+        if (v >= 1) { d.deco.line(66, 108, 60, 120, 1.2, '#5af0c0', { unlit: true }); d.deco.line(60, 120, 63, 132, 1, '#5af0c0', { unlit: true }); d.deco.line(60, 120, 54, 124, 0.8, '#5af0c0', { unlit: true }); }
+        if (v >= 2) { d.deco.line(66, 108, 74, 118, 1.2, '#5af0c0', { unlit: true }); d.deco.line(74, 118, 70, 136, 1, '#5af0c0', { unlit: true }); d.deco.line(74, 118, 80, 112, 0.8, '#5af0c0', { unlit: true }); d.deco.line(70, 136, 62, 142, 0.8, '#5af0c0', { unlit: true }); }
       }
       // feuillage immense en plusieurs couches
       for (const [x, y, r, c] of [[24, 54, 28, L1], [108, 52, 28, L1], [66, 30, 36, L1], [36, 34, 24, L2], [96, 30, 26, L2], [66, 58, 30, L2], [50, 16, 18, L3], [84, 14, 18, L3], [24, 70, 18, L2], [110, 72, 18, L2]])
@@ -30,6 +36,19 @@
       for (const [x, y] of [[40, 24], [90, 40], [60, 12], [20, 50], [112, 58]]) d.deco.circ(x, y, 3, '#9ae070');
       // lianes qui pendent
       for (const x of [30, 52, 82, 104]) d.deco.curve([[x, 60], [x + 3, 80], [x - 1, 96]], 1, '#3a7a2a');
+    } },
+    // racines qui pendent du plafond, gouttes de sève lumineuse (décor mural du Cœur du Grand Arbre)
+    treeroots: { w: 40, h: 44, n: 2, draw(d, v) {
+      for (let k = 0; k < 6; k++) { const x = 4 + k * 6 + (v ? 3 : 0), l = 18 + ((k * 7 + v * 5) % 20); d.tube([[x, 0], [x + (k % 2 ? 2 : -2), l * 0.6], [x, l]], 2.6, 1, k % 2 ? '#6a4626' : '#5a3a20', { tex: 0.3 }); }
+      for (const [x, y] of [[10, 26], [28, 34], [20, 14]]) d.deco.circ(x + (v ? 3 : 0), y, 1.6, '#c8f040', { unlit: true });
+    } },
+    // le nid de Kuwagamon : bois mâché, carapaces, une lueur rouge
+    kuwanest: { w: 64, h: 30, n: 1, draw(d) {
+      d.ell(32, 22, 30, 7, '#4a3220', 0, { tex: 0.4 });
+      for (let k = 0; k < 9; k++) d.tube([[6 + k * 6, 24], [10 + k * 6, 14 + (k % 3) * 2]], 2, 1.4, k % 2 ? '#7a5434' : '#9a7044');
+      d.ell(32, 18, 18, 4, '#2a1a10');
+      for (const [x, y] of [[22, 16], [42, 17]]) d.ell(x, y, 5, 3, '#c83a2a', 0.3, { shiny: true });
+      d.deco.circ(32, 16, 3, '#ff5a3a', { unlit: true });
     } },
     trophystand: { w: 26, h: 40, n: 4, draw(d, v) {
       d.ell(13, 38, 11, 2.2, '#1a1418', 0, { flat: true });

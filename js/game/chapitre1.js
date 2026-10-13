@@ -104,5 +104,16 @@
     DW.autosave();
   }
 
-  DW.Chapter = { ChapterScene, townSign, tour, end1 };
+  // ------------------------------------------------------------ zones ouvertes pendant le chapitre 1
+  // La ville, la plage et la forêt (dont le Sentier et le Village des Bébés, où vit Elecmon) ; tout le reste
+  // ouvre après Kuwagamon. Renvoie le message de blocage, ou null si la carte est accessible.
+  const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set(['crique']);
+  function lock(to) {
+    if (st().flags.kuwagamon || !DW.MAPS[to]) return null;
+    const m = DW.MAPS[to];
+    if (CH1.has(m.region) && !CH1_CLOSED.has(to)) return null;
+    return "Un étrange voile de données bloque le passage... Les petits Digimon disent qu'il est apparu en même temps que le monstre rouge de la Clairière de l'Arrivée.";
+  }
+
+  DW.Chapter = { ChapterScene, townSign, tour, end1, lock };
 })();

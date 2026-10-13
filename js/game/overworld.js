@@ -195,8 +195,9 @@
       const [dx, dy] = DIRS[d], nx = P.x + dx, ny = P.y + dy;
       if (nx < 0 || ny < 0 || nx >= this.map.w || ny >= this.map.h) {
         const w = (this.map.warps || []).find(w => w.dir === d && P.x >= w.x && P.x < w.x + (w.w || 1) && P.y >= w.y && P.y < w.y + (w.h || 1));
-        if (w && w.cond && !w.cond(DW.state)) {
-          if (!this.bumpT || this.t - this.bumpT > 0.4) { Audio.sfx('bump'); this.bumpT = this.t; this.runScript(async () => { await DW.say(typeof w.lock === 'function' ? w.lock() : w.lock); }); }
+        const chLock = w && DW.Chapter && DW.Chapter.lock(w.to);   // zones fermées pendant le chapitre 1 (game/chapitre1.js)
+        if (w && (chLock || (w.cond && !w.cond(DW.state)))) {
+          if (!this.bumpT || this.t - this.bumpT > 0.4) { Audio.sfx('bump'); this.bumpT = this.t; this.runScript(async () => { await DW.say(chLock || (typeof w.lock === 'function' ? w.lock() : w.lock)); }); }
           return false;
         }
         if (w) this.runScript(() => this.doWarp(w));
