@@ -44,7 +44,12 @@
     addFat(m, n) { Life.init(m); m.fat = DW.clamp(m.fat + n, -10, 10); },
     addDisc(m, n) { Life.init(m); m.disc = DW.clamp(m.disc + n, 0, 100); },
     // un moment où le joueur peut féliciter ou gronder (en parlant à son partenaire)
-    moment(type, why) { Life.pending = { type, why, until: DW.state.clock + 90 }; DW.Companion && DW.ow && DW.Companion.emote(DW.ow, type === 'bad' ? '...' : 'note', 2); },
+    // un moment éducatif reste ouvert 4 h de jeu ; une bulle reste au-dessus du partenaire, et OK près de lui suffit
+    moment(type, why) {
+      Life.pending = { type, why, until: DW.state.clock + 240 };
+      if (DW.Companion && DW.ow) DW.Companion.emote(DW.ow, type === 'bad' ? '...' : 'note', 3);
+      if (DW.Care) DW.Care.toast(`${type === 'bad' ? 'Une bêtise' : 'Un exploit'} ! Appuie sur ESPACE près de ton partenaire pour le ${type === 'bad' ? 'gronder' : 'féliciter'}.`, type === 'bad' ? '#ffb070' : '#a0ffb0');
+    },
     hour: () => (DW.state.clock % 1440) / 60,
     sleepy(m) { const h = Life.hour(); return (h >= BED || h < WAKE) && DW.state.clock - m.slept > 10 * 60; },
 

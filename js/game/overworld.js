@@ -223,9 +223,21 @@
       P.step++;
       if (DW.World.isTall(this.tileAt(nx, ny))) this.rustle[nx + ',' + ny] = 0.5;
       if (!this.partner) Object.assign(F, { moving: false, x: P.x, y: P.y, sx: P.x, sy: P.y, tx: P.x, ty: P.y });   // sans partenaire : la place reste collée au héros
-      else if (F.x !== P.x || F.y !== P.y) {
-        Object.assign(F, { moving: true, sx: F.x, sy: F.y, tx: P.x, ty: P.y, t: over });
-        if (P.x > F.x) F.face = 'right'; else if (P.x < F.x) F.face = 'left';
+      else if (F.x !== P.sx || F.y !== P.sy) {
+        // le partenaire suit pas à pas, sans jamais traverser le héros ni sauter deux cases d'un coup :
+        // - demi-tour (le héros vient sur sa case) : il s'écarte sur le côté au lieu de passer au travers
+        // - trop loin (après un pas de côté) : il avance d'une seule case vers le héros
+        let tx = P.sx, ty = P.sy;
+        if (F.x === nx && F.y === ny) {
+          const dx = nx - P.sx, dy = ny - P.sy, side = [[dy, dx], [-dy, -dx], [-dx, -dy]].map(([a, b]) => [P.sx + a, P.sy + b]);
+          const free = side.find(([x, y]) => (x !== nx || y !== ny) && !this.solid(x, y));
+          if (free) [tx, ty] = free; else { tx = F.x; ty = F.y; }
+        } else if (Math.max(Math.abs(F.x - P.sx), Math.abs(F.y - P.sy)) > 1) {
+          tx = F.x + Math.sign(P.sx - F.x); ty = F.y + Math.sign(P.sy - F.y);
+          if (tx === nx && ty === ny) { tx = F.x; ty = F.y; }
+        }
+        Object.assign(F, { moving: tx !== F.x || ty !== F.y, sx: F.x, sy: F.y, tx, ty, t: over });
+        if (tx > F.sx) F.face = 'right'; else if (tx < F.sx) F.face = 'left';
         if (DW.World.isTall(this.tileAt(P.x, P.y))) this.rustle[P.x + ',' + P.y] = 0.5;
       }
     }
@@ -298,6 +310,7 @@
       if (act) { this.runScript(act); return true; }
       const F = this.f, pt = this.partner;
       if (pt && F.x === x && F.y === y) { this.runScript(() => this.talkPartner(pt)); return true; }
+      if (pt && DW.Life.pending && Math.max(Math.abs(F.x - P.x), Math.abs(F.y - P.y)) <= 1) { this.runScript(() => this.talkPartner(pt)); return true; }
       return false;
     }
     // poste d'entraînement devant le héros : on peut viser le poste lui-même (pierre, mannequin...) ou son panneau

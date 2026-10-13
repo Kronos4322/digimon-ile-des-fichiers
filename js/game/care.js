@@ -100,7 +100,7 @@
     // bulle au-dessus du partenaire quand il a un besoin
     drawBubble(c, m, x, y, t) {
       if (!m || m !== this.lead()) return;
-      const icon = m.need >= 75 ? 'need' : m.hunger >= 70 ? 'food' : DW.Life.bubbleIcon(m);
+      const icon = DW.Life.pending ? (DW.Life.pending.type === 'bad' ? 'bad' : 'good') : m.need >= 75 ? 'need' : m.hunger >= 70 ? 'food' : DW.Life.bubbleIcon(m);
       if (!icon || Math.floor(t * 1.2) % 3 === 2) return;
       const by = Math.round(y - 30 + Math.sin(t * 4) * 1.2);
       c.fillStyle = '#fff'; c.strokeStyle = '#203040'; c.lineWidth = 1;
@@ -110,6 +110,7 @@
       else if (icon === 'need') this.drawPoop(c, x + 8, by + 3, 0.7);
       else if (icon === 'sick') { c.fillStyle = '#7ac040'; c.beginPath(); c.arc(x + 8, by, 3.6, 0, 7); c.fill(); c.fillStyle = '#1a2a10'; c.fillRect(x + 6, by - 1, 1, 1); c.fillRect(x + 9, by - 1, 1, 1); c.fillRect(x + 6, by + 1.5, 4, 1); }
       else if (icon === 'hurt') { c.fillStyle = '#f0e0c8'; c.fillRect(x + 3, by - 2, 10, 4); c.fillStyle = '#d84a4a'; c.fillRect(x + 7, by - 2, 2, 4); }
+      else if (icon === 'good' || icon === 'bad') { c.fillStyle = icon === 'good' ? '#e8a020' : '#c84a4a'; c.font = DW.UI.font(9); c.textAlign = 'center'; c.fillText(icon === 'good' ? '★' : '!', x + 8, by + 3.5); }
       else { c.fillStyle = '#3a5ab0'; c.font = DW.UI.font(8); c.textAlign = 'center'; c.fillText('Zz', x + 8, by + 3); }
     },
     drawPoop(c, x, y, s = 1) {
