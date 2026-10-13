@@ -279,5 +279,25 @@
       d.curve([[0, 3], [W / 2, 9], [W, 3]], 0.9, '#5a4a3a', { noline: true });
       for (let x = 4, i = 0; x < W - 3; x += 7, i++) { const y = 3 + Math.sin((x / W) * Math.PI) * 6; d.poly([[x - 2.6, y], [x + 2.6, y], [x, y + 6]], cols[i % 5], { noline: true, noshadow: true }); }
     } },
+    // ---------------------------------------------------------- grand panneau d'affichage de la ville (façon tableau d'école), 2×1
+    // v = nombre de notes épinglées (une par habitant revenu, 0 à 8) : le panneau se remplit avec la ville
+    noticeboard: { w: 58, h: 62, n: 9, draw(d, v) {
+      const Wd = '#8a5a30', Wl = '#b0804a', Wk = '#5a3a1e';
+      d.ell(29, 60, 26, 2.6, '#2a2418', 0, { flat: true });
+      d.tube([[8, 61], [8, 22]], 2.4, 2.2, Wk); d.tube([[50, 61], [50, 22]], 2.4, 2.2, Wk);      // pieds
+      d.poly([[1, 12], [29, 2], [57, 12], [53, 15], [29, 6], [5, 15]], '#b84a3a', { shiny: true });  // petit toit
+      d.rect(3, 13, 52, 34, Wd, { round: 0.06, tex: 0.3 }); d.deco.rect(3, 13, 52, 2, Wl);              // cadre
+      d.deco.rect(6, 16, 46, 28, '#2e5a3e');                                                             // tableau vert
+      d.deco.rect(6, 16, 46, 2, '#3e6e4e');
+      d.deco.rect(16, 18, 26, 4, '#e8e8dc', { unlit: true });                                            // titre à la craie
+      for (let k = 0; k < 3; k++) d.deco.line(9, 26 + k * 5, 9 + 14 + (k * 7) % 10, 26 + k * 5, 0.7, '#d8e0d4', { unlit: true });
+      const notes = ['#fff4a0', '#ffc0d0', '#c0e8ff', '#c8f0b0', '#ffd8a0', '#e0c8ff', '#fff4a0', '#c0e8ff'];
+      for (let k = 0; k < v; k++) {
+        const x = 28 + (k % 4) * 6, y = 24 + Math.floor(k / 4) * 10;
+        d.deco.rect(x, y, 5, 7, notes[k], { unlit: true }); d.deco.circ(x + 2.5, y + 0.5, 0.8, '#e04848', { unlit: true });
+      }
+      d.rect(5, 46, 48, 3, Wl, { round: 0.3 });                                                          // rebord (craies)
+      d.deco.rect(12, 46.4, 4, 1.2, '#ffffff', { unlit: true }); d.deco.rect(19, 46.4, 3, 1.2, '#ffd0d0', { unlit: true });
+    } },
   });
 })();

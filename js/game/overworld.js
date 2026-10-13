@@ -36,7 +36,12 @@
       this.f = { x, y, sx: x, sy: y, tx: x, ty: y, t: 0, moving: false, face: dir === 'left' ? 'left' : 'right' };
       // le partenaire se place derrière le joueur (sinon sur une case libre à côté : il doit rester visible)
       const [bx, by] = DIRS[OPP[dir]];
-      for (const [ox, oy] of [[bx, by], [-1, 0], [1, 0], [0, 1], [0, -1]]) if (!this.solid(x + ox, y + oy)) {
+      // (de préférence loin des autres personnages, dont le sprite pourrait le cacher)
+      const nearNpc = (cx, cy) => (this.map.npcs || []).some(n => this.npcVisible(n) && Math.abs(n.x - cx) <= 1 && Math.abs(n.y - cy) <= 1);
+      // face à l'écran, le héros cacherait un partenaire placé derrière lui : il se met alors sur le côté
+      const order = dir === 'down' ? [[-1, 0], [1, 0], [bx, by], [0, 1]] : [[bx, by], [-1, 0], [1, 0], [0, 1], [0, -1]];
+      const cand = order.filter(([ox, oy]) => !this.solid(x + ox, y + oy));
+      for (const [ox, oy] of [...cand.filter(([ox, oy]) => !nearNpc(x + ox, y + oy)), ...cand]) {
         Object.assign(this.f, { x: x + ox, y: y + oy, sx: x + ox, sy: y + oy, tx: x + ox, ty: y + oy, face: ox < 0 ? 'right' : 'left' });
         break;
       }
@@ -291,13 +296,14 @@
       if (pt && F.x === x && F.y === y) { this.runScript(() => this.talkPartner(pt)); return true; }
       return false;
     }
-    // poste d'entraînement devant le héros : la case visée, ou une de ses deux voisines de côté (plus besoin de viser au pixel près)
+    // poste d'entraînement devant le héros : on peut viser le poste lui-même (pierre, mannequin...) ou son panneau
     trainSpot() {
       const P = this.p;
       if (P.moving) return null;
       const [dx, dy] = DIRS[P.dir], x = P.x + dx, y = P.y + dy;
       const signAt = (ax, ay) => (this.map.objects || []).find(o => o.kind === 'stationsign' && ax >= o.x && ax < o.x + (o.w || 1) && ay >= o.y && ay < o.y + (o.h || 1));
-      for (const [ax, ay] of [[x, y], [x + dy, y + dx], [x - dy, y - dx]]) {
+      // la case visée, ses deux voisines, puis la case juste derrière (les gros postes, comme la pierre, débordent sur 2 cases)
+      for (const [ax, ay] of [[x, y], [x + dy, y + dx], [x - dy, y - dx], [x + dx, y + dy], [x + dx + dy, y + dy + dx], [x + dx - dy, y + dy - dx]]) {
         const I = DW.World.info(this.tileAt(ax, ay));
         if (I.train) return { x: ax, y: ay, k: I.train };
         // le panneau à pictogramme devant chaque poste lance aussi la séance

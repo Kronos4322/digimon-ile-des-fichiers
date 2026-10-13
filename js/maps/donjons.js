@@ -81,6 +81,7 @@
     sanc.calm = true;   // aucun Digimon sauvage dans le sanctuaire
     side(id + '_hall', id + '_galerie'); side(id + '_galerie', id + '_sanctuaire');
     DW.Palais.entrance(id + '_hall');
+    hall.onEnter = () => { DW.state.flags.crestSeen = true; };   // la page ÉCUSSONS du Journal apparaît
     // énigmes et barrières (devant chaque passage vers la salle suivante)
     const puzzle = (m, P, pid) => {
       if (P.type === 'riddle') E.riddle(m, pid, 9, 9, P);
@@ -149,7 +150,7 @@
       const D = LIST.find(d => d.region === rid && d.sub === i);
       if (!D) return null;
       return { piece: { kind: 'crestgate', v: IDX(D.kid), w: 5, h: 4, door: { to: 'donjon_' + D.kid + '_hall', dw: 2 } },
-        pieceSign: `Un portail ancien, à moitié caché par le lierre. Au-dessus, un symbole luit faiblement : l'écusson ${C.name(D.kid)}. « ${D.name} »` };
+        pieceSign: async () => { DW.state.flags.crestSeen = true; await say(`Un portail ancien, à moitié caché par le lierre. Au-dessus, un symbole luit faiblement : l'écusson ${C.name(D.kid)}. « ${D.name} »`); } };
     },
   };
 })();

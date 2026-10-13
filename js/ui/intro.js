@@ -110,50 +110,98 @@
       // 1) qui es-tu ?
       st.hero = await Game.push(new CharScene());
       st.name = await Game.push(new DW.NameScene(DW.HEROES[st.hero].name));
+      // les autres enfants du camp (ils seront séparés en arrivant sur l'île)
+      const others = Object.keys(DW.HEROES).filter(k => k !== st.hero);
+      const SPOTS = [[40, 202, 'right'], [68, 194, 'right'], [104, 206, 'right'], [190, 206, 'left'], [238, 198, 'left'], [270, 204, 'left']];
+      this.kids = others.map((k, i) => ({ id: k, x: SPOTS[i][0], y: SPOTS[i][1], dir: SPOTS[i][2] }));
       // 2) le camp d'été
       await DW.fade(1, 0.4);
       Audio.play('village');
       await DW.fade(0, 0.8);
       DW.tween(this.bars, { v: 1 }, 1);
       await this.show("Été. Un camp de vacances au cœur des montagnes.");
+      await this.show(`Sept enfants autour du feu : toi, ${st.name}... et six autres.`, 2.6);
       this.snowOn = true;
       await this.show("Soudain... il se met à neiger, en plein mois d'août.");
       DW.tween(this.aurora, { v: 1 }, 2.5);
       await this.show('Une aurore étrange illumine le ciel.');
-      // 3) le Digivice tombe du ciel
+      // 3) sept Digivices tombent du ciel, un pour chaque enfant
       this.dv.on = true; Audio.sfx('capsule');
       await DW.tween(this.dv, { y: 194 }, 1.3, t => t * t);
       this.dv.landed = true; Audio.sfx('hit'); this.flash = 1;
       await DW.wait(0.4);
       this.heroDir = 'down';
-      await this.show('Un petit objet lumineux tombe à tes pieds : un Digivice !');
-      // 4) il s'illumine et t'aspire
+      await this.show('Sept petits objets lumineux tombent du ciel, un aux pieds de chaque enfant : des Digivices !');
+      // 4) ils s'illuminent et emportent tout le monde
       DW.tween(this.dv, { glow: 1 }, 1.2);
       Audio.sfx('evolve');
-      await this.show(`${st.name}... Le Digivice se met à briller de plus en plus fort !`, 2.4);
+      await this.show(`${st.name}... Les Digivices se mettent à briller de plus en plus fort !`, 2.4);
       Audio.stop();
       DW.tween(this.beam, { v: 1 }, 0.8);
       await DW.tween(this.lift, { v: 1 }, 1.4);
       Audio.sfx('super');
       await DW.tween(this.pix, { v: 1 }, 0.9, DW.linear);
-      // 5) tunnel numérique
+      // 5) tunnel numérique : les sept enfants ensemble
       this.mode = 'tunnel'; this.flash = 1; Audio.sfx('evolve');
-      this.show("Une vague de lumière t'emporte vers un autre monde...", 2.6);
+      this.show("Une vague de lumière vous emporte tous vers un autre monde...", 2.6);
       await DW.wait(4.2);
-      // 6) chute dans le ciel du Digimonde, vers l'Île des Fichiers
+      // 6) au-dessus de l'île : les enfants sont séparés, chacun tombe ailleurs (au hasard)
       this.mode = 'sky'; this.flash = 1; Audio.sfx('swoosh');
-      this.show("Le Digimonde... et, tout en bas, l'Île des Fichiers.", 2.4);
-      await DW.tween(this.zoom, { v: 1 }, 4.6, t => t * t * (3 - 2 * t));
+      this.scatter = { v: 0, pts: this.landingPoints(others.length) };
+      this.show("Le Digimonde... L'Île des Fichiers. Mais la lumière se brise : les enfants sont séparés !", 3.2);
+      await DW.tween(this.scatter, { v: 1 }, 3.4, t => t * (2 - t));
       Audio.sfx('hit');
+      await DW.wait(0.6);
+      this.show('Chacun tombe ailleurs sur l\'île... Et toi, droit vers une plage.', 2.6);
+      await DW.tween(this.zoom, { v: 1 }, 4.2, t => t * t * (3 - 2 * t));
+      Audio.sfx('swoosh');
       await DW.fade(1, 0.15, '#ffffff');
-      await DW.wait(0.2);
-      await DW.fade(1, 0.6, '#000000');
+      // 7) la plage des cabines : on voit le héros tomber, puis un DigiŒuf, qui éclot
+      const baby = DW.heroLine().baby, bname = DW.SPECIES[baby].name;
+      const B = this.B = { baby, hero: { y: -60, landed: 0, rot: 0 }, puff: 0, egg: { x: 196, y: -40, rot: 0, crack: 0, open: 0 }, mon: { a: 0, x: 196 }, jiji: { x: 360 } };
+      this.mode = 'beach'; Audio.play('beach');
+      await DW.fade(0, 0.5);
+      await DW.tween(B.hero, { y: 186, rot: Math.PI * 2.5 }, 1.0, t => t * t);
+      B.hero.landed = 1; this.flash = 0.7; this.shake = 0.6; Audio.sfx('hit');
+      DW.tween(B, { puff: 1 }, 0.9);
       await DW.wait(0.8);
+      await this.show('Le bruit des vagues... Tu es étendu sur une plage inconnue.', 2.6);
+      Audio.sfx('swoosh');
+      await DW.tween(B.egg, { y: 182 }, 1.1, t => t * t);
+      Audio.sfx('hit'); this.flash = 0.6;
+      await this.show('Quelque chose est tombé du ciel juste à côté de toi : un DigiŒuf !', 2.4);
+      for (let i = 0; i < 6; i++) { Audio.sfx('capsule'); await DW.tween(B.egg, { rot: i % 2 ? -0.22 : 0.22 }, 0.12); }
+      B.egg.rot = 0;
+      DW.tween(B.egg, { crack: 1 }, 0.9);
+      await this.show('Il tremble... il se fendille...', 1.6);
+      Audio.sfx('evolve'); this.flash = 1; B.egg.open = 1;
+      await DW.tween(B.mon, { a: 1 }, 0.5);
+      await this.show(`${bname} est né ! Il vient se blottir contre toi.`, 2.4);
+      await DW.tween(B.mon, { x: 172 }, 0.8);
+      DW.tween(B.jiji, { x: 262 }, 2.6);
+      await this.show("Au loin, une silhouette s'approche lentement sur le sable...", 2.6);
+      await DW.fade(1, 0.8);
+      await DW.wait(0.4);
+      // carton du chapitre 1 (game/chapitre1.js)
+      DW.fade(0, 0.01);
+      await Game.push(new DW.ChapterScene('CHAPITRE 1', "L'Île des Fichiers", 'Une île faite de données... et des Digimon qui ont tout oublié.'));
+      await DW.fade(1, 0.01);
       DW.startGame(true);
+    }
+    // points d'arrivée des autres enfants : des cases de terre ferme de l'île, au hasard, bien espacées (coordonnées de l'image de l'île)
+    landingPoints(n) {
+      const img = DW.islandImage(), d = img.getContext('2d').getImageData(0, 0, img.width, img.height).data, out = [];
+      const land = (x, y) => { const i = (y * img.width + x) * 4; return !(d[i + 2] > d[i] + 30 && d[i + 2] > d[i + 1]); };   // pas de bleu dominant = pas la mer
+      for (let tries = 0; out.length < n && tries < 4000; tries++) {
+        const x = 70 + Math.floor(Math.random() * 180), y = 40 + Math.floor(Math.random() * 160);
+        if (land(x, y) && Math.hypot(x - 122, y - 206) > 30 && out.every(([a, b]) => Math.hypot(a - x, b - y) > 34)) out.push([x, y]);
+      }
+      return out;
     }
     tick(dt) {
       const t = this.t;
       if (this.flash > 0) this.flash -= dt * 2.2;
+      if (this.shake > 0) this.shake -= dt;
       if (this.snowOn) this.snow.forEach(s => { s.y += s.s * dt; s.x += Math.sin(t + s.w) * 0.2; if (s.y > H) { s.y = -4; s.x = Math.random() * W; } });
       if (this.mode === 'tunnel') this.streaks.forEach((s, i) => { s.r *= 1 + s.v * dt; if (s.r > 260) this.streaks[i] = this.streak(false); });
       if (this.mode === 'sky') this.clouds.forEach((s, i) => { s.r *= 1 + (1.2 + this.zoom.v * 2) * s.s * dt; if (s.r > 300) this.clouds[i] = this.cloud(false); });
@@ -217,6 +265,20 @@
         c.fillStyle = bg; c.fillRect(hx - bw, 0, bw * 2, 206);
         c.restore();
       }
+      // les autres enfants (chacun son faisceau, soulevés en même temps)
+      for (const k of this.kids || []) {
+        const ky = k.y - lift;
+        if (this.beam.v > 0) { c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = `rgba(180,255,220,${0.35 * this.beam.v})`; c.fillRect(k.x - 8, 0, 16, k.y + 4); c.restore(); }
+        c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.ellipse(k.x, k.y, 7 * (1 - this.lift.v * 0.5), 2, 0, 0, 7); c.fill();
+        c.drawImage(DW.Sprites.hero(k.dir, 0, k.id).img, k.x - 14, ky - 36);
+        if (this.dv.on && this.lift.v < 0.5) {   // le Digivice de chacun, qui tombe puis brille à ses pieds
+          const dy = Math.min(this.dv.y, k.y - 6) + (k.x % 7);
+          c.save(); c.globalCompositeOperation = 'lighter';
+          const rg = c.createRadialGradient(k.x + 6, dy, 1, k.x + 6, dy, 6 + 14 * this.dv.glow);
+          rg.addColorStop(0, 'rgba(200,255,230,0.9)'); rg.addColorStop(1, 'rgba(80,255,160,0)');
+          c.fillStyle = rg; c.fillRect(k.x - 20, dy - 26, 52, 52); c.restore();
+        }
+      }
       c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.ellipse(hx, 202, 8 * (1 - this.lift.v * 0.5), 2, 0, 0, 7); c.fill();
       const spr = DW.Sprites.hero(this.heroDir, 0).img;
       c.drawImage(spr, hx - 14, hy - 36);
@@ -268,6 +330,12 @@
         c.beginPath(); c.moveTo(x1, y1); c.lineTo(cx + Math.cos(s.a) * r2, cy + Math.sin(s.a) * r2); c.stroke();
       });
       c.restore();
+      // les six autres enfants, qui tournoient autour
+      (this.kids || []).forEach((k, i) => {
+        const a = t * 0.9 + i * Math.PI / 3, r = 62 + Math.sin(t * 1.4 + i) * 10, sp = DW.Sprites.hero(DIRS[Math.floor(t * 4 + i) % 4], 1, k.id).img;
+        c.save(); c.translate(cx + Math.cos(a) * r, cy + Math.sin(a) * r * 0.7); c.rotate(Math.sin(t * 2 + i) * 0.8); c.scale(0.9, 0.9);
+        c.shadowColor = '#c8ffe8'; c.shadowBlur = 6; c.drawImage(sp, -14, -18); c.restore();
+      });
       // le héros qui tournoie au centre, nimbé de lumière
       const spr = DW.Sprites.hero(DIRS[Math.floor(t * 5) % 4], 1).img;
       c.save(); c.translate(cx, cy); c.rotate(Math.sin(t * 1.7) * 0.6); const sc = 1.4 + Math.sin(t * 2) * 0.1; c.scale(sc, sc);
@@ -286,7 +354,21 @@
       c.imageSmoothingEnabled = false; c.drawImage(DW.islandImage(), 0, 0);
       c.restore();
       // brume d'altitude qui se dissipe
-      c.fillStyle = `rgba(200,230,255,${0.55 * (1 - z)})`; c.fillRect(0, 0, W, H);
+      c.fillStyle = `rgba(200,230,255,${0.45 * (1 - z) * (this.scatter ? 1 - this.scatter.v * 0.6 : 1)})`; c.fillRect(0, 0, W, H);
+      // les comètes des enfants (couleur de leur écusson) qui se séparent et tombent chacune ailleurs
+      if (this.scatter && z < 0.98) {
+        const k = this.scatter.v, toScreen = (ix, iy) => [W / 2 + (ix - fx) * s, H / 2 + (iy - fy) * s];
+        c.save(); c.globalCompositeOperation = 'lighter';
+        (this.kids || []).forEach((kid, i) => {
+          const P = this.scatter.pts[i]; if (!P) return;
+          const [tx, ty] = toScreen(P[0], P[1]), sx = W / 2 + (i - 2.5) * 10, sy = -10;
+          const kk = Math.min(1, k * 1.15 - i * 0.02), x = DW.lerp(sx, tx, kk), y = DW.lerp(sy, ty, kk), col = (DW.HEROES[kid.id] || {}).crestCol || '#ffffff';
+          c.strokeStyle = col; c.globalAlpha = 0.5; c.lineWidth = 2; c.beginPath(); c.moveTo(DW.lerp(sx, tx, Math.max(0, kk - 0.25)), DW.lerp(sy, ty, Math.max(0, kk - 0.25))); c.lineTo(x, y); c.stroke();
+          c.globalAlpha = 1; c.fillStyle = col; c.beginPath(); c.arc(x, y, kk >= 1 ? 3 + Math.sin(t * 6 + i) : 2.4, 0, 7); c.fill();
+          if (kk >= 1) { c.globalAlpha = 0.4; c.beginPath(); c.arc(x, y, 7 + (t * 10 + i) % 6, 0, 7); c.stroke(); c.globalAlpha = 1; }
+        });
+        c.restore();
+      }
       // nuages qui défilent vers l'extérieur
       this.clouds.forEach(cl => {
         const x = W / 2 + Math.cos(cl.a) * cl.r, y = H / 2 + Math.sin(cl.a) * cl.r * 0.8, rr = 6 + cl.r * 0.25;
@@ -297,13 +379,85 @@
       c.strokeStyle = 'rgba(255,255,255,0.35)'; c.lineWidth = 1;
       for (let i = 0; i < 10; i++) { const x = (i * 37 + 13) % W, y = (H - ((t * 260 + i * 53) % (H + 40))); c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 18); c.stroke(); }
       // le héros en chute libre, vu de dos, qui rapetisse en approchant du sol
+      if (this.scatter && this.scatter.v < 1 && z === 0) {
+        const hc = (DW.HEROES[DW.state.hero] || {}).crestCol || '#ffffff', y = DW.lerp(-10, H / 2 - 10, this.scatter.v);
+        c.fillStyle = hc; c.beginPath(); c.arc(W / 2, y, 3.4, 0, 7); c.fill();
+        c.strokeStyle = hc; c.globalAlpha = 0.5; c.lineWidth = 2; c.beginPath(); c.moveTo(W / 2, y - 30); c.lineTo(W / 2, y); c.stroke(); c.globalAlpha = 1;
+        return;
+      }
       const sc = 1.6 - z * 0.9, spr = DW.Sprites.hero('up', Math.floor(t * 8) % 4).img;
       c.save(); c.translate(W / 2 + Math.sin(t * 2) * 6, H / 2 - 20 + Math.cos(t * 1.6) * 4); c.rotate(Math.sin(t * 3) * 0.25); c.scale(sc, sc);
       c.drawImage(spr, -14, -18); c.restore();
     }
 
+    // ---------------------------------------------------------- la plage de l'arrivée (aube)
+    drawBeach(c) {
+      const t = this.t, B = this.B, O = (k, v) => DW.World.obj(k, v || 0);
+      c.save();
+      if (this.shake > 0) c.translate(Math.round((Math.random() - 0.5) * 6 * this.shake), 0);
+      // ciel de l'aube, nuages, soleil
+      const g = c.createLinearGradient(0, 0, 0, 92);
+      g.addColorStop(0, '#f0a07a'); g.addColorStop(0.45, '#f8cfa0'); g.addColorStop(1, '#c8ecf4');
+      c.fillStyle = g; c.fillRect(-10, 0, W + 20, 92);
+      const sg = c.createRadialGradient(72, 80, 4, 72, 80, 60); sg.addColorStop(0, 'rgba(255,250,210,0.9)'); sg.addColorStop(1, 'rgba(255,240,200,0)');
+      c.fillStyle = sg; c.fillRect(0, 20, 150, 80);
+      c.fillStyle = '#fff6d0'; c.beginPath(); c.arc(72, 80, 15, 0, 7); c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.75)';
+      for (const [x, y, w] of [[150, 30, 40], [230, 18, 54], [40, 22, 30], [290, 48, 34]]) { const ox = (t * 3) % 360; const X = ((x + ox) % (W + 80)) - 40; c.beginPath(); c.ellipse(X, y, w * 0.5, 5, 0, 0, 7); c.ellipse(X + w * 0.2, y - 4, w * 0.3, 5, 0, 0, 7); c.fill(); }
+      // îlots au loin
+      c.fillStyle = '#6a8ab0'; c.beginPath(); c.moveTo(196, 86); c.quadraticCurveTo(222, 72, 252, 86); c.fill();
+      c.beginPath(); c.moveTo(262, 87); c.quadraticCurveTo(278, 79, 296, 87); c.fill();
+      // mer turquoise, reflet du soleil, vagues
+      const sea = c.createLinearGradient(0, 86, 0, 134); sea.addColorStop(0, '#2a7ec8'); sea.addColorStop(0.6, '#3ab8d8'); sea.addColorStop(1, '#7ae4e0');
+      c.fillStyle = sea; c.fillRect(-10, 86, W + 20, 48);
+      for (let i = 0; i < 9; i++) { const y = 90 + i * 4.5, w = 10 + i * 2; c.fillStyle = `rgba(255,240,200,${0.55 - i * 0.05})`; c.fillRect(72 - w / 2 + Math.sin(t * 3 + i) * 3, y, w, 1); }
+      c.fillStyle = 'rgba(255,255,255,0.55)';
+      for (let i = 0; i < 6; i++) { const y = 92 + i * 7, o = (t * (10 + i * 4) + i * 37) % 64; for (let x = -64 + o; x < W; x += 64) c.fillRect(x, y, 16 - i, 1); }
+      // sable mouillé, écume ondulée, sable sec avec grains et coquillages
+      c.fillStyle = '#d8b878'; c.fillRect(-10, 130, W + 20, 10);
+      c.fillStyle = '#ecd29a'; c.fillRect(-10, 138, W + 20, H - 138);
+      c.fillStyle = '#f4fcff';
+      for (let x = 0; x < W; x += 4) { const y = 129 + Math.sin(x * 0.06 + t * 1.8) * 2 + Math.sin(x * 0.17 - t) * 0.8; c.fillRect(x, y, 4, 1.6); }
+      for (let i = 0; i < 70; i++) { const x = (i * 97) % W, y = 142 + (i * 53) % 96; c.fillStyle = i % 3 ? 'rgba(180,140,80,0.35)' : 'rgba(255,250,230,0.5)'; c.fillRect(x, y, 1, 1); }
+      for (const [x, y, col] of [[40, 210, '#f0a0b8'], [118, 222, '#f8e0c0'], [260, 216, '#f0a040'], [212, 230, '#f8e0c0']]) { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, 2.4, 1.6, 0, 0, 7); c.fill(); }
+      // les cabines téléphoniques (avec leur ombre), deux palmiers
+      for (const x of [40, 64, 88]) { const b = O('booth'); c.fillStyle = 'rgba(80,60,30,0.25)'; c.beginPath(); c.ellipse(x + b.w * 0.35 + 6, 133, 10, 2, 0, 0, 7); c.fill(); c.drawImage(b.img, x, 133 - b.h * 0.7, b.w * 0.7, b.h * 0.7); }
+      const p = O('palm'); c.drawImage(p.img, W - 70, 200 - p.h * 1.3, p.w * 1.3, p.h * 1.3);
+      const p2 = O('palm', 1); c.drawImage(p2.img, -14, 232 - p2.h * 1.5, p2.w * 1.5, p2.h * 1.5);
+      // le héros : il tombe du ciel dans une traînée de lumière, soulève un nuage de sable, puis reste étendu
+      const hs = DW.Sprites.hero('down', 0), hc = (DW.HEROES[DW.state.hero] || {}).crestCol || '#ffffff';
+      if (!B.hero.landed) {
+        c.save(); c.globalCompositeOperation = 'lighter'; const tg = c.createLinearGradient(0, B.hero.y - 90, 0, B.hero.y);
+        tg.addColorStop(0, 'rgba(255,255,255,0)'); tg.addColorStop(1, hc); c.fillStyle = tg; c.globalAlpha = 0.6; c.fillRect(146, B.hero.y - 90, 8, 90); c.restore();
+        c.save(); c.translate(150, B.hero.y - 10); c.rotate(B.hero.rot); c.drawImage(hs.img, -hs.w / 2, -hs.h / 2); c.restore();
+      } else {
+        c.fillStyle = 'rgba(80,60,30,0.3)'; c.beginPath(); c.ellipse(150, 192, 18, 4, 0, 0, 7); c.fill();
+        c.save(); c.translate(150, 186); c.rotate(-Math.PI / 2); c.drawImage(hs.img, -hs.w / 2, -hs.h / 2); c.restore();
+        if (B.puff > 0 && B.puff < 1) for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI, r = 6 + B.puff * 26; c.fillStyle = `rgba(240,220,170,${0.8 * (1 - B.puff)})`; c.beginPath(); c.arc(150 + Math.cos(a) * r * 1.4, 190 - Math.sin(a) * r * 0.6, 4 + B.puff * 5, 0, 7); c.fill(); }
+      }
+      // l'œuf, qui tremble, se fend, puis s'ouvre
+      if (B.egg.open < 1) {
+        const e = DW.eggSprite(B.baby);
+        c.save(); c.translate(B.egg.x, B.egg.y); c.rotate(B.egg.rot); c.drawImage(e.img, -e.w / 2, -e.h);
+        if (B.egg.crack > 0) { c.strokeStyle = '#3a2a1a'; c.lineWidth = 1; c.beginPath(); c.moveTo(-8, -20); c.lineTo(-3, -16 - 6 * B.egg.crack); c.lineTo(2, -21); c.lineTo(7, -15 - 4 * B.egg.crack); c.stroke(); }
+        c.restore();
+      } else if (B.mon.a < 1) {
+        c.fillStyle = '#fff8e8'; c.beginPath(); c.arc(B.egg.x - 8, B.egg.y - 4, 6, 0, Math.PI); c.fill(); c.beginPath(); c.arc(B.egg.x + 8, B.egg.y - 4, 6, 0, Math.PI); c.fill();
+      }
+      if (B.mon.a > 0) {
+        const sp = DW.Sprites.battle(B.baby), sc = Math.min(1, 30 / sp.h);
+        c.globalAlpha = B.mon.a;
+        DW.Sprites.draw(c, sp, B.mon.x, 190 - Math.abs(Math.sin(t * 6)) * 3, { frame: Math.floor(t * 4), scale: sc, flip: true });
+        c.globalAlpha = 1;
+      }
+      // Jijimon qui arrive
+      if (B.jiji.x < W + 30) { const j = DW.Sprites.ow('jijimon'); DW.Sprites.draw(c, j, B.jiji.x, 184 + Math.abs(Math.sin(t * 5)) * 1.5, { frame: Math.floor(t * 4) }); }
+      c.restore();
+    }
+
     draw(c) {
-      if (this.mode === 'camp') {
+      if (this.mode === 'beach') this.drawBeach(c);
+      else if (this.mode === 'camp') {
         if (this.pix.v > 0) {
           // le camp se décompose en pixels avant le passage dans le Digimonde
           const bc = this.buf.getContext('2d'); this.drawCamp(bc);

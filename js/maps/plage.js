@@ -144,7 +144,7 @@
     g.rect(0, 23, 4, 5, 's');
   });
   MAPS.plage = {
-    name: 'Plage des Cabines', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.12,
+    name: 'Plage des Cabines', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.12, wildN: 8,
     rows: plageRows,
     objects: [
       { kind: 'rowboat', x: 30, y: 30, w: 2, h: 1, oy: 2 },
@@ -208,7 +208,7 @@
     g.rect(15, 11, 8, 2, 's');
   });
   MAPS.crique = {
-    name: 'Crique du Radeau', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.1,
+    name: 'Crique du Radeau', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.1, wildN: 6,
     rows: criqueRows,
     objects: [
       { kind: 'raft', x: 16, y: 13, w: 4, h: 2 },

@@ -245,7 +245,8 @@
     constructor() { super(); this.i = 0; this.ci = 0; this.tab = 0; }
     update() {
       const In = DW.Input, d = In.hit('left') ? -1 : In.hit('right') ? 1 : 0;
-      if (d) { this.tab = (this.tab + d + 3) % 3; DW.Audio.sfx('move'); }
+      const n = DW.state.flags.crestSeen || DW.Crests.count() ? 3 : 2;   // la page ÉCUSSONS apparaît après le premier portail découvert
+      if (d) { this.tab = (this.tab + d + n) % n; DW.Audio.sfx('move'); }
       if (In.hit('back') || In.hit('ok') || In.hit('menu')) { DW.Audio.sfx('back'); this.close(); return; }
       if (this.tab === 2) {
         const n = DW.Crests.ORDER.length;
@@ -264,7 +265,7 @@
       if (this.tab === 2) return this.drawCrests(c);
       UI.menuBg(c, this.t, 'JOURNAL');
       UI.text(c, `Engrenages Noirs : ${Story.gears()} / ${RID.length}`, W - 12, 17, { size: 8, align: 'right', color: '#ffe070' });
-      UI.text(c, '◀ ÉCUSSONS · REQUÊTES ▶', W - 12, 27, { size: 6, align: 'right', color: '#9ab0e8' });
+      UI.text(c, s.flags.crestSeen || DW.Crests.count() ? '◀ ÉCUSSONS · REQUÊTES ▶' : 'REQUÊTES ▶', W - 12, 27, { size: 6, align: 'right', color: '#9ab0e8' });
       const top = Math.max(0, Math.min(this.i - 4, RID.length - 9));
       RID.slice(top, top + 9).forEach((r, j) => {
         const idx = top + j, y = 34 + j * 15, M = DW.MAPS[DW.REGION_ENTRY[r]], seen = Object.keys(DW.MAPS).some(id => DW.MAPS[id].region === r && s.visited[id]);
@@ -286,7 +287,7 @@
   JournalScene.prototype.drawRequests = function (c) {
     const UI = DW.UI, W = DW.W, L = DW.Requests ? DW.Requests.list() : [];
     UI.menuBg(c, this.t, 'JOURNAL — REQUÊTES');
-    UI.text(c, '◀ ENGRENAGES · ÉCUSSONS ▶', W - 12, 17, { size: 7, align: 'right', color: '#9ab0e8' });
+    UI.text(c, DW.state.flags.crestSeen || DW.Crests.count() ? '◀ ENGRENAGES · ÉCUSSONS ▶' : '◀ ENGRENAGES', W - 12, 17, { size: 7, align: 'right', color: '#9ab0e8' });
     if (!L.length) UI.wrap(c, "Aucune requête en cours. Les habitants qui ont besoin d'aide ont un « ! » au-dessus de la tête : va leur parler en ville !", 280, 9).forEach((l, j) => UI.text(c, l, 18, 50 + j * 14, { size: 9, color: '#c8f0ff' }));
     L.slice(0, 9).forEach(([sp, q], j) => {
       const y = 40 + j * 20, ok = DW.Requests.ready(sp, q);

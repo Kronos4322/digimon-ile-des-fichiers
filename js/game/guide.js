@@ -1,11 +1,9 @@
 'use strict';
 // =====================================================================
-//  ARRIVÉE DANS LE MONDE DIGITAL : la grande discussion avec Jijimon
-//  1) le monde : l'Île des Fichiers, les Digimon, la ville en ruines
-//  2) le mystère : mémoire perdue, Engrenages Noirs, l'arrivée d'un humain et du Digivice
-//  3) l'enquête : ce qu'il faut faire, dans l'ordre
-//  4) les règles : en combat tu choisis les techniques ; la Digivolution se fait depuis la table, une fois les critères remplis
-//  5) questions libres (soins, entraînement, combats...) — aussi chez Jijimon, menu « Questions »
+//  JIJIMON : le réveil chez lui, puis ses explications (menu « Questions » de Jijimon)
+//  Au début, il ne sait presque rien : les habitants sont partis et ont tout oublié, c'est au joueur d'enquêter.
+//  Ce qu'il raconte grandit avec ce que le joueur découvre (Kuwagamon, Engrenages Noirs, écussons...).
+//  Un sujet peut avoir une condition (3e élément) : il n'apparaît qu'une fois la découverte faite.
 // =====================================================================
 (function () {
   const say = (t, s) => DW.say(t, s);
@@ -21,23 +19,19 @@
       await say("L'Île des Fichiers est un petit bout de ce monde : forêts, plage, montagne, volcan, marais, terre gelée... seize régions en tout.", J);
       await say("Au centre, il y a notre Ville des Fichiers. Autrefois, des dizaines de Digimon y tenaient boutique. Aujourd'hui, il n'en reste que des ruines.", J);
     }],
-    ["L'enquête", async () => {
-      await say("Voici ce que je sais. Un matin, des Engrenages Noirs sont tombés du ciel, comme une pluie d'encre.", J);
-      await say("Le soir même, les Digimon de la ville ont tout oublié : leur nom, leurs amis, leur maison. Ils sont partis vivre à l'état sauvage.", J);
-      await say("Les plus puissants ont reçu un Engrenage en plein cœur. Ils sont devenus fous et terrorisent leur région. On dit qu'il y en a au moins douze.", J);
-      await say("Quelqu'un, quelque part, a lancé ces engrenages. Mais qui ? Et pourquoi ? Les rumeurs parlent d'une ombre au sommet de la Montagne de l'Infini...", J);
-      await say("Ton travail : 1) retrouver les Digimon perdus et les aider à se souvenir, 2) libérer ceux qui portent un Engrenage, 3) découvrir qui se cache derrière tout ça.", J);
-      await say("Chaque Digimon qui retrouve la mémoire revient en ville et y ouvre un service : boutique, restaurant, clinique... La ville grandit, de « Ruines » à « Mégapole » !", J);
-      await say("Et plus la ville grandit, plus de chemins s'ouvrent sur l'île. Certains passages ne s'ouvriront qu'avec l'aide d'un habitant précis.", J);
+    ["Ce qui se passe sur l'île", async () => {
+      const g = DW.Story.gears ? DW.Story.gears() : 0, f = st().flags;
+      await say("Je ne sais pas grand-chose, tu sais... Les habitants de la ville sont partis du jour au lendemain. Ceux que je croise ne se souviennent plus de rien.", J);
+      if (!f.kuwagamon) { await say("Les petits Digimon de la forêt disent qu'un énorme insecte rouge terrorise la Clairière de l'Arrivée. Avant, il était doux comme un agneau...", J); return; }
+      if (!g) { await say("Kuwagamon n'était pas lui-même, dis-tu ? Comme s'il était... possédé. Et si c'était la même chose pour tous les autres ?", J); await say("Les Digimon que tu retrouves se souviennent parfois de la ville en te voyant. Ramène-les ici !", J); return; }
+      await say(`Des Engrenages Noirs plantés dans leur dos... Voilà donc ce qui leur a volé la mémoire ! Tu en as déjà brisé ${g}.`, J);
+      await say("Quelqu'un les a lancés sur l'île, c'est certain. Mais qui ? Continue ton enquête : le Journal (menu) garde la trace de tout ce que tu découvres.", J);
     }],
     ['Les écussons et les enfants perdus', async () => {
-      await say("Tu n'es peut-être pas le seul humain sur l'île... Mon vieux Digivice a capté d'autres signaux : six autres enfants, perdus quelque part.", J);
-      await say("Les vieux récits parlent aussi des écussons : un pour chaque DigiSélectionné. Courage, Amitié, Amour, Savoir, Pureté, Sincérité, Espoir.", J);
-      await say("Sans écusson, un Digimon ne dépasse pas le stade Champion. Chaque écusson réveille le stade Ultime d'une famille de Digimon. Les sept réunis... la Méga !", J);
-      await say("On dit qu'ils sont gardés dans des lieux secrets : de vieux portails couverts de lierre, gravés d'un symbole. Il faudra résoudre leurs énigmes et vaincre leurs gardiens.", J);
-      await say("Les enfants perdus y sont peut-être retenus. Délivre-les : ils te confieront leur écusson. Et ton écusson à toi t'attend aussi quelque part...", J);
-      await say("Ton partenaire ne vivra pas éternellement : le jour venu, tu choisiras un autre œuf. Les écussons trouvés serviront alors à toutes les familles. (Menu → JOURNAL → ÉCUSSONS)", J);
-    }],
+      await say("Ce portail gravé que tu as vu... Je me souviens d'un vieux récit : des écussons, un pour chaque enfant venu d'un autre monde.", J);
+      await say("Sans écusson, un Digimon ne dépasserait pas le stade Champion. Chaque écusson réveillerait le stade Ultime d'une famille de Digimon. Et les sept réunis...", J);
+      await say("S'il y a d'autres enfants comme toi sur l'île, ils sont peut-être retenus derrière ces portails. Délivre-les ! (Menu → JOURNAL → ÉCUSSONS)", J);
+    }, () => st().flags.crestSeen || (DW.Crests && DW.Crests.count() > 0)],
     ['Prendre soin de son partenaire', async () => {
       await say("Un Digimon est vivant. Il a FAIM (donne-lui de la viande), il doit aller aux TOILETTES, et il a SOMMEIL le soir (menu → DORMIR).", J);
       await say("S'il ne trouve pas de toilettes à temps... il fait sur place. Ramasse toujours ses crottes : la saleté le rend malade.", J);
@@ -73,9 +67,10 @@
   async function questions(intro) {
     let q = intro || 'Que veux-tu savoir ?';
     for (;;) {
-      const r = await DW.ask(q, TOPICS.map(t => t[0]).concat(["C'est bon, merci !"]), J);
-      if (r == null || r < 0 || r >= TOPICS.length) return;
-      await TOPICS[r][1]();
+      const list = TOPICS.filter(t => !t[2] || t[2]());
+      const r = await DW.ask(q, list.map(t => t[0]).concat(["C'est bon, merci !"]), J);
+      if (r == null || r < 0 || r >= list.length) return;
+      await list[r][1]();
       q = 'Autre chose ?';
     }
   }
@@ -84,25 +79,16 @@
   async function opening() {
     await DW.wait(0.6);
     const baby = DW.state.party[0] ? DW.state.party[0].name : 'Ton Digimon';
-    await say('Mmh... Où est-ce que je suis ? Ma tête tourne...');
-    await say(`... ! Un petit Digimon est blotti contre toi. Il ouvre les yeux en même temps que toi.`);
-    await say(`Tu es réveillé ! Je m'appelle ${baby}. Je ne t'ai pas quitté une seconde !`, baby);
-    await say("Hohoho ! Doucement, doucement. Tu as dormi presque une journée entière.", J);
-    await say("Je suis Jijimon, le doyen de la Ville des Fichiers. Je t'ai trouvé évanoui sur la plage, au milieu des cabines téléphoniques.", J);
-    await say("Tu es sur l'Île des Fichiers, dans le monde digital. Un monde fait de données... très loin de chez toi, je le crains.", J);
-    await say(`Et tu tiens dans ta main un Digivice. Il s'est mis à briller dès que je t'ai trouvé, ${hero()}.`, J);
-    await say("C'est bien la première fois que je vois un humain ici. Les vieux récits parlent d'enfants « DigiSélectionnés », appelés quand le monde digital est en danger...", J);
-    await say("Et justement, il l'est.", J);
-    await TOPICS[1][1]();   // l'enquête
-    await say("Ce n'est pas tout. Mon vieux Digivice a capté d'autres signaux humains... D'autres enfants sont perdus sur l'île. Retrouve-les : je t'en reparlerai (demande-moi « les écussons »).", J);
-    await say("Je suis trop vieux pour courir l'île. Mais toi... avec un partenaire Digimon à tes côtés, tu pourrais peut-être y arriver.", J);
-    await say(`Et ce petit ${baby}... Il dormait à tes pieds sur la plage. Il ne t'a pas quitté depuis : c'est ton partenaire, ça ne fait aucun doute !`, J);
+    await say('Mmh... Où est-ce que je suis ?');
+    await say(`${baby} est blotti contre toi. Il ouvre les yeux en même temps que toi.`);
+    await say(`Tu es réveillé ! Moi c'est ${baby} ! Je ne t'ai pas quitté une seconde !`, baby);
+    await say("Hohoho ! Doucement... Je suis Jijimon. Je vous ai trouvés tous les deux sur la plage, près des cabines téléphoniques.", J);
+    await say(`Un humain... Je n'en avais jamais vu. Tu t'appelles ${hero()} ? Et d'où viens-tu ?... Tu ne sais pas non plus. Hohoho, nous voilà bien.`, J);
+    await say("Ici, c'est la Ville des Fichiers. Enfin... ce qu'il en reste. Ses habitants sont partis du jour au lendemain, et ceux que je croise ne se souviennent plus de rien.", J);
+    await say("Je ne sais pas ce qui leur est arrivé. Moi, je suis bien trop vieux pour courir l'île... Mais toi, avec ce petit, tu pourrais peut-être le découvrir ?", J);
     DW.Audio.sfx('fanfare');
     await say(`${baby} devient ton partenaire !`);
-    await say("J'avais préparé un colis pour toi : 5 Viandes et 3 Remèdes. (Et si tu te perds, Koromon, notre petit guide, se promène sur la place !)", J);
-    await explainRules();
-    await questions("Avant que tu sortes : as-tu des questions ? Je peux t'expliquer comment vit un Digimon, comment il devient fort...");
-    await say("Ma porte est toujours ouverte : reviens me poser tes questions, ou dormir ici pour soigner ton équipe.", J);
+    await say("Koromon, un petit qui est resté en ville, la connaît par cœur. Va le voir sur la place : il te fera visiter. Et reviens me voir si tu as des questions.", J);
     await say("(Déplacements : flèches ou ZQSD.  Courir : Maj.  Parler : ESPACE.  Menu : ENTRÉE.)");
   }
 

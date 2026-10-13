@@ -155,6 +155,10 @@
     for (let x = 18; x < 22; x++) for (const y of [13, 14]) m.signs[`${x},${y}`] = fountainUse;
     if (has('kunemon')) for (let x = BANK.x; x < BANK.x + BANK.w; x++) m.signs[`${x},${BANK.y + BANK.h - 1}`] = SERVICES.kunemon;
     zoomMap(m, 'village');   // plan agrandi ×2 (maps/common.js)
+    // grand panneau d'affichage de la ville, à droite de la maison de Jijimon : une note épinglée par habitant revenu
+    { const J = m.objects.find(o => o.kind === 'jhouse'), bx = J.x + J.w + 1, by = J.y + J.h - 1;
+      m.objects.push({ kind: 'noticeboard', v: Math.min(8, lvl), x: bx, y: by, w: 2, h: 1 });
+      for (const x of [bx, bx + 1]) m.signs[`${x},${by}`] = () => DW.Chapter.townSign(); }
     // porte de la maison du joueur, placée sur la maison une fois le plan agrandi
     { const o = m.objects.find(o => o.home); DW.HOME_DOOR = { x: o.x + 2, y: o.y + o.h - 1 };
       m.doors.push({ x: o.x + 2, y: o.y + o.h - 1, w: 1, dir: 'up', to: 'maison_joueur', tx: 7, ty: 10, _zt: true });
@@ -223,7 +227,8 @@
     s.flags.bota = k + 1;
     await say(tips[k], 'Koromon');
   }
-  const GUIDE = { sp: 'koromon', x: 21, y: 11, face: 'left', wander: 3, talk: guideTalk };
+  // premier échange : la visite guidée (game/chapitre1.js) ; ensuite, des conseils
+  const GUIDE = { sp: 'koromon', x: 21, y: 11, face: 'left', wander: 3, talk: ow => (st().flags.tour ? guideTalk() : DW.Chapter.tour(ow)) };
 
   // ------------------------------------------------------------ Jijimon (dans sa maison)
   async function jijimonTalk() {
