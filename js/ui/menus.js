@@ -386,8 +386,10 @@
 
   // ------------------------------------------------------------ Banque : déposer / retirer des objets
   // Gauche/Droite : sac ou banque   Haut/Bas : objet   ESPACE : 1 objet   ENTRÉE : tout   ÉCHAP : sortir
+  // seuls les objets que tu possèdes (dans le sac ou ici) apparaissent : rien n'est dévoilé à l'avance
   class BankScene extends DW.Scene {
-    constructor() { super(); this.i = 0; this.side = 0; }
+    constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; }
+    get list() { const st = DW.state, bank = st.bank || {}; return DW.ITEM_ORDER.filter(id => (st.bag[id] || 0) + (bank[id] || 0) > 0); }
     move(id, all) {
       const st = DW.state; st.bank = st.bank || {};
       const from = this.side ? st.bank : st.bag, have = from[id] || 0;
@@ -402,24 +404,27 @@
       if (n) { Audio.sfx('buy'); this.msg = `${DW.ITEMS[id].name} x${n} ${this.side ? 'retiré' : 'déposé'}${n > 1 ? 's' : ''}`; this.msgT = 1.6; } else Audio.sfx('bump');
     }
     update() {
-      const n = DW.ITEM_ORDER.length;
+      const L = this.list, n = Math.max(1, L.length);
+      if (this.i >= n) this.i = n - 1;
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); return; }
       if (Input.hit('left') || Input.hit('right')) { this.side ^= 1; Audio.sfx('move'); }
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
-      if (Input.hit('ok')) this.move(DW.ITEM_ORDER[this.i], false);
-      if (Input.hit('menu')) this.move(DW.ITEM_ORDER[this.i], true);
+      if (!L.length) return;
+      if (Input.hit('ok')) this.move(L[this.i], false);
+      if (Input.hit('menu')) this.move(L[this.i], true);
     }
     tick(dt) { if (this.msgT > 0) this.msgT -= dt; }
     draw(c) {
-      const st = DW.state, bank = st.bank || {}, L = DW.ITEM_ORDER, ROWS = 5;
+      const st = DW.state, bank = st.bank || {}, L = this.list, ROWS = 5;
       // liste défilante : 5 objets visibles autour du curseur
       const top = DW.clamp(this.i - 2, 0, Math.max(0, L.length - ROWS));
-      UI.menuBg(c, this.t, 'BANQUE');
+      UI.menuBg(c, this.t, this.title);
+      if (!L.length) UI.text(c, "Ton sac est vide... Rien à ranger pour l'instant.", W / 2, 120, { size: 9, align: 'center', color: '#c8f0ff' });
       for (let s = 0; s < 2; s++) {
         const x = 8 + s * 156;
         UI.box(c, x, 26, 148, 26, this.side === s ? 'dwsel' : 'dw');
-        UI.text(c, s ? 'BANQUE' : `SAC (${DW.BAG_MAX} max)`, x + 74, 43, { size: 9, align: 'center', color: '#ffe070' });
+        UI.text(c, s ? this.title : `SAC (${DW.BAG_MAX} max)`, x + 74, 43, { size: 9, align: 'center', color: '#ffe070' });
         UI.box(c, x, 56, 148, 122);
         if (top > 0) UI.text(c, '▲', x + 74, 62, { size: 7, align: 'center', color: '#8ae0f0' });
         if (top + ROWS < L.length) UI.text(c, '▼', x + 74, 177, { size: 7, align: 'center', color: '#8ae0f0' });
@@ -428,14 +433,15 @@
           if (i === this.i && this.side === s) UI.box(c, x + 3, y - 2, 142, 21, 'dwsel');
           c.globalAlpha = n ? 1 : 0.4;
           c.drawImage(DW.Icons.item(id), x + 8, y);
-          UI.text(c, DW.ITEMS[id].name, x + 28, y + 11, { size: 9, color: '#c8ffd0' });
+          { const nf = UI.fit(c, DW.ITEMS[id].name, 92, 9); UI.text(c, nf.s, x + 28, y + 11, { size: nf.size, color: '#c8ffd0' }); }
           UI.text(c, String(n), x + 138, y + 11, { size: 10, align: 'right' });
           c.globalAlpha = 1;
         });
       }
       UI.box(c, 8, 182, W - 16, 52);
-      UI.text(c, this.msgT > 0 ? this.msg : (this.side ? 'Retirer vers le sac.' : 'Déposer à la banque.'), 16, 200, { size: 10, color: this.msgT > 0 ? '#7aff8a' : '#ffffff' });
-      UI.text(c, 'ESPACE : 1 objet   ENTRÉE : tout   ←/→ : sac ou banque   ÉCHAP : sortir', 16, 222, { size: 7, color: '#6ab8d0' });
+      UI.text(c, this.msgT > 0 ? this.msg : (this.side ? 'Reprendre dans le sac.' : 'Ranger ici.'), 16, 200, { size: 10, color: this.msgT > 0 ? '#7aff8a' : '#ffffff' });
+      UI.hints(c, [['ok', '1 objet'], ['menu', 'tout'], ['back', 'sortir']], W - 16, 222);
+      UI.text(c, '←/→ : sac ou ' + this.title.toLowerCase(), 16, 222, { size: 7, color: '#6ab8d0' });
     }
   }
   DW.BankScene = BankScene;

@@ -48,7 +48,7 @@
       DW.autosave();
       await say('(Partie sauvegardée.)');
     },
-    async coffre() { await DW.Game.push(new DW.BankScene()); },
+    async coffre() { await DW.Game.push(new DW.BankScene({ title: 'COFFRE' })); },
     async toilettes() { await DW.Care.toilet(); },
     async plantes() {
       if (!once('plantes')) { await say('Les plantes sont bien arrosées. Elles ont l\'air heureuses.'); return; }
