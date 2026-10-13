@@ -270,33 +270,6 @@
       d.tube([[15, 7], [15, 0]], 0.8, 0.8, '#8a5a32'); d.poly([[15.4, 0.4], [21, 2], [15.4, 3.6]], '#e04848', { noline: true });
       d.deco.circ(7, 18, 1.2, '#ffe0e8'); d.deco.circ(23, 19, 1.2, '#f07a3a');
     } },
-    // radeau en rondins (Crique du Radeau, épisode 14) : mât, voile rapiécée, lianes
-    raft: { w: 64, h: 58, n: 1, draw(d) {
-      d.ell(32, 54, 30, 3.6, '#3a5a6a', 0, { flat: true });
-      for (let k = 0; k < 7; k++) d.tube([[6, 40 + k * 2], [58, 38 + k * 2]], 2.6, 2.6, k % 2 ? '#a8743c' : '#946232', { tex: 0.35 });
-      for (const x of [14, 32, 50]) d.deco.line(x, 38, x + 1, 54, 1.2, '#5a8a3a');
-      d.tube([[30, 44], [31, 6]], 1.8, 1.4, '#7a5030');
-      d.poly([[32, 8], [52, 14], [50, 34], [32, 36]], '#f0e6d0', { tex: 0.2 });
-      d.deco.rect(38, 18, 7, 6, '#d8c8a8'); d.deco.line(32, 20, 50, 22, 0.6, '#c8b898');
-      d.tube([[31, 6], [34, 4]], 1, 0.8, '#7a5030');
-      d.deco.poly([[34, 4], [40, 5], [34, 7]], '#e84a4a');
-    } },
-    // jet d'eau de Whamon au large (animé)
-    spout: { w: 30, h: 46, n: 1, frames: 4, fps: 6, draw(d, v, f) {
-      d.ell(15, 42, 12, 3, '#2a3c92', 0, { flat: true });
-      d.ell(15, 41, 9, 2.2, '#1a2458', 0, { flat: true });
-      const h = 26 + (f % 2) * 4;
-      d.tube([[15, 40], [15, 40 - h]], 2.6, 1.6, '#c8f0ff', { unlit: true });
-      for (let i = 0; i < 7; i++) { const a = -Math.PI / 2 + (i - 3) * 0.45, r = 8 + ((f + i) % 3) * 2; d.circ(15 + Math.cos(a) * r, 40 - h + 2 + Math.sin(a) * r * 0.6, 2.2, '#e8faff', { unlit: true, noline: true }); }
-    } },
-    rowboat: { w: 40, h: 22, n: 1, draw(d) {
-      d.ell(20, 18, 18, 3, '#1a4a7a', 0, { flat: true });
-      d.blob([[1, 9], [6, 18], [34, 18], [39, 9]], '#b05a3a', { tex: 0.2 });
-      d.deco.line(4, 12, 36, 12, 0.8, '#7a3a24');
-      d.ell(20, 9, 18, 3, '#8a4a2a'); d.deco.ell(20, 9, 16, 2, '#5a3018');
-      d.rect(14, 7, 12, 2, '#c8945a', { round: 0.3 });
-      d.tube([[8, 9], [2, 4]], 1.2, 1.2, '#c8945a'); d.ell(2, 3.6, 2.4, 1, '#c8945a', -0.6);
-    } },
     // ---------------------------------------------------------- décor numérique dans la nature
     // tuyau rouillé en coude qui sort du sol (fumée : voir smoke)
     pipe: { w: 34, h: 32, n: 2, smoke: [26, 4], draw(d, v) {

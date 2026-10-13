@@ -72,6 +72,9 @@
       grass: ['#3e7e30', '#52943a', '#6aaa46', '#84c056', '#a0d46a', '#bee484'],
       canopy: ['#102c18', '#183e20', '#205228', '#2a6830', '#367e3a', '#489646'],
       trees: [[2, 3], [0, 2], [4, 1]], litter: ['#e8d8a0', '#c8b080'],
+      // mer tropicale : lagon turquoise près du bord, bleu profond au large ; sable clair et chaud
+      water: ['#c4fbf2', '#86eee4', '#4edadc', '#2cbcd8', '#1f98cc', '#1b74b6', '#18559a'], waterDepth: 6,
+      sand: ['#caa468', '#dcbc80', '#ead096', '#f4e0b0', '#faedcc', '#fff8e8'],
       particle: 'pollen', leaves: ['#ffffff', '#f0f8ff'],
     },
   };

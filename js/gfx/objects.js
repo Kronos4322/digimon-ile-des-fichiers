@@ -333,8 +333,8 @@
       d.deco.rect(15.6, 24, 1.4, 6, '#1a5a30'); d.deco.curve([[16.3, 30], [15, 34], [18, 36]], 0.5, '#1a1a1a');
       d.deco.rect(16, 18.4, 7, 1.4, '#ff7a3a', { unlit: true });                    // voyant
       d.rect(2, 7, 26, 8, '#3f72cc', { round: 0.35, shiny: true });                  // toit
-      d.deco.rect(8, 9, 14, 4, '#ffffff', { unlit: true });
-      const W = DW.World.signText; if (W) W(d, 'TEL', 9.5, 9.6, '#3f72cc', 0.8);
+      d.deco.rect(7, 8.4, 16, 6, '#ffffff', { unlit: true });
+      const W = DW.World.signText; if (W) W(d, 'TEL', 9, 9, '#2a5ab8', 1);   // lettres de 3×5 pixels
       d.rect(13, 2, 4, 6, '#3f72cc', { round: 0.4 }); d.deco.circ(15, 3.4, 1.2, '#ffe060', { unlit: true });
     } },
     sign: { w: 18, h: 20, n: 1, draw(d) {

@@ -530,7 +530,7 @@
       for (let k = 0; k < NW; k++) {
         if ((k & 2047) === 2047) yield;
         const i = WI[k], px = i % GW, py = (i / GW) | 0;
-        V0[k] = Math.min(6, ED[i] / 3.2) + Art.bayer(px, py) * 0.6;
+        V0[k] = Math.min(6, ED[i] / (TH && TH.waterDepth || 3.2)) + Art.bayer(px, py) * 0.6;   // waterDepth : eau claire plus loin du bord (lagon)
         F26[k] = px * 0.06 + py * 0.4 + fbm(px * 0.03, py * 0.03, 26) * 6;
         F27[k] = px * 0.07 + py * 0.05 + fbm(px * 0.05, py * 0.05, 27) * 5;
         OUT[k] = ((py - wy0) * BW + (px - wx0)) * 4;

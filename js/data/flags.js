@@ -11,6 +11,7 @@
     // histoire
     kuwagamon: 'Kuwagamon vaincu (forêt)',
     shellmon: 'Shellmon vaincu (plage)',
+    whamon: 'Whamon libéré de son Engrenage Noir (Crique du Radeau)',
     devimon: 'Devimon vaincu',
     ending: 'fin du jeu vue',
     berceau: 'première visite au Village des Bébés',
@@ -26,6 +27,7 @@
     meat: 'jour de la dernière récolte de Digiviande',
     harvest: 'jour de la dernière récolte de Palmon',
     fish: 'heure de la dernière pêche',
+    whamonDay: 'jour du dernier trésor de Whamon (Crique du Radeau)',
     eggDay: 'jour du dernier DigiŒuf pris',
     findDay: 'jour des trouvailles du partenaire',
     findN: 'nombre de trouvailles du partenaire ce jour-là (3 max)',
