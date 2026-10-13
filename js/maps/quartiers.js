@@ -89,6 +89,39 @@
   };
   const LAYOUT_ORDER = ['salon', 'cuisine', 'chambre', 'musique'];
   // crée l'intérieur d'une maison (id), dont la porte extérieure est en (ox, oy) sur la carte du quartier
+  // ------------------------------------------------------------ décoration selon l'habitant (élément de l'espèce)
+  // sol, papier peint et meubles à thème (gfx/interior2.js), posés là où il y a de la place
+  const THEMES = {
+    'Feu': { floor: { type: 'herring', cols: ['#c8784a', '#9a5230', '#6a341c'] }, wall: { base: '#e8b090', alt: '#d89878', pattern: 'brick', wood: '#8a3a20' }, add: [['woodstove', 0], ['painting', 1, true]] },
+    'Eau': { floor: { type: 'tile', cols: ['#bfe2f2', '#8ac0dc', '#5a92b0'] }, wall: { base: '#d8eef8', alt: '#b8dcef', pattern: 'stripes', wood: '#3a6a8a' }, add: [['shellshelf', 0, true], ['pottedtree', 1]] },
+    'Plante': { floor: { type: 'herring', cols: ['#b89060', '#8a6a40', '#5a4426'] }, wall: { base: '#d8ecc8', alt: '#bcdcaa', pattern: 'dots', wood: '#5a7a3a' }, add: [['flowerpots', 0], ['pottedtree', 0], ['flowerpots', 1]] },
+    'Électrique': { floor: { type: 'tile', cols: ['#c8ccd4', '#9aa0aa', '#6a707a'] }, wall: { base: '#e0e4ea', alt: '#c8ced8', pattern: 'stripes', wood: '#4a5060' }, add: [['computer', 0], ['crttv', 0]] },
+    'Glace': { floor: { type: 'tile', cols: ['#f4f8ff', '#d4e4f4', '#a8c4e0'] }, wall: { base: '#f0f6ff', alt: '#dce8f8', pattern: 'diamond', wood: '#7a98c0' }, add: [['furrug', 0, false, true], ['curtains', 0, true]] },
+    'Air': { floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#eaf4ff', alt: '#d4e8fa', pattern: 'dots', wood: '#6a8ab0' }, add: [['nest', 0], ['curtains', 0, true]] },
+    'Terre': { floor: { type: 'stone', cols: ['#c8b8a0', '#a89880', '#786a56'] }, wall: { base: '#d8c4a8', alt: '#c4ae90', pattern: 'brick', wood: '#6a4a2a' }, add: [['barrels', 0], ['pottedtree', 1]] },
+    'Lumière': { floor: { type: 'carpet', cols: ['#f8ecc8', '#ecdaa8', '#fffaf0'] }, wall: { base: '#fff8e8', alt: '#f4ead0', pattern: 'plain', wood: '#c8a040' }, add: [['painting', 0, true], ['candles', 0], ['curtains', 1, true]] },
+    'Ténèbres': { floor: { type: 'carpet', cols: ['#5a3a6a', '#3a2448', '#1e1228'] }, wall: { base: '#4a3a5a', alt: '#3a2c48', pattern: 'diamond', wood: '#241830' }, add: [['candles', 0], ['painting', 2, true], ['candles', 0]] },
+    'Insecte': { floor: { type: 'herring', cols: ['#a8905a', '#7e6a3e', '#4e4226'] }, wall: { base: '#dce8c0', alt: '#c4d8a4', pattern: 'stripes', wood: '#6a6a2a' }, add: [['flowerpots', 1], ['pottedtree', 0]] },
+    'Neutre': { add: [['toybox', 0]] },
+  };
+  // cases libres d'une pièce de maison (14 × 11) : pas d'objet, pas devant la porte (colonnes 6-7 en bas), pas sur l'habitant
+  function themeHome(m, sp) {
+    const T = THEMES[(DW.SPECIES[sp].types || ['Neutre'])[0]] || THEMES.Neutre;
+    if (T.floor) m.floor = T.floor;
+    if (T.wall) m.wall = T.wall;
+    const npc = m.npcs[0], busy = (x, y, w, h) => m.objects.some(o => !o.walk && !o.back && o.x < x + w && o.x + (o.w || 1) > x && o.y < y + h && o.y + (o.h || 1) > y)
+      || (x < 8 && x + w > 6 && y + h > 7) || (npc && npc.x >= x - 1 && npc.x <= x + w && npc.y >= y - 1 && npc.y <= y + h);
+    const backBusy = x => m.objects.some(o => o.back && o.x < x + 2 && o.x + (o.w || 1) > x);
+    for (const [kind, v, back, rug] of T.add) {
+      if (back) { for (const x of [1, 4, 9, 11]) if (!backBusy(x)) { m.objects.push({ kind, v, x, y: 1, w: 2, h: 1, back: true, oy: 6 }); break; } continue; }
+      const w = rug ? 4 : kind === 'flowerpots' || kind === 'computer' || kind === 'barrels' ? 2 : 1, h = rug ? 2 : 1;
+      for (const [x, y] of [[1, 8], [12, 8], [10, 8], [1, 5], [12, 5], [3, 8], [9, 5], [2, 3], [11, 3]]) {
+        if (x + w > 13 || y + h > 10 || busy(x, y, w, h)) continue;
+        m.objects.push({ kind, v, x, y, w, h, small: w === 1, walk: !!rug });
+        break;
+      }
+    }
+  }
   function makeHome(id, seed, name, quarter, back) {
     const kind = LAYOUT_ORDER[Math.floor(Hh(seed, 1, 803) * 4)], v = Math.floor(Hh(seed, 2, 804) * 6);
     const L = LAYOUTS[kind](v), sp = citizenOf(seed), line = lineOf(seed), flavor = lineOf(seed + 17);
@@ -100,6 +133,8 @@
       warps: [{ x: DOOR_X, y: ROOM_H + 3, w: 2, h: 1, dir: 'down', to: quarter, tx: back[0], ty: back[1] }],
       entry: { x: DOOR_X, y: ROOM_H + 2 },
     };
+    if (name === 'Maison') MAPS[id].name = `Maison de ${nameOf(sp)}`;
+    themeHome(MAPS[id], sp);
     return id;
   }
 
@@ -110,8 +145,65 @@
   // emplacement : { kind, v, x, y, min } ; chaumières, maisons et immeubles se visitent (porte en bas)
   const z = v => Math.round(v * Z);
   // emprise (en cases) des bâtiments agrandis, et position de la porte sur leur façade
-  const FOOT = { cottage: [5, 4], townhouse: [5, 4], apartment: [6, 4], shopfront: [5, 4], marketstall: [4, 2], datatower: [4, 2] };
-  const DOOR = { cottage: [2, 1], townhouse: [2, 1], apartment: [2, 2] };
+  const FOOT = { cottage: [5, 4], townhouse: [5, 4], apartment: [6, 4], shopfront: [5, 4], marketstall: [4, 2], datatower: [4, 2], bakery: [6, 4], patisserie: [6, 4] };
+  const DOOR = { cottage: [2, 1], townhouse: [2, 1], apartment: [2, 2], bakery: [2, 2], patisserie: [2, 2] };
+  // boutiques de bouche (porte comme une maison) : un commerçant et son étal
+  const FOOD_SHOPS = {
+    bakery: { name: 'Boulangerie', sp: 'agumon', shop: 'boulangerie', line: 'Bonjour ! Le pain sort du four, tout chaud !', floor: { type: 'tile', cols: ['#f0e0c0', '#d8c098', '#b89a70'] }, wall: { base: '#f8e8c8', alt: '#e8d4a8', pattern: 'stripes', wood: '#a8703a' },
+      objs: [{ kind: 'oven', x: 1, y: 1, w: 3, h: 2, back: true }, { kind: 'counter', v: 0, x: 4, y: 4, w: 4, h: 1 }, { kind: 'sacks', x: 10, y: 4, w: 2, h: 1 }, { kind: 'shelf', x: 9, y: 1, w: 2, h: 1, back: true }, { kind: 'table', x: 9, y: 7, w: 2, h: 1 }, { kind: 'bigplant', x: 12, y: 8, w: 1, h: 1, small: true }] },
+    patisserie: { name: 'Pâtisserie', sp: 'palmon', shop: 'patisserie', line: 'Bienvenue ! Nos gâteaux rendent tous les Digimon heureux !', floor: { type: 'carpet', cols: ['#f8d0e0', '#e8b0c8', '#c88aa8'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
+      objs: [{ kind: 'counter', v: 2, x: 4, y: 4, w: 4, h: 1 }, { kind: 'fridge', x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'table', x: 9, y: 6, w: 2, h: 1 }, { kind: 'stool', x: 8, y: 6, w: 1, h: 1, small: true }, { kind: 'stool', x: 11, y: 6, w: 1, h: 1, small: true }, { kind: 'cushion', v: 1, x: 2, y: 8, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 12, y: 8, w: 1, h: 1, small: true }] },
+  };
+  function makeFoodShop(id, kind, quarter, back) {
+    const F = FOOD_SHOPS[kind], name = nameOf(F.sp);
+    MAPS[id] = {
+      name: F.name, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true, floor: F.floor, wall: F.wall,
+      rows: roomRows(), objects: F.objs.map(o => ({ ...o })), signs: {},
+      npcs: [{ sp: F.sp, x: 6, y: 3, face: 'down', talk: async () => { await say(F.line, name); await DW.Game.push(new DW.ShopScene(F.shop)); } }],
+      warps: [{ x: DOOR_X, y: ROOM_H + 3, w: 2, h: 1, dir: 'down', to: quarter, tx: back[0], ty: back[1] }],
+      entry: { x: DOOR_X, y: ROOM_H + 2 },
+    };
+    for (let x = 4; x < 8; x++) MAPS[id].signs[`${x},4`] = MAPS[id].npcs[0].talk;   // on commande par-dessus le comptoir
+    return id;
+  }
+  // ------------------------------------------------------------ niveaux des maisons : grenier, cave, étages
+  // les escaliers sont dans le mur du fond, à droite (colonnes 11-12) ; la case d'arrivée est dégagée
+  const ATTIC = [{ kind: 'crates', x: 2, y: 4, w: 1, h: 1, small: true }, { kind: 'crates', v: 1, x: 3, y: 4, w: 1, h: 1, small: true }, { kind: 'sacks', x: 2, y: 7, w: 2, h: 1 },
+    { kind: 'teddy', x: 8, y: 7, w: 1, h: 1 }, { kind: 'wardrobe', v: 1, x: 5, y: 1, w: 2, h: 2, back: true }];
+  const CELLAR = [{ kind: 'crates', x: 2, y: 4, w: 1, h: 1, small: true }, { kind: 'crates', v: 1, x: 2, y: 5, w: 1, h: 1, small: true }, { kind: 'pots', x: 5, y: 4, w: 2, h: 1 },
+    { kind: 'sacks', x: 8, y: 7, w: 2, h: 1 }, { kind: 'shelf', x: 4, y: 1, w: 2, h: 1, back: true }];
+  const clearStairs = (id, x) => { const m = MAPS[id]; m.objects = m.objects.filter(o => o.back || o.walk || !(o.x < x + 2 && o.x + (o.w || 1) > x && o.y <= 4)); };
+  function addLevel(home, sub, name, objs, up, opts = {}, hx = 11, ax = 2) {
+    const P = DW.Palais, id = `${home}_${sub}`;
+    P.room(id, 'village', { name: `${MAPS[home].name.split(' — ')[0]} — ${name}`, w: 14, h: 11, floor: opts.floor, wall: opts.wall, dark: opts.dark, objects: objs.map(o => ({ ...o })) });
+    clearStairs(home, hx); clearStairs(id, ax);
+    P.stairs(home, hx, id, ax, up);
+    return id;
+  }
+  function addFloors(home, kind, seed) {
+    const r = Hh(seed, 11, 821), hm = MAPS[home];
+    const attic = { floor: { type: 'herring', cols: ['#a8845a', '#7a5a3a', '#4a3424'] }, wall: { base: '#c8a880', alt: '#b89870', pattern: 'plain', wood: '#6a4a2a' }, dark: { d: 0.3, col: '#3a2a20' } };
+    const cellar = { floor: { type: 'stone', cols: ['#8a8478', '#6a6458', '#4a4438'] }, wall: { base: '#7a7468', alt: '#6a6458', pattern: 'brick', wood: '#3a3428' }, dark: { d: 0.45, col: '#201c18' } };
+    if (kind === 'apartment') {
+      // immeuble : deux étages d'appartements, chacun avec son habitant
+      let below = home;
+      for (const n of [1, 2]) {
+        const s2 = seed + n * 101, L = LAYOUTS[LAYOUT_ORDER[Math.floor(Hh(s2, 1, 803) * 4)]](Math.floor(Hh(s2, 2, 804) * 6));
+        const id = addLevel(below, `e${n}`, `${n}${n === 1 ? 'er' : 'e'} étage`, L.objs, true, { floor: FLOORS[(n + 2) % FLOORS.length], wall: WALLS[(n + 3) % WALLS.length] });
+        const sp = citizenOf(s2), line = lineOf(s2);
+        MAPS[id].npcs.push({ sp, x: L.npc[0], y: L.npc[1], face: 'left', wander: 1, talk: () => say(line, nameOf(sp)) });
+        Object.assign(MAPS[id].signs, L.signs);
+        below = id;
+      }
+      return;
+    }
+    if (kind === 'townhouse' || kind === 'cottage') {
+      const top = kind === 'townhouse' ? addLevel(home, 'e1', 'Étage', LAYOUTS.chambre(Math.floor(r * 6)).objs, true) : home;
+      const a = addLevel(top, 'grenier', 'Grenier', ATTIC, true, attic);
+      DW.Palais.treasure(a, `grenier_${home}`, null, [[r < 0.15 ? 'gland_or' : r < 0.5 ? 'cartes' : 'soin_m', 1]], 10, 7);
+      if (r > 0.45) addLevel(home, 'cave', 'Cave', CELLAR, false, cellar, 8, 11);
+    }
+  }
   function lots(list, quarter, prefix) {
     return list.map((L, i) => {
       const o = { ...L, x: z(L.x), y: z(L.y) };
@@ -119,7 +211,9 @@
       if (DOOR[o.kind]) {
         const [dx, dw] = DOOR[o.kind];
         o.door = { x: o.x + dx, y: o.y + o.h - 1, w: dw };
-        o.home = makeHome(`${prefix}${i}`, prefix.length * 97 + i * 13 + 5, o.kind === 'apartment' ? 'Immeuble' : 'Maison', quarter, [o.x + dx, o.y + o.h]);
+        const hid = `${prefix}${i}`, seed = prefix.length * 97 + i * 13 + 5;
+        if (FOOD_SHOPS[o.kind]) o.home = makeFoodShop(hid, o.kind, quarter, [o.x + dx, o.y + o.h]);
+        else { o.home = makeHome(hid, seed, o.kind === 'apartment' ? 'Immeuble' : 'Maison', quarter, [o.x + dx, o.y + o.h]); addFloors(hid, o.kind, seed); }
       }
       return o;
     });
@@ -285,7 +379,7 @@
   {
     const S = (kind, v, x, y) => ({ kind, v, x, y });
     const list = [
-      S('marketstall', 0, 14, 11), S('marketstall', 1, 31, 10), S('shopfront', 0, 6, 3), S('shopfront', 2, 29, 3),
+      S('marketstall', 0, 14, 11), S('marketstall', 1, 31, 10), S('bakery', 0, 6, 3), S('patisserie', 0, 29, 3),
       S('marketstall', 2, 13, 19), S('marketstall', 0, 32, 20), C(2, 25, 1), S('shopfront', 1, 13, 4), C(36, 26, 3),
       S('marketstall', 1, 20, 22), S('shopfront', 3, 36, 4), C(11, 25, 0), S('marketstall', 2, 26, 8), C(29, 27, 2), C(42, 12, 1), C(17, 26, 3),
     ];

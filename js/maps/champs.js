@@ -67,6 +67,7 @@
       { kind: 'shed', x: 3, y: 7, w: 2, h: 2 },
       { kind: 'fence', v: 9, x: 3, y: 11, w: 9, h: 1, oy: 4 },
     ];
+    m.doors = farm ? [{ x: BARN.x + 2, y: BARN.y + BARN.h - 1, w: 1, dir: 'up', to: 'grange_in', tx: 9, ty: 13 }] : [];
     if (farm) m.objects.push({ kind: 'barn', ...BARN }, { kind: 'laundry', x: 22, y: 9, w: 3, h: 1 }, { kind: 'hangsign', v: 3, x: 13, y: 8, w: 1, h: 1, small: true });
     if (has('gomamon')) m.objects.push({ kind: 'fishing', x: 29, y: 16, w: 1, h: 1, small: true });
     m.npcs = [{ sp: 'tanemon', x: 7, y: 14, face: 'left', wander: 1, talk: tanemonTalk }];
@@ -142,4 +143,19 @@
     signs: {},
   };
   build();
+  // intérieur de la grange (Palmon) : bottes de foin, outils, et le fenil à l'étage
+  {
+    const P = DW.Palais, wood = { base: '#a8483a', alt: '#8a3a2e', pattern: 'plain', wood: '#5a2a20' };
+    P.room('grange_in', 'village', { name: 'Grange de Palmon', w: 20, h: 15, floor: { type: 'herring', cols: ['#c8a060', '#a8804a', '#6a4e2a'] }, wall: wood,
+      objects: [{ kind: 'sacks', x: 2, y: 4, w: 2, h: 1 }, { kind: 'sacks', x: 2, y: 6, w: 2, h: 1 }, { kind: 'crates', x: 16, y: 4, w: 1, h: 1, small: true }, { kind: 'crates', v: 1, x: 17, y: 4, w: 1, h: 1, small: true },
+        { kind: 'vegpatch', v: 1, x: 6, y: 8, w: 3, h: 2, walk: true }, { kind: 'shelf', x: 6, y: 1, w: 2, h: 1, back: true }, { kind: 'pots', x: 12, y: 9, w: 2, h: 1 }] });
+    P.room('grange_fenil', 'village', { name: 'Grange de Palmon — Fenil', w: 18, h: 13, dark: { d: 0.3, col: '#3a2a18' }, floor: { type: 'herring', cols: ['#d8b870', '#b8984e', '#7a6030'] }, wall: wood,
+      objects: [{ kind: 'sacks', x: 2, y: 4, w: 2, h: 1 }, { kind: 'sacks', x: 13, y: 5, w: 2, h: 1 }, { kind: 'sacks', x: 5, y: 8, w: 2, h: 1 }, { kind: 'teddy', x: 12, y: 8, w: 1, h: 1 }] });
+    P.stairs('grange_in', 15, 'grange_fenil', 8);
+    const g = MAPS.grange_in, x = 9, y = g.rows.length - 1;
+    g.rows[y] = g.rows[y].slice(0, x) + '11' + g.rows[y].slice(x + 2);
+    g.warps.push({ x, y, w: 2, h: 1, dir: 'down', to: 'champs', tx: BARN.x + 2, ty: BARN.y + BARN.h });
+    g.npcs.push({ sp: 'tanemon', x: 12, y: 5, face: 'left', wander: 1, talk: () => say("Ici, on range les récoltes de Palmon. Là-haut, au fenil, il fait tout chaud dans le foin !", 'Tanemon') });
+    P.treasure('grange_fenil', 'fenil', null, [['super_carotte', 2], ['radis', 1]], 15, 8);
+  }
 })();

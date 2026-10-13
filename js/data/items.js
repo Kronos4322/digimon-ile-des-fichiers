@@ -83,6 +83,14 @@
     melon:        { name: 'Melon chaîne', price: 5000, tier: 20, use: 'heal', full: true, mpFull: true, food: 100, happy: 10, disc: 5, tired: 100, icon: ['fruit', '#8ad040'], desc: 'Bon pour tout : PV, PM, faim, fatigue, bonheur et discipline.' },
     viande_moisie:{ name: 'Viande moisie', price: 50, tier: 0, use: 'heal', amt: 300, food: 50, risky: 0.3, icon: ['meat', '#7a8a4a'], desc: 'Rassasie un peu... mais peut rendre malade.' },
     pluie_plante: { name: 'Plante de pluie', price: 1000, tier: 9, use: 'mp', amt: 1000, food: 10, icon: ['veg', '#3ac0b0'], desc: 'Restaure 1000 PM.' },
+    // ------------------------------------------------------------ boulangerie et pâtisserie (Quartier du Marché)
+    pain:         { name: 'Pain frais', price: 80, tier: 0, use: 'heal', amt: 500, food: 50, icon: ['bread', '#d8964a'], desc: 'Tout chaud sorti du four. 500 PV.' },
+    croissant:    { name: 'Croissant', price: 120, tier: 0, use: 'heal', amt: 300, food: 30, happy: 5, icon: ['bread', '#e8b060'], desc: 'Croustillant et doré. Rend un peu heureux.' },
+    brioche:      { name: 'Brioche', price: 200, tier: 0, use: 'heal', amt: 900, food: 60, happy: 3, icon: ['bread', '#f0c070'], desc: 'Moelleuse et sucrée. 900 PV.' },
+    macaron:      { name: 'Macaron', price: 150, tier: 0, use: 'heal', amt: 100, food: 10, happy: 6, icon: ['cake', '#f08ab0'], desc: 'Petit et coloré. Rend heureux.' },
+    eclair:       { name: 'Éclair au chocolat', price: 250, tier: 0, use: 'heal', amt: 200, food: 20, happy: 10, icon: ['cake', '#7a4a2a'], desc: 'Fondant au chocolat. Très bon pour le moral.' },
+    tarte:        { name: 'Tarte aux fruits', price: 400, tier: 0, use: 'heal', amt: 1000, food: 60, happy: 8, icon: ['cake', '#e05a3a'], desc: 'Une belle tarte. 1000 PV et de la bonne humeur.' },
+    gateau_fete:  { name: 'Gâteau de fête', price: 900, tier: 0, use: 'heal', full: true, food: 80, happy: 20, fat: 2, icon: ['cake', '#ffffff'], desc: 'Tous les PV et beaucoup de bonheur... mais il fait grossir.' },
     // ------------------------------------------------------------ poissons (pêche)
     digianchois:  { name: 'Digi-anchois', price: 50, use: 'heal', amt: 300, food: 30, icon: ['fish', '#b8c8d8'], desc: 'Calme un peu la faim.' },
     digivivaneau: { name: 'Digi-vivaneau', price: 100, use: 'heal', amt: 800, food: 60, icon: ['fish', '#e07a5a'], desc: 'Rassasie bien.' },
@@ -129,6 +137,8 @@
     evolution: EVO_ITEMS.map(e => e[0]).filter(id => I[id]),
     nuit: ['viande_moisie', 'champi_joie', 'reveil', 'medoc', 'cloche', 'super_reveil'],
     cartes: ['cartes'],
+    boulangerie: ['pain', 'croissant', 'brioche'],
+    patisserie: ['macaron', 'eclair', 'tarte', 'gateau_fete'],
   };
   // stock d'une boutique selon le niveau de la ville (les moins bons d'abord, puis on monte)
   DW.shopStock = name => {

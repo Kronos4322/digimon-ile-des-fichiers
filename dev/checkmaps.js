@@ -14,7 +14,9 @@
   const solidAt = (m, g, x, y) => x < 0 || y < 0 || x >= m.w || y >= m.h || DW.SOLID.has(m.rows[y][x]) || g.solid.has(x + ',' + y) || (m.npcs || []).some(n => n.x === x && n.y === y);
   for (const id of Object.keys(DW.MAPS)) {
     const m = DW.getMap(id), g = DW.World.prepare(m), p = [];
-    const w0 = m.warps[0];
+    // départ : le premier passage de bord, sinon la case devant le premier escalier (étages, greniers, caves)
+    const d0 = (m.doors || [])[0], w0 = m.warps[0] || (d0 && { x: d0.x, y: d0.y + 1, w: d0.w || 1, h: 1, to: d0.to });
+    if (!w0) { lines.push(`<span class="ok">${id} OK</span> — pièce sans sortie (accès par script)`); continue; }
     let start = null;
     for (let y = w0.y; y < w0.y + w0.h && !start; y++) for (let x = w0.x; x < w0.x + w0.w; x++) if (!solidAt(m, g, x, y)) { start = [x, y]; break; }
     if (!start) { lines.push(`<span class="ko">${id} : sortie ${w0.to} entièrement bloquée</span>`); continue; }

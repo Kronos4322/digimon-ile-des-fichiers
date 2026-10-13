@@ -89,6 +89,9 @@
       if (o.post) o.post(g, m);
       // activité de la sous-zone (tournoi, curling, trésor, pêche) : un panneau près du carrefour
       if (m.activity) { const ax = hub[0] + 2, ay = hub[1] - 1; g.set(ax, ay, 'S'); m.signs[ax + ',' + ay] = m.activity.run; }
+      // toilettes (cabane 3 × 2) près du carrefour, dans quelques sous-zones de chaque région
+      if (m.hamlet) placeHamlet(g, m, hub, occ);   // un petit village par région
+      if (m.idx % 4 === 0 || m.hamlet) placeToilet(g, m, hub, occ);
       // liaison garantie : chaque sortie (et la porte) rejoint le carrefour, quitte à tracer un chemin / un pont
       const walk = (x, y) => x >= 0 && y >= 0 && x < w && y < h && !DW.SOLID.has(g.get(x, y)) && !occ.has(x + ',' + y);
       const reach = () => {
@@ -143,7 +146,7 @@
       for (const rv of k.rivers || []) rv.r *= 1.6;
       const cave = kind === 'cave';
       const spec = Object.assign({ seed: s + 13, hub, lm: [...(x.lm || []), ...(x.noRegionLm ? [] : R.lm || [])] }, k, x.opts || {}, { post: x.post });
-      const m = MAPS[id] = {
+      const m = MAPS[id] = { idx: i,
         name, regionName: R.name, music: x.music || R.music || 'field', bg: 'foret', ambient: R.ambient || 'forest', theme, climate: R.climate || 'forest', region: rid,
         w, h, rate: 0, encounters: [], npcs: [], warps: [], exits, objects: [...(x.objects || [])], signs: { ...(x.signs || {}) }, doors: [],
         indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard,
@@ -157,12 +160,99 @@
         m.objects.unshift({ kind: P.kind, v: P.v || 0, x: P.x, y: P.y, w: P.w, h: P.h });
         // grande clairière autour de la pièce maîtresse
         spec.clearings = [...(spec.clearings || []), { x: P.x + P.w / 2, y: P.y + P.h / 2 + 1, rx: P.w / 2 + 4, ry: P.h / 2 + 3.5 }];
-        if (P.door) { m.doors.push({ x: P.fx, y: P.y + P.h - 1, w: P.dw, dir: 'up', to: P.door.to, tx: P.door.tx, ty: P.door.ty }); MAPS[P.door.to].warps.forEach(wp => { if (wp.to === '?') { wp.to = id; wp.tx = P.fx; wp.ty = P.y + P.h; } }); }
+        if (P.door) { m.doors.push({ x: P.fx, y: P.y + P.h - 1, w: P.dw, dir: 'up', to: P.door.to, tx: MAPS[P.door.to].entry ? MAPS[P.door.to].entry.x : P.door.tx, ty: MAPS[P.door.to].entry ? MAPS[P.door.to].entry.y : P.door.ty }); MAPS[P.door.to].warps.forEach(wp => { if (wp.to === '?') { wp.to = id; wp.tx = P.fx; wp.ty = P.y + P.h; } }); }
         if (x.pieceSign) m.signs[`${P.fx + P.dw},${P.y + P.h + 1}`] = x.pieceSign;
       }
       addRooms(m, kind, s + i * 7);
     });
     linkWater(ids, sides);
+    // le village de la région : première sous-zone dégagée (place, sentier, bosquet)
+    const hi = R.subs.findIndex(([, kind], i) => i >= 1 && i !== 7 && ['plaza', 'trail', 'grove'].includes(kind));
+    MAPS[ids[hi >= 0 ? hi : 2]].hamlet = true;
+  }
+
+  // ------------------------------------------------------------ petits villages (un par région, sous-zone 2)
+  // 3 maisons du style local, un marchand (bases + spécialité de la région), une auberge (repos), un promeneur
+  const HAMLET = {
+    montagne: ['Hameau des Gotsumon', 'gotsumon', 'chalet', ['steak', 'super_viande']],
+    lac: ['Village des Gomamon', 'gomamon', 'cottage', ['digianchois', 'digivivaneau', 'digitruite']],
+    brumes: ['Hameau des Brumes', 'patamon', 'cottage', ['pomme_bleue', 'baie_rouge']],
+    marais: ['Village sur pilotis', 'gekomon', 'bogshack', ['digichampi', 'viande_moisie', 'champi_joie']],
+    savane: ['Campement de la Savane', 'elecmon', 'cottage', ['steak', 'super_carotte']],
+    volcan: ['Forge du Volcan', 'agumon', 'chalet', ['steak', 'disque_atk']],
+    usine: ['Cité ouvrière', 'tentomon', 'cottage', ['disque_pm', 'pm_m', 'disque_def']],
+    decharge: ['Village des Numemon', 'numemon', 'bogshack', ['viande_moisie', 'gland_or']],
+    tunnel: ['Halte des Mineurs', 'gotsumon', 'chalet', ['digichampi', 'pm_m']],
+    jouets: ['Village des Jouets', 'patamon', 'cottage', ['cartes', 'pomme_bleue']],
+    canyon: ['Campement du Canyon', 'monochromon', 'chalet', ['steak', 'disque_def']],
+    scarabees: ['Village des Scarabées', 'tentomon', 'cottage', ['super_carotte', 'radis']],
+    dino: ['Village des Agumon', 'agumon', 'chalet', ['surlonge', 'steak']],
+    jungle: ['Village de la Jungle', 'palmon', 'bogshack', ['orange_bana', 'noix_douce', 'figue']],
+    gel: ['Hameau des Neiges', 'penguinmon', 'chalet', ['champi_glace', 'digitruite']],
+    overdell: ['Hameau des Ombres', 'bakemon', 'cottage', ['reveil', 'viande_moisie']],
+  };
+  function placeHamlet(g, m, hub, occ) {
+    const H = HAMLET[m.region]; if (!H) return;
+    const [title, folk, kind, special] = H, GROUND = '.,f=vs', ok = (x, y) => GROUND.includes(g.get(x, y) || '#') && !occ.has(x + ',' + y);
+    const spots = [];
+    for (let r = 5; r < 20 && spots.length < 3; r++) for (let dy = -r; dy <= r && spots.length < 3; dy++) for (let dx = -r; dx <= r && spots.length < 3; dx++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+      const x = hub[0] + dx, y = hub[1] + dy;
+      if (spots.some(([a, b]) => Math.abs(a - x) < 7 && Math.abs(b - y) < 6)) continue;
+      let fit = true;
+      for (let yy = y - 1; yy <= y + 4 && fit; yy++) for (let xx = x - 1; xx <= x + 4 && fit; xx++) if (!ok(xx, yy)) fit = false;
+      if (fit) spots.push([x, y]);
+    }
+    if (!spots.length) return;
+    const name = DW.SPECIES[folk].name;
+    const shop = ['viande', 'soin_p', 'disque_pm', 'remede', 'bandage', 'super_viande', ...special].filter(id => DW.ITEMS[id]);
+    spots.forEach(([x, y], i) => {
+      for (let yy = y; yy < y + 3; yy++) for (let xx = x; xx < x + 4; xx++) { g.set(xx, yy, '.'); occ.add(xx + ',' + yy); }
+      for (let xx = x; xx < x + 4; xx++) if (g.get(xx, y + 3) !== '=') g.set(xx, y + 3, '=');   // parvis
+      m.objects.push({ kind, v: i % 2, x, y, w: 4, h: 3 });
+      const nx = x + 1 + (i % 2), ny = y + 4;
+      if (i === 0) m.npcs.push({ sp: folk, x: nx, y: ny, face: 'down', hamlet: true, talk: async () => {
+        await DW.say(`Bienvenue au ${title} ! Un petit quelque chose pour la route ?`, name);
+        await DW.Game.push(new DW.ShopScene(shop));
+      } });
+      else if (i === 1) m.npcs.push({ sp: folk, x: nx, y: ny, face: 'down', hamlet: true, talk: async () => {
+        const st = DW.state;
+        const r = await DW.ask(`L'auberge du ${title} ! Une bonne nuit de repos pour toute l'équipe : 100 Bits.`, ['Se reposer', 'Non merci'], name);
+        if (r !== 0) return;
+        if (st.bits < 100) { await DW.say("Tu n'as pas assez de Bits...", name); return; }
+        st.bits -= 100; st.heal = { map: DW.ow.mapId, x: nx, y: ny + 1 };
+        await DW.Life.sleep(false); st.party.forEach(p => p.heal());
+        await DW.say('Bonjour ! Ton équipe est en pleine forme.', name);
+      } });
+      else m.npcs.push({ sp: folk, x: nx, y: ny, face: 'left', wander: 2, hamlet: true, talk: () => DW.say(DW.pick([
+        `Bienvenue au ${title} ! Ici, on vit tranquille... sauf quand les Digimon sauvages s'énervent.`,
+        "On raconte que les habitants de la Ville des Fichiers ont toujours besoin d'aide. Va les voir !",
+        "Les toilettes sont juste à côté. Pense à ton partenaire !",
+      ]), name) });
+    });
+    const [sx, sy] = spots[0];
+    if (GROUND.includes(g.get(sx - 2, sy + 3) || '#')) { g.set(sx - 2, sy + 3, 'S'); m.signs[`${sx - 2},${sy + 3}`] = `${title} — Marchand, auberge et toilettes. Les voyageurs sont les bienvenus !`; }
+    m.hamletName = title;
+  }
+
+  // ------------------------------------------------------------ toilettes : une jolie cabane près du carrefour
+  // emprise 3 × 2 libre (avec une case de marge et la case devant la porte libre), la plus proche du carrefour
+  function placeToilet(g, m, hub, occ) {
+    const npcAt = (x, y) => (m.npcs || []).some(n => Math.abs(n.x - x) <= 1 && Math.abs(n.y - y) <= 1);
+    const GROUND = '.,f=vs', ok = (x, y) => GROUND.includes(g.get(x, y) || '#') && !occ.has(x + ',' + y) && !npcAt(x, y);
+    let best = null;
+    for (let r = 4; r < 16 && !best; r++) for (let dy = -r; dy <= r && !best; dy++) for (let dx = -r; dx <= r && !best; dx++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+      const x = hub[0] + dx, y = hub[1] + dy;
+      let fit = true;
+      for (let yy = y - 1; yy <= y + 3 && fit; yy++) for (let xx = x - 1; xx <= x + 3 && fit; xx++) if (!ok(xx, yy)) fit = false;
+      if (fit && !(m.signs && Object.keys(m.signs).some(k => { const [sx, sy] = k.split(',').map(Number); return sx >= x - 1 && sx <= x + 3 && sy >= y - 1 && sy <= y + 3; }))) best = [x, y];
+    }
+    if (!best) return;
+    const [x, y] = best;
+    for (let yy = y; yy < y + 2; yy++) for (let xx = x; xx < x + 3; xx++) { g.set(xx, yy, '.'); occ.add(xx + ',' + yy); }
+    m.objects.push({ kind: 'wcabin', v: m.idx % 8 === 0 ? 0 : 1, x, y, w: 3, h: 2 });
+    for (let k = 0; k < 3; k++) m.signs[`${x + k},${y + 1}`] = () => DW.Care.toilet();
   }
 
   // ------------------------------------------------------------ continuité entre sous-zones voisines
@@ -252,33 +342,7 @@
   }
 
   // ------------------------------------------------------------ intérieurs (reliés à leur sous-zone par region())
-  MAPS.usine_in = {
-    name: "Usine (intérieur)", music: 'field', bg: 'foret', ambient: 'home', climate: 'village', region: 'usine', indoor: true, theme: 'factory',
-    rows: paint(32, 22, '0', g => { g.rect(1, 3, 30, 18, '¢'); g.rect(15, 21, 2, 1, '¢'); }),
-    hazard: [[1, 3, 30, 3], [14, 18, 17, 20]],
-    objects: [
-      { kind: 'conveyor', x: 3, y: 6, w: 3, h: 1 }, { kind: 'conveyor', x: 7, y: 6, w: 3, h: 1 }, { kind: 'conveyor', x: 22, y: 6, w: 3, h: 1 }, { kind: 'conveyor', x: 26, y: 6, w: 3, h: 1 },
-      { kind: 'conveyor', x: 3, y: 12, w: 3, h: 1 }, { kind: 'conveyor', x: 26, y: 12, w: 3, h: 1 }, { kind: 'robotarm', x: 9, y: 11, w: 1, h: 1, small: true }, { kind: 'robotarm', x: 22, y: 11, w: 1, h: 1, small: true },
-      { kind: 'tank', v: 0, x: 13, y: 4, w: 2, h: 1 }, { kind: 'tank', v: 2, x: 17, y: 4, w: 2, h: 1 },
-      { kind: 'battery', x: 15, y: 10, w: 2, h: 1 }, { kind: 'datapanel', x: 2, y: 16, w: 1, h: 1, small: true }, { kind: 'datapanel', x: 29, y: 16, w: 1, h: 1, small: true },
-      { kind: 'crates', x: 6, y: 17, w: 1, h: 1, small: true }, { kind: 'crates', x: 25, y: 17, w: 1, h: 1, small: true },
-    ],
-    warps: [{ x: 15, y: 21, w: 2, h: 1, dir: 'down', to: '?', tx: 0, ty: 0 }],
-    npcs: [], signs: { '15,10': "Une batterie géante. Elle alimente toute l'usine... et grésille dangereusement.", '16,10': "Une batterie géante. Elle alimente toute l'usine... et grésille dangereusement." },
-  };
-  MAPS.manoir = {
-    name: 'Manoir du Seigneur Gris', music: 'field', bg: 'foret', ambient: 'home', climate: 'village', region: 'overdell', indoor: true, dark: { d: 0.4, col: '#4a3a6a' },
-    rows: paint(30, 20, '0', g => { g.rect(1, 1, 28, 3, '2'); g.rect(1, 4, 28, 15, '1'); g.rect(14, 19, 2, 1, '1'); }),
-    objects: [
-      { kind: 'fireplace', x: 13, y: 1, w: 4, h: 3, back: true }, { kind: 'bookshelf', x: 3, y: 1, w: 2, h: 3, back: true }, { kind: 'bookshelf', x: 25, y: 1, w: 2, h: 3, back: true },
-      { kind: 'frame', x: 8, y: 1, w: 2, h: 2, back: true }, { kind: 'frame', x: 20, y: 1, w: 2, h: 2, back: true }, { kind: 'clock', x: 23, y: 3, w: 1, h: 1, small: true },
-      { kind: 'rug', x: 10, y: 8, w: 10, h: 6, walk: true }, { kind: 'table', x: 13, y: 10, w: 4, h: 2 }, { kind: 'chest', x: 3, y: 16, w: 1, h: 1, small: true },
-      { kind: 'jacklantern', x: 6, y: 5, w: 1, h: 1, small: true }, { kind: 'jacklantern', x: 23, y: 5, w: 1, h: 1, small: true },
-      { kind: 'gargoyle', x: 2, y: 5, w: 1, h: 1, small: true }, { kind: 'gargoyle', x: 27, y: 5, w: 1, h: 1, small: true },
-    ],
-    warps: [{ x: 14, y: 19, w: 2, h: 1, dir: 'down', to: '?', tx: 0, ty: 0 }],
-    npcs: [], signs: {},
-  };
+  // (les intérieurs de l'usine et du manoir sont désormais des bâtiments à plusieurs pièces : maps/palais.js)
 
   // ============================================================ LES 16 RÉGIONS
   region('montagne', { name: "Montagne de l'Infini", theme: 'mountain', entry: 'left', out: [[3, 'right'], [8, 'down']], lm: [['â', 2], ['à', 2], ['Ó', 3]], subs: [
@@ -312,7 +376,7 @@
     ["Égouts de l'Usine", 'cave', { theme: 'sewer', lm: [['ð', 4]], noRegionLm: true, dark: { d: 0.5, col: '#2a3a30' }, opts: { rivers: [{ pts: [[-1, 12], [20, 14], [44, 12]], r: 1.4 }] } }],
     ['Atelier des Robots', 'plaza', { lm: [['ă', 5]] }], ['Grues du Port', 'set', { piece: { kind: 'crane', w: 3, h: 2 }, lm: [['ð', 3]] }],
     ['Salle des Machines', 'plaza', { lm: [['ï', 2], ['ă', 3]] }],
-    ["Cœur de l'Usine", 'set', { piece: { kind: 'factory', w: 7, h: 5, door: { to: 'usine_in', tx: 15, ty: 19, dw: 1 } }, pieceSign: "L'USINE — Elle fabrique et démonte des machines jour et nuit. Personne ne sait plus qui l'a mise en marche." }],
+    ["Cœur de l'Usine", 'set', { piece: { kind: 'factory', w: 7, h: 5, door: { to: 'usine_hall', tx: 14, ty: 18, dw: 1 } }, pieceSign: "L'USINE — Elle fabrique et démonte des machines jour et nuit. Personne ne sait plus qui l'a mise en marche." }],
   ] });
   region('decharge', { name: "Montagne d'Ordures", theme: 'trash', entry: 'left', lm: [['Ò', 2], ['ð', 3]], subs: [
     ['Entrée de la Décharge', 'trail'], ['Vallée des Pneus', 'grove', { lm: [['Ą', 5]] }], ['Cimetière de Voitures', 'grove', { lm: [['ą', 5]] }],
@@ -337,7 +401,7 @@
   ] });
   region('jungle', { name: 'Jungle Tropicale', theme: 'jungle', entry: 'up', out: [[5, 'down']], lm: [['ø', 1]], subs: [
     ['Orée de la Jungle', 'trail'], ['Sous-bois Moite', 'maze'], ['Rivière aux Lianes', 'river'],
-    ['Temple Englouti', 'set', { piece: { kind: 'ruintemple', w: 6, h: 4 }, pieceSign: "Un temple englouti par la végétation. Une lueur verte brille au sommet." }],
+    ['Temple Englouti', 'set', { piece: { kind: 'ruintemple', w: 6, h: 4, door: { to: 'temple_parvis', tx: 14, ty: 18, dw: 2 } }, pieceSign: "Un temple englouti par la végétation. Une lueur verte brille au sommet." }],
     ['Pont Invisible', 'bridge', { dark: { d: 0.25, col: '#2a4a3a' } }], ["Forêt d'Amida", 'maze', { opts: { wiggle: 18 } }],
     ['Cascade Tropicale', 'lake'], ['Mangrove', 'islands', { theme: 'mangrove' }],
     ['Village sur Pilotis', 'set', { theme: 'mangrove', piece: { kind: 'stilthut', w: 3, h: 2 }, objects: [{ kind: 'stilthut', v: 1, x: 30, y: 4, w: 3, h: 2 }], opts: { lakes: [{ x: 24, y: 20, rx: 9, ry: 5 }] } }],
@@ -349,7 +413,7 @@
     ['Jardin des Citrouilles', 'plaza', { lm: [['û', 8]] }],
     ['Chapelle en Ruine', 'set', { piece: { kind: 'chapel', w: 5, h: 4 }, lm: [['Ď', 3]], pieceSign: "Une chapelle en ruine. Des gargouilles veillent sur l'entrée." }],
     ['Cour du Manoir', 'plaza', { lm: [['Ď', 4], ['ü', 6]] }],
-    ['Manoir du Seigneur Gris', 'set', { piece: { kind: 'manor', w: 8, h: 6, door: { to: 'manoir', tx: 14, ty: 18, dw: 2 } }, lm: [['Ď', 2]], pieceSign: "MANOIR DU SEIGNEUR GRIS — Les visiteurs sont priés de ne pas réveiller les morts." }],
+    ['Manoir du Seigneur Gris', 'set', { piece: { kind: 'manor', w: 8, h: 6, door: { to: 'manoir_hall', tx: 14, ty: 18, dw: 2 } }, lm: [['Ď', 2]], pieceSign: "MANOIR DU SEIGNEUR GRIS — Les visiteurs sont priés de ne pas réveiller les morts." }],
   ] });
   region('brumes', { name: 'Bois Brumeux', theme: 'fog', entry: 'down', out: [[4, 'right'], [5, 'up']], lm: [['>', 2], ['|', 2]], subs: [
     ['Lisière Brumeuse', 'trail'], ['Sentier des Lanternes', 'trail', { lm: [['>', 6]] }], ['Étang Fantôme', 'lake'], ['Labyrinthe de Brume', 'maze', { opts: { wiggle: 18 } }],
@@ -364,7 +428,7 @@
     ['Jardin des Nounours', 'grove', { lm: [['Č', 5]] }],
     ['Quartier des Maisons', 'set', { objects: [{ kind: 'toyhouse', v: 0, x: 26, y: 4, w: 3, h: 2 }, { kind: 'toyhouse', v: 2, x: 31, y: 4, w: 3, h: 2 }], piece: { kind: 'toyhouse', v: 1, w: 3, h: 2 } }],
     ['Lac des Canards', 'lake'], ['Labyrinthe de Dominos', 'maze', { lm: [['B', 6]] }], ['Place des Boîtes à Surprise', 'plaza', { lm: [['ñ', 5]] }],
-    ['Château de Monzaemon', 'set', { piece: { kind: 'toycastle', w: 7, h: 5 }, pieceSign: "Le château des jouets. « Ici, tout le monde doit sourire ! » dit une pancarte." }],
+    ['Château de Monzaemon', 'set', { piece: { kind: 'toycastle', w: 7, h: 5, door: { to: 'chateau_hall', tx: 14, ty: 18, dw: 2 } }, pieceSign: "Le château des jouets. « Ici, tout le monde doit sourire ! » dit une pancarte." }],
   ] });
   region('gel', { name: 'Terre Gelée', theme: 'snow', entry: 'down', climate: 'snow', lm: [['å', 2], ['ç', 2]], subs: [
     ['Frontière Gelée', 'trail'], ['Forêt Enneigée', 'grove'], ['Lac Gelé', 'bigLake'], ['Plaine des Bonshommes', 'plaza', { lm: [['æ', 5]] }],
