@@ -97,8 +97,10 @@
       if (!v.x && !v.y) { P.turnT = 0; return; }
       // nouvelle direction : le héros pivote d'abord sur place (on le voit se tourner), puis il marche
       const d = this.faceFor(v);
-      if (d !== P.dir || (P.face8 && !(v.x && v.y))) { P.dir = d; P.face8 = null; P.turnT = 0.08; return; }
-      if (P.turnT > 0) { P.turnT -= dt; return; }
+      // clavier : un appui bref fait pivoter sur place ; manette / tactile : on part tout de suite (plus fluide)
+      const direct = Input.device !== 'key';
+      if (!direct && (d !== P.dir || (P.face8 && !(v.x && v.y)))) { P.dir = d; P.face8 = null; P.turnT = 0.08; return; }
+      if (!direct && P.turnT > 0) { P.turnT -= dt; return; }
       this.walk(v, 0);
     }
     // direction regardée pour un vecteur : en diagonale le héros se met de profil (sens de la marche),
@@ -117,7 +119,7 @@
     }
     // un pas dans la direction v (8 directions) ; contre un obstacle en diagonale, on glisse le long
     walk(v, over) {
-      const P = this.p, run = Input.isDown('run');
+      const P = this.p, run = Input.isDown('run') || Input.analogRun();
       if (!(v.x && v.y)) return this.tryMove(this.faceFor(v), run, over);
       P.dir = this.faceFor(v);
       if (this.canDiag(v.x, v.y)) { P.face8 = (v.y > 0 ? 'down' : 'up') + (v.x > 0 ? 'right' : 'left'); this.startMove(P.x + v.x, P.y + v.y, run, over); return true; }   // vue de trois-quarts
@@ -198,7 +200,7 @@
       const wild = this.partner && DW.Wild.at(this, nx, ny);
       if (wild && !quiet) { this.runScript(DW.Wild.bump(this, wild)); return false; }
       if (this.solid(nx, ny)) {
-        if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; }
+        if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; Input.rumble(0.15, 60); }
         return false;
       }
       this.startMove(nx, ny, run, over);

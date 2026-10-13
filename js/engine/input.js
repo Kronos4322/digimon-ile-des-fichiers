@@ -38,6 +38,33 @@
       return { x, y };
     },
     padActive: false,   // la dernière direction vient de la manette (pas de « se tourner sur place »)
+    // appareil utilisé en dernier ('key' | 'pad' | 'touch') et famille de manette ('xbox' | 'ps' | 'nintendo')
+    device: 'key', padKind: 'xbox',
+    padMag: 0,          // inclinaison du stick gauche (0 à 1) : poussé à fond, le héros court
+    analogRun() { return this.device === 'pad' && this.padMag > 0.9; },
+    // vibration de la manette (si elle en est capable) : force 0 à 1, durée en ms
+    rumble(strong = 0.5, ms = 120) {
+      if (this.device !== 'pad' || !navigator.getGamepads) return;
+      try { for (const p of navigator.getGamepads()) { const v = p && p.connected && p.vibrationActuator; if (v && v.playEffect) v.playEffect('dual-rumble', { duration: ms, strongMagnitude: strong, weakMagnitude: Math.min(1, strong + 0.2) }).catch(() => {}); } } catch (e) { /* sans vibration */ }
+    },
+    // noms des commandes selon l'appareil : les textes du jeu écrivent ESPACE / ÉCHAP / ENTRÉE / Maj,
+    // ils sont traduits à l'affichage (manette Xbox, PlayStation, Nintendo, écran tactile)
+    NAMES: {
+      key: { ok: 'ESPACE', back: 'ÉCHAP', menu: 'ENTRÉE', run: 'Maj', move: 'flèches ou ZQSD' },
+      xbox: { ok: 'A', back: 'B', menu: 'START', run: 'X', move: 'stick gauche' },
+      ps: { ok: 'Croix', back: 'Rond', menu: 'START', run: 'Carré', move: 'stick gauche' },
+      nintendo: { ok: 'B', back: 'A', menu: '+', run: 'Y', move: 'stick gauche' },
+      touch: { ok: 'OK', back: 'Retour', menu: 'Menu', run: 'Courir', move: 'croix tactile' },
+    },
+    names() { return this.NAMES[this.device === 'pad' ? this.padKind : this.device] || this.NAMES.key; },
+    keys(s) {
+      if (this.device === 'key' || typeof s !== 'string' || !/ESPACE|ÉCHAP|Échap|ENTRÉE|Maj|ZQSD/.test(s)) return s;
+      const N = this.names();
+      return s.replace(/flèches ou ZQSD/g, N.move).replace(/ESPACE/g, N.ok).replace(/ÉCHAP|Échap/g, N.back).replace(/ENTRÉE/g, N.menu).replace(/Maj/g, N.run);
+    },
+    // petit message qui s'affiche quelques secondes en haut de l'écran (manette branchée...)
+    notice: null,
+    notify(text) { this.notice = { text, t: 0 }; },
     clear() { this.pressed = {}; this.typed = []; },
     // une source (touche, bouton) enfonce une action ; repeat = répétition automatique du clavier
     press(src, a, repeat = false) {
@@ -45,6 +72,7 @@
       if (!repeat || DIRS.includes(a)) this.pressed[a] = true;
       (sources[a] = sources[a] || new Set()).add(src);
       if (DIRS.includes(a) && !repeat) { this.dirStack = this.dirStack.filter(d => d !== a); this.dirStack.push(a); this.padActive = src.startsWith('pad') || src.startsWith('touch:pad'); }
+      if (!repeat) this.device = src.startsWith('pad') ? 'pad' : src.startsWith('touch') ? 'touch' : 'key';
       this.held[a] = true;
       if (a === 'mute' && !repeat) DW.Audio.toggleMute();
     },
@@ -91,21 +119,37 @@
     padSector[p.index] = s;
     return SECT[s].split(',');
   }
-  const padHeld = new Set();   // sources de manette actuellement enfoncées
+  const padHeld = new Map();   // sources de manette actuellement enfoncées -> instant de l'appui (répétition)
+  const kindOf = id => (/054c|playstation|dualshock|dualsense/i.test(id) ? 'ps' : /057e|nintendo|switch|joy-con|pro controller/i.test(id) ? 'nintendo' : 'xbox');
+  window.addEventListener('gamepadconnected', e => {
+    Input.padKind = kindOf(e.gamepad.id);
+    Input.notify(`Manette connectée (${{ xbox: 'Xbox / standard', ps: 'PlayStation', nintendo: 'Nintendo' }[Input.padKind]}) : appuie sur un bouton pour jouer.`);
+  });
+  window.addEventListener('gamepaddisconnected', () => { Input.notify('Manette débranchée : le clavier reprend la main.'); Input.device = 'key'; Input.releaseAll(); padHeld.clear(); });
+  // maintenir une direction dans un menu : la sélection défile (comme la répétition du clavier)
+  const REPEAT_DELAY = 380, REPEAT_EVERY = 85;
   function pollPads() {
     if (!navigator.getGamepads) return;
     let pads;
     try { pads = navigator.getGamepads(); } catch (e) { return; }
     const now = new Set();
+    let mag = 0;
     for (const p of pads) {
       if (!p || !p.connected) continue;
       for (const i in PAD_BTN) { const b = p.buttons[i]; if (b && (b.pressed || b.value > 0.5)) now.add(`pad${p.index}:b${i}:${PAD_BTN[i]}`); }
       for (const d of stick(p)) now.add(`pad${p.index}:st:${d}`);
+      mag = Math.max(mag, Math.min(1, Math.hypot(p.axes[0] || 0, p.axes[1] || 0)));
+      if (now.size && Input.device !== 'pad') Input.padKind = kindOf(p.id);
     }
-    const action = src => src.slice(src.lastIndexOf(':') + 1);
-    for (const src of padHeld) if (!now.has(src)) { padHeld.delete(src); Input.release(src, action(src)); }
+    Input.padMag = mag;
+    const action = src => src.slice(src.lastIndexOf(':') + 1), t = performance.now();
+    for (const src of [...padHeld.keys()]) if (!now.has(src)) { padHeld.delete(src); Input.release(src, action(src)); }
+    for (const [src, t0] of padHeld) {
+      const a = action(src);
+      if (DIRS.includes(a) && t - t0 > REPEAT_DELAY) { padHeld.set(src, t - REPEAT_DELAY + REPEAT_EVERY); if (!Input.textMode) Input.press(src, a, true); }
+    }
     for (const src of now) if (!padHeld.has(src)) {
-      padHeld.add(src);
+      padHeld.set(src, t);
       // dans la saisie du nom, la manette valide (nom par défaut) ou efface
       if (Input.textMode) { const a = action(src); if (a === 'ok' || a === 'menu') Input.typed.push('Enter'); else if (a === 'back') Input.typed.push('Backspace'); continue; }
       Input.press(src, action(src));

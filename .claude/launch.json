@@ -4,8 +4,20 @@
     {
       "name": "digimon",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["dev/serve.py", "8766"],
+      "runtimeArgs": [
+        "dev/serve.py",
+        "8766"
+      ],
       "port": 8766
+    },
+    {
+      "name": "digimon-2",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "dev/serve.py",
+        "8767"
+      ],
+      "port": 8767
     }
   ]
 }

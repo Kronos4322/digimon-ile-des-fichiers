@@ -8,6 +8,7 @@
   const UI = DW.UI = {};
   UI.font = (size) => `${size}px "DotGothic16", "Trebuchet MS", sans-serif`;
   UI.text = (c, s, x, y, o = {}) => {
+    s = DW.Input ? DW.Input.keys(s) : s;   // noms des commandes selon le clavier / la manette (engine/input.js)
     c.font = o.font || UI.font(o.size || 10, o.bold);
     c.textAlign = o.align || 'left';
     c.textBaseline = 'alphabetic';
@@ -18,9 +19,52 @@
     c.fillStyle = o.color || '#fff';
     c.fillText(s, x, y);
   };
-  UI.measure = (c, s, size = 10, bold) => { c.font = UI.font(size, bold); return c.measureText(s).width; };
+  UI.measure = (c, s, size = 10, bold) => { c.font = UI.font(size, bold); return c.measureText(DW.Input ? DW.Input.keys(s) : s).width; };
+  // bouton de commande dessiné à l'image de l'appareil (touche, A/B/X/Y, croix/rond/carré/triangle, OK tactile) ; renvoie sa largeur
+  UI.btn = (c, action, x, y) => {
+    const I = DW.Input, dev = I.device === 'pad' ? I.padKind : I.device;
+    if (dev === 'key' || dev === 'touch') {
+      const label = I.names()[action] || action, w = UI.measure(c, label, 7) + 8;
+      c.fillStyle = '#e8eef6'; c.fillRect(x, y - 8, w, 10); c.fillStyle = '#8a98ac'; c.fillRect(x, y + 1, w, 1.5);
+      c.fillStyle = '#1a2030'; c.font = UI.font(7); c.textAlign = 'left'; c.fillText(label, x + 4, y);
+      return w;
+    }
+    const r = 5.5, cx = x + r, cy = y - 3;
+    if (dev === 'ps') {
+      const col = { ok: '#7aa8f0', back: '#f06a6a', run: '#e88ad0', menu: '#5ad0a0' }[action] || '#c8d0e0';
+      c.fillStyle = '#1a1e2a'; c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fill();
+      c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.2; c.beginPath();
+      if (action === 'ok') { c.moveTo(cx - 2.6, cy - 2.6); c.lineTo(cx + 2.6, cy + 2.6); c.moveTo(cx + 2.6, cy - 2.6); c.lineTo(cx - 2.6, cy + 2.6); c.stroke(); }
+      else if (action === 'back') { c.arc(cx, cy, 2.7, 0, 7); c.stroke(); }
+      else if (action === 'run') c.strokeRect(cx - 2.4, cy - 2.4, 4.8, 4.8);
+      else { c.moveTo(cx, cy - 3); c.lineTo(cx + 3, cy + 2.2); c.lineTo(cx - 3, cy + 2.2); c.closePath(); c.stroke(); }
+      return r * 2;
+    }
+    const N = I.names(), label = N[action] || '?';
+    const col = dev === 'nintendo' ? '#3a3a44' : ({ A: '#3ab048', B: '#e04040', X: '#3a7ae8', Y: '#e8b820' }[label] || '#4a4e5a');
+    if (label.length > 1) {   // START / +
+      const w = UI.measure(c, label, 6) + 8;
+      c.fillStyle = '#2a2e3a'; c.fillRect(x, y - 8, w, 10); c.fillStyle = '#e8eef6'; c.font = UI.font(6); c.textAlign = 'left'; c.fillText(label, x + 4, y - 0.5);
+      return w;
+    }
+    c.fillStyle = col; c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fill();
+    c.fillStyle = '#ffffff'; c.font = UI.font(8, true); c.textAlign = 'center'; c.fillText(label, cx, cy + 3);
+    c.textAlign = 'left';
+    return r * 2;
+  };
+  // ligne d'aide : [[action, 'texte'], ...] alignée à droite en x (ou à gauche si o.left)
+  UI.hints = (c, list, x, y, o = {}) => {
+    const parts = list.map(([a, t]) => ({ a, t, w: 0 }));
+    c.save();
+    let total = 0;
+    for (const p of parts) { p.w = 13 + UI.measure(c, p.t, 7) + 10; total += p.w; }
+    let cx = o.left ? x : x - total;
+    for (const p of parts) { const bw = UI.btn(c, p.a, cx, y); UI.text(c, p.t, cx + bw + 3, y, { size: 7, color: o.color || '#a8d8f0' }); cx += p.w + Math.max(0, bw - 11); }
+    c.restore();
+  };
   UI.wrap = (c, s, maxW, size = 10) => {
     c.font = UI.font(size);
+    if (DW.Input) s = DW.Input.keys(String(s));
     const out = [];
     for (const para of String(s).split('\n')) {
       let line = '';

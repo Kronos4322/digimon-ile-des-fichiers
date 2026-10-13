@@ -395,6 +395,7 @@
     }
     async applyDamage(side, dmg) {
       const m = this.mon(side), from = m.hp;
+      if (side === 'p') DW.Input.rumble(Math.min(1, 0.25 + dmg / m.maxHp), 160);   // la manette vibre quand ton Digimon encaisse
       m.hp = Math.max(0, m.hp - dmg);
       this.hpShow[side] = from;
       await DW.tween(this.hpShow, { [side]: m.hp }, 0.25 + Math.min(0.6, dmg / m.maxHp), DW.linear);

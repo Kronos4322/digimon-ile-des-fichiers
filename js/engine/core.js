@@ -151,8 +151,22 @@ window.DW = window.DW || {};
     else if (Fade.a > 0) {
       ctx.globalAlpha = Fade.a; ctx.fillStyle = Fade.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
     }
+    drawNotice(dt);
     drawError(dt);
     DW.Input.clear();
+  }
+  // message court en haut de l'écran (ex. « Manette connectée »), 4 secondes
+  function drawNotice(dt) {
+    const N = DW.Input.notice;
+    if (!N) return;
+    N.t += dt;
+    if (N.t > 4) { DW.Input.notice = null; return; }
+    const a = Math.min(1, N.t / 0.25, (4 - N.t) / 0.5), UI = DW.UI;
+    ctx.globalAlpha = Math.max(0, a);
+    const w = UI.measure(ctx, N.text, 8) + 18;
+    UI.box(ctx, (W - w) / 2, 6, w, 17);
+    UI.text(ctx, N.text, W / 2, 18, { size: 8, align: 'center', color: '#ffe070' });
+    ctx.globalAlpha = 1;
   }
   function drawDigiFade(c, a) {
     const B = 10, cols = W / B, rows = H / B;
