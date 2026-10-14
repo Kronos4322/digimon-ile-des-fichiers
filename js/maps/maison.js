@@ -37,7 +37,7 @@
       { kind: 'armchair', v: 0, x: 9, y: 5, w: 1, h: 1, small: true }, { kind: 'floorlamp', x: 13, y: 9, w: 1, h: 1, small: true },
       { kind: 'cushion', v: 2, x: 4, y: 9, w: 1, h: 1, small: true }, { kind: 'poster', v: 0, x: 5, y: 1, w: 1, h: 1, back: true, oy: 15 },
     ],
-    npcs: [{ sp: 'jijimon', x: 10, y: 6, face: 'left', talk: () => DW.Story.jijimonTalk() }],
+    npcs: [{ sp: 'jijimon', x: 9, y: 7, face: 'right', talk: () => DW.Story.jijimonTalk() }],
     warps: [{ x: 7, y: 11, w: 2, h: 1, dir: 'down', to: 'village', tx: 19, ty: 6 }],
     signs: {
       '1,3': 'Des livres sur les Digimon... « Digivolutions : le pouvoir de l\'entraînement ».',

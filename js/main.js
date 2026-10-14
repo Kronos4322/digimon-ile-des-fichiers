@@ -18,7 +18,8 @@
     Game.replaceAll(ow);
     DW.fade(0, 0.8);
     // nouvelle partie : réveil chez Jijimon (paupières qui s'ouvrent), puis le récit d'ouverture
-    if (isNew) ow.runScript(async () => { await Game.push(new DW.WakeScene()); await DW.Story.opening(); });
+    // (sauvegarde dès la fin du récit : fermer le jeu juste après ne fait pas tout recommencer)
+    if (isNew) ow.runScript(async () => { await Game.push(new DW.WakeScene()); await DW.Story.opening(); DW.autosave(); });
   };
 
   // ------------------------------------------------------------ démarrage
