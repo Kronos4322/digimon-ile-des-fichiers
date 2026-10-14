@@ -95,6 +95,15 @@
       if (this.drought()) list = [['heat', 60], ['clear', 40]];
       return list;
     },
+    // température (°C) : saison, heure (plus chaud vers 15 h), météo et climat de la zone
+    temp(climate) {
+      const se = this.season(), h = this.hour();
+      let t = [15, 26, 13, 1][se] + Math.sin((h - 9) / 24 * Math.PI * 2) * 5;
+      t += { heat: 9, storm: -3, blizzard: -9, snow: -3, rain: -3, gale: -2, fog: -1, cloudy: -1 }[this.weather()] || 0;
+      if (this.drought()) t += 3;
+      t += { snow: -16, volcano: 14, beach: 2 }[climate] || 0;
+      return Math.round(t);
+    },
     // sécheresse en cours (été) : la récolte baisse, les Digimon se fatiguent
     drought() { const d = this.st.drought; return !!d && this.st.clock < d; },
     advance(dt, climate) {
@@ -256,7 +265,8 @@
     c.strokeStyle = '#0a1830'; c.lineWidth = 0.8; c.beginPath(); c.arc(cx, cy, 7, 0, 7); c.stroke();
     UI.text(c, T.str(), x + 23, y + 11, { size: 9, color: '#ffffff' });
     const D = T.date();
-    UI.text(c, `${D.d} ${D.short} · an ${D.year}`, x + 23, y + 19, { size: 6, color: '#8ae0f0' });
+    const tp = DW.Calendar && DW.Calendar.showTemp() ? `  ${T.temp(DW.ow && DW.ow.map.climate)}°` : '';
+    UI.text(c, `${D.d} ${D.short} · an ${D.year}${tp}`, x + 23, y + 19, { size: 6, color: '#8ae0f0' });
     c.fillStyle = SEASON_COL[D.season]; c.fillRect(x + 4, y + 19, 3, 2);
     // icône météo
     const wx = x + 74, wy = y + 11, wt = T.weather();

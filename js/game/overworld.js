@@ -300,7 +300,7 @@
         return true;
       }
       const sign = this.map.signs && this.map.signs[`${x},${y}`];
-      if (sign) { this.runScript(typeof sign === 'function' ? sign : async () => { await DW.say(sign); }); return true; }
+      if (sign) { this.runScript(typeof sign === 'function' ? sign : async () => { await DW.say(sign); if (DW.Paysage) await DW.Paysage.afterSign(); }); return true; }
       if (DW.Care.poopAt(this.mapId, x, y)) { this.runScript(() => DW.Care.clean(this.mapId, x, y)); return true; }
       const info = DW.World.info(this.tileAt(x, y));
       const ts = this.trainSpot();
@@ -311,6 +311,9 @@
       const F = this.f, pt = this.partner;
       if (pt && F.x === x && F.y === y) { this.runScript(() => this.talkPartner(pt)); return true; }
       if (pt && DW.Life.pending && Math.max(Math.abs(F.x - P.x), Math.abs(F.y - P.y)) <= 1) { this.runScript(() => this.talkPartner(pt)); return true; }
+      // décor : secouer un arbre, fouiller un rocher, s'asseoir, boire... (game/paysage.js)
+      const scen = DW.Paysage && DW.Paysage.act(this, x, y);
+      if (scen) { this.runScript(scen); return true; }
       return false;
     }
     // poste d'entraînement devant le héros : on peut viser le poste lui-même (pierre, mannequin...) ou son panneau

@@ -28,21 +28,52 @@
       m.tired = Math.min(100, m.tired + k * min);
       if (w === 'heat' || T.drought()) m.hunger = Math.min(100, m.hunger + 0.02 * min);
     },
-    // Motimon, le gardien du calendrier
+    // précision de Motimon : elle grandit avec la ville (DW.Town.level)
+    //  0 : il ne sait pas trop (jours faux, température au hasard)
+    //  1-3 : la bonne date, une température approximative
+    //  4+ : le CENTRE DE MÉTÉOROLOGIE (antenne) : température exacte et prévisions du lendemain
+    //  6+ : la température s'affiche en permanence sur l'horloge
+    skill() { const L = DW.Town.level(); return L >= 4 ? 2 : L >= 1 ? 1 : 0; },
+    showTemp() { return DW.Town && DW.Town.level() >= 6; },
+    // prévision du lendemain : la météo la plus probable de la saison (probabilités réelles du jeu)
+    forecast() {
+      const list = T.climateList('village'), tot = list.reduce((a, [, w]) => a + w, 0);
+      const top = list.slice().sort((a, b) => b[1] - a[1]).slice(0, 2);
+      return top.map(([t, w]) => `${T.WNAME[t]} (${Math.round(w / tot * 100)} %)`).join(', puis ');
+    },
     async talk() {
-      const D = T.date(), say = t => DW.say(t, 'Motimon');
-      await say(`Bonjour ! Je tiens le calendrier de l'île. Nous sommes le ${D.weekday.toLowerCase()} ${D.d} ${D.month}, an ${D.year} : c'est ${['le printemps', "l'été", "l'automne", "l'hiver"][D.season]}.`);
-      const r = await DW.ask('Que veux-tu savoir ?', ['Voir le calendrier', 'Les saisons', 'La météo du moment', 'Rien, merci'], 'Motimon');
-      if (r === 0) await DW.Game.push(new CalendarScene());
-      else if (r === 1) { for (const t of SEASON_TXT) await say(t); await say("Chaque mois dure 10 jours. Une année fait 120 jours : les Digimon, eux, ne vivent qu'une vingtaine de jours... Prends soin du tien !"); }
-      else if (r === 2) {
+      const D = T.date(), say = t => DW.say(t, 'Motimon'), sk = this.skill(), temp = T.temp('village');
+      const SEASON = ['le printemps', "l'été", "l'automne", "l'hiver"];
+      if (sk === 0) {
+        // il débute : il se trompe souvent
+        const wrong = T.date(T.day() + DW.pick([-2, -1, 1, 2]));
+        await say(`Euh... Bonjour ! Je suis censé tenir le calendrier de l'île... On est le ${wrong.d} ${wrong.month}, je crois ? Ou peut-être pas.`);
+        await say(`Il fait... ${DW.pick(['chaud', 'froid', 'tiède', 'frais'])} ? Je n'ai pas de thermomètre. Si la ville grandissait, je pourrais m'équiper !`);
+      } else if (sk === 1) {
+        await say(`Bonjour ! Nous sommes le ${D.weekday.toLowerCase()} ${D.d} ${D.month}, an ${D.year} : c'est ${SEASON[D.season]}.`);
+        await say(`Mon vieux thermomètre indique environ ${Math.round(temp / 5) * 5} °C... à peu près.`);
+      } else {
+        await say(`Bienvenue au Centre de météorologie ! Nous sommes le ${D.weekday.toLowerCase()} ${D.d} ${D.month}, an ${D.year} (${SEASON[D.season]}). Il fait ${temp} °C en ville.`);
+      }
+      const r = await DW.ask('Que veux-tu savoir ?', ['Voir le calendrier', 'Les saisons', 'La météo', 'Rien, merci'], 'Motimon');
+      if (r === 0) {
+        if (sk === 0) { await say("Le calendrier ? Euh... je l'ai un peu mélangé. Reviens quand la ville aura grandi !"); return; }
+        await DW.Game.push(new CalendarScene());
+      } else if (r === 1) {
+        if (sk === 0) { await say("Il y a quatre saisons, je crois. Ou cinq ? En tout cas, il neige parfois."); return; }
+        for (const t of SEASON_TXT) await say(t);
+        await say("Chaque mois dure 10 jours. Une année fait 120 jours : les Digimon, eux, ne vivent qu'une vingtaine de jours... Prends soin du tien !");
+      } else if (r === 2) {
         const w = T.weather();
+        if (sk === 0) { await say(`La météo ? ${DW.pick(['Il va faire beau', 'Il va pleuvoir', 'Il va neiger'])}... je crois. Enfin, regarde le ciel, c'est plus sûr !`); return; }
         const info = { clear: 'Beau temps ! Idéal pour explorer.', cloudy: 'Quelques nuages, rien de grave.', rain: "Il pleut : les techniques Eau sont plus fortes, celles de Feu plus faibles.", fog: 'Brume : on y voit mal, reste sur les chemins !',
           snow: 'Il neige : les techniques Glace sont plus fortes.', storm: "ORAGE : les techniques Électrique frappent fort, et ton Digimon se fatigue s'il reste dehors.",
           blizzard: 'TEMPÊTE DE NEIGE : très éprouvant dehors ! Glace plus forte, Feu plus faible.', gale: 'TEMPÊTE : le vent porte les techniques Air, mais épuise les Digimon.',
           heat: 'CANICULE : techniques Feu plus fortes ; ton Digimon a vite faim et se fatigue.' };
         await say(info[w] || 'Le temps est calme.');
         if (T.drought()) await say(`Et nous sommes en pleine SÉCHERESSE (encore ${Math.max(1, Math.ceil((DW.state.drought - DW.state.clock) / 1440))} jour(s)) : la récolte des Champs est maigre.`);
+        if (sk === 2) await say(`Prévisions pour demain : ${this.forecast()}. Montagne : ${T.temp('snow')} °C, volcan : ${T.temp('volcano')} °C.`);
+        else await say("Pour les prévisions, il me faudrait un vrai centre de météorologie... La ville doit encore grandir !");
       }
     },
   };
