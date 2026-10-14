@@ -241,7 +241,7 @@
   // pictogramme d'une zone
   function glyphOf(id) {
     const m = DW.MAPS[id], k = nodeOf(id), b = NODES[k].b;
-    if (m.piece) return 'star';
+    if (m.piece || m.landmark) return 'star';
     if (m.indoor) return 'cave';
     if (k === 'village' && !(m.encounters && m.encounters.length)) return 'house';
     if (m.respawn) return 'house';
@@ -455,7 +455,7 @@
       const arrow = { left: '←', right: '→', up: '↑', down: '↓' };
       // seuls les passages déjà empruntés sont nommés : le reste est à découvrir
       const ways = (m.warps || []).filter(w => this.st.visited[w.to] && DW.MAPS[w.to]).map(w => (arrow[w.dir] || '•') + ' ' + DW.MAPS[w.to].name);
-      const base = k === 'village' && id === 'village' ? `${DW.Town.label()}. ` : m.piece ? '★ Lieu emblématique. ' : '';
+      const base = k === 'village' && id === 'village' ? `${DW.Town.label()}. ` : m.piece ? '★ Lieu emblématique. ' : m.landmark ? `★ ${m.landmark}. ` : '';
       const desc = base + (ways.length ? 'Passages connus : ' + [...new Set(ways)].join('  ') : NODES[k].desc);
       // Digimon sauvages de la zone (à droite, dans le panneau)
       const enc = m.encounters, list = enc && enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];
