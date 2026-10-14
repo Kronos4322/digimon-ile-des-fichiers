@@ -304,7 +304,7 @@
       if (DW.Care.poopAt(this.mapId, x, y)) { this.runScript(() => DW.Care.clean(this.mapId, x, y)); return true; }
       const info = DW.World.info(this.tileAt(x, y));
       const ts = this.trainSpot();
-      if (ts) { this.runScript(() => DW.Training.atSpot(ts.k)); return true; }
+      if (ts) { this.runScript(() => DW.Training.atSpot(ts.k, ts)); return true; }
       if (info.toilet) { this.runScript(() => DW.Care.toilet()); return true; }
       const act = this.map.tileActs && this.map.tileActs[this.tileAt(x, y)];
       if (act) { this.runScript(act); return true; }
@@ -459,7 +459,7 @@
       DW.Wild.entries(this, list);
       const P = this.p, F = this.f, pt = this.partner;
       const pp = this.pos(P);
-      if (pt && !(F.x === P.x && F.y === P.y && !F.moving)) {
+      if (pt && !this.hidePartner && !(F.x === P.x && F.y === P.y && !F.moving)) {   // (hidePartner : il s'entraîne au poste, game/trainfield.js)
         const fp = this.pos(F);
         list.push({ s: fp.y - 0.01, ent: 'follower', fp, tile: this.standTile(F) });
       }

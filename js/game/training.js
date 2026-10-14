@@ -59,8 +59,16 @@
       if (DW.Care && DW.Care.tooHungry(m)) return `${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`;
       return null;
     },
+    // case du poste lui-même (on a pu parler à son panneau, à côté)
+    station(ow, k, spot) {
+      for (let r = 0; r <= 3; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        const x = spot.x + dx, y = spot.y + dy;
+        if (DW.World.info(ow.tileAt(x, y)).train === k) return { x, y };
+      }
+      return { x: spot.x, y: spot.y };
+    },
     // en parlant à un poste : le partenaire de tête s'entraîne (ou un autre, au choix), séances enchaînées depuis l'écran de résultats
-    async atSpot(k) {
+    async atSpot(k, spot) {
       const st = DW.state, S = STATS[k];
       if (!S) return;
       if (!st.party.length) { await DW.say("Un poste d'entraînement... Il te faudrait un partenaire Digimon !"); return; }
@@ -82,7 +90,9 @@
       if (lv < 0 || lv > 2) return;
       this.opts = { mode: goal === 1 ? 'stat' : 'evo', level: this.LEVELS[lv] };
       // séances enchaînées ; après chaque séance d'Intelligence, une technique peut être retenue (maps/classe.js)
-      for (;;) { const sc = new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
+      // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu
+      const at = spot && DW.ow && DW.FieldTrainingScene ? this.station(DW.ow, k, spot) : null;
+      for (;;) { const sc = at ? new DW.FieldTrainingScene(m, k, at) : new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
       if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre la table des Digivolutions (ENTRÉE → DIGIVOLUTION).`);
     },
   };
