@@ -8,6 +8,7 @@
   DW.FLAGS = {
     // réglages de partie
     starter: 'espèce du premier partenaire choisi (active la sauvegarde automatique)',
+    arenaTuto: 'explications du combat en arène déjà vues',
     // histoire
     kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière, fin du chapitre 1)',
     kuwaSeen: 'entré dans le Grand Arbre (les racines se sont refermées)',

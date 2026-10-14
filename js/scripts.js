@@ -25,10 +25,10 @@
     'gfx/battlebg.js', 'engine/time.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/training.js', 'game/trainingames.js', 'game/care.js', 'game/life.js',
-    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/fx.js', 'game/battle.js', 'game/evolution.js',
+    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/fx.js', 'game/battle.js', 'game/arena.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus
-    'ui/menus.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/hatch.js', 'ui/farm.js', 'ui/worldmap.js',
+    'ui/menus.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/arenaui.js', 'ui/hatch.js', 'ui/farm.js', 'ui/worldmap.js',
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/rivage.js', 'maps/village.js', 'maps/joueur.js', 'maps/maison.js', 'maps/interieurs.js',

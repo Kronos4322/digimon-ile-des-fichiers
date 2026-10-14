@@ -205,15 +205,16 @@
       const d = Input.hit('left') ? -1 : Input.hit('right') || Input.hit('ok') ? 1 : 0;
       if (d) {
         if (this.i === 0) O.textSpeed = (O.textSpeed + d + O.SPEEDS.length) % O.SPEEDS.length;
-        else Audio.toggleMute();
+        else if (this.i === 1) Audio.toggleMute();
+        else O.classic = !O.classic;
         Audio.sfx('move'); O.save();
       }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
     }
-    rows() { const O = DW.Options; return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé']]; }
+    rows() { const O = DW.Options; return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé'], ['Combats', O.classic ? 'Tour par tour' : 'Arène']]; }
     draw(c) {
       const x = 40, rows = this.rows(), y = 70;
-      UI.box(c, x, y, 240, 96);
+      UI.box(c, x, y, 240, 76 + rows.length * 20);
       UI.label(c, 'OPTIONS', x + 6, y + 5);
       rows.forEach(([k, v], j) => {
         const yy = y + 32 + j * 20;

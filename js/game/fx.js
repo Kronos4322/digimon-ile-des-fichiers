@@ -365,4 +365,6 @@
     const a = B.center(uSide), b = B.center(uSide === 'p' ? 'e' : 'p');
     return (FX[mv.fx] || FX.orb)(B, a, b, uSide, mv);
   };
+  // même effet, mais vers un point visé (combat en arène : le tir peut rater si la cible a bougé)
+  DW.playFXAt = (B, mv, uSide, a, b) => (FX[mv.fx] || FX.orb)(B, a, b, uSide, mv);
 })();

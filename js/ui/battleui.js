@@ -170,6 +170,10 @@
       this.drawHud(c);
       this.drawBanner(c);
       this.drawBottom(c);
+      this.drawOverlays(c);
+    },
+    // panneau de niveau gagné + bandes noires d'entrée (aussi pour l'arène)
+    drawOverlays(c) {
       if (this.lvPanel) {
         const { m, before, after } = this.lvPanel;
         UI.box(c, 196, 52, 118, 130);
