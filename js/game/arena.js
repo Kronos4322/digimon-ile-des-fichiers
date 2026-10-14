@@ -161,7 +161,7 @@
     }
     async intro() {
       Audio.sfx('encounter');
-      this.st.seen[this.enemy.sp] = true;
+      this.st.seen[this.enemy.sp] = true; (this.st.fought = this.st.fought || {})[this.enemy.sp] = true;
       this.hpShow.e = this.enemy.hp;
       this.spr.e.dx = 0;
       // l'adversaire entre sur le terrain par la droite

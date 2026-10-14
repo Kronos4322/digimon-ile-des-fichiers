@@ -36,7 +36,15 @@
     "Jijimon dit que chaque nouvel habitant rend la ville plus forte.",
     "Quand il pleut, j'écoute les gouttes sur le toit. Ploc, ploc...",
   ];
-  const citizenOf = seed => CITIZENS[Math.floor(Hh(seed, 7, 801) * CITIZENS.length)];
+  // seuls les Digimon déjà COMBATTUS au moins une fois (ou déjà élevés) viennent habiter en ville
+  // (anciennes sauvegardes sans st.fought : on se fie aux Digimon déjà vus)
+  const known = sp => { const s = DW.state; if (!s) return false; const F = s.fought || s.seen || {}; return !!(F[sp] || (s.owned || {})[sp] || (DW.Town && DW.Town.has(sp))); };
+  DW.Citizens = { known };
+  const citizenOf = seed => { const P = CITIZENS.filter(known); return P.length ? P[Math.floor(Hh(seed, 7, 801) * P.length)] : null; };
+  const homeNpc = (seed, x, y, line, flavor) => {
+    const sp = citizenOf(seed);
+    return sp ? [{ sp, x, y, face: 'left', wander: 1, talk: async () => { await say(line, nameOf(sp)); if (flavor && Hh(seed, 5, 807) < 0.5) await say(flavor, nameOf(sp)); } }] : [];
+  };
   const lineOf = seed => LINES[Math.floor(Hh(seed, 9, 802) * LINES.length)];
   const nameOf = sp => (DW.SPECIES[sp] ? DW.SPECIES[sp].name : sp);
 
@@ -125,12 +133,14 @@
   }
   function makeHome(id, seed, name, quarter, back) {
     const kind = LAYOUT_ORDER[Math.floor(Hh(seed, 1, 803) * 4)], v = Math.floor(Hh(seed, 2, 804) * 6);
-    const L = LAYOUTS[kind](v), sp = citizenOf(seed), line = lineOf(seed), flavor = lineOf(seed + 17);
+    const L = LAYOUTS[kind](v), sp = CITIZENS[Math.floor(Hh(seed, 7, 801) * CITIZENS.length)], line = lineOf(seed), flavor = lineOf(seed + 17);
     MAPS[id] = {
       name, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: FLOORS[Math.floor(Hh(seed, 3, 805) * FLOORS.length)], wall: WALLS[Math.floor(Hh(seed, 4, 806) * WALLS.length)],
       rows: roomRows(), objects: L.objs, signs: { ...L.signs },
-      npcs: [{ sp, x: L.npc[0], y: L.npc[1], face: 'left', wander: 1, talk: async () => { await say(line, nameOf(sp)); if (Hh(seed, 5, 807) < 0.5) await say(flavor, nameOf(sp)); } }],
+      npcs: [{ sp, x: L.npc[0], y: L.npc[1] }],
+      // l'habitant est choisi à l'entrée parmi les Digimon déjà combattus (maison vide sinon)
+      populate() { this.npcs = homeNpc(seed, L.npc[0], L.npc[1], line, flavor); if (this.npcs[0]) this.name = name === 'Maison' ? `Maison de ${nameOf(this.npcs[0].sp)}` : this.name; else if (name === 'Maison') this.name = 'Maison inoccupée'; },
       warps: [{ x: DOOR_X, y: ROOM_H + 3, w: 2, h: 1, dir: 'down', to: quarter, tx: back[0], ty: back[1] }],
       entry: { x: DOOR_X, y: ROOM_H + 2 },
     };
@@ -191,8 +201,8 @@
       for (const n of [1, 2]) {
         const s2 = seed + n * 101, L = LAYOUTS[LAYOUT_ORDER[Math.floor(Hh(s2, 1, 803) * 4)]](Math.floor(Hh(s2, 2, 804) * 6));
         const id = addLevel(below, `e${n}`, `${n}${n === 1 ? 'er' : 'e'} étage`, L.objs, true, { floor: FLOORS[(n + 2) % FLOORS.length], wall: WALLS[(n + 3) % WALLS.length] });
-        const sp = citizenOf(s2), line = lineOf(s2);
-        MAPS[id].npcs.push({ sp, x: L.npc[0], y: L.npc[1], face: 'left', wander: 1, talk: () => say(line, nameOf(sp)) });
+        const line = lineOf(s2);
+        MAPS[id].populate = function () { this.npcs = homeNpc(s2, L.npc[0], L.npc[1], line); };
         Object.assign(MAPS[id].signs, L.signs);
         below = id;
       }
@@ -294,6 +304,8 @@
           def.paint(g, lv);
           // emprise et devant de chaque emplacement : dégagés (ni arbre, ni buisson, ni rocher)
           for (const L of def.lots) for (let y = L.y; y < L.y + L.h + 1; y++) for (let x = L.x; x < L.x + L.w; x++) if ('Tbrk,'.includes(g.get(x, y))) g.set(x, y, '.');
+          // pas d'arbre ni de rocher sous les décors fixes (statue, lampadaires, bancs...) : aucune superposition
+          for (const o of def.fixed ? def.fixed(lv) : []) if (!o.top) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) if ('Tbrk,'.includes(g.get(x, y))) g.set(x, y, '.');
         });
         // sorties vers les autres quartiers : chemin ouvert seulement quand le quartier voisin existe
         for (const e of def.exits || []) if (lv < e.min) this.rows = this.rows.map((r, y) => y >= e.y0 && y <= e.y1 ? r.slice(0, e.x0) + 'T'.repeat(e.x1 - e.x0 + 1) + r.slice(e.x1 + 1) : r);
@@ -334,8 +346,8 @@
         const lv = level(), S = this.walkSpots || [], n = Math.max(0, Math.min(S.length, 12, Math.floor((lv - def.open) / 2) + 1));
         this.npcs = S.slice(0, n).map(([x, y], i) => {
           const sp = citizenOf(def.seed + i * 31), line = lineOf(def.seed + i * 29);
-          return { sp, x, y, face: i % 2 ? 'left' : 'right', wander: 2, citizen: true, talk: () => say(line, nameOf(sp)) };
-        });
+          return sp && { sp, x, y, face: i % 2 ? 'left' : 'right', wander: 2, citizen: true, talk: () => say(line, nameOf(sp)) };
+        }).filter(Boolean);
       },
       rows: null, objects: [], npcs: [], doors: [], signs: {}, warps: def.warps,
     };
@@ -372,11 +384,18 @@
         // nature, jardins, petits aménagements
         nature(g, protectedSet(this.lots, [[23, 16, 2], [33, 16, 1]]), 1);
         gardens(g, this.lots.filter(L => lv >= L.min), 1);   // seulement devant les maisons déjà construites
+        // place d'entrée : clairière dégagée derrière le portail, chemin élargi
+        for (let y = H - 10; y < H - 1; y++) for (let x = z(23.5) - 8; x <= z(23.5) + 7; x++) if ('Tbrk,'.includes(g.get(x, y))) g.set(x, y, Hh(x, y, 77) < 0.25 ? 'f' : '.');
+        g.rect(z(23.5) - 2, H - 10, 4, 10, '=');
         put(g, 21, 31, 'S'); put(g, 25, 18, 'e');
         for (const [x, y] of [[21, 9], [26, 22], [20, 17]]) if (g.get(z(x), z(y)) === '.' || g.get(z(x), z(y)) === 'f') put(g, x, y, 'i');
       },
       fixed: () => [
         { kind: 'districtgate', v: 0, x: z(23.5) - 3, y: H - 3, w: 6, h: 3, top: true },
+        // accueil : lampadaires de part et d'autre du chemin, massifs fleuris, banc
+        { kind: 'lamp', v: 0, x: z(23.5) - 4, y: H - 4, w: 1, h: 1, small: true }, { kind: 'lamp', v: 0, x: z(23.5) + 3, y: H - 4, w: 1, h: 1, small: true },
+        { kind: 'flowerbed', v: 0, x: z(23.5) - 6, y: H - 5, w: 1, h: 1, small: true }, { kind: 'flowerbed', v: 1, x: z(23.5) + 5, y: H - 5, w: 1, h: 1, small: true },
+        { kind: 'flowerbed', v: 2, x: z(23.5) - 5, y: H - 8, w: 1, h: 1, small: true }, { kind: 'bench', v: 0, x: z(23.5) + 4, y: H - 8, w: 2, h: 1 },
         { kind: 'digistatue', v: 0, x: z(20), y: z(13), w: 3, h: 1 },
       ],
       signs: () => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length} habitants en ville. Est : Quartier du Marché. Ouest : Quartier Numérique.` }),

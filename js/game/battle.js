@@ -119,7 +119,7 @@
     }
     async intro() {
       Audio.sfx('encounter');
-      this.st.seen[this.enemy.sp] = true;
+      this.st.seen[this.enemy.sp] = true; (this.st.fought = this.st.fought || {})[this.enemy.sp] = true;
       this.hpShow.e = this.enemy.hp;
       await DW.tween(this.bars, { v: 0 }, 0.5);
       await DW.tween(this.spr.e, { dx: 0 }, 0.55);

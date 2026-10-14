@@ -8,15 +8,15 @@
 // =====================================================================
 (function () {
   const RECRUITS = [
-    { id: 'gotsumon', building: 'Bazar', zone: 'plage', role: 'Ouvre une boutique : Viandes, Remèdes, Disques Réveil.' },
-    { id: 'betamon', building: 'Fontaine', zone: 'geants', role: 'Remet la fontaine en eau : elle soigne tes Digimon.' },
-    { id: 'elecmon', building: 'Dojo', zone: 'sentier', role: 'Entraînements plus efficaces (+1 point par séance).' },
-    { id: 'mushroomon', building: 'Restaurant', zone: 'prairie', role: 'Repas qui rendent heureux et effacent la fatigue.' },
-    { id: 'yokomon', building: 'Jardin', zone: 'clairiere', role: 'Le Jardin abrite la DigiFerme (Digimon en réserve).' },
-    { id: 'palmon', building: 'Grange', zone: 'geants', district: 'champs', role: 'Palmon cultive les champs : passe chaque jour récolter de la nourriture.' },
-    { id: 'biyomon', building: 'Poste', zone: 'lisiere', role: 'Biyomon distribue le courrier et sait où se cachent les Digimon errants.' },
-    { id: 'kunemon', building: 'Banque', zone: 'prairie', role: 'Kunemon garde tes objets en trop dans la Banque : dépose-les et reprends-les quand tu veux.' },
-    { id: 'gomamon', building: 'Ponton de pêche', zone: 'plage', district: 'champs', role: "Gomamon t'apprend à pêcher dans l'étang des Champs." },
+    { id: 'gotsumon', hint: 'parmi les rochers, près de la mer', building: 'Bazar', zone: 'plage', role: 'Ouvre une boutique : Viandes, Remèdes, Disques Réveil.' },
+    { id: 'betamon', hint: "près de l'eau, à l'ombre de très grands arbres", building: 'Fontaine', zone: 'geants', role: 'Remet la fontaine en eau : elle soigne tes Digimon.' },
+    { id: 'elecmon', hint: "quelque part le long d'un chemin de la forêt... ça crépitait !", building: 'Dojo', zone: 'sentier', role: 'Entraînements plus efficaces (+1 point par séance).' },
+    { id: 'mushroomon', hint: 'dans un endroit dégagé et fleuri... mais seulement à la nuit tombée', building: 'Restaurant', zone: 'prairie', role: 'Repas qui rendent heureux et effacent la fatigue.' },
+    { id: 'yokomon', hint: "là où tout a commencé pour toi, une fois la forêt apaisée", building: 'Jardin', zone: 'clairiere', role: 'Le Jardin abrite la DigiFerme (Digimon en réserve).' },
+    { id: 'palmon', hint: 'au pied de géants... de bois', building: 'Grange', zone: 'geants', district: 'champs', role: 'Palmon cultive les champs : passe chaque jour récolter de la nourriture.' },
+    { id: 'biyomon', hint: 'au bord de la forêt', building: 'Poste', zone: 'lisiere', role: 'Biyomon distribue le courrier et sait où se cachent les Digimon errants.' },
+    { id: 'kunemon', hint: "dans l'herbe haute, il bourdonnait", building: 'Banque', zone: 'prairie', role: 'Kunemon garde tes objets en trop dans la Banque : dépose-les et reprends-les quand tu veux.' },
+    { id: 'gomamon', hint: 'quelque part sur le sable, il nageait', building: 'Ponton de pêche', zone: 'plage', district: 'champs', role: "Gomamon t'apprend à pêcher dans l'étang des Champs." },
   ];
   const LEVELS = ['Ruines', 'Campement', 'Hameau', 'Petit village', 'Village', 'Bourg', 'Petite ville', 'Ville', 'Grande ville', 'Cité', 'Métropole', 'Mégapole'];
 

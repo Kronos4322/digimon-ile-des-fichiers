@@ -149,7 +149,7 @@
     if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: BANK.x + 3, y: BANK.y + BANK.h, face: 'left', wander: 1, talk: SERVICES.kunemon });
     // passants : plus la ville se développe, plus elle s'anime (comme les villes de Digimon World 2003)
     const nPass = Math.min(PASSERS.length, Math.floor(T().progress() / 12));
-    for (let i = 0; i < nPass; i++) { const [sp, x, y] = PASSERS[i]; if (DW.SPECIES[sp]) m.npcs.push({ sp, x, y, face: i % 2 ? 'left' : 'right', wander: 3, talk: () => passerTalk(sp) }); }
+    for (let i = 0; i < nPass; i++) { const [sp, x, y] = PASSERS[i]; if (DW.SPECIES[sp] && (!DW.Citizens || DW.Citizens.known(sp))) m.npcs.push({ sp, x, y, face: i % 2 ? 'left' : 'right', wander: 3, talk: () => passerTalk(sp) }); }
     // collaborations : le second habitant travaille sur place (game/collab.js)
     if (DW.Collab) DW.Collab.place(m, { gotsumon: [LOTS.gotsumon.x + LOTS.gotsumon.w, LOTS.gotsumon.y + LOTS.gotsumon.h], elecmon: [LOTS.elecmon.x - 1, LOTS.elecmon.y + LOTS.elecmon.h], fontaine: [23, 15] });
     m.npcs.forEach(n => { delete n.hx; delete n.hy; delete n.home; });
@@ -319,7 +319,8 @@
       await say('Cui cui ! Du courrier pour toi ? Hmm... Non, mais j\'ai des nouvelles !', 'Biyomon');
       const next = T().RECRUITS.find(x => !T().has(x.id));
       if (!next) { await say('Tout le monde est rentré en ville ! Quelle joie !', 'Biyomon'); return; }
-      await say(`Un Digimon qui aimerait vivre ici a été vu du côté de « ${MAPS[next.zone].name} ». Va donc voir !`, 'Biyomon');
+      // indice volontairement vague : il faut encore fouiller (les Digimon errants se cachent)
+      await say(`On m'a parlé d'un Digimon qui aimerait vivre ici... On l'aurait aperçu ${next.hint || "quelque part sur l'île"}. Il se cache bien : fouille les recoins !`, 'Biyomon');
     },
     async kunemon() {
       await say('Bzzz... Bienvenue à la Banque ! Je garde tout ce que ton sac ne peut pas porter.', 'Kunemon');

@@ -70,7 +70,17 @@
       this.onEnter = this.map.onEnter || null;
     }
     tileAt(x, y) { return (this.map.rows[y] || '')[x] || '#'; }
-    npcVisible(n) { return !n.cond || n.cond(DW.state); }
+    npcVisible(n) {
+      if (n.cond && !n.cond(DW.state)) return false;
+      // Digimon errant caché (recrue) : invisible tant qu'on ne s'en approche pas (3 cases) ; une fois trouvé, il reste visible
+      if (n.hide) {
+        const F = DW.state.recruitFound = DW.state.recruitFound || {};
+        if (F[n.sp]) return true;
+        if (!this.p || Math.max(Math.abs(this.p.x - n.x), Math.abs(this.p.y - n.y)) > 3) return false;
+        F[n.sp] = true; DW.Audio.sfx('swoosh');
+      }
+      return true;
+    }
     // un PNJ « walk » (dalle, marque au sol) se traverse ; les autres bloquent le passage
     npcBlocks(x, y) { const n = this.npcAt(x, y); return !!n && !n.walk; }
     npcAt(x, y) { return (this.map.npcs || []).find(n => n.x === x && n.y === y && this.npcVisible(n)); }
