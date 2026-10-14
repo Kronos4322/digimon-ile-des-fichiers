@@ -437,7 +437,7 @@
         const k = this.selK, zs = Object.values(this.pts).filter(p => p.k === k), seen = zs.filter(p => this.st.visited[p.id]).length;
         UI.text(c, this.nameOf(k), 12, y0 + 14, { size: 10, color: '#ffe070' });
         if (k === this.here) UI.text(c, 'Tu es ici', W - 12, y0 + 14, { size: 8, align: 'right', color: '#ff8a8a' });
-        const desc = (k === 'village' ? `Niveau ${DW.Town.level()} : « ${DW.Town.levelName()} ». ` : '') + NODES[k].desc + (zs.length > 1 ? `  (${seen} / ${zs.length} zones)` : '');
+        const desc = (k === 'village' ? `${DW.Town.label()}. ` : '') + NODES[k].desc + (zs.length > 1 ? `  (${seen} / ${zs.length} zones)` : '');
         UI.wrap(c, desc, W - 36, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 12, y0 + 27 + j * 10, { size: 8, color: '#c8f0ff' }));
         const regs = Object.keys(NODES), found = regs.filter(r => this.visited(r)).length;
         UI.text(c, `Régions découvertes : ${found} / ${regs.length}`, 12, H - 7, { size: 6, color: '#9ab0e8', shadow: false });
@@ -455,7 +455,7 @@
       const arrow = { left: '←', right: '→', up: '↑', down: '↓' };
       // seuls les passages déjà empruntés sont nommés : le reste est à découvrir
       const ways = (m.warps || []).filter(w => this.st.visited[w.to] && DW.MAPS[w.to]).map(w => (arrow[w.dir] || '•') + ' ' + DW.MAPS[w.to].name);
-      const base = k === 'village' && id === 'village' ? `Niveau ${DW.Town.level()} : « ${DW.Town.levelName()} ». ` : m.piece ? '★ Lieu emblématique. ' : '';
+      const base = k === 'village' && id === 'village' ? `${DW.Town.label()}. ` : m.piece ? '★ Lieu emblématique. ' : '';
       const desc = base + (ways.length ? 'Passages connus : ' + [...new Set(ways)].join('  ') : NODES[k].desc);
       // Digimon sauvages de la zone (à droite, dans le panneau)
       const enc = m.encounters, list = enc && enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];

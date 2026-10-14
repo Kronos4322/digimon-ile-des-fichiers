@@ -45,7 +45,7 @@
   };
   async function townSign() {
     const T = DW.Town, here = T.RECRUITS.filter(r => T.has(r.id));
-    await say(`VILLE DES FICHIERS — niveau ${T.level()} : « ${T.levelName()} ».  Ici : la maison de Jijimon (repos, conseils) et ta maison, juste à l'est.`);
+    await say(`VILLE DES FICHIERS — ${T.label()}.  Ici : la maison de Jijimon (repos, conseils) et ta maison, juste à l'est.`);
     const shops = here.map(r => BUILT[r.id]).filter(Boolean);
     await say(shops.length ? `En ville : ${shops.join(' ; ')}.` : "Les boutiques sont vides : leurs habitants sont partis. Retrouve-les sur l'île et ramène-les ici !");
     const others = here.filter(r => !BUILT[r.id]).length;

@@ -148,7 +148,7 @@
     }));
     // panneaux : ville, direction du terrain
     m.signs = {
-      '4,12': () => say(`Ville des Fichiers — niveau ${T().level()} : « ${T().levelName()} ».  Ouest : Plage des Cabines.  Sud : Terrain d'entraînement.  Sud-ouest : Quartier des Champs.`),
+      '4,12': () => say(`Ville des Fichiers — ${T().label()}.  Ouest : Plage des Cabines.  Sud : Terrain d'entraînement.  Sud-ouest : Quartier des Champs.`),
       '7,25': 'Sud-ouest : Quartier des Champs. Un moulin, un étang, et des champs à perte de vue.',
       '18,26': "Sud : Terrain d'entraînement. Le niveau se gagne en combat, les Digivolutions à l'entraînement !",
     };
@@ -252,7 +252,7 @@
       const next = T().RECRUITS.find(x => !T().has(x.id));
       if (next) await say(`On raconte qu'un Digimon solitaire erre du côté de « ${MAPS[next.zone].name} »... Il cherche peut-être un endroit où vivre. Qui sait ce qu'il apporterait à la ville ?`, 'Jijimon');
       else await say("La ville n'a jamais été aussi belle ! Merci, mon enfant.", 'Jijimon');
-      await say(`Pour l'instant, la ville est au niveau ${T().level()} : « ${T().levelName()} ».`, 'Jijimon');
+      await say(`Pour l'instant, la ville est à ${T().label()}.`, 'Jijimon');
       await say("Ton partenaire ne digivoluera pas tout seul : entraîne-le au terrain du sud, gagne des combats, puis consulte la table des Digivolutions.", 'Jijimon');
     }
   }

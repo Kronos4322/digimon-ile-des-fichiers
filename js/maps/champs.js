@@ -88,7 +88,7 @@
     if (farm) m.npcs.push({ sp: 'palmon', x: 11, y: 9, face: 'left', wander: 2, talk: palmonTalk });
     if (has('gomamon')) m.npcs.push({ sp: 'gomamon', x: 30, y: 16, face: 'right', talk: gomamonTalk });
     m.signs = {
-      '7,2': () => say(`Quartier des Champs — Ville des Fichiers (niveau ${T().level()} : « ${T().levelName()} »).  Nord : la place.`),
+      '7,2': () => say(`Quartier des Champs — Ville des Fichiers (${T().label()}).  Nord : la place.`),
       '31,13': "Une petite lanterne de pierre sur l'îlot. Il règne ici un calme étonnant.",
       '2,11': 'DigiChamp de Tanemon — Digiviande fraîche tous les jours ! (Demande à Tanemon.)',
       '3,8': "La cabane à outils de Tanemon : arrosoir, fourche et graines de Digiviande.", '4,8': "La cabane à outils de Tanemon : arrosoir, fourche et graines de Digiviande.",

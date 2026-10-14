@@ -485,7 +485,7 @@
   );
   // portes des régions (comme dans Digimon World 1 : les recrues ouvrent le monde, la ville qui grandit aussi)
   const T = () => DW.Town, LV = n => T().LEVELS[n];
-  const byLevel = (n, what) => ({ cond: () => T().level() >= n, lock: () => `Une barrière de données bloque ${what}. Elle se dissipera quand la Ville des Fichiers sera devenue « ${LV(n)} » (actuellement « ${T().levelName()} »).` });
+  const byLevel = (n, what) => ({ cond: () => T().level() >= n, lock: () => `Une barrière de données bloque ${what}. Elle se dissipera quand la Ville des Fichiers sera devenue « ${LV(n)} » (${T().STEPS[n]} % de développement ; actuellement ${T().progress()} %).` });
   const GATE = {
     montagne: { cond: () => T().has('gotsumon'), lock: "Un éboulis bloque le Pont de l'Infini... Un Digimon solide comme un roc pourrait le déblayer. (Recrute Gotsumon)" },
     lac: { cond: () => T().has('betamon'), lock: "Le sentier du nord est inondé... Un Digimon amphibie saurait ouvrir un passage. (Recrute Betamon)" },

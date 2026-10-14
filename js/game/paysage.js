@@ -1,8 +1,9 @@
 'use strict';
 // =====================================================================
 //  ÉCHANGES AVEC LE PAYSAGE : ESPACE devant un élément du décor propose une action
-//    arbre / palmier : le secouer (un fruit tombe... ou un Digimon caché saute !)
-//    rocher, souche, rondin creux, tonneau, caisses : fouiller (une trouvaille, parfois un insecte)
+//    arbre / palmier : le secouer avec le BÂTON SOLIDE (un fruit tombe... ou un Digimon caché saute !)
+//    rocher, souche, rondin creux, tonneau, caisses : fouiller avec la PETITE PELLE (trouvaille, parfois un insecte)
+//    (les outils se vendent au Bazar de Gotsumon)
 //    champignon lumineux : cueillir      banc, rondin : s'asseoir (le partenaire se repose)
 //    source, eau : boire / s'éclabousser      fleurs : les sentir      puits : faire un vœu
 //    panneau : après la lecture, le partenaire réagit parfois
@@ -29,6 +30,7 @@
 
   const ACTS = {
     async shake(ow, x, y, kind) {
+      if (!st().bag.baton) { await say("Un bel arbre. Avec un Bâton solide (Bazar de Gotsumon), tu pourrais le secouer..."); return; }
       if ((await DW.ask('Secouer l\'arbre ?', ['Oui', 'Non'])) !== 0) return;
       ow.shake = 0.25; DW.Audio.sfx('swoosh');
       if (!once(ow, x, y)) { await say('Quelques feuilles tombent... Il n\'y a plus rien à cueillir aujourd\'hui.'); return; }
@@ -38,6 +40,7 @@
       else await say('Des feuilles virevoltent... mais rien d\'autre.');
     },
     async search(ow, x, y, what) {
+      if (!st().bag.pelle) { await say(`Il y a peut-être quelque chose ${what.startsWith('sous') || what.startsWith('autour') ? what : 'dans ' + what}... Il te faudrait une Petite pelle (Bazar de Gotsumon).`); return; }
       if (!once(ow, x, y)) { await say(`Tu as déjà fouillé ${what} aujourd'hui.`); return; }
       const r = Math.random();
       if (r < 0.3) await give(DW.pick(['digichampi', 'viande', 'soin_p', 'eau_source', 'sel', 'truffe']));

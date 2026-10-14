@@ -2,7 +2,9 @@
 // =====================================================================
 //  RECONSTRUCTION DE LA VILLE (comme la Ville des Fichiers de Digimon World)
 //  Des Digimon recrutés dans les zones viennent s'installer en ville :
-//  chacun construit un bâtiment utile et la ville gagne un niveau.
+//  chacun construit un bâtiment utile. La ville progresse en POURCENTAGE de développement
+//  (habitants +7 % chacun, trophées de boss +2 % chacun jusqu'à 20 %, Digimon collectionnés jusqu'à 17 %) ;
+//  les niveaux habituels (Ruines → Mégapole) arrivent à des paliers de ce pourcentage.
 // =====================================================================
 (function () {
   const RECRUITS = [
@@ -16,21 +18,30 @@
     { id: 'kunemon', building: 'Banque', zone: 'prairie', role: 'Kunemon garde tes objets en trop dans la Banque : dépose-les et reprends-les quand tu veux.' },
     { id: 'gomamon', building: 'Ponton de pêche', zone: 'plage', district: 'champs', role: "Gomamon t'apprend à pêcher dans l'étang des Champs." },
   ];
-  // un niveau par habitant ; les derniers paliers viendront avec les futurs quartiers
   const LEVELS = ['Ruines', 'Campement', 'Hameau', 'Petit village', 'Village', 'Bourg', 'Petite ville', 'Ville', 'Grande ville', 'Cité', 'Métropole', 'Mégapole'];
 
   const Town = DW.Town = {
     RECRUITS,
     get st() { return DW.state; },
     has(id) { return !!(this.st.recruits && this.st.recruits[id]); },
-    level() { return RECRUITS.filter(r => this.has(r.id)).length; },
+    // développement de la ville (0 à 100 %)
+    progress() {
+      const st = this.st, rec = RECRUITS.filter(r => this.has(r.id)).length * 7;
+      const troph = Math.min(20, (DW.Trophies && DW.Trophies.count ? DW.Trophies.count() : 0) * 2);
+      const all = DW.DEX_ORDER ? DW.DEX_ORDER.length : 1, owned = st && st.owned ? Object.keys(st.owned).filter(k => st.owned[k]).length : 0;
+      return Math.min(100, Math.floor(rec + troph + Math.min(17, owned / all * 17)));
+    },
+    STEPS: [0, 5, 12, 20, 30, 40, 50, 60, 70, 80, 90, 100],   // pourcentage requis pour chaque niveau
+    level() { const p = this.progress(); let l = 0; while (l + 1 < this.STEPS.length && p >= this.STEPS[l + 1]) l++; return l; },
+    // texte court : « 23 % · niveau 3 (Petit village) »
+    label() { return `${this.progress()} % · niveau ${this.level()} « ${this.levelName()} »`; },
     LEVELS,
     levelName() { return LEVELS[Math.min(LEVELS.length - 1, this.level())]; },
     nextName() { return LEVELS[Math.min(LEVELS.length - 1, this.level() + 1)]; },
     info(id) { return RECRUITS.find(r => r.id === id); },
     // à l'arrivée en ville : découverte des nouveaux bâtiments
     async reveal() {
-      const st = this.st, news = st.townNews || [];
+      const st = this.st, news = st.townNews || [], lv0 = st.townLevelSeen != null ? st.townLevelSeen : this.level();
       if (!news.length) return;
       st.townNews = [];
       await DW.wait(0.4);
@@ -43,7 +54,9 @@
         await DW.say(`${DW.SPECIES[id].name} s'est installé en ville : voici ${art}${r.building}${where} !`);
         await DW.say(r.role);
       }
-      await DW.say(`La ville passe au niveau ${this.level()} : « ${this.levelName()} ».`);
+      const lv = this.level();
+      await DW.say(`Développement de la ville : ${this.progress()} %.${lv > lv0 ? ` Elle passe au niveau ${lv} : « ${this.levelName()} » !` : ` Prochain niveau (« ${this.nextName()} ») à ${this.STEPS[Math.min(this.STEPS.length - 1, lv + 1)]} %.`}`);
+      st.townLevelSeen = lv;
       DW.Audio.play('village');
       DW.autosave();
     },
