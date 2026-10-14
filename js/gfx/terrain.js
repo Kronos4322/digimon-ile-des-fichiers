@@ -519,6 +519,8 @@
     yield;
     const ground = Art.canvas(GW, GH);
     ground.getContext('2d').putImageData(new ImageData(base, GW, GH), 0, 0);
+    // sol peint à la main par la carte (ex. la piste et les aires du terrain d'entraînement)
+    if (map.paintGround) map.paintGround(ground.getContext('2d'), GW, GH);
     const water = WI.length ? { x: wx0, y: wy0, frames: [] } : null;
     map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof };
     lap('sol');
