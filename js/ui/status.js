@@ -94,7 +94,7 @@
       UI.text(c, `Discipline ${Math.round(m.disc)}`, 18, 211, { size: 7, color: '#9ad0ff' });
       UI.bar(c, 18, 214, 60, 4, m.disc / 100, '#5a9ae8');
       UI.text(c, `Erreurs de soin ${m.mistakes}`, 84, 211, { size: 7, color: m.mistakes >= 5 ? '#ff7a7a' : '#c8f0ff' });
-      UI.text(c, `${DW.Life.fatLabel(m)} · reste ${DW.Life.daysLeft(m)} j · vie n°${m.lives + 1}`, 18, 228, { size: 7, color: '#c8f0ff' });
+      UI.text(c, `${DW.Life.fatLabel(m)} · reste ${DW.Life.daysLeft(m)} j · vie n°${m.lives + 1} · ${DW.Life.sched(m).name} · K.O. ${m.kos || 0}/3`, 18, 228, { size: 7, color: (m.kos || 0) >= 2 ? '#ff8a8a' : '#c8f0ff' });
       // PARAMÈTRES
       UI.label(c, 'PARAMÈTRES', 152, 97);
       PARAMS.forEach(([k, lab, col], j) => {

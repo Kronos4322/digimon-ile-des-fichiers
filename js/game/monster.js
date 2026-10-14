@@ -26,7 +26,8 @@
       this.mistakes = o.mistakes || 0;                     // erreurs de soin
       this.disc = o.disc != null ? o.disc : 40;            // discipline
       this.fat = o.fat || 0;                               // corpulence
-      this.lives = o.lives || 0;                           // renaissances
+      this.lives = o.lives || 0;
+      this.kos = o.kos || 0;                               // K.O. en combat (au 3e, il meurt : game/life.js)                           // renaissances
       this.lifespan = o.lifespan || 16;                    // durée de vie (jours)
       this.slept = o.slept != null ? o.slept : this.born;  // dernier sommeil
       this.sick = o.sick || 0; this.hurt = o.hurt || 0;    // maladie, blessure
@@ -104,7 +105,7 @@
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), mp: this.mp,
-        mistakes: this.mistakes, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {} };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {} };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);

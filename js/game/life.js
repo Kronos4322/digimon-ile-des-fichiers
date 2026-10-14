@@ -9,7 +9,10 @@
 //  - CORPULENCE (-10 maigre … +10 gros) : manger fait grossir, l'entraînement et les combats affinent.
 //  - DISCIPLINE (0-100) : après une bêtise ou un exploit, parle à ton partenaire pour le féliciter
 //    ou le gronder. Mal discipliné, il désobéit parfois en combat.
-//  - SOMMEIL : il a sommeil à partir de 21 h (Menu → DORMIR). Sans dodo à 2 h, il s'écroule (erreur).
+//  - SOMMEIL : chaque espèce a son rythme. DIURNE : sommeil à 21 h, effondrement à 2 h, réveil à 7 h.
+//    NOCTURNE (Ténèbres, fantômes, champignons...) : sommeil à 8 h, effondrement à 13 h, réveil à 16 h.
+//  - K.O. : comme dans Digimon World 1, au 3e K.O. en combat le Digimon meurt vraiment : il redevient
+//    un DigiŒuf (bébé de sa lignée) et oublie une ou deux techniques.
 //  - MALADIE : jamais au hasard. Elle vient d'une ACCUMULATION de négligences (m.germs, 0-100, affiché
 //    « Santé » dans la fiche) : crottes laissées par terre, faim, épuisement, blessure non soignée,
 //    nuit blanche, accidents, corpulence extrême... Bien soigné, il se rétablit peu à peu (sommeil, toilettes).
@@ -18,7 +21,12 @@
 // =====================================================================
 (function () {
   const { Audio } = DW;
-  const LIFESPAN = 16, BED = 21, LATE = 2, WAKE = 7;
+  const LIFESPAN = 16, KO_MAX = 3;
+  // rythmes de sommeil (heures) : coucher, effondrement si pas couché, réveil
+  const DAY = { bed: 21, late: 2, wake: 7, name: 'diurne' }, NIGHT = { bed: 8, late: 13, wake: 16, name: 'nocturne' };
+  const NOCTURNAL = new Set(['mushroomon', 'bakemon', 'gazimon', 'tsukaimon', 'demidevimon', 'pagumon', 'candlemon', 'devimon', 'vampiremon', 'myotismon', 'phantomon', 'soulmon', 'wizardmon', 'pumpkinmon', 'impmon', 'keramon', 'kuramon', 'yuramon', 'tanemon']);
+  // h dans [a, b[ sur un cadran de 24 h (gère minuit)
+  const between = (h, a, b) => (a <= b ? h >= a && h < b : h >= a || h < b);
 
   const Life = DW.Life = {
     pending: null, // moment éducatif en attente : { type: 'bad' | 'good', why, until }
@@ -51,7 +59,32 @@
       if (DW.Care) DW.Care.toast(`${type === 'bad' ? 'Une bêtise' : 'Un exploit'} ! Appuie sur ESPACE près de ton partenaire pour le ${type === 'bad' ? 'gronder' : 'féliciter'}.`, type === 'bad' ? '#ffb070' : '#a0ffb0');
     },
     hour: () => (DW.state.clock % 1440) / 60,
-    sleepy(m) { const h = Life.hour(); return (h >= BED || h < WAKE) && DW.state.clock - m.slept > 10 * 60; },
+    sched: m => (m && (NOCTURNAL.has(m.sp) || (m.d && m.d.types.includes('Ténèbres') && m.d.stage !== 'Bébé')) ? NIGHT : DAY),
+    sleepy(m) { const h = Life.hour(), S = Life.sched(m); return between(h, S.bed, S.wake) && DW.state.clock - m.slept > 10 * 60; },
+    // ---------- K.O. en combat : au 3e, il meurt vraiment (renaît en œuf, oublie des techniques)
+    async knockout(m) {
+      Life.init(m);
+      m.kos = (m.kos || 0) + 1;
+      if (m.kos < KO_MAX) { DW.Care.toast(`${m.name} est K.O. (${m.kos}/${KO_MAX}). Au ${KO_MAX}e K.O., il mourra !`, '#ff8a8a'); return false; }
+      await Life.death(m);
+      return true;
+    },
+    async death(m) {
+      const st = DW.state, idx = st.party.indexOf(m);
+      if (idx < 0) return;
+      await DW.say(`${m.name} a été mis K.O. trop souvent... Ses données s'effacent doucement.`);
+      await DW.say(`${m.name} : Merci... pour tout... On se reverra...`);
+      await DW.say('Ses données se rassemblent... et forment un DigiŒuf.');
+      const nm = Life.reborn(m);
+      // il oublie une ou deux techniques (il en garde toujours au moins une)
+      const lost = [];
+      for (let n = 1 + (Math.random() < 0.5 ? 1 : 0); n > 0 && nm.moves.length > 1; n--) { const i = Math.floor(Math.random() * nm.moves.length); lost.push(DW.MOVES[nm.moves[i].id].name); nm.moves.splice(i, 1); }
+      await DW.fade(1, 0.5, '#ffffff'); await DW.wait(0.3); DW.fade(0, 0.4);
+      await DW.Game.push(new DW.HatchScene(nm.sp));
+      st.party[idx] = nm; st.seen[nm.sp] = st.owned[nm.sp] = true;
+      await DW.say(`${m.name} renaît en ${DW.SPECIES[nm.sp].name}...${lost.length ? ` Il a oublié ${lost.join(' et ')}.` : ''}`);
+      DW.autosave();
+    },
 
     // appelé par Care.update (minutes de jeu écoulées)
     update(ow, min) {
@@ -59,10 +92,10 @@
       if (!m) return;
       Life.init(m);
       if (Life.pending && st.clock > Life.pending.until) Life.pending = null;
-      const h = Life.hour();
-      // sommeil : rappel à 21 h, effondrement à 2 h
-      if (h >= BED && h < BED + min / 60 + 0.01 && Life.sleepy(m)) DW.Care.toast(`${m.name} bâille... Il a sommeil. (ENTRÉE → DORMIR)`);
-      if (h >= LATE && h < WAKE && st.clock - m.slept > 15 * 60 && !ow.locked && !Life.collapsing) {
+      const h = Life.hour(), S = Life.sched(m);
+      // sommeil : rappel à l'heure du coucher, effondrement s'il n'est toujours pas couché (selon son rythme)
+      if (h >= S.bed && h < S.bed + min / 60 + 0.01 && Life.sleepy(m)) DW.Care.toast(`${m.name} bâille... Il a sommeil. (ENTRÉE → DORMIR)`);
+      if (between(h, S.late, S.wake) && st.clock - m.slept > 15 * 60 && !ow.locked && !Life.collapsing) {
         Life.collapsing = true;
         ow.runScript(async () => { try { await Life.collapse(m); } finally { Life.collapsing = false; } });
         return;
@@ -92,6 +125,7 @@
     async sleep(forced) {
       const st = DW.state, m = DW.Care.lead();
       await DW.fade(1, 0.6);
+      const WAKE = Life.sched(m).wake;   // il dort jusqu'à son heure de réveil (7 h, ou 16 h pour un nocturne)
       const day = Math.floor(st.clock / 1440) + (Life.hour() >= WAKE ? 1 : 0);
       st.clock = day * 1440 + (forced ? WAKE + 1 : WAKE) * 60;
       st.careClock = st.clock;
@@ -168,7 +202,7 @@
       if (m.need >= 90) out.push([2, 'il se retient depuis trop longtemps']);
       if (m.tired >= 80) out.push([4, 'il est épuisé']);
       if (m.hurt) out.push([4, "sa blessure n'est pas soignée"]);
-      if (Life.sleepy(m) && (h >= 23 || h < 5)) out.push([3, 'il veille beaucoup trop tard']);
+      { const S = Life.sched(m); if (Life.sleepy(m) && between(h, (S.bed + 2) % 24, (S.late + 3) % 24)) out.push([3, 'il veille beaucoup trop tard']); }
       if (Math.abs(m.fat) >= 6) out.push([2, m.fat > 0 ? 'il est trop gros' : 'il est trop maigre']);
       return out;
     },
@@ -199,5 +233,19 @@
     disobeys(m) { Life.init(m); return Math.random() < Math.max(0, (45 - m.disc) / 100); },
     // affichage : petite bulle d'état (maladie, blessure, sommeil)
     bubbleIcon(m) { Life.init(m); return m.sick ? 'sick' : m.hurt ? 'hurt' : Life.sleepy(m) ? 'sleep' : null; },
+    // tous les besoins en cours, pour la grande bulle (ils défilent l'un après l'autre)
+    needs(m) {
+      Life.init(m);
+      const out = [];
+      if (Life.pending) out.push(Life.pending.type === 'bad' ? 'bad' : 'good');
+      if (m.hunger >= 70) out.push('food');
+      if (m.need >= 75) out.push('need');
+      if (m.sick) out.push('sick');
+      if (m.hurt) out.push('hurt');
+      if (m.tired >= 70) out.push('tired');
+      if (Life.sleepy(m)) out.push('sleep');
+      if (m.happy < 25) out.push('sad');
+      return out;
+    },
   };
 })();

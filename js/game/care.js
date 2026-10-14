@@ -98,20 +98,28 @@
 
     // ---------------------------------------------------------- affichage
     // bulle au-dessus du partenaire quand il a un besoin
+    // grande bulle au-dessus du partenaire : ses besoins défilent l'un après l'autre (faim, toilettes,
+    // maladie, blessure = pansement, fatigue, sommeil, tristesse, bêtise / exploit)
     drawBubble(c, m, x, y, t) {
       if (!m || m !== this.lead()) return;
-      const icon = DW.Life.pending ? (DW.Life.pending.type === 'bad' ? 'bad' : 'good') : m.need >= 75 ? 'need' : m.hunger >= 70 ? 'food' : DW.Life.bubbleIcon(m);
-      if (!icon || Math.floor(t * 1.2) % 3 === 2) return;
-      const by = Math.round(y - 30 + Math.sin(t * 4) * 1.2);
-      c.fillStyle = '#fff'; c.strokeStyle = '#203040'; c.lineWidth = 1;
-      c.beginPath(); c.ellipse(x + 8, by, 7, 6, 0, 0, 7); c.fill(); c.stroke();
-      c.beginPath(); c.moveTo(x + 4, by + 5); c.lineTo(x + 2, by + 9); c.lineTo(x + 7, by + 5.5); c.fill();
-      if (icon === 'food') c.drawImage(DW.Icons.item('viande'), x + 2, by - 6, 12, 12);
-      else if (icon === 'need') this.drawPoop(c, x + 8, by + 3, 0.7);
-      else if (icon === 'sick') { c.fillStyle = '#7ac040'; c.beginPath(); c.arc(x + 8, by, 3.6, 0, 7); c.fill(); c.fillStyle = '#1a2a10'; c.fillRect(x + 6, by - 1, 1, 1); c.fillRect(x + 9, by - 1, 1, 1); c.fillRect(x + 6, by + 1.5, 4, 1); }
-      else if (icon === 'hurt') { c.fillStyle = '#f0e0c8'; c.fillRect(x + 3, by - 2, 10, 4); c.fillStyle = '#d84a4a'; c.fillRect(x + 7, by - 2, 2, 4); }
-      else if (icon === 'good' || icon === 'bad') { c.fillStyle = icon === 'good' ? '#e8a020' : '#c84a4a'; c.font = DW.UI.font(9); c.textAlign = 'center'; c.fillText(icon === 'good' ? '★' : '!', x + 8, by + 3.5); }
-      else { c.fillStyle = '#3a5ab0'; c.font = DW.UI.font(8); c.textAlign = 'center'; c.fillText('Zz', x + 8, by + 3); }
+      const list = DW.Life.needs(m);
+      if (!list.length) return;
+      const icon = list[Math.floor(t / 1.4) % list.length];
+      const bx = x + 9, by = Math.round(y - 38 + Math.sin(t * 4) * 1.2);
+      c.fillStyle = '#ffffff'; c.strokeStyle = '#203040'; c.lineWidth = 1.2;
+      c.beginPath(); c.ellipse(bx, by, 11, 9.5, 0, 0, 7); c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(bx - 6, by + 7); c.lineTo(bx - 9, by + 13); c.lineTo(bx - 2, by + 8.5); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#ffffff'; c.fillRect(bx - 6, by + 6, 5, 3);
+      if (list.length > 1) for (let i = 0; i < list.length; i++) { c.fillStyle = list[i] === icon ? '#203040' : '#b0c0d0'; c.fillRect(bx - list.length * 2 + i * 4, by + 11, 2, 2); }
+      if (icon === 'food') c.drawImage(DW.Icons.item('viande'), bx - 8, by - 8, 16, 16);
+      else if (icon === 'need') this.drawPoop(c, bx, by + 4, 1);
+      else if (icon === 'sick') { c.fillStyle = '#7ac040'; c.beginPath(); c.arc(bx, by, 6, 0, 7); c.fill(); c.fillStyle = '#1a2a10'; c.fillRect(bx - 3, by - 2, 2, 2); c.fillRect(bx + 1, by - 2, 2, 2); c.fillRect(bx - 3, by + 2, 6, 1.5); c.fillStyle = '#a0e0ff'; c.fillRect(bx + 5, by - 6, 2, 3); }
+      else if (icon === 'hurt') { c.save(); c.translate(bx, by); c.rotate(-0.5); c.fillStyle = '#f0d8b0'; c.fillRect(-8, -3, 16, 6); c.fillStyle = '#e8c090'; c.fillRect(-3, -3, 6, 6); c.fillStyle = '#c8a070'; for (const dx of [-1.5, 1.5]) for (const dy of [-1.5, 1.5]) c.fillRect(dx - 0.5, dy - 0.5, 1, 1); c.restore(); }
+      else if (icon === 'tired') { c.fillStyle = '#5a8ad8'; c.beginPath(); c.moveTo(bx + 3, by - 7); c.quadraticCurveTo(bx + 8, by, bx + 3, by + 3); c.quadraticCurveTo(bx - 2, by, bx + 3, by - 7); c.fill(); c.fillStyle = '#203040'; c.fillRect(bx - 7, by + 1, 3, 1); c.fillRect(bx - 2, by + 1, 3, 1); }
+      else if (icon === 'sad') { c.strokeStyle = '#3a5ab0'; c.lineWidth = 1.2; c.beginPath(); c.arc(bx, by, 6, 0, 7); c.stroke(); c.fillStyle = '#3a5ab0'; c.fillRect(bx - 3, by - 2, 1.5, 1.5); c.fillRect(bx + 1.5, by - 2, 1.5, 1.5); c.beginPath(); c.arc(bx, by + 4, 2.5, Math.PI * 1.1, Math.PI * 1.9); c.stroke(); }
+      else if (icon === 'good' || icon === 'bad') { c.fillStyle = icon === 'good' ? '#e8a020' : '#c84a4a'; c.font = DW.UI.font(14, true); c.textAlign = 'center'; c.fillText(icon === 'good' ? '★' : '!', bx, by + 5); }
+      else { c.fillStyle = '#3a5ab0'; c.font = DW.UI.font(10, true); c.textAlign = 'center'; c.fillText('Zz', bx, by + 4); }
+      c.textAlign = 'left';
     },
     drawPoop(c, x, y, s = 1) {
       c.save(); c.translate(x, y); c.scale(s, s);

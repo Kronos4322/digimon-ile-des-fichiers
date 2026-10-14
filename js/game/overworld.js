@@ -383,7 +383,8 @@
         lead.hurt = DW.state.clock;
         DW.Care.toast(`${lead.name} s'est blessé pendant le combat ! (Bandage)`, '#ff8a8a');
       }
-      if (res === 'lose' && !o.canLose) await this.blackout();
+      // K.O. : au 3e, le Digimon meurt vraiment (game/life.js)
+      if (res === 'lose' && !o.canLose) { for (const m of st.party.slice()) if (m.hp <= 0) await DW.Life.knockout(m); await this.blackout(); }
       else DW.autosave();
       return res;
     }
