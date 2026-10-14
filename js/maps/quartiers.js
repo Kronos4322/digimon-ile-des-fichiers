@@ -14,7 +14,8 @@
 (function () {
   const { say, st, paint } = DW.MapKit;
   const MAPS = DW.MAPS, Hh = DW.Art.hash;
-  const level = () => DW.Town.level();
+  // les quartiers ont été conçus sur une échelle de 16 paliers ; la ville en compte 11 (développement en %, game/town.js)
+  const level = () => Math.round(DW.Town.level() * 16 / 11);
   // agrandissement des quartiers (bâtiments plus grands, plus d'espace) : plan d'origine 48×34 × Z
   const Z = 1.8, W = Math.round(48 * Z), H = Math.round(34 * Z);
   // herbe non praticable (invisible) : derrière les grands bâtiments, là où le toit déborde de l'emprise
@@ -340,7 +341,8 @@
     };
     def.lots = lots(def.lots, id, def.prefix);
   }
-  const progressive = (list, open, step) => list.map((L, i) => ({ ...L, min: open + Math.floor(i * step) }));
+  // les maisons se construisent une à une entre l'ouverture du quartier et le palier maximum (16) : toutes existent à 100 %
+  const progressive = (list, open, step) => list.map((L, i) => ({ ...L, min: Math.min(16, open + Math.floor(i * Math.min(step, (16 - open) / Math.max(1, list.length - 1)))) }));
   const C = (x, y, v) => ({ kind: 'cottage', v, x, y });
   const EXIT_Y = z(14);   // rangées des passages est / ouest entre quartiers
 

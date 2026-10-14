@@ -53,11 +53,11 @@
       tall: [{ x: 27, y: 18, r: 4 }, { x: 10, y: 11, r: 3.5 }],
       bigtrees: [[30, 22]],
       free: [[20, 27, 3]],
-      set: [[22, 25, 'S']],
+      set: [[21, 25, 'S']],
     })),
     warps: [{ x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'dunes', tx: 19, ty: 0 }],
     npcs: [], triggers: [],
-    signs: { '22,25': "Bosquet des Pousses. Les jeunes Digimon (stade Entraînement) s'y bagarrent toute la journée. Ici, on devient plus fort !" },
+    signs: { '21,25': "Bosquet des Pousses. Les jeunes Digimon (stade Entraînement) s'y bagarrent toute la journée. Ici, on devient plus fort !" },
   };
   // agrandies ×2 comme les autres cartes faites à la main (plan d'origine 40×30)
   DW.MapKit.ZOOM.dunes = [2, 40, 30]; DW.MapKit.ZOOM.bosquet = [2, 40, 30];

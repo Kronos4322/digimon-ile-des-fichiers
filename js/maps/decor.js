@@ -101,13 +101,15 @@
         const x = cx0 + dx - Math.floor(fw / 2), y = cy0 + dy;
         let fits = true;
         for (let yy = y - 1; yy <= y + fh && fits; yy++) for (let xx = x - 1; xx <= x + fw && fits; xx++) if (!free(xx, yy)) fits = false;
+        // devant le lieu (sous son rang du bas) : une case accessible, sinon on pourrait le poser dans une poche fermée
+        if (![...Array(fw).keys()].some(i => base.has((x + i) + ',' + (y + fh)))) fits = false;
         if (!fits) continue;
         const o = { kind: L[0], x, y, w: fw, h: fh, decor: true, landmark: true };
         m.objects.push(o); mark(o, occ);
         if (must.some(t => !ok(reach(), t))) { m.objects.pop(); for (let yy = y; yy < y + fh; yy++) for (let xx = x; xx < x + fw; xx++) occ.delete(xx + ',' + yy); continue; }
         m.landmark = L[1];
         m.signs = m.signs || {};
-        for (let xx = x; xx < x + fw; xx++) for (let yy = y; yy < y + fh; yy++) m.signs[xx + ',' + yy] = `« ${L[1]} » — ${L[2]}`;
+        for (let xx = x; xx < x + fw; xx++) m.signs[xx + ',' + (y + fh - 1)] = `« ${L[1]} » — ${L[2]}`;   // on le lit par-devant
         near(x + Math.floor(fw / 2), y, Math.ceil(fw / 2) + 2);
         break search;
       }

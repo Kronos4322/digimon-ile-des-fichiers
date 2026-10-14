@@ -146,7 +146,7 @@
     m.npcs = [starterNpc(), GUIDE];
     if (has('betamon')) m.npcs.push({ sp: 'betamon', x: 22, y: 16, face: 'left', wander: 1, talk: SERVICES.betamon });
     if (has('biyomon')) m.npcs.push({ sp: 'biyomon', x: 27, y: 26, face: 'left', wander: 1, talk: SERVICES.biyomon });
-    if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: BANK.x + 2, y: BANK.y + BANK.h + 1, face: 'left', wander: 1, talk: SERVICES.kunemon });
+    if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: BANK.x + 3, y: BANK.y + BANK.h, face: 'left', wander: 1, talk: SERVICES.kunemon });
     // passants : plus la ville se développe, plus elle s'anime (comme les villes de Digimon World 2003)
     const nPass = Math.min(PASSERS.length, Math.floor(T().progress() / 12));
     for (let i = 0; i < nPass; i++) { const [sp, x, y] = PASSERS[i]; if (DW.SPECIES[sp]) m.npcs.push({ sp, x, y, face: i % 2 ? 'left' : 'right', wander: 3, talk: () => passerTalk(sp) }); }
