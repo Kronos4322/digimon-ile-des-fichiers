@@ -19,7 +19,7 @@
     snow: [['clear', 45], ['cloudy', 35], ['fog', 20]],
     volcano: [['clear', 55], ['cloudy', 45]],
   };
-  const WNAME = { clear: 'Beau temps', cloudy: 'Nuageux', rain: 'Pluie', fog: 'Brume', snow: 'Neige' };
+  const WNAME = { clear: 'Beau temps', cloudy: 'Nuageux', rain: 'Pluie', fog: 'Brume', snow: 'Neige', storm: 'Orage', blizzard: 'Tempête de neige', gale: 'Tempête', heat: 'Canicule' };
   // calendrier : 10 jours par mois, 3 mois par saison, 120 jours par an ; l'aventure commence le 1er mars
   const MONTHS = ['Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre', 'Janvier', 'Février'];
   const MSHORT = ['mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.', 'janv.', 'févr.'];
@@ -31,7 +31,12 @@
   const DAYLEN = [1, 0.86, 1, 1.14];
   // météo selon la saison (zones tempérées : forêt, village, plage) : multiplicateurs, la pluie devient neige en hiver
   const SEASON_W = [{ rain: 1.4, clear: 0.9 }, { rain: 0.5, clear: 1.4, fog: 0.5 }, { fog: 1.8, cloudy: 1.4 }, { snow: 1, clear: 0.8 }];
+  // phénomènes de saison (zones tempérées) : orages au printemps et en été, canicule l'été,
+  // tempêtes de vent l'automne, tempêtes de neige l'hiver ; pendant une SÉCHERESSE (été), canicule et beau temps seulement
+  const SEASON_EXTRA = [[['storm', 6]], [['heat', 18], ['storm', 8]], [['gale', 12], ['storm', 3]], [['blizzard', 12]]];
 
+  // annonce quand un phénomène commence
+  const WARN = { storm: 'Un ORAGE éclate ! Tes Digimon se fatiguent dehors (techniques Électrique plus fortes).', blizzard: 'TEMPÊTE DE NEIGE ! Il fait un froid glacial : mieux vaut rester à l\'abri.', gale: 'TEMPÊTE ! Le vent souffle fort (techniques Air plus fortes).', heat: 'CANICULE ! Il fait très chaud : ton Digimon a soif et se fatigue.' };
   const T = DW.Time = {
     RATE: 1, CLIMATES: CLIMATE,
     get st() { return DW.state; },
@@ -51,6 +56,11 @@
     isNight() { const h = this.solar(); return h >= 19.5 || h < 5.5; },
     phase() { const h = this.hour(); return h < 5.5 ? 'Nuit' : h < 8 ? 'Aube' : h < 17 ? 'Jour' : h < 19.5 ? 'Crépuscule' : 'Nuit'; },
     weather() { return this.st.weather.type; },
+    // il pleut (pluie ou orage) : sol mouillé, flaques...
+    rainy() { const w = this.weather(); return w === 'rain' || w === 'storm'; },
+    // intempérie qui fatigue les Digimon dehors
+    harsh() { return ['storm', 'blizzard', 'gale', 'heat'].includes(this.weather()); },
+    WNAME,
     weatherName() { return WNAME[this.weather()]; },
     // { dark, col:[r,g,b] } interpolés
     light() {
@@ -63,6 +73,10 @@
       let col = Art.mix(Art.hex(c0), Art.hex(c1), k);
       const w = this.weather();
       if (w === 'rain') { dark = Math.max(dark, 0.22); col = Art.mix(col, [90, 100, 130], 0.5); }
+      else if (w === 'storm') { dark = Math.max(dark, 0.38); col = Art.mix(col, [60, 66, 100], 0.6); }
+      else if (w === 'blizzard') { dark = Math.max(dark, 0.2); col = Art.mix(col, [215, 225, 245], 0.6); }
+      else if (w === 'gale') { dark = Math.max(dark, 0.14); col = Art.mix(col, [170, 165, 150], 0.4); }
+      else if (w === 'heat' && dark < 0.3) { dark = Math.max(dark, 0.08); col = Art.mix(col, [255, 200, 120], 0.6); }
       else if (w === 'cloudy') { dark = Math.max(dark, 0.1); col = Art.mix(col, [140, 150, 170], 0.4); }
       else if (w === 'snow') { dark = Math.max(dark, 0.12); col = Art.mix(col, [200, 215, 240], 0.5); }
       // teinte de la saison en plein jour : été doré, automne cuivré, hiver bleuté
@@ -77,8 +91,12 @@
       const se = this.season(), M = SEASON_W[se];
       let list = base.map(([t, w]) => [t, w * (M[t] || 1)]);
       if (se === 3) list = list.map(([t, w]) => [t === 'rain' ? 'snow' : t, t === 'rain' ? w * 2 : w]);
+      list = list.concat(SEASON_EXTRA[se]);
+      if (this.drought()) list = [['heat', 60], ['clear', 40]];
       return list;
     },
+    // sécheresse en cours (été) : la récolte baisse, les Digimon se fatiguent
+    drought() { const d = this.st.drought; return !!d && this.st.clock < d; },
     advance(dt, climate) {
       const st = this.st, se0 = this.season();
       st.clock += dt * this.RATE;
@@ -92,12 +110,21 @@
       const h = this.hour();
       if (type === 'fog' && !(h > 4 && h < 11)) type = 'cloudy';
       st.weather = { type, until: st.clock + 90 + Math.random() * 240 };
+      // une canicule d'été peut tourner à la sécheresse (2 à 4 jours)
+      if (type === 'heat' && !this.drought() && Math.random() < 0.3) {
+        st.drought = st.clock + (2 + Math.floor(Math.random() * 3)) * 1440;
+        DW.Care && DW.Care.toast('SÉCHERESSE ! Les champs souffrent et les Digimon se fatiguent vite...', '#ffb040');
+      } else if (DW.Care && DW.ow && !DW.ow.map.indoor && WARN[type]) DW.Care.toast(WARN[type], '#ffd890');
     },
     // multiplicateur de dégâts selon la météo (style Pokémon)
     weatherMult(type) {
       const w = this.weather();
       if (w === 'rain') return type === 'Eau' ? 1.2 : type === 'Feu' ? 0.8 : 1;
       if (w === 'snow') return type === 'Glace' ? 1.2 : type === 'Feu' ? 0.9 : 1;
+      if (w === 'storm') return type === 'Électrique' ? 1.3 : type === 'Eau' ? 1.1 : type === 'Feu' ? 0.8 : 1;
+      if (w === 'blizzard') return type === 'Glace' ? 1.3 : type === 'Feu' ? 0.8 : 1;
+      if (w === 'gale') return type === 'Air' ? 1.3 : type === 'Insecte' ? 0.9 : 1;
+      if (w === 'heat') return type === 'Feu' ? 1.25 : type === 'Plante' ? 0.9 : type === 'Eau' ? 0.9 : 1;
       return 1;
     },
   };
@@ -152,37 +179,56 @@
     update(dt) {
       this.t += dt;
       const w = T.weather();
-      if (w === 'rain') {
+      if (w === 'rain' || w === 'storm') {
+        const fast = w === 'storm' ? 1.35 : 1;
         for (let i = 0; i < this.drops.length; i++) {
           const d = this.drops[i];
-          d.y += d.v * dt; d.x -= d.v * 0.25 * dt;
+          d.y += d.v * fast * dt; d.x -= d.v * (w === 'storm' ? 0.55 : 0.25) * dt;
           if (d.y > H * (0.3 + (i % 7) / 10)) { if (Math.random() < 0.5) this.splash.push({ x: d.x, y: d.y, t: 0 }); this.drops[i] = this.drop(false); }
         }
-        if (Math.random() < dt * 0.04) { this.flash = 1; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }
+        if (Math.random() < dt * (w === 'storm' ? 0.35 : 0.04)) { this.flash = 1; this.bolt = w === 'storm' ? { x: 30 + Math.random() * (W - 60), t: 0.25 } : null; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }
       }
-      if (w === 'snow') for (let i = 0; i < this.flakes.length; i++) {
-        const f = this.flakes[i];
-        f.y += f.v * dt; f.x += (Math.sin(this.t * 1.4 + f.ph) * 10 - 6) * dt;
+      if (this.bolt) { this.bolt.t -= dt; if (this.bolt.t <= 0) this.bolt = null; }
+      if (w === 'snow' || w === 'blizzard') for (let i = 0; i < this.flakes.length; i++) {
+        const f = this.flakes[i], b = w === 'blizzard';
+        f.y += f.v * (b ? 2.2 : 1) * dt; f.x += (b ? -120 : Math.sin(this.t * 1.4 + f.ph) * 10 - 6) * dt;
+        if (f.x < -10) f.x += W + 40;
         if (f.y > H + 4) this.flakes[i] = this.flake(false);
       }
       for (let i = this.splash.length - 1; i >= 0; i--) { this.splash[i].t += dt; if (this.splash[i].t > 0.25) this.splash.splice(i, 1); }
-      this.fog.forEach(f => { f.x += f.v * dt; if (f.x - f.r > W) f.x = -f.r; });
+      this.fog.forEach(f => { f.x += f.v * (w === 'gale' ? 14 : 1) * dt; if (f.x - f.r > W) f.x = -f.r; });
+      // tempête : feuilles et poussière emportées par le vent
+      if (w === 'gale') { this.leaves = this.leaves || Array.from({ length: 40 }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 140 + Math.random() * 120, ph: Math.random() * 6 })); for (const l of this.leaves) { l.x += l.v * dt; l.y += Math.sin(this.t * 4 + l.ph) * 30 * dt + 10 * dt; if (l.x > W + 10) { l.x = -10; l.y = Math.random() * H; } } }
       if (this.flash > 0) this.flash -= dt * 3;
     }
     draw(c) {
       const w = T.weather();
-      if (w === 'rain') {
-        c.strokeStyle = 'rgba(190,210,255,0.55)'; c.lineWidth = 0.7;
+      if (w === 'rain' || w === 'storm') {
+        const sk = w === 'storm' ? 0.55 : 0.25;
+        c.strokeStyle = w === 'storm' ? 'rgba(170,190,240,0.65)' : 'rgba(190,210,255,0.55)'; c.lineWidth = w === 'storm' ? 0.9 : 0.7;
         c.beginPath();
-        for (const d of this.drops) { c.moveTo(d.x, d.y); c.lineTo(d.x + d.l * 0.25, d.y - d.l); }
+        for (const d of this.drops) { c.moveTo(d.x, d.y); c.lineTo(d.x + d.l * sk, d.y - d.l * (w === 'storm' ? 1.4 : 1)); }
         c.stroke();
         c.strokeStyle = 'rgba(210,225,255,0.5)';
         for (const s of this.splash) { c.beginPath(); c.ellipse(s.x, s.y, 1 + s.t * 10, 0.5 + s.t * 3, 0, 0, 7); c.stroke(); }
         if (this.flash > 0) { c.fillStyle = `rgba(230,240,255,${this.flash * 0.5})`; c.fillRect(0, 0, W, H); }
-      } else if (w === 'snow') {
+        // éclair zigzag pendant l'orage
+        if (this.bolt) { c.strokeStyle = 'rgba(255,255,230,0.95)'; c.lineWidth = 1.6; c.beginPath(); let bx = this.bolt.x, by = 0; c.moveTo(bx, by); while (by < H * 0.6) { by += 14 + Math.random() * 10; bx += (Math.random() - 0.5) * 26; c.lineTo(bx, by); } c.stroke(); }
+      } else if (w === 'snow' || w === 'blizzard') {
         c.fillStyle = 'rgba(255,255,255,0.92)';
-        for (const f of this.flakes) c.fillRect(Math.round(f.x), Math.round(f.y), f.s, f.s);
-        c.fillStyle = 'rgba(225,235,250,0.10)'; c.fillRect(0, 0, W, H);
+        if (w === 'blizzard') { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1; c.beginPath(); for (const f of this.flakes) { c.moveTo(f.x, f.y); c.lineTo(f.x + 6, f.y - 2); } c.stroke(); }
+        else for (const f of this.flakes) c.fillRect(Math.round(f.x), Math.round(f.y), f.s, f.s);
+        c.fillStyle = w === 'blizzard' ? 'rgba(235,242,255,0.32)' : 'rgba(225,235,250,0.10)'; c.fillRect(0, 0, W, H);
+      } else if (w === 'gale') {
+        c.strokeStyle = 'rgba(240,235,220,0.35)'; c.lineWidth = 0.8; c.beginPath();
+        for (let i = 0; i < 14; i++) { const y = (i * 37 + this.t * 20) % H, x = (i * 71 + this.t * 260) % (W + 80) - 40; c.moveTo(x, y); c.lineTo(x + 30, y + 2); }
+        c.stroke();
+        for (const l of this.leaves || []) { c.fillStyle = Math.floor(l.ph * 10) % 2 ? '#c8803a' : '#a8642a'; c.fillRect(Math.round(l.x), Math.round(l.y), 2, 1); }
+      } else if (w === 'heat') {
+        // chaleur : air qui tremble
+        c.fillStyle = 'rgba(255,190,90,0.07)'; c.fillRect(0, 0, W, H);
+        c.strokeStyle = 'rgba(255,240,210,0.12)'; c.lineWidth = 1;
+        for (let i = 0; i < 6; i++) { const y = H - 20 - i * 30; c.beginPath(); for (let x = 0; x <= W; x += 8) c.lineTo(x, y + Math.sin(x * 0.08 + this.t * 3 + i) * 2); c.stroke(); }
       } else if (w === 'fog') {
         for (const f of this.fog) {
           const g = c.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
@@ -214,7 +260,11 @@
     c.fillStyle = SEASON_COL[D.season]; c.fillRect(x + 4, y + 19, 3, 2);
     // icône météo
     const wx = x + 74, wy = y + 11, wt = T.weather();
-    if (wt === 'snow') { c.fillStyle = '#ffffff'; for (const [ox, oy] of [[-3, -3], [2, -1], [-1, 2], [3, 3]]) { c.fillRect(wx + ox - 1, wy + oy, 3, 1); c.fillRect(wx + ox, wy + oy - 1, 1, 3); } }
+    if (wt === 'storm') { c.fillStyle = '#7a84a0'; c.beginPath(); c.ellipse(wx, wy - 2, 6, 3.4, 0, 0, 7); c.fill(); c.fillStyle = '#ffe040'; c.beginPath(); c.moveTo(wx, wy); c.lineTo(wx - 2, wy + 4); c.lineTo(wx, wy + 4); c.lineTo(wx - 1, wy + 7); c.lineTo(wx + 2, wy + 2); c.lineTo(wx, wy + 2); c.fill(); }
+    else if (wt === 'blizzard') { c.strokeStyle = '#ffffff'; c.lineWidth = 1; for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(wx - 5, wy + i * 3); c.lineTo(wx + 5, wy + i * 3 - 2); c.stroke(); } }
+    else if (wt === 'gale') { c.strokeStyle = '#e0e6ee'; c.lineWidth = 1.2; for (const dy of [-2, 2]) { c.beginPath(); c.moveTo(wx - 5, wy + dy); c.quadraticCurveTo(wx + 3, wy + dy - 3, wx + 5, wy + dy); c.stroke(); } }
+    else if (wt === 'heat') { c.fillStyle = '#ff7a20'; c.beginPath(); c.arc(wx, wy, 3.8, 0, 7); c.fill(); c.fillStyle = '#ffd040'; c.beginPath(); c.arc(wx, wy, 2.2, 0, 7); c.fill(); }
+    else if (wt === 'snow') { c.fillStyle = '#ffffff'; for (const [ox, oy] of [[-3, -3], [2, -1], [-1, 2], [3, 3]]) { c.fillRect(wx + ox - 1, wy + oy, 3, 1); c.fillRect(wx + ox, wy + oy - 1, 1, 3); } }
     else if (wt === 'rain') { c.fillStyle = '#b8c4d8'; c.beginPath(); c.ellipse(wx, wy - 2, 6, 3.4, 0, 0, 7); c.fill(); c.fillStyle = '#7ab8ff'; for (let i = -1; i <= 1; i++) c.fillRect(wx + i * 3, wy + 3, 1, 3); }
     else if (wt === 'cloudy' || wt === 'fog') { c.fillStyle = wt === 'fog' ? '#e0e6ee' : '#c8d0dc'; c.beginPath(); c.ellipse(wx, wy, 6, 3.6, 0, 0, 7); c.ellipse(wx + 2, wy - 2, 4, 3, 0, 0, 7); c.fill(); }
     else if (night) { c.fillStyle = '#fff0b0'; for (const [ox, oy] of [[-3, -3], [2, 1], [-1, 3]]) c.fillRect(wx + ox, wy + oy, 1, 1); }

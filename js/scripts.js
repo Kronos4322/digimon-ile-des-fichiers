@@ -24,7 +24,7 @@
     'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js',
     'gfx/battlebg.js', 'engine/time.js',
     // logique de jeu
-    'game/options.js', 'game/monster.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js',
+    'game/options.js', 'game/monster.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js',
     'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/fx.js', 'game/battle.js', 'game/arena.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus

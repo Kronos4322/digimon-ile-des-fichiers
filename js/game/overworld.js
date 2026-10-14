@@ -143,7 +143,7 @@
       if (Game.top() === this) this.background();
       if (!this.locked && Game.top() === this) { DW.state.time += dt; DW.Time.advance(dt, this.map.climate); DW.Care.update(this, dt); DW.Companion.update(this, dt); }
       this.weather.update(dt);
-      const rain = !this.map.indoor && DW.Time.weather() === 'rain';
+      const rain = !this.map.indoor && DW.Time.rainy();
       this.wet = DW.clamp((this.wet || 0) + (rain ? 0.25 : -0.02) * dt, 0, 1);
       if (DW.saveFlash > 0) DW.saveFlash -= dt;
       this.amb.update(dt);
@@ -581,7 +581,7 @@
     drawPuddles(c, list, x0, x1, y0, y1) {
       const hr = DW.Time.solar(), L = DW.Time.light(), dusk = (hr > 17 && hr < 20.5) || (hr > 5 && hr < 7.5);
       const sky = L.dark > 0.55 ? [40, 56, 110] : dusk ? [236, 150, 110] : [150, 196, 236];
-      const a = this.wet, rain = DW.Time.weather() === 'rain', lamps = L.dark > 0.3 ? this.amb.lights() : [];
+      const a = this.wet, rain = DW.Time.rainy(), lamps = L.dark > 0.3 ? this.amb.lights() : [];
       for (const p of list) {
         if (p.x < x0 || p.x > x1 || p.y < y0 || p.y > y1) continue;
         const k = Math.min(1, a * 1.4), rx = p.rx * k, ry = p.ry * k;

@@ -41,6 +41,7 @@
       if (n0 < 75 && m.need >= 75) this.toast(`${m.name} doit aller aux toilettes !`);
       if (m.need >= 100) this.accident(ow, m);
       DW.Life.update(ow, min);
+      if (DW.Calendar) DW.Calendar.tick(ow, min);   // intempéries (game/calendrier.js)
     },
     // accident : une petite crotte apparaît là où se trouve le partenaire
     accident(ow, m) {

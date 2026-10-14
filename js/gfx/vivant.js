@@ -109,7 +109,7 @@
     drawAir(ow, c) {
       const v = ow.viv; if (!v || ow.map.indoor) return;
       const L = DW.Time.light(), t = ow.t;
-      if (L.dark < 0.4 && DW.Time.weather() !== 'rain') for (const b of v.bugs) {
+      if (L.dark < 0.4 && !DW.Time.rainy()) for (const b of v.bugs) {
         const w = Math.abs(Math.sin(b.ph * 2)) * 2 + 0.5;
         c.fillStyle = b.c; c.fillRect(Math.round(b.x - w), Math.round(b.y), Math.round(w), 2); c.fillRect(Math.round(b.x + 1), Math.round(b.y), Math.round(w), 2);
         c.fillStyle = '#3a2a2a'; c.fillRect(Math.round(b.x), Math.round(b.y), 1, 2);

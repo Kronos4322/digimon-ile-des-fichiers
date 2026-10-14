@@ -158,7 +158,8 @@
     await say('Bonjour ! Les champs n\'ont jamais été aussi beaux !', 'Palmon');
     if (s.flags.harvest === day) { await say('Reviens demain pour la prochaine récolte !', 'Palmon'); return; }
     s.flags.harvest = day;
-    const n = 2 + (Math.random() < 0.4 ? 1 : 0), sup = Math.random() < 0.25;
+    const dry = DW.Time.drought(), n = dry ? 1 : 2 + (Math.random() < 0.4 ? 1 : 0), sup = !dry && Math.random() < 0.25;
+    if (dry) await say('La sécheresse a tout desséché... La récolte est maigre cette fois.', 'Palmon');
     const extra = DW.giveItem('viande', n) + (sup ? DW.giveItem('super_viande', 1) : 0);
     DW.Audio.sfx('buy');
     await say(`Voici la récolte du jour : ${n} Viandes${sup ? ' et une Super Viande' : ''} !${DW.extraMsg(extra)}`, 'Palmon');
