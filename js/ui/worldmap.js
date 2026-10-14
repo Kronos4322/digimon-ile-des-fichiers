@@ -1,10 +1,10 @@
 'use strict';
 // =====================================================================
 //  CARTE DE L'ÎLE DES FICHIERS
-//  Vue de l'île : île peinte selon les biomes, une illustration par région ; un brouillard cache
-//  tout ce qui n'est pas découvert (lieux, chemins, sous-zones). Zoom ×1/×2/×3 (touche Courir).
-//  ESPACE sur une région : ses sous-zones (seules les explorées sont dessinées, position actuelle,
-//  lieux emblématiques, sorties vers les régions voisines).
+//  Un seul grand plan : l'île peinte selon les biomes, et une icône par zone (sous-zones comprises),
+//  regroupées autour du lieu de leur région, reliées par les chemins déjà empruntés.
+//  Un brouillard cache tout ce qui n'est pas découvert : la carte se révèle petit à petit.
+//  Flèches : d'une zone à l'autre ; ESPACE / Courir : zoom ×1 / ×2 / ×3.
 // =====================================================================
 (function () {
   const { UI, Input, Audio } = DW;
@@ -182,37 +182,107 @@
     return (artCache = cv);
   }
 
-  // nuages qui cachent une zone inconnue
-  function cloud(c, x, y, t, k) {
-    c.fillStyle = 'rgba(236,242,250,0.94)';
-    for (const [dx, dy, r] of [[-8, 2, 7], [0, -2, 9], [9, 2, 7], [4, 5, 6], [-4, 6, 5]]) { c.beginPath(); c.arc(x + dx + Math.sin(t * 0.6 + k) * 1.2, y + dy, r, 0, 7); c.fill(); }
-    c.fillStyle = 'rgba(160,176,200,0.6)'; c.beginPath(); c.ellipse(x, y + 8, 12, 2.4, 0, 0, 7); c.fill();
+
+  // ------------------------------------------------------------ plan unique : une icône par zone (sous-zones comprises)
+  // chaque zone est placée autour du lieu de sa région, disposée d'après ses passages
+  const STEP = 6.5;   // écart entre deux icônes d'une même région (unités de la carte 320×176)
+  let layout = null;
+  function shown(id) { const m = DW.MAPS[id]; return !!m && !m.noMap && (!m.indoor || (m.encounters && m.encounters.length) || m.spec); }
+  function buildLayout() {
+    if (layout) return layout;
+    const pts = {}, groups = {};
+    for (const id of Object.keys(DW.MAPS)) if (shown(id)) (groups[nodeOf(id)] = groups[nodeOf(id)] || []).push(id);
+    const step = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
+    for (const k in groups) {
+      const ids = groups[k], N = NODES[k];
+      const grid = {}, used = new Set();
+      const place = (id, p) => { grid[id] = p; used.add(p.join(',')); };
+      const first = ids.includes(k) ? k : ids[0];
+      for (const start of [first, ...ids]) {
+        if (grid[start]) continue;
+        const xs = Object.values(grid).map(p => p[0]);
+        let p0 = [xs.length ? Math.max(...xs) + 1 : 0, 0];
+        while (used.has(p0.join(','))) p0 = [p0[0], p0[1] + 1];
+        place(start, p0);
+        const q = [start];
+        while (q.length) {
+          const id = q.shift();
+          for (const w of DW.MAPS[id].warps || []) if (ids.includes(w.to) && !grid[w.to] && step[w.dir]) {
+            let p = [grid[id][0] + step[w.dir][0], grid[id][1] + step[w.dir][1]];
+            while (used.has(p.join(','))) p = [p[0] + step[w.dir][0], p[1] + step[w.dir][1]];
+            place(w.to, p); q.push(w.to);
+          }
+        }
+      }
+      // la zone principale (ou le centre du groupe) tombe sur le lieu de la région
+      const c0 = grid[first], xs = ids.map(id => grid[id][0]), ys = ids.map(id => grid[id][1]);
+      const cx = ids.includes(k) ? c0[0] : (Math.min(...xs) + Math.max(...xs)) / 2, cy = ids.includes(k) ? c0[1] : (Math.min(...ys) + Math.max(...ys)) / 2;
+      for (const id of ids) pts[id] = { id, k, x: N.x + (grid[id][0] - cx) * STEP, y: N.y + (grid[id][1] - cy) * STEP * 0.8 };
+    }
+    return (layout = pts);
+  }
+  // pictogramme d'une zone
+  function glyphOf(id) {
+    const m = DW.MAPS[id], k = nodeOf(id), b = NODES[k].b;
+    if (m.piece) return 'star';
+    if (m.indoor) return 'cave';
+    if (k === 'village' && !(m.encounters && m.encounters.length)) return 'house';
+    if (m.respawn) return 'house';
+    if (m.theme === 'beach' || m.bg === 'plage') return 'wave';
+    if (m.bg === 'foret' || m.theme === 'meadow' || m.theme === 'forest') return 'tree';
+    if (b === 'beach' || b === 'lake') return 'wave';
+    if (b === 'mountain' || b === 'canyon' || b === 'trash') return 'peak';
+    if (b === 'volcano') return 'flame';
+    if (b === 'snow') return 'snow';
+    return 'tree';
+  }
+  function icon(c, x, y, s, g, col, sel, here) {
+    const r = s / 2;
+    c.fillStyle = '#0a0c14'; c.fillRect(Math.round(x - r - 1), Math.round(y - r - 1), s + 2, s + 2);
+    c.fillStyle = here ? '#ff6a5a' : col; c.fillRect(Math.round(x - r), Math.round(y - r), s, s);
+    c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(Math.round(x - r), Math.round(y - r), s, 1);
+    const k = s / 12;
+    c.save(); c.translate(x, y); c.scale(k, k);
+    const W2 = '#ffffff', D = '#1a2030';
+    if (g === 'tree') { c.fillStyle = '#5a3a20'; c.fillRect(-1, 1, 2, 4); c.fillStyle = '#1e6a2a'; c.beginPath(); c.arc(0, -1, 3.6, 0, 7); c.fill(); c.fillStyle = '#4aa848'; c.beginPath(); c.arc(-1, -2, 2, 0, 7); c.fill(); }
+    else if (g === 'wave') { c.strokeStyle = W2; c.lineWidth = 1.4; for (const dy of [-2, 2]) { c.beginPath(); c.moveTo(-4, dy); c.quadraticCurveTo(-2, dy - 2, 0, dy); c.quadraticCurveTo(2, dy + 2, 4, dy); c.stroke(); } }
+    else if (g === 'house') { c.fillStyle = '#f0e0c0'; c.fillRect(-3, -1, 6, 5); c.fillStyle = '#c84a3a'; c.beginPath(); c.moveTo(-4.5, -1); c.lineTo(0, -5); c.lineTo(4.5, -1); c.fill(); c.fillStyle = D; c.fillRect(-1, 1, 2, 3); }
+    else if (g === 'cave') { c.fillStyle = D; c.beginPath(); c.arc(0, 2, 4, Math.PI, 0); c.fill(); c.fillRect(-4, 2, 8, 2); }
+    else if (g === 'peak') { c.fillStyle = '#5a5a62'; c.beginPath(); c.moveTo(-5, 4); c.lineTo(0, -5); c.lineTo(5, 4); c.fill(); c.fillStyle = W2; c.beginPath(); c.moveTo(-1.6, -2); c.lineTo(0, -5); c.lineTo(1.6, -2); c.fill(); }
+    else if (g === 'flame') { c.fillStyle = '#ff7a20'; c.beginPath(); c.moveTo(0, -5); c.quadraticCurveTo(5, 1, 0, 4); c.quadraticCurveTo(-5, 1, 0, -5); c.fill(); c.fillStyle = '#ffe040'; c.beginPath(); c.arc(0, 1.5, 1.8, 0, 7); c.fill(); }
+    else if (g === 'snow') { c.strokeStyle = W2; c.lineWidth = 1.2; for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3; c.beginPath(); c.moveTo(Math.cos(a) * 4, Math.sin(a) * 4); c.lineTo(-Math.cos(a) * 4, -Math.sin(a) * 4); c.stroke(); } }
+    else if (g === 'star') { c.fillStyle = '#ffe040'; c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? 2 : 4.6; c.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } c.fill(); }
+    c.restore();
+    if (sel) { c.strokeStyle = '#ffffff'; c.lineWidth = 1.2; c.strokeRect(Math.round(x - r - 2.5) + 0.5, Math.round(y - r - 2.5) + 0.5, s + 4, s + 4); }
   }
 
   class WorldMapScene extends DW.Scene {
     constructor() {
       super();
       this.st = DW.state;
-      this.here = DW.ow ? nodeOf(DW.ow.mapId) : 'village';
-      // un lieu est découvert dès qu'une de ses cartes a été visitée (intérieurs compris)
-      this.found = {};
-      for (const id in this.st.visited) if (this.st.visited[id] && (DW.MAPS[id] || NODES[id])) this.found[nodeOf(id)] = true;
-      this.found[this.here] = true;
-      this.sel = this.here; this.zoom = null; this.zsel = 0;
-      this.zi = 1; const N = NODES[this.here]; this.cam = this.camFor(N.x, N.y);
-      // la carte s'ouvre directement sur les sous-zones de l'endroit où l'on est
-      if (DW.ow && subsOf(this.here).includes(DW.ow.mapId)) this.openZoom(this.here);
+      this.pts = buildLayout();
+      const vis = id => !!this.st.visited[id];
+      this.list = Object.values(this.pts).filter(p => vis(p.id));
+      const cur = DW.ow && DW.ow.mapId;
+      this.hereId = cur && this.pts[cur] ? cur : null;
+      if (!this.hereId && cur) {   // dans une maison, une salle... : la zone voisine la plus proche
+        const k = nodeOf(cur), near = this.list.filter(p => p.k === k);
+        this.hereId = (near[0] || this.list[0] || {}).id || null;
+      }
+      this.here = this.hereId ? this.pts[this.hereId].k : 'village';
+      this.sel = this.hereId || (this.list[0] && this.list[0].id);
+      this.zi = 2;
+      const P = this.sel ? this.pts[this.sel] : NODES.village;
+      this.cam = this.camFor(P.x, P.y);
     }
-    visited(k) { return !!this.found[k]; }
-    // un lieu non découvert est entièrement caché (ni point, ni nom, ni chemin)
-    state(k) { return this.visited(k) ? 'visited' : 'hidden'; }
-    // caméra : centrée sur le lieu choisi, sans sortir de la carte
+    // un lieu (région) est découvert dès qu'une de ses zones a été visitée
+    visited(k) { return this.list.some(p => p.k === k); }
     camFor(x, y) {
       const z = ZOOMS[this.zi], hw = W / 2 / z, hh = MH / 2 / z;
       return { x: DW.clamp(x, hw, W - hw), y: DW.clamp(y, hh, MH - hh) };
     }
     P(x, y) { const z = ZOOMS[this.zi]; return [(x - this.cam.x) * z + W / 2, (y - this.cam.y) * z + MH / 2]; }
-    // brouillard : tout est caché sauf autour des lieux découverts et des chemins entre eux
+    // brouillard : tout est caché sauf autour des zones visitées et des chemins entre elles
     fog() {
       if (this.fogCv) return this.fogCv;
       const cv = Art.canvas(W * RES, MH * RES), c = cv.getContext('2d');
@@ -224,20 +294,29 @@
         c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
       }
       c.globalCompositeOperation = 'destination-out';
-      const hole = (x, y, r) => { const g = c.createRadialGradient(x, y, r * 0.55, x, y, r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); };
-      for (const k in NODES) if (this.visited(k)) hole(NODES[k].x, NODES[k].y, subsOf(k).length > 1 ? 26 : 18);
-      for (const [a, b] of EDGES) if (this.visited(a) && this.visited(b)) {
-        const A = NODES[a], B = NODES[b], n = Math.ceil(Math.hypot(B.x - A.x, B.y - A.y) / 5);
-        for (let i = 0; i <= n; i++) hole(A.x + (B.x - A.x) * i / n, A.y + (B.y - A.y) * i / n, 11);
-      }
+      const hole = (x, y, r) => { const g = c.createRadialGradient(x, y, r * 0.5, x, y, r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); };
+      for (const p of this.list) hole(p.x, p.y, 13);
+      for (const k in NODES) if (this.visited(k)) hole(NODES[k].x, NODES[k].y, 22);   // le cœur d'une région découverte
+      for (const [a, b] of this.paths()) { const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 4); for (let i = 0; i <= n; i++) hole(a.x + (b.x - a.x) * i / n, a.y + (b.y - a.y) * i / n, 7); }
       return (this.fogCv = cv);
     }
-    // déplacement vers le lieu le plus proche dans la direction choisie
+    // chemins : passages entre deux zones visitées
+    paths() {
+      if (this._paths) return this._paths;
+      const out = [], seen = new Set();
+      for (const p of this.list) for (const w of DW.MAPS[p.id].warps || []) {
+        const q = this.pts[w.to];
+        if (!q || !this.st.visited[w.to] || q === p) continue;
+        const key = [p.id, q.id].sort().join('|');
+        if (!seen.has(key)) { seen.add(key); out.push([p, q]); }
+      }
+      return (this._paths = out);
+    }
     pick(points, from, dir) {
       const [dx, dy] = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }[dir];
       let best = null, bs = 1e9;
       for (const p of points) {
-        if (p.k === from.k) continue;
+        if (p.id === from.id) continue;
         const vx = p.x - from.x, vy = p.y - from.y, along = vx * dx + vy * dy, perp = Math.abs(vx * dy - vy * dx);
         if (along <= 0 || perp > along * 1.6) continue;
         const s = along + perp * 2;
@@ -245,69 +324,23 @@
       }
       return best;
     }
-    openZoom(k) {
-      const subs = subsOf(k);
-      if (subs.length < 2 || !subs.some(id => this.st.visited[id])) return false;
-      // disposition des sous-zones d'après leurs passages (toutes placées, seules les visitées sont dessinées)
-      const step = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }, grid = {}, used = new Set();
-      const place = (id, p) => { grid[id] = p; used.add(p.join(',')); };
-      for (const start of subs) {
-        if (grid[start]) continue;
-        // morceau non relié : posé à droite de ce qui existe déjà
-        const xs = Object.values(grid).map(p => p[0]);
-        place(start, [xs.length ? Math.max(...xs) + 1 : 0, 0]);
-        const q = [start];
-        while (q.length) {
-          const id = q.shift();
-          for (const w of DW.MAPS[id].warps) if (subs.includes(w.to) && !grid[w.to] && step[w.dir]) {
-            let p = [grid[id][0] + step[w.dir][0], grid[id][1] + step[w.dir][1]];
-            while (used.has(p.join(','))) p = [p[0] + step[w.dir][0], p[1] + step[w.dir][1]];
-            place(w.to, p); q.push(w.to);
-          }
-        }
-      }
-      const xs = Object.values(grid).map(p => p[0]), ys = Object.values(grid).map(p => p[1]), x0 = Math.min(...xs), y0 = Math.min(...ys);
-      const cols = Math.max(...xs) - x0 + 1, rows = Math.max(...ys) - y0 + 1;
-      const gx = 8, gy = 12, cw = Math.min(66, Math.floor((W - 12 - (cols - 1) * gx) / cols)), ch = Math.min(34, Math.floor((MH - 32 - (rows - 1) * gy) / rows));
-      const ox = Math.round((W - (cols * cw + (cols - 1) * gx)) / 2), oy = Math.round(24 + (MH - 24 - (rows * ch + (rows - 1) * gy)) / 2);
-      const cells = subs.map(id => ({ k: id, x: ox + (grid[id][0] - x0) * (cw + gx), y: oy + (grid[id][1] - y0) * (ch + gy), w: cw, h: ch }));
-      cells.forEach(cl => { cl.cx = cl.x + cl.w / 2; cl.cy = cl.y + cl.h / 2; });
-      this.zoom = { k, cells };
-      const cur = DW.ow && cells.find(cl => cl.k === DW.ow.mapId);
-      this.zsel = cur ? cells.indexOf(cur) : cells.findIndex(cl => this.st.visited[cl.k]);
-      return true;
-    }
     update() {
       const dir = ['left', 'right', 'up', 'down'].find(d => Input.hit(d));
-      if (this.zoom) {
-        const cells = this.zoom.cells, cur = cells[this.zsel];
-        if (dir) {
-          const pts = cells.filter(cl => this.st.visited[cl.k]).map(cl => ({ k: cl.k, x: cl.cx, y: cl.cy }));
-          const p = this.pick(pts, { k: cur.k, x: cur.cx, y: cur.cy }, dir);
-          if (p) { this.zsel = cells.findIndex(cl => cl.k === p.k); Audio.sfx('move'); }
-        }
-        if (Input.hit('back') || Input.hit('ok')) { Audio.sfx('back'); this.zoom = null; }
-        return;
-      }
-      if (dir) {
-        const pts = Object.keys(NODES).filter(k => this.visited(k)).map(k => ({ k, x: NODES[k].x, y: NODES[k].y }));
-        const p = this.pick(pts, { k: this.sel, x: NODES[this.sel].x, y: NODES[this.sel].y }, dir);
-        if (p) { this.sel = p.k; Audio.sfx('move'); }
+      if (dir && this.sel) {
+        const p = this.pick(this.list, this.pts[this.sel], dir);
+        if (p) { this.sel = p.id; Audio.sfx('move'); }
       }
       // zoom : ×1 (toute l'île) → ×2 → ×3
-      if (Input.hit('run') || Input.hit('menu')) { this.zi = (this.zi + 1) % ZOOMS.length; Audio.sfx('select'); }
-      const N = NODES[this.sel], to = this.camFor(N.x, N.y);
+      if (Input.hit('run') || Input.hit('menu') || Input.hit('ok')) { this.zi = (this.zi + 1) % ZOOMS.length; Audio.sfx('select'); }
+      const S = this.sel ? this.pts[this.sel] : NODES.village, to = this.camFor(S.x, S.y);
       this.cam.x += (to.x - this.cam.x) * 0.25; this.cam.y += (to.y - this.cam.y) * 0.25;
-      if (Input.hit('ok')) {
-        if (this.openZoom(this.sel)) Audio.sfx('select'); else Audio.sfx('bump');
-      }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
     }
 
     // ---------------------------------------------------------- dessin
     draw(c) {
       c.fillStyle = '#0e2a5a'; c.fillRect(0, 0, W, H);
-      if (this.zoom) this.drawZoom(c); else this.drawIsland(c);
+      this.drawIsland(c);
       this.drawPanel(c);
     }
     drawIsland(c) {
@@ -315,132 +348,74 @@
       c.save(); c.beginPath(); c.rect(0, 0, W, MH); c.clip();
       c.drawImage(art(), sx, sy, sw, sh, 0, 0, W, MH);
       c.drawImage(this.fog(), sx, sy, sw, sh, 0, 0, W, MH);
-      // liaisons entre lieux découverts
-      for (const [a, b] of EDGES) {
-        if (!this.visited(a) || !this.visited(b)) continue;
-        const [ax, ay] = this.P(NODES[a].x, NODES[a].y), [bx, by] = this.P(NODES[b].x, NODES[b].y);
-        c.strokeStyle = 'rgba(20,14,8,0.55)'; c.lineWidth = 3; c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
-        c.strokeStyle = '#ffe9a0'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
+      // chemins
+      for (const [a, b] of this.paths()) {
+        const [ax, ay] = this.P(a.x, a.y), [bx, by] = this.P(b.x, b.y);
+        c.strokeStyle = 'rgba(20,14,8,0.5)'; c.lineWidth = 1 + z; c.lineCap = 'round'; c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
+        c.strokeStyle = 'rgba(200,214,240,0.95)'; c.lineWidth = z * 0.8; c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
       }
-      // lieux découverts (losange = lieu avec des sous-zones)
-      const k0 = 1 + (z - 1) * 0.35;
-      for (const k in NODES) {
-        if (!this.visited(k)) continue;
-        const [x, y] = this.P(NODES[k].x, NODES[k].y), reg = subsOf(k).length > 1;
-        const r = (reg ? 5 : 3.6) * k0, col = k === this.here ? '#ff5a5a' : '#ffd040';
-        c.fillStyle = '#10141e'; c.beginPath();
-        if (reg) { c.moveTo(x, y - r - 1.5); c.lineTo(x + r + 1.5, y); c.lineTo(x, y + r + 1.5); c.lineTo(x - r - 1.5, y); } else c.arc(x, y, r + 1.4, 0, 7);
-        c.fill();
-        c.fillStyle = col; c.beginPath();
-        if (reg) { c.moveTo(x, y - r); c.lineTo(x + r, y); c.lineTo(x, y + r); c.lineTo(x - r, y); } else c.arc(x, y, r, 0, 7);
-        c.fill();
-        // au zoom ×3, le nom de chaque lieu découvert
-        if (z > 2 && k !== this.sel) UI.text(c, this.nameOf(k), x, y + r + 9, { size: 6, align: 'center', color: '#ffffff' });
+      // zones visitées
+      const s = z === 1 ? 4 : z === 2 ? 9 : 13;
+      for (const p of this.list) {
+        const [x, y] = this.P(p.x, p.y), B = BIOME[NODES[p.k].b];
+        if (z === 1) { c.fillStyle = p.id === this.hereId ? '#ff5a5a' : '#ffd040'; c.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4); continue; }
+        icon(c, x, y, s, glyphOf(p.id), B[1], false, p.id === this.hereId);
       }
-      // curseur + étiquette du lieu choisi
-      const [nx, ny] = this.P(NODES[this.sel].x, NODES[this.sel].y);
-      c.strokeStyle = '#ffffff'; c.lineWidth = 1.2; c.beginPath(); c.arc(nx, ny, 9 * k0 + Math.sin(t * 6), 0, 7); c.stroke();
-      const name = this.nameOf(this.sel);
-      const lw = UI.measure(c, name, 8) + 10, lx = DW.clamp(nx - lw / 2, 2, W - lw - 2), ly = ny > 34 ? ny - 18 - 9 * k0 : ny + 8 + 9 * k0;
-      UI.box(c, lx, ly, lw, 14, 'dark'); UI.text(c, name, lx + lw / 2, ly + 10.5, { size: 8, align: 'center', color: '#ffe070' });
-      // le partenaire marque la position actuelle
-      const [hx, hy] = this.P(NODES[this.here].x, NODES[this.here].y), pt = this.st.party[0];
-      if (pt) DW.Sprites.draw(c, DW.Sprites.ow(pt.sp), hx - 11, hy + 4 + 8 * k0 + Math.round(Math.sin(t * 4) * 1.5), { frame: Math.floor(t * 2) });
+      // grands ensembles : nom de chaque région découverte (au zoom ×2 et ×3)
+      if (z > 1) for (const k in NODES) {
+        const ps = this.list.filter(p => p.k === k);
+        if (ps.length < 3) continue;   // (les lieux d'une seule zone : leur nom s'affiche quand on les choisit)
+        const my = Math.min(...ps.map(p => p.y)), mx = ps.reduce((a, p) => a + p.x, 0) / ps.length;
+        const [x, y] = this.P(mx, my);
+        UI.text(c, this.nameOf(k).toUpperCase(), x, y - s / 2 - 4, { size: 6, align: 'center', color: '#fff4c0' });
+      }
+      // curseur + nom de la zone choisie
+      if (this.sel) {
+        const p = this.pts[this.sel], [nx, ny] = this.P(p.x, p.y);
+        c.strokeStyle = '#ffffff'; c.lineWidth = 1.2; c.strokeRect(Math.round(nx - s / 2 - 3) + 0.5, Math.round(ny - s / 2 - 3) + 0.5, s + 5, s + 5);
+        const name = DW.MAPS[p.id].name, lw = UI.measure(c, name, 8) + 10, lx = DW.clamp(nx - lw / 2, 2, W - lw - 2), ly = ny > 40 ? ny - s / 2 - 22 : ny + s / 2 + 6;
+        UI.box(c, lx, ly, lw, 14, 'dark'); UI.text(c, name, lx + lw / 2, ly + 10.5, { size: 8, align: 'center', color: '#ffe070' });
+      }
+      // position actuelle : l'icône rouge pulse
+      if (this.hereId) { const p = this.pts[this.hereId], [hx, hy] = this.P(p.x, p.y), r = s / 2 + 3 + (Math.sin(t * 5) + 1) * 2; c.strokeStyle = 'rgba(255,90,90,0.8)'; c.lineWidth = 1.5; c.beginPath(); c.arc(hx, hy, r, 0, 7); c.stroke(); }
       c.restore();
       UI.box(c, W - 40, 3, 36, 14); UI.text(c, '×' + z, W - 22, 13.5, { size: 8, align: 'center', color: '#ffe070' });
     }
-    drawZoom(c) {
-      const t = this.t, Z = this.zoom, k = Z.k, N = NODES[k], B = BIOME[N.b];
-      // fond : couleur du biome, quadrillage discret
-      const g = c.createLinearGradient(0, 0, 0, MH); g.addColorStop(0, B[0]); g.addColorStop(1, '#0a0c14');
-      c.fillStyle = g; c.fillRect(0, 0, W, MH);
-      c.strokeStyle = 'rgba(255,255,255,0.05)'; c.lineWidth = 1;
-      for (let x = 0; x < W; x += 16) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, MH); c.stroke(); }
-      for (let y = 0; y < MH; y += 16) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
-      const byId = {}; Z.cells.forEach(cl => (byId[cl.k] = cl));
-      const vis = id => !!this.st.visited[id];
-      // passages entre sous-zones visitées, et sorties déjà empruntées (flèches)
-      const drawn = new Set();
-      for (const cl of Z.cells) if (vis(cl.k)) for (const w of DW.MAPS[cl.k].warps) {
-        const o = byId[w.to];
-        if (o) {
-          const key = [cl.k, w.to].sort().join('|'); if (drawn.has(key) || !vis(w.to)) continue; drawn.add(key);
-          c.strokeStyle = '#ffe9a0'; c.lineWidth = 2;
-          c.beginPath(); c.moveTo(cl.cx, cl.cy); c.lineTo(o.cx, o.cy); c.stroke();
-        } else if (vis(w.to) && w.dir) {
-          const [dx, dy] = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }[w.dir] || [0, 0];
-          const ax = cl.cx + dx * (cl.w / 2 + 6), ay = cl.cy + dy * (cl.h / 2 + 6);
-          c.fillStyle = '#ffd040'; c.beginPath();
-          c.moveTo(ax + dx * 5, ay + dy * 5); c.lineTo(ax - dy * 4, ay + dx * 4); c.lineTo(ax + dy * 4, ay - dx * 4); c.fill();
-        }
-      }
-      // cartes des sous-zones visitées (les autres restent invisibles)
-      Z.cells.forEach((cl, i) => {
-        if (!vis(cl.k)) return;
-        const m = DW.MAPS[cl.k], sel = i === this.zsel, here = DW.ow && DW.ow.mapId === cl.k;
-        const th = DW.World.THEMES[m.theme] || {}, fill = th.grass ? th.grass[2] : B[1];
-        c.fillStyle = '#0a0c14'; c.fillRect(cl.x + 2, cl.y + 2, cl.w, cl.h);
-        c.fillStyle = fill; c.fillRect(cl.x, cl.y, cl.w, cl.h);
-        if (th.canopy) { c.fillStyle = th.canopy[2]; c.fillRect(cl.x, cl.y + cl.h - 7, cl.w, 7); }
-        c.strokeStyle = sel ? '#ffffff' : here ? '#ff6a6a' : '#0a0c14'; c.lineWidth = sel ? 2 : 1.2; c.strokeRect(cl.x + 0.5, cl.y + 0.5, cl.w - 1, cl.h - 1);
-        const light = th.grass && parseInt(th.grass[2].slice(1, 3), 16) > 170;
-        const lines = UI.wrap(c, m.name, cl.w - 6, 7).slice(0, 3);
-        lines.forEach((l, j) => UI.text(c, l, cl.cx, cl.y + 10 + j * 8 + (lines.length === 1 ? 4 : 0), { size: 7, align: 'center', color: light ? '#1a2030' : '#ffffff', shadow: !light }));
-        if (m.piece) UI.text(c, '★', cl.x + cl.w - 6, cl.y + cl.h - 1, { size: 7, align: 'center', color: '#ffe070', shadow: false });
-        if (m.indoor) UI.text(c, '▼', cl.x + 5, cl.y + cl.h - 1, { size: 6, align: 'center', color: '#c8b8ff', shadow: false });
-      });
-      // position actuelle
-      const cur = DW.ow && byId[DW.ow.mapId], pt = this.st.party[0];
-      if (cur && pt) DW.Sprites.draw(c, DW.Sprites.ow(pt.sp), cur.x + 2, cur.y + cur.h + 6 + Math.round(Math.sin(t * 4) * 1.5), { frame: Math.floor(t * 2) });
-      // en-tête
-      const subs = subsOf(k), seen = subs.filter(id => vis(id)).length;
-      UI.box(c, 4, 3, 190, 16); UI.text(c, this.nameOf(k).toUpperCase(), 10, 14.5, { size: 8, color: '#ffe070' });
-      UI.box(c, W - 92, 3, 88, 16); UI.text(c, `Zones : ${seen} / ${subs.length}`, W - 48, 14.5, { size: 7, align: 'center' });
-    }
     nameOf(k) { return (NODES[k] && NODES[k].name) || (DW.MAPS[k] && DW.MAPS[k].name) || k; }
-    // panneau d'information (sous la carte, ne recouvre jamais un lieu)
+    // panneau d'information (sous la carte) : la zone choisie, sa région, ses passages connus, ses Digimon
     drawPanel(c) {
       const y0 = MH + 2;
       UI.box(c, 4, y0, W - 8, H - y0 - 3);
-      let title, desc, mapId, s;
-      if (this.zoom) {
-        const cl = this.zoom.cells[this.zsel], m = DW.MAPS[cl.k], v = !!this.st.visited[cl.k];
-        title = v ? m.name : '???'; mapId = cl.k; s = v ? 'visited' : 'known';
-        const arrow = { left: '←', right: '→', up: '↑', down: '↓' };
-        // seuls les passages déjà empruntés sont nommés : le reste est à découvrir
-        const ways = m.warps.filter(w => this.st.visited[w.to] && DW.MAPS[w.to]).map(w => { const d = DW.MAPS[w.to]; return (arrow[w.dir] || '•') + ' ' + (d.region === m.region ? d.name : (d.regionName || d.name)); });
-        desc = `${m.piece ? '★ Lieu emblématique. ' : ''}${m.indoor ? 'Souterrain. ' : ''}${ways.length ? 'Passages connus : ' + [...new Set(ways)].join('   ') : 'Aucun passage encore emprunté.'}`;
-      } else {
-        const k = this.sel; s = this.state(k);
-        title = s === 'visited' ? this.nameOf(k) : '???'; mapId = DW.MAPS[k] ? k : null;
-        const subs = subsOf(k), seen = subs.filter(id => this.st.visited[id]).length;
-        desc = s !== 'visited' ? 'Lieu inexploré. Trouve le chemin pour y aller !'
-          : k === 'village' ? `Niveau ${DW.Town.level()} : « ${DW.Town.levelName()} ». ${NODES[k].desc}`
-          : subs.length ? `${seen} / ${subs.length} sous-zones explorées. ${NODES[k].desc}` : NODES[k].desc;
-      }
-      UI.text(c, title, 12, y0 + 14, { size: 10, color: s === 'visited' ? '#ffe070' : '#a0a8b8' });
-      const isHere = this.zoom ? DW.ow && DW.ow.mapId === mapId : this.sel === this.here;
-      if (isHere) UI.text(c, 'Tu es ici', W - 12, y0 + 14, { size: 8, align: 'right', color: '#ff8a8a' });
-      // Digimon sauvages de la carte (à droite, dans le panneau)
-      const enc = s === 'visited' && mapId && DW.MAPS[mapId] && DW.MAPS[mapId].encounters;
-      const list = enc && enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];
+      const id = this.sel, m = id && DW.MAPS[id];
+      if (!m) { UI.text(c, 'Aucun lieu exploré.', 12, y0 + 14, { size: 9 }); return; }
+      const k = this.pts[id].k;
+      UI.text(c, m.name, 12, y0 + 14, { size: 10, color: '#ffe070' });
+      if (id === this.hereId) UI.text(c, 'Tu es ici', W - 12, y0 + 14, { size: 8, align: 'right', color: '#ff8a8a' });
+      else UI.text(c, this.nameOf(k), W - 12, y0 + 14, { size: 7, align: 'right', color: '#9ab0e8' });
+      const arrow = { left: '←', right: '→', up: '↑', down: '↓' };
+      // seuls les passages déjà empruntés sont nommés : le reste est à découvrir
+      const ways = (m.warps || []).filter(w => this.st.visited[w.to] && DW.MAPS[w.to]).map(w => (arrow[w.dir] || '•') + ' ' + DW.MAPS[w.to].name);
+      const base = k === 'village' && id === 'village' ? `Niveau ${DW.Town.level()} : « ${DW.Town.levelName()} ». ` : m.piece ? '★ Lieu emblématique. ' : '';
+      const desc = base + (ways.length ? 'Passages connus : ' + [...new Set(ways)].join('  ') : NODES[k].desc);
+      // Digimon sauvages de la zone (à droite, dans le panneau)
+      const enc = m.encounters, list = enc && enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];
       const tw = list.length ? W - 26 - list.length * 20 : W - 24;
-      UI.wrap(c, desc, tw - 12, 8).slice(0, 3).forEach((l, j) => UI.text(c, l, 12, y0 + 27 + j * 10, { size: 8, color: '#c8f0ff' }));
+      UI.wrap(c, desc, tw - 12, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 12, y0 + 27 + j * 10, { size: 8, color: '#c8f0ff' }));
       if (list.length) {
-        const zs = this.st.zoneSeen[mapId] || {};
+        const zs = this.st.zoneSeen[id] || {};
         list.forEach((sp, j) => {
           const x = W - 18 - (list.length - 1 - j) * 20, seen = zs[sp] || this.st.owned[sp];
           DW.Sprites.draw(c, DW.Sprites.ow(sp), x, y0 + 50, { silhouette: !seen, frame: Math.floor(this.t * 2 + j) });
           if (this.st.owned[sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(x + 7, y0 + 30, 2, 0, 7); c.fill(); }
         });
       }
-      const all = Object.keys(NODES), explored = all.filter(k => this.visited(k)).length;
-      if (!this.zoom) UI.text(c, `Lieux explorés : ${explored} / ${all.length}`, 12, H - 7, { size: 6, color: '#9ab0e8', shadow: false });
+      UI.text(c, `Zones explorées : ${this.list.length} / ${Object.keys(this.pts).length}`, 12, H - 7, { size: 6, color: '#9ab0e8', shadow: false });
       c.fillStyle = 'rgba(6,10,24,0.6)'; c.fillRect(0, MH - 13, W, 13);
-      UI.hints(c, this.zoom ? [['back', 'retour']] : [['ok', 'zones'], ['run', 'zoom'], ['back', 'fermer']], W - 6, MH - 3);
+      UI.hints(c, [['ok', 'zoom'], ['back', 'fermer']], W - 6, MH - 3);
+      UI.text(c, 'flèches : choisir une zone', 8, MH - 3, { size: 6, color: '#9ab0e8', shadow: false });
     }
   }
   DW.WorldMapScene = WorldMapScene;
-  WorldMapScene.nodeOf = nodeOf; WorldMapScene.subsOf = subsOf;   // (pour les tests)
+  WorldMapScene.nodeOf = nodeOf; WorldMapScene.subsOf = subsOf; WorldMapScene.layout = buildLayout;   // (pour les tests)
   DW.islandImage = island;
 })();
