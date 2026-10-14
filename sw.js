@@ -11,7 +11,7 @@ self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 
 self.addEventListener('fetch', e => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;   // polices Google : laissées au navigateur
+  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;   // (tout le jeu, polices comprises, est sur le même site)
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     try {
