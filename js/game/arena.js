@@ -5,7 +5,7 @@
 //  forêt, sable et eau à la plage...). Les deux Digimon s'y déplacent en temps réel ; le héros
 //  regarde depuis le bord. À la fin, on revient sur la carte normale, à la même place.
 //   - flèches : déplacer son Digimon (sans ordre, il se place tout seul)
-//   - ESPACE : choisir une technique (le temps s'arrête) ; elle part vers l'endroit
+//   - ESPACE : choisir une technique ou un objet (le combat continue pendant le choix) ; elle part vers l'endroit
 //     où se trouve l'adversaire au moment du tir : s'il a bougé, c'est raté !
 //   - ENTRÉE : coup spécial quand la jauge d'énergie est pleine (à charger)
 //   - pousser contre le bord gauche ou droit du terrain : fuir (combat sauvage)
@@ -146,7 +146,7 @@
       if (!this.st.flags.arenaTuto) {
         this.st.flags.arenaTuto = true;
         await super.msg('COMBAT EN ARÈNE ! Déplace ton Digimon avec les flèches pour esquiver les attaques.', 2.5);
-        await super.msg('ESPACE : choisir une technique. Elle part là où se trouve l\'ennemi : s\'il bouge, elle rate !', 2.5);
+        await super.msg("ESPACE : choisir une technique ou lancer un objet. Le combat continue pendant que tu choisis : fais vite ! Une technique part là où se trouve l'ennemi : s'il bouge, elle rate.", 2.5);
         await super.msg('Pousse contre le bord gauche ou droit du terrain pour fuir. ENTRÉE : coup spécial quand l\'énergie est pleine.', 2.5);
       }
       this.live = true; this.mode = 'live';
@@ -226,25 +226,62 @@
     // ---------------------------------------------------------- entrées et simulation
     update(dt) {
       if (this.mode === 'live') return this.sim(dt);
-      if (this.mode === 'acmd') return this.cmdInput();
+      // menu ouvert : le combat CONTINUE (l'ennemi attaque toujours, ton Digimon se débrouille seul)
+      if (this.mode === 'acmd') { this.cmdInput(); if (this.mode === 'acmd') this.sim(dt, true); return; }
       return super.update(dt);
     }
+    // ROUE DE COMMANDES (comme Digimon Story Cyber Sleuth), toujours affichée en bas à droite :
+    //  ESPACE ouvre la roue ; ESPACE = Attaque (dernière technique) ; ↑ Garde ; → Techniques ; ← Objets ; ↓ Fuite
+    //  le combat continue pendant le choix
     cmdList() {
-      const P = this.active, L = P.moves.map((m, i) => ({ k: 'move', i, id: m.id }));
-      L.push({ k: 'item' });
-      return L;
+      if (this.sub === 'items') return this.battleItems().map(id => ({ k: 'use', id, n: this.st.bag[id] }));
+      if (this.sub === 'moves') return this.active.moves.map((m, i) => ({ k: 'move', i, id: m.id }));
+      return [];
+    }
+    battleItems() {
+      const ok = ['heal', 'mp', 'cure', 'buff', 'protect'];
+      return Object.keys(this.st.bag).filter(id => this.st.bag[id] > 0 && DW.ITEMS[id] && ok.includes(DW.ITEMS[id].use));
     }
     cmdInput() {
+      if (this.sub === 'wheel') return this.wheelInput();
       const L = this.cmdList();
+      if (!L.length) { this.sub = 'wheel'; this.say("Tu n'as aucun objet utile en combat !"); return; }
+      this.cmd = DW.clamp(this.cmd, 0, L.length - 1);
       if (Input.hit('up')) { this.cmd = (this.cmd - 1 + L.length) % L.length; Audio.sfx('move'); }
       if (Input.hit('down')) { this.cmd = (this.cmd + 1) % L.length; Audio.sfx('move'); }
-      if (Input.hit('back')) { Audio.sfx('back'); this.mode = 'live'; return; }
+      if (Input.hit('back') || Input.hit('left')) { Audio.sfx('back'); this.sub = 'wheel'; return; }
       if (!Input.hit('ok')) return;
       const c = L[this.cmd];
-      if (c.k === 'item') { this.mode = 'none'; this.useItem().then(() => { if (this.live) this.mode = 'live'; }); return; }
-      const P = this.active;
-      if (!P.canPay(c.id)) { Audio.sfx('bump'); this.say(`Pas assez de PM ! (${DW.mpCost(c.id)} PM nécessaires)`); return; }
-      Audio.sfx('select'); this.mode = 'live';
+      if (c.k === 'use') return this.throwItem(c.id);
+      this.lastMove = c.i;
+      this.useMoveCmd(c.i);
+    }
+    wheelInput() {
+      const P = this.active, bp = this.B.p;
+      if (Input.hit('back')) { Audio.sfx('back'); this.mode = 'live'; return; }
+      if (Input.hit('ok')) return this.useMoveCmd(DW.clamp(this.lastMove || 0, 0, P.moves.length - 1));
+      if (Input.hit('right')) { Audio.sfx('select'); this.sub = 'moves'; this.cmd = this.lastMove || 0; return; }
+      if (Input.hit('left')) {
+        if (this.throwCd > 0) { Audio.sfx('bump'); this.say('Attends un peu avant de lancer un autre objet !'); return; }
+        Audio.sfx('select'); this.sub = 'items'; this.cmd = 0; return;
+      }
+      if (Input.hit('up')) {
+        // garde : moitié moins de dégâts pendant un court instant
+        if (this.guardCd > 0) { Audio.sfx('bump'); this.say('Pas encore prêt à se protéger !'); return; }
+        Audio.sfx('buff'); bp.guard = 1.6; this.guardCd = 4; this.mode = 'live';
+        this.pop('p', 'GARDE', '#8ad0ff'); return;
+      }
+      if (Input.hit('down')) {
+        if (!this.wild) { Audio.sfx('bump'); this.say('Impossible de fuir ce combat !'); return; }
+        Audio.sfx('run'); this.autoFlee = bp.x < (F.x0 + F.x1) / 2 ? -1 : 1; this.mode = 'live';
+        this.say(`${P.name} court vers le bord pour fuir !`);
+      }
+    }
+    useMoveCmd(i) {
+      const P = this.active, mv = P.moves[i];
+      if (!mv) return;
+      if (!P.canPay(mv.id)) { Audio.sfx('bump'); this.say(`Pas assez de PM ! (${DW.mpCost(mv.id)} PM nécessaires)`); return; }
+      Audio.sfx('select'); this.mode = 'live'; this.lastMove = i;
       // un Digimon mal discipliné n'en fait parfois qu'à sa tête
       if (P === this.st.party[0] && DW.Life.disobeys(P)) {
         const usable = P.moves.filter(mm => P.canPay(mm.id));
@@ -252,42 +289,74 @@
         this.say(`${P.name} n'écoute pas et choisit lui-même son attaque !`);
         return this.startCast('p', DW.pick(usable));
       }
-      this.startCast('p', P.moves[c.i]);
+      this.startCast('p', mv);
     }
-    async useItem() {
-      const r = await Game.push(new DW.BagScene({ battle: true }));
-      if (!r) return;
-      const mon = this.st.party[r.target], it = DW.ITEMS[r.item];
-      if (it.use === 'buff' || it.use === 'protect') {
-        this.st.bag[r.item]--;
-        if (it.use === 'protect') { this.protect = true; Audio.sfx('buff'); this.say(`${this.active.name} est protégé contre les altérations !`); }
-        else for (const k in it.st) await this.statChange('p', k, it.st[k]);
-      } else {
-        const before = mon.hp;
-        Audio.sfx('heal');
-        const txt = DW.useItem(r.item, mon);
-        if (mon === this.active && mon.hp !== before) { this.sparkle('p', '#80ff90'); this.hpShow.p = before; DW.tween(this.hpShow, { p: mon.hp }, 0.5); }
-        this.say(txt);
+    // comme dans Digimon World : le héros LANCE l'objet à son Digimon ; le combat continue pendant le vol
+    throwItem(id) {
+      const it = DW.ITEMS[id], P = this.active;
+      if (it.use !== 'buff' && it.use !== 'protect' && !DW.canUse(id, P, true)) { Audio.sfx('bump'); this.say("Ça n'aura aucun effet."); return; }
+      Audio.sfx('swoosh'); this.st.bag[id]--;
+      this.sub = 'wheel'; this.mode = 'live';
+      const h = this.hero || { x: 26, y: 200 };
+      this.throws = this.throws || [];
+      this.throws.push({ id, t: 0, dur: 0.6, x0: h.x, y0: h.y - 16 });
+      this.throwCd = 2.5;
+      this.say(`${this.st.name} lance ${it.name} à ${P.name} !`);
+    }
+    flyItems(dt) {
+      if (this.throwCd > 0) this.throwCd -= dt;
+      for (const f of this.throws || []) {
+        f.t += dt;
+        const b = this.B.p, k = Math.min(1, f.t / f.dur);
+        f.x = DW.lerp(f.x0, b.x, k); f.y = DW.lerp(f.y0, b.y - 20, k) - Math.sin(k * Math.PI) * 40;
+        if (k >= 1) { f.done = true; this.landItem(f.id); }
       }
-      this.B.p.cd = Math.max(this.B.p.cd, 0.8);   // utiliser un objet prend un instant
+      if (this.throws) this.throws = this.throws.filter(f => !f.done);
+    }
+    async landItem(id) {
+      const it = DW.ITEMS[id], P = this.active;
+      if (it.use === 'buff' || it.use === 'protect') {
+        if (it.use === 'protect') { this.protect = true; Audio.sfx('buff'); this.pop('p', 'PROTECTION', '#c8e0ff'); }
+        else for (const k in it.st) await this.statChange('p', k, it.st[k]);
+        return;
+      }
+      const hp0 = P.hp, mp0 = P.mp;
+      this.st.bag[id] = (this.st.bag[id] || 0) + 1;   // (DW.useItem retire l'objet : il l'a déjà été au lancer)
+      const txt = DW.useItem(id, P);
+      Audio.sfx('heal'); this.sparkle('p', '#80ff90');
+      if (P.hp !== hp0) { this.hpShow.p = hp0; DW.tween(this.hpShow, { p: P.hp }, 0.5); this.pop('p', '+' + (P.hp - hp0) + ' PV', '#80ff90'); }
+      if (P.mp !== mp0) this.pop('p', '+' + (P.mp - mp0) + ' PM', '#8ad0ff');
+      if (it.cure) P.stS = null;
+      this.say(txt);
     }
     spd(side) { return this.eff(side, 'spd'); }
-    sim(dt) {
+    // vitesse de déplacement (px/s) : très différente d'un Digimon à l'autre
+    //  Vitesse (stat) + stade (un bébé trottine, un Champion fonce) ; paralysie : moitié moins vite
+    moveSpeed(side) {
+      const m = this.mon(side), v = this.spd(side) / DW.SCALE.stat;
+      const stage = { 'Bébé': 0.75, 'Entraînement': 0.85, 'Disciple': 1, 'Champion': 1.15, 'Ultime': 1.25, 'Méga': 1.35 }[m.d.stage] || 1;
+      return DW.clamp(30 + v * 1.3, 32, 150) * stage * (m.status === 'par' ? 0.5 : 1);
+    }
+    sim(dt, menu) {
       const P = this.active, E = this.enemy, bp = this.B.p, be = this.B.e;
       // ordres du joueur
-      if (Input.hit('ok') && !bp.cast && P.status !== 'slp') { this.cmd = Math.min(this.cmd, this.cmdList().length - 1); this.mode = 'acmd'; Audio.sfx('select'); return; }
-      if (Input.hit('menu') && !bp.cast && this.energy.p >= 100 && DW.sigOf(P) && P.status !== 'slp') { this.special('p'); return; }
+      if (!menu && Input.hit('ok') && !bp.cast && P.status !== 'slp') { this.sub = 'wheel'; this.mode = 'acmd'; Audio.sfx('select'); return; }
+      if (this.guardCd > 0) this.guardCd -= dt;
+      if (bp.guard > 0) bp.guard -= dt;
+      if (!menu && Input.hit('menu') && !bp.cast && this.energy.p >= 100 && DW.sigOf(P) && P.status !== 'slp') { this.special('p'); return; }
       // horloge du combat : régénération, statuts
       this.clock += dt;
       if (this.clock >= TICK) { this.clock -= TICK; this.turnTick(); if (!this.live) return; }
       for (const side of ['p', 'e']) this.statusTime(side, dt);
+      this.flyItems(dt);
       // déplacements
-      this.movePlayer(dt);
+      this.movePlayer(dt, menu);
       this.moveEnemy(dt);
       for (const side of ['p', 'e']) { const b = this.B[side]; if (b.cd > 0) b.cd -= dt; }
       // fuite : pousser contre le bord gauche ou droit
       const mid = (F.x0 + F.x1) / 2, span = (F.x1 - F.x0) / 2;
-      const pushing = (bp.stuck < 0 && Input.isDown('left') && bp.x < mid - span * 0.55) || (bp.stuck > 0 && Input.isDown('right') && bp.x > mid + span * 0.55);
+      const L = Input.isDown('left') || this.autoFlee < 0, R = Input.isDown('right') || this.autoFlee > 0;
+      const pushing = !menu && ((bp.stuck < 0 && L && bp.x < mid - span * 0.55) || (bp.stuck > 0 && R && bp.x > mid + span * 0.55));
       if (pushing && this.wild && !bp.cast) {
         this.fleeT += dt;
         if (this.fleeT >= 1) {
@@ -296,7 +365,7 @@
           const ch = DW.clamp(0.5 + (ps - es) / (es * 2) + this.runTries * 0.12 + (d > 140 ? 0.15 : 0), 0.25, 1);
           if (Math.random() < ch) return this.end('run');
           this.say('Impossible de fuir !'); Audio.sfx('bump');
-          bp.x += bp.x < 160 ? 26 : -26; be.cd = Math.min(be.cd, 0.3);
+          bp.x += bp.x < mid ? 26 : -26; be.cd = Math.min(be.cd, 0.3); this.autoFlee = 0;
         }
       } else if (pushing && !this.wild) { if (!this.noFleeSaid) { this.noFleeSaid = 1; this.say('Impossible de fuir ce combat !'); } }
       else this.fleeT = Math.max(0, this.fleeT - dt * 2);
@@ -319,12 +388,15 @@
       if (this.log) { this.log.t -= dt; if (this.log.t <= 0) this.log = null; }
     }
     // déplacement du partenaire : flèches, sinon il se place tout seul à bonne distance
-    movePlayer(dt) {
+    movePlayer(dt, menu) {
       const b = this.B.p, P = this.active, e = this.B.e;
       if (this.approach(b, e, dt)) return;
       if (P.status === 'slp' || (b.cast && b.cast.phase === 'wind')) { b.vx = b.vy = 0; return; }
-      const sp = (46 + Math.min(60, this.spd('p') / DW.SCALE.stat * 0.6)) * (P.status === 'par' ? 0.5 : 1);
-      let ix = (Input.isDown('right') ? 1 : 0) - (Input.isDown('left') ? 1 : 0), iy = (Input.isDown('down') ? 1 : 0) - (Input.isDown('up') ? 1 : 0);
+      const sp = this.moveSpeed('p') * (Input.isDown('run') ? 1.45 : 1);
+      let ix = menu ? 0 : (Input.isDown('right') ? 1 : 0) - (Input.isDown('left') ? 1 : 0), iy = menu ? 0 : (Input.isDown('down') ? 1 : 0) - (Input.isDown('up') ? 1 : 0);
+      if (b.guard > 0) { b.vx = b.vy = 0; return; }
+      if (this.autoFlee) { if (!menu && (ix || iy)) this.autoFlee = 0; else { ix = this.autoFlee; iy = Math.sign((F.y0 + F.y1) / 2 - b.y) * 0.3; } }
+      if (menu) b.idle = Math.max(b.idle, 0.7);
       if (ix || iy) { b.idle = 0; const n = Math.hypot(ix, iy); b.vx = ix / n * sp; b.vy = iy / n * sp * 0.75; }
       else {
         b.idle += dt;
@@ -337,7 +409,7 @@
       const b = this.B.e, E = this.enemy, p = this.B.p;
       if (this.approach(b, p, dt)) return;
       if (E.status === 'slp' || (b.cast && b.cast.phase === 'wind')) { b.vx = b.vy = 0; return; }
-      const sp = (40 + Math.min(55, this.spd('e') / DW.SCALE.stat * 0.55)) * (E.status === 'par' ? 0.5 : 1);
+      const sp = this.moveSpeed('e') * 0.9;
       if (b.dodgeTo) { const dx = b.dodgeTo.x - b.x, dy = b.dodgeTo.y - b.y, d = Math.hypot(dx, dy); if (d < 3 || b.dodge <= 0) b.dodgeTo = null; else { b.vx = dx / d * sp * 1.4; b.vy = dy / d * sp * 1.4; b.dodge -= dt; return this.step(b, p, dt); } }
       if (b.dodge > 0) { b.dodge -= dt; }
       else this.aiMove(b, p, this.prefDist(E), sp * 0.7, dt);
@@ -500,7 +572,8 @@
         if (mv.sc) await this.statChange(tSide, mv.sc.s, mv.sc.n);
         return;
       }
-      const r = this.calc(side, mv, user, tgt, (c.slot.special ? c.mult || 1.5 : 1) * (SHAPE_MULT[c.shape] || 1));
+      const r = this.calc(side, mv, user, tgt, (c.slot.special ? c.mult || 1.5 : 1) * (SHAPE_MULT[c.shape] || 1) * (tb.guard > 0 ? 0.5 : 1));
+      if (tb.guard > 0) this.pop(tSide, 'PARÉ', '#8ad0ff');
       if (c.slot.special) { this.shake = 0.7; this.flash = 0.5; }
       this.hitAnim(tSide, r.tm);
       if (tgt.status === 'slp') { tgt.status = null; tgt.stS = null; this.pop(tSide, 'RÉVEILLÉ', '#ffffff'); }

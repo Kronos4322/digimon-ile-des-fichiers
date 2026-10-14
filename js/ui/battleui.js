@@ -7,6 +7,17 @@
   const { UI } = DW;
   const W = DW.W, H = DW.H, POS = DW.BattleScene.POS;
 
+  // cadre façon Digimon World 2003 : bleu nuit dégradé, liseré cyan, coin bas-droit coupé
+  function dw3(c, x, y, w, h, sel) {
+    const k = Math.min(8, h / 2);
+    c.beginPath(); c.moveTo(x, y); c.lineTo(x + w, y); c.lineTo(x + w, y + h - k); c.lineTo(x + w - k, y + h); c.lineTo(x, y + h); c.closePath();
+    const g = c.createLinearGradient(0, y, 0, y + h);
+    g.addColorStop(0, sel ? '#2a5ac8' : '#16306e'); g.addColorStop(1, sel ? '#163a8a' : '#0a1a44');
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = sel ? '#bff4ff' : '#4ab8f0'; c.lineWidth = 1.5; c.stroke();
+    c.strokeStyle = 'rgba(140,220,255,0.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(x + 2, y + 2.5); c.lineTo(x + w - 2, y + 2.5); c.stroke();
+  }
+  DW.UI.dw3 = dw3;
   Object.assign(DW.BattleScene.prototype, {
     drawBg(c) {
       const t = this.t;
@@ -49,7 +60,7 @@
     drawHud(c) {
       if (this.hud.e) {
         const E = this.enemy;
-        UI.box(c, 8, 10, 136, 40);
+        dw3(c, 8, 8, 136, 42);
         UI.text(c, E.name, 15, 24, { size: 10, bold: true });
         UI.text(c, `N.${E.level}`, 137, 24, { size: 9, align: 'right', color: '#ffd860' });
         if (E.status) UI.tag(c, DW.STATUS_NAME[E.status] + (E.stT > 0 && E.status !== 'slp' ? ' ' + E.stT : ''), 15 + UI.measure(c, E.name, 10, true) + 4, 15, DW.STATUS_COL[E.status]);
@@ -64,18 +75,18 @@
       }
       if (this.hud.p && this.active) {
         const P = this.active;
-        UI.box(c, 172, 122, 142, 52);
-        UI.text(c, P.name, 179, 136, { size: 10, bold: true });
-        UI.text(c, `N.${P.level}`, 307, 136, { size: 9, align: 'right', color: '#ffd860' });
-        if (P.status) UI.tag(c, DW.STATUS_NAME[P.status] + (P.stT > 0 && P.status !== 'slp' ? ' ' + P.stT : ''), 179 + UI.measure(c, P.name, 10, true) + 4, 127, DW.STATUS_COL[P.status]);
-        UI.text(c, 'PV', 179, 147, { size: 7, bold: true, color: '#ffd860' });
+        dw3(c, 174, 8, 140, 52);
+        UI.text(c, P.name, 181, 22, { size: 10, bold: true });
+        UI.text(c, `N.${P.level}`, 308, 22, { size: 9, align: 'right', color: '#ffd860' });
+        if (P.status) UI.tag(c, DW.STATUS_NAME[P.status] + (P.stT > 0 && P.status !== 'slp' ? ' ' + P.stT : ''), 181 + UI.measure(c, P.name, 10, true) + 4, 13, DW.STATUS_COL[P.status]);
+        UI.text(c, 'PV', 181, 33, { size: 7, bold: true, color: '#ffd860' });
         const r = this.hpShow.p / P.maxHp;
-        UI.bar(c, 193, 142, 114, 4, r, UI.hpColor(r));
-        UI.text(c, `${Math.ceil(this.hpShow.p)} / ${P.maxHp}`, 307, 160, { size: 9, align: 'right' });
-        UI.text(c, `PM ${P.mp}/${P.maxMp}`, 179, 160, { size: 8, color: '#8ad0ff' });
-        UI.text(c, 'EXP', 179, 169.5, { size: 6, bold: true, color: '#7ac0ff' });
-        UI.bar(c, 195, 166, 112, 2, this.xpShow.v, '#48a8f8');
-        if (DW.sigOf(P)) this.drawEnergy(c, 'p', 176, 116, 96);
+        UI.bar(c, 195, 28, 114, 4, r, UI.hpColor(r));
+        UI.text(c, `${Math.ceil(this.hpShow.p)} / ${P.maxHp}`, 308, 46, { size: 9, align: 'right' });
+        UI.text(c, `PM ${P.mp}/${P.maxMp}`, 181, 46, { size: 8, color: '#8ad0ff' });
+        UI.text(c, 'EXP', 181, 55.5, { size: 6, bold: true, color: '#7ac0ff' });
+        UI.bar(c, 195, 52, 112, 2, this.xpShow.v, '#48a8f8');
+        if (DW.sigOf(P)) this.drawEnergy(c, 'p', 176, 64, 96);
       }
     },
     drawEnergy(c, side, x, y, w) {
@@ -133,10 +144,15 @@
       UI.box(c, 4, 180, 312, 56);
       if (this.mode === 'cmd') {
         UI.wrap(c, this.text, 160, 10).forEach((l, i) => UI.text(c, l, 16, 200 + i * 14));
-        UI.box(c, 184, 184, 128, 48, 'light');
-        const labels = ['ATTAQUE', 'OBJETS', 'DIGIMON', 'FUITE'];
-        labels.forEach((s, i) => UI.text(c, s, 200 + (i % 2) * 58, 203 + (i >> 1) * 20, { size: 9, bold: true, color: '#1a2050', shadow: false }));
-        UI.cursor(c, 191 + (this.cursor % 2) * 58, 199.5 + (this.cursor >> 1) * 20, this.t);
+        const labels = ['Combat', 'Objet', 'Digimon', 'Fuite'];
+        labels.forEach((s, i) => {
+          const y = 92 + i * 21, sel = i === this.cursor, x = 10 + (sel ? 4 : 0);
+          // case carrée (pleine quand choisie), puis le bandeau
+          c.fillStyle = '#0a1a44'; c.fillRect(x, y + 3, 11, 11); c.strokeStyle = '#4ab8f0'; c.lineWidth = 1; c.strokeRect(x + 0.5, y + 3.5, 10, 10);
+          if (sel) { c.fillStyle = '#e8f8ff'; c.beginPath(); c.arc(x + 5.5, y + 8.5, 3, 0, 7); c.fill(); }
+          dw3(c, x + 15, y, 92, 17, sel);
+          UI.text(c, s, x + 22, y + 12.5, { size: 10, bold: true, color: sel ? '#ffffff' : '#c8e8ff' });
+        });
         return;
       }
       let n = Math.floor(this.shown);

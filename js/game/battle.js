@@ -5,7 +5,7 @@
 (function () {
   const { UI, Input, Audio, Game } = DW;
   const W = DW.W, H = DW.H;
-  const POS = { p: { x: 84, y: 176 }, e: { x: 236, y: 117 } };
+  const POS = { p: { x: 158, y: 178 }, e: { x: 250, y: 117 } };   // partenaire au centre, à droite du menu (façon Digimon World 2003)
   const FXCOL = {
     'Feu': ['#ff6a1a', '#ffd040'], 'Eau': ['#4aa8ff', '#e0f4ff'], 'Plante': ['#40c848', '#b8f878'],
     'Électrique': ['#ffe030', '#ffffff'], 'Glace': ['#98ecff', '#ffffff'], 'Terre': ['#9a6a38', '#d8a860'],
@@ -79,8 +79,8 @@
         if (g.t <= 0) { this.mode = 'none'; const r = this.chgR, v = g.v; this.chgR = null; this.chg = null; r && r(v); }
       } else if (this.mode === 'cmd') {
         let c = this.cursor;
-        if (Input.hit('left') || Input.hit('right')) c ^= 1;
-        if (Input.hit('up') || Input.hit('down')) c ^= 2;
+        if (Input.hit('up')) c = (c + 3) % 4;
+        if (Input.hit('down')) c = (c + 1) % 4;
         if (c !== this.cursor) { this.cursor = c; Audio.sfx('move'); }
         if (Input.hit('ok')) { Audio.sfx('select'); this.resolveMenu(this.cursor); }
         if (Input.hit('back') && this.cursor !== 3) { this.cursor = 3; Audio.sfx('move'); }

@@ -101,13 +101,39 @@
       if (DW.sigOf(m)) this.drawEnergy(c, side, x + 4, y + (right ? 44 : 36), w - 44);
       if (!right && this.st.owned[m.sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(x + w - 4, y + 26, 2, 0, 7); c.fill(); }
     },
+    // roue de commandes, toujours visible (en grand quand elle est ouverte)
+    drawWheel(c) {
+      const open = this.mode === 'acmd' && this.sub === 'wheel', cx = 252, cy = 166, k = open ? 1 : 0.72;
+      c.save(); c.globalAlpha = open ? 1 : 0.8;
+      c.translate(cx, cy); c.scale(k, k);
+      c.strokeStyle = 'rgba(74,184,240,0.7)'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 30, 0, 7); c.stroke();
+      c.strokeStyle = 'rgba(74,184,240,0.3)'; c.lineWidth = 1; c.beginPath(); c.arc(0, 0, 36 + Math.sin(this.t * 3) * 1.5, 0, 7); c.stroke();
+      const g = c.createRadialGradient(0, 0, 4, 0, 0, 22); g.addColorStop(0, '#2a5ac8'); g.addColorStop(1, '#0a1a44');
+      c.fillStyle = g; c.beginPath(); c.arc(0, 0, 21, 0, 7); c.fill(); c.strokeStyle = '#bff4ff'; c.lineWidth = 1.5; c.stroke();
+      const P = this.active, mv = P && P.moves[DW.clamp(this.lastMove || 0, 0, Math.max(0, P.moves.length - 1))];
+      UI.text(c, 'Attaque', 0, -1, { size: 9, align: 'center', bold: true, color: '#ffffff' });
+      if (mv) { const f = UI.fit(c, DW.MOVES[mv.id].name, 38, 6, 5); UI.text(c, f.s, 0, 8, { size: f.size, align: 'center', color: '#bfe8ff' }); }
+      const seg = [[0, -38, 'Garde', this.guardCd > 0], [42, 0, 'Techn.', false], [-42, 0, 'Objets', this.throwCd > 0], [0, 38, 'Fuite', !this.wild]];
+      for (const [x, y, t, off] of seg) {
+        DW.UI.dw3(c, x - 20, y - 8, 40, 15, false);
+        UI.text(c, t, x, y + 3, { size: 8, align: 'center', bold: true, color: off ? '#6a7a9a' : '#e8f8ff' });
+      }
+      c.restore();
+    },
     drawCmd(c) {
-      const P = this.active, L = this.cmdList(), x = 168, w = 148, rowH = 13, h = 22 + L.length * rowH + 22, y = 210 - h;
+      const P = this.active, L = this.cmdList(), x = 104, w = 136, rowH = 13, h = 22 + L.length * rowH + 22, y = 210 - h;
+      if (!L.length) return;
       UI.box(c, x, y, w, h);
-      UI.text(c, 'TECHNIQUES', x + 8, y + 12, { size: 8, bold: true, color: '#ffe070' });
+      UI.text(c, this.sub === 'items' ? 'OBJETS (lancer)' : 'TECHNIQUES', x + 8, y + 12, { size: 8, bold: true, color: '#ffe070' });
       L.forEach((it, i) => {
         const yy = y + 26 + i * rowH;
-        if (it.k === 'item') { UI.text(c, 'Objets', x + 16, yy, { size: 8 }); }
+        if (it.k === 'item') { UI.text(c, 'Objets ▶', x + 16, yy, { size: 8, color: this.throwCd > 0 ? '#8a8aa0' : '#ffffff' }); }
+        else if (it.k === 'use') {
+          c.drawImage(DW.Icons.item(it.id), x + 14, yy - 9, 10, 10);
+          const nm = UI.fit(c, DW.ITEMS[it.id].name, w - 50, 8);
+          UI.text(c, nm.s, x + 27, yy, { size: nm.size });
+          UI.text(c, '×' + it.n, x + w - 8, yy, { size: 7, align: 'right', color: '#c8d4ff' });
+        }
         else {
           const ok = P.canPay(it.id), cost = DW.mpCost(it.id);
           UI.text(c, DW.MOVES[it.id].name, x + 16, yy, { size: 8, color: ok ? '#fff' : '#8a8aa0' });
@@ -116,16 +142,16 @@
         if (i === this.cmd) UI.cursor(c, x + 6, yy - 3.5, this.t);
       });
       const it = L[this.cmd];
-      const info = it.k === 'item' ? 'Utiliser un objet' : (() => { const mv = DW.MOVES[it.id]; return `${A.SHAPE_NAME[A.shapeOf(mv, false)]}${mv.pow ? ' · puiss. ' + mv.pow : ''}`; })();
+      const info = it.k === 'use' ? (DW.ITEMS[it.id].desc || '').slice(0, 34) : (() => { const mv = DW.MOVES[it.id]; return `${A.SHAPE_NAME[A.shapeOf(mv, false)]}${mv.pow ? ' · puiss. ' + mv.pow : ''}`; })();
       UI.text(c, info, x + 8, y + h - 8, { size: 7, color: '#c8d4ff' });
     },
     drawLog(c) {
       UI.box(c, 4, 214, W - 8, 24);
       if (this.log) UI.text(c, UI.wrap(c, this.log.text, 300, 8)[0], 12, 224, { size: 8 });
-      const hints = this.mode === 'acmd' ? [['ok', 'lancer'], ['back', 'retour']]
-        : [['ok', 'techniques'], ...(this.energy.p >= 100 && DW.sigOf(this.active) ? [['menu', 'spécial !']] : [])];
+      const hints = this.mode === 'acmd' ? (this.sub === 'wheel' ? [['ok', 'attaque'], ['back', 'fermer']] : [['ok', 'choisir'], ['back', 'roue']])
+        : [['ok', 'roue'], ['run', 'sprint'], ...(this.energy.p >= 100 && DW.sigOf(this.active) ? [['menu', 'spécial !']] : [])];
       UI.hints(c, hints, W - 10, 235);
-      if (this.mode !== 'acmd') UI.text(c, this.wild ? 'flèches : bouger · bord du terrain : fuir' : 'flèches : bouger et esquiver', 12, 235, { size: 6, color: '#8aa0c8', shadow: false });
+      if (this.mode !== 'acmd') UI.text(c, 'flèches : bouger', 12, 235, { size: 6, color: '#8aa0c8', shadow: false });
     },
     draw(c) {
       const sx = this.shake > 0 ? Math.round((Math.random() - 0.5) * 8 * this.shake) : 0;
@@ -144,6 +170,8 @@
       for (const p of this.pt) { c.globalAlpha = Math.max(0, Math.min(1, p.life / (p.max * 0.5))); c.fillStyle = p.col; c.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size); }
       c.globalAlpha = 1;
       for (const e of this.fxd) if (e.t >= 0) { c.save(); e.draw(c, Math.min(1, e.t / e.dur), e.t); c.restore(); }
+      // objets lancés par le héros
+      for (const f of this.throws || []) if (f.x != null) { c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(f.x, this.B.p.y, 4, 1.5, 0, 0, 7); c.fill(); c.drawImage(DW.Icons.item(f.id), Math.round(f.x - 7), Math.round(f.y - 7), 14, 14); }
       // nombres et mots qui s'envolent
       for (const p of this.pops) {
         const k = p.t / 1.1;
@@ -159,7 +187,7 @@
       this.drawMini(c, 'p', 172, 4, 144);
       this.drawBanner(c);
       if (this.mode === 'msg' || this.mode === 'charge') this.drawBottom(c);
-      else if (this.live) { this.drawLog(c); if (this.mode === 'acmd') this.drawCmd(c); }
+      else if (this.live) { this.drawLog(c); this.drawWheel(c); if (this.mode === 'acmd') this.drawCmd(c); }
       this.drawOverlays(c);
     },
   });
