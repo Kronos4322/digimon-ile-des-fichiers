@@ -29,12 +29,12 @@
       if (w === 'heat' || T.drought()) m.hunger = Math.min(100, m.hunger + 0.02 * min);
     },
     // précision de Motimon : elle grandit avec la ville (DW.Town.level)
-    //  0 : il ne sait pas trop (jours faux, température au hasard)
-    //  1-3 : la bonne date, une température approximative
-    //  4+ : le CENTRE DE MÉTÉOROLOGIE (antenne) : température exacte et prévisions du lendemain
-    //  6+ : la température s'affiche en permanence sur l'horloge
-    skill() { const L = DW.Town.level(); return L >= 4 ? 2 : L >= 1 ? 1 : 0; },
-    showTemp() { return DW.Town && DW.Town.level() >= 6; },
+    //  0-2 : il ne sait pas trop (jours faux, température au hasard)
+    //  3-5 : la bonne date, une température approximative
+    //  6+ : le CENTRE DE MÉTÉOROLOGIE (antenne) : température exacte et prévisions du lendemain
+    //  8+ : la température s'affiche en permanence sur l'horloge
+    skill() { const L = DW.Town.level(); return L >= 6 ? 2 : L >= 3 ? 1 : 0; },
+    showTemp() { return DW.Town && DW.Town.level() >= 8; },
     // prévision du lendemain : la météo la plus probable de la saison (probabilités réelles du jeu)
     forecast() {
       const list = T.climateList('village'), tot = list.reduce((a, [, w]) => a + w, 0);

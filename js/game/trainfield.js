@@ -80,10 +80,11 @@
       if (k === 'atk' && a) { x = sx + side * (18 - 12 * k1 + 12 * back); if (a.t > 0.3 && a.t < 0.5) this.shake = Math.max(this.shake, 0.15 * power); }
       else if (k === 'hp' && a) { x = sx + side * (16 - 4 * k1); lift = a.t < 0.8 ? Math.sin(a.t * 30) * power : 0; }
       else if (k === 'spd') {
-        // course : il part de loin, accélère et saute la haie
+        // course : il descend la piste en ligne droite et saute la haie (le héros et le panneau restent sur le côté :
+        // il ne leur passe plus à travers)
         const run = a ? Math.min(1, a.t / 0.9) : 0;
-        x = sx + side * (40 - 80 * run); moving = !!a && run < 1; flip = side > 0;
-        if (a) y -= Math.max(0, Math.sin(Math.min(1, Math.max(0, (run - 0.35) / 0.3)) * Math.PI)) * (a.res ? 14 : 4);
+        x = sx - 8; y = sy - 20 + 36 * run; moving = !!a && run < 1; flip = false;
+        if (a) y -= Math.max(0, Math.sin(Math.min(1, Math.max(0, (run - 0.36) / 0.32)) * Math.PI)) * (a.res ? 16 : 5);
       } else if (k === 'def' && a) {
         // pierres lancées par le mur : il encaisse (moins il bouge, mieux c'est)
         const pk = Math.min(1, a.t / 0.4);

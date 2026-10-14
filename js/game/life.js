@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
 //  VIE DU DIGIMON (comme Digimon World 1)
-//  - DURÉE DE VIE : ~16 jours de jeu (+2 par renaissance, -½ par erreur de soin, +2 si très heureux).
+//  - DURÉE DE VIE : ~30 jours de jeu (+2 par renaissance, -½ par erreur de soin, +2 si très heureux).
 //    Au bout, le Digimon redevient un DigiŒuf et renaît en bébé de sa lignée (il garde ses techniques,
 //    ses victoires, la moitié de son entraînement, et ses données innées se renforcent).
 //  - ERREURS DE SOIN : faim ignorée, accident, nuit blanche, maladie ou blessure non soignée.
@@ -21,7 +21,7 @@
 // =====================================================================
 (function () {
   const { Audio } = DW;
-  const LIFESPAN = 16, KO_MAX = 3;
+  const LIFESPAN = 30, KO_MAX = 3;
   // rythmes de sommeil (heures) : coucher, effondrement si pas couché, réveil
   const DAY = { bed: 21, late: 2, wake: 7, name: 'diurne' }, NIGHT = { bed: 8, late: 13, wake: 16, name: 'nocturne' };
   const NOCTURNAL = new Set(['mushroomon', 'bakemon', 'gazimon', 'tsukaimon', 'demidevimon', 'pagumon', 'candlemon', 'devimon', 'vampiremon', 'myotismon', 'phantomon', 'soulmon', 'wizardmon', 'pumpkinmon', 'impmon', 'keramon', 'kuramon', 'yuramon', 'tanemon']);
@@ -37,6 +37,7 @@
       if (m.fat == null) m.fat = 0;
       if (m.lives == null) m.lives = 0;
       if (m.lifespan == null) m.lifespan = LIFESPAN;
+      if (!m.life2) { m.life2 = true; if (m.lifespan < LIFESPAN) m.lifespan += 14; }   // (durée de vie passée de 16 à 30 jours : les Digimon déjà nés en profitent)
       if (m.germs == null) m.germs = 0;
       if (m.slept == null) m.slept = DW.state ? DW.state.clock : 0;
       return m;

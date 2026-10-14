@@ -78,7 +78,7 @@
       if (m.hp <= 0) return `${m.name} est K.O. Soigne-le d'abord !`;
       if (m.sick) return `${m.name} est malade... Donne-lui un Médicament avant de l'entraîner.`;
       if (m.hurt) return `${m.name} est blessé... Soigne-le avec un Bandage d'abord.`;
-      if (m.tired >= 100) return `${m.name} est épuisé... Fais-le dormir ou mange au restaurant.`;
+      if (m.tired >= 100) return `${m.name} est épuisé... Fais-le dormir${DW.Town.has('mushroomon') ? ' ou mange au Restaurant' : ''}.`;
       if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat, ou dé-digivolue-le (son ABI monte) pour l'augmenter !`;
       if (this.total(m) >= this.totalCap(m)) return `${m.name} ne peut plus progresser davantage... Dé-digivoluer (table des Digivolutions) augmente son ABI et repousse cette limite.`;
       if (DW.Care && DW.Care.tooHungry(m)) return `${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`;

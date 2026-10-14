@@ -97,7 +97,7 @@
     await DW.say(`Tu reçois : ${I[id].name}${k > 1 ? ' ×' + k : ''} !${DW.extraMsg(extra)}`);
     if (!s.flags.cuisineTip) {
       s.flags.cuisineTip = true;
-      await DW.say('(Chaque habitant de la ville t\'offre un ingrédient par jour. Au Restaurant, Mushroomon t\'apprendra à les cuisiner en bons petits plats !)');
+      await DW.say(DW.Town.has('mushroomon') ? '(Chaque habitant de la ville t\'offre un ingrédient par jour. Au Restaurant, Mushroomon t\'apprendra à les cuisiner en bons petits plats !)' : '(Chaque habitant de la ville t\'offre un ingrédient par jour. Garde-les précieusement : ils serviront un jour à cuisiner.)');
     }
   }
 

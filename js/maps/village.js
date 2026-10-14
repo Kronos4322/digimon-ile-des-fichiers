@@ -172,8 +172,8 @@
       for (const x of [bx, bx + 1]) m.signs[`${x},${by}`] = () => DW.Chapter.townSign();
       // Motimon, le gardien du calendrier (saisons, météo : game/calendrier.js)
       m.npcs.push({ sp: 'motimon', x: bx + 3, y: by + 1, face: 'left', talk: () => DW.Calendar.talk() });
-      // le Centre de météorologie de Motimon apparaît quand la ville atteint le niveau 4 (antenne et panneau)
-      if (lvl >= 4) { m.objects.push({ kind: 'antenna', x: bx + 4, y: by, w: 1, h: 1, small: true }); m.signs[`${bx + 4},${by}`] = 'CENTRE DE MÉTÉOROLOGIE — Motimon. Température, saisons et prévisions du lendemain.'; } }
+      // le Centre de météorologie de Motimon apparaît quand la ville atteint le niveau 6 (antenne et panneau)
+      if (lvl >= 6) { m.objects.push({ kind: 'antenna', x: bx + 4, y: by, w: 1, h: 1, small: true }); m.signs[`${bx + 4},${by}`] = 'CENTRE DE MÉTÉOROLOGIE — Motimon. Température, saisons et prévisions du lendemain.'; } }
     // porte de la maison du joueur, placée sur la maison une fois le plan agrandi
     { const o = m.objects.find(o => o.home); DW.HOME_DOOR = { x: o.x + 2, y: o.y + o.h - 1 };
       m.doors.push({ x: o.x + 2, y: o.y + o.h - 1, w: 1, dir: 'up', to: 'maison_joueur', tx: 7, ty: 10, _zt: true });
@@ -248,7 +248,7 @@
   async function passerTalk(sp) {
     const name = DW.SPECIES[sp].name, lv = T().level();
     const lines = lv < 4 ? ["La ville renaît peu à peu... C'est grâce à toi !", "Avant, il n'y avait que des ruines ici. Regarde maintenant !", "J'ai entendu dire que d'autres Digimon allaient revenir s'installer."]
-      : lv < 8 ? ['Il y a de plus en plus de monde en ville ! On se croirait au marché.', "Tu as goûté la cuisine du Restaurant ? Un régal !", "Motimon dit qu'il va pleuvoir demain. Il se trompe rarement maintenant !"]
+      : lv < 8 ? ['Il y a de plus en plus de monde en ville ! On se croirait au marché.', T().has('mushroomon') ? 'Tu as goûté la cuisine du Restaurant ? Un régal !' : "J'ai entendu parler d'un Digimon champignon qui cuisine à merveille... Il vit dans la Prairie, paraît-il.", "Motimon dit qu'il va pleuvoir demain. Il se trompe rarement maintenant !"]
       : ["La Ville des Fichiers est devenue une vraie cité ! Qui l'aurait cru ?", 'Des Digimon viennent de toute l\'île pour voir notre ville.', "Le soir, avec les lanternes, la place est magnifique."];
     await say(DW.pick(lines), name);
   }

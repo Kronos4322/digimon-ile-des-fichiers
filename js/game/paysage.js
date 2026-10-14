@@ -7,7 +7,8 @@
 //    champignon lumineux : cueillir      banc, rondin : s'asseoir (le partenaire se repose)
 //    source, eau : boire / s'éclabousser      fleurs : les sentir      puits : faire un vœu
 //    panneau : après la lecture, le partenaire réagit parfois
-//  Chaque élément ne donne qu'une trouvaille par jour (st.scenery).
+//  Chaque élément ne donne qu'une trouvaille par jour (st.scenery), et le plus souvent... rien du tout.
+//  Les outils s'usent : le Bâton solide tient 12 coups, la Petite pelle 10 fouilles, puis ils se brisent (st.toolWear).
 // =====================================================================
 (function () {
   const say = (t, who) => DW.say(t, who);
@@ -26,6 +27,16 @@
     await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)) });
     return true;
   }
+  // usure des outils : un coup de plus ; prévient quand l'outil faiblit, le casse au bout de sa vie
+  const TOOL_LIFE = { baton: 12, pelle: 10 };
+  async function wear(id) {
+    const s = st(), W = s.toolWear = s.toolWear || {}, life = TOOL_LIFE[id];
+    W[id] = (W[id] || 0) + 1;
+    const left = life - W[id], name = DW.ITEMS[id].name;
+    if (left <= 0) { s.bag[id] = Math.max(0, (s.bag[id] || 0) - 1); W[id] = 0; DW.Audio.sfx('bump'); await say(`CRAC ! Ton ${name} se brise en morceaux...${s.bag[id] ? ' (Tu en as un autre dans ton sac.)' : ' Il faudra en racheter un au Bazar.'}`); }
+    else if (left === Math.floor(life / 2)) await say(`(Ton ${name} commence à se fendre...)`);
+    else if (left === 2) await say(`(Ton ${name} ne tiendra plus très longtemps !)`);
+  }
   const FRUIT = { tree: ['digipomme', 'baie_rouge', 'noix_douce', 'pomme_bleue'], bigtree: ['gland_or', 'noix_douce', 'grosse_baie'], palm: ['orange_bana', 'noix_douce'], candytree: ['sucre', 'macaron'] };
 
   const ACTS = {
@@ -33,18 +44,20 @@
       if (!st().bag.baton) { await say("Un bel arbre. Avec un Bâton solide (Bazar de Gotsumon), tu pourrais le secouer..."); return; }
       if ((await DW.ask('Secouer l\'arbre ?', ['Oui', 'Non'])) !== 0) return;
       ow.shake = 0.25; DW.Audio.sfx('swoosh');
-      if (!once(ow, x, y)) { await say('Quelques feuilles tombent... Il n\'y a plus rien à cueillir aujourd\'hui.'); return; }
+      if (!once(ow, x, y)) { await say('Quelques feuilles tombent... Il n\'y a plus rien à cueillir aujourd\'hui.'); await wear('baton'); return; }
       const r = Math.random();
-      if (r < 0.4) { await say('Quelque chose tombe de l\'arbre !'); await give(DW.pick(FRUIT[kind] || FRUIT.tree)); emote(ow, 'heart'); }
-      else if (r < 0.55 && await ambush(ow, 'Un %s caché dans les branches te tombe dessus !')) return;
+      await wear('baton');
+      if (r < 0.18) { await say('Quelque chose tombe de l\'arbre !'); await give(DW.pick(FRUIT[kind] || FRUIT.tree)); emote(ow, 'heart'); }
+      else if (r < 0.28 && await ambush(ow, 'Un %s caché dans les branches te tombe dessus !')) return;
       else await say('Des feuilles virevoltent... mais rien d\'autre.');
     },
     async search(ow, x, y, what) {
       if (!st().bag.pelle) { await say(`Il y a peut-être quelque chose ${what.startsWith('sous') || what.startsWith('autour') ? what : 'dans ' + what}... Il te faudrait une Petite pelle (Bazar de Gotsumon).`); return; }
       if (!once(ow, x, y)) { await say(`Tu as déjà fouillé ${what} aujourd'hui.`); return; }
       const r = Math.random();
-      if (r < 0.3) await give(DW.pick(['digichampi', 'viande', 'soin_p', 'eau_source', 'sel', 'truffe']));
-      else if (r < 0.4 && await ambush(ow, 'Un %s dérangé dans sa cachette t\'attaque !')) return;
+      await wear('pelle');
+      if (r < 0.16) await give(DW.pick(['digichampi', 'viande', 'soin_p', 'eau_source', 'sel', 'truffe']));
+      else if (r < 0.24 && await ambush(ow, 'Un %s dérangé dans sa cachette t\'attaque !')) return;
       else { await say(`Tu fouilles ${what}... Rien, à part quelques cloportes.`); if (pt()) await say(`${pt().name} renifle partout, déçu.`); }
     },
     async pick(ow, x, y) {
