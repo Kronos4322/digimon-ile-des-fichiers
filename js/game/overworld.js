@@ -531,6 +531,7 @@
       }
       this.amb.drawWorld(c, cam);
       DW.Vivant.drawAir(this, c);
+      if (DW.RegionFx) DW.RegionFx.draw(this, c);   // ambiances propres à chaque région (gfx/regionfx.js)
       // étiquette au-dessus du poste d'entraînement qu'on peut utiliser
       const ts = !this.locked && Game.top() === this && this.trainSpot();
       if (ts) {
