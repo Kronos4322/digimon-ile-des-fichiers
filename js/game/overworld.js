@@ -383,6 +383,8 @@
       Audio.play(this.map.music);
       const lead = DW.state.party[0];
       if (lead && res === 'win') DW.Life.moment('good', 'une belle victoire');
+      // conseil aux débutants : PV bas après le combat
+      if (lead && lead.hp > 0 && lead.hp < lead.maxHp * 0.35) DW.Care.toast(`${lead.name} est épuisé... Donne-lui une Viande (MENU → SAC) avant le prochain combat !`, '#ff8a8a');
       if (lead && lead.hp > 0 && lead.hp < lead.maxHp / 4 && !lead.hurt && Math.random() < 0.35) {
         lead.hurt = DW.state.clock;
         DW.Care.toast(`${lead.name} s'est blessé pendant le combat ! (Bandage)`, '#ff8a8a');

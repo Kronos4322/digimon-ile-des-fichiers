@@ -238,6 +238,7 @@
       Life.init(m);
       const out = [];
       if (Life.pending) out.push(Life.pending.type === 'bad' ? 'bad' : 'good');
+      if (m.hp > 0 && m.hp < m.maxHp * 0.35) out.push('lowhp');   // PV bas : il faut le soigner (Viande, Petit soin)
       if (m.hunger >= 70) out.push('food');
       if (m.need >= 75) out.push('need');
       if (m.sick) out.push('sick');
