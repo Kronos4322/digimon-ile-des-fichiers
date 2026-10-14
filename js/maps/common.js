@@ -45,8 +45,33 @@
       m.rows = m.rows.map(r => r.padEnd(m.w, '#'));
       m.h = m.rows.length;
     }
+    densify(m);
     return m;
   };
+  // décor dense façon Digimon World 2003 : des bouquets de fougères, herbes folles, fleurs, champignons
+  // (sur l'herbe) et de coquillages (sur le sable). Tous praticables : rien ne change pour les déplacements.
+  // On laisse libres les abords des passages, portes, panneaux et personnages. (m.dense = false : désactivé)
+  function densify(m) {
+    if (m._denseFor === m.rows || m.indoor || m.dense === false || !m.rows) return;   // (les cartes reconstruites, ex. la ville, sont refaites)
+    const A = DW.Art, keep = new Set(), near = (x, y, r = 1) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) keep.add((x + dx) + ',' + (y + dy)); };
+    for (const w of [...(m.warps || []), ...(m.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) near(x, y, 2);
+    for (const k in m.signs || {}) { const [x, y] = k.split(',').map(Number); near(x, y); }
+    for (const n of m.npcs || []) near(n.x, n.y);
+    for (const t of m.triggers || []) for (let y = t.y; y < t.y + (t.h || 1); y++) for (let x = t.x; x < t.x + (t.w || 1); x++) near(x, y, 0);
+    const forest = m.ambient === 'forest', town = m.ambient === 'town';
+    const GRASS = forest ? 'nnjmf' : town ? 'ffjn' : 'fjnfj', seed = [...String(m.name || '')].reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 3) & 255;
+    const g = m.rows.map(r => [...r]);
+    for (let y = 1; y < m.h - 1; y++) for (let x = 1; x < m.w - 1; x++) {
+      const ch = g[y][x];
+      if ((ch !== '.' && ch !== 's') || keep.has(x + ',' + y)) continue;
+      // pas sur un chemin : seulement entourée de la même matière
+      if (g[y - 1][x] !== ch && g[y + 1][x] !== ch) continue;
+      const cl = A.fbm(x * 0.18, y * 0.18, seed + 5), h = A.hash(x, y, seed + 6);
+      if (cl < (town ? 0.6 : 0.52) || h > (town ? 0.35 : 0.55)) continue;
+      g[y][x] = ch === 's' ? (h < 0.3 ? '3' : ch) : GRASS[Math.floor(A.hash(x, y, seed + 7) * GRASS.length)];
+    }
+    m.rows = m._denseFor = g.map(r => r.join(''));
+  }
 
   // ------------------------------------------------------------ scripts partagés
   async function healAll(msg) {
@@ -314,5 +339,5 @@
     };
   }
 
-  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows };
+  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify };
 })();

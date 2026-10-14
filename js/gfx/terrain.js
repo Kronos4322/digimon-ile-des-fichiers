@@ -519,6 +519,48 @@
     yield;
     const ground = Art.canvas(GW, GH);
     ground.getContext('2d').putImageData(new ImageData(base, GW, GH), 0, 0);
+    // détails au sol, denses comme dans Digimon World 2003 (touffes d'herbe, trèfles, fleurs, cailloux,
+    // feuilles mortes, coquillages, mousse entre les pavés) : seulement visuels, peints une fois
+    if (LUSH && map.dense !== false) {
+      const g = ground.getContext('2d'), rgb = a => `rgb(${a[0] | 0},${a[1] | 0},${a[2] | 0})`;
+      const G0 = rgb(GRASS[0]), G1 = rgb(GRASS[1]), G3 = rgb(GRASS[Math.min(3, GRASS.length - 1)]), G4 = rgb(GRASS[Math.min(4, GRASS.length - 1)]), G5c = rgb(GRASS[GRASS.length - 1]);
+      const D0 = rgb(DIRT[0]), D4 = rgb(DIRT[Math.min(4, DIRT.length - 1)]), S0 = rgb(SAND[0]);
+      const FL = map.ambient === 'forest' ? ['#ffffff', '#f0e070', '#c8a0ff'] : ['#ffffff', '#ffe060', '#f080b0', '#a0b8ff', '#ff8a5a'];
+      const forest = map.ambient === 'forest';
+      for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+        const dens = fbm(tx * 0.22, ty * 0.22, 77), n = Math.floor(dens * 4.2 + hash(tx, ty, 78) * 1.2) - 1;
+        for (let k = 0; k < n; k++) {
+          const px = tx * TS + Math.floor(hash(tx * 7 + k, ty, 79) * 15), py = ty * TS + 3 + Math.floor(hash(tx, ty * 7 + k, 80) * 13);
+          if (px >= GW || py >= GH) continue;
+          const i = py * GW + px, t = T[i], r = hash(px, py, 81);
+          if (ED[i] < 3 || SH[i] > 6) continue;
+          if (t === TER.grass || t === TER.lawn) {
+            if (r < 0.42) {   // touffe : brins sombres et pointes claires
+              for (let b = -2; b <= 2; b++) { const h = 2 + Math.floor(hash(px + b, py, 82) * 3); g.fillStyle = b % 2 ? G0 : G1; g.fillRect(px + b, py - h, 1, h); g.fillStyle = G4; g.fillRect(px + b, py - h, 1, 1); }
+            } else if (r < 0.6) {   // trèfle
+              g.fillStyle = G3; g.fillRect(px, py, 2, 1); g.fillRect(px + 1, py - 1, 1, 1); g.fillRect(px - 1, py - 1, 1, 1); g.fillStyle = G5c; g.fillRect(px, py - 1, 1, 1);
+            } else if (r < 0.78) {   // petites fleurs en grappe
+              const col = FL[Math.floor(hash(px, py, 83) * FL.length)];
+              for (let f = 0; f < 3; f++) { const fx = px + Math.floor(hash(px, f, 84) * 5) - 2, fy = py - Math.floor(hash(py, f, 85) * 3); g.fillStyle = G0; g.fillRect(fx, fy + 1, 1, 1); g.fillStyle = col; g.fillRect(fx, fy, 1, 1); }
+            } else if (r < 0.88 && forest) {   // feuilles mortes
+              g.fillStyle = LITTER[Math.floor(hash(px, py, 86) * LITTER.length)]; g.fillRect(px, py, 2, 1); g.fillRect(px + 1, py - 1, 1, 1);
+            } else if (r < 0.94) {   // caillou
+              g.fillStyle = '#5a5a58'; g.fillRect(px, py, 3, 2); g.fillStyle = '#a8a8a0'; g.fillRect(px, py, 2, 1);
+            } else {   // ombre d'herbe dense
+              g.fillStyle = G0; g.globalAlpha = 0.5; g.fillRect(px - 2, py, 5, 1); g.globalAlpha = 1;
+            }
+          } else if (t === TER.dirt) {
+            if (r < 0.5) { g.fillStyle = D0; g.fillRect(px, py, 2, 1); g.fillStyle = D4; g.fillRect(px, py - 1, 1, 1); }   // gravier
+            else if (r < 0.7) { g.fillStyle = D0; g.fillRect(px, py, 1, 1); g.fillRect(px + 1, py + 1, 2, 1); g.fillRect(px + 3, py + 1, 1, 1); }   // fissure
+          } else if (t === TER.sand) {
+            if (r < 0.25) { g.fillStyle = '#fff4e0'; g.fillRect(px, py, 2, 1); g.fillStyle = '#e8a090'; g.fillRect(px + 1, py, 1, 1); }   // coquillage
+            else if (r < 0.5) { g.fillStyle = S0; g.fillRect(px, py, 2, 1); }
+          } else if (t === TER.cobble) {
+            if (r < 0.35) { g.fillStyle = G1; g.fillRect(px, py, 1, 1); g.fillRect(px + 1, py - 1, 1, 1); }   // mousse et herbes entre les pavés
+          }
+        }
+      }
+    }
     // sol peint à la main par la carte (ex. la piste et les aires du terrain d'entraînement)
     if (map.paintGround) map.paintGround(ground.getContext('2d'), GW, GH);
     const water = WI.length ? { x: wx0, y: wy0, frames: [] } : null;
