@@ -229,7 +229,7 @@
   // réglages d'équilibrage des combats (mesurés avec un simulateur : 4 à 6 tours à niveau égal, ~50 % des PV restants)
   // wildDmg : les Digimon sauvages frappent moins fort (le partenaire élevé avec soin domine sa zone, comme dans Digimon World 1)
   // lvGap : ±6 % de dégâts par niveau d'écart entre l'attaquant et sa cible (borné ×0,7 – ×1,5) : grandir compte, même au début
-  DW.BALANCE = { dmg: 0.6, wildDmg: 0.9, lvGap: 0.06 };
+  DW.BALANCE = { dmg: 0.6, wildDmg: 0.8, lvGap: 0.06 };   // wildDmg 0,9 → 0,8 après la partie test du chapitre 1 (dev/playtest.js)
   DW.SAVE_V = 5; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20)
   DW.newState = () => ({
     name: 'Tai', hero: 'tai', party: [], box: [], bag: {}, bits: 300, flags: {}, seen: {}, owned: {},

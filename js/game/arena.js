@@ -512,7 +512,8 @@
         cell = [DW.clamp(cell[0] + DW.pick([-1, 1]), 0, G.cols - 1), DW.clamp(cell[1] + DW.pick([-1, 0, 1]), 0, G.rows - 1)];
       c.cell = cell; c.zone = zoneOf(c.shape === 'far' && c.mv.pow >= 90 ? 'big' : c.shape, cell);
       // l'ennemi visé tente parfois de sortir de la zone (selon sa vitesse)
-      if (side === 'p' && c.shape !== 'field' && Math.random() < DW.clamp(0.25 + (this.spd('e') - this.spd('p')) / (this.spd('p') * 3), 0.1, 0.55)) {
+      // (un Digimon sauvage esquive deux fois moins souvent qu'un boss : les combats ordinaires restent abordables)
+      if (side === 'p' && c.shape !== 'field' && Math.random() < DW.clamp(0.25 + (this.spd('e') - this.spd('p')) / (this.spd('p') * 3), 0.1, 0.55) * (this.wild ? 0.5 : 1)) {
         let best = null, bd = 1e9;
         for (let y = 0; y < G.rows; y++) for (let x = 0; x < G.cols; x++) {
           if (c.zone.has(x + ',' + y)) continue;
