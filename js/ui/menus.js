@@ -497,12 +497,12 @@
     // stock : liste d'objets, ou nom de boutique (DW.SHOPS, stock selon le niveau de la ville)
     constructor(stock) { super(); this.src = stock; this.i = 0; this.qty = 0; this.sell = false; this.top = 0; }
     get stock() { return this.sell ? DW.ITEM_ORDER.filter(id => (DW.state.bag[id] || 0) > 0) : typeof this.src === 'string' ? DW.shopStock(this.src) : this.src; }
-    price(id) { const it = DW.ITEMS[id]; return this.sell ? (it.sell || Math.floor(it.price / 2)) : it.price; }
+    price(id) { const it = DW.ITEMS[id]; return this.sell ? (it.sell || Math.floor(it.price / 2)) : Math.ceil(it.price * (DW.Collab ? DW.Collab.priceMult() : 1)); }   // (Comptoir du Bazar : -15 %)
     update() {
       const st = DW.state, L = this.stock;
       if (this.qty > 0) {
         const id = L[this.i], it = DW.ITEMS[id];
-        const max = this.sell ? st.bag[id] || 0 : Math.max(1, Math.min(DW.bagRoom(id), Math.floor(st.bits / it.price)));
+        const max = this.sell ? st.bag[id] || 0 : Math.max(1, Math.min(DW.bagRoom(id), Math.floor(st.bits / this.price(id))));
         if (Input.hit('up') || Input.hit('right')) { this.qty = this.qty >= max ? 1 : this.qty + 1; Audio.sfx('move'); }
         if (Input.hit('down') || Input.hit('left')) { this.qty = this.qty <= 1 ? max : this.qty - 1; Audio.sfx('move'); }
         if (Input.hit('back')) { this.qty = 0; Audio.sfx('back'); }

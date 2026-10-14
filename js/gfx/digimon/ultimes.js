@@ -7,20 +7,48 @@
 (function () {
   const W = '#fbf6ea';
   Object.assign(DW.DRAW, {
+    // Jijimon (d'après wikimon) : vieux sage tout en fourrure blanche hirsute, pagne beige noué d'une corde,
+    // pieds et mains roses, bâton chéri surmonté d'une grosse patte jaune à coussinets sombres
     jijimon(d) {
-      const Sk = '#f2c49a', Wh = '#f4f2ee', Y = '#f8c838', K = '#2a2a2a';
-      d.tube([[44, 60], [48, 34], [50, 12]], 3, 2.6, '#8a5a32', { tex: 0.3 });
-      d.ell(26, 60, 6, 3, Sk, 0, { far: true }); d.ell(38, 60.4, 6.4, 3, Sk);
-      d.tube([[27, 50], [26, 58]], 4, 4, Sk, { far: true }); d.tube([[36, 50], [37, 58]], 4, 4, Sk);
-      d.poly([[14, 48], [10, 40], [12, 26], [18, 18], [26, 12], [36, 12], [46, 18], [52, 28], [52, 40], [48, 50], [40, 54], [24, 54]], Wh, { tex: 0.45, texSize: 1 });
-      [[12, 44], [11, 32], [17, 20], [30, 12], [44, 17], [51, 32], [48, 46]].forEach(([x, y]) => d.poly([[x - 3, y], [x - 6 + (x < 30 ? -2 : 4), y - 4], [x + 2, y - 2]], Wh, { tex: 0.4 }));
-      d.deco.curve([[22, 30], [27, 28]], 1.2, '#b8b4ac'); d.deco.curve([[36, 28], [41, 30]], 1.2, '#b8b4ac');
-      d.ell(37, 36, 4.6, 3.6, Sk);
-      d.deco.curve([[16, 40], [22, 46], [28, 44]], 0.8, '#c8c4bc'); d.deco.curve([[34, 46], [42, 44], [46, 40]], 0.8, '#c8c4bc');
-      d.tube([[42, 42], [48, 36]], 4, 3.4, Sk);
-      d.circ(51, 10, 8, Y, { shiny: true });
-      d.deco.circ(51, 12.6, 3, K, { unlit: true });
-      [[46, 6], [50.4, 3.6], [55, 4.6], [57.6, 8.6]].forEach(([x, y]) => d.deco.circ(x, y, 1.6, K, { unlit: true }));
+      const Sk = '#f4b8a0', Skd = '#d88a74', Wh = '#f6f4ee', Wg = '#d8d4cc', Y = '#f8c838', Yd = '#d89a20', K = '#2e2a2a', Cl = '#e8d4a8', Rp = '#8a5a32';
+      // bâton (derrière la main) et sa patte
+      d.tube([[46, 60], [48, 36], [50, 14]], 3, 2.6, '#8a5a32', { tex: 0.35 });
+      // patte : paume ronde, trois doigts en bosse, coussinets gris-brun (un gros en haricot, trois petits)
+      d.ell(50.5, 11, 7, 6.6, Y, 0, { shiny: true });
+      [[45, 5.4], [50.5, 3.4], [56, 5.4]].forEach(([x, y]) => d.circ(x, y, 3, Y, { shiny: true }));
+      d.deco.curve([[44, 15.6], [50.5, 17.6], [57, 15.6]], 0.9, Yd);
+      d.deco.ell(50.5, 12.2, 3.2, 2.4, '#5a4646', 0, { unlit: true });
+      [[45.4, 5.8], [50.5, 3.8], [55.6, 5.8]].forEach(([x, y]) => d.deco.ell(x, y, 1.4, 1.2, '#5a4646', 0, { unlit: true }));
+      // pieds roses et orteils
+      d.ell(25, 60, 6.4, 3, Sk, 0, { far: true }); d.ell(38, 60.4, 6.8, 3.1, Sk);
+      [[33, 60], [36, 61], [39.4, 61], [42.6, 60.4]].forEach(([x, y]) => d.deco.circ(x, y, 1, Skd));
+      d.tube([[27, 50], [26, 58]], 4, 4, Sk, { far: true }); d.tube([[36, 50], [37, 58]], 4.2, 4, Sk);
+      // pagne beige et corde
+      d.poly([[18, 46], [46, 46], [44, 54], [38, 52], [32, 55], [26, 52], [20, 54]], Cl, { tex: 0.3 });
+      d.tube([[18, 46.5], [46, 46.5]], 1.8, 1.8, Rp);
+      d.deco.curve([[30, 47], [29, 52]], 1, Rp); d.deco.curve([[31, 47], [33, 51.5]], 1, Rp);
+      // grande fourrure hirsute (corps et tête)
+      d.poly([[14, 47], [9, 38], [11, 25], [17, 16], [26, 10], [37, 10], [47, 16], [53, 27], [53, 39], [49, 48], [40, 49], [24, 49]], Wh, { tex: 0.5, texSize: 1 });
+      // touffes arrondies tout autour (silhouette en nuage) et mèches qui pendent en bas
+      [[13, 41, 5.6], [11.5, 32, 6], [14, 23, 5.6], [20, 16.5, 6], [28.5, 13, 6.4], [37.5, 13, 6.2], [45, 17.5, 5.8], [49.5, 26, 5.6], [51, 35, 5.6], [48, 43, 5.6]].forEach(([x, y, r]) =>
+        d.ell(x, y, r, r * 0.85, Wh, 0, { tex: 0.5, texSize: 1 }));
+      [[17, 47.5], [23.5, 49], [30, 49.6], [36.5, 49.4], [43, 47.6]].forEach(([x, y]) => d.ell(x, y, 4.2, 3, Wh, 0, { tex: 0.4 }));
+      [[17, 50], [23.5, 51.6], [30, 52], [36.5, 52], [43, 50]].forEach(([x, y]) => d.deco.curve([[x - 2, y - 1], [x, y]], 0.8, Wg));
+      // ombres des mèches (traits gris)
+      [[[16, 26], [19, 34], [17, 42]], [[23, 16], [26, 24]], [[41, 16], [44, 23]], [[47, 28], [48, 37], [45, 44]], [[22, 38], [25, 45]], [[38, 40], [40, 47]]].forEach(pts => d.deco.curve(pts, 0.8, Wg));
+      // sourcils broussailleux qui cachent les yeux
+      d.blob([[21, 28], [26, 25], [31, 27], [28, 30], [23, 31]], '#fbfaf6');
+      d.blob([[33, 27], [38, 25], [44, 28], [40, 31], [35, 30]], '#fbfaf6');
+      d.deco.curve([[22, 30.5], [26, 29], [30, 30]], 0.9, '#a8a49c'); d.deco.curve([[34, 30], [38, 29], [43, 30.5]], 0.9, '#a8a49c');
+      // gros nez rose
+      d.ell(32.5, 35, 4.4, 3.6, Sk, 0, { shiny: true });
+      d.deco.ell(31.5, 34, 1.2, 0.9, '#ffe4d8', 0, { unlit: true });
+      // moustache qui retombe sur la barbe
+      d.deco.curve([[24, 39], [28, 37.6], [32, 39]], 1.1, Wg); d.deco.curve([[33, 39], [37, 37.6], [41, 39]], 1.1, Wg);
+      // main rose qui tient le bâton
+      d.tube([[41, 41], [46, 37]], 4, 3.6, Wh, { tex: 0.3 });
+      d.ell(47.6, 36, 3.6, 3.2, Sk);
+      d.deco.curve([[46, 34.6], [49.4, 35.2]], 0.7, Skd); d.deco.curve([[46, 36.8], [49.4, 37.4]], 0.7, Skd);
     },
     zudomon(d) {
       const Wt = '#eef2fa', Sh = '#c8823a', Hm = '#7a5a3a', R = '#e05a3a', Mt = '#a8b0c0';

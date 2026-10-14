@@ -51,7 +51,7 @@
     // réussite des 3 essais (score 0 à 6) → multiplicateur final (comme le « Bonus Try »)
     tryMult: score => score === 0 ? 0.5 : score <= 2 ? 1 : score <= 4 ? 2 : score === 5 ? 3 : 4,
     statGain(m, k, score, L) {
-      const up = 1 + (this.STAGE_BONUS[m.d.stage] || 0) + (DW.state.bag.manuel_entr ? 0.1 : 0) + Math.min(0.2, (DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) * 0.1) + (DW.Town.has && DW.Town.has('elecmon') ? 0.1 : 0);
+      const up = 1 + (this.STAGE_BONUS[m.d.stage] || 0) + (DW.state.bag.manuel_entr ? 0.1 : 0) + Math.min(0.2, (DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) * 0.1) + (DW.Town.has && DW.Town.has('elecmon') ? 0.1 : 0) + (DW.Collab && DW.Collab.on('muscu') ? 0.1 : 0);
       const item = (m.boost || 0) > 0 ? 1.2 : 1;
       if (item > 1) m.boost = 0;
       const S = DW.SCALE, parts = {};
@@ -161,7 +161,7 @@
     finish() {
       const m = this.m, k = this.k;
       const score = this.hits.reduce((a, b) => a + b, 0);                 // 0 à 6
-      const bonus = score > 0 ? (DW.Town.has('elecmon') ? 1 : 0) + Math.min(2, DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) : 0; // Dojo d'Elecmon + coachs recrutés
+      const bonus = score > 0 ? (DW.Town.has('elecmon') ? 1 : 0) + (DW.Collab && DW.Collab.on('muscu') ? 1 : 0) + Math.min(2, DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) : 0; // Dojo d'Elecmon, Salle de musculation, coachs recrutés
       this.score = score;
       const extra = score > 0 ? (m.boost || 0) + (DW.state.bag.manuel_entr ? 1 : 0) : 0;   // Super carotte, Radis... et Manuel d'entraînement
       if (score > 0) m.boost = 0;

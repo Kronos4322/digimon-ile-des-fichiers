@@ -57,6 +57,7 @@
       const lv = this.level();
       await DW.say(`Développement de la ville : ${this.progress()} %.${lv > lv0 ? ` Elle passe au niveau ${lv} : « ${this.levelName()} » !` : ` Prochain niveau (« ${this.nextName()} ») à ${this.STEPS[Math.min(this.STEPS.length - 1, lv + 1)]} %.`}`);
       st.townLevelSeen = lv;
+      if (DW.Collab) await DW.Collab.announce();   // habitants qui s'associent (game/collab.js)
       DW.Audio.play('village');
       DW.autosave();
     },

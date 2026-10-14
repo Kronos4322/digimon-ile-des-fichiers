@@ -26,35 +26,59 @@
   };
 
   Object.assign(OBJ, {
-    // ---------------------------------------------------------- maison de Jijimon (6×4 cases)
-    jhouse: { w: 116, h: 108, n: 1, lights: [[30, 74, 20], [92, 72, 16], [58, 66, 16]], smoke: [90, 22], draw(d) {
-      d.ell(58, 104, 54, 4, '#3a2a18', 0, { flat: true });
-      // terrasse en bois et marches
-      d.rect(10, 92, 96, 12, '#b8844c', { round: 0.08, tex: 0.3 });
-      for (let x = 16; x < 104; x += 8) d.deco.line(x, 93, x, 104, 0.7, '#7a5028');
-      d.rect(42, 98, 32, 8, '#c8945a', { round: 0.1 }); d.deco.line(42, 102, 74, 102, 0.8, '#8a5a30');
-      // murs ocre
-      d.rect(14, 50, 88, 44, '#c8a070', { round: 0.05, tex: 0.15 });
-      d.deco.rect(14, 86, 88, 8, '#a87c50');
-      for (const x of [14, 101]) d.deco.rect(x, 50, 3, 44, '#8a6040');
-      // grand porche en arche (comme une niche)
-      d.ell(58, 72, 18, 16, '#a8a296', 0, { tex: 0.2 }); d.rect(40, 72, 36, 22, '#a8a296', { tex: 0.2 });
-      d.deco.ell(58, 73, 14, 13, '#2a1a10'); d.deco.rect(44, 73, 28, 21, '#2a1a10');
-      d.deco.ell(58, 76, 10, 9, '#4a2e1a'); d.deco.rect(48, 76, 20, 18, '#4a2e1a');
-      d.deco.rect(53, 80, 10, 6, '#ffd88a', { unlit: true });
-      // fenêtre et climatiseur, poste de télé
-      d.deco.rect(21, 62, 18, 14, '#5a3a22'); d.deco.rect(23, 64, 14, 10, '#9ad8f0'); d.deco.line(30, 64, 30, 74, 0.8, '#5a3a22');
-      d.rect(82, 64, 16, 12, '#8a8a92', { round: 0.15 }); d.deco.rect(84, 66, 12, 8, '#3a4a5a'); d.deco.rect(85, 67, 5, 3, '#7ab8e8', { unlit: true });
-      d.rect(18, 82, 12, 10, '#9a6a3a', { round: 0.4, tex: 0.3 }); d.deco.line(18, 85, 30, 85, 0.8, '#5a5a62');
-      // toit pyramidal de tuiles rouges en écailles
-      d.poly([[2, 56], [24, 16], [92, 16], [114, 56]], '#c84a32', { tex: 0.2 });
-      for (let r = 0; r < 7; r++) { const y = 21 + r * 5.4, x0 = 22 - r * 3, x1 = 94 + r * 3; for (let x = x0; x < x1; x += 7) d.deco.ell(x + (r % 2) * 3.5, y, 3.2, 2.4, '#a83a26'); }
-      d.deco.line(2, 56, 114, 56, 1.6, '#7a2a1a');
-      d.poly([[24, 16], [58, 4], [92, 16]], '#d8583e', { shiny: true });
-      // antenne parabolique, panneau, cheminée-bidon
-      d.tube([[30, 18], [30, 8]], 1.4, 1.4, '#7a7a82'); d.ell(30, 6, 7, 6, '#e8ecf0', -0.4, { shiny: true }); d.deco.ell(30, 6, 4, 3.4, '#c8d0d8', -0.4); d.deco.circ(30, 6, 1, '#5a5a62');
-      d.rect(46, 26, 26, 12, '#3a5a8a', { round: 0.1, shiny: true }); for (let x = 50; x < 72; x += 5) d.deco.line(x, 26, x, 38, 0.7, '#2a3a5a');
-      d.rect(84, 14, 10, 14, '#c8a040', { round: 0.3, shiny: true }); d.deco.rect(84, 18, 10, 2, '#8a6a20');
+    // ---------------------------------------------------------- maison de Jijimon : grande maison (remplit sa parcelle, toit visible en entier)
+    // soubassement de pierre, colombages, porte en arche au centre (la porte de la carte), fenêtres à volets
+    // et jardinières, lanternes, enseigne, grand toit de tuiles rouges à deux lucarnes, cheminée, parabole, lierre
+    jhouse: { w: 184, h: 118, n: 1, lights: [[60, 82, 18], [124, 82, 18], [92, 74, 20], [52, 34, 12], [132, 34, 12]], smoke: [152, 6], draw(d) {
+      const Wl = '#ecdcb8', Tb = '#7a4a28', St = '#a8a296', Sd = '#7a7468', R = '#c84a32', Rd = '#9a3424', Rl = '#e06a4a';
+      d.ell(92, 115, 88, 4, '#3a2a18', 0, { flat: true });
+      // terrasse en bois, marches
+      d.rect(14, 102, 156, 12, '#b8844c', { round: 0.06, tex: 0.3 });
+      for (let x = 20; x < 168; x += 9) d.deco.line(x, 103, x, 114, 0.7, '#7a5028');
+      d.rect(72, 108, 40, 8, '#c8945a', { round: 0.1 }); d.deco.line(72, 112, 112, 112, 0.8, '#8a5a30');
+      // soubassement en pierres
+      d.rect(18, 88, 148, 16, St, { round: 0.04, tex: 0.3 });
+      for (let y = 92; y < 104; y += 6) for (let x = 18 + ((y / 6) % 2) * 6; x < 166; x += 12) d.deco.rect(x, y, 0.8, 6, Sd);
+      d.deco.line(18, 92, 166, 92, 0.8, Sd); d.deco.line(18, 98, 166, 98, 0.8, Sd);
+      // murs crème à colombages
+      d.rect(20, 50, 144, 40, Wl, { tex: 0.12 });
+      for (const x of [20, 52, 132, 162]) d.deco.rect(x, 50, 3, 40, Tb);
+      d.deco.rect(20, 50, 144, 3, Tb); d.deco.rect(20, 87, 144, 2, Tb);
+      // grande porte en arche (au centre : la porte de la carte)
+      d.ell(92, 78, 19, 17, St, 0, { tex: 0.2 }); d.rect(73, 78, 38, 26, St, { tex: 0.2 });
+      d.deco.ell(92, 79, 14, 13, '#5a3418'); d.deco.rect(78, 79, 28, 25, '#5a3418');
+      d.deco.ell(92, 82, 10, 9, '#7a4a24'); d.deco.rect(82, 82, 20, 22, '#7a4a24');
+      for (const x of [87, 92, 97]) d.deco.line(x, 74, x, 104, 0.8, '#5a3418');
+      d.deco.circ(99, 92, 1.6, '#e8c860', { unlit: true });
+      // enseigne au-dessus de la porte
+      d.rect(74, 54, 36, 8, '#8a5a30', { round: 0.2, tex: 0.3 }); d.deco.rect(76, 56, 32, 4, '#c8945a');
+      for (let i = 0; i < 6; i++) d.deco.rect(79 + i * 5, 57, 3, 1.6, '#5a3418');
+      // lanternes
+      for (const x of [60, 124]) { d.tube([[x, 76], [x, 70]], 1.2, 1.2, '#3a3a3a'); d.rect(x - 4, 76, 8, 10, '#2a2a2a', { round: 0.3 }); d.deco.rect(x - 2.6, 78, 5.2, 6, '#ffd070', { unlit: true }); }
+      // fenêtres à volets et jardinières fleuries
+      for (const x of [36, 148]) {
+        d.deco.rect(x - 9, 62, 18, 15, '#5a3a22'); d.deco.rect(x - 7, 64, 14, 11, '#9ad8f0'); d.deco.line(x, 64, x, 75, 0.8, '#5a3a22'); d.deco.line(x - 7, 69.5, x + 7, 69.5, 0.8, '#5a3a22');
+        d.deco.rect(x - 7, 64, 5, 3, '#e8f8ff', { unlit: true });
+        d.rect(x - 15, 61, 6, 17, '#4a7a3a', { round: 0.1 }); d.rect(x + 9, 61, 6, 17, '#4a7a3a', { round: 0.1 });
+        d.rect(x - 10, 77, 20, 5, '#8a5a30', { round: 0.2 });
+        [[-7, '#ff6a8a'], [-3, '#ffe060'], [1, '#ffffff'], [5, '#ff6a8a']].forEach(([dx, c]) => { d.deco.circ(x + dx, 76, 1.8, '#3a8a3a'); d.deco.circ(x + dx, 75, 1.2, c, { unlit: true }); });
+      }
+      // grand toit de tuiles rouges
+      d.poly([[4, 56], [30, 14], [154, 14], [180, 56]], R, { tex: 0.18 });
+      for (let r = 0; r < 8; r++) { const y = 19 + r * 4.8, x0 = 28 - r * 3.1, x1 = 156 + r * 3.1; for (let x = x0; x < x1; x += 8) d.deco.ell(x + (r % 2) * 4, y, 3.6, 2.4, Rd); }
+      d.deco.line(4, 56, 180, 56, 2, '#7a2a1a');
+      d.poly([[30, 14], [92, 4], [154, 14]], Rl, { shiny: true });
+      // lucarnes
+      for (const x of [52, 132]) {
+        d.rect(x - 10, 26, 20, 18, Wl, { tex: 0.1 }); d.poly([[x - 13, 28], [x, 16], [x + 13, 28]], R, { shiny: true });
+        d.deco.rect(x - 6.5, 30, 13, 11, '#5a3a22'); d.deco.rect(x - 5, 31.4, 10, 8.4, '#9ad8f0'); d.deco.line(x, 31, x, 40, 0.8, '#5a3a22');
+        d.deco.rect(x - 5, 31.4, 3.6, 2.6, '#e8f8ff', { unlit: true });
+      }
+      // cheminée de pierre et parabole (la touche Digimon)
+      d.rect(144, 2, 16, 22, St, { round: 0.1, tex: 0.3 }); d.deco.rect(142, 2, 20, 4, Sd);
+      d.tube([[92, 14], [92, 6]], 1.4, 1.4, '#7a7a82'); d.ell(92, 4, 8, 4, '#e8ecf0', 0, { shiny: true }); d.deco.circ(92, 4, 1.2, '#5a5a62');
+      // lierre qui grimpe sur le coin gauche
+      for (let i = 0; i < 12; i++) { const y = 90 - i * 3.4, x = 21 + Math.sin(i * 1.3) * 3; d.deco.circ(x, y, 2.2, i % 3 ? '#3a8a3a' : '#5aaa4a'); }
     } },
     // ---------------------------------------------------------- Bazar de Gotsumon (5×3)
     bazar: { w: 100, h: 92, n: 1, lights: [[50, 62, 26]], draw(d) {
