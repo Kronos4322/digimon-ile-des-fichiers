@@ -125,25 +125,42 @@
     const cv = Art.canvas(W * RES, MH * RES), c = cv.getContext('2d');
     const id = c.createImageData(W * RES, MH * RES), d = id.data;
     const cols = {}; for (const k in BIOME) cols[k] = BIOME[k].map(Art.hex);
-    const S = Object.values(NODES).map(n => ({ x: n.x, y: n.y, c: cols[n.b] }));
+    const S = Object.values(NODES).map(n => ({ x: n.x, y: n.y, c: cols[n.b], b: n.b }));
+    const HIGH = { mountain: 1, volcano: 0.9, snow: 0.6, canyon: 0.5, trash: 0.4, beetle: 0.2, forest: 0.15, jungle: 0.15, dino: 0.2 };
+    // forme de l'île (r < 1 : terre) et relief (pour l'ombrage)
+    const shape = (x, y) => Math.hypot((x - 160) / 152, (y - 90) / 82) + (Art.fbm(x * 0.03, y * 0.03, 41) - 0.5) * 0.28;
+    const relief = (x, y) => {
+      let h = Art.fbm(x * 0.06, y * 0.06, 44) * 0.5;
+      for (const s of S) { const k = HIGH[s.b]; if (k) { const d = Math.hypot(x - s.x, (y - s.y) * 1.2); if (d < 26) h += k * (1 - d / 26) * 1.2; } }
+      return h * Math.max(0, Math.min(1, (1 - shape(x, y)) * 8));
+    };
     for (let Y = 0; Y < MH * RES; Y++) for (let X = 0; X < W * RES; X++) {
       const x = X / RES, y = Y / RES, i = (Y * W * RES + X) * 4, nx = Art.fbm(x * 0.03, y * 0.03, 41) - 0.5, ny = Art.fbm(x * 0.03, y * 0.03, 42) - 0.5;
-      const r = Math.hypot((x - 160) / 152, (y - 90) / 82) + nx * 0.28;
+      const r = shape(x, y), bay = Art.bayer(X, Y);
       let col;
       if (r > 1.0) {
-        const deep = Math.min(1, (r - 1) * 2.4);
-        col = Art.mix([64, 150, 214], [18, 52, 120], deep);
-        if (Math.sin(x * 0.16 + y * 0.7 + Art.noise(x * 0.05, y * 0.05, 2) * 6) > 0.94) col = Art.mix(col, [255, 255, 255], 0.35);
-        if (r < 1.06) col = Art.mix(col, [140, 220, 240], 0.5);
-      } else if (r > 0.93) col = Art.hex(r > 0.97 ? '#f2dcaa' : '#e2c88a');
-      else {
-        // biome du lieu le plus proche (frontières déformées par le bruit)
-        let best = null, bd = 1e9, second = 1e9;
+        // mer : lagon turquoise près des côtes, bleu profond au large, vaguelettes et écume
+        const deep = Math.min(1, (r - 1) * 3.2 + (bay - 0.5) * 0.08);
+        col = deep < 0.25 ? Art.mix([110, 214, 226], [70, 170, 220], deep * 4) : Art.mix([70, 170, 220], [16, 48, 118], (deep - 0.25) / 0.75);
+        const wv = Math.sin(x * 0.22 + y * 0.9 + Art.noise(x * 0.04, y * 0.04, 2) * 7);
+        if (wv > 0.93 && deep > 0.2) col = Art.mix(col, [255, 255, 255], 0.3);
+        if (r < 1.018 && Art.noise(x * 0.5, y * 0.5, 3) > 0.35) col = Art.mix(col, [255, 255, 255], 0.75);   // écume
+      } else if (r > 0.93) {
+        // plage : sable sec, sable mouillé au bord de l'eau
+        col = Art.hex(r > 0.985 ? '#d8bc84' : bay < 0.5 ? '#f2dcaa' : '#ecd29c');
+      } else {
+        // biome du lieu le plus proche ; frontières fondues (tramage) au lieu d'un trait noir
+        let best = null, sec = null, bd = 1e9, second = 1e9;
         const qx = x + nx * 26, qy = y + ny * 22;
-        for (const s of S) { const dd = (qx - s.x) * (qx - s.x) + (qy - s.y) * (qy - s.y) * 1.3; if (dd < bd) { second = bd; bd = dd; best = s; } else if (dd < second) second = dd; }
-        const v = Art.fbm(x * 0.09, y * 0.09, 43) + Art.bayer(X, Y) * 0.15;
-        col = best.c[v < 0.42 ? 0 : v < 0.62 ? 1 : 2];
-        if (Math.sqrt(second) - Math.sqrt(bd) < 1.2) col = Art.mix(col, [0, 0, 0], 0.18);
+        for (const s of S) { const dd = (qx - s.x) * (qx - s.x) + (qy - s.y) * (qy - s.y) * 1.3; if (dd < bd) { second = bd; sec = best; bd = dd; best = s; } else if (dd < second) { second = dd; sec = s; } }
+        const gap = Math.sqrt(second) - Math.sqrt(bd), pal = sec && gap < 4 && bay * 4 > gap ? sec.c : best.c;
+        const v = Art.fbm(x * 0.09, y * 0.09, 43) + bay * 0.12;
+        col = pal[v < 0.42 ? 0 : v < 0.62 ? 1 : 2];
+        // ombrage du relief (lumière venant du nord-ouest)
+        const sh = (relief(x - 0.6, y - 0.6) - relief(x + 0.6, y + 0.6)) * 9;
+        col = sh > 0 ? Art.mix(col, [255, 250, 220], Math.min(0.35, sh)) : Art.mix(col, [10, 20, 30], Math.min(0.4, -sh));
+        // lisière vers la plage
+        if (r > 0.9) col = Art.mix(col, [236, 214, 160], (r - 0.9) / 0.03 * 0.5);
       }
       d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
     }
@@ -271,7 +288,8 @@
       }
       this.here = this.hereId ? this.pts[this.hereId].k : 'village';
       this.sel = this.hereId || (this.list[0] && this.list[0].id);
-      this.zi = 2;
+      this.selK = this.here;
+      this.zi = 0;   // la carte s'ouvre sur les grands ensembles
       const P = this.sel ? this.pts[this.sel] : NODES.village;
       this.cam = this.camFor(P.x, P.y);
     }
@@ -295,9 +313,9 @@
       }
       c.globalCompositeOperation = 'destination-out';
       const hole = (x, y, r) => { const g = c.createRadialGradient(x, y, r * 0.5, x, y, r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); };
-      for (const p of this.list) hole(p.x, p.y, 13);
-      for (const k in NODES) if (this.visited(k)) hole(NODES[k].x, NODES[k].y, 22);   // le cœur d'une région découverte
-      for (const [a, b] of this.paths()) { const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 4); for (let i = 0; i <= n; i++) hole(a.x + (b.x - a.x) * i / n, a.y + (b.y - a.y) * i / n, 7); }
+      for (const p of this.list) hole(p.x, p.y, 17);
+      for (const k in NODES) if (this.visited(k)) hole(NODES[k].x, NODES[k].y, 26);   // le cœur d'une région découverte
+      for (const [a, b] of this.paths()) { const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 4); for (let i = 0; i <= n; i++) hole(a.x + (b.x - a.x) * i / n, a.y + (b.y - a.y) * i / n, 10); }
       return (this.fogCv = cv);
     }
     // chemins : passages entre deux zones visitées
@@ -325,18 +343,47 @@
       return best;
     }
     update() {
-      const dir = ['left', 'right', 'up', 'down'].find(d => Input.hit(d));
-      if (dir && this.sel) {
+      const dir = ['left', 'right', 'up', 'down'].find(d => Input.hit(d)), overview = this.zi === 0;
+      if (dir && overview) {
+        // vue d'ensemble : d'une région découverte à l'autre
+        const pts = Object.keys(NODES).filter(k => this.visited(k)).map(k => ({ id: k, x: NODES[k].x, y: NODES[k].y }));
+        const p = this.pick(pts, { id: this.selK, x: NODES[this.selK].x, y: NODES[this.selK].y }, dir);
+        if (p) { this.selK = p.id; Audio.sfx('move'); }
+      } else if (dir && this.sel) {
         const p = this.pick(this.list, this.pts[this.sel], dir);
-        if (p) { this.sel = p.id; Audio.sfx('move'); }
+        if (p) { this.sel = p.id; this.selK = this.pts[p.id].k; Audio.sfx('move'); }
       }
-      // zoom : ×1 (toute l'île) → ×2 → ×3
-      if (Input.hit('run') || Input.hit('menu') || Input.hit('ok')) { this.zi = (this.zi + 1) % ZOOMS.length; Audio.sfx('select'); }
-      const S = this.sel ? this.pts[this.sel] : NODES.village, to = this.camFor(S.x, S.y);
+      // zoom : ×1 (grands ensembles) → ×2 → ×3 (les zones)
+      if (Input.hit('run') || Input.hit('menu') || Input.hit('ok')) {
+        this.zi = (this.zi + 1) % ZOOMS.length; Audio.sfx('select');
+        if (this.zi === 1 && (!this.sel || this.pts[this.sel].k !== this.selK)) { const q = this.list.find(p => p.id === this.hereId && p.k === this.selK) || this.list.find(p => p.k === this.selK); if (q) this.sel = q.id; }
+      }
+      const S = this.zi === 0 ? NODES[this.selK] : this.sel ? this.pts[this.sel] : NODES.village, to = this.camFor(S.x, S.y);
       this.cam.x += (to.x - this.cam.x) * 0.25; this.cam.y += (to.y - this.cam.y) * 0.25;
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
     }
 
+    // vue d'ensemble : les régions découvertes (illustration, nom), reliées entre elles
+    drawRegions(c) {
+      const t = this.t;
+      for (const [a, b] of EDGES) {
+        if (!this.visited(a) || !this.visited(b)) continue;
+        const A = NODES[a], B = NODES[b];
+        c.strokeStyle = 'rgba(20,14,8,0.55)'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(A.x, A.y); c.lineTo(B.x, B.y); c.stroke();
+        c.strokeStyle = '#ffe9a0'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(A.x, A.y); c.lineTo(B.x, B.y); c.stroke();
+      }
+      for (const k in NODES) {
+        if (!this.visited(k)) continue;
+        const N = NODES[k], here = k === this.here, sel = k === this.selK, r = 4.5;
+        c.fillStyle = '#10141e'; c.beginPath(); c.moveTo(N.x, N.y - r - 1.5); c.lineTo(N.x + r + 1.5, N.y); c.lineTo(N.x, N.y + r + 1.5); c.lineTo(N.x - r - 1.5, N.y); c.fill();
+        c.fillStyle = here ? '#ff5a5a' : '#ffd040'; c.beginPath(); c.moveTo(N.x, N.y - r); c.lineTo(N.x + r, N.y); c.lineTo(N.x, N.y + r); c.lineTo(N.x - r, N.y); c.fill();
+        if (sel) { c.strokeStyle = '#ffffff'; c.lineWidth = 1.2; c.beginPath(); c.arc(N.x, N.y, 9 + Math.sin(t * 6), 0, 7); c.stroke(); }
+      }
+      if (this.selK) {
+        const N = NODES[this.selK], name = this.nameOf(this.selK), lw = UI.measure(c, name, 8) + 10, lx = DW.clamp(N.x - lw / 2, 2, W - lw - 2), ly = N.y > 30 ? N.y - 26 : N.y + 12;
+        UI.box(c, lx, ly, lw, 14, 'dark'); UI.text(c, name, lx + lw / 2, ly + 10.5, { size: 8, align: 'center', color: '#ffe070' });
+      }
+    }
     // ---------------------------------------------------------- dessin
     draw(c) {
       c.fillStyle = '#0e2a5a'; c.fillRect(0, 0, W, H);
@@ -348,6 +395,7 @@
       c.save(); c.beginPath(); c.rect(0, 0, W, MH); c.clip();
       c.drawImage(art(), sx, sy, sw, sh, 0, 0, W, MH);
       c.drawImage(this.fog(), sx, sy, sw, sh, 0, 0, W, MH);
+      if (z === 1) { this.drawRegions(c); c.restore(); UI.box(c, W - 40, 3, 36, 14); UI.text(c, '×1', W - 22, 13.5, { size: 8, align: 'center', color: '#ffe070' }); return; }
       // chemins
       for (const [a, b] of this.paths()) {
         const [ax, ay] = this.P(a.x, a.y), [bx, by] = this.P(b.x, b.y);
@@ -355,10 +403,9 @@
         c.strokeStyle = 'rgba(200,214,240,0.95)'; c.lineWidth = z * 0.8; c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
       }
       // zones visitées
-      const s = z === 1 ? 4 : z === 2 ? 9 : 13;
+      const s = z === 2 ? 9 : 13;
       for (const p of this.list) {
         const [x, y] = this.P(p.x, p.y), B = BIOME[NODES[p.k].b];
-        if (z === 1) { c.fillStyle = p.id === this.hereId ? '#ff5a5a' : '#ffd040'; c.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4); continue; }
         icon(c, x, y, s, glyphOf(p.id), B[1], false, p.id === this.hereId);
       }
       // grands ensembles : nom de chaque région découverte (au zoom ×2 et ×3)
@@ -386,6 +433,19 @@
     drawPanel(c) {
       const y0 = MH + 2;
       UI.box(c, 4, y0, W - 8, H - y0 - 3);
+      if (this.zi === 0 && this.selK) {
+        const k = this.selK, zs = Object.values(this.pts).filter(p => p.k === k), seen = zs.filter(p => this.st.visited[p.id]).length;
+        UI.text(c, this.nameOf(k), 12, y0 + 14, { size: 10, color: '#ffe070' });
+        if (k === this.here) UI.text(c, 'Tu es ici', W - 12, y0 + 14, { size: 8, align: 'right', color: '#ff8a8a' });
+        const desc = (k === 'village' ? `Niveau ${DW.Town.level()} : « ${DW.Town.levelName()} ». ` : '') + NODES[k].desc + (zs.length > 1 ? `  (${seen} / ${zs.length} zones)` : '');
+        UI.wrap(c, desc, W - 36, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 12, y0 + 27 + j * 10, { size: 8, color: '#c8f0ff' }));
+        const regs = Object.keys(NODES), found = regs.filter(r => this.visited(r)).length;
+        UI.text(c, `Régions découvertes : ${found} / ${regs.length}`, 12, H - 7, { size: 6, color: '#9ab0e8', shadow: false });
+        c.fillStyle = 'rgba(6,10,24,0.6)'; c.fillRect(0, MH - 13, W, 13);
+        UI.hints(c, [['ok', 'zoom'], ['back', 'fermer']], W - 6, MH - 3);
+        UI.text(c, 'flèches : choisir une région', 8, MH - 3, { size: 6, color: '#9ab0e8', shadow: false });
+        return;
+      }
       const id = this.sel, m = id && DW.MAPS[id];
       if (!m) { UI.text(c, 'Aucun lieu exploré.', 12, y0 + 14, { size: 9 }); return; }
       const k = this.pts[id].k;
