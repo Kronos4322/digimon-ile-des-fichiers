@@ -31,7 +31,7 @@
     'ui/menus.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/arenaui.js', 'ui/hatch.js', 'ui/farm.js', 'ui/worldmap.js',
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
-    'maps/common.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/rivage.js', 'maps/village.js', 'maps/joueur.js', 'maps/maison.js', 'maps/interieurs.js',
+    'maps/common.js', 'maps/decor.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/rivage.js', 'maps/village.js', 'maps/joueur.js', 'maps/maison.js', 'maps/interieurs.js',
     'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/enigmes.js', 'maps/donjons.js', 'maps/kuwagamon.js', 'maps/classe.js', 'maps/regions.js',
     'game/activities.js', 'game/services.js', 'game/story.js', 'game/requests.js', 'game/cuisine.js', 'game/guide.js', 'game/chapitre1.js', 'game/trophees.js',
     // démarrage
