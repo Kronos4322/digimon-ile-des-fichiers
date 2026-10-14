@@ -99,7 +99,9 @@
   for (const id in M) M[id].fx = FX[id] || (M[id].contact ? 'tackle' : 'orb');
   // PM (comme dans Digimon World 1) : les techniques puisent dans une réserve commune.
   // Coût selon la puissance ; le Coup de Corps et la Lutte sont gratuits.
-  DW.mpCost = key => { const id = typeof key === 'string' ? key : Object.keys(M).find(k => M[k] === key), mv = M[id]; if (!mv || id === 'lutte' || id === 'charge') return 0; const k = (DW.SCALE && DW.SCALE.mp) || 1; if (mv.mp != null) return mv.mp * k; return (mv.pow ? Math.max(2, Math.round(mv.pow / 8)) : mv.heal ? 8 : 4) * k; };
+  // part des PM réellement dépensée par technique (0.5 : deux fois moins cher qu'au début)
+  const MP_RATIO = 0.5;
+  DW.mpCost = key => { const id = typeof key === 'string' ? key : Object.keys(M).find(k => M[k] === key), mv = M[id]; if (!mv || id === 'lutte' || id === 'charge') return 0; const k = (DW.SCALE && DW.SCALE.mp) || 1; const base = mv.mp != null ? mv.mp : mv.pow ? Math.max(2, Math.round(mv.pow / 8)) : mv.heal ? 8 : 4; return Math.max(k, Math.round(base * k * MP_RATIO)); };
 
   // ------------------------------------------------------------ coup spécial de chaque Digimon (sa technique signature)
   // Utilisable quand la jauge d'énergie du combat est pleine : puissance ×1.5, ne rate jamais.

@@ -71,6 +71,12 @@
         if (Input.hit('ok') || (this.auto && this.msgT > (ff ? 0.1 : this.auto))) {
           this.mode = 'none'; const r = this.msgR; this.msgR = null; r && r();
         }
+      } else if (this.mode === 'charge') {
+        const g = this.chg;
+        g.t -= dt; g.v = Math.max(0, g.v - dt * 14);
+        if (Input.hit('ok')) { g.v = Math.min(100, g.v + 8); g.pop = 0.12; Audio.sfx('move'); this.shake = 0.08; }
+        if (g.pop) g.pop = Math.max(0, g.pop - dt);
+        if (g.t <= 0) { this.mode = 'none'; const r = this.chgR, v = g.v; this.chgR = null; this.chg = null; r && r(v); }
       } else if (this.mode === 'cmd') {
         let c = this.cursor;
         if (Input.hit('left') || Input.hit('right')) c ^= 1;
@@ -243,15 +249,20 @@
       }
       return this.endOfTurn();
     }
+    // charge du coup spécial : 2 secondes pour remplir la jauge en appuyant vite sur OK
+    chargeUp() {
+      this.chg = { v: 0, t: 2.2, T: 2.2 }; this.mode = 'charge';
+      return new Promise(r => (this.chgR = r));
+    }
     gainEnergy(side, n) {
       const was = this.energy[side];
       this.energy[side] = Math.min(100, was + n);
       if (was < 100 && this.energy[side] >= 100 && side === 'p' && this.active && DW.sigOf(this.active)) this.energyFull = 1.5;
     }
     async endOfTurn() {
-      this.gainEnergy('p', 6); this.gainEnergy('e', 6);
+      this.gainEnergy('p', 3); this.gainEnergy('e', 3);
       for (const side of ['p', 'e']) { const m = this.mon(side); if (m && m.hp > 0) m.mp = Math.min(m.maxMp, m.mp + Math.ceil(m.maxMp * MP_REGEN)); }
-      if (this.energyFull) { this.energyFull = 0; await this.msg(`Énergie au maximum ! ${this.active.name} peut lancer ${DW.MOVES[DW.sigOf(this.active)].name} (ATTAQUE puis ENTRÉE) !`, 1.4); }
+      if (this.energyFull) { this.energyFull = 0; await this.msg(`Énergie au maximum ! ${this.active.name} peut lancer ${DW.MOVES[DW.sigOf(this.active)].name} (ATTAQUE puis ENTRÉE), puis appuie vite sur ESPACE pour le charger !`, 1.6); }
       for (const side of ['p', 'e']) {
         const m = this.mon(side);
         if (!m || m.hp <= 0) continue;
@@ -336,6 +347,10 @@
         Audio.sfx('evolve'); this.flash = 0.8; this.shake = 0.4;
         await this.msg(`${who} déchaîne son coup spécial : ${mv.name} !`, 0.9);
         this.banner = null;
+        // charge (comme Digimon World) : le joueur martèle OK, l'ennemi charge au hasard
+        const v = uSide === 'p' ? await this.chargeUp() : 25 + Math.random() * 50;
+        this.specialMult = 1.1 + v / 100;   // de ×1,1 (aucune charge) à ×2,1 (jauge pleine)
+        await this.msg(v >= 95 ? `Charge MAXIMALE !!` : `Charge : ${Math.round(v)} %`, 0.7);
       } else await this.msg(`${who} utilise ${mv.name} !`, 0.45);
       if (!slot.special && mv.acc && Math.random() * 100 >= mv.acc) {
         Audio.sfx('swoosh');
@@ -343,13 +358,13 @@
       }
       if (mv.pow > 0) {
         await this.attackAnim(uSide, mv);
-        const r = this.calc(uSide, mv, user, tgt, slot.special ? 1.5 : 1);
+        const r = this.calc(uSide, mv, user, tgt, slot.special ? this.specialMult || 1.5 : 1);
         if (slot.special) { this.shake = 0.7; this.flash = 0.5; }
         await this.hitAnim(tSide, r.tm);
         await this.applyDamage(tSide, r.dmg);
         // énergie : celui qui frappe et celui qui encaisse
-        if (!slot.special) this.gainEnergy(uSide, 22);
-        this.gainEnergy(tSide, 6 + Math.round(r.dmg / tgt.maxHp * 60));
+        if (!slot.special) this.gainEnergy(uSide, 12);
+        this.gainEnergy(tSide, 4 + Math.round(r.dmg / tgt.maxHp * 35));
         if (r.crit) await this.msg('Coup critique !', 0.8);
         if (r.tm > 1) await this.msg("C'est super efficace !", 0.8);
         else if (r.tm < 1) await this.msg("Ce n'est pas très efficace...", 0.8);

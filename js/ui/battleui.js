@@ -96,6 +96,18 @@
       UI.text(c, `★ ${b.text} ★`, W / 2 + (1 - k) * (b.side === 'p' ? -200 : 200), y + 4, { size: 14, align: 'center', color: '#fff4c0', bold: true });
     },
     drawBottom(c) {
+      if (this.mode === 'charge' && this.chg) {
+        const g = this.chg, w = 220, x = (W - w) / 2, y = 196, f = g.v / 100;
+        UI.box(c, 4, 180, 312, 56);
+        UI.text(c, 'CHARGE !', W / 2, 192, { size: 10, align: 'center', bold: true, color: '#fff070' });
+        c.fillStyle = '#10141e'; c.fillRect(x - 2, y - 2, w + 4, 16);
+        const col = f >= 0.95 ? (Math.floor(this.t * 12) % 2 ? '#ffffff' : '#ffe040') : f > 0.6 ? '#ff8a2a' : '#ffd040';
+        c.fillStyle = col; c.fillRect(x, y + (g.pop ? -1 : 0), w * f, 12 + (g.pop ? 2 : 0));
+        for (let i = 1; i < 10; i++) { c.fillStyle = 'rgba(0,0,0,0.35)'; c.fillRect(x + i * w / 10, y, 1, 12); }
+        c.fillStyle = '#5ac0ff'; c.fillRect(x, y + 15, w * Math.max(0, g.t / g.T), 2);
+        UI.hints(c, [['ok', 'appuie vite pour charger !']], W / 2 + 70, 228);
+        return;
+      }
       if (this.mode === 'moves') {
         UI.box(c, 4, 180, 206, 56);
         const P = this.active;
