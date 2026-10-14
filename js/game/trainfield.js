@@ -105,7 +105,7 @@
       UI.box(c, 6, 6, W - 12, 30);
       UI.label(c, 'ENTRAÎNEMENT', 12, 10);
       UI.text(c, `${m.name} — ${S.name} (${S.stat})`, 100, 19, { size: 10, color: '#ffe070' });
-      { const st = this.opts.mode === 'stat', cur = st ? ((m.raw || {})[k] || 0) : m.tr[k]; UI.text(c, `${st ? 'Statistique' : 'Digivolution'} · ${this.opts.level.name} · Points ${cur} / ${Tr.cap(m)} · Fatigue ${m.tired} %`, 12, 31, { size: 7, color: '#c8f0ff' }); }
+      { const st = this.opts.mode === 'stat', cur = st ? ((m.raw || {})[k] || 0) : m.tr[k]; UI.text(c, `${st ? 'Statistique' : 'Digivolution'} · ${this.opts.level.name} · ${st ? S.stat + ' ' + m.stat(k) : 'Points ' + cur + ' / ' + Tr.cap(m)} · Fatigue ${m.tired} %`, 12, 31, { size: 7, color: '#c8f0ff' }); }
       UI.box(c, 6, 192, W - 12, 42);
       if (this.state === 'ready') {
         UI.text(c, S.desc, 16, 206, { size: 8, color: '#ffffff' });
@@ -125,7 +125,7 @@
         for (let j = 0; j < 3; j++) { const h = this.hits[j]; UI.text(c, h == null ? '·' : h === 2 ? '★' : h ? '●' : '✘', W - 60 + j * 14, 212, { size: 10, align: 'center', color: h == null ? '#5a8aa0' : h ? '#ffe060' : '#ff7a7a' }); }
         UI.text(c, `Essai ${Math.min(3, this.hits.length + 1)}/3`, W - 46, 228, { size: 7, align: 'center', color: '#8ae0f0' });
       } else {
-        UI.text(c, this.g ? `${S.stat} : ${this.before} → ${this.after}   (+${this.g} pts)` : this.score ? `Potentiel atteint en ${S.stat} : gagne des niveaux !` : 'Séance ratée... Aucun progrès.', 16, 205, { size: 9, color: this.g ? '#7aff8a' : '#ffb070' });
+        UI.text(c, this.parts ? Tr.partsText(this.parts) : this.g ? `${S.stat} : ${this.before} → ${this.after}   (+${this.g} pts)` : this.score ? `Potentiel atteint en ${S.stat} : gagne des niveaux !` : 'Séance ratée... Aucun progrès.', 16, 205, { size: 9, color: this.g ? '#7aff8a' : '#ffb070' });
         UI.text(c, this.evo ? 'Le Digivice vibre : Digivolution possible !' : `Réussite ${this.score}/6 · Fatigue ${m.tired} %`, 16, 217, { size: 8, color: this.evo ? '#ffe070' : '#8ae0f0' });
         UI.hints(c, this.next ? [['ok', 'encore'], ['back', 'terminer']] : [['ok', 'terminer']], W - 14, 229);
       }

@@ -43,6 +43,31 @@
       m.tr[k] += g;
       return g;
     },
+    // ---------- objectif « Statistique » : formule de Digimon World 1 (digiworldwiki.com, Training tips)
+    // gain = base du poste × bonus (stade, Manuel, coachs) × objet (Super carotte...) × réussite (×0,5 à ×4), arrondi
+    // chaque poste monte une stat principale et une secondaire (valeurs affichées, échelle 999 / 9999)
+    BASE: { atk: { atk: 8, spd: 2 }, spd: { spd: 8, hp: 10 }, hp: { hp: 80, atk: 2 }, def: { def: 8, int: 2 }, mp: { mp: 80, def: 2 }, int: { int: 8, mp: 10 } },
+    STAGE_BONUS: { 'Bébé': -0.1, 'Entraînement': -0.1, 'Disciple': 0, 'Champion': 0.1, 'Ultime': 0.2, 'Méga': 0.3 },
+    // réussite des 3 essais (score 0 à 6) → multiplicateur final (comme le « Bonus Try »)
+    tryMult: score => score === 0 ? 0.5 : score <= 2 ? 1 : score <= 4 ? 2 : score === 5 ? 3 : 4,
+    statGain(m, k, score, L) {
+      const up = 1 + (this.STAGE_BONUS[m.d.stage] || 0) + (DW.state.bag.manuel_entr ? 0.1 : 0) + Math.min(0.2, (DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) * 0.1) + (DW.Town.has && DW.Town.has('elecmon') ? 0.1 : 0);
+      const item = (m.boost || 0) > 0 ? 1.2 : 1;
+      if (item > 1) m.boost = 0;
+      const S = DW.SCALE, parts = {};
+      m.raw = m.raw || {};
+      for (const s in this.BASE[k]) {
+        const n = Math.floor(Math.floor(Math.floor(this.BASE[k][s] * up) * item) * this.tryMult(score) * L.mul);
+        if (n <= 0) continue;
+        // valeur affichée → points « bruts » (bonus = brut × 0,8, puis × l'échelle de la stat)
+        const unit = 0.8 * (s === 'hp' ? S.hp : s === 'mp' ? S.mp : S.stat), cap = this.cap(m) * 2.5;
+        const before = m.raw[s] || 0, after = Math.min(cap, before + n / unit);
+        m.raw[s] = after;
+        const real = Math.round((after - before) * unit);
+        if (real > 0) parts[s] = real;
+      }
+      return parts;
+    },
     // niveaux de difficulté des séances : facile (moins de points), moyen, difficile (deux fois plus de points)
     LEVELS: [{ name: 'Facile', dif: -0.35, mul: 0.5, tire: 20 }, { name: 'Moyen', dif: 0, mul: 1, tire: 30 }, { name: 'Difficile', dif: 0.3, mul: 2, tire: 40 }],
     // difficulté du mini-jeu selon les points déjà acquis (0 facile → 1 très dur)
@@ -59,6 +84,7 @@
       if (DW.Care && DW.Care.tooHungry(m)) return `${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`;
       return null;
     },
+    partsText(parts) { const N = { hp: 'PV', mp: 'PM', atk: 'Attaque', def: 'Défense', spd: 'Vitesse', int: 'Intell.' }; const l = Object.keys(parts).map(s => `${N[s]} +${parts[s]}`); return l.length ? l.join('   ') : 'Potentiel atteint : gagne des niveaux !'; },
     // case du poste lui-même (on a pu parler à son panneau, à côté)
     station(ow, k, spot) {
       for (let r = 0; r <= 3; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
@@ -140,7 +166,8 @@
       const extra = score > 0 ? (m.boost || 0) + (DW.state.bag.manuel_entr ? 1 : 0) : 0;   // Super carotte, Radis... et Manuel d'entraînement
       if (score > 0) m.boost = 0;
       const L = this.opts.level, raw = score + bonus + extra;
-      this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
+      if (this.opts.mode === 'stat') { this.parts = Training.statGain(m, k, score, L); this.g = Object.values(this.parts).reduce((a, b) => a + b, 0); }
+      else this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
       m.tired = Math.min(100, m.tired + L.tire);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);
       DW.Life.addFat(m, -1);
@@ -180,7 +207,7 @@
       UI.box(c, 6, 6, W - 12, 34);
       UI.label(c, 'ENTRAÎNEMENT', 12, 10);
       UI.text(c, `${m.name} — ${S.name} (${S.stat})`, 100, 19, { size: 10, color: '#ffe070' });
-      { const st = this.opts.mode === 'stat', cur = st ? ((m.raw || {})[k] || 0) : m.tr[k]; UI.text(c, `${st ? 'Statistique' : 'Digivolution'} · ${this.opts.level.name}   ·   Points ${cur} / ${Training.cap(m)}   ·   Fatigue ${m.tired} %`, 12, 33, { size: 8, color: '#c8f0ff' }); }
+      { const st = this.opts.mode === 'stat', cur = st ? ((m.raw || {})[k] || 0) : m.tr[k]; UI.text(c, `${st ? 'Statistique' : 'Digivolution'} · ${this.opts.level.name}   ·   ${st ? S.stat + ' ' + m.stat(k) : 'Points ' + cur + ' / ' + Training.cap(m)}   ·   Fatigue ${m.tired} %`, 12, 33, { size: 8, color: '#c8f0ff' }); }
       // panneau du bas
       UI.box(c, 6, 188, W - 12, 46);
       if (this.state === 'ready') {
@@ -196,7 +223,7 @@
         }
         UI.text(c, `Essai ${Math.min(3, this.hits.length + 1)}/3`, W - 36, 228, { size: 7, align: 'center', color: '#8ae0f0' });
       } else {
-        UI.text(c, this.g ? `${S.stat} : ${this.before} → ${this.after}   (+${this.g} pts d'entraînement)` : this.score ? `Potentiel atteint en ${S.stat} : gagne des niveaux !` : 'Séance ratée... Aucun progrès.', 16, 205, { size: 9, color: this.g ? '#7aff8a' : '#ffb070' });
+        UI.text(c, this.parts ? Training.partsText(this.parts) : this.g ? `${S.stat} : ${this.before} → ${this.after}   (+${this.g} pts d'entraînement)` : this.score ? `Potentiel atteint en ${S.stat} : gagne des niveaux !` : 'Séance ratée... Aucun progrès.', 16, 205, { size: 9, color: this.g ? '#7aff8a' : '#ffb070' });
         UI.text(c, this.evo ? 'Le Digivice vibre : Digivolution possible !' : `Réussite ${this.score}/6   ·   Fatigue ${m.tired} %   ·   1 h 30 a passé`, 16, 217, { size: 8, color: this.evo ? '#ffe070' : '#8ae0f0' });
         UI.text(c, this.next ? 'ESPACE : encore une séance      ÉCHAP : terminer' : 'ESPACE : terminer', W / 2, 230, { size: 7, align: 'center', color: '#ffe070' });
       }
