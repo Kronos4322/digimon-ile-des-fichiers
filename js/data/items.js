@@ -144,7 +144,8 @@
   };
   // stock d'une boutique selon le niveau de la ville (les moins bons d'abord, puis on monte)
   DW.shopStock = name => {
-    const lv = DW.Town ? DW.Town.level() : 0;
+    // rang des objets (tier 0 à 20) : un rang par tranche de 5 % de développement de la ville ; tout est en vente à 100 %
+    const lv = DW.Town ? Math.floor(DW.Town.progress() / 5) : 0;
     return (DW.SHOPS[name] || []).filter(id => I[id] && (I[id].tier || 0) <= lv)
       .sort((a, b) => (I[a].tier || 0) - (I[b].tier || 0) || I[a].price - I[b].price);
   };

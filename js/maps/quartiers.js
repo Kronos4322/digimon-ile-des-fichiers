@@ -379,7 +379,7 @@
         { kind: 'districtgate', v: 0, x: z(23.5) - 3, y: H - 3, w: 6, h: 3, top: true },
         { kind: 'digistatue', v: 0, x: z(20), y: z(13), w: 3, h: 1 },
       ],
-      signs: () => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${level()} habitants en ville. Est : Quartier du Marché. Ouest : Quartier Numérique.` }),
+      signs: () => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length} habitants en ville. Est : Quartier du Marché. Ouest : Quartier Numérique.` }),
       warps: [{ x: z(23.5) - 1, y: H - 1, w: 2, h: 1, dir: 'down', to: 'village', tx: 11, ty: 0 },
         { x: 0, y: EXIT_Y, w: 1, h: 3, dir: 'left', to: 'numerique', tx: W - 1, ty: EXIT_Y },
         { x: W - 1, y: EXIT_Y, w: 1, h: 3, dir: 'right', to: 'marche', tx: 0, ty: EXIT_Y }],
