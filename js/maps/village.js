@@ -22,7 +22,7 @@
   };
   const FREE_LOT = { x: 24, y: 23, w: 5, h: 3 };
   const NORTH_LEVEL = 3;   // ouverture du Quartier Résidentiel (maps/quartiers.js)
-  const BANK = { x: 23, y: 3, w: 5, h: 3 };
+  const BANK = { x: 6, y: 3, w: 5, h: 3 };   // à l'ouest de la grande maison de Jijimon (route du nord : x 11-12)
 
   // ------------------------------------------------------------ construction de la carte
   function build() {
@@ -91,6 +91,11 @@
         for (const [x, y] of [[6, 12], [6, 16], [33, 12], [33, 16], [21, 25], [18, 25]]) g.set(x, y, 'V');
         for (const x of [11, 12, 14, 15, 24, 25, 27, 28]) g.set(x, 9, 'K');
       }
+      // mobilier urbain de plus en plus dense (comme les villes de Digimon World 2003) : jardinières autour de la place,
+      // tonneaux et caisses près des échoppes, drapeaux, lampadaires supplémentaires
+      if (lvl >= 3) for (let a = 0; a < 8; a++) { const x = Math.round(19.5 + Math.cos(a / 8 * Math.PI * 2 + 0.39) * 7.6), y = Math.round(14 + Math.sin(a / 8 * Math.PI * 2 + 0.39) * 6.6); if (g.get(x, y) === '.') g.set(x, y, 'l'); }
+      if (lvl >= 5) { for (const [x, y] of [[9, 12], [30, 12], [9, 16], [30, 16]]) g.set(x, y, 'i'); for (const [x, y] of [[4, 14], [35, 14]]) g.set(x, y, 'V'); }
+      if (lvl >= 7) { for (const [x, y] of [[3, 6], [36, 6], [3, 22], [36, 22]]) g.set(x, y, 'a'); for (const [x, y] of [[16, 25], [23, 25]]) g.set(x, y, 'D'); }
       // habitants : détails autour de leur bâtiment
       if (has('gotsumon')) { g.set(4, 10, 'D'); g.set(12, 8, 'a'); }
       if (has('elecmon')) { g.set(35, 8, 'E'); g.set(35, 10, 'E'); }
@@ -141,7 +146,10 @@
     m.npcs = [starterNpc(), GUIDE];
     if (has('betamon')) m.npcs.push({ sp: 'betamon', x: 22, y: 16, face: 'left', wander: 1, talk: SERVICES.betamon });
     if (has('biyomon')) m.npcs.push({ sp: 'biyomon', x: 27, y: 26, face: 'left', wander: 1, talk: SERVICES.biyomon });
-    if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: 28, y: 6, face: 'left', wander: 1, talk: SERVICES.kunemon });
+    if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: BANK.x + 2, y: BANK.y + BANK.h + 1, face: 'left', wander: 1, talk: SERVICES.kunemon });
+    // passants : plus la ville se développe, plus elle s'anime (comme les villes de Digimon World 2003)
+    const nPass = Math.min(PASSERS.length, Math.floor(T().progress() / 12));
+    for (let i = 0; i < nPass; i++) { const [sp, x, y] = PASSERS[i]; if (DW.SPECIES[sp]) m.npcs.push({ sp, x, y, face: i % 2 ? 'left' : 'right', wander: 3, talk: () => passerTalk(sp) }); }
     // collaborations : le second habitant travaille sur place (game/collab.js)
     if (DW.Collab) DW.Collab.place(m, { gotsumon: [LOTS.gotsumon.x + LOTS.gotsumon.w, LOTS.gotsumon.y + LOTS.gotsumon.h], elecmon: [LOTS.elecmon.x - 1, LOTS.elecmon.y + LOTS.elecmon.h], fontaine: [23, 15] });
     m.npcs.forEach(n => { delete n.hx; delete n.hy; delete n.home; });
@@ -235,6 +243,15 @@
     await say(tips[k], 'Koromon');
   }
   // premier échange : la visite guidée (game/chapitre1.js) ; ensuite, des conseils
+  // passants (espèce, position d'origine) et leurs bavardages
+  const PASSERS = [['tokomon', 15, 12], ['tsunomon', 24, 16], ['agumon', 10, 14], ['gabumon', 29, 15], ['tentomon', 19, 21], ['patamon', 8, 18], ['bukamon', 31, 11], ['pagumon', 22, 23]];
+  async function passerTalk(sp) {
+    const name = DW.SPECIES[sp].name, lv = T().level();
+    const lines = lv < 4 ? ["La ville renaît peu à peu... C'est grâce à toi !", "Avant, il n'y avait que des ruines ici. Regarde maintenant !", "J'ai entendu dire que d'autres Digimon allaient revenir s'installer."]
+      : lv < 8 ? ['Il y a de plus en plus de monde en ville ! On se croirait au marché.', "Tu as goûté la cuisine du Restaurant ? Un régal !", "Motimon dit qu'il va pleuvoir demain. Il se trompe rarement maintenant !"]
+      : ["La Ville des Fichiers est devenue une vraie cité ! Qui l'aurait cru ?", 'Des Digimon viennent de toute l\'île pour voir notre ville.', "Le soir, avec les lanternes, la place est magnifique."];
+    await say(DW.pick(lines), name);
+  }
   const GUIDE = { sp: 'koromon', x: 21, y: 11, face: 'left', wander: 3, talk: ow => (st().flags.tour ? guideTalk() : DW.Chapter.tour(ow)) };
 
   // ------------------------------------------------------------ Jijimon (dans sa maison)
