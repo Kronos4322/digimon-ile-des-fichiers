@@ -560,6 +560,30 @@
           }
         }
       }
+      // circuits apparents (la signature de Digimon World 2003) : quelques pistes cyan à angles droits,
+      // avec des nœuds lumineux, comme si le monde numérique affleurait sous la nature (pas en ville)
+      if (map.ambient !== 'town' && map.circuits !== false) {
+        const nP = Math.max(1, Math.round(map.w * map.h / 380)), okT = t => t === TER.grass || t === TER.dirt || t === TER.sand || t === TER.lawn;
+        for (let p = 0; p < nP; p++) {
+          let x = Math.floor(hash(p, 1, 501) * GW), y = Math.floor(hash(p, 2, 501) * GH);
+          if (!okT(T[y * GW + x]) || ED[y * GW + x] < 6) continue;
+          g.save(); g.globalAlpha = 0.32; g.strokeStyle = '#3ad8cc'; g.lineWidth = 1;
+          g.beginPath(); g.moveTo(x + 0.5, y + 0.5);
+          const nodes = [[x, y]];
+          for (let s = 0, horiz = hash(p, 3, 501) < 0.5; s < 3 + Math.floor(hash(p, 4, 501) * 4); s++, horiz = !horiz) {
+            const len = (8 + Math.floor(hash(p, 10 + s, 501) * 18)) * (hash(p, 20 + s, 501) < 0.5 ? -1 : 1);
+            const nx = horiz ? x + len : x, ny = horiz ? y : y + len;
+            if (nx < 2 || ny < 2 || nx >= GW - 2 || ny >= GH - 2 || !okT(T[ny * GW + nx])) break;
+            x = nx; y = ny; g.lineTo(x + 0.5, y + 0.5); nodes.push([x, y]);
+          }
+          g.stroke();
+          g.globalAlpha = 0.6; g.fillStyle = '#9ffcf2';
+          for (const [nx, ny] of nodes) g.fillRect(nx - 1, ny - 1, 3, 3);
+          g.globalAlpha = 0.5; g.fillStyle = '#1a6a64';
+          for (const [nx, ny] of nodes) g.fillRect(nx, ny, 1, 1);
+          g.restore();
+        }
+      }
     }
     // sol peint à la main par la carte (ex. la piste et les aires du terrain d'entraînement)
     if (map.paintGround) map.paintGround(ground.getContext('2d'), GW, GH);
