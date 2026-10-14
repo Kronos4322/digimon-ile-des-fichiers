@@ -286,7 +286,7 @@
     },
     async thunder(B, a, b, side) {
       A.sfx('thunder'); A.sfx('elec');
-      add(B, 0.5, (c, k) => { if (k < 0.7) { bolt(c, b.x + 10, 0, b.x, b.y, '#fff080', 10, 12); bolt(c, b.x - 8, 0, b.x, b.y, '#ffe040', 8, 10); } });
+      add(B, 0.5, (c, k) => { if (k < 0.7) { bolt(c, b.x + 10, b.y - 140, b.x, b.y, '#fff080', 10, 12); bolt(c, b.x - 8, b.y - 140, b.x, b.y, '#ffe040', 8, 10); } });
       B.flash = 0.8; await wait(0.45); impact(B, b, ['#ffffff', '#ffe040'], 22);
     },
     async mushbomb(B, a, b, side) {

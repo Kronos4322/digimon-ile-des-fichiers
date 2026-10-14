@@ -360,6 +360,7 @@
         await this.attackAnim(uSide, mv);
         const r = this.calc(uSide, mv, user, tgt, slot.special ? this.specialMult || 1.5 : 1);
         if (slot.special) { this.shake = 0.7; this.flash = 0.5; }
+        DW.Elem.impact(this, this.center(tSide), mv.type, slot.special);   // signature de l'élément (game/fxelem.js)
         await this.hitAnim(tSide, r.tm);
         await this.applyDamage(tSide, r.dmg);
         // énergie : celui qui frappe et celui qui encaisse
@@ -529,7 +530,7 @@
       for (let i = this.fx.length - 1; i >= 0; i--) { this.fx[i].t += dt; if (this.fx[i].t > this.fx[i].dur) this.fx.splice(i, 1); }
       for (let i = this.pt.length - 1; i >= 0; i--) {
         const p = this.pt[i];
-        p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; if (p.g) p.vy += p.g * dt;
         if (p.data) p.vx += (Math.random() - 0.5) * 60 * dt;
         if (p.life <= 0) this.pt.splice(i, 1);
       }

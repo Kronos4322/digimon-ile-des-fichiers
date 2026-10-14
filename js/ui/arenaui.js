@@ -36,6 +36,7 @@
       c.drawImage(g.ground, 0, 0);
       if (g.water && g.water.frames.length) c.drawImage(g.water.frames[Math.floor(this.t * g.fps) % g.water.frames.length], g.water.x, g.water.y);
       for (const tg of g.tall) c.drawImage(DW.World.tall(tg.kind, tg.v, [0, 1, 2, 1][Math.floor(this.t * 1.6 + tg.tx * 0.4) % 4]), tg.tx * 16, tg.ty * 16 - 8);
+      DW.Elem.drawDecals(this, c);   // brûlures, flaques, givre, cratères... (game/fxelem.js)
       const list = g.objs.map(o => ({ s: o.s !== undefined ? o.s : o.sort, o }));
       for (const side of ['p', 'e']) list.push({ s: this.B[side].y / 16, side });
       list.push({ s: this.hero.y / 16, hero: true });
@@ -59,6 +60,8 @@
       const sc = this.scaleOf(side);
       // ombre
       c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(b.x, b.y, 16 * sc / 0.7, 4.5 * sc / 0.7, 0, 0, 7); c.fill();
+      // aura de l'élément sous le Digimon qui prépare une technique (ou charge son coup spécial)
+      if (b.cast && b.cast.mv && (b.cast.phase === 'wind' || b.cast.phase === 'approach' || b.cast.phase === 'hold')) DW.Elem.aura(c, b.x, b.y, b.cast.mv.type, this.t, sc / 0.6 * (b.cast.slot.special ? 1.6 : 1));
       if (s.blink > 0 && Math.floor(s.blink * 20) % 2) return;
       // l'élan des effets (s.dx) pousse le Digimon vers son adversaire
       const o = this.B[side === 'p' ? 'e' : 'p'], f = (side === 'p' ? 1 : -1) * (s.dx || 0) * 0.6, d = Math.hypot(o.x - b.x, o.y - b.y) || 1;
@@ -69,7 +72,7 @@
       // préparation d'une attaque / sommeil
       const top = y - DW.Sprites.battle(m.sp).h * sc - 4;
       if (b.cast && (b.cast.phase === 'wind' || b.cast.phase === 'approach')) UI.text(c, '!', x, top + Math.sin(this.t * 20), { size: 12, align: 'center', bold: true, color: side === 'e' ? '#ff6050' : '#ffe040' });
-      else if (m.status === 'slp') UI.text(c, 'z', x + 8, top + Math.sin(this.t * 3) * 2, { size: 9, align: 'center', color: '#c8d4ff' });
+      DW.Elem.status(c, m, x, top + 4, y, this.t);   // flammèches, bulles, étincelles, Zz
       // combat sur place (comme Digimon World 1) : barre de vie au-dessus de l'adversaire
       if (side === 'e' && this.field && this.hud.e) {
         const r = this.hpShow.e / m.maxHp, bw = 34, bx = Math.round(x - bw / 2), by = Math.round(top - 9);
@@ -111,7 +114,7 @@
       const g = c.createRadialGradient(0, 0, 4, 0, 0, 22); g.addColorStop(0, '#2a5ac8'); g.addColorStop(1, '#0a1a44');
       c.fillStyle = g; c.beginPath(); c.arc(0, 0, 21, 0, 7); c.fill(); c.strokeStyle = '#bff4ff'; c.lineWidth = 1.5; c.stroke();
       const P = this.active, mv = P && P.moves[DW.clamp(this.lastMove || 0, 0, Math.max(0, P.moves.length - 1))];
-      UI.text(c, 'Attaque', 0, -1, { size: 9, align: 'center', bold: true, color: '#ffffff' });
+      UI.text(c, 'Technique', 0, -1, { size: 8, align: 'center', bold: true, color: '#ffffff' });
       if (mv) { const f = UI.fit(c, DW.MOVES[mv.id].name, 38, 6, 5); UI.text(c, f.s, 0, 8, { size: f.size, align: 'center', color: '#bfe8ff' }); }
       const seg = [[0, -38, 'Garde', this.guardCd > 0], [42, 0, 'Techn.', false], [-42, 0, 'Objets', this.throwCd > 0], [0, 38, 'Fuite', !this.wild]];
       for (const [x, y, t, off] of seg) {
@@ -148,10 +151,10 @@
     drawLog(c) {
       UI.box(c, 4, 214, W - 8, 24);
       if (this.log) UI.text(c, UI.wrap(c, this.log.text, 300, 8)[0], 12, 224, { size: 8 });
-      const hints = this.mode === 'acmd' ? (this.sub === 'wheel' ? [['ok', 'attaque'], ['back', 'fermer']] : [['ok', 'choisir'], ['back', 'roue']])
+      const hints = this.mode === 'acmd' ? (this.sub === 'wheel' ? [['ok', 'attaquer'], ['back', 'fermer']] : [['ok', 'choisir'], ['back', 'roue']])
         : [['ok', 'roue'], ['run', 'sprint'], ...(this.energy.p >= 100 && DW.sigOf(this.active) ? [['menu', 'spécial !']] : [])];
       UI.hints(c, hints, W - 10, 235);
-      if (this.mode !== 'acmd') UI.text(c, 'flèches : bouger', 12, 235, { size: 6, color: '#8aa0c8', shadow: false });
+      if (this.mode !== 'acmd') UI.text(c, 'il se bat seul · flèches : le guider', 12, 235, { size: 6, color: '#8aa0c8', shadow: false });
     },
     draw(c) {
       const sx = this.shake > 0 ? Math.round((Math.random() - 0.5) * 8 * this.shake) : 0;
@@ -167,7 +170,7 @@
         const x = DW.lerp(f.x0, f.x1, k), y = DW.lerp(f.y0, f.y1, k) - Math.sin(k * Math.PI) * 12 + Math.sin(f.ph + k * 20) * f.wob;
         c.fillStyle = f.col; c.beginPath(); c.arc(x, y, f.size * (1 - k * 0.3), 0, 7); c.fill();
       }
-      for (const p of this.pt) { c.globalAlpha = Math.max(0, Math.min(1, p.life / (p.max * 0.5))); c.fillStyle = p.col; c.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size); }
+      for (const p of this.pt) DW.Elem.drawParticle(c, p);
       c.globalAlpha = 1;
       for (const e of this.fxd) if (e.t >= 0) { c.save(); e.draw(c, Math.min(1, e.t / e.dur), e.t); c.restore(); }
       // objets lancés par le héros
@@ -180,7 +183,9 @@
       }
       c.globalAlpha = 1;
       c.restore();
-      this.weather.draw(c); DW.Time.drawLight(c, null, this.field && this.field.indoor ? 0.75 : 0.55, this.field && this.field.dark);
+      if (!(this.field && this.field.indoor)) this.weather.draw(c);
+      DW.Time.drawLight(c, null, this.field && this.field.indoor ? 0.75 : 0.55, this.field && this.field.dark);
+      if (this.field && this.field.fxDraw) { c.save(); c.translate(-Math.round(this.cam.x), -Math.round(this.cam.y)); this.field.fxDraw(c, this.t); c.restore(); }   // (lumière de l'arène du boss)
       if (this.flash > 0) { c.fillStyle = `rgba(255,255,255,${Math.min(0.7, this.flash)})`; c.fillRect(0, 0, W, H); }
       if (!this.field) this.drawMini(c, 'e', 4, 4, 138);
       else if (this.hud.e && DW.sigOf(this.enemy)) this.drawEnergy(c, 'e', 8, 8, 80);

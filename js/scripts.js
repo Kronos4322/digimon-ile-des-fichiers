@@ -14,7 +14,7 @@
     // interface de base : widgets et dialogues
     'ui/widgets.js', 'ui/dialog.js',
     // données du jeu
-    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/techniques_classe.js', 'data/items.js',
+    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/techniques_classe.js', 'data/techniques_elements.js', 'data/items.js',
     'data/music.js', 'data/musiques_regions.js', 'data/flags.js',
     // graphismes
     'gfx/sprites.js',
@@ -25,7 +25,7 @@
     'gfx/battlebg.js', 'engine/time.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js', 'game/paysage.js',
-    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/battle.js', 'game/arena.js', 'game/evolution.js',
+    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/fxelem.js', 'game/battle.js', 'game/arena.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus
     'ui/menus.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/arenaui.js', 'ui/hatch.js', 'ui/farm.js', 'ui/worldmap.js',

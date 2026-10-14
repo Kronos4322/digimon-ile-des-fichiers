@@ -1,6 +1,9 @@
 'use strict';
 // =====================================================================
-//  COMBAT EN ARÈNE (comme Digimon World) : le combat se joue sur une CARTE DE COMBAT à part,
+//  COMBAT EN ARÈNE (comme Digimon World 1) : TON DIGIMON SE BAT TOUT SEUL — il se place, attaque avec la
+//  technique que tu lui as donnée et esquive selon sa Vitesse. Toi, tu es le dresseur : la roue (ESPACE) sert à
+//  changer de technique, lancer un objet, demander une garde ou fuir. Les flèches sont facultatives (guider pour esquiver).
+//  Le combat se joue sur une CARTE DE COMBAT à part,
 //  un terrain d'un écran fait du sol et de la bordure de la carte où l'on était (clairière en
 //  forêt, sable et eau à la plage...). Les deux Digimon s'y déplacent en temps réel ; le héros
 //  regarde depuis le bord. À la fin, on revient sur la carte normale, à la même place.
@@ -75,7 +78,8 @@
   //  loin : de n'importe où ; une dalle (une croix pour les grosses attaques)
   //  tout le terrain : touche partout, mais moins fort
   const RANGE_FX = { flamebeam: 'near', waterbeam: 'near', icebreath: 'near', wire: 'near', spores: 'near', web: 'near', vine: 'near', shock: 'near', bubbles: 'near',
-    wave: 'field', blizzard: 'field', roar: 'field', tornado: 'field' };
+    bluefire: 'near', firestorm: 'near', icespikes: 'near', petalstorm: 'near', toxiccloud: 'near', acidspray: 'near',
+    wave: 'field', blizzard: 'field', roar: 'field', tornado: 'field', tidalwave: 'field', thunderstorm: 'field', quake: 'field' };
   const REACH = { melee: 44, near: 120 };
   const SHAPE_MULT = { melee: 1.1, near: 1, far: 0.95, field: 0.6, self: 1 };
   const SHAPE_NAME = { melee: 'corps à corps', near: 'proche', far: 'loin', field: 'tout le terrain', self: 'sur soi' };
@@ -101,7 +105,9 @@
       this.arena = true;
       // carte de combat de la région (sauf combats sans carte : tests, menus)
       const src = !o.noMap && DW.ow && DW.ow.map;
-      IMM = this.field = src ? fieldMap(src) : null;
+      // un boss peut avoir son arène dessinée sur mesure (ArenaScene.FIELDS, ex. le Grand Arbre de Kuwagamon)
+      const custom = o.field && ArenaScene.FIELDS[o.field];
+      IMM = this.field = custom ? (custom._map || (custom._map = custom())) : src ? fieldMap(src) : null;
       if (this.field) {
         this.gfx = DW.World.prepare(this.field);
         setField(16, FW * 16 - 16, 20, FH * 16 - 6, 32);
@@ -145,9 +151,9 @@
       await this.intro();
       if (!this.st.flags.arenaTuto) {
         this.st.flags.arenaTuto = true;
-        await super.msg('COMBAT EN ARÈNE ! Déplace ton Digimon avec les flèches pour esquiver les attaques.', 2.5);
-        await super.msg("ESPACE : choisir une technique ou lancer un objet. Le combat continue pendant que tu choisis : fais vite ! Une technique part là où se trouve l'ennemi : s'il bouge, elle rate.", 2.5);
-        await super.msg('Pousse contre le bord gauche ou droit du terrain pour fuir. ENTRÉE : coup spécial quand l\'énergie est pleine.', 2.5);
+        await super.msg("COMBAT EN ARÈNE ! Ton Digimon se bat tout seul : il attaque avec la technique que tu lui donnes et esquive de lui-même.", 2.5);
+        await super.msg('ESPACE : la roue du dresseur (changer de technique, lancer un objet, garde, fuite). ENTRÉE : coup spécial quand son énergie est pleine.', 2.5);
+        await super.msg("Si tu veux, guide-le avec les flèches pour esquiver toi-même. Bon courage !", 2.2);
       }
       this.live = true; this.mode = 'live';
       const r = await new Promise(res => (this.endR = res));
@@ -338,6 +344,7 @@
       return DW.clamp(30 + v * 1.3, 32, 150) * stage * (m.status === 'par' ? 0.5 : 1);
     }
     sim(dt, menu) {
+      if (this.hitStop > 0) { this.hitStop -= dt; return; }   // l'image se fige un instant à l'impact
       const P = this.active, E = this.enemy, bp = this.B.p, be = this.B.e;
       // ordres du joueur
       if (!menu && Input.hit('ok') && !bp.cast && P.status !== 'slp') { this.sub = 'wheel'; this.mode = 'acmd'; Audio.sfx('select'); return; }
@@ -369,6 +376,8 @@
         }
       } else if (pushing && !this.wild) { if (!this.noFleeSaid) { this.noFleeSaid = 1; this.say('Impossible de fuir ce combat !'); } }
       else this.fleeT = Math.max(0, this.fleeT - dt * 2);
+      // le partenaire se bat tout seul avec la technique choisie (comme dans Digimon World 1)
+      if (!bp.cast && bp.cd <= 0 && P.status !== 'slp' && !this.autoFlee && !(bp.guard > 0)) this.autoAttack();
       // l'ennemi attaque quand il est prêt
       if (!be.cast && be.cd <= 0 && E.status !== 'slp') {
         if (this.energy.e >= 100 && DW.sigOf(E) && Math.random() < 0.7) this.special('e');
@@ -397,7 +406,9 @@
       if (b.guard > 0) { b.vx = b.vy = 0; return; }
       if (this.autoFlee) { if (!menu && (ix || iy)) this.autoFlee = 0; else { ix = this.autoFlee; iy = Math.sign((F.y0 + F.y1) / 2 - b.y) * 0.3; } }
       if (menu) b.idle = Math.max(b.idle, 0.7);
-      if (ix || iy) { b.idle = 0; const n = Math.hypot(ix, iy); b.vx = ix / n * sp; b.vy = iy / n * sp * 0.75; }
+      // esquive automatique (annulée si le joueur le guide)
+      if (b.dodgeTo && !ix && !iy) { const dx = b.dodgeTo.x - b.x, dy = b.dodgeTo.y - b.y, d = Math.hypot(dx, dy); if (d < 3 || b.dodge <= 0) b.dodgeTo = null; else { b.dodge -= dt; b.vx = dx / d * sp * 1.4; b.vy = dy / d * sp * 1.4; return this.step(b, e, dt); } }
+      if (ix || iy) { b.dodgeTo = null; b.idle = 0; const n = Math.hypot(ix, iy); b.vx = ix / n * sp; b.vy = iy / n * sp * 0.75; }
       else {
         b.idle += dt;
         if (b.idle > 0.6) this.aiMove(b, e, this.prefDist(P), sp * 0.6, dt);
@@ -414,6 +425,17 @@
       if (b.dodge > 0) { b.dodge -= dt; }
       else this.aiMove(b, p, this.prefDist(E), sp * 0.7, dt);
       this.step(b, p, dt);
+    }
+    // attaque automatique du partenaire : la technique choisie (sinon la première qu'il peut payer)
+    autoAttack() {
+      const P = this.active, L = P.moves;
+      if (!L.length) return;
+      let i = DW.clamp(this.lastMove || 0, 0, L.length - 1);
+      if (!P.canPay(L[i].id)) i = L.findIndex(m => P.canPay(m.id));
+      // un Digimon mal discipliné hésite parfois
+      if (P === this.st.party[0] && DW.Life.disobeys(P) && Math.random() < 0.5) { this.B.p.cd = 1; this.pop('p', '...', '#c8d4ff'); return; }
+      this.startCast('p', i >= 0 ? L[i] : { id: 'lutte' });
+      this.B.p.cd = 0;
     }
     // attaque au corps à corps : le Digimon court vers l'adversaire
     approach(b, o, dt) {
@@ -522,6 +544,16 @@
         }
         if (best) { tb.dodgeTo = best; tb.dodge = 0.9; }
       }
+      // ton Digimon esquive tout seul lui aussi (selon sa Vitesse), sauf si tu le guides avec les flèches
+      if (side === 'e' && c.shape !== 'field' && Math.random() < DW.clamp(0.3 + (this.spd('p') - this.spd('e')) / (this.spd('e') * 3), 0.15, 0.6)) {
+        let best = null, bd = 1e9;
+        for (let y = 0; y < G.rows; y++) for (let x = 0; x < G.cols; x++) {
+          if (c.zone.has(x + ',' + y)) continue;
+          const p = cellCenter([x, y]), d = Math.hypot(p.x - tb.x, p.y - tb.y);
+          if (d < bd && !this.blocked(p.x, p.y)) { bd = d; best = p; }
+        }
+        if (best) { tb.dodgeTo = best; tb.dodge = 0.9; }
+      }
     }
     async special(side) {
       const m = this.mon(side), b = this.B[side], mv = DW.MOVES[DW.sigOf(m)];
@@ -563,6 +595,7 @@
       // touché ?
       const hit = tgt.hp > 0 && c.zone.has(cellOf(tb.x, tb.y).join(','));
       if (!hit) {
+        DW.Elem.impact(this, { x: ax, y: ay - 10 }, mv.type, false); DW.Elem.decal(this, ax, ay, mv.type, false);
         Audio.sfx('swoosh');
         this.popAt(ax, ay - 30, 'RATÉ !', '#c8d4ff');
         if (side === 'e') this.say(`${this.active.name} esquive !`);
@@ -576,6 +609,10 @@
       const r = this.calc(side, mv, user, tgt, (c.slot.special ? c.mult || 1.5 : 1) * (SHAPE_MULT[c.shape] || 1) * (tb.guard > 0 ? 0.5 : 1));
       if (tb.guard > 0) this.pop(tSide, 'PARÉ', '#8ad0ff');
       if (c.slot.special) { this.shake = 0.7; this.flash = 0.5; }
+      // signature de l'élément : impact, marque au sol, image figée un instant (game/fxelem.js)
+      DW.Elem.impact(this, this.center(tSide), mv.type, c.slot.special);
+      DW.Elem.decal(this, tb.x, tb.y + 2, mv.type, c.slot.special);
+      this.hitStop = c.slot.special ? 0.18 : r.crit ? 0.12 : 0.06;
       this.hitAnim(tSide, r.tm);
       if (tgt.status === 'slp') { tgt.status = null; tgt.stS = null; this.pop(tSide, 'RÉVEILLÉ', '#ffffff'); }
       this.applyDamage(tSide, r.dmg);
@@ -606,7 +643,7 @@
     // temps de récupération après une technique : plus long pour les grosses attaques, plus court si rapide
     cooldown(side, mv) {
       const base = 0.7 + (mv.pow || 40) / 90, sp = this.spd(side) / (this.spd('p') + this.spd('e')) * 2;
-      return (side === 'e' ? base * 1.25 + Math.random() * 1.2 : base) / DW.clamp(sp, 0.7, 1.4);
+      return (side === 'e' ? base * 1.25 + Math.random() * 1.2 : base + 0.4 + Math.random() * 0.4) / DW.clamp(sp, 0.7, 1.4);
     }
     checkKO() {
       if (!this.live) return;
@@ -624,10 +661,12 @@
     }
     tick(dt) {
       super.tick(dt);
+      DW.Elem.tickDecals(this, dt);
       this.camTo(1 - Math.pow(0.04, dt));
       for (let i = this.pops.length - 1; i >= 0; i--) { const p = this.pops[i]; p.t += dt; if (p.t > 1.1) this.pops.splice(i, 1); }
     }
   }
+  ArenaScene.FIELDS = {};   // cartes de combat des boss : { clé: () => carte 36 × 24 (rows, paintGround, objects, fx) }
   ArenaScene.FIELD = F; ArenaScene.GRID = G; ArenaScene.shapeOf = shapeOf; ArenaScene.SHAPE_NAME = SHAPE_NAME; ArenaScene.fieldMap = fieldMap;
   ArenaScene.depth = depth;
   DW.ArenaScene = ArenaScene;

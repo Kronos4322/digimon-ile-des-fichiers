@@ -56,6 +56,7 @@
       const frame = Math.floor(this.t * 4 + (side === 'e' ? 2 : 0));
       if (s.pose) { DW.Sprites.draw(c, DW.Sprites.pose(m.sp, s.pose), POS[side].x + s.dx, POS[side].y + s.dy, { scale: s.scale, flip: side === 'e', white: s.white, alpha: s.alpha }); return; }
       DW.Sprites.draw(c, spr, POS[side].x + s.dx, POS[side].y + s.dy, { scale: s.scale, flip: side === 'e', white: s.white, alpha: s.alpha, frame });
+      DW.Elem.status(c, m, POS[side].x + s.dx, POS[side].y + s.dy - spr.h * s.scale, POS[side].y + s.dy, this.t);   // flammèches, bulles, étincelles
     },
     drawHud(c) {
       if (this.hud.e) {
@@ -173,10 +174,7 @@
         const x = DW.lerp(f.x0, f.x1, k), y = DW.lerp(f.y0, f.y1, k) - Math.sin(k * Math.PI) * 12 + Math.sin(f.ph + k * 20) * f.wob;
         c.fillStyle = f.col; c.beginPath(); c.arc(x, y, f.size * (1 - k * 0.3), 0, 7); c.fill();
       }
-      for (const p of this.pt) {
-        c.globalAlpha = Math.max(0, Math.min(1, p.life / (p.max * 0.5)));
-        c.fillStyle = p.col; c.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
-      }
+      for (const p of this.pt) DW.Elem.drawParticle(c, p);
       c.globalAlpha = 1;
       for (const e of this.fxd) if (e.t >= 0) { c.save(); e.draw(c, Math.min(1, e.t / e.dur), e.t); c.restore(); }
       c.restore();
