@@ -65,7 +65,7 @@
   fat('palmon', 'togemon', 'fatMin', 2); fat('gabumon', 'garurumon', 'fatMax', 3); fat('elecmon', 'garurumon', 'fatMax', 3);
   fat('biyomon', 'birdramon', 'fatMax', 2);
   // gros gabarits : il faut un Digimon bien nourri ; formes agiles : il doit rester léger
-  fat('agumon', 'greymon', 'fatMin', 1); fat('agumon', 'meramon', 'fatMax', 1); fat('gotsumon', 'meramon', 'fatMax', 2);
+  fat('agumon', 'greymon', 'fatMin', 0); fat('agumon', 'meramon', 'fatMax', 1); fat('gotsumon', 'meramon', 'fatMax', 2);
   fat('betamon', 'shellmon', 'fatMin', 3); fat('gomamon', 'shellmon', 'fatMin', 3); fat('kunemon', 'kuwagamon', 'fatMax', 2); fat('mushroomon', 'togemon', 'fatMin', 1); fat('gomamon', 'ikkakumon', 'fatMin', 1); fat('ikkakumon', 'zudomon', 'fatMin', 3);
 
   const LABEL = { hp: 'Entr. PV', atk: 'Entr. Attaque', def: 'Entr. Défense', spd: 'Entr. Vitesse', int: 'Entr. Intell.', happy: 'Bonheur', wins: 'Victoires',

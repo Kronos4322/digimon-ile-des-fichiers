@@ -170,7 +170,7 @@
       else this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
       m.tired = Math.min(100, m.tired + L.tire);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);
-      DW.Life.addFat(m, -0.5);
+      DW.Life.addFat(m, -0.2);   // (une séance fait un peu maigrir ; trop, et les Digivolutions « costaudes » devenaient impossibles)
       DW.state.clock += MINUTES;
       this.after = m.stat(k);
       if (k === 'hp') m.hp = Math.min(m.maxHp, m.hp + (this.after - this.before));

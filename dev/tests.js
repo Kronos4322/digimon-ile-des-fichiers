@@ -399,7 +399,7 @@ test("poids : un repas fait grossir, un combat fait à peine maigrir (on peut at
   const m = new DW.Digimon('agumon', 12); DW.state.party = [m]; DW.Life.init(m); m.fat = 0; m.hunger = 80;
   DW.Care.feed(m, 60);
   yes(m.fat >= 1, `une Viande ne fait presque pas grossir (${m.fat})`);
-  const f0 = m.fat; for (let i = 0; i < 20; i++) DW.Life.addFat(m, -0.05);
+  const f0 = m.fat; for (let i = 0; i < 20; i++) DW.Life.addFat(m, -0.02);
   yes(f0 - m.fat <= 1.01, 'vingt combats font trop maigrir');
 });
 

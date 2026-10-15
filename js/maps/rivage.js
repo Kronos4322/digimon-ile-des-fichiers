@@ -31,7 +31,7 @@
 
   // ------------------------------------------------------------ DUNES DES BÉBÉS (40×30, agrandie ×2)
   MAPS.dunes = {
-    name: 'Dunes des Bébés', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.14, wildN: 10,
+    name: 'Dunes des Bébés', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.14, wildN: 10, noLandmark: true,
     rows: forestGen(zoomGen({ w: 40, h: 30, seed: 41, autoTall: 0.5, deco: 0.8, landmarks: [['{', 3]],
       clearings: [{ x: 20, y: 16, rx: 15, ry: 10 }, { x: 8, y: 8, rx: 5, ry: 4 }],
       paths: [{ pts: [[41, 13.5], [30, 14], [22, 17], [12, 15], [6, 9]], r: 1.6 }, { pts: [[20, 16], [20, 6], [20, -1]], r: 1.4 }],

@@ -103,7 +103,7 @@
     const ok = (seen, [x, y]) => seen.has(x + ',' + y) || [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => seen.has((x + dx) + ',' + (y + dy)));
     const base = reach(), must = targets.filter(t => ok(base, t));
     // ---------- lieu marquant de la sous-zone (au plus près du centre ; pas si elle a déjà son lieu emblématique)
-    const pool = !m.piece && LANDMARKS[m.theme];
+    const pool = !m.piece && !m.noLandmark && LANDMARKS[m.theme];   // (noLandmark : pas de grand repère, ex. les Dunes des Bébés)
     if (pool) {
       const num = parseInt(String(id).replace(/\D/g, ''), 10), L = pool[(isNaN(num) ? seed : num) % pool.length], D = W.OBJ[L[0]];
       const fw = Math.max(2, Math.round((typeof D.w === 'number' ? D.w : 64) / 16 * 0.8)), fh = (typeof D.h === 'number' ? D.h : 64) > 50 ? 2 : 1;

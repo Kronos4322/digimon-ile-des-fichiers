@@ -457,7 +457,7 @@
         for (const m of alive) {
           // contre un adversaire plus faible, on apprend peu (on ne monte plus de niveau en écrasant les petits)
           const gap = DW.clamp(1 - (m.level - E.level) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total / alive.length * gap));
-          m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.05);   // (un combat fait à peine maigrir : 200 combats ne doivent pas affamer)
+          m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.02);   // (un combat fait à peine maigrir : 200 combats ne doivent pas affamer)
           await this.msg(`${m.name} gagne ${each} points d'EXP !`, 0.8);
           const events = m.addXp(each);
           for (const ev of events) {

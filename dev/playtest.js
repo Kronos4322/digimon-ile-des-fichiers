@@ -45,8 +45,11 @@
       const m = DW.state.party[0];
       if (!m) { log('plus de Digimon !'); break; }
       // soins : manger, toilettes, maladie, blessure, sommeil
-      if (m.hunger >= 60) { if (!DW.state.bag.viande) { DW.state.bits -= 50; DW.giveItem('viande', 3); } DW.useItem('viande', m); }
+      // un joueur attentif nourrit plus souvent quand la Digivolution visée demande un Digimon bien en chair
+      const nx = (DW.EVO[m.sp] || [])[0], fatNeed = nx && nx.req.fatMin != null && (m.fat || 0) < nx.req.fatMin;
+      if (m.hunger >= (fatNeed ? 30 : 60)) { if (!DW.state.bag.viande) { DW.state.bits -= 50; DW.giveItem('viande', 3); } DW.useItem('viande', m); }
       if (m.need >= 70) { m.need = 0; DW.state.clock += 5; }
+      if (m.hp <= 0) { m.heal(); DW.state.clock += 60; log('K.O. : repos chez Jijimon'); }   // un joueur rentre se soigner
       if (m.sick) { DW.state.bits -= 200; m.sick = 0; m.germs = 20; log('malade : médicament'); }
       if (m.hurt) { m.hurt = 0; }
       // un joueur se soigne : RAM PV (500 PV) sous 70 % de PV, achetée au distributeur ; il boit quand il a soif
