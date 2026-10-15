@@ -24,7 +24,8 @@
       if (DW.MAPS[mapId].populate) DW.MAPS[mapId].populate();
       this.map = DW.getMap(mapId); this.mapId = mapId;
       if (DW.MapKit.dress) DW.MapKit.dress(this.map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
-      if (DW.Distrib) { DW.Distrib.signs(this.map); DW.Distrib.place(this.map, mapId); }   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
+      if (DW.Distrib) { DW.Distrib.signs(this.map); DW.Distrib.place(this.map, mapId); }
+      if (DW.YokoVillage) DW.YokoVillage.place(this.map, mapId);   // le tronc creux vers le village des Yokomon (maps/yokomon.js)   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
       this.gfx = DW.World.prepare(this.map);
       // cartes voisines (sorties et portes) : préparées pendant qu'on explore ; les autres sont libérées
       const near = new Set([mapId, ...(this.map.warps || []).map(w => w.to), ...(this.map.doors || []).map(d => d.to)]);
