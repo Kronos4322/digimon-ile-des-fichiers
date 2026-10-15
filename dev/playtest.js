@@ -49,8 +49,9 @@
       if (m.need >= 70) { m.need = 0; DW.state.clock += 5; }
       if (m.sick) { DW.state.bits -= 200; m.sick = 0; m.germs = 20; log('malade : médicament'); }
       if (m.hurt) { m.hurt = 0; }
-      // un joueur se soigne : Viande (600 PV) sous 70 % de PV, rachetée au Bazar
-      if (m.hp > 0 && m.hp < m.maxHp * 0.7) { if (!DW.state.bag.viande) { DW.state.bits -= 150; DW.giveItem('viande', 3); pt.buys = (pt.buys || 0) + 3; } DW.useItem('viande', m); }
+      // un joueur se soigne : RAM PV (500 PV) sous 70 % de PV, achetée au distributeur ; il boit quand il a soif
+      if (m.hp > 0 && m.hp < m.maxHp * 0.7) { if (!DW.state.bag.soin_p) { DW.state.bits -= 300; DW.giveItem('soin_p', 3); pt.buys = (pt.buys || 0) + 3; } DW.useItem('soin_p', m); }
+      if ((m.thirst || 0) >= 60) { DW.state.bits -= 40; m.thirst = Math.max(0, m.thirst - 70); }
       if (DW.Life.sleepy(m) || m.tired >= 85) { await DW.Life.sleep(); log('dodo'); }
       // Digivolution dès que possible
       const evo = DW.Evo.available(m);
@@ -80,7 +81,7 @@
       if (pt.fights % 10 === 0) log(`${pt.fights} combats (${pt.wins} victoires) — zone ${z}`);
     }
     const m = DW.state.party[0];
-    pt.sum = `${DW.state.flags.kuwagamon ? 'Kuwagamon VAINCU' : 'Kuwagamon pas encore vaincu'} après ${hours()} h de jeu, ${pt.fights} combats (${pt.wins} victoires, ${pt.losses} défaites), ${pt.trains} séances d'entraînement, ${pt.buys || 0} Viandes achetées, ${pt.kuwaTries} tentative(s) ; ${m ? m.name + ' niveau ' + m.level : ''}`;
+    pt.sum = `${DW.state.flags.kuwagamon ? 'Kuwagamon VAINCU' : 'Kuwagamon pas encore vaincu'} après ${hours()} h de jeu, ${pt.fights} combats (${pt.wins} victoires, ${pt.losses} défaites), ${pt.trains} séances d'entraînement, ${pt.buys || 0} RAM PV achetées, ${DW.state.bits} Bits à la fin, ${pt.kuwaTries} tentative(s) ; ${m ? m.name + ' niveau ' + m.level : ''}`;
     pt.done = true;
     return pt.sum;
   };
