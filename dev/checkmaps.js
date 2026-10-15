@@ -6,6 +6,9 @@
   // vérification sur la ville au complet (toutes les recrues) : quartiers, routes et maisons ouverts.
   // (À bas niveau, certains passages sont fermés exprès : ils n'existent pas encore.)
   DW.Town.RECRUITS.forEach(r => (DW.state.recruits[r.id] = true));
+  // maison entièrement meublée et Tai délivré : toutes les pièces et leurs portes existent
+  DW.state.hero = 'perso'; DW.state.kids = { tai: true };
+  DW.state.home = { owned: Object.fromEntries(Object.keys(DW.Home.FURN).map(k => [k, true])) };
   // tout objet cité par la légende ou par une carte doit exister
   const OBJ = DW.World.OBJ, miss = new Set();
   for (const ch in DW.World.CH) { const o = DW.World.CH[ch].obj; if (o && !OBJ[o]) miss.add(o + ' (case ' + ch + ')'); }
@@ -39,7 +42,7 @@
         const tx = w.tx + x, ty = w.ty + y;
         if (!tm.rows[ty] || tm.rows[ty][tx] === undefined) p.push(`arrivée hors carte ${w.to} ${tx},${ty}`);
       }
-      if (!tm.warps.some(b => b.to === id) && !(tm.doors || []).some(b => b.to === id)) p.push('pas de retour depuis ' + w.to);
+      if (!m.secretEntry && !tm.warps.some(b => b.to === id) && !(tm.doors || []).some(b => b.to === id)) p.push('pas de retour depuis ' + w.to);
     }
     for (const o of m.doors || []) { const dy = { up: 1, down: -1 }[o.dir] || 0, dx = { left: 1, right: -1 }[o.dir] || 0; let ok = false; for (let x = o.x; x < o.x + (o.w || 1); x++) if (seen.has((x + dx) + ',' + (o.y + dy))) ok = true; if (!ok) p.push('porte vers ' + o.to + ' inaccessible'); const tm = DW.getMap(o.to); if (!tm.rows[o.ty] || tm.rows[o.ty][o.tx] === undefined) p.push('arrivée de porte hors carte ' + o.to); }
     for (const n of m.npcs || []) if (!n.shadow && (DW.SOLID.has(m.rows[n.y][n.x]) || g.solid.has(n.x + ',' + n.y))) p.push(`PNJ ${n.sp || 'objet'} (${n.x},${n.y}) sur un obstacle`);

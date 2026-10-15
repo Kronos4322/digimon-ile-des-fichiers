@@ -70,17 +70,20 @@
     const isPath = (x, y) => at(x, y) === '=';
     const nearWarp = (x, y) => [...(m.warps || []), ...(m.doors || [])].some(w => x >= w.x - 2 && x < w.x + (w.w || 1) + 2 && y >= w.y - 2 && y < w.y + (w.h || 1) + 2);
     const occ = new Set(); for (const o of m.objects || []) if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
+    // caché : le feuillage des arbres juste devant (en dessous) le recouvre
+    const TREE = new Set(['T', '#', 'Y', 't', 'p']);
+    const hidden = (x, y) => { for (let dy = 1; dy <= 2; dy++) for (let dx = -1; dx <= 1; dx++) if (TREE.has(at(x + dx, y + dy))) return true; return false; };
     let moved = false;
     for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
       if (!SIGN.has(at(x, y)) || !m.signs[`${x},${y}`]) continue;
       let ok = false;
       for (let dy = -2; dy <= 2 && !ok; dy++) for (let dx = -2; dx <= 2; dx++) if (isPath(x + dx, y + dy)) { ok = true; break; }
-      if (ok) continue;
+      if (ok && !hidden(x, y)) continue;   // au bord d'un chemin et bien visible : il reste là
       let best = null, bd = 1e9;
       for (let yy = Math.max(2, y - 10); yy < Math.min(H - 2, y + 11); yy++) for (let xx = Math.max(2, x - 10); xx < Math.min(W - 2, x + 11); xx++) {
         if (!'.f,'.includes(at(xx, yy)) || occ.has(xx + ',' + yy) || nearWarp(xx, yy) || m.signs[`${xx},${yy}`]) continue;
         if (!(isPath(xx + 1, yy) || isPath(xx - 1, yy) || isPath(xx, yy + 1))) continue;
-        if (DW.SOLID.has(at(xx, yy + 1)) || occ.has(xx + ',' + (yy + 1))) continue;
+        if (DW.SOLID.has(at(xx, yy + 1)) || occ.has(xx + ',' + (yy + 1)) || hidden(xx, yy)) continue;
         const d = Math.abs(xx - x) + Math.abs(yy - y);
         if (d < bd) { bd = d; best = [xx, yy]; }
       }

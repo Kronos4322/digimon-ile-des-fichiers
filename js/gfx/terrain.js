@@ -463,7 +463,7 @@
     lap('decor');
     // objets
     const objs = [];
-    const solid = new Set();
+    const solid = new Set(), widen = [];   // widen : largeur des objets bas et larges (ajoutée à la fin, sans jamais couper un passage)
     for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
       const inf = World.info(map.rows[ty][tx]);
       if (!inf.obj) continue;
@@ -483,7 +483,7 @@
       const anim = o.frames ? World.objFrames(kind, v) : null;
       // objets bas et larges posés au sol (bûches, troncs creux, bois flotté, rochers) : toute leur largeur bloque
       // le passage, pas seulement leur case (on ne traverse plus le bout d'une bûche)
-      { const sp0 = anim ? anim[0] : World.obj(kind, v); if (inf.solid && inf.obj !== 'tree' && sp0.h <= 34 && sp0.w > 22) { const k = Math.round((sp0.w - 16) / 32); for (let xx = 1; xx <= k; xx++) { solid.add((tx - xx) + ',' + ty); solid.add((tx + xx) + ',' + ty); } } }
+      { const sp0 = anim ? anim[0] : World.obj(kind, v); if (inf.solid && inf.obj !== 'tree' && sp0.h <= 34 && sp0.w > 22) { const k = Math.round((sp0.w - 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((tx - xx) + ',' + ty, (tx + xx) + ',' + ty); widen.push(grp); } }
       objs.push({ kind, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
     }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
@@ -494,7 +494,7 @@
       const spr = anim ? anim[0] : World.obj(o.kind, o.v || 0);
       if (!o.walk && !o.top) for (let yy = 0; yy < o.h; yy++) for (let xx = 0; xx < o.w; xx++) solid.add((o.x + xx) + ',' + (o.y + yy));
       // pareil pour les objets posés plus larges que leur emprise (bas : bûches, piliers tombés...)
-      if (!o.walk && !o.top && !o.back && spr.h <= 34 && spr.w > o.w * 16 + 6) { const k = Math.round((spr.w - o.w * 16) / 32); for (let xx = 1; xx <= k; xx++) { solid.add((o.x - xx) + ',' + (o.y + o.h - 1)); solid.add((o.x + o.w - 1 + xx) + ',' + (o.y + o.h - 1)); } }
+      if (!o.walk && !o.top && !o.back && spr.h <= 34 && spr.w > o.w * 16 + 6) { const k = Math.round((spr.w - o.w * 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((o.x - xx) + ',' + (o.y + o.h - 1), (o.x + o.w - 1 + xx) + ',' + (o.y + o.h - 1)); widen.push(grp); }
       const flat = o.walk || o.back;
       objs.push({ kind: o.kind, spr, sprs: anim, fps: OBJ[o.kind].fps || 4, x: (o.x + o.w / 2) * TS + (o.ox || 0), y: (o.y + o.h) * TS - 1 + (o.oy || 0), sort: flat ? -10 + o.y * 0.01 : o.top ? 1000 : o.y + o.h - 0.5, big: !flat && !o.small && !o.top, flat: flat || o.top, tx: o.x, ty: o.y, def: o });
     }
@@ -593,6 +593,20 @@
     // sol peint à la main par la carte (ex. la piste et les aires du terrain d'entraînement)
     if (map.paintGround) map.paintGround(ground.getContext('2d'), GW, GH);
     const water = WI.length ? { x: wx0, y: wy0, frames: [] } : null;
+    if (widen.length) {
+      const blocked = (x, y, extra) => x < 0 || y < 0 || x >= map.w || y >= map.h || World.info(map.rows[y][x]).solid || solid.has(x + ',' + y) || (extra && extra.has(x + ',' + y));
+      const goals = [];
+      for (const w of [...(map.warps || []), ...(map.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) goals.push([x, y + (map.doors && map.doors.includes(w) ? 1 : 0)]);
+      for (const k in map.signs || {}) { const [x, y] = k.split(',').map(Number); goals.push([x, y + 1]); }
+      const reach = extra => { const st = goals.find(([x, y]) => !blocked(x, y, extra)); if (!st) return null; const seen = new Set([st.join()]), q = [st]; while (q.length) { const [x, y] = q.pop(); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + a, ny = y + b, k = nx + ',' + ny; if (!seen.has(k) && !blocked(nx, ny, extra)) { seen.add(k); q.push([nx, ny]); } } } return seen; };
+      const base = reach(null), need = base ? goals.filter(([x, y]) => base.has(x + ',' + y)) : [];
+      for (const grp of widen) {
+        const extra = new Set(grp.filter(k => !solid.has(k)));
+        if (!extra.size) continue;
+        const r = reach(extra);
+        if (r && need.every(([x, y]) => r.has(x + ',' + y) || extra.has(x + ',' + y))) for (const k of extra) solid.add(k);
+      }
+    }
     map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof };
     lap('sol');
     if (!water) { map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }

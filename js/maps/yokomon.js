@@ -15,12 +15,13 @@
     // clairière ovale entourée d'arbres, chemin vers la sortie (en bas), mare, fleurs
     for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (Math.hypot((x - 17) / 14.5, (y - 12) / 10) + (Hh(x, y, 5) - 0.5) * 0.18 < 1) g.set(x, y, Hh(x, y, 6) < 0.18 ? 'f' : '.');
     for (let y = 18; y < H; y++) for (let x = 16; x < 19; x++) g.set(x, y, '=');
+    g.set(16, H - 1, 'T'); g.set(18, H - 1, 'T');   // une seule case de sortie
     for (let y = 9; y < 17; y++) for (let x = 15; x < 20; x++) if (g.get(x, y) === '.') g.set(x, y, '=');
     for (let y = 6; y < 9; y++) for (let x = 25; x < 30; x++) if (Math.hypot((x - 27.5) / 2.4, (y - 7.5) / 1.4) < 1) g.set(x, y, '~');
   });
   MAPS.village_yokomon = {
     name: 'Village des Yokomon', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'foret',
-    rows, encounters: [], wildN: 0, dress: false,
+    rows, encounters: [], wildN: 0, dress: false, secretEntry: true,   // (on y entre par le tronc creux de la Prairie : pas de passage normal)
     objects: [
       { kind: 'well', x: 17, y: 11, w: 1, h: 1 },
       { kind: 'giantnest', x: 6, y: 7, w: 3, h: 1 }, { kind: 'giantnest', x: 9, y: 15, w: 3, h: 1 }, { kind: 'giantnest', x: 23, y: 14, w: 3, h: 1 },
@@ -29,7 +30,12 @@
     ],
     npcs: [],
     signs: {},
-    warps: [{ x: 16, y: H - 1, w: 3, h: 1, dir: 'down', to: 'prairie', tx: 0, ty: 0 }],
+    // (l'arrivée est réglée sur le tronc creux à la première visite ; en attendant, près de l'entrée de la Prairie)
+    warps: [(() => {
+      // arrivée par défaut : là où l'on arrive dans la Prairie depuis une autre carte (une case sûre)
+      let a = null; for (const id in MAPS) for (const w of MAPS[id].warps || []) if (!a && w.to === 'prairie' && w.tx != null) a = [w.tx, w.ty];
+      return { x: 17, y: H - 1, w: 1, h: 1, dir: 'down', to: 'prairie', tx: a ? a[0] : 5, ty: a ? a[1] : 5 };
+    })()],
     entry: { x: 17, y: H - 2 },
     populate() {
       const done = !!st().flags.yokoWell;
