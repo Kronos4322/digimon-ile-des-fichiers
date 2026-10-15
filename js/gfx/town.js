@@ -6,6 +6,30 @@
 //  smoke  : sortie de cheminée [x, y]
 // =====================================================================
 (function () {
+  // TAUDIS : planches disjointes, toit de tôle rapiécé, fenêtre condamnée, porte bancale (au centre cx)
+  DW.World = DW.World || {};
+  DW.World.drawShack = (d, W, H, cx) => {
+    const k = W / 184, y0 = H * 0.36, wy = H * 0.9;
+    d.ell(cx, H - 3, W * 0.45, 3.4, '#2a2018', 0, { flat: true });
+    // murs de planches grises, de travers
+    d.rect(W * 0.12, y0, W * 0.76, wy - y0, '#8a7a62', { tex: 0.35 });
+    for (let x = W * 0.12; x < W * 0.88; x += 7 * k + 3) d.deco.line(x, y0 + 2, x + (x % 3 - 1), wy, 0.9, '#5a4a36');
+    for (const [x, y, w, c] of [[0.2, 0.55, 0.12, '#a08a62'], [0.62, 0.66, 0.1, '#7a6a52'], [0.3, 0.75, 0.08, '#9a8460']]) d.deco.rect(W * x, H * y, W * w, H * 0.06, c);
+    // porte bancale
+    d.rect(cx - W * 0.09, H * 0.58, W * 0.18, wy - H * 0.58, '#5a4030', { tex: 0.3 });
+    d.deco.line(cx - W * 0.09, H * 0.66, cx + W * 0.09, H * 0.64, 1, '#3a2a1e'); d.deco.line(cx - W * 0.09, H * 0.8, cx + W * 0.09, H * 0.78, 1, '#3a2a1e');
+    // fenêtre condamnée par deux planches
+    d.deco.rect(W * 0.22, H * 0.5, W * 0.12, H * 0.13, '#2a2a30');
+    d.deco.line(W * 0.21, H * 0.49, W * 0.35, H * 0.64, 1.6, '#a08a62'); d.deco.line(W * 0.35, H * 0.49, W * 0.21, H * 0.64, 1.6, '#a08a62');
+    d.deco.rect(W * 0.68, H * 0.5, W * 0.1, H * 0.1, '#7aa0b0'); d.deco.line(W * 0.68, H * 0.5, W * 0.78, H * 0.6, 0.7, '#ffffff');
+    // toit de tôle rouillée rapiécée
+    d.poly([[W * 0.04, y0 + 2], [W * 0.2, H * 0.1], [W * 0.82, H * 0.08], [W * 0.96, y0 + 4]], '#8a6a52', { tex: 0.3 });
+    for (let x = W * 0.08; x < W * 0.94; x += 6 * k + 3) d.deco.line(x, y0 + 2, x + W * 0.04, H * 0.1, 0.7, '#6a4e3a');
+    d.deco.rect(W * 0.3, H * 0.16, W * 0.14, H * 0.08, '#a85a3a'); d.deco.rect(W * 0.6, H * 0.2, W * 0.12, H * 0.07, '#6a7a82');
+    // tas de bois et seau
+    d.rect(W * 0.86, wy - H * 0.08, W * 0.1, H * 0.08, '#7a5a3a', { tex: 0.4 });
+    d.rect(W * 0.04, wy - H * 0.07, W * 0.05, H * 0.07, '#7a8088', { round: 0.3 });
+  };
   const OBJ = DW.World.OBJ;
   const STRAW = '#d8b45a', STRAW_D = '#a8843a', WOOD = '#8a5a32', WOOD_D = '#5a3a1e', STONE = '#a8a296';
 
@@ -29,7 +53,11 @@
     // ---------------------------------------------------------- maison de Jijimon : grande maison (remplit sa parcelle, toit visible en entier)
     // soubassement de pierre, colombages, porte en arche au centre (la porte de la carte), fenêtres à volets
     // et jardinières, lanternes, enseigne, grand toit de tuiles rouges à deux lucarnes, cheminée, parabole, lierre
-    jhouse: { w: 184, h: 118, n: 1, lights: [[60, 82, 18], [124, 82, 18], [92, 74, 20], [52, 34, 12], [132, 34, 12]], smoke: [152, 6], draw(d) {
+    // cabane du joueur au début (taudis), même dessin en plus petit
+    shack: { w: 80, h: 70, n: 1, draw(d) { DW.World.drawShack(d, 80, 70, 40); } },
+    // maison de Jijimon : 0 = taudis (ville en ruines), 1 = rénovée, 2 = cossue (fanions dorés, massifs)
+    jhouse: { w: 184, h: 118, n: 3, lights: [[60, 82, 18], [124, 82, 18], [92, 74, 20], [52, 34, 12], [132, 34, 12]], smoke: [152, 6], draw(d, v) {
+      if (v === 0) { DW.World.drawShack(d, 184, 118, 92); return; }
       const Wl = '#ecdcb8', Tb = '#7a4a28', St = '#a8a296', Sd = '#7a7468', R = '#c84a32', Rd = '#9a3424', Rl = '#e06a4a';
       d.ell(92, 115, 88, 4, '#3a2a18', 0, { flat: true });
       // terrasse en bois, marches
@@ -79,6 +107,11 @@
       d.tube([[92, 14], [92, 6]], 1.4, 1.4, '#7a7a82'); d.ell(92, 4, 8, 4, '#e8ecf0', 0, { shiny: true }); d.deco.circ(92, 4, 1.2, '#5a5a62');
       // lierre qui grimpe sur le coin gauche
       for (let i = 0; i < 12; i++) { const y = 90 - i * 3.4, x = 21 + Math.sin(i * 1.3) * 3; d.deco.circ(x, y, 2.2, i % 3 ? '#3a8a3a' : '#5aaa4a'); }
+      if (v === 2) {
+        // fanions dorés sous le toit, massifs fleuris de part et d'autre de la terrasse
+        for (let k = 0; k < 12; k++) { const x = 14 + k * 13.5; d.deco.poly([[x, 57], [x + 9, 57], [x + 4.5, 64]], k % 2 ? '#ffd040' : '#3a8ae0', { unlit: true }); }
+        for (const x of [8, 164]) { d.ell(x + 6, 110, 9, 4, '#3a8a3a'); for (let k = 0; k < 5; k++) d.deco.circ(x + 1 + k * 2.6, 108 - (k % 2) * 2, 1.6, ['#ff6a8a', '#ffe060', '#ffffff', '#ff9ad0', '#b48aff'][k], { unlit: true }); }
+      }
     } },
     // ---------------------------------------------------------- Bazar de Gotsumon (5×3)
     bazar: { w: 100, h: 92, n: 1, lights: [[50, 62, 26]], draw(d) {

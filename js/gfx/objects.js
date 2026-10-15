@@ -275,7 +275,7 @@
       d.deco.circ(14, 10, 2, '#5ad8f0', { unlit: true });
       d.poly([[9, 6], [14, 1], [19, 6]], '#8a847a');
     } },
-    toilet: { w: 34, h: 40, n: 1, lights: [[17, 12, 14]], draw(d) {
+    toiletroom: { w: 34, h: 40, n: 1, lights: [[17, 12, 14]], draw(d) {
       d.ell(17, 38, 15, 2.4, '#3a2a1a', 0, { flat: true });
       // dalle et mur du fond
       d.rect(2, 30, 30, 8, '#a8a296', { round: 0.15, tex: 0.3 });
@@ -294,6 +294,34 @@
       for (let x = 3; x < 33; x += 4) d.deco.line(x, 5, x, 12, 0.7, '#5a3e30');
       d.deco.rect(0, 10, 34, 2, '#c84a3a');
       d.deco.rect(13, 6, 8, 4, '#3a68a8'); DW.World.signText && DW.World.signText(d, 'WC', 14, 7, '#ffffff', 0.6);
+    } },
+    // toilettes publiques : jolie cabane de bois (toit de tuiles, porte au cœur, jardinière, enseigne WC, lanterne)
+    toilet: { w: 36, h: 46, n: 1, lights: [[30, 18, 12]], draw(d) {
+      d.ell(18, 45, 16, 2.4, '#2a2a1a', 0, { flat: true });
+      // marche de pierre
+      d.rect(9, 40, 18, 5, '#b0a898', { round: 0.3, tex: 0.3 });
+      // cabane : planches verticales crème et bleu ciel
+      d.rect(4, 16, 28, 26, '#f0e4c8', { round: 0.06, tex: 0.12 });
+      for (let x = 7; x < 32; x += 4) d.deco.line(x, 17, x, 41, 0.6, '#d4c4a0');
+      d.deco.rect(4, 38, 28, 4, '#8ac0d8');
+      // porte bleue avec un cœur découpé
+      d.rect(12, 21, 12, 20, '#4a8ac8', { round: 0.12 });
+      d.deco.rect(13.5, 22.5, 9, 17, '#5a9ad8');
+      d.deco.circ(16.4, 26, 1.8, '#1a2a40'); d.deco.circ(19.6, 26, 1.8, '#1a2a40'); d.deco.poly([[14.6, 26.6], [18, 30.4], [21.4, 26.6]], '#1a2a40');
+      d.deco.circ(22, 32, 0.9, '#ffe070', { unlit: true });
+      // jardinière fleurie sous la fenêtre
+      d.rect(5, 30, 6, 3, '#9a5a32', { round: 0.2 });
+      for (const [x, c] of [[6, '#ff6a8a'], [8, '#ffe070'], [10, '#ff9ad0']]) d.deco.circ(x, 29, 1.2, c, { unlit: true });
+      d.rect(5.5, 22, 5, 5, '#a8e0ff', { round: 0.2, shiny: true }); d.deco.line(8, 22, 8, 27, 0.6, '#ffffff');
+      // toit de tuiles rouges
+      d.poly([[0, 18], [18, 4], [36, 18], [33, 19], [3, 19]], '#c84a3a', { tex: 0.25 });
+      for (let k = 0; k < 4; k++) d.deco.line(3 + k * 2, 17 - k * 3, 33 - k * 2, 17 - k * 3, 0.6, '#9a3428');
+      d.deco.circ(18, 5, 1.6, '#ffe070');
+      // enseigne WC
+      d.rect(13, 10, 10, 6, '#ffffff', { round: 0.3 }); d.deco.rect(14, 11, 8, 4, '#3a68a8');
+      DW.World.signText && DW.World.signText(d, 'WC', 14.6, 11.6, '#ffffff', 0.55);
+      // lanterne
+      d.tube([[30, 20], [30, 16]], 0.6, 0.6, '#3a3040'); d.rect(28.4, 17, 3.2, 4, '#ffe08a', { round: 0.3 });
     } },
     bench: { w: 22, h: 14, n: 1, draw(d) {
       d.rect(2, 3, 18, 4, '#a0703c', { round: 0.3 });

@@ -27,7 +27,7 @@
   // ------------------------------------------------------------ construction de la carte
   function build() {
     const m = MAPS.village, lvl = T().level(), has = id => T().has(id);
-    const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl + (st().hero || '');
+    const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl + (st().hero || '') + (Object.keys((st().home || {}).owned || {}).length >= 4 ? 'H' : 'h');
     if (m.version === version && m.rows) return;
     m.version = version;
     m.decay = Math.max(0, 1 - lvl / 4);
@@ -122,8 +122,8 @@
       g.set(4, 12, 'S'); g.set(18, 26, 'S'); g.set(7, 25, 'S');
     });
     // objets : maison de Jijimon, bâtiments ou chantiers, fontaine, clôtures
-    m.objects = [{ kind: 'jhouse', x: 14, y: 2, w: 12, h: 4 },   // grande maison à étage (centrée comme avant : porte au milieu)
-       { kind: 'mailbox', x: 22, y: 6, w: 1, h: 1, small: true }, { kind: 'cottage', v: 2, x: 29, y: 3, w: 5, h: 3, home: true }];
+    m.objects = [{ kind: 'jhouse', v: lvl < 3 ? 0 : lvl < 7 ? 1 : 2, x: 14, y: 2, w: 12, h: 4 },   // taudis, rénovée, cossue   // grande maison à étage (centrée comme avant : porte au milieu)
+       { kind: 'mailbox', x: 22, y: 6, w: 1, h: 1, small: true }, { kind: DW.Home && Object.keys((st().home || {}).owned || {}).length >= 4 ? 'cottage' : 'shack', v: 2, x: 29, y: 3, w: 5, h: 3, home: true }];   // ta maison : un taudis, rénové dès qu'elle est un peu meublée
     for (const id in LOTS) {
       const L = LOTS[id];
       if (has(id)) m.objects.push({ kind: L.kind, x: L.x, y: L.y, w: L.w, h: L.h }, { kind: 'hangsign', v: L.sign[0], x: L.sign[1], y: L.sign[2], w: 1, h: 1, small: true });
