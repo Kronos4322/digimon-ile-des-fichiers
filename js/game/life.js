@@ -135,12 +135,37 @@
         d.slept = st.clock; d.tired = 0; d.mp = d.maxMp;
         if (!forced) d.germs = Math.max(0, (d.germs || 0) - 35);
         if (d.hp > 0) d.hp = st.bag.oreiller ? d.maxHp : Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.5));
-        d.hunger = Math.min(100, d.hunger + 30);
-        d.need = Math.min(95, d.need + 25);
+        // une nuit de sommeil : faim, soif et toilettes montent peu (besoins ralentis)
+        d.hunger = Math.min(95, d.hunger + 10);
+        d.need = Math.min(90, d.need + 8);
+        d.thirst = Math.min(95, (d.thirst || 0) + 12);
       }
       if (m && m.hurt && !forced) { m.hurt = 0; }
       await DW.wait(0.6);
       await DW.fade(0, 0.6);
+    },
+    // dans un lit (chez Jijimon, dans ta chambre, dans celle de ton Digimon) : il DORT seulement s'il a sommeil
+    // (à ses heures) ; sinon il se repose une heure. Renvoie 'sleep', 'rest' ou null (annulé).
+    async restOrSleep() {
+      const st = DW.state, m = DW.Care.lead();
+      if (m && Life.sleepy(m)) {
+        if ((await DW.ask(`${m.name} bâille... Dormir jusqu'à son réveil ?`)) !== 0) return null;
+        await Life.sleep(false);
+        await DW.say(`Bonjour ! ${m.name} a bien dormi et se sent en forme.`);
+        return 'sleep';
+      }
+      if ((await DW.ask(m ? `${m.name} n'a pas sommeil. Se reposer une heure ?` : 'Se reposer une heure ?')) !== 0) return null;
+      await DW.fade(1, 0.4);
+      DW.Care.rest(60, true);
+      for (const d of st.party) {
+        if (d.hp > 0) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.3));
+        d.mp = Math.min(d.maxMp, d.mp + Math.ceil(d.maxMp * 0.3));
+        d.tired = Math.max(0, (d.tired || 0) - 30);
+      }
+      await DW.wait(0.4);
+      await DW.fade(0, 0.4);
+      await DW.say('Une heure de repos... L\'équipe a récupéré un peu de forces (PV et PM +30 %, fatigue -30).');
+      return 'rest';
     },
     async collapse(m) {
       await DW.say(`${m.name} n'en peut plus... Il s'endort d'épuisement au beau milieu du chemin !`);
@@ -200,6 +225,7 @@
       const dirt = Math.min(6, Object.values(st.poops).reduce((a, L) => a + L.length, 0));
       if (dirt) out.push([dirt * 1.5, dirt > 1 ? `${dirt} crottes traînent par terre` : 'une crotte traîne par terre']);
       if (m.hunger >= 100) out.push([6, 'il meurt de faim']); else if (m.hunger >= 90) out.push([2, 'il a très faim']);
+      if ((m.thirst || 0) >= 100) out.push([5, 'il meurt de soif']); else if ((m.thirst || 0) >= 90) out.push([2, 'il a très soif']);
       if (m.need >= 90) out.push([2, 'il se retient depuis trop longtemps']);
       if (m.tired >= 80) out.push([4, 'il est épuisé']);
       if (m.hurt) out.push([4, "sa blessure n'est pas soignée"]);
@@ -241,6 +267,7 @@
       if (Life.pending) out.push(Life.pending.type === 'bad' ? 'bad' : 'good');
       if (m.hp > 0 && m.hp < m.maxHp * 0.35) out.push('lowhp');   // PV bas : il faut le soigner (RAM PV, repos)
       if (m.hunger >= 70) out.push('food');
+      if ((m.thirst || 0) >= 70) out.push('drink');
       if (m.need >= 75) out.push('need');
       if (m.sick) out.push('sick');
       if (m.hurt) out.push('hurt');

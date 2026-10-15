@@ -262,11 +262,13 @@
     const r = await DW.ask("Que veux-tu, jeune DigiSélectionné ?", ['Se reposer', 'Des conseils', 'Questions', 'Au revoir'], 'Jijimon');
     if (r === 2) { await DW.Guide.questions('Que veux-tu savoir ?'); return; }
     if (r === 0) {
-      const night = DW.Time.isNight();
-      await say(night ? "Dors donc ici cette nuit. Hohoho !" : "Une petite sieste te fera du bien.", 'Jijimon');
-      if (night) { const h = DW.Time.hour(); s.clock += ((h < 7 ? 7 - h : 31 - h) * 60); } else s.clock += 120;
+      // dormir seulement à l'heure du coucher de ton Digimon ; sinon une heure de repos
+      const m = DW.Care.lead(), sleepy = m && DW.Life.sleepy(m);
+      await say(sleepy ? "Ton Digimon tombe de sommeil ! Dormez donc ici. Hohoho !" : "Il n'a pas sommeil... Reposez-vous un peu, ça fera du bien.", 'Jijimon');
+      const res = await DW.Life.restOrSleep();
+      if (!res) return;
       s.heal = { map: 'maison', x: 12, y: 5 };
-      await healAll('Toute ton équipe est en pleine forme !');
+      if (res === 'sleep') await healAll('Toute ton équipe est en pleine forme !');
       DW.autosave();
     } else if (r === 1) {
       const next = T().RECRUITS.find(x => !T().has(x.id));

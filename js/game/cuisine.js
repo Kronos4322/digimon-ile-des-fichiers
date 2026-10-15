@@ -14,7 +14,7 @@
   const INGR = {
     miel:        { name: 'Miel doré', price: 300, use: 'heal', amt: 200, food: 10, happy: 4, icon: ['jar', '#f0b020'], desc: 'Un pot de miel des fleurs de l\'île. Ingrédient de cuisine (un peu de bonheur si on le mange).' },
     piment:      { name: 'Piment de feu', price: 300, use: 'heal', amt: 100, food: 5, icon: ['veg', '#e8301a'], desc: 'Il brûle la langue ! Ingrédient de cuisine.' },
-    eau_source:  { name: 'Eau de source', price: 150, use: 'mp', amt: 300, food: 0, icon: ['potion', '#6ac8f0'], desc: 'Une eau pure et fraîche. Restaure 300 PM. Ingrédient de cuisine.' },
+    eau_source:  { name: 'Eau de source', price: 150, use: 'heal', food: 0, drink: 80, icon: ['potion', '#6ac8f0'], desc: 'Une eau pure et fraîche : étanche la soif. Ingrédient de cuisine.' },
     sel:         { name: 'Sel de roche', price: 150, use: 'none', icon: ['jar', '#e8e4dc'], desc: 'Du sel taillé dans la roche par Gotsumon. Ingrédient de cuisine.' },
     lait:        { name: 'Lait de cactus', price: 300, use: 'heal', amt: 300, food: 15, icon: ['potion', '#f4f4ec'], desc: 'Doux et crémeux (mieux vaut ne pas demander). Ingrédient de cuisine.' },
     truffe:      { name: 'Truffe des bois', price: 1200, use: 'heal', amt: 200, food: 10, icon: ['mush', '#5a4030'], desc: 'Un champignon rare au parfum puissant. Ingrédient de cuisine.' },
@@ -39,9 +39,9 @@
     sorbet:      { name: 'Sorbet de Frigimon', price: 900, use: 'heal', food: 20, happy: 15, disc: 10, tired: 100, icon: ['cake', '#f0a020'], desc: 'Frais ! Bonheur +15, discipline +10, plus de fatigue.' },
     smoothie:    { name: 'Smoothie bleu', price: 1200, use: 'heal', mpFull: true, food: 30, happy: 10, chip: { mp: 3 }, icon: ['potion', '#5a8ae0'], desc: 'Tous les PM. PM max +60 pour toujours.' },
     gratin:      { name: 'Gratin à la truffe', price: 4000, use: 'heal', full: true, food: 90, happy: 10, chip: { hp: 2, mp: 2, atk: 1, def: 1, spd: 1, int: 1 }, icon: ['bowl', '#f0d070'], desc: 'Un délice rare. Toutes les statistiques augmentent un peu, pour toujours.' },
-    festin:      { name: 'Festin de l\'Île', price: 9000, use: 'heal', full: true, mpFull: true, food: 100, happy: 30, life: 1, chip: { hp: 4, mp: 4, atk: 2, def: 2, spd: 2, int: 2 }, icon: ['bowl', '#ffd040'], desc: 'Le plat légendaire : tout est restauré, la vie s\'allonge d\'un jour et toutes les statistiques montent !' },
+    festin:      { name: 'Festin de l\'Île', price: 9000, use: 'heal', full: true, mpFull: true, food: 100, happy: 30, life: 1, chip: { hp: 4, mp: 4, atk: 2, def: 2, spd: 2, int: 2 }, icon: ['bowl', '#ffd040'], desc: 'Le plat légendaire : rassasie, la vie s\'allonge d\'un jour et toutes les statistiques montent !' },
   };
-  for (const [id, it] of Object.entries({ ...INGR, ...DISH })) { I[id] = it; if (!DW.ITEM_ORDER.includes(id)) DW.ITEM_ORDER.push(id); }
+  for (const [id, it] of Object.entries({ ...INGR, ...DISH })) { DW.foodRule(it); I[id] = it; if (!DW.ITEM_ORDER.includes(id)) DW.ITEM_ORDER.push(id); }   // (la nourriture ne soigne pas : items.js)
   DW.SHOPS.boulangerie.push('farine');
   DW.SHOPS.resto.splice(2, 0, 'riz');
 

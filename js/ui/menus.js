@@ -79,7 +79,7 @@
       else if (k === 'dormir') {
         const m = DW.Care.lead();
         if (!m) { await DW.say("Tu n'as pas encore de partenaire."); return; }
-        if (!DW.Life.sleepy(m) && m.tired < 60) { await DW.say(`${m.name} n'a pas sommeil. (Il a sommeil à partir de 21 h, ou quand il est fatigué.)`); return; }
+        if (!DW.Life.sleepy(m)) { const S = DW.Life.sched(m); await DW.say(`${m.name} n'a pas sommeil (il se couche vers ${S.bed} h). Il peut se reposer une heure chez Jijimon, ou dans sa chambre.`); return; }
         if ((await DW.ask(`Faire dormir ${m.name} ici jusqu'au matin ?`)) !== 0) return;
         this.close();
         await DW.Life.sleep(false);

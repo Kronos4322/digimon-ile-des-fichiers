@@ -9,11 +9,16 @@
 //  - TOILETTES (0-100) : montent avec le temps et après chaque repas.
 //    À 75 : il faut trouver des toilettes. À 100 : petit accident sur la carte
 //    (bonheur -6). On nettoie en se plaçant devant et en appuyant sur ESPACE.
+//  - SOIF (0-100) : monte un peu plus vite que la faim (deux fois plus par forte chaleur ou sécheresse).
+//    On boit à une rivière, un étang, une source (ESPACE devant l'eau), ou une Eau fraîche (distributeurs).
+//    À 70 : il réclame à boire. À 100 : il perd du bonheur.
+//  Pendant le SOMMEIL (et le repos), faim, soif et toilettes montent beaucoup moins vite.
 //  Les Digimon qui ne sont pas en tête ne changent pas.
 // =====================================================================
 (function () {
   const { UI, Audio } = DW;
-  const HUNGER_RATE = 1 / 10, NEED_RATE = 1 / 14;   // toilettes : ≈ 2 passages par jour (temps + repas)
+  const HUNGER_RATE = 1 / 10, NEED_RATE = 1 / 14, THIRST_RATE = 1 / 9;   // toilettes : ≈ 2 passages par jour (temps + repas)
+  const REST = 0.25;   // pendant le sommeil ou le repos : besoins 4 fois plus lents
 
   const Care = DW.Care = {
     toasts: [],
@@ -29,9 +34,14 @@
       if (min < 1) return;
       st.careClock = st.clock;
       if (!m) return;
-      const h0 = m.hunger, n0 = m.need;
+      const h0 = m.hunger, n0 = m.need, t0 = m.thirst || 0;
       m.hunger = Math.min(100, m.hunger + min * HUNGER_RATE);
       m.need = Math.min(100, m.need + min * NEED_RATE);
+      const hot = DW.Time.weather() === 'heat' || !!(DW.Time.drought && DW.Time.drought());
+      m.thirst = Math.min(100, t0 + min * THIRST_RATE * (hot ? 2 : 1));
+      if (t0 < 70 && m.thirst >= 70) this.toast(`${m.name} a soif ! (rivière, source, ou Eau fraîche)`);
+      if (t0 < 100 && m.thirst >= 100) this.toast(`${m.name} meurt de soif !`, '#ff8a8a');
+      if (m.thirst >= 100) { m.dry = (m.dry || 0) + min; if (m.dry >= 30) { m.dry -= 30; m.addHappy(-2); } }
       if (h0 < 70 && m.hunger >= 70) this.toast(`${m.name} a faim ! (Viande : ENTRÉE → SAC)`);
       if (h0 < 100 && m.hunger >= 100) this.toast(`${m.name} meurt de faim !`, '#ff8a8a');
       if (m.hunger >= 100) {
@@ -61,6 +71,18 @@
       L.splice(L.findIndex(p => p[0] === x && p[1] === y), 1);
       Audio.sfx('swoosh');
     },
+    // temps qui passe en dormant ou en se reposant (min minutes) : besoins ralentis, l'horloge des soins suit
+    rest(min, sleeping = true) {
+      const st = DW.state, k = sleeping ? REST : 0.5;
+      st.clock += min; st.careClock = st.clock;
+      for (const d of st.party) {
+        d.hunger = Math.min(95, d.hunger + min * HUNGER_RATE * k);
+        d.need = Math.min(90, d.need + min * NEED_RATE * k);
+        d.thirst = Math.min(95, (d.thirst || 0) + min * THIRST_RATE * k);
+      }
+    },
+    // boire (eau de la nature) : renvoie vrai s'il avait soif
+    drink(m, amt = 60) { const t = m.thirst || 0; m.thirst = Math.max(0, t - amt); m.dry = 0; if (t >= 40) m.addHappy(2); return t > 5; },
     // nourrir : renvoie un message
     feed(m, amt) {
       const before = m.hunger;
@@ -92,6 +114,7 @@
     talkLine(m) {
       if (m !== this.lead()) return null;
       if (m.hunger >= 90) return `${m.name} : J'ai trop faiiim... Donne-moi de la viande, s'il te plaît !`;
+      if ((m.thirst || 0) >= 90) return `${m.name} : J'ai la gorge toute sèche... De l'eau, vite !`;
       if (m.need >= 75) return `${m.name} se tortille... Il faut vite trouver des toilettes !`;
       if (m.hunger >= 70) return `${m.name} : Mon ventre gargouille... On mange bientôt ?`;
       return null;
@@ -113,6 +136,7 @@
       c.fillStyle = '#ffffff'; c.fillRect(bx - 6, by + 6, 5, 3);
       if (list.length > 1) for (let i = 0; i < list.length; i++) { c.fillStyle = list[i] === icon ? '#203040' : '#b0c0d0'; c.fillRect(bx - list.length * 2 + i * 4, by + 11, 2, 2); }
       if (icon === 'food') c.drawImage(DW.Icons.item('viande'), bx - 8, by - 8, 16, 16);
+      else if (icon === 'drink') { c.fillStyle = '#3aa0ff'; c.beginPath(); c.moveTo(bx, by - 7); c.quadraticCurveTo(bx + 6, by + 1, bx, by + 5); c.quadraticCurveTo(bx - 6, by + 1, bx, by - 7); c.fill(); c.fillStyle = '#c8ecff'; c.fillRect(bx - 2, by - 1, 1.5, 3); }
       else if (icon === 'need') this.drawPoop(c, bx, by + 4, 1);
       else if (icon === 'sick') { c.fillStyle = '#7ac040'; c.beginPath(); c.arc(bx, by, 6, 0, 7); c.fill(); c.fillStyle = '#1a2a10'; c.fillRect(bx - 3, by - 2, 2, 2); c.fillRect(bx + 1, by - 2, 2, 2); c.fillRect(bx - 3, by + 2, 6, 1.5); c.fillStyle = '#a0e0ff'; c.fillRect(bx + 5, by - 6, 2, 3); }
       else if (icon === 'hurt') { c.save(); c.translate(bx, by); c.rotate(-0.5); c.fillStyle = '#f0d8b0'; c.fillRect(-8, -3, 16, 6); c.fillStyle = '#e8c090'; c.fillRect(-3, -3, 6, 6); c.fillStyle = '#c8a070'; for (const dx of [-1.5, 1.5]) for (const dy of [-1.5, 1.5]) c.fillRect(dx - 0.5, dy - 0.5, 1, 1); c.restore(); }
@@ -137,13 +161,14 @@
     // jauges en haut à gauche (sous le bandeau de zone)
     drawHUD(c, m, x, y) {
       if (!m) return;
-      UI.box(c, x, y, 58, 22);
+      UI.box(c, x, y, 58, 31);
       const row = (yy, label, v, col, warn) => {
         UI.text(c, label, x + 5, yy + 4, { size: 7, color: warn ? '#ff8a8a' : '#c8f0ff' });
         UI.bar(c, x + 24, yy, 29, 4, v / 100, warn ? '#ff5a5a' : col);
       };
       row(y + 6, 'Faim', m.hunger, '#f0b040', m.hunger >= 70);
-      row(y + 15, 'WC', m.need, '#a07850', m.need >= 75);
+      row(y + 15, 'Soif', m.thirst || 0, '#3aa0ff', (m.thirst || 0) >= 70);
+      row(y + 24, 'WC', m.need, '#a07850', m.need >= 75);
     },
     // jauges de bonheur et de discipline du partenaire (en bas à droite de l'écran)
     drawMood(c, m, x, y) {

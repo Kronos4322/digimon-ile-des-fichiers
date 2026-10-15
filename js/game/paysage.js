@@ -75,7 +75,7 @@
       const m = pt();
       if (!m) { await say(spring ? 'Une source d\'eau claire.' : 'L\'eau est fraîche.'); return; }
       const r = await DW.ask(spring ? 'Une source d\'eau claire.' : 'L\'eau clapote.', ['Boire un peu', 'Jouer dans l\'eau', 'Rien']);
-      if (r === 0) { m.tired = Math.max(0, m.tired - 5); DW.Audio.sfx('water'); await say(`${m.name} boit à grandes gorgées. Ça fait du bien ! (fatigue -5)`); if (spring && once(ow, x, y)) await give('eau_source'); }
+      if (r === 0) { const thirsty = DW.Care.drink(m, spring ? 80 : 50); m.tired = Math.max(0, m.tired - 5); DW.Audio.sfx('water'); await say(thirsty ? `${m.name} boit à grandes gorgées. Ça fait du bien ! (soif étanchée)` : `${m.name} trempe les lèvres... Il n'avait pas vraiment soif.`); if (spring && once(ow, x, y)) await give('eau_source'); }
       else if (r === 1) { DW.Audio.sfx('water'); m.addHappy(3); emote(ow, 'note'); await say(`${m.name} s'éclabousse en riant ! (bonheur +3)`); }
     },
     async flowers(ow, x, y) {
