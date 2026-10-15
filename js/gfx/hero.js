@@ -42,6 +42,12 @@
   // choix proposés à la création
   DW.LOOK_OPTS = {
     style: [['Garçon (court)', { style: 'short', bottom: 'shorts' }], ['Garçon (en bataille)', { style: 'spiky', bottom: 'pants' }], ['Fille (carré)', { style: 'bob', bottom: 'skirt' }], ['Fille (longs)', { style: 'long', bottom: 'pants' }]],
+    gender: ['Garçon', 'Fille'],
+    // allures proposées selon le genre choisi
+    styles: [
+      [['Cheveux courts, short', { style: 'short', bottom: 'shorts' }], ['Cheveux courts, pantalon', { style: 'short', bottom: 'pants' }], ['En bataille, short', { style: 'spiky', bottom: 'shorts' }], ['En bataille, pantalon', { style: 'spiky', bottom: 'pants' }]],
+      [['Carré, jupe', { style: 'bob', bottom: 'skirt' }], ['Carré, pantalon', { style: 'bob', bottom: 'pants' }], ['Cheveux longs, jupe', { style: 'long', bottom: 'skirt' }], ['Cheveux longs, pantalon', { style: 'long', bottom: 'pants' }]],
+    ],
     hair: [['Châtain', ['#5a3a24', '#7a5a3a']], ['Noir', ['#22222c', '#3a3a48']], ['Blond', ['#e8c060', '#fff0a0']], ['Roux', ['#c8582a', '#e8804a']], ['Bleu nuit', ['#2a3a7a', '#4a5aa8']], ['Rose', ['#e07aa8', '#ffb0d0']]],
     shirt: [['Rouge', '#e04a3a'], ['Orange', '#e8822a'], ['Vert', '#3a9a5a'], ['Bleu', '#2f6ad8'], ['Violet', '#8a4ac8'], ['Turquoise', '#2aa8a8'], ['Blanc', '#f0f0ec']],
     head: [['Rien', ''], ['Casquette', 'cap'], ['Lunettes de plongée', 'goggles'], ['Bob', 'bucket'], ['Lunettes', 'glasses']],
@@ -49,12 +55,12 @@
   const lookOf = L => {
     const S = DW.LOOK_OPTS, b = DW.HEROES.perso, o = { ...b };
     if (!L) return o;
-    Object.assign(o, S.style[L.style || 0][1]);
+    Object.assign(o, L.gender != null ? S.styles[L.gender][L.style || 0][1] : S.style[L.style || 0][1]);   // (anciennes parties : sans genre)
     const [h, hl] = S.hair[L.hair || 0][1]; o.hair = h; o.hairL = hl;
     const sh = S.shirt[L.shirt || 0][1]; o.shirt = sh; o.sleeve = sh; o.crestCol = sh === '#f0f0ec' ? '#5adcc8' : sh;
     o.head = S.head[L.head || 0][1]; o.headCol = sh === '#f0f0ec' ? '#e04a3a' : '#f0f0ec';
     o.bottomCol = o.bottom === 'skirt' ? '#3a5a9a' : o.bottom === 'pants' ? '#4a5a7a' : '#3a5a9a';
-    o.name = 'perso' + [L.style, L.hair, L.shirt, L.head].join('-');   // (clé du cache des sprites)
+    o.name = 'perso' + [L.gender, L.style, L.hair, L.shirt, L.head].join('-');   // (clé du cache des sprites)
     return o;
   };
   DW.lookOf = lookOf;

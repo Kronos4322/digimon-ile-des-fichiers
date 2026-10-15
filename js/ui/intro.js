@@ -26,18 +26,22 @@
     constructor() {
       super();
       const L = DW.LOOK_OPTS;
-      this.rows = [['Allure', L.style.map(x => x[0]), 'style'], ['Cheveux', L.hair.map(x => x[0]), 'hair'], ['Tenue', L.shirt.map(x => x[0]), 'shirt'],
+      this.rows = [['Je suis', L.gender, 'gender'], ['Allure', L.styles[0].map(x => x[0]), 'style'], ['Cheveux', L.hair.map(x => x[0]), 'hair'], ['Tenue', L.shirt.map(x => x[0]), 'shirt'],
         ['Accessoire', L.head.map(x => x[0]), 'head'], ['DigiŒuf', Object.values(DW.HERO_LINE).map(l => l.baby), 'baby'], ['C\'est moi !', [''], null]];
-      this.r = 0; this.v = { style: 0, hair: 0, shirt: 0, head: 0, baby: 0 };
+      this.r = 0; this.v = { gender: 0, style: 0, hair: 0, shirt: 0, head: 0, baby: 0 };
       DW.state.hero = 'perso'; this.apply();
     }
-    apply() { const v = this.v; DW.state.look = { style: v.style, hair: v.hair, shirt: v.shirt, head: v.head, baby: Object.values(DW.HERO_LINE)[v.baby].baby }; }
+    apply() {
+      const v = this.v;
+      this.rows[1][1] = DW.LOOK_OPTS.styles[v.gender].map(x => x[0]);   // l'allure dépend du genre
+      DW.state.look = { gender: v.gender, style: v.style, hair: v.hair, shirt: v.shirt, head: v.head, baby: Object.values(DW.HERO_LINE)[v.baby].baby };
+    }
     update() {
       const n = this.rows.length, R = this.rows[this.r];
       if (Input.hit('up')) { this.r = (this.r + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.r = (this.r + 1) % n; Audio.sfx('move'); }
       const d = Input.hit('left') ? -1 : Input.hit('right') ? 1 : 0;
-      if (d && R[2]) { const k = R[2], m = R[1].length; this.v[k] = (this.v[k] + d + m) % m; Audio.sfx('move'); this.apply(); }
+      if (d && R[2]) { const k = R[2], m = R[1].length; this.v[k] = (this.v[k] + d + m) % m; if (k === 'gender') this.v.style = 0; Audio.sfx('move'); this.apply(); }
       if (Input.hit('ok')) { if (this.r === n - 1) { Audio.sfx('select'); this.close('perso'); } else { this.r++; Audio.sfx('select'); } }
     }
     draw(c) {
@@ -67,7 +71,7 @@
       UI.text(c, `${DW.SPECIES[baby].name} → ${DW.SPECIES[line.partner].name}`, cx, 214, { size: 7, align: 'center', color: '#ffe680' });
       // les lignes de choix
       this.rows.forEach(([label, opts, k], i) => {
-        const y = 44 + i * 26, on = i === this.r;
+        const y = 32 + i * 25, on = i === this.r;
         UI.box(c, 150, y, 160, 22, on ? 'dwsel' : 'dw');
         if (!k) { UI.text(c, label, 230, y + 14, { size: 10, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' }); return; }
         UI.text(c, label, 156, y + 9, { size: 7, color: '#8ae0f0' });
@@ -176,7 +180,7 @@
       const st = DW.state;
       // 1) qui es-tu ? (un enfant qui n'est pas dans l'animé : il va délivrer les autres)
       st.hero = await Game.push(new CreateScene());
-      st.name = await Game.push(new DW.NameScene('Kenji'));
+      st.name = await Game.push(new DW.NameScene(st.look && st.look.gender ? 'Aiko' : 'Kenji'));
       // les autres enfants du camp : les sept de l'animé (ils seront séparés en arrivant sur l'île)
       const others = DW.HERO_ORDER.filter(k => k !== st.hero);
       const SPOTS = [[24, 206, 'right'], [124, 208, 'right'], [152, 214, 'left'], [180, 210, 'left'], [238, 200, 'left'], [266, 208, 'left'], [294, 202, 'left']];   // loin de la tente (x 48-110)
