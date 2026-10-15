@@ -471,6 +471,8 @@
           }
           if (m === this.active) await DW.tween(this.xpShow, { v: m.xpRatio() }, 0.5);
           if (m === this.active) await this.observe(m);
+          // il comprend peut-être une nouvelle technique de son espèce (hasard + Intelligence)
+          { const id = DW.tryLearn(m); if (id) { Audio.sfx('buff'); await this.msg(`${m.name} a une idée... Il a compris une nouvelle technique !`, 1.2); await DW.learnMove(m, id); } }
           if (events.length && m.evoTarget()) m.evoPending = true;
         }
       }
@@ -492,7 +494,7 @@
         return mv && !m.knows(id) && (mv.type === 'Neutre' || m.d.types.includes(mv.type)) && !(young && mv.pow > 90);
       });
       if (!pool.length) return;
-      const ch = Math.min(0.6, 0.3 + m.stat('int') / (400 * DW.SCALE.stat));
+      const ch = DW.clamp(0.02 + m.stat('int') / (1200 * DW.SCALE.stat), 0.02, 0.2);   // (rare : l'Intelligence entraînée aide)
       if (Math.random() >= ch) return;
       const id = DW.pick(pool);
       Audio.sfx('buff');

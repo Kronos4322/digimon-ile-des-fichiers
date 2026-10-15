@@ -396,10 +396,9 @@
       const lead = DW.state.party[0];
       if (lead && res === 'win') DW.Life.moment('good', 'une belle victoire');
       // conseil aux débutants : PV bas après le combat
-      if (lead && lead.hp > 0 && lead.hp < lead.maxHp * 0.35) DW.Care.toast(`${lead.name} est épuisé... Donne-lui une Viande (MENU → SAC) avant le prochain combat !`, '#ff8a8a');
+      // (PV bas, blessure : seulement les bulles au-dessus du partenaire, plus de message)
       if (lead && lead.hp > 0 && lead.hp < lead.maxHp / 4 && !lead.hurt && Math.random() < 0.35) {
         lead.hurt = DW.state.clock;
-        DW.Care.toast(`${lead.name} s'est blessé pendant le combat ! (Bandage)`, '#ff8a8a');
       }
       // K.O. : au 3e, le Digimon meurt vraiment (game/life.js)
       if (res === 'lose' && !o.canLose) { for (const m of st.party.slice()) if (m.hp <= 0) await DW.Life.knockout(m); await this.blackout(); }
@@ -418,6 +417,11 @@
       await DW.fade(0, 0.6);
       await DW.say("Hohoho... Te voilà réveillé ! On t'a retrouvé évanoui, ton Digimon à tes côtés. Je vous ai ramenés ici et soignés.", 'Jijimon');
       await DW.say(`Tes Digimon ont récupéré... mais ${lost ? `tu as perdu ${lost} Bits (10 %).` : "tu n'avais pas de Bits à perdre."}`);
+      if (DW.Life.koWarn) {
+        const m = DW.Life.koWarn; DW.Life.koWarn = null;
+        await DW.say(`Hohoho... ${m.name} est à bout de forces. Encore un K.O., et il ne s'en remettra pas !`, 'Jijimon');
+        await DW.say("Dors une nuit ici, chez moi : un bon sommeil efface un K.O. Et évite les combats trop durs en attendant !", 'Jijimon');
+      }
     }
 
     // ---------------------------------------------------------- rendu

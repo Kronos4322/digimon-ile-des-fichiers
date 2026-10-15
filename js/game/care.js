@@ -40,21 +40,20 @@
       st.careClock = st.clock;
       if (!m) return;
       const h0 = m.hunger, n0 = m.need, t0 = m.thirst || 0;
+      for (const d of DW.state.party) if (d.hp > 0 && d.hp < d.maxHp) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.08 * min / 60));   // +8 % de PV par heure de jeu
       const ap = appetite(m);
       m.hunger = Math.min(100, m.hunger + min * HUNGER_RATE * ap);
       m.need = Math.min(100, m.need + min * NEED_RATE);
       const hot = DW.Time.weather() === 'heat' || !!(DW.Time.drought && DW.Time.drought());
       m.thirst = Math.min(100, t0 + min * THIRST_RATE * (hot ? 2 : 1) * (0.6 + ap * 0.4));
-      if (t0 < 70 && m.thirst >= 70) this.toast(`${m.name} a soif ! (rivière, source, ou Eau fraîche)`);
-      if (t0 < 100 && m.thirst >= 100) this.toast(`${m.name} meurt de soif !`, '#ff8a8a');
+      // (bulle au-dessus du partenaire à la place du message)
       if (m.thirst >= 100) { m.dry = (m.dry || 0) + min; if (m.dry >= 30) { m.dry -= 30; m.addHappy(-2); } }
-      if (h0 < 70 && m.hunger >= 70) this.toast(`${m.name} a faim ! (Viande : ENTRÉE → SAC)`);
-      if (h0 < 100 && m.hunger >= 100) this.toast(`${m.name} meurt de faim !`, '#ff8a8a');
+      // (bulle au-dessus du partenaire à la place du message)
       if (m.hunger >= 100) {
         m.starve = (m.starve || 0) + min;
         if (m.starve >= 30) { m.starve -= 30; m.addHappy(-2); }
       }
-      if (n0 < 75 && m.need >= 75) this.toast(`${m.name} doit aller aux toilettes !`);
+      // (bulle au-dessus du partenaire à la place du message)
       if (m.need >= 100) this.accident(ow, m);
       DW.Life.update(ow, min);
       if (DW.Calendar) DW.Calendar.tick(ow, min);   // intempéries (game/calendrier.js)

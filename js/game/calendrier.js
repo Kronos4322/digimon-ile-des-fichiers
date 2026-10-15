@@ -46,7 +46,7 @@
       const SEASON = ['le printemps', "l'été", "l'automne", "l'hiver"];
       if (sk === 0) {
         // il débute : il se trompe souvent
-        const wrong = T.date(T.day() + DW.pick([-2, -1, 1, 2]));
+        const wrong = T.date(Math.max(0, T.day() + DW.pick([-2, -1, 1, 2])) || T.day() + 1);   // (jamais un jour négatif : « -1 undefined »)
         await say(`Euh... Bonjour ! Je suis censé tenir le calendrier de l'île... On est le ${wrong.d} ${wrong.month}, je crois ? Ou peut-être pas.`);
         await say(`Il fait... ${DW.pick(['chaud', 'froid', 'tiède', 'frais'])} ? Je n'ai pas de thermomètre. Si la ville grandissait, je pourrais m'équiper !`);
       } else if (sk === 1) {
@@ -62,7 +62,7 @@
       } else if (r === 1) {
         if (sk === 0) { await say("Il y a quatre saisons, je crois. Ou cinq ? En tout cas, il neige parfois."); return; }
         for (const t of SEASON_TXT) await say(t);
-        await say("Chaque mois dure 10 jours. Une année fait 120 jours : les Digimon, eux, ne vivent qu'une vingtaine de jours... Prends soin du tien !");
+        await say("Chaque mois dure 10 jours. Une année fait 120 jours : les Digimon, eux, ne vivent qu'une trentaine de jours... Prends soin du tien !");
       } else if (r === 2) {
         const w = T.weather();
         if (sk === 0) { await say(`La météo ? ${DW.pick(['Il va faire beau', 'Il va pleuvoir', 'Il va neiger'])}... je crois. Enfin, regarde le ciel, c'est plus sûr !`); return; }

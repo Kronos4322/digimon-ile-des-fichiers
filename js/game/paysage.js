@@ -41,7 +41,7 @@
 
   const ACTS = {
     async shake(ow, x, y, kind) {
-      if (!st().bag.baton) { await say("Un bel arbre. Avec un Bâton solide (Bazar de Gotsumon), tu pourrais le secouer..."); return; }
+      if (!st().bag.baton) { await say(DW.Town.has('gotsumon') ? "Un bel arbre. Avec un Bâton solide (Bazar de Gotsumon), tu pourrais le secouer..." : 'Un bel arbre. Ses branches bruissent doucement au vent.'); return; }
       if ((await DW.ask('Secouer l\'arbre ?', ['Oui', 'Non'])) !== 0) return;
       ow.shake = 0.25; DW.Audio.sfx('swoosh');
       if (!once(ow, x, y)) { await say('Quelques feuilles tombent... Il n\'y a plus rien à cueillir aujourd\'hui.'); await wear('baton'); return; }
@@ -52,7 +52,7 @@
       else await say('Des feuilles virevoltent... mais rien d\'autre.');
     },
     async search(ow, x, y, what) {
-      if (!st().bag.pelle) { await say(`Il y a peut-être quelque chose ${what.startsWith('sous') || what.startsWith('autour') ? what : 'dans ' + what}... Il te faudrait une Petite pelle (Bazar de Gotsumon).`); return; }
+      if (!st().bag.pelle) { await say(DW.Town.has('gotsumon') ? `Il y a peut-être quelque chose ${what.startsWith('sous') || what.startsWith('autour') ? what : 'dans ' + what}... Il te faudrait une Petite pelle (Bazar de Gotsumon).` : `Rien de particulier... à première vue.`); return; }
       if (!once(ow, x, y)) { await say(`Tu as déjà fouillé ${what} aujourd'hui.`); return; }
       const r = Math.random();
       await wear('pelle');

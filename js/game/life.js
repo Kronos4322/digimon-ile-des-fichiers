@@ -65,7 +65,12 @@
     async knockout(m) {
       Life.init(m);
       m.kos = (m.kos || 0) + 1;
-      if (m.kos < KO_MAX) { DW.Care.toast(`${m.name} est K.O. (${m.kos}/${KO_MAX}). Au ${KO_MAX}e K.O., il mourra !`, '#ff8a8a'); return false; }
+      if (m.kos < KO_MAX) {
+        DW.Care.toast(`${m.name} est K.O. (${m.kos}/${KO_MAX}). Au ${KO_MAX}e K.O., il mourra !`, '#ff8a8a');
+        // avertissement clair au dernier K.O. avant la mort (et le moyen de s'en remettre)
+        if (m.kos === KO_MAX - 1) Life.koWarn = m;
+        return false;
+      }
       await Life.death(m);
       return true;
     },
@@ -94,7 +99,7 @@
       if (Life.pending && st.clock > Life.pending.until) Life.pending = null;
       const h = Life.hour(), S = Life.sched(m);
       // sommeil : rappel à l'heure du coucher, effondrement s'il n'est toujours pas couché (selon son rythme)
-      if (h >= S.bed && h < S.bed + min / 60 + 0.01 && Life.sleepy(m)) DW.Care.toast(`${m.name} bâille... Il a sommeil. (ENTRÉE → DORMIR)`);
+      // (bulle au-dessus du partenaire à la place du message)
       if (between(h, S.late, S.wake) && st.clock - m.slept > 15 * 60 && !ow.locked && !Life.collapsing) {
         Life.collapsing = true;
         ow.runScript(async () => { try { await Life.collapse(m); } finally { Life.collapsing = false; } });
@@ -246,8 +251,7 @@
       const g0 = m.germs;
       m.germs = DW.clamp(m.germs + n, 0, 100);
       if (m !== DW.Care.lead() || m.sick) return;
-      if (g0 < 50 && m.germs >= 50) DW.Care.toast(`${m.name} n'a pas l'air dans son assiette... (fiche : Santé)`, '#ffb070');
-      if (g0 < 80 && m.germs >= 80) DW.Care.toast(`${m.name} tousse... Il va tomber malade si ça continue !`, '#ff8a8a');
+      // (bulle au-dessus du partenaire à la place du message)
     },
     health(m, min) {
       if (m.sick) return;
@@ -258,8 +262,7 @@
     },
     fallSick(m, c = Life.causes(m)) {
       m.sick = DW.state.clock; m.germs = 60;
-      const why = c.length ? ` (${c.sort((a, b) => b[0] - a[0]).slice(0, 2).map(x => x[1]).join(', ')})` : '';
-      DW.Care.toast(`${m.name} est tombé malade${why}... Donne-lui un Médicament !`, '#ff8a8a');
+      void c;   // (plus de message : la bulle « malade » au-dessus du partenaire suffit ; les causes sont dans sa fiche)
       Life.moment('bad', 'il est tombé malade');
     },
     healthLabel: m => (Life.init(m), m.sick ? 'Malade' : m.germs >= 80 ? 'Fiévreux' : m.germs >= 50 ? 'Fragile' : m.germs >= 25 ? 'Correcte' : 'Excellente'),

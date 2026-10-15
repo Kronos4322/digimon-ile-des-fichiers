@@ -86,7 +86,7 @@
         if (this.hp > 0) this.hp += this.maxHp - oldMax;
         this.mp += this.maxMp - oldMp;
         ev.push({ type: 'level', level: this.level, before });
-        for (const [l, m] of this.d.learn) if (l === this.level && !this.knows(m)) ev.push({ type: 'learn', move: m });
+        // (les techniques ne s'apprennent plus en montant de niveau : voir DW.tryLearn, selon l'Intelligence et le hasard)
       }
       return ev;
     }
@@ -209,6 +209,13 @@
   };
   DW.ITEM_STAGES = STAGES;
   // prochaine technique de l'espèce que le Digimon ne connaît pas encore (Manuel de technique)
+  // APPRENTISSAGE (comme Digimon World 1) : après une victoire, un Digimon peut comprendre tout seul une technique
+  // de son espèce (déjà à sa portée par le niveau) ; la chance dépend surtout de son INTELLIGENCE — rare au début
+  DW.learnChance = m => DW.clamp(0.03 + m.stat('int') / (900 * DW.SCALE.stat), 0.03, 0.3);
+  DW.tryLearn = m => {
+    const pool = m.d.learn.filter(([l, id]) => l > 0 && l <= m.level && !m.knows(id) && DW.MOVES[id]).map(([, id]) => id);
+    return pool.length && Math.random() < DW.learnChance(m) ? pool[0] : null;
+  };
   DW.nextMove = m => { for (const [l, id] of m.d.learn) if (l > 0 && !m.knows(id) && DW.MOVES[id]) return id; return null; };
   // SAC DE VOYAGE (comme Digimon World 1) : 10 exemplaires de chaque objet, et un nombre limité de SORTES d'objets
   // (10 places, +4 avec chaque Grand sac acheté au Bazar). Plein : on ne peut plus rien ramasser, il faut

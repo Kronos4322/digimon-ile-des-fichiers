@@ -82,7 +82,8 @@
       c.fillStyle = 'rgba(120,220,255,0.06)'; c.fillRect(12, 110, 132, 116);
       DW.Sprites.draw(c, spr, 118, 143, { frame: Math.floor(this.t * 4), scale: Math.min(1, 36 / spr.h, 56 / spr.w) });
       const r = m.hp / m.maxHp;
-      for (let k = 0; k < 3; k++) heart(c, 20 + k * 11, 117, r > k / 3 + 0.01);
+      UI.text(c, 'PV', 18, 120, { size: 7, color: '#c8f0ff' }); UI.bar(c, 32, 116, 44, 5, r, UI.hpColor(r));
+      { const k = m.kos || 0; for (let i = 0; i < 3; i++) heart(c, 92 + i * 11, 118, i >= k); UI.text(c, 'vies', 124, 121, { size: 6, color: '#ff9ac0' }); }   // vies : 3 K.O. et il meurt
       const cond = m.hp <= 0 ? 'K.O.' : m.status ? DW.STATUS_NAME[m.status] : m.sick ? 'Malade' : m.hurt ? 'Blessé' : DW.Life.sleepy(m) ? 'Somnolent' : 'En forme';
       UI.text(c, cond, 18, 134, { size: 9, color: cond === 'En forme' ? '#a0ffb0' : '#ff8a8a' });
       // santé : négligences accumulées (life.js) — plus la barre baisse, plus la maladie guette

@@ -183,7 +183,7 @@
       st.name = await Game.push(new DW.NameScene(st.look && st.look.gender ? 'Aiko' : 'Kenji'));
       // les autres enfants du camp : les sept de l'animé (ils seront séparés en arrivant sur l'île)
       const others = DW.HERO_ORDER.filter(k => k !== st.hero);
-      const SPOTS = [[24, 206, 'right'], [124, 208, 'right'], [152, 214, 'left'], [180, 210, 'left'], [238, 200, 'left'], [266, 208, 'left'], [294, 202, 'left']];   // loin de la tente (x 48-110)
+      const SPOTS = [[24, 206, 'right'], [124, 208, 'right'], [180, 210, 'left'], [208, 212, 'left'], [238, 200, 'left'], [266, 208, 'left'], [294, 202, 'left']];   // loin de la tente (x 48-110)
       this.kids = others.map((k, i) => ({ id: k, x: SPOTS[i][0], y: SPOTS[i][1], dir: SPOTS[i][2] }));
       // 2) le camp d'été
       await DW.fade(1, 0.4);
@@ -247,7 +247,7 @@
       Audio.sfx('evolve'); this.flash = 1; B.egg.open = 1;
       await DW.tween(B.mon, { a: 1 }, 0.5);
       await this.show(`${bname} est né ! Il vient se blottir contre toi.`, 2.4);
-      await DW.tween(B.mon, { x: 172 }, 0.8);
+      await DW.tween(B.mon, { x: 196 }, 0.8);   // (à côté du héros allongé, pas sur lui)
       DW.tween(B.jiji, { x: 228 }, 2.8);
       await this.show("Au loin, une silhouette s'approche lentement sur le sable...", 2.6);
       await DW.fade(1, 0.8);

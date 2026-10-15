@@ -272,7 +272,11 @@
       const res = await DW.Life.restOrSleep();
       if (!res) return;
       s.heal = { map: 'maison', x: 12, y: 5 };
-      if (res === 'sleep') await healAll('Toute ton équipe est en pleine forme !');
+      if (res === 'sleep') {
+        await healAll('Toute ton équipe est en pleine forme !');
+        // une nuit chez Jijimon efface un K.O. (la règle des 3 K.O. reste, sans être un piège)
+        for (const m of s.party) if ((m.kos || 0) > 0) { m.kos--; await say(`${m.name} a bien récupéré : un K.O. s'efface (${m.kos}/3).`, 'Jijimon'); }
+      }
       DW.autosave();
     } else if (r === 1) {
       const next = T().RECRUITS.find(x => !T().has(x.id));
