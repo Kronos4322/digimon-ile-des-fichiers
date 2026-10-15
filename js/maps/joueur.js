@@ -5,6 +5,8 @@
 //  Chaque meuble sert vraiment : lit (repos, soins, sauvegarde), coffre (objets en trop),
 //  frigo (en-cas du jour), cuisine (recettes), haltères (entraînement maison), télé (rumeurs),
 //  ordinateur (DigiFerme), bibliothèque (discipline), aquarium et plantes (bonheur), toilettes.
+//  Certains achats OUVRENT UNE PIÈCE : toilettes → Salle de bain, frigo ou cuisine → Cuisine,
+//  coin musculation → Salle de sport (une porte apparaît dans le mur du salon).
 // =====================================================================
 (function () {
   const { say, st, healAll } = DW.MapKit;
@@ -19,13 +21,13 @@
   const FURN = {
     lit:      { name: 'Lit douillet', price: 0, objs: [{ kind: 'bed', x: 1, y: 3, w: 2, h: 2 }], desc: 'Dormir : soigne toute l\'équipe, sauvegarde, et fait passer la nuit.' },
     coffre:   { name: 'Coffre', price: 0, objs: [{ kind: 'chest', x: 1, y: 6, w: 1, h: 1, small: true }], desc: 'Range les objets que ton sac ne peut pas porter.' },
-    toilettes:{ name: 'Toilettes privées', price: 600, objs: [{ kind: 'toilet', x: 13, y: 5, w: 2, h: 1 }], desc: 'Des toilettes rien qu\'à vous : plus besoin de courir dehors !' },
-    plantes:  { name: 'Plantes vertes', price: 500, objs: [{ kind: 'bigplant', x: 14, y: 9, w: 1, h: 1, small: true }, { kind: 'flowerpots', v: 1, x: 3, y: 6, w: 2, h: 1 }], desc: 'Les arroser chaque jour rend ton partenaire heureux (bonheur +3).' },
-    frigo:    { name: 'Réfrigérateur', price: 1200, objs: [{ kind: 'fridge', x: 13, y: 3, w: 1, h: 1, small: true }], desc: 'Chaque jour, un en-cas s\'y trouve (viande, pain, fruit...).' },
+    toilettes:{ name: 'Toilettes privées', price: 600, room: 'sdb', objs: [{ kind: 'toilet', x: 6, y: 3, w: 2, h: 1 }], desc: 'Des toilettes rien qu\'à vous : plus besoin de courir dehors !' },
+    plantes:  { name: 'Plantes vertes', price: 500, objs: [{ kind: 'bigplant', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'flowerpots', v: 1, x: 3, y: 6, w: 2, h: 1 }], desc: 'Les arroser chaque jour rend ton partenaire heureux (bonheur +3).' },
+    frigo:    { name: 'Réfrigérateur', price: 1200, room: 'cuisine', objs: [{ kind: 'fridge', x: 10, y: 3, w: 1, h: 1, small: true }], desc: 'Chaque jour, un en-cas s\'y trouve (viande, pain, fruit...).' },
     tele:     { name: 'Télévision', price: 1000, objs: [{ kind: 'crttv', x: 5, y: 3, w: 2, h: 1 }], desc: 'Les nouvelles de l\'île et des rumeurs. Regarder ensemble rend heureux.' },
     biblio:   { name: 'Bibliothèque', price: 1500, objs: [{ kind: 'bookshelf', v: 1, x: 3, y: 3, w: 2, h: 1 }], desc: 'Lire une histoire chaque jour à ton partenaire : discipline +5.' },
-    cuisine:  { name: 'Cuisine équipée', price: 2500, objs: [{ kind: 'kitchen', x: 9, y: 3, w: 4, h: 1 }], desc: 'Cuisine tes recettes à la maison, quand tu veux.' },
-    halteres: { name: 'Coin musculation', price: 3000, objs: [{ kind: 'weights', x: 4, y: 9, w: 1, h: 1, small: true }, { kind: 'cushion', x: 5, y: 9, w: 1, h: 1, small: true }], desc: 'Un entraînement maison par jour : +2 points dans la statistique de ton choix (fatigue).' },
+    cuisine:  { name: 'Cuisine équipée', price: 2500, room: 'cuisine', objs: [{ kind: 'kitchen', x: 4, y: 3, w: 4, h: 1 }], desc: 'Cuisine tes recettes à la maison, quand tu veux.' },
+    halteres: { name: 'Coin musculation', price: 3000, room: 'sport', objs: [{ kind: 'weights', x: 3, y: 4, w: 1, h: 1, small: true }, { kind: 'cushion', x: 5, y: 4, w: 1, h: 1, small: true }], desc: 'Un entraînement maison par jour : +2 points dans la statistique de ton choix (fatigue).' },
     aquarium: { name: 'Aquarium', price: 2000, objs: [{ kind: 'aquarium', x: 11, y: 10, w: 3, h: 1 }], desc: 'Regarder les poissons détend : bonheur +5 une fois par jour.' },
     ordi:     { name: 'Ordinateur', price: 4000, objs: [{ kind: 'computer', x: 11, y: 7, w: 2, h: 1 }], desc: 'Gère ta DigiFerme depuis la maison.' },
     tapis:    { name: 'Grand tapis et canapé', price: 1800, objs: [{ kind: 'bigrug', v: 1, x: 2, y: 7, w: 4, h: 2, walk: true }, { kind: 'sofa', v: 0, x: 1, y: 10, w: 3, h: 1 }], desc: 'Un salon confortable : ton partenaire se repose mieux (le lit rend aussi +5 de bonheur).' },
@@ -33,6 +35,25 @@
   };
   const ORDER = Object.keys(FURN);
   const owned = id => !!(st().home && st().home.owned[id]);
+  // pièces annexes : ouvertes par un achat ; porte dans le mur gauche ou droit du salon (side), à la hauteur y
+  const ROOMS = {
+    sdb:     { name: 'Salle de bain', w: 10, h: 8, side: 'right', y: 4, by: ['toilettes'], floor: { type: 'tile', cols: ['#e8f4f8', '#c8dce8', '#9ab8cc'] }, wall: { base: '#e4f2f8', alt: '#cfe4ee', pattern: 'diamond', wood: '#5a8aa8' },
+      decor: [{ kind: 'bigrug', v: 0, x: 2, y: 5, w: 3, h: 1, walk: true }, { kind: 'bigplant', x: 8, y: 6, w: 1, h: 1, small: true }, { kind: 'shelf', x: 2, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
+    cuisine: { name: 'Cuisine', w: 12, h: 8, side: 'right', y: 8, by: ['frigo', 'cuisine'], floor: { type: 'tile', cols: ['#f4e4c4', '#dcc49c', '#b49a70'] }, wall: { base: '#fff4e0', alt: '#f4e4c4', pattern: 'stripes', wood: '#a8703a' },
+      decor: [{ kind: 'table', x: 5, y: 5, w: 2, h: 1 }, { kind: 'stool', x: 4, y: 5, w: 1, h: 1, small: true }, { kind: 'stool', x: 7, y: 5, w: 1, h: 1, small: true }, { kind: 'shelf', x: 8, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
+    sport:   { name: 'Salle de sport', w: 10, h: 8, side: 'left', y: 7, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
+      decor: [{ kind: 'bigrug', v: 2, x: 2, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 1, y: 6, w: 1, h: 1, small: true }] },
+  };
+  const roomOpen = r => ROOMS[r].by.some(owned);
+  const roomId = r => `maison_joueur_${r}`;
+  // pose les meubles d'une pièce (salon ou annexe) et leurs zones d'usage
+  function furnish(m, room) {
+    for (const id of ORDER) if (owned(id) && (FURN[id].room || null) === room) for (const o of FURN[id].objs) {
+      m.objects.push({ ...o });
+      if (o.back || o.walk) continue;
+      for (let x = o.x; x < o.x + (o.w || 1); x++) m.signs[`${x},${o.y + (o.h || 1) - 1}`] = () => USE[id]();
+    }
+  }
 
   // ------------------------------------------------------------ usages
   const USE = {
@@ -123,10 +144,13 @@
       this.version = version;
       this.objects = [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'window', v: 0, x: 6, y: 1, w: 2, h: 2, back: true, oy: -6 }];
       this.signs = {};
-      for (const id of ORDER) if (owned(id)) for (const o of FURN[id].objs) {
-        this.objects.push({ ...o });
-        if (o.back || o.walk) continue;
-        for (let x = o.x; x < o.x + (o.w || 1); x++) for (let y = o.y + (o.h || 1) - 1; y < o.y + (o.h || 1); y++) this.signs[`${x},${y}`] = () => USE[id]();
+      furnish(this, null);
+      // portes vers les pièces ouvertes (mur gauche ou droit du salon)
+      this.rows = rows(); this.warps.length = 1;
+      for (const r in ROOMS) if (roomOpen(r)) {
+        const R = ROOMS[r], x = R.side === 'right' ? W - 1 : 0;
+        this.rows = this.rows.map((row, y) => y === R.y || y === R.y + 1 ? row.slice(0, x) + '1' + row.slice(x + 1) : row);
+        this.warps.push({ x, y: R.y, w: 1, h: 2, dir: R.side, to: roomId(r), tx: R.side === 'right' ? 1 : R.w - 2, ty: 4 });
       }
       if (owned('tableau')) this.signs['9,2'] = this.signs['10,2'] = this.signs['12,2'] = this.signs['13,2'] = () => USE.tableau();
       // escalier de la cave aux trophées
@@ -148,6 +172,26 @@
     },
   };
 
+  // ------------------------------------------------------------ les pièces annexes
+  for (const r in ROOMS) {
+    const R = ROOMS[r], dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon
+    const floorRow = y => { const row = '0' + '1'.repeat(R.w - 2) + '0'; return y === 4 || y === 5 ? row.slice(0, dx) + '1' + row.slice(dx + 1) : row; };
+    const rr = ['0'.repeat(R.w), '0' + '2'.repeat(R.w - 2) + '0', '0' + '2'.repeat(R.w - 2) + '0', ...Array.from({ length: R.h - 4 }, (_, i) => floorRow(i + 3)), '0'.repeat(R.w)];
+    MAPS[roomId(r)] = {
+      name: `Ma maison — ${R.name}`, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
+      floor: R.floor, wall: R.wall, rows: rr, objects: [], npcs: [], signs: {},
+      warps: [{ x: dx, y: 4, w: 1, h: 2, dir: R.side === 'right' ? 'left' : 'right', to: 'maison_joueur', tx: R.side === 'right' ? W - 2 : 1, ty: R.y }],
+      build() {
+        const version = ORDER.filter(owned).join(',');
+        if (this.version === version && this.objects.length) return;
+        this.version = version;
+        this.objects = R.decor.map(o => ({ ...o })); this.signs = {};
+        furnish(this, r);
+        DW.World.unprepare(this);
+      },
+    };
+  }
+
   // ------------------------------------------------------------ rayon « Meubles » (Bazar de Gotsumon)
   async function furnitureShop() {
     const s = st();
@@ -160,9 +204,11 @@
       const F = FURN[list[i]];
       if ((await DW.ask(`${F.name} (${F.price} Bits) : ${F.desc} L'acheter ?`)) !== 0) continue;
       if (s.bits < F.price) { await say('Tu n\'as pas assez de Bits...', 'Gotsumon'); continue; }
+      const before = Object.keys(ROOMS).filter(roomOpen);
       s.bits -= F.price; s.home.owned[list[i]] = true; DW.Audio.sfx('buy');
       await say(`Merci ! Je fais livrer « ${F.name} » chez toi tout de suite !`, 'Gotsumon');
+      for (const r in ROOMS) if (roomOpen(r) && !before.includes(r)) await say(`Il lui faut une pièce rien qu'à lui : une nouvelle porte s'ouvre dans ton salon. Ta maison a maintenant une ${ROOMS[r].name} !`, 'Gotsumon');
     }
   }
-  DW.Home = { FURN, furnitureShop, owned };
+  DW.Home = { FURN, ROOMS, furnitureShop, owned };
 })();
