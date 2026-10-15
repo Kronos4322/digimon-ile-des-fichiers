@@ -356,10 +356,14 @@
       const W = DW.World.signText; if (W) W(d, 'TEL', 9, 9, '#2a5ab8', 1);   // lettres de 3×5 pixels
       d.rect(13, 2, 4, 6, '#3f72cc', { round: 0.4 }); d.deco.circ(15, 3.4, 1.2, '#ffe060', { unlit: true });
     } },
-    sign: { w: 18, h: 20, n: 1, draw(d) {
-      d.tube([[5, 19], [5, 8]], 2.6, 2.4, '#7a5230'); d.tube([[13, 19], [13, 8]], 2.6, 2.4, '#7a5230', { far: true });
-      d.rect(1.5, 3, 15, 9, '#c89858', { round: 0.35, tex: 0.25 });
-      d.deco.line(4, 6, 14, 6, 0.8, '#6a4a28'); d.deco.line(4, 9, 11, 9, 0.8, '#6a4a28');
+    // panneau : grand, bien visible (planche claire bordée, petit toit, deux poteaux)
+    sign: { w: 28, h: 32, n: 1, draw(d) {
+      d.ell(14, 31, 11, 1.8, '#2a2a2a', 0, { flat: true });
+      d.tube([[7, 31], [7, 12]], 3, 2.8, '#6a4424'); d.tube([[21, 31], [21, 12]], 3, 2.8, '#6a4424', { far: true });
+      d.poly([[0, 6], [14, 0], [28, 6], [26, 8], [2, 8]], '#8a3a2a', { tex: 0.2 });
+      d.rect(1.5, 7, 25, 15, '#7a5230', { round: 0.2 });
+      d.rect(3, 8.5, 22, 12, '#e8c890', { round: 0.2, tex: 0.2 });
+      d.deco.line(6, 12, 22, 12, 1, '#6a4a28'); d.deco.line(6, 15, 20, 15, 1, '#6a4a28'); d.deco.line(6, 18, 17, 18, 1, '#6a4a28');
     } },
     spring: { w: 30, h: 22, n: 1, draw(d) {
       for (let i = 0; i < 10; i++) {

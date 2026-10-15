@@ -60,5 +60,38 @@
     }, { vending: true });
     if (m.gfx) DW.World.unprepare(m);
   }
-  DW.Distrib = { place, MACHINES };
+  // PANNEAUX bien placés : un panneau perdu dans l'herbe est déplacé au bord du chemin le plus proche
+  // (case d'herbe touchant le chemin, devant dégagé), son texte le suit. Une seule fois par carte.
+  const SIGN = new Set(['S', 'Z', 'Q']);
+  function signs(m) {
+    if (m.indoor || !m.rows || m._signsFor === m.rows || !m.signs) return;
+    const H = m.rows.length, W = m.rows[0].length, g = m.rows.map(r => [...r]);
+    const at = (x, y) => (g[y] || [])[x];
+    const isPath = (x, y) => at(x, y) === '=';
+    const nearWarp = (x, y) => [...(m.warps || []), ...(m.doors || [])].some(w => x >= w.x - 2 && x < w.x + (w.w || 1) + 2 && y >= w.y - 2 && y < w.y + (w.h || 1) + 2);
+    const occ = new Set(); for (const o of m.objects || []) if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
+    let moved = false;
+    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+      if (!SIGN.has(at(x, y)) || !m.signs[`${x},${y}`]) continue;
+      let ok = false;
+      for (let dy = -2; dy <= 2 && !ok; dy++) for (let dx = -2; dx <= 2; dx++) if (isPath(x + dx, y + dy)) { ok = true; break; }
+      if (ok) continue;
+      let best = null, bd = 1e9;
+      for (let yy = Math.max(2, y - 10); yy < Math.min(H - 2, y + 11); yy++) for (let xx = Math.max(2, x - 10); xx < Math.min(W - 2, x + 11); xx++) {
+        if (!'.f,'.includes(at(xx, yy)) || occ.has(xx + ',' + yy) || nearWarp(xx, yy) || m.signs[`${xx},${yy}`]) continue;
+        if (!(isPath(xx + 1, yy) || isPath(xx - 1, yy) || isPath(xx, yy + 1))) continue;
+        if (DW.SOLID.has(at(xx, yy + 1)) || occ.has(xx + ',' + (yy + 1))) continue;
+        const d = Math.abs(xx - x) + Math.abs(yy - y);
+        if (d < bd) { bd = d; best = [xx, yy]; }
+      }
+      if (!best) continue;
+      const [nx, ny] = best, ch = at(x, y), CH = DW.World.CH, base = Object.keys(CH).find(k => CH[k].t === CH[ch].t && !CH[k].obj && !CH[k].solid && !CH[k].tall) || '.';
+      g[ny][nx] = ch; g[y][x] = base;
+      m.signs[`${nx},${ny}`] = m.signs[`${x},${y}`]; delete m.signs[`${x},${y}`];
+      moved = true;
+    }
+    if (moved) { m.rows = g.map(r => r.join('')); if (m.gfx) DW.World.unprepare(m); }
+    m._signsFor = m.rows;
+  }
+  DW.Distrib = { place, signs, MACHINES };
 })();
