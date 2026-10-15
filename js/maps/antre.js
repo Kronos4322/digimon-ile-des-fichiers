@@ -278,6 +278,7 @@
   lair.npcs.push(
     { sp: 'shellmon', x: 22, y: 13, face: 'down', talk: ow => fight(ow) },
     { hero: 'tai', x: 34, y: 19, face: 'down', cond: s => perso() && !(s.kids || {}).tai, talk: () => say("À l'aide ! Ce gros coquillage nous retient depuis qu'on est tombés sur l'île... Agumon n'a plus de forces !", 'Tai') },
+    { hero: 'tai', x: 31, y: 23, face: 'left', cond: s => perso() && !!(s.kids || {}).tai && (s.flags.chapter || 1) < 2, talk: () => say('On rentre ? Agumon meurt de faim !', 'Tai') },
     { sp: 'agumon', x: 36, y: 20, face: 'left', cond: s => perso() && !(s.kids || {}).tai, talk: () => say('Tai... j\'ai faim... Je ne peux plus rien faire...', 'Agumon') },
   );
   async function fight(ow) {
@@ -295,11 +296,15 @@
     if (!first) { s.bits += 30 * lvl; await say(`Shellmon s'enfonce dans le sable en grommelant. (+${30 * lvl} Bits)`); return; }
     s.flags.shellmon = true;
     if (perso()) {
-      await say("Shellmon s'effondre dans un grand nuage de sable !");
+      // la cinématique (comme l'introduction), puis retour dans la grande coquille, la cage ouverte
+      DW.Crests.freeKid('tai');
+      await DW.Game.push(new DW.ShellmonCinema());
+      ow.load('antre_shellmon', 30, 23, 'right');
+      DW.Audio.play('village');
+      await DW.fade(0, 0.8);
       await say("On a réussi ! Merci ! Sans toi, on y serait encore. Moi c'est Tai !", 'Tai');
       await say(`${s.name} ? Tu étais au camp, toi aussi ! Alors on est tous tombés sur l'île... Les autres doivent être quelque part.`, 'Tai');
       await say("Je peux venir chez toi ? Agumon et moi, on n'a nulle part où aller. Et dès que tu entends parler de Matt ou des autres, préviens-moi !", 'Tai');
-      DW.Crests.freeKid('tai');
       DW.Audio.sfx('fanfare');
       await say('Tai et Agumon sont délivrés ! Ils s\'installent dans une chambre de ta maison.');
     }

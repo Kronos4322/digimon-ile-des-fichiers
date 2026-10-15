@@ -341,10 +341,10 @@
       const [p0, p1] = palms();
       c.save(); c.translate(-6, 238); c.rotate(Math.sin(t * 0.9) * 0.02); c.drawImage(p0, -10, -140, 96, 140); c.restore();
       c.save(); c.translate(W - 40, 240); c.rotate(Math.sin(t * 0.8 + 1) * 0.02); c.drawImage(p1, -40, -126, 88, 126); c.restore();
-      const hero = DW.Sprites.hero('up', 0), hx = 128, hy = 196;
+      const hero = DW.Sprites.hero('up', 0), hx = 128, hy = 232;   // (au premier plan, sur la falaise sombre : pas dans la mer)
       c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(hx, hy + 2, 9, 2.6, 0, 0, 7); c.fill();
       c.drawImage(hero.img, Math.round(hx - hero.w), Math.round(hy - hero.h * 2), hero.w * 2, hero.h * 2);
-      DW.Sprites.draw(c, DW.Sprites.battle('agumon'), 162, 200, { frame: Math.floor(t * 4), scale: 0.62, flip: true });
+      DW.Sprites.draw(c, DW.Sprites.battle('agumon'), 164, 234, { frame: Math.floor(t * 4), scale: 0.62, flip: true });
       // voile de lumière chaude
       const v = c.createLinearGradient(0, 0, 0, H); v.addColorStop(0, 'rgba(20,10,50,0.25)'); v.addColorStop(0.55, 'rgba(255,140,90,0)'); v.addColorStop(1, 'rgba(20,6,30,0.35)');
       c.fillStyle = v; c.fillRect(0, 0, W, H);

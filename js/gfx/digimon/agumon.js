@@ -141,35 +141,40 @@
       stripe(d, [[16, 44], [23, 47]], 2.6); stripe(d, [[15.4, 50], [21, 52.4]], 2.4); stripe(d, [[18, 55.4], [23, 56.6]], 2);
       d.ell(25, 59.6, 10.4, 3.6, O);
       toes(d, 28.4, 62.2, 3, { size: 1.15 });
-      // cou + tête
-      d.ell(38, 26, 8, 7, O, -0.4);
-      stripe(d, [[35, 22], [38, 27]], 2.2);
-      d.ell(45, 22.6, 12.4, 10, O);
-      d.ell(54.4, 26.6, 9.6, 6, O, 0.05, { noline: true });
-      d.ell(52, 31.6, 8.4, 3.2, O, 0.12, { noline: true });
-      d.deco.ell(56, 30, 6, 1.6, Ol, 0.1);
-      stripe(d, [[44, 27.6], [48, 28.6]], 1.8);
-      // casque de fossile brun foncé, du crâne jusqu'au museau
-      d.poly([[33, 17], [40, 8.6], [52, 9], [61, 17], [62, 22.4], [50, 21], [40, 24.4]], Hm, { shiny: true, round: 0.5 });
-      d.deco.curve([[37, 17], [44, 11], [55, 12.4], [60, 18]], 0.9, HmL);
-      d.deco.ell(40.6, 16, 1.8, 1.3, Hd); d.deco.ell(57.4, 19.6, 1.4, 1, Hd);
-      d.deco.line(46, 11, 47, 19, 0.6, Hd);
-      // orbite et œil rouge
-      d.deco.ell(51, 17.4, 4, 2.8, Hd, 0, { unlit: true });
-      d.deco.ell(51.6, 17.8, 2.1, 1.7, '#e0402a', 0, { unlit: true });
-      d.deco.ell(51.2, 17.2, 0.8, 0.7, '#ffd0b0', 0, { unlit: true });
-      // grandes cornes recourbées vers l'avant + corne arrière
-      d.tube([[44, 10], [45, 4], [49, 0.6], [53, 0.4]], 4.6, 0.6, Hn, { shiny: true });
-      d.tube([[38.6, 11.6], [37, 5], [39, 1.6], [42, 0.6]], 4, 0.6, Hn, { shiny: true, far: true });
-      d.tube([[34, 16], [29, 12], [26.6, 7]], 3.6, 0.6, Hn, { shiny: true });
-      d.deco.line(45.6, 4.4, 48.6, 1.6, 0.5, CLAWd);
-      // gueule : babines, crocs, narines
+      // cou puissant
+      d.ell(37, 27, 8.6, 7.4, O, -0.45);
+      stripe(d, [[34, 22.6], [37.6, 28]], 2.4);
+      // tête : grand crâne + long museau carré (mâchoire de tyrannosaure)
+      d.blob([[36, 21], [40, 12], [50, 9.4], [58, 13], [63.4, 19], [63.6, 25.4], [60, 28], [46, 28.6], [39, 27]], O);
+      // mâchoire inférieure massive
+      d.blob([[40, 27.4], [50, 28], [61, 27.6], [62, 31], [56, 34.4], [45, 34], [40, 31]], O);
+      d.deco.blob([[44, 31.6], [58, 30.8], [56, 33.6], [46, 33.6]], Ol);
+      stripe(d, [[42, 29], [45, 33]], 1.8); stripe(d, [[39.6, 24.4], [42, 27.6]], 1.6);
+      // casque fossile brun : couvre le crâne et le dessus du museau, bords crénelés, trous
+      d.poly([[35.4, 20.6], [38.6, 11.6], [46, 6.8], [55, 7.6], [61.6, 13.6], [64, 19.4], [60.4, 20.4], [54, 18.6], [47, 20.4], [41.6, 23.4]], Hm, { shiny: true, round: 0.35 });
+      d.deco.curve([[39, 18], [43, 11], [52, 9.2], [60, 14.6]], 1, HmL);
+      for (const [x, y] of [[43.4, 13.4], [48.6, 11.4], [54, 11.6]]) d.deco.ell(x, y, 1.3, 0.9, Hd);
+      for (let k = 0; k < 5; k++) d.deco.poly([[46 + k * 3.4, 20 - k * 0.3], [47.6 + k * 3.4, 22.4 - k * 0.3], [49.2 + k * 3.4, 19.8 - k * 0.3]], Hm);   // bord crénelé sur la joue
+      // corne du nez, pointée vers le haut
+      d.tube([[59.6, 13.6], [61, 9], [60.6, 5.6]], 3, 0.5, Hn, { shiny: true });
+      // deux grandes cornes à l'arrière du casque, recourbées vers le haut et l'arrière
+      d.tube([[44, 8.6], [42.6, 3.6], [39, 0.6], [34.6, 0.2]], 4.4, 0.6, Hn, { shiny: true });
+      d.tube([[39.6, 12], [36, 8], [31.6, 6.4], [28, 7.6]], 4, 0.6, Hn, { shiny: true, far: true });
+      d.deco.line(42.4, 3.6, 39, 1.4, 0.5, CLAWd);
+      // œil vert vif, sourcil du casque au-dessus
+      d.deco.ell(50.6, 17.2, 3.6, 2.6, '#1a2010', 0, { unlit: true });
+      d.deco.ell(51.2, 17.4, 2.2, 1.8, '#3ac850', 0, { unlit: true });
+      d.deco.ell(51.6, 17.6, 0.9, 1.2, '#0a1a08', 0, { unlit: true });
+      d.deco.ell(50.6, 16.6, 0.6, 0.5, '#e8fff0', 0, { unlit: true });
+      d.deco.curve([[47, 15.4], [51, 14], [55, 15.4]], 1.3, Hd, { unlit: true });
+      // narines, gueule et rangée de crocs
+      d.deco.ell(62.4, 21.2, 1, 0.7, '#5a2200', 0, { unlit: true });
       if (p.pose === 'attack') {
-        d.deco.poly([[44, 29], [63, 25], [62, 34], [48, 34]], '#6a0a0a', { unlit: true });
-        d.deco.ell(57, 29.6, 4, 2.6, '#ff9a30', 0, { unlit: true });
-      } else d.deco.curve([[45, 31.4], [54, 32], [62.6, 28.6]], 1.3, '#5a2200', { unlit: true });
-      for (let i = 0; i < 4; i++) d.deco.poly([[48 + i * 3.6, 31.6 - i * 0.6], [49.3 + i * 3.6, 34.6 - i * 0.6], [50.6 + i * 3.6, 31.2 - i * 0.6]], CLAW, { unlit: true });
-      d.deco.ell(61.4, 24, 1, 0.7, '#5a2200', 0, { unlit: true });
+        d.deco.poly([[42, 27.6], [63.6, 25.6], [62, 33], [46, 33.4]], '#6a0a0a', { unlit: true });
+        d.deco.ell(57, 29.4, 4.4, 2.6, '#ff9a30', 0, { unlit: true }); d.deco.ell(58, 29.2, 2.2, 1.4, '#fff0a0', 0, { unlit: true });
+      } else d.deco.curve([[41, 27.8], [52, 28.4], [63.4, 26.4]], 1.3, '#5a2200', { unlit: true });
+      for (let i = 0; i < 6; i++) d.deco.poly([[43 + i * 3.4, 27.8 - i * 0.25], [44.2 + i * 3.4, 30.6 - i * 0.25], [45.4 + i * 3.4, 27.6 - i * 0.25]], CLAW, { unlit: true });
+      for (let i = 0; i < 4; i++) d.deco.poly([[46 + i * 3.6, 28.6], [47.2 + i * 3.6, 26.2], [48.4 + i * 3.6, 28.6]], CLAW, { unlit: true });
       // bras proche zébré, trois grandes griffes
       d.tube([[40, 34], [45, 39], [49, 41]], 6.6, 5, O);
       stripe(d, [[42, 35.6], [44.6, 38.6]], 2); stripe(d, [[45.4, 38.4], [47.4, 40.6]], 1.8);

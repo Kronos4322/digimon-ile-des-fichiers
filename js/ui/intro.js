@@ -48,7 +48,16 @@
       const cx = 78, g = c.createRadialGradient(cx, 130, 4, cx, 130, 64);
       g.addColorStop(0, look.crestCol + 'aa'); g.addColorStop(1, 'rgba(0,0,0,0)');
       c.fillStyle = g; c.fillRect(cx - 70, 60, 140, 120);
-      c.fillStyle = 'rgba(0,0,0,0.45)'; c.beginPath(); c.ellipse(cx, 160, 32, 7, 0, 0, 7); c.fill();
+      // socle de pierre claire (pas une flaque !) et faisceau de lumière venu d'en haut
+      c.save(); c.globalCompositeOperation = 'lighter';
+      const beam = c.createLinearGradient(0, 40, 0, 160); beam.addColorStop(0, 'rgba(255,240,200,0)'); beam.addColorStop(1, 'rgba(255,240,200,0.22)');
+      c.fillStyle = beam; c.beginPath(); c.moveTo(cx - 18, 40); c.lineTo(cx + 18, 40); c.lineTo(cx + 36, 160); c.lineTo(cx - 36, 160); c.fill();
+      c.restore();
+      c.fillStyle = '#3a3448'; c.beginPath(); c.ellipse(cx, 164, 36, 9, 0, 0, 7); c.fill();
+      c.fillStyle = '#8a86a0'; c.beginPath(); c.ellipse(cx, 160, 34, 8, 0, 0, 7); c.fill();
+      c.fillStyle = '#b8b4cc'; c.beginPath(); c.ellipse(cx, 159, 28, 5.6, 0, 0, 7); c.fill();
+      c.strokeStyle = look.crestCol; c.lineWidth = 1; c.beginPath(); c.ellipse(cx, 159, 24 + Math.sin(t * 3), 4.6, 0, 0, 7); c.stroke();
+      for (let i = 0; i < 10; i++) { const a = t * 0.8 + i / 10 * Math.PI * 2, px = cx + Math.cos(a) * 40, py = 120 + Math.sin(a) * 9 - ((t * 12 + i * 9) % 50); c.fillStyle = 'rgba(255,240,200,0.7)'; c.fillRect(Math.round(px), Math.round(py), 1, 1); }
       const dir = DIRS[Math.floor(t / 0.9) % 4], fr = Math.floor(t * 6) % 4;
       c.imageSmoothingEnabled = false;
       c.drawImage(DW.Sprites.hero(dir, fr, 'perso').img, Math.round(cx - 29), 86, 58, 75);
