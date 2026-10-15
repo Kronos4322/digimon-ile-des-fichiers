@@ -30,7 +30,8 @@
     await say('Driiing ! Driiing ! Toutes les cabines se mettent à sonner en même temps !');
     if ((await DW.ask('Décrocher le téléphone ?')) !== 0) { await say("Les sonneries s'arrêtent d'un coup... C'était bizarre."); return; }
     await say(s.hero !== 'tai' ? "« ...allô ?... Il y a quelqu'un ?... Je suis coincé... »" : 'Allô ?... Seul un étrange bruit de vagues te répond.');
-    await say("La communication coupe. Le sable tremble un peu sous tes pieds... Quelque chose de très gros dort ici. (Tu n'es pas encore prêt.)");
+    await say("La communication coupe. Le sable tremble un peu sous tes pieds... Quelque chose de très gros dort ici.");
+    await say("(Quelqu'un appelle à l'aide... mais tu ne peux rien faire pour l'instant. Reviens quand la forêt sera calmée : le monstre rouge du Grand Arbre, dans la Clairière, terrorise toute l'île.)");
   }
 
   // ------------------------------------------------------------ Gomamon : une ombre dans l'eau (comme Coelamon dans Digimon World)

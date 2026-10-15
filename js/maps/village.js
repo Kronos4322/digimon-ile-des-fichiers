@@ -149,7 +149,7 @@
     // (les commerçants sont dans leur boutique : on y entre par la porte)
     m.npcs = [starterNpc(), GUIDE];
     if (has('betamon')) m.npcs.push({ sp: 'betamon', x: 22, y: 16, face: 'left', wander: 1, talk: SERVICES.betamon });
-    if (has('biyomon')) m.npcs.push({ sp: 'biyomon', x: 27, y: 26, face: 'left', wander: 1, talk: SERVICES.biyomon });
+    // (Biyomon travaille à l'intérieur de la Poste : maps/interieurs.js)
     if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: BANK.x + 3, y: BANK.y + BANK.h, face: 'left', wander: 1, talk: SERVICES.kunemon });
     // passants : plus la ville se développe, plus elle s'anime (comme les villes de Digimon World 2003)
     const nPass = Math.min(PASSERS.length, Math.floor(T().progress() / 12));
@@ -157,7 +157,8 @@
     // collaborations : le second habitant travaille sur place (game/collab.js)
     if (DW.Collab) DW.Collab.place(m, { gotsumon: [LOTS.gotsumon.x + LOTS.gotsumon.w, LOTS.gotsumon.y + LOTS.gotsumon.h], elecmon: [LOTS.elecmon.x - 1, LOTS.elecmon.y + LOTS.elecmon.h], fontaine: [23, 15] });
     m.npcs.forEach(n => { delete n.hx; delete n.hy; delete n.home; });
-    m.doors = [{ x: 19, y: 5, w: 2, dir: 'up', to: 'maison', tx: 7, ty: 10 }].concat(Object.keys(LOTS).map(id => {
+    m.doors = [{ x: 19, y: 5, w: 2, dir: 'up', to: 'maison', tx: 7, ty: 10 },
+      { x: FREE_LOT.x + 2, y: FREE_LOT.y + FREE_LOT.h - 1, w: 2, dir: 'up', to: 'poste_in', tx: 6, ty: 8, cond: st => !!(st.recruits && st.recruits.biyomon) }].concat(Object.keys(LOTS).map(id => {
       const L = LOTS[id];
       return { x: L.x + 2, y: L.y + L.h - 1, w: 2, dir: 'up', to: L.in[0], tx: L.in[1], ty: L.in[2], cond: st => !!(st.recruits && st.recruits[id]) };
     }));

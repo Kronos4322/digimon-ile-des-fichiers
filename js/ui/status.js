@@ -92,8 +92,6 @@
       UI.bar(c, 84, 168, 40, 4, m.sick ? 0 : hv, hc);
       UI.text(c, 'Bonheur', 18, 148, { size: 7, color: '#ff8ac0' });
       UI.bar(c, 18, 151, 60, 4, m.happy / 100, '#ff6ab0');
-      UI.text(c, `Fatigue ${m.tired} %`, 84, 148, { size: 7, color: m.tired >= 100 ? '#ff7a7a' : '#ffd070' });
-      UI.bar(c, 84, 151, 40, 4, m.tired / 100, m.tired >= 100 ? '#ff5a5a' : '#f0b040');
       UI.text(c, 'EXP', 18, 165, { size: 7, color: '#7ab8ff' });
       UI.bar(c, 18, 168, 60, 4, m.xpRatio(), '#48a8f8');
       UI.text(c, `Suivant : ${Math.max(0, DW.xpForLevel(m.level + 1) - m.xp)}`, 18, 182, { size: 7, color: '#c8f0ff' });

@@ -35,7 +35,15 @@
       const g = this.gfx, m = this.field;
       c.drawImage(g.ground, 0, 0);
       if (g.water && g.water.frames.length) c.drawImage(g.water.frames[Math.floor(this.t * g.fps) % g.water.frames.length], g.water.x, g.water.y);
-      for (const tg of g.tall) c.drawImage(DW.World.tall(tg.kind, tg.v, [0, 1, 2, 1][Math.floor(this.t * 1.6 + tg.tx * 0.4) % 4]), tg.tx * 16, tg.ty * 16 - 8);
+      // herbes hautes : 4 calques précalculés (une seule image par frame au lieu d'une par touffe : plus de ralentissements)
+      if (g.tall.length) {
+        if (!g.tallLayers) g.tallLayers = [0, 1, 2, 3].map(P => {
+          const cv = DW.Art.canvas(g.ground.width, g.ground.height), x = cv.getContext('2d');
+          for (const tg of g.tall) x.drawImage(DW.World.tall(tg.kind, tg.v, [0, 1, 2, 1][(P + Math.floor(tg.tx * 0.4)) % 4]), tg.tx * 16, tg.ty * 16 - 8);
+          return cv;
+        });
+        c.drawImage(g.tallLayers[Math.floor(this.t * 1.6) % 4], 0, 0);
+      }
       DW.Elem.drawDecals(this, c);   // brûlures, flaques, givre, cratères... (game/fxelem.js)
       const list = g.objs.map(o => ({ s: o.s !== undefined ? o.s : o.sort, o }));
       for (const side of ['p', 'e']) list.push({ s: this.B[side].y / 16, side });

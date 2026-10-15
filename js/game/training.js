@@ -207,7 +207,7 @@
       UI.box(c, 6, 6, W - 12, 34);
       UI.label(c, 'ENTRAÎNEMENT', 12, 10);
       UI.text(c, `${m.name} — ${S.name} (${S.stat})`, 100, 19, { size: 10, color: '#ffe070' });
-      { const st = this.opts.mode === 'stat', cur = st ? ((m.raw || {})[k] || 0) : m.tr[k]; UI.text(c, `${st ? 'Statistique' : 'Digivolution'} · ${this.opts.level.name}   ·   ${st ? S.stat + ' ' + m.stat(k) : 'Points ' + cur + ' / ' + Training.cap(m)}   ·   Fatigue ${m.tired} %`, 12, 33, { size: 8, color: '#c8f0ff' }); }
+      { const st = this.opts.mode === 'stat', cur = st ? ((m.raw || {})[k] || 0) : m.tr[k]; UI.text(c, `${st ? 'Statistique' : 'Digivolution'} · ${this.opts.level.name}   ·   ${st ? S.stat + ' ' + m.stat(k) : 'Points ' + cur + ' / ' + Training.cap(m)}`, 12, 33, { size: 8, color: '#c8f0ff' }); }
       // panneau du bas
       UI.box(c, 6, 188, W - 12, 46);
       if (this.state === 'ready') {
@@ -224,7 +224,7 @@
         UI.text(c, `Essai ${Math.min(3, this.hits.length + 1)}/3`, W - 36, 228, { size: 7, align: 'center', color: '#8ae0f0' });
       } else {
         UI.text(c, this.parts ? Training.partsText(this.parts) : this.g ? `${S.stat} : ${this.before} → ${this.after}   (+${this.g} pts d'entraînement)` : this.score ? `Potentiel atteint en ${S.stat} : gagne des niveaux !` : 'Séance ratée... Aucun progrès.', 16, 205, { size: 9, color: this.g ? '#7aff8a' : '#ffb070' });
-        UI.text(c, this.evo ? 'Le Digivice vibre : Digivolution possible !' : `Réussite ${this.score}/6   ·   Fatigue ${m.tired} %   ·   1 h 30 a passé`, 16, 217, { size: 8, color: this.evo ? '#ffe070' : '#8ae0f0' });
+        UI.text(c, this.evo ? 'Le Digivice vibre : Digivolution possible !' : `Réussite ${this.score}/6   ·   1 h 30 a passé`, 16, 217, { size: 8, color: this.evo ? '#ffe070' : '#8ae0f0' });
         UI.text(c, this.next ? 'ESPACE : encore une séance      ÉCHAP : terminer' : 'ESPACE : terminer', W / 2, 230, { size: 7, align: 'center', color: '#ffe070' });
       }
     }

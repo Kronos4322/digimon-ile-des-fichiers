@@ -103,4 +103,21 @@
     },
   });
   talkAt(serre, [6, 7, 8, 9], 4, svc('yokomon'));
+
+  // ------------------------------------------------------------ Poste de Biyomon (on entre et on la trouve au guichet)
+  const poste = shop('poste_in', {
+    name: 'Poste de Biyomon', w: 14, h: 6, lot: { x: 24, y: 23, w: 5, h: 3 },
+    floor: { type: 'herring', cols: ['#d8b088', '#b88a60', '#8a6040'] }, wall: { base: '#f0e8f8', alt: '#e0d4ec', pattern: 'stripes', wood: '#c86a9a' },
+    objects: [
+      { kind: 'counter', v: 2, x: 5, y: 4, w: 4, h: 1 },
+      { kind: 'shelf', x: 2, y: 1, w: 2, h: 1, back: true, oy: 6 }, { kind: 'shelf', x: 10, y: 1, w: 2, h: 1, back: true, oy: 6 },
+      { kind: 'sacks', x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'sacks', x: 12, y: 3, w: 1, h: 1, small: true },
+      { kind: 'crates', v: 1, x: 1, y: 7, w: 1, h: 1, small: true }, { kind: 'nest', v: 0, x: 11, y: 7, w: 2, h: 1 },
+      { kind: 'window', v: 0, x: 6, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'plant', v: 1, x: 12, y: 5, w: 1, h: 1, small: true },
+    ],
+    npcs: [{ sp: 'biyomon', x: 7, y: 3, face: 'down', talk: svc('biyomon') }],
+  });
+  talkAt(poste, [5, 6, 7, 8], 4, svc('biyomon'));
+  poste.signs['2,2'] = poste.signs['3,2'] = poste.signs['10,2'] = poste.signs['11,2'] = 'Des casiers pleins de lettres. Certaines sont adressées à des Digimon qui ne sont pas encore revenus...';
+  poste.signs['11,7'] = poste.signs['12,7'] = 'Un nid douillet : Biyomon y fait la sieste entre deux tournées.';
 })();

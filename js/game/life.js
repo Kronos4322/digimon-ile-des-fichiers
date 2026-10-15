@@ -275,14 +275,12 @@
     needs(m) {
       Life.init(m);
       const out = [];
-      if (Life.pending) out.push(Life.pending.type === 'bad' ? 'bad' : 'good');
       if (m.hp > 0 && m.hp < m.maxHp * 0.35) out.push('lowhp');   // PV bas : il faut le soigner (RAM PV, repos)
       if (m.hunger >= 70) out.push('food');
       if ((m.thirst || 0) >= 70) out.push('drink');
       if (m.need >= 75) out.push('need');
       if (m.sick) out.push('sick');
       if (m.hurt) out.push('hurt');
-      if (m.tired >= 70) out.push('tired');
       if (Life.sleepy(m)) out.push('sleep');
       if (m.happy < 25) out.push('sad');
       return out;
