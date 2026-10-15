@@ -86,7 +86,8 @@
     await say('Mmh... Où est-ce que je suis ?');
     await say(`${baby} est blotti contre toi. Il ouvre les yeux en même temps que toi.`);
     await say(`Tu es réveillé ! Moi c'est ${baby} ! Je ne t'ai pas quitté une seconde !`, baby);
-    await say("Hohoho ! Doucement... Je suis Jijimon. Je vous ai trouvés tous les deux sur la plage, près des cabines téléphoniques.", J);
+    await say("Hohoho ! Doucement... Je suis Jijimon. Je vous ai trouvés tous les deux à l'entrée de la ville, épuisés, comme si vous aviez fui un monstre.", J);
+    await say(`Un insecte rouge géant, dis-tu ? Kuwagamon... Il terrorise la forêt depuis quelque temps. Vous avez eu de la chance !`, J);
     await say(`Un humain... Je n'en avais jamais vu. Tu t'appelles ${hero()} ? Et d'où viens-tu ?... Tu ne sais pas non plus. Hohoho, nous voilà bien.`, J);
     await say("Ici, c'est la Ville des Fichiers. Enfin... ce qu'il en reste. Ses habitants sont partis du jour au lendemain, et ceux que je croise ne se souviennent plus de rien.", J);
     await say("Je ne sais pas ce qui leur est arrivé. Moi, je suis bien trop vieux pour courir l'île... Mais toi, avec ce petit, tu pourrais peut-être le découvrir ?", J);

@@ -71,7 +71,7 @@
   }
   async function tour(ow) {
     const s = st();
-    await say("Ko-ko ! C'est toi, l'humain que Jijimon a trouvé sur la plage ? Moi c'est Koromon ! Je suis resté en ville quand tous les autres sont partis.", K);
+    await say("Ko-ko ! C'est toi, l'humain que Jijimon a trouvé à l'entrée de la ville ? Moi c'est Koromon ! Je suis resté en ville quand tous les autres sont partis.", K);
     if ((await DW.ask('Je te fais visiter ?', ['Oui !', 'Plus tard'], K)) !== 0) { await say('D\'accord ! Reviens me voir quand tu veux, je ne bouge pas de la place.', K); return; }
     // 1) ta maison
     await goTo(ow, DW.HOME_DOOR ? [DW.HOME_DOOR.x, DW.HOME_DOOR.y + 2] : null);

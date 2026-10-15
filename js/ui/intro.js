@@ -223,33 +223,64 @@
       await DW.tween(this.scatter, { v: 1 }, 3.4, t => t * (2 - t));
       Audio.sfx('hit');
       await DW.wait(0.6);
-      this.show('Chacun tombe ailleurs sur l\'île... Et toi, droit vers une plage.', 2.6);
+      this.show("Chacun tombe ailleurs sur l'île... Et toi, droit vers une forêt.", 2.6);
       await DW.tween(this.zoom, { v: 1 }, 4.2, t => t * t * (3 - 2 * t));
       Audio.sfx('swoosh');
-      // 7) la plage des cabines : on voit le héros tomber, puis un DigiŒuf, qui éclot
+      // 7) LA FORÊT (épisode 1) : chute dans l'herbe, seul ; on cherche les autres ; rencontre du bébé ;
+      //    on avance ensemble... et Kuwagamon attaque : fuite vers la ville (le jeu commence chez Jijimon)
       const baby = DW.heroLine().baby, bname = DW.SPECIES[baby].name;
-      const B = this.B = { baby, hero: { y: -60, landed: 0, rot: 0 }, puff: 0, egg: { x: 196, y: -40, rot: 0, crack: 0, open: 0 }, mon: { a: 0, x: 196 }, jiji: { x: 360 } };
-      Audio.play('beach');
-      await this.cut('beach', 1.1);
-      await DW.tween(B.hero, { y: 186, rot: Math.PI * 2.5 }, 1.0, t => t * t);
-      B.hero.landed = 1; this.flash = 0.7; this.shake = 0.6; Audio.sfx('hit');
-      DW.tween(B, { puff: 1 }, 0.9);
+      const F = this.F = { baby, hero: { x: 150, y: -60, landed: 0, rot: 0, dir: 'down', walk: 0 }, puff: 0, mon: { a: 0, x: 250, y: 214, dir: 1 }, rustle: 0, kuwa: { x: -80, y: -40, a: 0, s: 0.6 }, fear: 0, run: 0 };
+      Audio.play('forest');
+      await this.cut('forest', 1.1);
+      await DW.tween(F.hero, { y: 206, rot: Math.PI * 2.5 }, 1.0, t => t * t);
+      F.hero.landed = 1; this.flash = 0.7; this.shake = 0.5; Audio.sfx('hit');
+      DW.tween(F, { puff: 1 }, 0.9);
+      await DW.wait(0.6);
+      await this.show("Aïe... Tu es tombé dans de hautes herbes, au cœur d'une forêt inconnue.", 2.6);
+      // il se relève et cherche les autres
+      F.hero.landed = 2; F.hero.dir = 'left'; F.hero.walk = 1;
+      await DW.tween(F.hero, { x: 80 }, 1.6, DW.linear);
+      F.hero.walk = 0; F.hero.dir = 'down';
+      await this.show(`« Ohé ! Il y a quelqu'un ?! Tai ? Sora ?... »`, 2.2);
+      F.hero.dir = 'right'; F.hero.walk = 1;
+      await DW.tween(F.hero, { x: 200 }, 2.0, DW.linear);
+      F.hero.walk = 0; F.hero.dir = 'up';
+      await this.show("Personne ne répond. Juste le vent dans les arbres... et des bruits étranges.", 2.6);
+      DW.tween(F, { fear: 1 }, 0.6);
+      await this.show("Tu as peur. Tu es tout seul.", 2);
+      // un buisson remue... le bébé apparaît
+      Audio.sfx('swoosh'); F.rustle = 1; DW.tween(F, { rustle: 0 }, 1.2);
       await DW.wait(0.8);
-      await this.show('Le bruit des vagues... Tu es étendu sur une plage inconnue.', 2.6);
-      Audio.sfx('swoosh');
-      await DW.tween(B.egg, { y: 182 }, 1.1, t => t * t);
-      Audio.sfx('hit'); this.flash = 0.6;
-      await this.show('Quelque chose est tombé du ciel juste à côté de toi : un DigiŒuf !', 2.4);
-      for (let i = 0; i < 6; i++) { Audio.sfx('capsule'); await DW.tween(B.egg, { rot: i % 2 ? -0.22 : 0.22 }, 0.12); }
-      B.egg.rot = 0;
-      DW.tween(B.egg, { crack: 1 }, 0.9);
-      await this.show('Il tremble... il se fendille...', 1.6);
-      Audio.sfx('evolve'); this.flash = 1; B.egg.open = 1;
-      await DW.tween(B.mon, { a: 1 }, 0.5);
-      await this.show(`${bname} est né ! Il vient se blottir contre toi.`, 2.4);
-      await DW.tween(B.mon, { x: 196 }, 0.8);   // (à côté du héros allongé, pas sur lui)
-      DW.tween(B.jiji, { x: 228 }, 2.8);
-      await this.show("Au loin, une silhouette s'approche lentement sur le sable...", 2.6);
+      F.hero.dir = 'right';
+      await DW.tween(F.mon, { a: 1, x: 236 }, 0.7);
+      Audio.sfx('select'); DW.tween(F, { fear: 0 }, 0.8);
+      await this.show(`« Coucou ! N'aie pas peur ! Je suis ${bname}... Je t'attendais ! »`, 2.6);
+      await this.show(`« Moi, ${st.name}. Tu... tu m'attendais ? »  —  « Oui ! Je suis ton partenaire. Viens, ne restons pas ici ! »`, 3);
+      // ils avancent ensemble vers la droite
+      F.hero.walk = 1; F.mon.dir = 1;
+      DW.tween(F.mon, { x: 340 }, 2.6, DW.linear);
+      await DW.tween(F.hero, { x: 316 }, 2.6, DW.linear);
+      F.hero.walk = 0;
+      // Kuwagamon survole et attaque
+      await this.cut('forest', 0.6);
+      F.hero.x = 170; F.mon.x = 200; F.hero.dir = 'right'; F.mon.dir = 1; F.hero.walk = 1;
+      DW.tween(F.hero, { x: 210 }, 1.6, DW.linear); DW.tween(F.mon, { x: 240 }, 1.6, DW.linear);
+      Audio.sfx('roar');
+      await DW.tween(F.kuwa, { x: W + 80, y: 40, a: 1 }, 1.6, DW.linear);
+      await this.show('BZZZZZZ ! Une ombre rouge passe au-dessus des arbres... et fait demi-tour !', 2.2);
+      F.hero.walk = 0; F.hero.dir = 'left'; F.mon.dir = -1; F.kuwa.s = 1.1;
+      Audio.play('boss'); Audio.sfx('swoosh');
+      await DW.tween(F.kuwa, { x: 300, y: 150 }, 1.1, t => t * t);
+      this.shake = 0.6;
+      await this.show(`Un insecte géant aux pinces énormes fond sur vous ! « C'est Kuwagamon ! Cours, ${st.name} ! »`, 2.6);
+      Audio.sfx('water');
+      await this.show(`${bname} crache ses petites bulles de toutes ses forces... juste le temps de s'enfuir !`, 2.4);
+      // fuite vers la ville (à gauche)
+      F.hero.walk = 2; F.run = 1;
+      DW.tween(F.mon, { x: -40 }, 1.6, DW.linear); DW.tween(F.hero, { x: -60 }, 1.7, DW.linear);
+      DW.tween(F.kuwa, { x: 120, y: 120 }, 1.6);
+      await this.show("Vous courez à perdre haleine vers la lisière de la forêt... vers des toits, au loin.", 2.4);
+      DW.state.flags.kuwaChase = true;
       await DW.fade(1, 0.8);
       await DW.wait(0.4);
       // carton du chapitre 1 (game/chapitre1.js) ; la vidéo reste au noir derrière (pas de retour furtif sur la plage)
@@ -474,6 +505,35 @@
     }
 
     // ---------------------------------------------------------- la plage de l'arrivée (aube)
+    // forêt (fin de l'introduction) : fond de forêt, herbes hautes, le héros, le bébé, Kuwagamon
+    drawForest(c) {
+      const t = this.t, F = this.F; if (!F) return;
+      c.save();
+      if (this.shake > 0) c.translate(Math.round((Math.random() - 0.5) * 5 * this.shake), 0);
+      c.drawImage(this.forestBg || (this.forestBg = DW.World.battleBg('foret')), 0, 0);
+      c.fillStyle = `rgba(0,20,10,${0.15 + F.fear * 0.25})`; c.fillRect(0, 0, W, H);
+      // Kuwagamon (ombre dans le ciel, puis en piqué)
+      if (F.kuwa.a > 0) DW.Sprites.draw(c, DW.Sprites.battle('kuwagamon'), F.kuwa.x, F.kuwa.y + 40, { scale: F.kuwa.s, silhouette: F.kuwa.s < 1, frame: Math.floor(t * 10), flip: F.kuwa.x > 200 && F.kuwa.s < 1 ? false : true });
+      // buisson qui remue, à droite
+      const bx = 250 + Math.sin(t * 30) * 2 * F.rustle;
+      c.fillStyle = '#2e6a2a'; c.beginPath(); c.ellipse(bx, 206, 22, 13, 0, 0, 7); c.fill(); c.fillStyle = '#3e8a36'; c.beginPath(); c.ellipse(bx - 6, 200, 12, 8, 0, 0, 7); c.fill();
+      // le bébé
+      if (F.mon.a > 0) { const ps = DW.Sprites.battle(F.baby); c.globalAlpha = F.mon.a; DW.Sprites.draw(c, ps, F.mon.x, F.mon.y - Math.abs(Math.sin(t * 9)) * 3, { scale: Math.min(0.9, 34 / ps.h), flip: F.mon.dir < 0, frame: Math.floor(t * 6) }); c.globalAlpha = 1; }
+      // le héros : chute en tournoyant, puis debout (il marche, court, regarde autour de lui)
+      const hc = (DW.HEROES[DW.state.hero] ? DW.heroLook() : DW.HEROES.tai);
+      if (!F.hero.landed) {
+        const hs = DW.Sprites.hero('down', 0); c.save(); c.translate(F.hero.x, F.hero.y - 10); c.rotate(F.hero.rot); c.drawImage(hs.img, -hs.w, -hs.h, hs.w * 2, hs.h * 2); c.restore();
+      } else {
+        const fr = F.hero.walk ? Math.floor(t * (F.hero.walk > 1 ? 14 : 8)) % 4 : 0, hs = DW.Sprites.hero(F.hero.landed === 1 ? 'down' : F.hero.dir, fr);
+        c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(F.hero.x, F.hero.y + 8, 12, 3, 0, 0, 7); c.fill();
+        c.drawImage(hs.img, Math.round(F.hero.x - hs.w), Math.round(F.hero.y + 10 - hs.h * 2), hs.w * 2, hs.h * 2);
+      }
+      void hc;
+      // herbes hautes au premier plan
+      for (let x = -4; x < W + 8; x += 7) { const h = 12 + (x * 37 % 9); c.fillStyle = x % 14 ? '#3a7a2e' : '#4a9a3a'; c.beginPath(); c.moveTo(x, 228); c.lineTo(x + 3 + Math.sin(t * 2 + x) * 1.5, 228 - h); c.lineTo(x + 6, 228); c.fill(); }
+      if (F.puff > 0 && F.puff < 1) for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, r = 6 + F.puff * 26; c.fillStyle = `rgba(160,200,120,${0.7 * (1 - F.puff)})`; c.fillRect(F.hero.x + Math.cos(a) * r, 210 + Math.sin(a) * r * 0.3 - F.puff * 10, 3, 2); }
+      c.restore();
+    }
     drawBeach(c) {
       const t = this.t, B = this.B, O = (k, v) => DW.World.obj(k, v || 0);
       c.save();
@@ -553,6 +613,7 @@
     draw(c) {
       if (this.mode === 'black') { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); return; }
       if (this.mode === 'beach') this.drawBeach(c);
+      else if (this.mode === 'forest') this.drawForest(c);
       else if (this.mode === 'camp') {
         if (this.pix.v > 0) {
           // le camp se décompose en pixels avant le passage dans le Digimonde
