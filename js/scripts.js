@@ -32,7 +32,7 @@
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/decor.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/rivage.js', 'maps/village.js', 'maps/joueur.js', 'maps/maison.js', 'maps/interieurs.js',
-    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/enigmes.js', 'maps/donjons.js', 'maps/kuwagamon.js', 'maps/classe.js', 'maps/regions.js', 'maps/distrib.js',
+    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/enigmes.js', 'maps/donjons.js', 'maps/kuwagamon.js', 'maps/classe.js', 'maps/regions.js', 'maps/antre.js', 'maps/distrib.js',
     'game/activities.js', 'game/services.js', 'game/story.js', 'game/requests.js', 'game/cuisine.js', 'game/guide.js', 'game/chapitre1.js', 'game/trophees.js',
     // démarrage
     'main.js',

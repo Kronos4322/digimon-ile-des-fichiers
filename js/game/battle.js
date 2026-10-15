@@ -259,7 +259,29 @@
       this.energy[side] = Math.min(100, was + n);
       if (was < 100 && this.energy[side] >= 100 && side === 'p' && this.active && DW.sigOf(this.active)) this.energyFull = 1.5;
     }
+    // ALLIÉ (mode tour par tour) : même règle que l'arène (o.ally) — à la moitié des PV de l'ennemi, l'enfant délivré
+    // et son Digimon (qui digivolue) se joignent au combat, puis attaquent seuls à la fin de chaque tour
+    async allyTurn() {
+      const C = this.o.ally, E = this.enemy;
+      if (!C || this.arena || E.hp <= 0) return null;
+      if (!this.allyMon) {
+        if (E.hp > E.maxHp * (C.at || 0.5)) return null;
+        await this.msg(C.join || `${C.name} entre dans le combat !`);
+        if (C.from && C.from !== C.sp) await DW.Game.push(new DW.EvolutionScene(new DW.Digimon(C.from, C.lvl), C.sp, { story: true }));
+        Audio.play('boss');
+        this.allyMon = new DW.Digimon(C.sp, C.lvl); this.allyN = 0; DW.state.seen[C.sp] = true;
+        await this.msg(`${this.allyMon.name} se bat à tes côtés !`);
+        return null;
+      }
+      const mv = DW.MOVES[C.move] || { name: 'Attaque', type: 'Feu' }, big = ++this.allyN % 3 === 0;
+      const dmg = Math.max(1, Math.round(E.maxHp * (big ? 0.12 : 0.07) * (0.85 + Math.random() * 0.3)));
+      await this.msg(`${this.allyMon.name} utilise ${mv.name} !`, 0.7);
+      Audio.sfx(big ? 'super' : 'hit'); this.sparkle('e', '#ffb060');
+      await this.applyDamage('e', dmg);
+      return this.checkFaints();
+    }
     async endOfTurn() {
+      { const r = await this.allyTurn(); if (r) return r; }
       this.gainEnergy('p', 3); this.gainEnergy('e', 3);
       for (const side of ['p', 'e']) { const m = this.mon(side); if (m && m.hp > 0) m.mp = Math.min(m.maxMp, m.mp + Math.ceil(m.maxMp * MP_REGEN)); }
       if (this.energyFull) { this.energyFull = 0; await this.msg(`Énergie au maximum ! ${this.active.name} peut lancer ${DW.MOVES[DW.sigOf(this.active)].name} (ATTAQUE puis ENTRÉE), puis appuie vite sur ESPACE pour le charger !`, 1.6); }

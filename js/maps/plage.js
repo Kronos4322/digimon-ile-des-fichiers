@@ -20,31 +20,17 @@
     { sp: 'kunemon', min: 3, max: 4, w: 10 },
   ];
 
-  // ------------------------------------------------------------ Shellmon (épisode 2) : les cabines sonnent toutes en même temps
-  async function boothEvent(ow) {
+  // ------------------------------------------------------------ Shellmon (épisode 2) : BOSS FINAL DU CHAPITRE 1
+  // Avant Kuwagamon, les cabines sonnent dans le vide. Ensuite, chacune murmure un mot : dans le bon ordre,
+  // le sable s'ouvre sur l'antre de Shellmon (maps/antre.js).
+  async function boothEvent(ow, x) {
     const s = st();
-    if (s.flags.shellmon) { await say('Le combiné est muet... Que font des cabines téléphoniques sur cette plage ?'); return; }
+    if (s.flags.kuwagamon || s.flags.shellLair) { await DW.Antre.booth(ow, Math.max(0, BOOTHS.indexOf(Math.floor(x / 2)))); return; }
     DW.Audio.sfx('ring');
     await say('Driiing ! Driiing ! Toutes les cabines se mettent à sonner en même temps !');
-    const r = await DW.ask('Décrocher le téléphone ?');
-    if (r !== 0) { await say("Les sonneries s'arrêtent d'un coup... C'était bizarre."); return; }
-    await say('Allô ?... Seul un étrange bruit de vagues te répond.');
-    DW.Audio.sfx('roar'); ow.shake = 1;
-    await DW.wait(0.7);
-    await say('BOUM ! Un énorme coquillage jaillit du sable !');
-    const pn = (s.party.find(m => m.hp > 0) || s.party[0]).name;
-    await say("C'est Shellmon ! Un CHAMPION ! Il croit qu'on veut lui voler sa plage... Il est bien trop fort pour nous, fuyons s'il le faut !", pn);
-    // boss facultatif TRÈS puissant (un Champion niveau 18) : à revenir affronter une fois bien entraîné
-    const res = await ow.battle({ enemy: new DW.Digimon('shellmon', 18), boss: true, canLose: true, intro: 'Shellmon surgit de son coquillage !' });
-    if (res !== 'win') { await say('Shellmon replonge dans le sable en grondant... Il faudra être beaucoup plus fort pour le battre. (Digivolue en Champion !)'); return; }
-    if (res === 'win') {
-      s.flags.shellmon = true;
-      await say('Shellmon replonge dans la mer en grommelant...');
-      const extra = DW.giveItem('soin_m', 3) + DW.giveItem('pm_m', 2); s.bits += 800;
-      DW.Audio.sfx('buy');
-      await say(`Tu trouves 3 RAM PV+, 2 RAM PM+ et 800 Bits dans le sable !${DW.extraMsg(extra)}`);
-      await say("Au loin, vers l'ouest, un énorme jet d'eau jaillit au-dessus de la crique...");
-    }
+    if ((await DW.ask('Décrocher le téléphone ?')) !== 0) { await say("Les sonneries s'arrêtent d'un coup... C'était bizarre."); return; }
+    await say(s.hero !== 'tai' ? "« ...allô ?... Il y a quelqu'un ?... Je suis coincé... »" : 'Allô ?... Seul un étrange bruit de vagues te répond.');
+    await say("La communication coupe. Le sable tremble un peu sous tes pieds... Quelque chose de très gros dort ici. (Tu n'es pas encore prêt.)");
   }
 
   // ------------------------------------------------------------ Gomamon : une ombre dans l'eau (comme Coelamon dans Digimon World)
@@ -192,7 +178,7 @@
     signs: {
       '21,3': "Nord : Forêt de l'Arrivée.  Est : Ville des Fichiers.  En bas de l'escalier : la Plage des Cabines.",
       '4,22': "Ouest : Crique du Radeau. Quelqu'un y construit un radeau pour quitter l'île...",
-      '19,24': 'Les cabines téléphoniques sonnent parfois toutes seules... Personne ne sait qui appelle.',
+      '19,24': () => say(st().flags.kuwagamon && !st().flags.shellLair ? "Quelqu'un a gravé sous le panneau : « Chaque cabine murmure un mot. Dans le bon ordre, c'est un appel au secours. »" : 'Les cabines téléphoniques sonnent parfois toutes seules... Personne ne sait qui appelle.'),
     },
     tileActs: { P: boothEvent },
   };

@@ -61,6 +61,10 @@
         d.tube([[9, 11], [5, 4], [8, 1]], 1.6, 1, '#d8d0c0'); d.tube([[17, 11], [21, 4], [18, 1]], 1.6, 1, '#d8d0c0');
         for (const x of [6, 9, 17, 20]) d.deco.line(x, 6, x + (x < 13 ? -1 : 1), 8, 0.6, '#8a8070');
         d.deco.circ(11, 14, 1, '#ffe060', { unlit: true }); d.deco.circ(15, 14, 1, '#ffe060', { unlit: true });
+      } else if (v === 2) {   // Shellmon : coquille rose en spirale et tentacule vert
+        d.ell(13, 14, 7, 6.5, '#f0a0b8', 0, { shiny: true });
+        d.deco.curve([[13, 14], [16, 12], [15, 9], [11, 10], [10, 14], [13, 18]], 0.8, '#c06a88');
+        d.tube([[7, 18], [4, 12], [6, 7]], 1.6, 1, '#5ab04a');
       } else {         // trophée générique : une coupe
         d.poly([[7, 8], [19, 8], [16, 18], [10, 18]], '#e8c040', { shiny: true });
         d.tube([[13, 18], [13, 22]], 1.4, 2, '#d8b030');

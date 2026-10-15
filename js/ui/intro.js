@@ -20,7 +20,57 @@
     c.globalAlpha = 1; c.restore();
   }
 
-  // ------------------------------------------------------------ choix du personnage
+  // ------------------------------------------------------------ création du personnage (un enfant qui n'est pas dans l'animé)
+  // Haut/Bas : ligne   Gauche/Droite : choix   ESPACE : valider (sur la dernière ligne)
+  class CreateScene extends DW.Scene {
+    constructor() {
+      super();
+      const L = DW.LOOK_OPTS;
+      this.rows = [['Allure', L.style.map(x => x[0]), 'style'], ['Cheveux', L.hair.map(x => x[0]), 'hair'], ['Tenue', L.shirt.map(x => x[0]), 'shirt'],
+        ['Accessoire', L.head.map(x => x[0]), 'head'], ['DigiŒuf', Object.values(DW.HERO_LINE).map(l => l.baby), 'baby'], ['C\'est moi !', [''], null]];
+      this.r = 0; this.v = { style: 0, hair: 0, shirt: 0, head: 0, baby: 0 };
+      DW.state.hero = 'perso'; this.apply();
+    }
+    apply() { const v = this.v; DW.state.look = { style: v.style, hair: v.hair, shirt: v.shirt, head: v.head, baby: Object.values(DW.HERO_LINE)[v.baby].baby }; }
+    update() {
+      const n = this.rows.length, R = this.rows[this.r];
+      if (Input.hit('up')) { this.r = (this.r + n - 1) % n; Audio.sfx('move'); }
+      if (Input.hit('down')) { this.r = (this.r + 1) % n; Audio.sfx('move'); }
+      const d = Input.hit('left') ? -1 : Input.hit('right') ? 1 : 0;
+      if (d && R[2]) { const k = R[2], m = R[1].length; this.v[k] = (this.v[k] + d + m) % m; Audio.sfx('move'); this.apply(); }
+      if (Input.hit('ok')) { if (this.r === n - 1) { Audio.sfx('select'); this.close('perso'); } else { this.r++; Audio.sfx('select'); } }
+    }
+    draw(c) {
+      const t = this.t, look = DW.heroLook('perso');
+      UI.menuBg(c, t);
+      UI.text(c, 'QUI ES-TU ?', W / 2, 17, { size: 11, align: 'center', bold: true, color: '#ffe680' });
+      // le personnage tourne sur lui-même
+      const cx = 78, g = c.createRadialGradient(cx, 130, 4, cx, 130, 64);
+      g.addColorStop(0, look.crestCol + 'aa'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = g; c.fillRect(cx - 70, 60, 140, 120);
+      c.fillStyle = 'rgba(0,0,0,0.45)'; c.beginPath(); c.ellipse(cx, 160, 32, 7, 0, 0, 7); c.fill();
+      const dir = DIRS[Math.floor(t / 0.9) % 4], fr = Math.floor(t * 6) % 4;
+      c.imageSmoothingEnabled = false;
+      c.drawImage(DW.Sprites.hero(dir, fr, 'perso').img, Math.round(cx - 29), 86, 58, 75);
+      // l'œuf choisi et son bébé
+      const baby = DW.state.look.baby, line = DW.heroLine('perso');
+      DW.Sprites.draw(c, DW.Sprites.battle(baby), cx, 200, { frame: Math.floor(t * 4) });
+      UI.text(c, `${DW.SPECIES[baby].name} → ${DW.SPECIES[line.partner].name}`, cx, 214, { size: 7, align: 'center', color: '#ffe680' });
+      // les lignes de choix
+      this.rows.forEach(([label, opts, k], i) => {
+        const y = 44 + i * 26, on = i === this.r;
+        UI.box(c, 150, y, 160, 22, on ? 'dwsel' : 'dw');
+        if (!k) { UI.text(c, label, 230, y + 14, { size: 10, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' }); return; }
+        UI.text(c, label, 156, y + 9, { size: 7, color: '#8ae0f0' });
+        const val = k === 'baby' ? DW.SPECIES[opts[this.v[k]]].name : opts[this.v[k]];
+        UI.text(c, (on ? '◀ ' : '') + val + (on ? ' ▶' : ''), 304, y + 17, { size: 9, align: 'right', color: '#ffffff' });
+      });
+      UI.text(c, '▲▼ choisir la ligne   ◀ ▶ changer   ESPACE valider', W / 2, 232, { size: 7, align: 'center', color: '#7a8ab8' });
+    }
+  }
+  DW.CreateScene = CreateScene;
+
+  // ------------------------------------------------------------ choix du personnage (anciennes parties : un des enfants de l'animé)
   class CharScene extends DW.Scene {
     constructor() { super(); this.i = 0; this.slide = { v: 0 }; }
     move(d) {
@@ -115,12 +165,12 @@
     update() { if (Input.hit('ok')) this.skip = true; }
     async run() {
       const st = DW.state;
-      // 1) qui es-tu ?
-      st.hero = await Game.push(new CharScene());
-      st.name = await Game.push(new DW.NameScene(DW.HEROES[st.hero].name));
-      // les autres enfants du camp (ils seront séparés en arrivant sur l'île)
-      const others = Object.keys(DW.HEROES).filter(k => k !== st.hero);
-      const SPOTS = [[24, 206, 'right'], [124, 208, 'right'], [180, 210, 'left'], [238, 200, 'left'], [266, 208, 'left'], [294, 202, 'left']];   // loin de la tente (x 48-110)
+      // 1) qui es-tu ? (un enfant qui n'est pas dans l'animé : il va délivrer les autres)
+      st.hero = await Game.push(new CreateScene());
+      st.name = await Game.push(new DW.NameScene('Kenji'));
+      // les autres enfants du camp : les sept de l'animé (ils seront séparés en arrivant sur l'île)
+      const others = DW.HERO_ORDER.filter(k => k !== st.hero);
+      const SPOTS = [[24, 206, 'right'], [124, 208, 'right'], [152, 214, 'left'], [180, 210, 'left'], [238, 200, 'left'], [266, 208, 'left'], [294, 202, 'left']];   // loin de la tente (x 48-110)
       this.kids = others.map((k, i) => ({ id: k, x: SPOTS[i][0], y: SPOTS[i][1], dir: SPOTS[i][2] }));
       // 2) le camp d'été
       await DW.fade(1, 0.4);
@@ -128,7 +178,7 @@
       await DW.fade(0, 0.8);
       DW.tween(this.bars, { v: 1 }, 1);
       await this.show("Été. Un camp de vacances au cœur des montagnes.");
-      await this.show(`Sept enfants autour du feu : toi, ${st.name}... et six autres.`, 2.6);
+      await this.show(`${others.length + 1 === 8 ? 'Huit' : 'Sept'} enfants autour du feu : toi, ${st.name}... et ${others.length === 7 ? 'sept' : 'six'} autres.`, 2.6);
       this.snowOn = true;
       await this.show("Soudain... il se met à neiger, en plein mois d'août.");
       DW.tween(this.aurora, { v: 1 }, 2.5);
@@ -139,7 +189,7 @@
       this.dv.landed = true; Audio.sfx('hit'); this.flash = 1;
       await DW.wait(0.4);
       this.heroDir = 'up';   // le héros reste de dos : c'est toi
-      await this.show('Sept petits objets lumineux tombent du ciel, un aux pieds de chaque enfant : des Digivices !');
+      await this.show('De petits objets lumineux tombent du ciel, un aux pieds de chaque enfant : des Digivices !');
       // 4) ils s'illuminent et emportent tout le monde
       DW.tween(this.dv, { glow: 1 }, 1.2);
       Audio.sfx('evolve');
@@ -151,7 +201,7 @@
       await DW.tween(this.pix, { v: 1 }, 0.9, DW.linear);
       // 5) tunnel numérique : les sept enfants ensemble
       this.cut('tunnel', 0.7); this.flash = 0.6; Audio.sfx('evolve');
-      this.show("Une vague de lumière vous emporte tous vers un autre monde...", 2.6);
+      this.show("Une vague de lumière vous emporte tous vers un autre monde...", 2.6);   // (tous les enfants ensemble)
       await DW.wait(4.2);
       // 6) au-dessus de l'île : les enfants sont séparés, chacun tombe ailleurs (au hasard)
       this.cut('sky', 1.2); Audio.sfx('swoosh');

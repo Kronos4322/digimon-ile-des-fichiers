@@ -9,6 +9,8 @@
     // réglages de partie
     starter: 'espèce du premier partenaire choisi (active la sauvegarde automatique)',
     arenaTuto: 'explications du combat en arène déjà vues',
+    shellLair: "le sable s'est ouvert sous les cabines : l'antre de Shellmon (maps/antre.js)",
+    boothPos: 'énigme des cabines : nombre de mots déjà entendus dans le bon ordre',
     // histoire
     kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière, fin du chapitre 1)',
     kuwaSeen: 'entré dans le Grand Arbre (les racines se sont refermées)',

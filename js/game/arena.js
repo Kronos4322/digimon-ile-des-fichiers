@@ -120,6 +120,54 @@
         this.B = { p: this.body(84, 186, 1), e: this.body(236, 140, -1) };
       }
       this.pops = []; this.log = null; this.live = false; this.cmd = 0; this.fleeT = 0; this.clock = 0;
+      // ALLIÉ (boss scénarisés) : o.ally = { at: 0.5, from, sp, lvl, hero, name, move, join } — quand l'ennemi tombe à
+      // la moitié de ses PV, un enfant délivré et son Digimon (qui digivolue) entrent dans le combat et attaquent seuls
+      this.allyCfg = o.ally && this.field ? o.ally : null; this.ally = null;
+    }
+    // ---------------------------------------------------------- l'allié : apparition, déplacement, attaques automatiques
+    allyTick(dt) {
+      const C = this.allyCfg, E = this.enemy, be = this.B.e;
+      if (!C || !this.live) return;
+      if (!this.ally) {
+        if (this.allyJoining || E.hp > E.maxHp * (C.at || 0.5)) return;
+        this.allyJoining = true;
+        (async () => {
+          const was = this.mode; this.mode = 'msg';
+          await super.msg(C.join || `${C.name} entre dans le combat !`, 1.8);
+          const pre = new DW.Digimon(C.from || C.sp, C.lvl);
+          if (C.from && C.from !== C.sp) await DW.Game.push(new DW.EvolutionScene(pre, C.sp, { story: true }));
+          DW.Audio.play('boss');
+          const m = new DW.Digimon(C.sp, C.lvl); m.heal();
+          this.ally = { m, b: this.body(this.B.p.x - 30, Math.min(F.y1 - 4, this.B.p.y + 40), 1), cd: 1.4, n: 0 };
+          this.allyHero = { x: this.hero.x + 4, y: Math.min(F.y1, this.hero.y + 24), id: C.hero };
+          DW.state.seen[C.sp] = true;
+          this.shake = 0.6; this.flash = 0.6; DW.Audio.sfx('super');
+          this.mode = was === 'msg' ? 'live' : was; this.live = true;
+          this.say(`${m.name} se bat à tes côtés !`);
+        })();
+        return;
+      }
+      const A = this.ally, b = A.b;
+      // se place de l'autre côté de l'ennemi, à distance d'attaque
+      const side = b.x < be.x ? -1 : 1, tx = DW.clamp(be.x + side * 74, F.x0 + 10, F.x1 - 10), ty = DW.clamp(be.y + 26, F.y0 + 6, F.y1 - 4);
+      const dx = tx - b.x, dy = ty - b.y, d = Math.hypot(dx, dy);
+      if (d > 4) { const v = Math.min(d, 80 * dt); b.x += dx / d * v; b.y += dy / d * v; b.vx = dx / d * 80; b.vy = dy / d * 80; } else { b.vx = b.vy = 0; }
+      b.face = be.x > b.x ? 1 : -1;
+      A.cd -= dt;
+      if (A.cd > 0 || E.hp <= 0) return;
+      A.cd = 2.2 + Math.random() * 0.9; A.n++;
+      const mv = DW.MOVES[C.move] || { name: 'Attaque', type: 'Feu' }, big = A.n % 4 === 0;
+      // dégâts : une part des PV de l'ennemi (l'allié est fort, sans finir le combat à ta place)
+      const dmg = Math.max(1, Math.round(E.maxHp * (big ? 0.1 : 0.055) * (0.85 + Math.random() * 0.3)));
+      this.say(`${A.m.name} : ${mv.name} !`);
+      DW.Elem.impact(this, this.center('e'), mv.type, big);
+      DW.Elem.decal(this, be.x, be.y + 2, mv.type, big);
+      DW.Audio.sfx(big ? 'super' : 'hit');
+      this.hitStop = big ? 0.15 : 0.06; if (big) { this.shake = 0.5; this.flash = 0.3; }
+      this.applyDamage('e', dmg);
+      this.pop('e', '-' + dmg, '#ffb060', big);
+      be.vx = (be.x > b.x ? 1 : -1) * (50 + dmg / E.maxHp * 200);
+      this.checkKO();
     }
     // caméra : centrée entre les deux Digimon, sans sortir de la carte de combat
     camTo(k) {
@@ -383,6 +431,7 @@
         if (this.energy.e >= 100 && DW.sigOf(E) && Math.random() < 0.7) this.special('e');
         else { const em = this.aiPick(); this.startCast('e', E.moves.find(m => m.id === em.id) || em); }
       }
+      this.allyTick(dt);
       // incantations en cours
       for (const side of ['p', 'e']) {
         const b = this.B[side], c = b.cast, o = this.B[side === 'p' ? 'e' : 'p'];

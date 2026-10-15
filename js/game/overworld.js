@@ -321,7 +321,7 @@
       if (ts) { this.runScript(() => DW.Training.atSpot(ts.k, ts)); return true; }
       if (info.toilet) { this.runScript(() => DW.Care.toilet()); return true; }
       const act = this.map.tileActs && this.map.tileActs[this.tileAt(x, y)];
-      if (act) { this.runScript(act); return true; }
+      if (act) { this.runScript(ow => act(ow, x, y)); return true; }
       const F = this.f, pt = this.partner;
       if (pt && F.x === x && F.y === y) { this.runScript(() => this.talkPartner(pt)); return true; }
       if (pt && DW.Life.pending && Math.max(Math.abs(F.x - P.x), Math.abs(F.y - P.y)) <= 1) { this.runScript(() => this.talkPartner(pt)); return true; }

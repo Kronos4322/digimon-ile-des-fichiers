@@ -25,7 +25,7 @@
     lit:      { name: 'Lit douillet', price: 0, room: () => (upstairs() ? 'etage' : null), objs: [{ kind: 'bed', x: 1, y: 3, w: 2, h: 2 }], desc: 'Dormir : soigne toute l\'équipe, sauvegarde, et fait passer la nuit.' },
     coffre:   { name: 'Coffre', price: 0, objs: [{ kind: 'chest', x: 1, y: 6, w: 1, h: 1, small: true }], desc: 'Range les objets que ton sac ne peut pas porter.' },
     toilettes:{ name: 'Toilettes privées', price: 600, room: 'sdb', objs: [{ kind: 'toiletroom', x: 6, y: 3, w: 2, h: 1 }], desc: 'Des toilettes rien qu\'à vous : plus besoin de courir dehors !' },
-    plantes:  { name: 'Plantes vertes', price: 500, objs: [{ kind: 'bigplant', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'flowerpots', v: 1, x: 3, y: 6, w: 2, h: 1 }], desc: 'Les arroser chaque jour rend ton partenaire heureux (bonheur +3).' },
+    plantes:  { name: 'Plantes vertes', price: 500, objs: [{ kind: 'bigplant', x: 14, y: 10, w: 1, h: 1, small: true }, { kind: 'flowerpots', v: 1, x: 3, y: 6, w: 2, h: 1 }], desc: 'Les arroser chaque jour rend ton partenaire heureux (bonheur +3).' },
     frigo:    { name: 'Réfrigérateur', price: 1200, room: 'cuisine', objs: [{ kind: 'fridge', x: 10, y: 3, w: 1, h: 1, small: true }], desc: 'Range ta nourriture (le coffre n\'en veut pas), 20 de chaque. Et chaque jour, un en-cas s\'y trouve !' },
     tele:     { name: 'Télévision', price: 1000, objs: [{ kind: 'crttv', x: 5, y: 3, w: 2, h: 1 }], desc: 'Les nouvelles de l\'île et des rumeurs. Regarder ensemble rend heureux.' },
     biblio:   { name: 'Bibliothèque', price: 1500, objs: [{ kind: 'bookshelf', v: 1, x: 3, y: 3, w: 2, h: 1 }], desc: 'Lire une histoire chaque jour à ton partenaire : discipline +5.' },
@@ -51,12 +51,22 @@
       decor: [{ kind: 'table', x: 5, y: 5, w: 2, h: 1 }, { kind: 'stool', x: 4, y: 5, w: 1, h: 1, small: true }, { kind: 'stool', x: 7, y: 5, w: 1, h: 1, small: true }, { kind: 'shelf', x: 8, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
     sport:   { name: 'Salle de sport', w: 10, h: 8, side: 'left', y: 7, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
       decor: [{ kind: 'bigrug', v: 2, x: 2, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 1, y: 6, w: 1, h: 1, small: true }] },
+    // chambre de Tai : elle apparaît quand Tai est délivré (antre de Shellmon) ; décor de Tai (ballon, lunettes, posters orange)
+    tai:     { name: 'Chambre de Tai', w: 10, h: 8, side: 'right', y: 6, by: [], open: () => !!(st().kids || {}).tai && st().hero !== 'tai',
+      floor: { type: 'herring', cols: ['#d8a868', '#b07e48', '#7a5430'] }, wall: { base: '#fff0d8', alt: '#ffe0b0', pattern: 'stripes', wood: '#e8822a' },
+      decor: [{ kind: 'bed', x: 6, y: 3, w: 2, h: 2 }, { kind: 'poster', v: 0, x: 2, y: 1, w: 1, h: 1, back: true, oy: 15 }, { kind: 'poster', v: 1, x: 4, y: 1, w: 1, h: 1, back: true, oy: 15 },
+        { kind: 'bigrug', v: 1, x: 3, y: 5, w: 3, h: 1, walk: true }, { kind: 'toybox', x: 2, y: 3, w: 2, h: 1 }],
+      npcs: [{ hero: 'tai', x: 4, y: 4, face: 'down', wander: 1, talk: async () => DW.say(DW.pick([
+        "Merci encore pour l'antre de Shellmon ! J'ai cru qu'on n'en sortirait jamais.", "Agumon dort comme une souche depuis qu'on est ici. Greymon, ça fatigue !",
+        "Si on retrouve Matt, il va être vert de jalousie de ma nouvelle chambre !", "Mon écusson... Jijimon dit qu'il doit être caché quelque part sur l'île. Un jour, on le trouvera !",
+        "Le foot me manque. Tu crois qu'on pourrait faire une partie avec les Digimon de la ville ?"]), 'Tai') },
+        { sp: 'agumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say('Tu as quelque chose à manger ? Moi, j\'ai toujours faim !', 'Agumon') }] },
     digi:    { name: 'Chambre du Digimon', from: 'etage', w: 10, h: 8, side: 'right', y: 5, by: ['chambre_digi'], floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
       decor: [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }] },
   };
   const fromOf = r => (ROOMS[r].from === 'etage' ? 'maison_joueur_etage' : 'maison_joueur');
   const FW = { maison_joueur: W, maison_joueur_etage: 14 };
-  const roomOpen = r => ROOMS[r].by.some(owned);
+  const roomOpen = r => (ROOMS[r].open ? ROOMS[r].open() : ROOMS[r].by.some(owned));
   const roomId = r => `maison_joueur_${r}`;
   // pose les meubles d'une pièce (salon ou annexe) et leurs zones d'usage
   function furnish(m, room) {
@@ -156,7 +166,7 @@
       if (!s.home) s.home = { owned: { lit: true, coffre: true } };
       if (DW.HOME_DOOR) Object.assign(this.warps[0], { tx: DW.HOME_DOOR.x, ty: DW.HOME_DOOR.y + 1 });
       const cave = DW.Trophies && DW.Trophies.count() > 0;   // le premier trophée ouvre la cave (game/trophees.js)
-      const version = ORDER.filter(owned).join(',') + (cave ? '|cave' : '');
+      const version = ORDER.filter(owned).join(',') + (cave ? '|cave' : '') + Object.keys(ROOMS).filter(roomOpen).join(',');
       if (this.version === version && this.objects.length) return;
       this.version = version;
       this.objects = [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'window', v: 0, x: 6, y: 1, w: 2, h: 2, back: true, oy: -6 }];
@@ -239,7 +249,7 @@
     const rr = ['0'.repeat(R.w), '0' + '2'.repeat(R.w - 2) + '0', '0' + '2'.repeat(R.w - 2) + '0', ...Array.from({ length: R.h - 4 }, (_, i) => floorRow(i + 3)), '0'.repeat(R.w)];
     MAPS[roomId(r)] = {
       name: `Ma maison — ${R.name}`, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
-      floor: R.floor, wall: R.wall, rows: rr, objects: [], npcs: [], signs: {},
+      floor: R.floor, wall: R.wall, rows: rr, objects: [], npcs: (R.npcs || []).map(n => ({ ...n })), signs: {},
       warps: [{ x: dx, y: 4, w: 1, h: 2, dir: R.side === 'right' ? 'left' : 'right', to: fromOf(r), tx: R.side === 'right' ? FW[fromOf(r)] - 2 : 1, ty: R.y }],
       build() {
         const version = ORDER.filter(owned).join(',');

@@ -9,6 +9,7 @@
   const st = () => DW.state;
   const LIST = {
     kuwagamon: { name: 'Trophée de Kuwagamon', v: 1, desc: "Kuwagamon, l'insecte rouge du Grand Arbre de la Clairière. Ta toute première grande victoire !" },
+    shellmon: { name: 'Trophée de Shellmon', v: 2, desc: "Shellmon, le gardien de l'antre sous les cabines de la plage. La victoire qui a délivré Tai et réveillé Greymon !" },
   };
   const SLOTS = 8;   // emplacements de la cave (les suivants attendent les prochains boss)
   const Trophies = DW.Trophies = {

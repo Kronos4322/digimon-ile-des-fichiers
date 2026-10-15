@@ -34,7 +34,31 @@
       shirt: '#3aa04a', sleeve: '#f0e070', deco: 'stripe', decoCol: '#f0e070', bottom: 'shorts', bottomCol: '#7aa0d8', shoe: '#f0a030', glove: null },
   };
   DW.HERO_ORDER = ['tai', 'sora', 'matt', 'mimi', 'izzy', 'joe', 'tk'];
-  DW.heroLook = id => DW.HEROES[id || (DW.state && DW.state.hero)] || DW.HEROES.tai;
+  // LE HÉROS DU JOUEUR : un enfant qui n'est pas dans l'animé (state.hero = 'perso'), créé au début de la partie.
+  // Son apparence est dans state.look ; il délivre les enfants de l'animé chapitre après chapitre.
+  DW.HEROES.perso = { name: 'Toi', crest: 'Lien', crestCol: '#5adcc8', desc: 'Un enfant venu d\'ailleurs, qui va délivrer les autres.',
+    skin: '#f6c08c', hair: '#5a3a24', hairL: '#7a5a3a', style: 'short', head: '', headCol: '#e04a3a',
+    shirt: '#e8582a', sleeve: '#d84a20', deco: 'stripe', decoCol: '#ffffff', bottom: 'shorts', bottomCol: '#3a5a9a', shoe: '#3a3a4a', glove: null };
+  // choix proposés à la création
+  DW.LOOK_OPTS = {
+    style: [['Garçon (court)', { style: 'short', bottom: 'shorts' }], ['Garçon (en bataille)', { style: 'spiky', bottom: 'pants' }], ['Fille (carré)', { style: 'bob', bottom: 'skirt' }], ['Fille (longs)', { style: 'long', bottom: 'pants' }]],
+    hair: [['Châtain', ['#5a3a24', '#7a5a3a']], ['Noir', ['#22222c', '#3a3a48']], ['Blond', ['#e8c060', '#fff0a0']], ['Roux', ['#c8582a', '#e8804a']], ['Bleu nuit', ['#2a3a7a', '#4a5aa8']], ['Rose', ['#e07aa8', '#ffb0d0']]],
+    shirt: [['Rouge', '#e04a3a'], ['Orange', '#e8822a'], ['Vert', '#3a9a5a'], ['Bleu', '#2f6ad8'], ['Violet', '#8a4ac8'], ['Turquoise', '#2aa8a8'], ['Blanc', '#f0f0ec']],
+    head: [['Rien', ''], ['Casquette', 'cap'], ['Lunettes de plongée', 'goggles'], ['Bob', 'bucket'], ['Lunettes', 'glasses']],
+  };
+  const lookOf = L => {
+    const S = DW.LOOK_OPTS, b = DW.HEROES.perso, o = { ...b };
+    if (!L) return o;
+    Object.assign(o, S.style[L.style || 0][1]);
+    const [h, hl] = S.hair[L.hair || 0][1]; o.hair = h; o.hairL = hl;
+    const sh = S.shirt[L.shirt || 0][1]; o.shirt = sh; o.sleeve = sh; o.crestCol = sh === '#f0f0ec' ? '#5adcc8' : sh;
+    o.head = S.head[L.head || 0][1]; o.headCol = sh === '#f0f0ec' ? '#e04a3a' : '#f0f0ec';
+    o.bottomCol = o.bottom === 'skirt' ? '#3a5a9a' : o.bottom === 'pants' ? '#4a5a7a' : '#3a5a9a';
+    o.name = 'perso' + [L.style, L.hair, L.shirt, L.head].join('-');   // (clé du cache des sprites)
+    return o;
+  };
+  DW.lookOf = lookOf;
+  DW.heroLook = id => { const k = id || (DW.state && DW.state.hero); return k === 'perso' ? lookOf(DW.state && DW.state.look) : DW.HEROES[k] || DW.HEROES.tai; };
 
   // Proportions façon Digimon World 1 : ~2,8 têtes, sprite 28×36 (pieds en bas), détails de vêtements.
   const SWING = [0, 1, 0, -1];

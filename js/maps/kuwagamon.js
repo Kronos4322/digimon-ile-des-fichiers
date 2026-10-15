@@ -176,9 +176,12 @@
     await say('Tu reçois le Trophée de Kuwagamon !');
     await say("Mets-le dans ta maison. Sous le plancher, il y a une vieille cave que je n'ai jamais ouverte : de quoi exposer tes trophées !", J);
     await say("Un éclat noir s'est arraché de son dos, dis-tu ? Kuwagamon n'était pas méchant autrefois... Il n'était pas lui-même. Je me demande ce qui lui est arrivé...", J);
-    await say("(Les chemins qui étaient bloqués par un voile de données se sont ouverts !)");
+    // le chapitre continue : un enfant humain serait retenu près des cabines de la plage (Shellmon, fin du chapitre 1)
+    if (s.hero !== 'tai') {
+      await say("Autre chose... Les Bukamon de la plage disent qu'un autre enfant humain, comme toi, est prisonnier près des cabines téléphoniques.", J);
+      await say("Les cabines se seraient mises à murmurer des mots... Écoute-les toutes, et remets-les dans l'ordre. Et prépare-toi bien : un énorme coquillage le garde, un Champion !", J);
+    } else await say("Et sur la plage, les cabines téléphoniques sonnent sans arrêt... Un gros Digimon s'y cache, paraît-il. Sois prudent !", J);
     DW.autosave();
-    await DW.Chapter.end1();
   }
 
   // ------------------------------------------------------------ 4) l'arène du combat : le cœur du Grand Arbre

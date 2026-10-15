@@ -126,7 +126,7 @@
     s.flags.chapter = 2;
     Audio.play('victory');
     await DW.wait(0.8);
-    await Game.push(new ChapterScene('FIN DU CHAPITRE 1', "L'Île des Fichiers", 'Kuwagamon est vaincu. Mais pourquoi les Digimon ont-ils tout oublié ?'));
+    await Game.push(new ChapterScene('FIN DU CHAPITRE 1', "L'Île des Fichiers", s.kids && s.kids.tai ? 'Tai et Greymon sont libres. Mais où sont les autres enfants ?' : 'Shellmon est vaincu. Mais pourquoi les Digimon ont-ils tout oublié ?'));
     // le bilan : temps, partenaire, ville, combats, boss facultatifs
     const m = s.party[0], T = DW.Town, rec = T.RECRUITS.filter(r => T.has(r.id)).length;
     const days = Math.floor(s.clock / 1440) + 1, wins = s.party.reduce((a, d) => a + (d.wins || 0), 0);
@@ -142,7 +142,7 @@
     ], 'BILAN DU CHAPITRE 1'));
     await say("Les chemins de toute l'île sont ouverts : la montagne, le lac, les brumes, le marais... Chaque région cache un Digimon qui a perdu la mémoire.", 'Jijimon');
     await say("Retrouve-les, ramène les habitants en ville, et découvre qui leur a fait ça. Moi, je garde la maison. Hohoho !", 'Jijimon');
-    await Game.push(new ChapterScene('CHAPITRE 2', 'Les Engrenages Noirs', 'Retrouve les habitants perdus et découvre ce qui ronge l\'île.'));
+    await Game.push(new ChapterScene('CHAPITRE 2', 'Le Lac et le Loup', 'Un serpent de mer garde le lac... et un garçon blond a été vu sur ses rives.'));
     DW.autosave();
   }
 
@@ -151,10 +151,10 @@
   // ouvre après Kuwagamon. Renvoie le message de blocage, ou null si la carte est accessible.
   const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set(['crique']);
   function lock(to) {
-    if (st().flags.kuwagamon || !DW.MAPS[to]) return null;
+    if ((st().flags.chapter || 1) >= 2 || !DW.MAPS[to]) return null;   // (ouvert à la fin du chapitre 1 : après Shellmon)
     const m = DW.MAPS[to];
     if (CH1.has(m.region) && !CH1_CLOSED.has(to)) return null;
-    return "Un étrange voile de données bloque le passage... Les petits Digimon disent qu'il est apparu en même temps que le monstre rouge de la Clairière de l'Arrivée.";
+    return "Un étrange voile de données bloque le passage... Il est apparu en même temps que les monstres de la forêt et de la plage. Il faut d'abord rétablir le calme sur cette partie de l'île.";
   }
 
   DW.Chapter = { ChapterScene, townSign, tour, end1, lock };

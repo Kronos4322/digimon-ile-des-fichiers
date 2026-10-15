@@ -40,9 +40,22 @@
       const list = g.objs.map(o => ({ s: o.s !== undefined ? o.s : o.sort, o }));
       for (const side of ['p', 'e']) list.push({ s: this.B[side].y / 16, side });
       list.push({ s: this.hero.y / 16, hero: true });
+      if (this.ally) list.push({ s: this.ally.b.y / 16, ally: true });
+      if (this.allyHero) list.push({ s: this.allyHero.y / 16, allyHero: true });
       list.sort((a, b) => a.s - b.s);
       for (const e of list) {
         if (e.side) this.drawBody(c, e.side);
+        else if (e.ally) {
+          // l'allié (Digimon d'un enfant délivré) : ombre, sprite, petit nom
+          const A = this.ally, b = A.b, sc = DW.ArenaScene.depth(b.y) * 1.05;
+          c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(b.x, b.y, 16 * sc / 0.7, 4.5 * sc / 0.7, 0, 0, 7); c.fill();
+          DW.Sprites.draw(c, DW.Sprites.battle(A.m.sp), b.x, b.y + Math.abs(Math.sin(this.t * 9)) * (Math.hypot(b.vx, b.vy) > 20 ? -2 : 0), { scale: sc, flip: b.face < 0, frame: Math.floor(this.t * 4 + 1) });
+          UI.text(c, A.m.name, b.x, b.y - DW.Sprites.battle(A.m.sp).h * sc - 6, { size: 6, align: 'center', color: '#ffd060' });
+        } else if (e.allyHero) {
+          const H = this.allyHero, spr = DW.Sprites.hero('right', 0, H.id);
+          c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(H.x, H.y, 7.5, 2.8, 0, 0, 7); c.fill();
+          c.drawImage(spr.img, Math.round(H.x - spr.w / 2), Math.round(H.y + 2 - spr.h));
+        }
         else if (e.hero) {
           const spr = DW.Sprites.hero('right', 0);
           const hx = this.hero.x, hy = this.hero.y;

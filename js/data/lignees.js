@@ -46,5 +46,12 @@
     joe: { baby: 'pichimon', partner: 'gomamon' },
     tk: { baby: 'poyomon', partner: 'patamon' },
   };
-  DW.heroLine = id => DW.HERO_LINE[id || (DW.state && DW.state.hero)] || DW.HERO_LINE.tai;
+  DW.heroLine = id => {
+    const k = id || (DW.state && DW.state.hero);
+    if (k === 'perso') {   // personnage original : le bébé choisi à la création, et le partenaire de cette lignée
+      const baby = (DW.state.look && DW.state.look.baby) || 'botamon', L = Object.values(DW.HERO_LINE).find(l => l.baby === baby);
+      return { baby, partner: L ? L.partner : 'agumon' };
+    }
+    return DW.HERO_LINE[k] || DW.HERO_LINE.tai;
+  };
 })();
