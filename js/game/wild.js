@@ -86,7 +86,7 @@
         best = [x, y];
       }
       if (!best) return null;
-      const st = DW.SPECIES[e.sp].stage, aggro = ['Champion', 'Ultime', 'Méga'].includes(st) ? 0.8 : 0.35;
+      const st = DW.SPECIES[e.sp].stage, aggro = ow.map.aggro != null ? ow.map.aggro : ['Champion', 'Ultime', 'Méga'].includes(st) ? 0.8 : 0.35;
       const w = { sp: e.sp, lv: DW.rand(e.min, e.max), x: best[0], y: best[1], hx: best[0], hy: best[1], home: best, mv: null,
         wt: Math.random() * 2, face: Math.random() < 0.5 ? 'left' : 'right', aggro: Math.random() < aggro, alert: 0, seen: false };
       ow.wilds.push(w);
@@ -128,7 +128,8 @@
         const dx = P.x - w.x, dy = P.y - w.y, dist = Math.abs(dx) + Math.abs(dy);
         // un sauvage d'un stade au-dessus de ton partenaire ne te chasse pas : à toi de l'éviter (ou de le défier)
         const bell = DW.state.bellUntil > DW.state.clock;
-        const chase = (bell || w.aggro && !Wild.stronger(w)) && !(DW.state.repelUntil > DW.state.clock) && dist <= 5 && Math.abs(w.x - w.home[0]) + Math.abs(w.y - w.home[1]) < 10;
+        const sight = ow.map.sight || 5, fierce = ow.map.aggro >= 0.8;   // (antre de Shellmon : ils foncent même sur plus fort qu'eux, et de plus loin)
+        const chase = (bell || w.aggro && (fierce || !Wild.stronger(w))) && !(DW.state.repelUntil > DW.state.clock) && dist <= sight && Math.abs(w.x - w.home[0]) + Math.abs(w.y - w.home[1]) < sight * 2;
         w.chasing = chase;
         if (chase && !w.seen) { w.seen = true; w.alert = 0.9; w.wt = 0.45; DW.Audio.sfx('select'); }
         if (!chase && dist > 7) w.seen = false;
