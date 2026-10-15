@@ -129,6 +129,10 @@
       if (has(id)) m.objects.push({ kind: L.kind, x: L.x, y: L.y, w: L.w, h: L.h }, { kind: 'hangsign', v: L.sign[0], x: L.sign[1], y: L.sign[2], w: 1, h: 1, small: true });
     }
     m.objects.push({ kind: 'bigfountain', v: has('betamon') ? 1 : 2, x: 18, y: 13, w: 4, h: 2 });
+    // ville en ruines (niveaux 0 à 2) : la place n'est pas vide, elle est abandonnée — caisses, sacs, pilier tombé,
+    // coquillages et touffes d'herbe entre les pavés ; tout disparaît quand la ville renaît
+    if (lvl < 3) for (const [k, x, y, v, walk] of [['crates', 15, 11, 0], ['crates', 16, 11, 1], ['sacks', 24, 12, 0], ['brokenpillar', 14, 16, 0], ['crates', 25, 16, 1],
+      ['shellpile', 22, 17, 0, true], ['shellpile', 16, 18, 1, true], ['urn', 23, 10, 2]]) m.objects.push({ kind: k, v, x, y, w: 1, h: 1, small: true, ...(walk ? { walk: true } : {}) });
     if (has('biyomon')) m.objects.push({ kind: 'poste', ...FREE_LOT }, { kind: 'hangsign', v: 4, x: 29, y: 25, w: 1, h: 1, small: true });
     if (has('kunemon')) m.objects.push({ kind: 'bank', ...BANK });
     if (lvl >= 1) m.objects.push({ kind: 'laundry', x: 14, y: 7, w: 3, h: 1 });

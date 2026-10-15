@@ -97,8 +97,13 @@
     await say('BZZZZZZZZZ !!!', 'Kuwagamon');
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Donne-lui de quoi se soigner (menu → OBJETS)."); return; }
     if ((await DW.ask('Affronter Kuwagamon ?')) !== 0) return;
-    const res = await ow.battle({ enemy: new DW.Digimon('kuwagamon', 13), boss: true, canLose: true, field: 'grandarbre', intro: 'Kuwagamon fond sur vous, pinces grandes ouvertes !' });
-    if (res !== 'win') return;
+    const res = await ow.battle({ enemy: new DW.Digimon('kuwagamon', 11), boss: true, canLose: true, field: 'grandarbre', intro: 'Kuwagamon fond sur vous, pinces grandes ouvertes !' });
+    if (res !== 'win') {
+      // le fossé entre les stades : un Disciple n'a presque aucune chance contre un Champion
+      const m = s.party[0];
+      if (m && m.d.stage !== 'Champion') await say(`Kuwagamon est un CHAMPION... ${m.name} n'a presque aucune chance tant qu'il n'a pas digivolué ! Entraîne-le et regarde sa fiche (onglet Digivolution).`);
+      return;
+    }
     s.flags.kuwagamon = true;
     await victory(ow);
   }

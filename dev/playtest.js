@@ -59,7 +59,7 @@
       // Kuwagamon (boss du milieu, à partir du niveau 11, une tentative tous les 2 niveaux)
       if (!DW.state.flags.kuwagamon && m.level >= 11 && m.level !== pt.lastKuwa && m.level % 2 === 1) {
         pt.lastKuwa = m.level; pt.kuwaTries++; m.hp = m.maxHp; m.mp = m.maxMp;
-        const r = await fight(new DW.Digimon('kuwagamon', 13), true);
+        const r = await fight(new DW.Digimon('kuwagamon', 11), true);
         log(`KUWAGAMON : ${r === 'win' ? 'VICTOIRE' : 'défaite'}`);
         if (r === 'win') { DW.state.flags.kuwagamon = true; pt.kuwaAt = hours(); }
         m.hp = m.maxHp; continue;

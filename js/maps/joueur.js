@@ -59,7 +59,8 @@
       npcs: [{ hero: 'tai', x: 4, y: 4, face: 'down', wander: 1, talk: async () => DW.say(DW.pick([
         "Merci encore pour l'antre de Shellmon ! J'ai cru qu'on n'en sortirait jamais.", "Agumon dort comme une souche depuis qu'on est ici. Greymon, ça fatigue !",
         "Si on retrouve Matt, il va être vert de jalousie de ma nouvelle chambre !", "Mon écusson... Jijimon dit qu'il doit être caché quelque part sur l'île. Un jour, on le trouvera !",
-        "Le foot me manque. Tu crois qu'on pourrait faire une partie avec les Digimon de la ville ?"]), 'Tai') },
+        "Le foot me manque. Tu crois qu'on pourrait faire une partie avec les Digimon de la ville ?",
+        "Tu as entendu ? Les cabines de la plage se sont remises à sonner... Shellmon est revenu dans son antre. Parfait pour s'entraîner !"]), 'Tai') },
         { sp: 'agumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say('Tu as quelque chose à manger ? Moi, j\'ai toujours faim !', 'Agumon') }] },
     digi:    { name: 'Chambre du Digimon', from: 'etage', w: 10, h: 8, side: 'right', y: 5, by: ['chambre_digi'], floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
       decor: [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }] },
@@ -201,7 +202,7 @@
       if (s.flags.homeIntro) return;
       s.flags.homeIntro = true;
       await DW.wait(0.4);
-      await say('Voici ta maison ! Jijimon l\'a préparée pour toi : un lit et un coffre, pour commencer.');
+      await say('Voici ta maison... enfin, ta cabane ! Elle tombe un peu en ruine, mais elle est à toi : un lit et un coffre, pour commencer.');
       await say('Au Bazar de Gotsumon, le rayon « Meubles » vend de quoi l\'aménager. Chaque meuble a son utilité !');
     },
   };

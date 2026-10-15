@@ -75,7 +75,7 @@
     if ((await DW.ask('Je te fais visiter ?', ['Oui !', 'Plus tard'], K)) !== 0) { await say('D\'accord ! Reviens me voir quand tu veux, je ne bouge pas de la place.', K); return; }
     // 1) ta maison
     await goTo(ow, DW.HOME_DOOR ? [DW.HOME_DOOR.x, DW.HOME_DOOR.y + 2] : null);
-    await say("Voilà ta maison ! Bon... c'est encore une cabane. Mais il y a un lit pour dormir quand ton partenaire a sommeil, et un coffre.", K);
+    await say("Voilà ta maison ! Bon... c'est une cabane qui tombe en ruine. Mais elle est à toi : un lit pour dormir quand ton partenaire a sommeil, et un coffre. Plus tu la meubles, plus elle sera belle !", K);
     await say("Ton sac est petit : quand il est plein, tu ne ramasses plus rien ! Range tes affaires dans le coffre. Plus tard, le Bazar vendra des meubles : un frigo pour la nourriture, et bien d'autres choses.", K);
     // 2) le panneau de la ville, devant chez Jijimon
     await goTo(ow, villageSpot(m => (m.doors || []).find(d => d.to === 'maison'), 2));

@@ -39,7 +39,14 @@
       tall: [{ x: 14, y: 21, r: 4 }, { x: 28, y: 9, r: 3.5 }],
       free: [[36, 13, 3], [20, 3, 3]],
       set: [[34, 12, 'S']],
-    })),
+    })).map((r, y) => [...r].map((ch, x) => {
+      // des DUNES : le sable domine (herbe des dunes en touffes), plus de phares au milieu de l'herbe
+      if (ch === '{') return '6';
+      const n = DW.Art.fbm(x * 0.09, y * 0.09, 417);
+      if (ch === '.' || ch === 'f') return n > 0.38 ? 's' : ch;
+      if (ch === ',') return n > 0.38 ? ';' : ch;
+      return ch;
+    }).join('')),
     warps: [
       { x: 39, y: 13, w: 1, h: 2, dir: 'right', to: 'plage', tx: 0, ty: 2 },
       { x: 19, y: 0, w: 3, h: 1, dir: 'up', to: 'bosquet', tx: 19, ty: 29 },

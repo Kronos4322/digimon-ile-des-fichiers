@@ -96,7 +96,7 @@
       const eaten = before - m.hunger;
       m.need = Math.min(99, m.need + eaten * 0.5);
       if (before >= 40) m.addHappy(3);
-      DW.Life.addFat(m, eaten / 30 / appetite(m));   // trop nourrir un petit mangeur le fait grossir vite
+      DW.Life.addFat(m, eaten / 40 / appetite(m));   // un repas complet : +1,5 environ (trop nourrir un petit mangeur le fait grossir vite)   // trop nourrir un petit mangeur le fait grossir vite
       m.starve = 0;
       return eaten > 0;
     },

@@ -351,6 +351,58 @@ test('écussons : un Ultime exige l\'écusson de sa famille, la Méga les sept ;
 });
 
 // ------------------------------------------------------------ lancement
+// ------------------------------------------------------------ chapitre 1 : cabines, antre de Shellmon, Tai, poids
+test("cabines de la plage : les mots dans le bon ordre ouvrent l'antre, un mauvais mot remet à zéro", async () => {
+  fresh();
+  DW.state.hero = 'perso'; DW.state.flags.kuwagamon = true;
+  const ow = { shake: 0, load() {} };
+  const O = DW.Antre.ORDER;
+  await DW.Antre.booth(ow, O[0]); await DW.Antre.booth(ow, O[2]);   // un mot de travers
+  yes(!DW.state.flags.shellLair, "l'antre s'ouvre avec une phrase fausse");
+  for (const i of O) await DW.Antre.booth(ow, i);
+  yes(DW.state.flags.shellLair, "la bonne phrase n'ouvre pas l'antre");
+});
+test("antre de Shellmon : chaque labyrinthe se traverse de la porte d'entrée à celle de sortie, et les deux sont éloignées", () => {
+  for (const id of ['antre1', 'antre2']) {
+    const m = DW.MAPS[id], occ = new Set();
+    for (const o of m.objects) if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
+    const free = (x, y) => m.rows[y] && m.rows[y][x] !== undefined && !DW.SOLID.has(m.rows[y][x]) && !occ.has(x + ',' + y);
+    const seen = new Set([m.entry.x + ',' + m.entry.y]), q = [[m.entry.x, m.entry.y]];
+    while (q.length) { const [x, y] = q.shift(); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (x + a) + ',' + (y + b); if (!seen.has(k) && free(x + a, y + b)) { seen.add(k); q.push([x + a, y + b]); } } }
+    yes(seen.has(m.exitAt.x + ',' + m.exitAt.y), `${id} : sortie inaccessible`);
+    yes(Math.abs(m.entry.x - m.exitAt.x) + Math.abs(m.entry.y - m.exitAt.y) > 25, `${id} : les deux portes sont trop proches`);
+  }
+});
+test("Shellmon : Tai et son Digimon (devenu Greymon) rejoignent le combat à mi-vie et frappent seuls (tour par tour)", async () => {
+  fresh();
+  const B = new DW.BattleScene({ enemy: new DW.Digimon('shellmon', 16), boss: true, ally: { at: 0.5, sp: 'greymon', lvl: 16, move: 'mega_flamme' } });
+  B.active = new DW.Digimon('agumon', 15);
+  B.msg = async () => {}; B.sparkle = () => {}; B.checkFaints = async () => null;
+  B.applyDamage = async (side, d) => { B.enemy.hp = Math.max(0, B.enemy.hp - d); };
+  await B.allyTurn(); yes(!B.allyMon, "l'allié arrive avant la moitié des PV");
+  B.enemy.hp = Math.floor(B.enemy.maxHp * 0.45);
+  await B.allyTurn(); yes(B.allyMon && B.allyMon.sp === 'greymon', "Greymon ne rejoint pas le combat");
+  const hp = B.enemy.hp; await B.allyTurn(); yes(B.enemy.hp < hp, "l'allié ne frappe pas");
+});
+test('Tai délivré : sa chambre apparaît dans ta maison (porte du salon), et il ne reste pas chez Jijimon', () => {
+  fresh();
+  DW.state.hero = 'perso';
+  const M = DW.MAPS.maison_joueur; M.version = null; M.build();
+  yes(!M.warps.some(w => w.to === 'maison_joueur_tai'), 'chambre de Tai avant sa libération');
+  DW.Crests.freeKid('tai'); M.version = null; M.build();
+  yes(M.warps.some(w => w.to === 'maison_joueur_tai'), 'pas de porte vers la chambre de Tai');
+  const atJiji = DW.MAPS.maison.npcs.find(n => n.hero === 'tai');
+  yes(!atJiji || !atJiji.cond(DW.state), 'Tai attend encore chez Jijimon');
+});
+test("poids : un repas fait grossir, un combat fait à peine maigrir (on peut atteindre les Digivolutions « costaudes »)", () => {
+  fresh();
+  const m = new DW.Digimon('agumon', 12); DW.state.party = [m]; DW.Life.init(m); m.fat = 0; m.hunger = 80;
+  DW.Care.feed(m, 60);
+  yes(m.fat >= 1, `une Viande ne fait presque pas grossir (${m.fat})`);
+  const f0 = m.fat; for (let i = 0; i < 20; i++) DW.Life.addFat(m, -0.05);
+  yes(f0 - m.fat <= 1.01, 'vingt combats font trop maigrir');
+});
+
 (async () => {
   for (const [name, fn] of tests) {
     const t0 = Date.now(); try { await fn(); ok++; console.log('  OK  ' + name + '  (' + ((Date.now() - t0) / 1000).toFixed(1) + ' s)'); }

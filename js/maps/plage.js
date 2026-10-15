@@ -129,7 +129,7 @@
     // dunes d'herbes (les Digimon sauvages s'y cachent)
     dunes(g, [[11, 7, 4, 1.6], [26, 7, 5, 1.6], [30, 13, 2.6, 1.6], [14, 20, 3.2, 1.6], [5, 21, 2.4, 1.4], [25, 18, 2.6, 1.4]], 44);
     // palmiers en bouquets
-    putAll(g, [[5, 6], [6, 7], [22, 5], [33, 6], [34, 7], [15, 11], [23, 11], [24, 12], [10, 23], [28, 15], [3, 26], [6, 28]], 'p');
+    putAll(g, [[5, 6], [6, 7], [22, 5], [33, 6], [34, 7], [15, 11], [23, 11], [24, 12], [28, 15], [3, 26], [6, 28]], 'p');   // (plus de palmier devant les cabines)
     // rochers de Gotsumon (nord-est), rochers du rivage, îlots dans la mer
     putAll(g, [[31, 9], [32, 10], [30, 11]], 'r');
     putAll(g, [[33, 16], [32, 17], [27, 22], [30, 20]], 'R');
@@ -183,6 +183,9 @@
     tileActs: { P: boothEvent },
   };
   zoomMap(MAPS.plage, 'plage');   // plan agrandi ×2 (maps/common.js)
+  // la rangée de cabines reste bien dégagée (aucun décor ajouté devant ou derrière : c'est le lieu de l'énigme)
+  { const P = []; MAPS.plage.rows.forEach((r, y) => [...r].forEach((ch, x) => { if (ch === 'P') P.push([x, y]); }));
+    if (P.length) MAPS.plage.dressKeep = [[Math.min(...P.map(p => p[0])) - 3, P[0][1] - 7, Math.max(...P.map(p => p[0])) + 3, P[0][1] + 4]]; }
 
   // ============================================================ CRIQUE DU RADEAU (40×30)
   const criqueRows = paint(40, 30, '~', g => {

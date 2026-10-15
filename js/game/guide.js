@@ -93,6 +93,9 @@
     DW.Audio.sfx('fanfare');
     await say(`${baby} devient ton partenaire !`);
     await say("Koromon, un petit qui est resté en ville, la connaît par cœur. Va le voir sur la place : il te fera visiter. Et reviens me voir si tu as des questions.", J);
+    // un petit coup de pouce pour débuter : de quoi soigner son partenaire
+    DW.giveItem('soin_p', 3); DW.giveItem('viande', 2); DW.Audio.sfx('buy');
+    await say("Tiens, prends ceci : 3 RAM PV pour soigner ton partenaire, et 2 Viandes. Hohoho, il faut bien commencer quelque part !", J);
     await say("(Déplacements : flèches ou ZQSD.  Courir : Maj.  Parler : ESPACE.  Menu : ENTRÉE.)");
   }
 
