@@ -206,7 +206,7 @@
           if (r !== 0) { await say('Reviens quand tu seras prêt !', name); return; }
           // de plus en plus fort : +2 niveaux par Digimon déjà installé en ville, jamais en dessous de ton meilleur Digimon
           const nRec = DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length, top = Math.max(1, ...st().party.map(m => m.level || 1));
-          const lvl = Math.min(o.lvl + 14, Math.max(o.lvl + 2 * nRec, top));
+          const lvl = Math.min(st().flags.kuwagamon ? o.lvl + 14 : 12, Math.max(o.lvl + 2 * nRec, top));   // chapitre 1 : jamais au-dessus de 12
           const res = await ow.battle({ enemy: new DW.Digimon(o.sp, lvl), boss: true, canLose: false, intro: `${name} veut tester ta force !` });
           if (res !== 'win') { await say(`(${name} était trop fort... Entraîne-toi et retourne le défier !)`); return; }
           st().party.forEach(m => m.heal());

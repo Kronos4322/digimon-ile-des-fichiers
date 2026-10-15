@@ -73,6 +73,13 @@
     },
     async water(ow, x, y, spring) {
       const m = pt();
+      // la mer (régions de plage, sauf les mares) : salée, elle ne désaltère pas
+      if (!spring && ow.map.climate === 'beach' && ow.tileAt(x, y) === '~') {
+        const r = await DW.ask('Les vagues viennent mourir sur le sable.', ['Goûter l\'eau', 'Jouer dans les vagues', 'Rien']);
+        if (r === 0 && m) { DW.Audio.sfx('bump'); m.addHappy(-1); await say(`${m.name} recrache aussitôt : « Beurk, c'est salé ! » (L'eau de mer ne désaltère pas.)`); }
+        else if (r === 1 && m) { DW.Audio.sfx('water'); m.addHappy(3); emote(ow, 'note'); await say(`${m.name} saute dans les vagues en riant ! (bonheur +3)`); }
+        return;
+      }
       if (!m) { await say(spring ? 'Une source d\'eau claire.' : 'L\'eau est fraîche.'); return; }
       const r = await DW.ask(spring ? 'Une source d\'eau claire.' : 'L\'eau clapote.', ['Boire un peu', 'Jouer dans l\'eau', 'Rien']);
       if (r === 0) { const thirsty = DW.Care.drink(m, spring ? 80 : 50); m.tired = Math.max(0, m.tired - 5); DW.Audio.sfx('water'); await say(thirsty ? `${m.name} boit à grandes gorgées. Ça fait du bien ! (soif étanchée)` : `${m.name} trempe les lèvres... Il n'avait pas vraiment soif.`); if (spring && once(ow, x, y)) await give('eau_source'); }

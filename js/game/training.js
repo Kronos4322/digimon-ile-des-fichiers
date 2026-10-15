@@ -119,7 +119,7 @@
       // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu
       const at = spot && DW.ow && DW.FieldTrainingScene ? this.station(DW.ow, k, spot) : null;
       for (;;) { const sc = at ? new DW.FieldTrainingScene(m, k, at) : new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
-      if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre la table des Digivolutions (ENTRÉE → DIGIVOLUTION).`);
+      if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre sa fiche, onglet Digivolution (ENTRÉE → DIGIMON, puis flèche droite).`);
     },
   };
 

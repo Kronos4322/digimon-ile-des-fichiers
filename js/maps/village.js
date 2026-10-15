@@ -227,8 +227,8 @@
       if (m && m.sick) urgent.push(`${m.name} est malade ! Un Médicament le guérira (Bazar de Gotsumon), ou une nuit chez Jijimon.`);
       else if (m && (m.germs || 0) >= 50) { const c = DW.Life.causes(m).map(x => x[1]); urgent.push(`${m.name} n'a pas l'air bien...${c.length ? ' Fais attention : ' + c.join(', ') + '.' : ''} S'il accumule les négligences, il tombera malade. Le sommeil l'aide à se rétablir.`); }
       if (m && m.need >= 60) urgent.push("Vite ! Il y a des toilettes au sud de la ville, près de la route du Terrain d'entraînement.");
-      if (m && DW.Evo.available(m).length) urgent.push(`${m.name} peut digivoluer ! Ouvre le menu (ENTRÉE), puis DIGIVOLUTION.`);
-      tips.push("Les Digimon ne se capturent pas : ils naissent ! Elecmon confie un DigiŒuf par jour au Village des Bébés, à l'est de la Prairie. Ensuite, entraîne-les pour qu'ils digivoluent !");
+      if (m && DW.Evo.available(m).length) urgent.push(`${m.name} peut digivoluer ! Ouvre le menu (ENTRÉE) → DIGIMON → onglet DIGIVOLUTION.`);
+      tips.push("Les Digimon ne se capturent pas : ils naissent ! Penguinmon confie un DigiŒuf par jour au Village des Bébés, à l'est de la Prairie. Ensuite, entraîne-les pour qu'ils digivoluent !");
       tips.push("Certains chemins sont bloqués : un éboulis à l'est, des ronces aux Champs, l'inondation au nord de la Clairière... Les Digimon qui rentrent en ville t'aideront à passer !");
       if (!s.flags.tanemon) tips.push("Tu connais Tanemon ? Il cultive de la Digiviande au Quartier des Champs, au sud-ouest. Passe le voir chaque jour !");
       if (!T().level()) tips.push("La ville est vide... Les Digimon de l'île ont tout oublié. Explore l'ouest, retrouve-les et ramène-les ici !");

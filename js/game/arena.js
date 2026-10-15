@@ -545,7 +545,7 @@
         if (best) { tb.dodgeTo = best; tb.dodge = 0.9; }
       }
       // ton Digimon esquive tout seul lui aussi (selon sa Vitesse), sauf si tu le guides avec les flèches
-      if (side === 'e' && c.shape !== 'field' && Math.random() < DW.clamp(0.3 + (this.spd('p') - this.spd('e')) / (this.spd('e') * 3), 0.15, 0.6)) {
+      if (side === 'e' && c.shape !== 'field' && Math.random() < DW.clamp(0.14 + (this.spd('p') - this.spd('e')) / (this.spd('e') * 3), 0.05, 0.4)) {   // (moins souvent : la Vitesse entraînée compte, et le guider aux flèches sert)
         let best = null, bd = 1e9;
         for (let y = 0; y < G.rows; y++) for (let x = 0; x < G.cols; x++) {
           if (c.zone.has(x + ',' + y)) continue;

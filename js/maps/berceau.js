@@ -1,8 +1,8 @@
 'use strict';
 // =====================================================================
 //  VILLAGE DES BÉBÉS — à l'est de la Prairie des Lucioles
-//  (le Village Primaire de la saison 1). Elecmon y veille sur les bébés.
-//  Services d'Elecmon : un DigiŒuf par jour (on le fait éclore en le frottant),
+//  (le Village Primaire de la saison 1). Penguinmon y veille sur les bébés.
+//  Services de Penguinmon : un DigiŒuf par jour (on le fait éclore en le frottant),
 //  RENAISSANCE d'un Digimon (il redevient le bébé de sa lignée en gardant ses
 //  techniques, la moitié de son entraînement et des données innées renforcées), repos.
 // =====================================================================
@@ -58,19 +58,19 @@
     g.set(3, 10, 'Q');
   });
 
-  // ------------------------------------------------------------ services d'Elecmon
+  // ------------------------------------------------------------ services de Penguinmon
   async function eggService() {
     const s = st(), day = DW.Time.day();
-    if (s.flags.eggDay === day) { await say("Tu as déjà pris un DigiŒuf aujourd'hui. Les autres ont besoin de couver encore un peu... Reviens demain !", 'Elecmon'); return; }
-    await say('Choisis un DigiŒuf. Chacun cache un bébé différent... Observe bien les motifs !', 'Elecmon');
+    if (s.flags.eggDay === day) { await say("Tu as déjà pris un DigiŒuf aujourd'hui. Les autres ont besoin de couver encore un peu... Reviens demain !", 'Penguinmon'); return; }
+    await say('Choisis un DigiŒuf. Chacun cache un bébé différent... Observe bien les motifs !', 'Penguinmon');
     const sp = await Game.push(new DW.EggScene());
-    if (!sp) { await say("Prends ton temps. Les œufs ne s'envolent pas !", 'Elecmon'); return; }
+    if (!sp) { await say("Prends ton temps. Les œufs ne s'envolent pas !", 'Penguinmon'); return; }
     s.flags.eggDay = day;
     await Game.push(new DW.HatchScene(sp));
     const m = new DW.Digimon(sp, 3); m.happy = 60;
     const where = DW.addDigimon(m);
     await say(where === 'box' ? `${m.name} a été envoyé à la DigiFerme : ton équipe est complète.` : `${m.name} rejoint ton équipe !`);
-    await say('Prends bien soin de lui. Les bébés grandissent vite : deux victoires, et hop, ils digivoluent !', 'Elecmon');
+    await say('Prends bien soin de lui. Les bébés grandissent vite : deux victoires, et hop, ils digivoluent !', 'Penguinmon');
     DW.autosave();
   }
   // bébé à l'origine de la lignée (Greymon → Agumon → Koromon → Botamon)
@@ -80,14 +80,14 @@
   }
   async function rebirthService() {
     const s = st();
-    await say("La renaissance... Ton Digimon redevient un œuf, puis un bébé. C'est le cycle de la vie des Digimon.", 'Elecmon');
-    await say("Il garde ses techniques, ses victoires et la moitié de son entraînement. Et ses données innées se renforcent à chaque renaissance !", 'Elecmon');
+    await say("La renaissance... Ton Digimon redevient un œuf, puis un bébé. C'est le cycle de la vie des Digimon.", 'Penguinmon');
+    await say("Il garde ses techniques, ses victoires et la moitié de son entraînement. Et ses données innées se renforcent à chaque renaissance !", 'Penguinmon');
     const idx = await Game.push(new DW.PartyScene({ mode: 'select', title: 'RENAISSANCE' }));
     if (idx == null || idx < 0) return;
     const m = s.party[idx], sp = babyOf(m.sp);
-    if (sp === m.sp) { await say(`${m.name} est déjà un bébé !`, 'Elecmon'); return; }
+    if (sp === m.sp) { await say(`${m.name} est déjà un bébé !`, 'Penguinmon'); return; }
     const r = await DW.ask(`${m.name} redeviendra un ${DW.SPECIES[sp].name}. D'accord ?`);
-    if (r !== 0) { await say('Comme tu veux. Rien ne presse.', 'Elecmon'); return; }
+    if (r !== 0) { await say('Comme tu veux. Rien ne presse.', 'Penguinmon'); return; }
     await DW.fade(1, 0.5, '#ffffff');
     await DW.wait(0.3);
     const nm = DW.Life.reborn(m);
@@ -101,15 +101,15 @@
     const s = st();
     if (!s.flags.berceau) {
       s.flags.berceau = true;
-      await say("Bienvenue au Village des Bébés ! Je suis Elecmon, le gardien de cet endroit.", 'Elecmon');
-      await say("Ici, les Digimon naissent dans des DigiŒufs. Quand un Digimon disparaît, ses données reviennent aussi ici, sous forme d'œuf.", 'Elecmon');
-      await say("Tant que tu les traites bien, je te confierai un œuf par jour. Et si l'un de tes Digimon veut repartir de zéro, je peux l'aider à renaître.", 'Elecmon');
+      await say("Bienvenue au Village des Bébés ! Je suis Penguinmon, le gardien de cet endroit.", 'Penguinmon');
+      await say("Ici, les Digimon naissent dans des DigiŒufs. Quand un Digimon disparaît, ses données reviennent aussi ici, sous forme d'œuf.", 'Penguinmon');
+      await say("Tant que tu les traites bien, je te confierai un œuf par jour. Et si l'un de tes Digimon veut repartir de zéro, je peux l'aider à renaître.", 'Penguinmon');
     }
     const r = await DW.choose(['Prendre un DigiŒuf', 'Faire renaître un Digimon', 'Se reposer', 'Au revoir']);
     if (r === 0) await eggService();
     else if (r === 1) await rebirthService();
     else if (r === 2) { await healAll("Les bébés chantent une berceuse... Ton équipe s'endort paisiblement."); await say('Ton équipe est en pleine forme !'); }
-    else await say("Reviens quand tu veux. Les bébés t'aiment bien !", 'Elecmon');
+    else await say("Reviens quand tu veux. Les bébés t'aiment bien !", 'Penguinmon');
   }
 
   // petits habitants (ils se promènent et donnent des conseils)
@@ -158,18 +158,18 @@
     ],
     warps: [{ x: 0, y: 11, w: 1, h: 3, dir: 'left', to: 'prairie', tx: 39, ty: 12 }],
     npcs: [
-      { sp: 'elecmon', x: 20, y: 8, face: 'right', talk: elecmonTalk },
-      baby('botamon', 7, 11, ['Bo-bo... Je fais la sieste dans les berceaux tous les après-midi !', "Elecmon dit que les œufs zébrés de bleu deviennent des Botamon. Comme moi !"]),
+      { sp: 'penguinmon', x: 20, y: 8, face: 'right', talk: elecmonTalk },
+      baby('botamon', 7, 11, ['Bo-bo... Je fais la sieste dans les berceaux tous les après-midi !', "Penguinmon dit que les œufs zébrés de bleu deviennent des Botamon. Comme moi !"]),
       baby('punimon', 30, 13, ['Puni ! Puni ! On joue à chat ? Le manège tourne toute la journée !', 'Les Punimon deviennent des Tsunomon, puis des Gabumon... ou des Elecmon, comme notre gardien !']),
       baby('yuramon', 9, 21, ["Fuu... Le vent m'a encore emporté jusqu'ici...", "Un jour, je deviendrai Tanemon, puis Palmon. J'aurai une jolie fleur !"]),
       baby('nyokimon', 20, 27, ['Nyoki ! Ma fleur s\'ouvre quand je suis content !', 'Si tu frottes un œuf, il éclot plus vite. Les bébés adorent les câlins !']),
-      baby('pichimon', 26, 21, ['Pichi ! Viens nager dans la mare !', "Un Digimon qui renaît garde ses techniques. Elecmon l'a dit !"], 1),
+      baby('pichimon', 26, 21, ['Pichi ! Viens nager dans la mare !', "Un Digimon qui renaît garde ses techniques. Penguinmon l'a dit !"], 1),
     ],
     signs: {
       '3,10': 'VILLAGE DES BÉBÉS — Ici naissent les Digimon. Merci de marcher doucement !',
       ...Object.fromEntries(DW.EGG_ORDER.map((sp, i) => [`${EGG_X(i)},${EGG_Y}`, async () => {
         await say(DW.EGGS[sp].hint);
-        await say("(Pour prendre un œuf, parle à Elecmon.)");
+        await say("(Pour prendre un œuf, parle à Penguinmon.)");
       }])),
       '5,5': 'Un petit berceau tout doux. Un bébé Digimon y dort à poings fermés.', '7,5': 'Un berceau vide... On dirait qu\'il attend quelqu\'un.',
       '33,6': 'Le manège des bébés ! Il tourne en musique toute la journée.', '22,15': 'Un biberon géant, symbole du Village des Bébés. Il sent bon le lait chaud.',

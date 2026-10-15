@@ -35,7 +35,15 @@
     await say(n ? `L'écorce est fissurée (${n} / 3). D'autres mots se sont allumés plus bas...` : "Un arbre immense, plus vieux que la forêt. De l'intérieur monte un bourdonnement sourd... Des mots luisent, gravés dans l'écorce.");
     await say(R.q);
     const r = await DW.ask('Ta réponse ?', R.choices);
-    if (r !== R.answer) { Audio.sfx('bump'); await say("Les mots s'éteignent puis se rallument, patients. Ce n'est pas la bonne réponse."); await say(`(Indice : ${R.hint})`); return; }
+    if (r !== R.answer) {
+      // mauvaise réponse : l'arbre se défend, un Digimon caché dans ses branches attaque (on ne devine plus au hasard)
+      Audio.sfx('bump'); ow.shake = 0.6;
+      await say("Les mots virent au rouge ! Le bourdonnement enfle... et quelque chose tombe des branches !");
+      const list = (DW.getMap('clairiere').encounters || []).filter(e => !e.night), e = list.length ? DW.weighted(list.map(x => ({ ...x, w: x.w || 1 }))) : { sp: 'kunemon', min: 10, max: 12 };
+      if (s.party.some(m => m.hp > 0)) await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)), intro: "Un Digimon gardien de l'arbre t'attaque !" });
+      await say(`(Indice : ${R.hint})`);
+      return;
+    }
     E.state(RIDDLE).n = n + 1;
     if (n + 1 < 3) {
       Audio.sfx('hit'); ow.shake = 0.5;

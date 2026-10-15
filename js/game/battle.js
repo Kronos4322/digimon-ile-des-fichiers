@@ -432,8 +432,9 @@
       const alive = [...this.parts].filter(m => m.hp > 0 && this.st.party.includes(m));
       if (alive.length) {
         const total = Math.floor(E.d.xp * E.level / 7 * (this.wild ? 1 : 1.5));
-        const each = Math.max(1, Math.floor(total / alive.length));
         for (const m of alive) {
+          // contre un adversaire plus faible, on apprend peu (on ne monte plus de niveau en écrasant les petits)
+          const gap = DW.clamp(1 - (m.level - E.level) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total / alive.length * gap));
           m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.4);
           await this.msg(`${m.name} gagne ${each} points d'EXP !`, 0.8);
           const events = m.addXp(each);
@@ -451,7 +452,7 @@
           if (events.length && m.evoTarget()) m.evoPending = true;
         }
       }
-      const bits = Math.floor((E.level * (this.wild ? 5 : 25) + DW.rand(0, E.level * 2)) * 2.5);   // ×2,5 : les combats durs financent soins et objets
+      const bits = Math.floor((E.level * (this.wild ? 5 : 25) + DW.rand(0, E.level * 2)) * 1.5);   // ×1,5 (×2,5 laissait trop de Bits : partie test)
       this.st.bits += bits;
       await this.msg(`Tu récupères ${bits} Bits !`, 0.9);
     }

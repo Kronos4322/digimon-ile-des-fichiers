@@ -47,11 +47,13 @@
     // bonus d'entraînement non arrondi : multiplié par DW.SCALE, chaque point se voit sur la stat (+6 PV, +1 Attaque...)
     // entraînement (tr : compte pour les Digivolutions), entraînement « Statistique » (raw : stat directe), puces
     bonus(k) { const t = (this.tr && this.tr[k]) || 0, r = (this.raw && this.raw[k]) || 0; return t * this.level / 100 + t / 3 + r * 0.8 + ((this.chips && this.chips[k]) || 0); }
+    // STADE : un vrai fossé entre les stades (un Champion écrase un Disciple du même niveau), comme dans Digimon World
+    get stageMult() { return DW.STAGE_MULT[this.d.stage] || 1; }
     stat(k) {
       if (k === 'mp') return this.maxMp;
-      const S = DW.SCALE, b = this.d.base[k] || 50, iv = this.iv[k] || 0, bonus = this.bonus(k);
-      if (k === 'hp') return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp));
-      return Math.min(S.capStat, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat));
+      const S = DW.SCALE, b = this.d.base[k] || 50, iv = this.iv[k] || 0, bonus = this.bonus(k), g = this.stageMult;
+      if (k === 'hp') return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp * g));
+      return Math.min(S.capStat, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat * g));
     }
     get maxHp() { return this.stat('hp'); }
     // PM : dépendent de l'Intelligence et du niveau, et de l'entraînement PM ; rendus par le repos et le sommeil
@@ -237,6 +239,7 @@
   // réglages d'équilibrage des combats (mesurés avec un simulateur : 4 à 6 tours à niveau égal, ~50 % des PV restants)
   // wildDmg : les Digimon sauvages frappent moins fort (le partenaire élevé avec soin domine sa zone, comme dans Digimon World 1)
   // lvGap : ±6 % de dégâts par niveau d'écart entre l'attaquant et sa cible (borné ×0,7 – ×1,5) : grandir compte, même au début
+  DW.STAGE_MULT = { 'Bébé': 0.85, 'Entraînement': 0.92, 'Disciple': 1, 'Champion': 1.55, 'Ultime': 2, 'Méga': 2.5 };
   DW.BALANCE = { dmg: 0.6, wildDmg: 0.8, lvGap: 0.06 };   // wildDmg 0,9 → 0,8 après la partie test du chapitre 1 (dev/playtest.js)
   DW.SAVE_V = 5; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20)
   DW.newState = () => ({

@@ -96,7 +96,7 @@
           await say('Tu reçois 2 Remèdes !');
         } else await say('Les champignons lumineux brillent encore plus fort la nuit. C\'est joli, hein ?', 'Tanemon');
       } },
-      recruitNPC({ sp: 'elecmon', x: 37, y: 12, lvl: 8, face: 'left',
+      recruitNPC({ sp: 'elecmon', x: 37, y: 12, lvl: 10, face: 'left',
         lines: ["Halte ! Je suis Elecmon. Autrefois, je vivais à la Ville des Fichiers...", "Mais je ne suivrai qu'un dresseur plus fort que moi !"],
         win: "Quelle force ! D'accord, je rentre en ville. J'ai une petite idée de ce que je vais y faire..." }),
       pickup(39, 11, 'remede', 1, 'pk_sentier1'),
@@ -133,10 +133,10 @@
         await say('Regarde la table des Digivolutions dans le menu pour savoir quoi travailler.', 'Yokomon');
       } },
       pickup(31, 9, 'remede', 2, 'pk_prairie1'),
-      recruitNPC({ sp: "kunemon", x: 18, y: 4, lvl: 7, face: "left",
+      recruitNPC({ sp: "kunemon", x: 18, y: 4, lvl: 10, face: "left",
         lines: ["Bzzz ! Je suis Kunemon. Je ramasse tout ce qui traîne et je le range dans mes cocons de soie...", "Tu veux mes trésors ? Bats-moi d'abord, bzzz !"],
         win: "Bzzz... Tu es fort ! D'accord, je viens en ville. J'ai une idée pour ranger tout ça !" }),
-      recruitNPC({ sp: 'mushroomon', x: 21, y: 17, lvl: 7, face: 'left', cond: () => DW.Time.isNight(),
+      recruitNPC({ sp: 'mushroomon', x: 21, y: 17, lvl: 10, face: 'left', cond: () => DW.Time.isNight(),
         lines: ["Hihihi ! La nuit, je cueille les meilleurs champignons de la prairie...", "Avant, je vivais en ville, je crois... Montre-moi ce que tu vaux !"],
         win: "D'accord, d'accord ! Je rentre à la Ville des Fichiers. Surprise, surprise, hihi !" }),
     ],
@@ -174,10 +174,10 @@
         await say('Blub blub ! Ce lac est le meilleur endroit de toute l\'île pour faire la sieste !', 'Bukamon');
         await say('Les arbres d\'ici sont plus vieux que l\'île elle-même. On dit qu\'ils gardent les données des anciens Digimon.', 'Bukamon');
       } },
-      recruitNPC({ sp: 'betamon', x: 28, y: 16, lvl: 7, face: 'right',
+      recruitNPC({ sp: 'betamon', x: 28, y: 16, lvl: 9, face: 'right',
         lines: ["Bloub... Je surveille ce lac. Avant, j'habitais en ville, il me semble.", "Si tu es assez fort pour me battre, je te suivrai !"],
         win: 'Bloub bloub ! Je rentre en ville. Je sais exactement ce qui lui manque !' }),
-      recruitNPC({ sp: "palmon", x: 14, y: 11, lvl: 8, face: "right",
+      recruitNPC({ sp: "palmon", x: 14, y: 11, lvl: 9, face: "right",
         lines: ["Oh ! Un visiteur... Je suis Palmon. Je fais pousser des fleurs entre ces arbres géants.", "On m'a dit que la ville renaissait... Mais je ne partirai qu'avec quelqu'un de fort !"],
         win: "Tu as gagné ! D'accord, je viens en ville. Mes graines vont adorer ça !" }),
       pickup(7, 15, 'viande', 3, 'pk_geants1'),
@@ -210,7 +210,7 @@
       { x: 17, y: 31, w: 3, h: 1, dir: 'down', to: 'plage', tx: 17, ty: 0 },
     ],
     npcs: [pickup(27, 8, 'super_viande', 1, 'pk_lisiere'),
-      recruitNPC({ sp: "biyomon", x: 26, y: 29, lvl: 7, face: "left",
+      recruitNPC({ sp: "biyomon", x: 26, y: 29, lvl: 8, face: "left",
         lines: ["Cui ! Je suis Biyomon. D'ici, je vois toute l'île quand je vole !", "Je m'ennuie un peu toute seule... Mais prouve-moi d'abord que tu es fort !"],
         win: "Bravo ! Je m'envole vers la ville. J'ai déjà une idée !" })],
     triggers: [

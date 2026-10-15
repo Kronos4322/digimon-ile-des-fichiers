@@ -18,9 +18,14 @@
 (function () {
   const { UI, Audio } = DW;
   const HUNGER_RATE = 1 / 10, NEED_RATE = 1 / 14, THIRST_RATE = 1 / 9;   // toilettes : ≈ 2 passages par jour (temps + repas)
-  const REST = 0.25;   // pendant le sommeil ou le repos : besoins 4 fois plus lents
+  const REST = 0.25;
+  // APPÉTIT : un bébé mange peu, un Champion beaucoup ; les gros Digimon (lourds) mangent encore plus
+  const STAGE_EAT = { 'Bébé': 0.45, 'Entraînement': 0.7, 'Disciple': 1, 'Champion': 1.45, 'Ultime': 1.8, 'Méga': 2.1 };
+  const appetite = m => { const kg = m.d.kg || 20; return (STAGE_EAT[m.d.stage] || 1) * (kg >= 150 ? 1.4 : kg >= 60 ? 1.2 : kg <= 8 ? 0.9 : 1); };   // pendant le sommeil ou le repos : besoins 4 fois plus lents
 
   const Care = DW.Care = {
+    appetite,
+    appetiteLabel: m => { const a = appetite(m); return a < 0.6 ? 'petit' : a < 0.95 ? 'modéré' : a < 1.3 ? 'normal' : a < 1.7 ? 'gros' : 'énorme'; },
     toasts: [],
     lead: () => DW.state.party[0] || null,
     tooHungry: m => m === Care.lead() && m.hunger >= 90,
@@ -35,10 +40,11 @@
       st.careClock = st.clock;
       if (!m) return;
       const h0 = m.hunger, n0 = m.need, t0 = m.thirst || 0;
-      m.hunger = Math.min(100, m.hunger + min * HUNGER_RATE);
+      const ap = appetite(m);
+      m.hunger = Math.min(100, m.hunger + min * HUNGER_RATE * ap);
       m.need = Math.min(100, m.need + min * NEED_RATE);
       const hot = DW.Time.weather() === 'heat' || !!(DW.Time.drought && DW.Time.drought());
-      m.thirst = Math.min(100, t0 + min * THIRST_RATE * (hot ? 2 : 1));
+      m.thirst = Math.min(100, t0 + min * THIRST_RATE * (hot ? 2 : 1) * (0.6 + ap * 0.4));
       if (t0 < 70 && m.thirst >= 70) this.toast(`${m.name} a soif ! (rivière, source, ou Eau fraîche)`);
       if (t0 < 100 && m.thirst >= 100) this.toast(`${m.name} meurt de soif !`, '#ff8a8a');
       if (m.thirst >= 100) { m.dry = (m.dry || 0) + min; if (m.dry >= 30) { m.dry -= 30; m.addHappy(-2); } }
@@ -76,7 +82,7 @@
       const st = DW.state, k = sleeping ? REST : 0.5;
       st.clock += min; st.careClock = st.clock;
       for (const d of st.party) {
-        d.hunger = Math.min(95, d.hunger + min * HUNGER_RATE * k);
+        d.hunger = Math.min(95, d.hunger + min * HUNGER_RATE * k * appetite(d));
         d.need = Math.min(90, d.need + min * NEED_RATE * k);
         d.thirst = Math.min(95, (d.thirst || 0) + min * THIRST_RATE * k);
       }
@@ -90,7 +96,7 @@
       const eaten = before - m.hunger;
       m.need = Math.min(99, m.need + eaten * 0.5);
       if (before >= 40) m.addHappy(3);
-      DW.Life.addFat(m, eaten / 30);
+      DW.Life.addFat(m, eaten / 30 / appetite(m));   // trop nourrir un petit mangeur le fait grossir vite
       m.starve = 0;
       return eaten > 0;
     },

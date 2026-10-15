@@ -50,6 +50,8 @@
       const opts = (DW.Evo && DW.Evo.options ? DW.Evo.options(m.sp) : []).slice(0, 5);
       UI.text(c, opts.length ? 'Peut digivoluer en :' : 'Pas de Digivolution connue.', 130, 70, { size: 9, color: '#8ae0f0' });
       opts.forEach((o, i) => UI.text(c, '• ' + (DW.state.seen[o.to] ? DW.SPECIES[o.to].name : '???'), 136, 86 + i * 13, { size: 9, color: '#ffffff' }));
+      if (DW.Evo.available(m).length) UI.text(c, 'PRÊT À DIGIVOLUER !', W / 2 + 40, 170, { size: 12, align: 'center', bold: true, color: Math.floor(this.t * 3) % 2 ? '#ffe070' : '#7aff8a' });
+      UI.text(c, `Appétit : ${DW.Care.appetiteLabel(m)}   ·   Corpulence : ${DW.Life.fatLabel(m)}`, 130, 186, { size: 8, color: '#8ae0f0' });
       UI.text(c, 'ESPACE : table des Digivolutions (conditions, digivoluer)', W / 2, H - 16, { size: 8, align: 'center', color: '#ffe070' });
     }
     drawStatus(c, m, d) {

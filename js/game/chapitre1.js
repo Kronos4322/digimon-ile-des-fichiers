@@ -37,7 +37,7 @@
   // ------------------------------------------------------------ panneau de la ville (devant la maison de Jijimon)
   // le texte se met à jour à chaque nouvel habitant : ce qu'on trouve en ville et au jardin
   const BUILT = {
-    gotsumon: 'le Bazar de Gotsumon (viandes, remèdes, meubles)', elecmon: 'le Dojo d\'Elecmon (entraînement plus efficace)',
+    gotsumon: 'le Bazar de Gotsumon (RAM, viandes, remèdes, sacs, meubles)', elecmon: 'le Dojo d\'Elecmon (entraînement plus efficace)',
     mushroomon: 'le Restaurant de Mushroomon (repas, recettes)', yokomon: 'le Jardin de Yokomon (la DigiFerme, où se reposent tes autres Digimon)',
     betamon: 'la fontaine de Betamon (elle soigne ton équipe)', biyomon: 'la Poste de Biyomon (vols rapides, nouvelles)',
     kunemon: 'la Banque de Kunemon (objets en trop)', palmon: 'la Grange de Palmon, aux Champs (récolte chaque jour)',
@@ -75,15 +75,17 @@
     if ((await DW.ask('Je te fais visiter ?', ['Oui !', 'Plus tard'], K)) !== 0) { await say('D\'accord ! Reviens me voir quand tu veux, je ne bouge pas de la place.', K); return; }
     // 1) ta maison
     await goTo(ow, DW.HOME_DOOR ? [DW.HOME_DOOR.x, DW.HOME_DOOR.y + 2] : null);
-    await say("Voilà ta maison ! Jijimon l'a préparée pour toi. Tu peux y dormir pour reprendre des forces et sauvegarder.", K);
-    await say('Elle est un peu vide... Plus tard, tu pourras la meubler avec ce que vend le Bazar. Chaque meuble sert à quelque chose !', K);
+    await say("Voilà ta maison ! Bon... c'est encore une cabane. Mais il y a un lit pour dormir quand ton partenaire a sommeil, et un coffre.", K);
+    await say("Ton sac est petit : quand il est plein, tu ne ramasses plus rien ! Range tes affaires dans le coffre. Plus tard, le Bazar vendra des meubles : un frigo pour la nourriture, et bien d'autres choses.", K);
     // 2) le panneau de la ville, devant chez Jijimon
     await goTo(ow, villageSpot(m => (m.doors || []).find(d => d.to === 'maison'), 2));
     await say("Ici, c'est chez Jijimon. Le grand panneau à droite de sa maison explique tout ce qu'on trouve en ville. Chaque fois que quelqu'un revient habiter ici, une nouvelle note y est épinglée !", K);
     // 3) la route des Champs : la nourriture
     await goTo(ow, DW.MapKit.zpt('village', 5, 23), 'down');   // en haut du chemin des Champs
     await say("Par là, au sud-ouest : le Quartier des Champs. Tanemon y fait pousser de la Digiviande ! Quand ton partenaire a faim, va le voir : il t'en donne 3 par jour.", K);
+    await say("Et pour la soif, il y a de l'eau partout : la rivière, l'étang... Mais pas l'eau de mer, hein ! Pour te soigner, le distributeur de la place vend des RAM, en attendant que le Bazar rouvre.", K);
     await say("Au sud, il y a le Terrain d'entraînement : c'est là que ton partenaire devient plus fort. À l'ouest, la plage... et au-delà, la forêt.", K);
+    await say("Ton partenaire est encore un bébé : commence par les DUNES, à l'ouest de la plage. Les Digimon y sont tout petits. Ensuite le Bosquet des Pousses, puis la forêt !", K);
     await say("Les habitants sont partis vers la forêt, je crois. Si tu en croises un, parle-lui : il se souviendra peut-être de la ville !", K);
     // retour devant la maison de Jijimon, avec ton partenaire
     await goTo(ow, villageSpot(m => (m.doors || []).find(d => d.to === 'maison'), 2), 'down');
@@ -91,6 +93,31 @@
     s.flags.tour = true;
     DW.autosave();
   }
+
+  // ------------------------------------------------------------ bilan de fin de chapitre (écran de récapitulatif)
+  class RecapScene extends DW.Scene {
+    constructor(lines, title) { super(); this.lines = lines; this.title = title; }
+    update() { if (this.t > 1.2 && (Input.hit('ok') || Input.hit('back'))) this.close(); }
+    draw(c) {
+      const t = this.t;
+      c.fillStyle = '#04101e'; c.fillRect(0, 0, W, H);
+      c.strokeStyle = 'rgba(90,220,200,0.12)';
+      for (let x = (t * 10) % 16; x < W; x += 16) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); }
+      UI.text(c, this.title, W / 2, 30, { size: 14, align: 'center', color: '#5adcc8' });
+      c.fillStyle = '#5adcc8'; c.fillRect(40, 38, W - 80, 1);
+      const m = st().party[0];
+      if (m) DW.Sprites.draw(c, DW.Sprites.battle(m.sp), 64, 150, { frame: Math.floor(t * 4) });
+      this.lines.forEach(([k, v], i) => {
+        const a = DW.clamp((t - 0.3 - i * 0.25) / 0.3, 0, 1);
+        c.globalAlpha = a;
+        UI.text(c, k, 124, 62 + i * 18, { size: 9, color: '#a8c8d8' });
+        UI.text(c, v, W - 20, 62 + i * 18, { size: 10, align: 'right', color: '#ffffff' });
+        c.globalAlpha = 1;
+      });
+      if (t > 1.2) UI.text(c, 'ESPACE : continuer', W / 2, H - 14, { size: 8, align: 'center', color: '#ffe070' });
+    }
+  }
+  DW.RecapScene = RecapScene;
 
   // ------------------------------------------------------------ fin du chapitre 1 (après Kuwagamon)
   async function end1() {
@@ -100,6 +127,21 @@
     Audio.play('victory');
     await DW.wait(0.8);
     await Game.push(new ChapterScene('FIN DU CHAPITRE 1', "L'Île des Fichiers", 'Kuwagamon est vaincu. Mais pourquoi les Digimon ont-ils tout oublié ?'));
+    // le bilan : temps, partenaire, ville, combats, boss facultatifs
+    const m = s.party[0], T = DW.Town, rec = T.RECRUITS.filter(r => T.has(r.id)).length;
+    const days = Math.floor(s.clock / 1440) + 1, wins = s.party.reduce((a, d) => a + (d.wins || 0), 0);
+    await Game.push(new RecapScene([
+      ['Jours passés sur l\'île', String(days)],
+      ['Partenaire', m ? `${m.name} (${m.d.stage}, niv. ${m.level})` : '-'],
+      ['Habitants revenus en ville', `${rec} / ${T.RECRUITS.length}`],
+      ['Développement de la ville', `${T.progress()} %`],
+      ['Combats gagnés', String(wins)],
+      ['Shellmon', s.flags.shellmon ? 'vaincu !' : 'toujours sur la plage...'],
+      ['Whamon', s.flags.whamon ? 'libéré !' : 'une ombre dans la mer...'],
+      ['Bits', String(s.bits)],
+    ], 'BILAN DU CHAPITRE 1'));
+    await say("Les chemins de toute l'île sont ouverts : la montagne, le lac, les brumes, le marais... Chaque région cache un Digimon qui a perdu la mémoire.", 'Jijimon');
+    await say("Retrouve-les, ramène les habitants en ville, et découvre qui leur a fait ça. Moi, je garde la maison. Hohoho !", 'Jijimon');
     await Game.push(new ChapterScene('CHAPITRE 2', 'Les Engrenages Noirs', 'Retrouve les habitants perdus et découvre ce qui ronge l\'île.'));
     DW.autosave();
   }

@@ -132,7 +132,6 @@
     if (it.food == null || it.use !== 'heal') return;
     const healed = it.amt || it.full || it.mp || it.mpFull;
     delete it.amt; delete it.full; delete it.mp; delete it.mpFull;
-    if (it.fat == null) it.fat = Math.round(it.food / 25) / 4;   // un repas complet : +1 de poids
     if (!healed || !/PV|PM/.test(it.desc)) return;
     // on retire les phrases qui parlent de soigner (on garde « PV max +... pour toujours »)
     const keep = it.desc.split(/(?<=[.!])\s+/).filter(p => !/PV|PM/.test(p) || /max/.test(p)).join(' ');

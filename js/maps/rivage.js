@@ -17,13 +17,16 @@
   const STAGES = {
     dunes: [E('botamon', 2, 3, 20), E('punimon', 2, 3, 18), E('pichimon', 2, 4, 18), E('yuramon', 2, 4, 15), E('nyokimon', 2, 4, 15), E('poyomon', 3, 4, 8), E('pabumon', 3, 4, 8)],
     bosquet: [E('koromon', 4, 6, 18), E('tsunomon', 4, 6, 16), E('tokomon', 4, 6, 14), E('motimon', 5, 7, 12), E('bukamon', 4, 6, 14), E('tanemon', 4, 6, 14), E('yokomon', 5, 7, 12)],
-    plage: [E('bukamon', 5, 6, 25), E('tanemon', 5, 6, 15), E('yokomon', 5, 6, 15), E('betamon', 6, 8, 20), E('gotsumon', 6, 8, 15), E('gomamon', 7, 8, 6)],
-    crique: [E('betamon', 7, 9, 30), E('gomamon', 7, 9, 25), E('bukamon', 6, 7, 20), E('penguinmon', 8, 9, 10)],
-    lisiere: [E('kunemon', 7, 9, 30), E('biyomon', 7, 9, 20), E('mushroomon', 8, 9, 20, { night: 45 }), E('palmon', 7, 9, 15)],
-    geants: [E('kunemon', 8, 10, 25), E('betamon', 8, 10, 20), E('palmon', 8, 10, 20), E('mushroomon', 8, 10, 15, { night: 40 }), E('gabumon', 9, 10, 8)],
-    sentier: [E('kunemon', 9, 11, 25), E('elecmon', 9, 11, 15), E('gabumon', 9, 11, 15), E('biyomon', 9, 11, 15), E('mushroomon', 9, 11, 15, { night: 45 }), E('agumon', 10, 11, 8)],
-    prairie: [E('biyomon', 9, 11, 20), E('palmon', 9, 11, 20), E('gabumon', 9, 11, 15), E('agumon', 9, 11, 15), E('tentomon', 10, 11, 10), E('patamon', 10, 11, 10)],
-    clairiere: [E('kunemon', 10, 12, 25), E('agumon', 10, 12, 15), E('gabumon', 10, 12, 15), E('tentomon', 10, 12, 15), E('patamon', 10, 12, 12), E('mushroomon', 10, 12, 15, { night: 40 })],
+    // chapitre 1 (comme au début de l'animé) : sur l'île, les partenaires des enfants ne sont encore que des bébés.
+    // Pas d'Agumon, de Gabumon, de Tentomon ou de Patamon sauvages : seulement les Digimon qui vivent ici
+    // (formes Entraînement, Kunemon, Mushroomon, Elecmon, Betamon, Gotsumon...) — les recrues restent à leur place.
+    plage: [E('bukamon', 5, 6, 25), E('tanemon', 5, 6, 15), E('yokomon', 5, 6, 15), E('betamon', 6, 8, 20), E('gotsumon', 6, 8, 15)],
+    crique: [E('betamon', 7, 9, 30), E('bukamon', 6, 7, 20), E('gotsumon', 7, 9, 15)],
+    lisiere: [E('kunemon', 7, 9, 30), E('yokomon', 7, 9, 20), E('mushroomon', 8, 9, 20, { night: 45 }), E('tanemon', 7, 9, 15)],
+    geants: [E('kunemon', 8, 10, 25), E('betamon', 8, 10, 20), E('tokomon', 8, 10, 15), E('mushroomon', 8, 10, 15, { night: 40 }), E('gotsumon', 9, 10, 10)],
+    sentier: [E('kunemon', 9, 11, 25), E('elecmon', 9, 11, 20), E('motimon', 9, 11, 15), E('tsunomon', 9, 11, 12), E('mushroomon', 9, 11, 15, { night: 45 })],
+    prairie: [E('kunemon', 9, 11, 20), E('yokomon', 9, 11, 20), E('elecmon', 9, 11, 15), E('tanemon', 9, 11, 15), E('motimon', 10, 11, 10), E('mushroomon', 10, 11, 15, { night: 40 })],
+    clairiere: [E('kunemon', 10, 12, 25), E('elecmon', 10, 12, 15), E('koromon', 10, 12, 15), E('tokomon', 10, 12, 12), E('mushroomon', 10, 12, 15, { night: 40 })],
   };
 
   // ------------------------------------------------------------ DUNES DES BÉBÉS (40×30, agrandie ×2)

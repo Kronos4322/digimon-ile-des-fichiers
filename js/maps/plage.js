@@ -33,14 +33,16 @@
     await DW.wait(0.7);
     await say('BOUM ! Un énorme coquillage jaillit du sable !');
     const pn = (s.party.find(m => m.hp > 0) || s.party[0]).name;
-    await say("C'est Shellmon ! Il croit qu'on veut lui voler sa plage ! Attention, il est très fort !", pn);
-    const res = await ow.battle({ enemy: new DW.Digimon('shellmon', 11), boss: true, intro: 'Shellmon surgit de son coquillage !' });
+    await say("C'est Shellmon ! Un CHAMPION ! Il croit qu'on veut lui voler sa plage... Il est bien trop fort pour nous, fuyons s'il le faut !", pn);
+    // boss facultatif TRÈS puissant (un Champion niveau 18) : à revenir affronter une fois bien entraîné
+    const res = await ow.battle({ enemy: new DW.Digimon('shellmon', 18), boss: true, canLose: true, intro: 'Shellmon surgit de son coquillage !' });
+    if (res !== 'win') { await say('Shellmon replonge dans le sable en grondant... Il faudra être beaucoup plus fort pour le battre. (Digivolue en Champion !)'); return; }
     if (res === 'win') {
       s.flags.shellmon = true;
       await say('Shellmon replonge dans la mer en grommelant...');
-      DW.giveItem('super_viande', 2); s.bits += 300;
+      const extra = DW.giveItem('soin_m', 3) + DW.giveItem('pm_m', 2); s.bits += 800;
       DW.Audio.sfx('buy');
-      await say('Tu trouves 2 Super Viandes et 300 Bits dans le sable !');
+      await say(`Tu trouves 3 RAM PV+, 2 RAM PM+ et 800 Bits dans le sable !${DW.extraMsg(extra)}`);
       await say("Au loin, vers l'ouest, un énorme jet d'eau jaillit au-dessus de la crique...");
     }
   }
@@ -54,6 +56,7 @@
       win: "Bien joué ! Allez, je viens en ville. J'ai repéré un endroit parfait pour pêcher..." });
     const cond = n.cond, talk = n.talk;
     n.shadow = true;   // dessiné comme une ombre sous l'eau (game/overworld.js)
+    n.hide = false;    // (déjà difficile à trouver : une ombre, de 16 h à 19 h seulement)
     n.cond = s => cond(s) && (h => h >= GOMA_HOURS[0] && h < GOMA_HOURS[1])(DW.Time.hour());
     n.talk = async ow => {
       await say("Une grande ombre nage juste sous la surface... Elle s'approche du rivage !");
@@ -81,15 +84,15 @@
       await say("La mer se soulève ! Une baleine gigantesque surgit et manque d'avaler le radeau tout entier !");
       const pn = (s.party.find(m => m.hp > 0) || s.party[0]).name;
       await say("C'est Whamon ! Regarde son dos... un Engrenage Noir ! Il ne sait plus ce qu'il fait !", pn);
-      const res = await ow.battle({ enemy: new DW.Digimon('whamon', 16), boss: true, canLose: true, intro: 'Whamon fait déferler une vague géante !' });
+      const res = await ow.battle({ enemy: new DW.Digimon('whamon', 24), boss: true, canLose: true, intro: 'Whamon fait déferler une vague géante !' });   // boss facultatif redoutable
       if (res !== 'win') { await say('Whamon replonge dans les profondeurs... Il reviendra. Entraîne-toi et retente ta chance.'); return; }
       s.flags.whamon = true;
       DW.Audio.sfx('super'); ow.shake = 0.6;
       await say("L'Engrenage Noir se brise et coule au fond de la mer !");
       await say("Pfffuuu... Merci, petit humain. J'avais l'impression de nager dans un cauchemar sans fin.", 'Whamon');
       await say('Je vis tout au fond du Net Ocean. Reviens au radeau chaque jour : je te rapporterai ce que je trouve dans les profondeurs.', 'Whamon');
-      const extra = DW.giveItem('super_viande', 2) + DW.giveItem('disque_pm', 1); s.bits += 500;
-      DW.Audio.sfx('buy'); await say(`Whamon te laisse 2 Super Viandes, un Disque PM et 500 Bits !${DW.extraMsg(extra)}`);
+      const extra = DW.giveItem('soin_g', 2) + DW.giveItem('pm_g', 1) + DW.giveItem('super_viande', 2); s.bits += 1500;
+      DW.Audio.sfx('buy'); await say(`Whamon te laisse 2 RAM PV++, une RAM PM++, 2 Viandes géantes et 1500 Bits !${DW.extraMsg(extra)}`);
       DW.autosave();
       return;
     }
@@ -180,7 +183,7 @@
       { x: 0, y: 23, w: 1, h: 5, dir: 'left', to: 'crique', tx: 39, ty: 8 },
     ],
     npcs: [
-      recruitNPC({ sp: 'gotsumon', x: 30, y: 9, lvl: 5, face: 'left',
+      recruitNPC({ sp: 'gotsumon', x: 30, y: 9, lvl: 6, face: 'left',
         lines: ["Grrr ! Je suis Gotsumon. Je casse des cailloux pour me calmer...", "Avant, j'avais une place en ville. Mais je n'ai plus le cœur à rien. Sauf si tu me bats !"],
         win: "Bah... T'es costaud ! Allez, je rentre en ville. Tu vas voir ce que tu vas voir !" }),
       gomamonShadow(),
