@@ -54,10 +54,9 @@
     addDisc(m, n) { Life.init(m); m.disc = DW.clamp(m.disc + n, 0, 100); },
     // un moment où le joueur peut féliciter ou gronder (en parlant à son partenaire)
     // un moment éducatif reste ouvert 4 h de jeu ; une bulle reste au-dessus du partenaire, et OK près de lui suffit
+    // (silencieux : le joueur félicite ou gronde quand il veut, depuis le menu ; plus de message après chaque victoire)
     moment(type, why) {
       Life.pending = { type, why, until: DW.state.clock + 240 };
-      if (DW.Companion && DW.ow) DW.Companion.emote(DW.ow, type === 'bad' ? '...' : 'note', 3);
-      if (DW.Care) DW.Care.toast(`${type === 'bad' ? 'Une bêtise' : 'Un exploit'} ! Appuie sur ESPACE près de ton partenaire pour le ${type === 'bad' ? 'gronder' : 'féliciter'}.`, type === 'bad' ? '#ffb070' : '#a0ffb0');
     },
     hour: () => (DW.state.clock % 1440) / 60,
     sched: m => (m && (NOCTURNAL.has(m.sp) || (m.d && m.d.types.includes('Ténèbres') && m.d.stage !== 'Bébé')) ? NIGHT : DAY),
@@ -202,13 +201,22 @@
         : `Un ${DW.SPECIES[nm.sp].name} est né ! Il hérite d'une partie de la force de ${m.name}.`);
       DW.autosave();
     },
-    // féliciter / gronder en parlant au partenaire ; renvoie true si un moment a été traité
-    async talk(m) {
-      const P = Life.pending;
-      if (!P || m !== DW.Care.lead()) return false;
+    // féliciter / gronder depuis le menu, à tout moment. Juste après un exploit ou une bêtise (4 h), l'effet est fort ;
+    // sinon : un compliment fait un peu plaisir (une fois par heure), gronder sans raison le rend triste.
+    async educate(praise) {
+      const m = DW.Care.lead(), st = DW.state;
+      if (!m) return;
+      const P = Life.pending && Life.pending.until > st.clock ? Life.pending : null;
       Life.pending = null;
+      if (!P) {
+        if (praise) {
+          if ((m.praisedAt || -1e9) > st.clock - 60) { await DW.say(`${m.name} sourit... mais trop de compliments, ça ne compte plus !`); return; }
+          m.praisedAt = st.clock; m.addHappy(2); Audio.sfx('buff'); await DW.say(`Tu félicites ${m.name}. Il est content ! (bonheur +2)`);
+        } else { m.addHappy(-6); await DW.say(`Tu grondes ${m.name}... Il n'a rien fait de mal et ne comprend pas. (bonheur -6)`); }
+        return;
+      }
       await DW.say(P.type === 'bad' ? `${m.name} a fait une bêtise (${P.why})... Il évite ton regard.` : `${m.name} est tout fier de lui (${P.why}) !`);
-      const r = await DW.choose(['Féliciter', 'Gronder', 'Ne rien dire']);
+      const r = praise ? 0 : 1;
       if (r === 0) {
         if (P.type === 'good') { m.addHappy(6); Life.addDisc(m, 2); Audio.sfx('buff'); await DW.say(`${m.name} est ravi ! (bonheur +6)`); }
         else { m.addHappy(2); Life.addDisc(m, -6); await DW.say(`${m.name} est content... mais il n'a pas compris qu'il avait mal agi. (discipline -6)`); }

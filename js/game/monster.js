@@ -254,6 +254,8 @@
   };
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const write = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  // supprimer un emplacement (la sauvegarde et sa copie précédente)
+  DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { localStorage.removeItem(K.KEY); localStorage.removeItem(K.BAK); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
   // résumé affiché sur l'écran titre
   DW.saveInfo = (slot = DW.slot) => {
     const keep = DW.slot; DW.slot = slot;

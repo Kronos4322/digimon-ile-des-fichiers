@@ -21,11 +21,13 @@
     get mon() { return DW.state.party[this.i]; }
     update() {
       const n = DW.state.party.length;
-      if (Input.hit('left') || Input.hit('right')) { this.tab ^= 1; Audio.sfx('move'); }
+      if (Input.hit('left')) { this.tab = (this.tab + 2) % 3; Audio.sfx('move'); }
+      if (Input.hit('right')) { this.tab = (this.tab + 1) % 3; Audio.sfx('move'); }
+      if (this.tab === 2 && Input.hit('ok')) { Audio.sfx('select'); DW.Game.push(new DW.EvoTableScene(this.i)); return; }
       if (this.tab === 0) {
         if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
         if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
-      } else {
+      } else if (this.tab === 1) {
         const m = this.mon.moves.length;
         if (Input.hit('up')) { this.mv = (this.mv + m - 1) % m; Audio.sfx('move'); }
         if (Input.hit('down')) { this.mv = (this.mv + 1) % m; Audio.sfx('move'); }
@@ -36,10 +38,19 @@
       const m = this.mon, d = m.d;
       UI.menuBg(c, this.t);
       // onglets
-      UI.tabs(c, ['Statut', 'Techniques'], this.tab);
+      UI.tabs(c, ['Statut', 'Techniques', 'Digivolution'], this.tab);
       UI.text(c, `${this.i + 1} / ${DW.state.party.length}`, W - 10, 16, { size: 8, align: 'right', color: '#7ac8dc' });
       UI.box(c, 4, 22, W - 8, H - 26);
-      if (this.tab === 0) this.drawStatus(c, m, d); else this.drawTech(c, m);
+      if (this.tab === 0) this.drawStatus(c, m, d); else if (this.tab === 1) this.drawTech(c, m); else this.drawEvo(c, m, d);
+    }
+    // onglet Digivolution : un aperçu, ESPACE ouvre la table complète (conditions, digivoluer)
+    drawEvo(c, m, d) {
+      DW.Sprites.draw(c, DW.Sprites.battle(m.sp), 70, 130, { frame: Math.floor(this.t * 4) });
+      UI.text(c, `${m.name} — ${d.stage}`, 130, 50, { size: 11, bold: true, color: '#d8f6ff' });
+      const opts = (DW.Evo && DW.Evo.options ? DW.Evo.options(m.sp) : []).slice(0, 5);
+      UI.text(c, opts.length ? 'Peut digivoluer en :' : 'Pas de Digivolution connue.', 130, 70, { size: 9, color: '#8ae0f0' });
+      opts.forEach((o, i) => UI.text(c, '• ' + (DW.state.seen[o.to] ? DW.SPECIES[o.to].name : '???'), 136, 86 + i * 13, { size: 9, color: '#ffffff' }));
+      UI.text(c, 'ESPACE : table des Digivolutions (conditions, digivoluer)', W / 2, H - 16, { size: 8, align: 'center', color: '#ffe070' });
     }
     drawStatus(c, m, d) {
       // PROFIL

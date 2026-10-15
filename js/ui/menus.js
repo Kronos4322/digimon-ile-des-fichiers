@@ -37,18 +37,30 @@
   // Un anneau d'icônes hexagonales qui tourne : l'entrée choisie vient à gauche, son nom s'affiche en bandeau.
   // À droite, les fiches de l'équipe ; en bas, les Bits et l'aide. Haut/Bas ou Gauche/Droite : tourner l'anneau.
   const RING = {   // [clé, nom, couleur de l'hexagone, aide]
-    digimon: ['Digimon', '#e8a030', 'Voir la fiche de ton partenaire et de ton équipe.'],
-    evo: ['Digivolution', '#3ab868', 'La table des Digivolutions : les conditions, et digivoluer quand tout est prêt.'],
+    digimon: ['Digimon', '#e8a030', 'Fiche de ton partenaire : statut, techniques, Digivolution (gauche / droite).'],
+    feliciter: ['Féliciter', '#e85a8a', 'Féliciter ton partenaire : parfait juste après un exploit (bonheur).'],
+    gronder: ['Gronder', '#c84a3a', 'Gronder ton partenaire : utile juste après une bêtise (discipline).'],
     sac: ['Objets', '#c8783a', 'Ton sac : nourriture, remèdes, objets de combat...'],
     dex: ['DigiDex', '#d84a4a', 'Tous les Digimon que tu as rencontrés ou élevés.'],
     cartes: ['Album', '#4a7ad8', 'Ta collection de cartes Digimon.'],
     journal: ['Journal', '#e8c840', 'Ton enquête : ce que tu as découvert sur l\'île.'],
     carte: ['Carte', '#5ab8a8', 'La carte de l\'Île des Fichiers et des lieux visités.'],
-    dormir: ['Dormir', '#7a5ad8', 'Faire dormir ton partenaire jusqu\'au matin (quand il a sommeil).'],
-    sauver: ['Sauvegarder', '#5a6a8a', 'Sauvegarder ta progression.'],
-    options: ['Options', '#9a5ad0', 'Vitesse du texte, son...'],
-    titre: ['Écran titre', '#6a7a8a', 'Revenir à l\'écran titre (pense à sauvegarder).'],
+    dormir: ['Dormir', '#7a5ad8', 'Faire dormir ton partenaire jusqu\'à son réveil (seulement quand il a sommeil).'],
+    systeme: ['Système', '#5a6a8a', 'Sauvegarder, options, supprimer une partie, écran titre.'],
   };
+  // supprimer une partie (un des 3 emplacements) : double confirmation
+  async function deleteSave() {
+    const slots = [1, 2, 3].map(n => [n, DW.saveInfo(n)]).filter(([, i]) => i);
+    if (!slots.length) { await DW.say('Aucune partie sauvegardée.'); return; }
+    const k = await DW.choose(slots.map(([n, i]) => `Partie ${n} : ${i.name}, jour ${i.day}${n === DW.slot ? ' (en cours)' : ''}`).concat(['Annuler']));
+    if (k < 0 || k >= slots.length) return;
+    const [n, info] = slots[k];
+    if ((await DW.ask(`Supprimer la partie ${n} (${info.name}) ? Elle sera perdue pour toujours !`, ['Non', 'Oui, supprimer'])) !== 1) return;
+    if ((await DW.ask('Vraiment ? Cette action est définitive.', ['Non', 'Oui, j\'en suis sûr'])) !== 1) return;
+    DW.deleteSave(n);
+    Audio.sfx('bump');
+    await DW.say(n === DW.slot ? `Partie ${n} supprimée. (Ta partie en cours continue : sauvegarde-la si tu veux la garder.)` : `Partie ${n} supprimée.`);
+  }
   class MenuScene extends DW.Scene {
     constructor() { super(); this.overlay = true; this.i = 0; this.rot = 0; }
     get items() { return Object.keys(RING).map(k => [k, RING[k][0]]); }
@@ -68,9 +80,16 @@
         if (!st.party.length) await DW.say("Tu n'as pas encore de partenaire Digimon !");
         else if (st.party.length === 1) await Game.push(new DW.SummaryScene(0));   // un seul Digimon : directement sa fiche
         else await Game.push(new PartyScene({ mode: 'view' }));
-      } else if (k === 'evo') {
-        if (!st.party.length) await DW.say("Tu n'as pas encore de partenaire Digimon !");
-        else await Game.push(new DW.EvoTableScene(0));
+      } else if (k === 'feliciter' || k === 'gronder') {
+        if (!st.party.length) { await DW.say("Tu n'as pas encore de partenaire Digimon !"); return; }
+        this.close();
+        await DW.Life.educate(k === 'feliciter');
+      } else if (k === 'systeme') {
+        const r = await DW.ask('Système du Digivice :', ['Sauvegarder', 'Options', 'Supprimer une partie', 'Écran titre', 'Retour']);
+        if (r === 0) await this.act('sauver');
+        else if (r === 1) await this.act('options');
+        else if (r === 2) await deleteSave();
+        else if (r === 3) await this.act('titre');
       } else if (k === 'sac') await Game.push(new BagScene({}));
       else if (k === 'dex') await Game.push(new DexScene());
       else if (k === 'cartes') await Game.push(new DW.AlbumScene());

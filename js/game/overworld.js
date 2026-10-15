@@ -345,7 +345,6 @@
       return null;
     }
     async talkPartner(m) {
-      if (await DW.Life.talk(m)) return;
       const lines = m.hp < m.maxHp / 3
         ? [`${m.name} a l'air épuisé... Il faudrait le soigner.`]
         : [`${m.name} te regarde avec un grand sourire.`, `${m.name} : J'ai un petit creux... On mange quand ?`,
