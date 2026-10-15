@@ -177,7 +177,7 @@
     await say("Kuwagamon s'est envolé vers la montagne, et la Clairière de l'Arrivée est enfin calme ! Tu as été formidable, avec ton partenaire.", J);
     await say("On a eu chaud, hein ?", pn);
     await say("Tiens, prends ceci. Les Yokomon l'ont taillé pour toi dans une pince que Kuwagamon a perdue : un trophée !", J);
-    DW.Trophies.give('kuwagamon'); Audio.sfx('fanfare');
+    DW.Trophies.give('kuwagamon'); Audio.sfx('fanfare'); if (DW.Cards) DW.Cards.give('kuwagamon');
     await say('Tu reçois le Trophée de Kuwagamon !');
     await say("Mets-le dans ta maison. Sous le plancher, il y a une vieille cave que je n'ai jamais ouverte : de quoi exposer tes trophées !", J);
     await say("Un éclat noir s'est arraché de son dos, dis-tu ? Kuwagamon n'était pas méchant autrefois... Il n'était pas lui-même. Je me demande ce qui lui est arrivé...", J);

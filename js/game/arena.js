@@ -136,7 +136,7 @@
           await super.msg(C.join || `${C.name} entre dans le combat !`, 1.8);
           const pre = new DW.Digimon(C.from || C.sp, C.lvl);
           if (C.from && C.from !== C.sp) await DW.Game.push(new DW.EvolutionScene(pre, C.sp, { story: true }));
-          DW.Audio.play('boss');
+          DW.Audio.play(this.o.music || 'boss');
           const m = new DW.Digimon(C.sp, C.lvl); m.heal();
           this.ally = { m, b: this.body(this.B.p.x - 30, Math.min(F.y1 - 4, this.B.p.y + 40), 1), cd: 1.4, n: 0 };
           this.allyHero = { x: this.hero.x + 4, y: Math.min(F.y1, this.hero.y + 24), id: C.hero };

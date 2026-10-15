@@ -10,7 +10,7 @@
 //  + allées pavées, gradins, torches, toilettes (y), panneau
 // =====================================================================
 (function () {
-  const { say, paint, zoomMap } = DW.MapKit;
+  const { say, paint, zoomMap, st } = DW.MapKit;
   const TRACK = { x: 16, y: 12.5, rx: 6.2, ry: 3.9 };
 
   const rows = paint(32, 22, '#', g => {
@@ -97,9 +97,40 @@
     [0.667, 0.76, 0.857, 0.952].forEach((k, n) => { for (let j = 0; j <= n; j++) c.fillRect(tx - 14 + j * 4, ty + RY * k - 2, 2, 4); });
   }
 
+
+  // ------------------------------------------------------------ Tai au Terrain d'entraînement
+  const today = () => DW.Time.day();
+  DW.TaiBuddy = {
+    here: s => s.hero !== 'tai' && !!(s.kids || {}).tai && today() % 2 === 0 && DW.Time.hour() >= 9 && DW.Time.hour() < 18,
+    async talk() {
+      const s = st(), m = s.party.find(d => d.hp > 0), f = s.flags;
+      const r = await DW.ask("Salut ! On s'entraîne ensemble, ou tu veux un petit match amical contre Greymon ?", ["S'entraîner à deux", 'Match amical', 'Plus tard'], 'Tai');
+      if (r === 0) {
+        if (f.taiTrain === today()) { await say("On a déjà bossé aujourd'hui ! Repose-toi un peu, on remet ça demain.", 'Tai'); return; }
+        if (!m) { await say("Ton partenaire n'est pas en état... Soigne-le d'abord !", 'Tai'); return; }
+        f.taiTrain = today(); m.boost = (m.boost || 0) + 1; m.addHappy(3); DW.Audio.sfx('super');
+        await say(`Agumon et ${m.name} s'entraînent côte à côte. Rien de tel qu'un partenaire pour se motiver ! (prochaine séance +1 point, bonheur +3)`, 'Tai');
+        return;
+      }
+      if (r !== 1) { await say("D'accord ! Je suis là un jour sur deux, en journée.", 'Tai'); return; }
+      if (f.taiMatch === today()) { await say("Greymon est fatigué pour aujourd'hui. Demain, revanche !", 'Tai'); return; }
+      if (!m) { await say("Ton partenaire n'est pas en état... Soigne-le d'abord !", 'Tai'); return; }
+      f.taiMatch = today();
+      // match amical : Greymon à ton niveau, sans K.O. qui compte, tout le monde est soigné après
+      const res = await DW.ow.battle({ enemy: new DW.Digimon('greymon', Math.max(15, m.level)), boss: true, canLose: true, intro: 'Match amical contre le Greymon de Tai !' });
+      s.party.forEach(d => d.heal());
+      await say(res === 'win' ? "Waouh ! Tu nous as battus à la régulière ! Greymon va vouloir sa revanche..." : "Pas mal du tout ! Continue à t'entraîner, et tu nous battras.", 'Tai');
+    },
+  };
+
   DW.MAPS.gym = {
     name: "Terrain d'entraînement", music: 'village', bg: 'foret', ambient: 'town', theme: 'town', climate: 'village', region: 'village',
-    rows, npcs: [],
+    rows,
+    // Tai (une fois délivré) vient s'entraîner ici un jour sur deux, en journée : entraînement à deux, ou match amical
+    npcs: [
+      { hero: 'tai', x: 16, y: 10, face: 'down', cond: s => DW.TaiBuddy && DW.TaiBuddy.here(s), talk: () => DW.TaiBuddy.talk() },
+      { sp: 'agumon', x: 17, y: 11, face: 'left', wander: 1, cond: s => DW.TaiBuddy && DW.TaiBuddy.here(s), talk: () => say("On s'entraîne ensemble ? Je suis en pleine forme !", 'Agumon') },
+    ],
     paintGround,
     objects: [
       // marquages au sol (on marche dessus)

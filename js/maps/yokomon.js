@@ -68,7 +68,7 @@
     await say("Les Yokomon versent l'eau dans le puits en chantant... Glou... glou... Un grondement monte des profondeurs !", 'Yokomon');
     DW.Audio.sfx('fanfare'); f.yokoWell = true;
     await say("L'eau jaillit ! Le puits coule de nouveau ! Tout le village danse autour de toi !");
-    const extra = DW.giveItem('cartes', 2) + DW.giveItem('pomme_bleue', 1);
+    const extra = DW.giveItem('cartes', 2) + DW.giveItem('pomme_bleue', 1); if (DW.Cards) DW.Cards.give('yokomon');
     s.party.forEach(m => m.addHappy(10));
     await say(`Les Yokomon t'offrent 2 Paquets de cartes et une Pomme bleue ! Ton équipe est toute joyeuse. (bonheur +10)${DW.extraMsg(extra)}`);
     DW.autosave();

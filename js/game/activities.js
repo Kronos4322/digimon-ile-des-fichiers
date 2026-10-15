@@ -29,6 +29,11 @@
       await Game.push(new PackScene(got));
     },
     count: () => Object.keys(DW.state.cards || {}).length,
+    // ALBUM DU CHAPITRE 1 : les Digimon de la forêt et de la plage. On les obtient en paquets, mais aussi
+    // par les grands moments (recrues, boss, quêtes, coffres de l'antre). Complet : Jijimon offre une récompense.
+    CH1: ['botamon', 'koromon', 'agumon', 'greymon', 'yokomon', 'tanemon', 'bukamon', 'betamon', 'gotsumon', 'kunemon', 'kuwagamon', 'shellmon'],
+    give(sp) { const st = DW.state; st.cards = st.cards || {}; const fresh = !st.cards[sp]; st.cards[sp] = (st.cards[sp] || 0) + 1; return fresh; },
+    ch1Count: () => Cards.CH1.filter(sp => (DW.state.cards || {})[sp]).length,
   };
   function card(c, sp, x, y, w, h, owned, t, glow) {
     const d = DW.SPECIES[sp], stage = d.stage, col = { 'Bébé': '#c8d8e8', 'Entraînement': '#b8e0b0', 'Disciple': '#e8d890', 'Champion': '#f0b070', 'Ultime': '#e88ac8', 'Méga': '#ffd040' }[stage] || '#ccc';

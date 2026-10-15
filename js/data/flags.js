@@ -13,6 +13,12 @@
     kuwaChase: 'poursuite de Kuwagamon vue (première entrée dans la forêt)',
     yokoQuest: "la doyenne des Yokomon a demandé de l'eau pour le puits",
     yokoWell: 'le puits du village des Yokomon coule de nouveau',
+    taiTrain: 'jour du dernier entraînement à deux avec Tai',
+    taiMatch: 'jour du dernier match amical contre le Greymon de Tai',
+    taiLead: 'Tai a parlé du garçon blond vu près du lac (piste du chapitre 2)',
+    album1: 'récompense de l\u2019album du chapitre 1 reçue (Jijimon)',
+    gotsuBet: 'parties du pari de Gotsumon aujourd\u2019hui { d, n }',
+    biyoGame: 'jour du dernier jeu du courrier de Biyomon',
     boothPos: 'énigme des cabines : nombre de mots déjà entendus dans le bon ordre',
     // histoire
     kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière, fin du chapitre 1)',

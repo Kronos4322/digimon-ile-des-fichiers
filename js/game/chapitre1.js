@@ -106,7 +106,12 @@
       UI.text(c, this.title, W / 2, 30, { size: 14, align: 'center', color: '#5adcc8' });
       c.fillStyle = '#5adcc8'; c.fillRect(40, 38, W - 80, 1);
       const m = st().party[0];
-      if (m) DW.Sprites.draw(c, DW.Sprites.battle(m.sp), 64, 150, { frame: Math.floor(t * 4) });
+      if (m) DW.Sprites.draw(c, DW.Sprites.battle(m.sp), 54, 150, { frame: Math.floor(t * 4), scale: Math.min(1, 70 / DW.Sprites.battle(m.sp).h) });
+      // Tai et Agumon, délivrés pendant ce chapitre
+      if ((st().kids || {}).tai) {
+        const hs = DW.Sprites.hero('down', Math.floor(t * 3) % 2 ? 0 : 2, 'tai'); c.drawImage(hs.img, 66, 166, hs.w * 1.4, hs.h * 1.4);
+        DW.Sprites.draw(c, DW.Sprites.battle('agumon'), 104, 220, { frame: Math.floor(t * 4) + 1, scale: 0.6 });
+      }
       this.lines.forEach(([k, v], i) => {
         const a = DW.clamp((t - 0.3 - i * 0.25) / 0.3, 0, 1);
         c.globalAlpha = a;
@@ -130,14 +135,16 @@
     // le bilan : temps, partenaire, ville, combats, boss facultatifs
     const m = s.party[0], T = DW.Town, rec = T.RECRUITS.filter(r => T.has(r.id)).length;
     const days = Math.floor(s.clock / 1440) + 1, wins = s.party.reduce((a, d) => a + (d.wins || 0), 0);
+    const tm = Math.floor((s.time || 0) / 60), hm = `${Math.floor(tm / 60)} h ${String(tm % 60).padStart(2, '0')}`;
     await Game.push(new RecapScene([
       ['Jours passés sur l\'île', String(days)],
+      ['Temps de jeu', hm],
       ['Partenaire', m ? `${m.name} (${m.d.stage}, niv. ${m.level})` : '-'],
       ['Habitants revenus en ville', `${rec} / ${T.RECRUITS.length}`],
       ['Développement de la ville', `${T.progress()} %`],
       ['Combats gagnés', String(wins)],
       ['Shellmon', s.flags.shellmon ? 'vaincu !' : 'toujours sur la plage...'],
-      ['Whamon', s.flags.whamon ? 'libéré !' : 'une ombre dans la mer...'],
+      ['Album de l\'île', `${DW.Cards ? DW.Cards.ch1Count() : 0} / ${DW.Cards ? DW.Cards.CH1.length : 12} cartes`],
       ['Bits', String(s.bits)],
     ], 'BILAN DU CHAPITRE 1'));
     await say("Les chemins de toute l'île sont ouverts : la montagne, le lac, les brumes, le marais... Chaque région cache un Digimon qui a perdu la mémoire.", 'Jijimon');
@@ -157,5 +164,20 @@
     return "Un étrange voile de données bloque le passage... Il est apparu en même temps que les monstres de la forêt et de la plage. Il faut d'abord rétablir le calme sur cette partie de l'île.";
   }
 
-  DW.Chapter = { ChapterScene, townSign, tour, end1, lock };
+  // ------------------------------------------------------------ « Précédemment... » (au chargement d'une partie)
+  function objective() {
+    const s = st(), f = s.flags;
+    if (!f.starter) return 'Ton bébé Digimon t\'attend sur la place de la ville.';
+    if (!f.kuwagamon) return f.kuwaChase ? 'Kuwagamon, le monstre rouge, se cache dans le Grand Arbre de la Clairière de l\'Arrivée. Entraîne ton Digimon avant de l\'affronter : des mots gravés dans l\'écorce gardent l\'entrée.' : 'Tu explores l\'île avec ton partenaire. Les habitants de la ville sont partis vers la forêt...';
+    if (!f.shellLair) return 'Kuwagamon est vaincu. Sur la plage, les cabines téléphoniques murmurent chacune un mot... Dans le bon ordre, c\'est un appel au secours.';
+    if (!(s.kids || {}).tai && s.hero !== 'tai') return 'Le sable s\'est ouvert sous les cabines. Tout au fond de l\'antre, Shellmon retient un enfant prisonnier.';
+    return 'Tai est libre et vit chez toi. On raconte qu\'un garçon blond a été vu près du grand lac...';
+  }
+  async function previously() {
+    const s = st(), m = s.party[0];
+    await say(`PRÉCÉDEMMENT... Jour ${Math.floor(s.clock / 1440) + 1}.${m ? ` ${m.name} (${m.d.stage}, niveau ${m.level}) est à tes côtés.` : ''}`);
+    await say(objective());
+  }
+
+  DW.Chapter = { ChapterScene, townSign, tour, end1, lock, objective, previously };
 })();

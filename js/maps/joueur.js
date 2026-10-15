@@ -56,11 +56,20 @@
       floor: { type: 'herring', cols: ['#d8a868', '#b07e48', '#7a5430'] }, wall: { base: '#fff0d8', alt: '#ffe0b0', pattern: 'stripes', wood: '#e8822a' },
       decor: [{ kind: 'bed', x: 6, y: 3, w: 2, h: 2 }, { kind: 'poster', v: 0, x: 2, y: 1, w: 1, h: 1, back: true, oy: 15 }, { kind: 'poster', v: 1, x: 4, y: 1, w: 1, h: 1, back: true, oy: 15 },
         { kind: 'bigrug', v: 1, x: 3, y: 5, w: 3, h: 1, walk: true }, { kind: 'toybox', x: 2, y: 3, w: 2, h: 1 }],
-      npcs: [{ hero: 'tai', x: 4, y: 4, face: 'down', wander: 1, talk: async () => DW.say(DW.pick([
+      npcs: [{ hero: 'tai', x: 4, y: 4, face: 'down', wander: 1, talk: async () => {
+        const s = st();
+        if ((s.flags.chapter || 1) >= 2 && !s.flags.taiLead) {
+          s.flags.taiLead = true;
+          await DW.say("Écoute ! Un Gomamon de la plage m'a raconté qu'un garçon blond a été vu près du grand lac, au nord-ouest...", 'Tai');
+          await DW.say("Il avait l'air de chercher quelqu'un. C'est sûrement Matt ! Mais un énorme serpent de mer garde le lac... Fais attention.", 'Tai');
+          return;
+        }
+        return DW.say(DW.pick([
+        "Je m'entraîne au Terrain un jour sur deux, en journée. Viens me voir : on bossera ensemble, ou on fera un match !",
         "Merci encore pour l'antre de Shellmon ! J'ai cru qu'on n'en sortirait jamais.", "Agumon dort comme une souche depuis qu'on est ici. Greymon, ça fatigue !",
         "Si on retrouve Matt, il va être vert de jalousie de ma nouvelle chambre !", "Mon écusson... Jijimon dit qu'il doit être caché quelque part sur l'île. Un jour, on le trouvera !",
         "Le foot me manque. Tu crois qu'on pourrait faire une partie avec les Digimon de la ville ?",
-        "Tu as entendu ? Les cabines de la plage se sont remises à sonner... Shellmon est revenu dans son antre. Parfait pour s'entraîner !"]), 'Tai') },
+        "Tu as entendu ? Les cabines de la plage se sont remises à sonner... Shellmon est revenu dans son antre. Parfait pour s'entraîner !"]), 'Tai'); } },
         { sp: 'agumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say('Tu as quelque chose à manger ? Moi, j\'ai toujours faim !', 'Agumon') }] },
     digi:    { name: 'Chambre du Digimon', from: 'etage', w: 10, h: 8, side: 'right', y: 5, by: ['chambre_digi'], floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
       decor: [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }] },

@@ -263,6 +263,13 @@
   async function jijimonTalk() {
     const s = st();
     if (!s.flags.starter) { await say(`${DW.SPECIES[DW.heroLine().baby].name} t'attend dehors, sur la place. Va le voir !`, 'Jijimon'); return; }
+    // album du chapitre 1 complet : une récompense, une fois
+    if (DW.Cards && !s.flags.album1 && DW.Cards.ch1Count() >= DW.Cards.CH1.length) {
+      s.flags.album1 = true; DW.Audio.sfx('fanfare');
+      await say("Hohoho ! Tu as réuni toutes les cartes des Digimon de la forêt et de la plage ? Quel collectionneur !", 'Jijimon');
+      const extra = DW.giveItem('manuel', 1) + DW.giveItem('soin_g', 2); s.bits += 1000;
+      await say(`Tiens, prends ceci : un Manuel de technique, 2 RAM PV++ et 1000 Bits !${DW.extraMsg(extra)}`, 'Jijimon');
+    }
     if (!s.flags.jiji_tanemon) { s.flags.jiji_tanemon = true; await say("Si ton partenaire a faim, va voir Tanemon au Quartier des Champs : il cultive de la Digiviande et en donne chaque jour.", 'Jijimon'); }
     const r = await DW.ask("Que veux-tu, jeune DigiSélectionné ?", ['Se reposer', 'Des conseils', 'Questions', 'Au revoir'], 'Jijimon');
     if (r === 2) { await DW.Guide.questions('Que veux-tu savoir ?'); return; }
@@ -293,8 +300,9 @@
   const SERVICES = {
     async gotsumon() {
       await say('Bienvenue au Bazar de Gotsumon ! Viande fraîche et remèdes !', 'Gotsumon');
-      const r = await DW.ask('Que veux-tu voir ?', ['Boutique', 'Meubles pour ta maison', 'Au revoir'], 'Gotsumon');
+      const r = await DW.ask('Que veux-tu voir ?', ['Boutique', 'Meubles pour ta maison', 'Le pari des cailloux', 'Au revoir'], 'Gotsumon');
       if (r === 1) { await DW.Home.furnitureShop(); return; }
+      if (r === 2) { await gotsuBet(); return; }
       if (r !== 0) return;
       await DW.Game.push(new DW.ShopScene('bazar'));
       await say('Reviens vite !', 'Gotsumon');
@@ -324,8 +332,9 @@
       await DW.Game.push(new DW.FarmScene());
     },
     async biyomon() {
-      const r = await DW.ask('Cui cui ! Je peux te faire voler jusqu\'à un endroit que tu connais, ou te donner des nouvelles !', ['Vol rapide', 'Des nouvelles ?', 'Au revoir'], 'Biyomon');
+      const r = await DW.ask('Cui cui ! Je peux te faire voler jusqu\'à un endroit que tu connais, ou te donner des nouvelles !', ['Vol rapide', 'Des nouvelles ?', 'Le jeu du courrier', 'Au revoir'], 'Biyomon');
       if (r === 0) { await flyMenu(); return; }
+      if (r === 2) { await biyoGame(); return; }
       if (r !== 1) return;
       await say('Cui cui ! Du courrier pour toi ? Hmm... Non, mais j\'ai des nouvelles !', 'Biyomon');
       const next = T().RECRUITS.find(x => !T().has(x.id));
@@ -343,6 +352,34 @@
     },
   };
   DW.Story.services = SERVICES;
+  // le pari de Gotsumon : trois cailloux, un seul cache une pépite (50 Bits la partie, 150 si tu trouves), 3 parties par jour
+  async function gotsuBet() {
+    const s = st(), f = s.flags, d = DW.Time.day();
+    if (!f.gotsuBet || f.gotsuBet.d !== d) f.gotsuBet = { d, n: 0 };
+    if (f.gotsuBet.n >= 3) { await say("Assez joué pour aujourd'hui ! Mes cailloux ont besoin de repos. Grrr.", 'Gotsumon'); return; }
+    if (s.bits < 50) { await say("Il te faut 50 Bits pour jouer !", 'Gotsumon'); return; }
+    if ((await DW.ask("Une pépite est cachée sous un de ces trois cailloux. 50 Bits la partie, je t'en donne 150 si tu la trouves !", ['Jouer', 'Non merci'], 'Gotsumon')) !== 0) return;
+    s.bits -= 50; f.gotsuBet.n++;
+    const win = Math.floor(Math.random() * 3), pick = await DW.ask('Quel caillou ?', ['Le gauche', 'Celui du milieu', 'Le droit'], 'Gotsumon');
+    if (pick === win) { s.bits += 150; DW.Audio.sfx('buy'); await say('Grrr... Bien joué ! Voilà tes 150 Bits.', 'Gotsumon'); }
+    else await say(`Raté ! La pépite était sous ${['le caillou de gauche', 'celui du milieu', 'le caillou de droite'][win]}. Hé hé !`, 'Gotsumon');
+  }
+  // le jeu du courrier de Biyomon : retenir l'ordre de 4 lettres (une fois par jour, récompense : un paquet de cartes)
+  async function biyoGame() {
+    const s = st(), f = s.flags, d = DW.Time.day();
+    if (f.biyoGame === d) { await say("On a déjà joué aujourd'hui ! Reviens demain, j'aurai d'autres lettres.", 'Biyomon'); return; }
+    const DEST = ['Jijimon', 'Gotsumon', 'Tanemon', 'Koromon', 'Motimon'];
+    const seq = Array.from({ length: 4 }, () => DW.pick(DEST));
+    await say(`Je dois livrer ces lettres dans l'ordre : ${seq.join(', puis ')}. Retiens bien !`, 'Biyomon');
+    f.biyoGame = d;
+    for (let i = 0; i < 4; i++) {
+      const r = await DW.ask(`Lettre n°${i + 1} : pour qui ?`, DEST, 'Biyomon');
+      if (DEST[r] !== seq[i]) { await say(`Oh non, celle-là était pour ${seq[i]} ! Pas grave, on rejouera demain. Cui !`, 'Biyomon'); return; }
+    }
+    DW.Audio.sfx('fanfare');
+    const extra = DW.giveItem('cartes', 1);
+    await say(`Parfait ! Toutes les lettres sont arrivées ! Tiens, un Paquet de cartes pour te remercier.${DW.extraMsg(extra)}`, 'Biyomon');
+  }
   // vol rapide (comme Birdramon dans Digimon World) : lieux et régions déjà visités
   async function flyMenu() {
     const s = st(), R = DW.REGION_ENTRY || {};

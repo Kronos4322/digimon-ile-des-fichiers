@@ -268,7 +268,7 @@
         if (E.hp > E.maxHp * (C.at || 0.5)) return null;
         await this.msg(C.join || `${C.name} entre dans le combat !`);
         if (C.from && C.from !== C.sp) await DW.Game.push(new DW.EvolutionScene(new DW.Digimon(C.from, C.lvl), C.sp, { story: true }));
-        Audio.play('boss');
+        Audio.play(this.o.music || 'boss');
         this.allyMon = new DW.Digimon(C.sp, C.lvl); this.allyN = 0; DW.state.seen[C.sp] = true;
         await this.msg(`${this.allyMon.name} se bat à tes côtés !`);
         return null;

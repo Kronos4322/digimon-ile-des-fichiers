@@ -125,8 +125,11 @@
     objects.push({ kind: 'templegate', v: 1, x: sx, y: sy, w: 1, h: 1, walk: true }, { kind: 'templegate', v: 0, x: ex, y: ey, w: 1, h: 1, walk: true });
     for (const [x, y] of [[sx - 2, sy], [sx + 2, sy], [ex - 2, ey], [ex + 2, ey]]) if ('.,'.includes(g[y][x])) objects.push({ kind: 'brazier', v: 1, x, y, w: 1, h: 1, small: true });
     for (const o of objects) if (g[o.y] && g[o.y][o.x] === '#') o.skip = true;
+    // trésors : 2 coffres au bout des culs-de-sac (salles reliées par un seul couloir, loin des portes)
+    const dead = maze.C.filter(c => c !== maze.start && c !== maze.end && maze.halls.some(h => h.c === c)).sort((a, b) => b.d - a.d).slice(0, 2);
+    const chests = dead.map(c => [Math.round(c.x), Math.round(c.y) - 1]).filter(([x, y]) => g[y] && '.,'.includes(g[y][x]));
     MAPS[id] = {
-      name, music: 'cave', bg: 'plage', ambient: 'forest', theme: 'sandtemple', climate: 'beach', region: 'plage', indoor: true,
+      name, music: 'temple', bg: 'plage', ambient: 'forest', theme: 'sandtemple', climate: 'beach', region: 'plage', indoor: true,
       dark: { d: 0.55, col: '#140a04' }, rate: 0.1, wildN: 11, aggro: 0.9, sight: 7, encounters: enc,
       rows: g.map(r => r.join('')), objects: objects.filter(o => !o.skip), npcs: [], signs: {}, warps: [], doors: [],
       triggers: [
@@ -135,6 +138,14 @@
       ],
       entry: { x: sx, y: sy + 1 }, exitAt: { x: ex, y: ey + 1 },
     };
+    // contenu des coffres : de bons objets et une carte de l'album
+    const LOOT = [[['soin_m', 2], ['pm_m', 1]], [['cartes', 2], ['super_viande', 1]]];
+    chests.forEach(([x, y], i) => {
+      MAPS[id].objects = MAPS[id].objects.filter(o => !(Math.abs(o.x - x) <= 1 && Math.abs(o.y - y) <= 1));
+      DW.Palais.treasure(id, `${id}_coffre${i}`, null, LOOT[i % 2], x, y);
+      const sign = MAPS[id].signs[`${x},${y}`];
+      MAPS[id].signs[`${x},${y}`] = async ow => { const had = (DW.state.chests || {})[`${id}_coffre${i}`]; await sign(ow); if (!had && DW.Cards && DW.Cards.give(i ? 'betamon' : 'bukamon')) await say(`Au fond du coffre, une carte de ${DW.SPECIES[i ? 'betamon' : 'bukamon'].name} pour ton album !`); };
+    });
     return MAPS[id];
   }
   const [px, py] = DW.MapKit.zpt('plage', 18, 27);
@@ -162,7 +173,7 @@
     for (const [x, y, k, v] of [[12, 7, 'hieroslab', 0], [33, 7, 'hieroslab', 1], [10, 9, 'urn', 0], [35, 9, 'urn', 1], [6, 17, 'urn', 2], [40, 16, 'urn', 0], [14, 24, 'brokenpillar', 0]]) if (g[y][x] === '.') objects.push({ kind: k, v, x, y, w: 1, h: 1, small: k === 'urn' || k === 'brokenpillar' });
     for (const [x, y] of [[18, 20], [27, 22], [11, 14], [30, 12], [16, 11]]) if (g[y][x] === '.') objects.push({ kind: 'shellpile', v: (x + y) % 2, x, y, w: 1, h: 1, small: true, walk: true });
     MAPS.antre_shellmon = {
-      name: 'Antre de Shellmon — La grande coquille', music: 'cave', bg: 'plage', ambient: 'forest', theme: 'sandtemple', climate: 'beach', region: 'plage', indoor: true,
+      name: 'Antre de Shellmon — La grande coquille', music: 'temple', bg: 'plage', ambient: 'forest', theme: 'sandtemple', climate: 'beach', region: 'plage', indoor: true,
       dark: { d: 0.5, col: '#100a06' }, rows: g.map(r => r.join('')), objects, npcs: [], signs: {}, warps: [], doors: [],
       triggers: [{ x: 21, y: 31, w: 4, h: 1, run: async ow => { await DW.fade(1, 0.3); ow.load('antre2', L2.exitAt.x, L2.exitAt.y, 'down'); await DW.fade(0, 0.3); } }],
       entry: { x: 22, y: 29 },
@@ -191,7 +202,7 @@
     const lvl = first ? 16 : Math.min(60, Math.max(16, top + 1));
     const ally = first && perso() ? { at: 0.5, from: 'agumon', sp: 'greymon', lvl: 16, hero: 'tai', name: 'Tai', move: 'mega_flamme',
       join: "CRAC ! Le coquillage qui retenait Tai se fend ! « Agumon, on s'y met aussi ! »" } : null;
-    const res = await ow.battle({ enemy: new DW.Digimon('shellmon', lvl), boss: true, canLose: true, ally, intro: 'Shellmon déploie ses tentacules !' });
+    const res = await ow.battle({ enemy: new DW.Digimon('shellmon', lvl), boss: true, canLose: true, ally, music: 'shellmon', intro: 'Shellmon déploie ses tentacules !' });
     if (res !== 'win') { await say(first ? 'Shellmon est bien trop fort... Entraîne-toi, digivolue, et reviens délivrer Tai !' : 'Shellmon retourne se tapir dans sa coquille...'); return; }
     if (!first) { s.bits += 30 * lvl; await say(`Shellmon s'enfonce dans le sable en grommelant. (+${30 * lvl} Bits)`); return; }
     s.flags.shellmon = true;
@@ -208,7 +219,7 @@
       DW.Audio.sfx('fanfare');
       await say('Tai et Agumon sont délivrés ! Ils s\'installent dans une chambre de ta maison.');
     }
-    DW.Trophies.give('shellmon'); DW.Audio.sfx('fanfare');
+    DW.Trophies.give('shellmon'); DW.Audio.sfx('fanfare'); if (DW.Cards) { DW.Cards.give('shellmon'); DW.Cards.give('greymon'); }
     await say('Tu reçois le Trophée de Shellmon ! (Il rejoint la cave de ta maison.)');
     const extra = DW.giveItem('soin_m', 3) + DW.giveItem('pm_m', 2); s.bits += 800;
     await say(`Dans la coquille vide, tu trouves 3 RAM PV+, 2 RAM PM+ et 800 Bits !${DW.extraMsg(extra)}`);

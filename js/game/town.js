@@ -66,6 +66,7 @@
       st.recruits = st.recruits || {};
       st.recruits[id] = true;
       st.seen[id] = true;
+      if (DW.Cards && DW.Cards.give(id)) DW.Care.toast(`Carte de ${DW.SPECIES[id].name} ajoutée à ton album !`, '#a0e0ff');
       DW.Audio.play('victory');
       await DW.say(`${name} part s'installer à la Ville des Fichiers !`);
       await DW.say("Il s'y passe sûrement quelque chose... Va voir ce qui a changé en ville !");
