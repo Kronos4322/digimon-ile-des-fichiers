@@ -362,6 +362,7 @@
     draw(c) {
       UI.menuBg(c, this.t, 'OBJETS');
       const L = this.list;
+      UI.text(c, `Sac : ${DW.bagUsed()}/${DW.bagSlots()} sortes`, W / 2 + 10, 17, { size: 8, align: 'center', color: DW.bagUsed() >= DW.bagSlots() ? '#ffb070' : '#9ab0e8' });
       UI.text(c, `${DW.state.bits} Bits`, W - 12, 17, { size: 9, align: 'right', color: '#ffe070' });
       UI.box(c, 6, 26, W - 12, 150);
       if (!L.length) UI.text(c, 'Ton sac est vide.', W / 2, 100, { size: 10, align: 'center', color: '#8ae0f0' });
@@ -389,18 +390,23 @@
   // Gauche/Droite : sac ou banque   Haut/Bas : objet   ESPACE : 1 objet   ENTRÉE : tout   ÉCHAP : sortir
   // seuls les objets que tu possèdes (dans le sac ou ici) apparaissent : rien n'est dévoilé à l'avance
   class BankScene extends DW.Scene {
-    constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; }
-    get list() { const st = DW.state, bank = st.bank || {}; return DW.ITEM_ORDER.filter(id => (st.bag[id] || 0) + (bank[id] || 0) > 0); }
+    // o.store : 'bank' (coffre, Banque : tout SAUF la nourriture) ou 'fridge' (frigo : la nourriture seulement, 20 de chaque)
+    constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; this.store = o.store || 'bank'; }
+    get box() { const st = DW.state; return (st[this.store] = st[this.store] || {}); }
+    accepts(id) { return this.store === 'fridge' ? DW.isFood(id) : !DW.isFood(id); }
+    get list() { const st = DW.state, bank = this.box; return DW.ITEM_ORDER.filter(id => (bank[id] || 0) > 0 || ((st.bag[id] || 0) > 0 && this.accepts(id))); }
     move(id, all) {
-      const st = DW.state; st.bank = st.bank || {};
-      const from = this.side ? st.bank : st.bag, have = from[id] || 0;
+      const st = DW.state, bank = this.box;
+      const from = this.side ? bank : st.bag, have = from[id] || 0;
       let n = all ? have : Math.min(1, have);
-      if (!this.side) { st.bank[id] = (st.bank[id] || 0) + n; st.bag[id] = have - n; }
+      if (!this.side && !this.accepts(id)) { Audio.sfx('bump'); this.msg = this.store === 'fridge' ? 'Seule la nourriture va au frigo !' : 'La nourriture ne se range pas ici : mets-la au frigo !'; this.msgT = 2; return; }
+      if (!this.side && this.store === 'fridge') n = Math.min(n, Math.max(0, 20 - (bank[id] || 0)));
+      if (!this.side) { bank[id] = (bank[id] || 0) + n; st.bag[id] = have - n; }
       else {
         n = Math.min(n, DW.bagRoom(id));
         if (!n && have) { Audio.sfx('bump'); this.msg = 'Ton sac est plein pour cet objet !'; this.msgT = 2; return; }
         st.bag[id] = (st.bag[id] || 0) + n;
-        st.bank[id] = have - n;
+        bank[id] = have - n;
       }
       if (n) { Audio.sfx('buy'); this.msg = `${DW.ITEMS[id].name} x${n} ${this.side ? 'retiré' : 'déposé'}${n > 1 ? 's' : ''}`; this.msgT = 1.6; } else Audio.sfx('bump');
     }
@@ -417,7 +423,7 @@
     }
     tick(dt) { if (this.msgT > 0) this.msgT -= dt; }
     draw(c) {
-      const st = DW.state, bank = st.bank || {}, L = this.list, ROWS = 5;
+      const st = DW.state, bank = this.box, L = this.list, ROWS = 5;
       // liste défilante : 5 objets visibles autour du curseur
       const top = DW.clamp(this.i - 2, 0, Math.max(0, L.length - ROWS));
       UI.menuBg(c, this.t, this.title);
@@ -425,7 +431,7 @@
       for (let s = 0; s < 2; s++) {
         const x = 8 + s * 156;
         UI.box(c, x, 26, 148, 26, this.side === s ? 'dwsel' : 'dw');
-        UI.text(c, s ? this.title : `SAC (${DW.BAG_MAX} max)`, x + 74, 43, { size: 9, align: 'center', color: '#ffe070' });
+        UI.text(c, s ? this.title : `SAC ${DW.bagUsed()}/${DW.bagSlots()} sortes`, x + 74, 43, { size: 9, align: 'center', color: '#ffe070' });
         UI.box(c, x, 56, 148, 122);
         if (top > 0) UI.text(c, '▲', x + 74, 62, { size: 7, align: 'center', color: '#8ae0f0' });
         if (top + ROWS < L.length) UI.text(c, '▼', x + 74, 177, { size: 7, align: 'center', color: '#8ae0f0' });

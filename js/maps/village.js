@@ -234,7 +234,7 @@
       if (!T().level()) tips.push("La ville est vide... Les Digimon de l'île ont tout oublié. Explore l'ouest, retrouve-les et ramène-les ici !");
       if (m && DW.Training.total(m) < 10) tips.push("Les combats font monter le niveau. Mais pour digivoluer, il faut s'entraîner au Terrain d'entraînement, au sud.");
       if (next) tips.push(`On m'a dit qu'un Digimon rôde du côté de « ${MAPS[next.zone].name} »... Il cherche peut-être un endroit où vivre.`);
-      if (Object.values(s.bag).some(n => n >= DW.BAG_MAX)) tips.push(`Ton sac ne peut pas contenir plus de ${DW.BAG_MAX} exemplaires d'un même objet. Le surplus est mis de côté...`);
+      if (DW.bagUsed() >= DW.bagSlots() || Object.values(s.bag).some(n => n >= DW.BAG_MAX)) tips.push(`Ton sac est limité : ${DW.BAG_MAX} exemplaires par objet et ${DW.bagSlots()} sortes d'objets. Plein, il ne ramasse plus rien : range tes affaires dans ton coffre, et la nourriture dans ton frigo !`);
       tips.push("Jijimon te laisse dormir chez lui : ça soigne toute l'équipe.", "Ton partenaire a besoin d'aller aux toilettes de temps en temps. Sinon... gare aux accidents !");
     }
     if (urgent.length) { await say(urgent[0], 'Koromon'); return; }

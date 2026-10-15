@@ -10,13 +10,13 @@
 (function () {
   const I = DW.ITEMS = {
     // ------------------------------------------------------------ soins
-    soin_p:       { name: 'Petit soin', price: 100, tier: 0, use: 'heal', amt: 500, icon: ['potion', '#5ad870'], desc: 'Restaure 500 PV.' },
-    soin_m:       { name: 'Soin moyen', price: 500, tier: 4, use: 'heal', amt: 1500, icon: ['potion', '#3ab8e0'], desc: 'Restaure 1500 PV.' },
-    soin_g:       { name: 'Grand soin', price: 1000, tier: 8, use: 'heal', amt: 5000, icon: ['potion', '#a05ae0'], desc: 'Restaure 5000 PV.' },
-    soin_s:       { name: 'Super soin', price: 2500, tier: 12, use: 'heal', full: true, icon: ['potion', '#f0c030'], desc: 'Restaure tous les PV.' },
-    disque_pm:    { name: 'Disquette PM', price: 300, tier: 0, use: 'mp', amt: 500, icon: ['disk', '#5ab0ff'], desc: 'Restaure 500 PM.' },
-    pm_m:         { name: 'Disquette PM+', price: 800, tier: 4, use: 'mp', amt: 1500, icon: ['disk', '#3a7ae0'], desc: 'Restaure 1500 PM.' },
-    pm_g:         { name: 'Disquette PM++', price: 2000, tier: 8, use: 'mp', amt: 5000, icon: ['disk', '#2a4ab0'], desc: 'Restaure 5000 PM.' },
+    soin_p:       { name: 'RAM PV', price: 100, tier: 0, use: 'heal', amt: 500, icon: ['potion', '#5ad870'], desc: 'Restaure 500 PV.' },
+    soin_m:       { name: 'RAM PV+', price: 500, tier: 4, use: 'heal', amt: 1500, icon: ['potion', '#3ab8e0'], desc: 'Restaure 1500 PV.' },
+    soin_g:       { name: 'RAM PV++', price: 1000, tier: 8, use: 'heal', amt: 5000, icon: ['potion', '#a05ae0'], desc: 'Restaure 5000 PV.' },
+    soin_s:       { name: 'Super RAM PV', price: 2500, tier: 12, use: 'heal', full: true, icon: ['potion', '#f0c030'], desc: 'Restaure tous les PV.' },
+    disque_pm:    { name: 'RAM PM', price: 300, tier: 0, use: 'mp', amt: 500, icon: ['disk', '#5ab0ff'], desc: 'Restaure 500 PM.' },
+    pm_m:         { name: 'RAM PM+', price: 800, tier: 4, use: 'mp', amt: 1500, icon: ['disk', '#3a7ae0'], desc: 'Restaure 1500 PM.' },
+    pm_g:         { name: 'RAM PM++', price: 2000, tier: 8, use: 'mp', amt: 5000, icon: ['disk', '#2a4ab0'], desc: 'Restaure 5000 PM.' },
     double_disk:  { name: 'Double disquette', price: 1500, tier: 6, use: 'heal', amt: 1500, mp: 1500, icon: ['disk', '#e05ab0'], desc: 'Restaure 1500 PV et 1500 PM.' },
     remede:       { name: 'Remède universel', price: 300, tier: 0, use: 'cure', icon: ['potion', '#f0f0f0'], desc: 'Soigne le poison, la brûlure, la paralysie et le sommeil.' },
     omnipotent:   { name: 'Omnipotent', price: 2000, tier: 8, use: 'heal', amt: 2000, mp: 2000, cure: true, icon: ['potion', '#ff7a3a'], desc: 'Soigne les altérations, rend 2000 PV et 2000 PM.' },
@@ -56,6 +56,7 @@
     chaussures:   { name: 'Chaussures santé', price: 2000, tier: 12, use: 'passive', icon: ['tool', '#e05a3a'], desc: "Tant qu'elles sont dans ton sac : marcher rend un peu de PV et de PM." },
     cartes:       { name: 'Paquet de cartes', price: 200, tier: 0, use: 'pack', desc: '3 cartes Digimon au hasard pour ton album (Menu → ALBUM). Les cartes rares sont précieuses !' },
     // ------------------------------------------------------------ nourriture
+    eau_fraiche:  { name: 'Eau fraîche', price: 40, tier: 0, use: 'heal', food: 0, drink: 70, icon: ['potion', '#8ad8ff'], desc: 'Une bouteille d\'eau bien fraîche. Étanche la soif.' },
     viande:       { name: 'Viande', price: 50, tier: 0, use: 'heal', amt: 600, food: 60, icon: ['meat', '#c8643c'], desc: 'Un bon morceau de viande. Calme la faim et restaure 600 PV.' },
     super_viande: { name: 'Viande géante', price: 500, tier: 3, use: 'heal', amt: 1800, food: 100, icon: ['meat', '#a84a2a'], desc: 'Rassasie bien et restaure 1800 PV.' },
     surlonge:     { name: 'Surlonge', price: 1500, tier: 9, use: 'heal', full: true, food: 100, happy: 5, icon: ['meat', '#8a2a1a'], desc: 'Rassasie complètement et restaure tous les PV.' },
@@ -124,6 +125,20 @@
   }
 
   // ordre d'affichage dans le sac
+  // LA NOURRITURE NE SOIGNE PLUS (comme Digimon World 1) : elle calme la faim et fait prendre du poids
+  // (le poids compte pour les Digivolutions). Pour les PV et les PM : les RAM (boutiques, distributeurs).
+  // Les effets spéciaux (bonheur, fatigue, puces, discipline...) restent.
+  for (const k in I) {
+    const it = I[k];
+    if (it.food == null) continue;
+    const healed = it.amt || it.full || it.mp || it.mpFull;
+    delete it.amt; delete it.full; delete it.mp; delete it.mpFull;
+    if (it.fat == null) it.fat = Math.round(it.food / 25) / 4;   // un repas complet : +1 de poids
+    if (healed && /PV|PM/.test(it.desc) && !/max/.test(it.desc)) {
+      const f = it.food, extra = [it.happy ? 'rend heureux' : '', it.tired ? 'chasse la fatigue' : '', it.disc ? 'aide la discipline' : '', it.life ? "allonge la vie d'un jour" : ''].filter(Boolean);
+      it.desc = (f >= 100 ? 'Rassasie complètement' : f >= 60 ? 'Rassasie bien' : f >= 30 ? 'Calme la faim' : 'Calme un peu la faim') + (extra.length ? ', ' + extra.join(', ') : '') + '. Fait prendre du poids.';
+    }
+  }
   DW.ITEM_ORDER = Object.keys(I);
 
   // ------------------------------------------------------------ boutiques (le stock grandit avec la ville)

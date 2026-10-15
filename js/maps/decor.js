@@ -59,6 +59,8 @@
   const NO_DRESS = new Set(['town', 'farm', 'nursery']);
   const GROUND = new Set(['.', 's', ',', ';', 'f', 'j', 'n', 'm', '3', 'v', 'q']);   // sol où l'on peut poser un élément
 
+  // seules les petites plantes se traversent (fougères, roseaux, fleurs...) : pierres, os, crabes... bloquent le passage
+  const SOFT = /fern|reeds|flower|grass|clover|starfish|shroom/;
   function dress(m, id) {
     if (m._dressFor === m.rows || m.indoor || m.dress === false || NO_DRESS.has(m.theme) || !KITS[m.theme] || !m.rows) return;
     const W = DW.World, A = DW.Art, kits = KITS[m.theme], seed = [...String(id || m.name)].reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 11) & 1023;
@@ -128,9 +130,9 @@
         const x = cx + ox - Math.floor(fw / 2), y = cy + oy;
         for (let xx = x; xx < x + fw; xx++) if (!free(xx, y)) return;
         const v = Math.floor(A.hash(tries, 30 + j, seed) * (W.OBJ[kind].n || 1));
-        const o = { kind, v, x, y, w: fw, h: 1, decor: true, ...(tiny ? { walk: true } : {}), ...(spr.h < 30 ? { small: true } : {}) };
+        const o = { kind, v, x, y, w: fw, h: 1, decor: true, ...(tiny && SOFT.test(kind) ? { walk: true } : {}), ...(spr.h < 30 ? { small: true } : {}) };
         m.objects.push(o); added.push(o);
-        if (!tiny) mark(o, occ);
+        if (!o.walk) mark(o, occ);
       });
       if (!added.length) continue;
       // un ensemble qui coupe un chemin est retiré

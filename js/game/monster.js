@@ -151,6 +151,8 @@
     switch (it.use) {
       case 'heal': {
         if (m.hp <= 0) return false;
+        // nourriture : hors combat seulement, quand il a faim (ou soif, ou pour un effet spécial)
+        if (it.food != null) return !battle && (m.hunger >= 5 || (it.drink && (m.thirst || 0) >= 5) || !!(it.chip || it.boost || it.disc || it.happy || it.tired || it.life || it.fat < 0));
         const special = it.chip || it.boost || it.disc || it.happy || it.fat || it.tired || it.life;
         return m.hp < m.maxHp || (it.mp || it.mpFull) && m.mp < m.maxMp || (it.cure && m.status) || (!battle && (m.hunger >= 5 || special));
       }
@@ -183,9 +185,10 @@
       if (it.use === 'mp' || it.mp || it.mpFull) m.mp = Math.min(m.maxMp, it.mpFull ? m.maxMp : m.mp + (it.use === 'mp' ? it.amt || 0 : it.mp || 0));
       if (it.cure) { m.status = null; m.slp = 0; }
       const fed = it.food && DW.Care && DW.Care.feed(m, it.food);
+      if (it.drink) { m.thirst = Math.max(0, (m.thirst || 0) - it.drink); txt.push('soif étanchée'); }
       if (it.happy) m.addHappy(it.happy);
       if (it.disc && DW.Life) { DW.Life.addDisc(m, it.disc); txt.push(`discipline ${it.disc > 0 ? '+' : ''}${it.disc}`); }
-      if (it.fat && DW.Life) { DW.Life.addFat(m, it.fat); txt.push(it.fat > 0 ? 'il grossit' : 'il maigrit'); }
+      if (it.fat && DW.Life) { DW.Life.addFat(m, it.fat); if (Math.abs(it.fat) >= 1 || it.fat < 0) txt.push(it.fat > 0 ? 'il grossit' : 'il maigrit'); }
       if (it.tired) { m.tired = Math.max(0, m.tired - it.tired); txt.push('plus de fatigue'); }
       if (it.boost) { m.boost = (m.boost || 0) + it.boost; txt.push(`prochaine séance +${m.boost} point${m.boost > 1 ? 's' : ''}`); }
       if (it.life) { m.lifespan += it.life; txt.push(`vie +${it.life} jour`); }
@@ -193,7 +196,7 @@
       if (it.risky && Math.random() < it.risky) { m.sick = m.sick || st.clock; txt.push('... mais il tombe malade !'); }
       if (m.hp > hp0) txt.unshift(`+${m.hp - hp0} PV`);
       if (m.mp > mp0) txt.unshift(`+${m.mp - mp0} PM`);
-      return `${m.name} ${it.food ? 'mange avec appétit' : 'utilise ' + it.name}${fed ? ' (faim apaisée)' : ''}${txt.length ? ' : ' + txt.join(', ') : ''} !`;
+      return `${m.name} ${it.drink ? 'boit à grandes gorgées' : it.food ? 'mange avec appétit' : 'utilise ' + it.name}${fed ? ' (faim apaisée)' : ''}${txt.length ? ' : ' + txt.join(', ') : ''} !`;
     }
     if (it.use === 'cure') { m.status = null; m.slp = 0; return `${m.name} est en pleine forme !`; }
     if (it.use === 'revive') { m.hp = it.full ? m.maxHp : Math.floor(m.maxHp / 2); if (it.full) m.mp = m.maxMp; m.status = null; return `${m.name} reprend connaissance !`; }
@@ -205,17 +208,21 @@
   DW.ITEM_STAGES = STAGES;
   // prochaine technique de l'espèce que le Digimon ne connaît pas encore (Manuel de technique)
   DW.nextMove = m => { for (const [l, id] of m.d.learn) if (l > 0 && !m.knows(id) && DW.MOVES[id]) return id; return null; };
-  // sac : 10 exemplaires de chaque objet au maximum ; le surplus est mis de côté à la Banque
+  // SAC DE VOYAGE (comme Digimon World 1) : 10 exemplaires de chaque objet, et un nombre limité de SORTES d'objets
+  // (10 places, +4 avec chaque Grand sac acheté au Bazar). Plein : on ne peut plus rien ramasser, il faut
+  // passer à la maison (coffre : tout sauf la nourriture ; frigo : la nourriture) ou à la Banque de Kunemon.
   DW.BAG_MAX = 10;
-  DW.bagRoom = id => Math.max(0, DW.BAG_MAX - (DW.state.bag[id] || 0));
-  // renvoie le nombre d'objets mis de côté (0 si tout tient dans le sac)
+  DW.bagSlots = () => 10 + (DW.Home && DW.Home.owned('sac1') ? 4 : 0) + (DW.Home && DW.Home.owned('sac2') ? 4 : 0);
+  DW.bagUsed = () => Object.keys(DW.state.bag).filter(k => DW.state.bag[k] > 0).length;
+  DW.bagRoom = id => (DW.state.bag[id] || 0) > 0 || DW.bagUsed() < DW.bagSlots() ? Math.max(0, DW.BAG_MAX - (DW.state.bag[id] || 0)) : 0;
+  DW.isFood = id => DW.ITEMS[id] && DW.ITEMS[id].food != null;
+  // renvoie le nombre d'objets laissés sur place (0 si tout tient dans le sac)
   DW.giveItem = (id, n = 1) => {
     const st = DW.state, add = Math.min(n, DW.bagRoom(id)), extra = n - add;
     st.bag[id] = (st.bag[id] || 0) + add;
-    if (extra > 0) { st.bank = st.bank || {}; st.bank[id] = (st.bank[id] || 0) + extra; }
     return extra;
   };
-  DW.extraMsg = extra => (extra ? `  (Sac plein : ${extra} mis de côté${DW.Town && DW.Town.has('kunemon') ? ' à la Banque' : ''}.)` : '');
+  DW.extraMsg = extra => (extra ? `  (Ton sac est plein : ${extra} laissé${extra > 1 ? 's' : ''} sur place... Range tes affaires à la maison !)` : '');
 
   // ------------------------------------------------------------ état de partie & sauvegarde
   // Trois emplacements : la sauvegarde, la copie précédente (écrite juste avant chaque sauvegarde)
@@ -304,7 +311,7 @@
       for (const id in st.poops || {}) if (Zm[id]) st.poops[id] = st.poops[id].map(([x, y]) => zp(id, x, y));
     }
     st.v = DW.SAVE_V;
-    for (const box of [st.bag, st.bank]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
+    for (const box of [st.bag, st.bank, st.fridge || {}]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
     const orphans = (st.orphans || []).slice();
     st.orphans = [];
     // v5 : PV et PM passent à l'échelle Digimon World (×20) ; les PV restants suivent

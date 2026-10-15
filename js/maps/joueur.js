@@ -23,7 +23,7 @@
     coffre:   { name: 'Coffre', price: 0, objs: [{ kind: 'chest', x: 1, y: 6, w: 1, h: 1, small: true }], desc: 'Range les objets que ton sac ne peut pas porter.' },
     toilettes:{ name: 'Toilettes privées', price: 600, room: 'sdb', objs: [{ kind: 'toilet', x: 6, y: 3, w: 2, h: 1 }], desc: 'Des toilettes rien qu\'à vous : plus besoin de courir dehors !' },
     plantes:  { name: 'Plantes vertes', price: 500, objs: [{ kind: 'bigplant', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'flowerpots', v: 1, x: 3, y: 6, w: 2, h: 1 }], desc: 'Les arroser chaque jour rend ton partenaire heureux (bonheur +3).' },
-    frigo:    { name: 'Réfrigérateur', price: 1200, room: 'cuisine', objs: [{ kind: 'fridge', x: 10, y: 3, w: 1, h: 1, small: true }], desc: 'Chaque jour, un en-cas s\'y trouve (viande, pain, fruit...).' },
+    frigo:    { name: 'Réfrigérateur', price: 1200, room: 'cuisine', objs: [{ kind: 'fridge', x: 10, y: 3, w: 1, h: 1, small: true }], desc: 'Range ta nourriture (le coffre n\'en veut pas), 20 de chaque. Et chaque jour, un en-cas s\'y trouve !' },
     tele:     { name: 'Télévision', price: 1000, objs: [{ kind: 'crttv', x: 5, y: 3, w: 2, h: 1 }], desc: 'Les nouvelles de l\'île et des rumeurs. Regarder ensemble rend heureux.' },
     biblio:   { name: 'Bibliothèque', price: 1500, objs: [{ kind: 'bookshelf', v: 1, x: 3, y: 3, w: 2, h: 1 }], desc: 'Lire une histoire chaque jour à ton partenaire : discipline +5.' },
     cuisine:  { name: 'Cuisine équipée', price: 2500, room: 'cuisine', objs: [{ kind: 'kitchen', x: 4, y: 3, w: 4, h: 1 }], desc: 'Cuisine tes recettes à la maison, quand tu veux.' },
@@ -31,6 +31,8 @@
     aquarium: { name: 'Aquarium', price: 2000, objs: [{ kind: 'aquarium', x: 11, y: 10, w: 3, h: 1 }], desc: 'Regarder les poissons détend : bonheur +5 une fois par jour.' },
     ordi:     { name: 'Ordinateur', price: 4000, objs: [{ kind: 'computer', x: 11, y: 7, w: 2, h: 1 }], desc: 'Gère ta DigiFerme depuis la maison.' },
     tapis:    { name: 'Grand tapis et canapé', price: 1800, objs: [{ kind: 'bigrug', v: 1, x: 2, y: 7, w: 4, h: 2, walk: true }, { kind: 'sofa', v: 0, x: 1, y: 10, w: 3, h: 1 }], desc: 'Un salon confortable : ton partenaire se repose mieux (le lit rend aussi +5 de bonheur).' },
+    sac1:     { name: 'Grand sac de voyage', price: 1500, objs: [], desc: 'Ton sac peut contenir 4 sortes d\'objets de plus (14).' },
+    sac2:     { name: 'Sac d\'explorateur', price: 5000, objs: [], desc: 'Encore 4 sortes d\'objets de plus dans ton sac (18).' },
     tableau:  { name: 'Tableaux', price: 800, objs: [{ kind: 'painting', v: 0, x: 9, y: 1, w: 2, h: 1, back: true, oy: 6 }, { kind: 'painting', v: 1, x: 12, y: 1, w: 2, h: 1, back: true, oy: 6 }], desc: 'De beaux tableaux aux murs. Pour le plaisir des yeux.' },
   };
   const ORDER = Object.keys(FURN);
@@ -69,7 +71,7 @@
       DW.autosave();
       await say('(Partie sauvegardée.)');
     },
-    async coffre() { await DW.Game.push(new DW.BankScene({ title: 'COFFRE' })); },
+    async coffre() { await DW.Game.push(new DW.BankScene({ title: 'COFFRE' })); },   // tout sauf la nourriture
     async toilettes() { await DW.Care.toilet(); },
     async plantes() {
       if (!once('plantes')) { await say('Les plantes sont bien arrosées. Elles ont l\'air heureuses.'); return; }
@@ -77,7 +79,10 @@
       await say('Tu arroses les plantes avec ton partenaire. Ça sent bon la terre mouillée ! (bonheur +3)');
     },
     async frigo() {
-      if (!once('frigo')) { await say('Le frigo est vide... Il sera rempli demain.'); return; }
+      const r = await DW.ask('Le réfrigérateur ronronne doucement.', ['Ranger / prendre', 'L\'en-cas du jour', 'Fermer']);
+      if (r === 0) { await DW.Game.push(new DW.BankScene({ title: 'FRIGO', store: 'fridge' })); return; }
+      if (r !== 1) return;
+      if (!once('frigo')) { await say('Tu as déjà pris l\'en-cas du jour. Il y en aura un autre demain.'); return; }
       const id = DW.pick(['viande', 'viande', 'pain', 'brioche', 'pomme_bleue', 'baie_rouge', 'digichampi', 'croissant']);
       const extra = DW.giveItem(id); DW.Audio.sfx('buy');
       await say(`Dans le frigo : ${DW.ITEMS[id].name} !${DW.extraMsg(extra)}`);

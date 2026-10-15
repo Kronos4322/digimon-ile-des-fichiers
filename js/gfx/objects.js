@@ -222,6 +222,25 @@
       d.deco.rect(3.4, 3.6, 5.2, 6, '#ffe08a', { unlit: true });
       d.deco.rect(4.4, 4.6, 1.4, 2.4, '#ffffff', { unlit: true });
     } },
+    // distributeur (Digimon World 1) : 0 PV (vert), 1 PM (bleu), 2 nourriture (orange) ; grand, coloré, éclairé la nuit
+    vending: { w: 26, h: 44, n: 3, lights: [[13, 16, 22]], draw(d, v) {
+      const body = ['#2ec060', '#2a74e8', '#f07a1a'][v], dark = ['#147a38', '#163e96', '#9a4410'][v], item = ['#ff4a5a', '#7ad0ff', '#c8643c'][v];
+      d.ell(13, 43, 12, 2, '#1a1a1a', 0, { flat: true });
+      d.rect(1, 6, 24, 37, body, { round: 0.12, tex: 0.12 });
+      // enseigne lumineuse
+      d.rect(0, 0, 26, 8, dark, { round: 0.25 });
+      d.deco.rect(2, 1.6, 22, 4.8, '#fff6c0', { unlit: true });
+      d.deco.rect(4, 2.6, 18, 2.8, item, { unlit: true });
+      // vitrine éclairée avec ses produits
+      d.deco.rect(3, 9, 14, 20, '#dff6ff', { unlit: true });
+      for (let r = 0; r < 4; r++) { d.deco.rect(3, 13.6 + r * 5, 14, 0.8, '#9ab8c8'); for (let k = 0; k < 3; k++) d.deco.rect(4 + k * 4.4, 10.4 + r * 5, 3.2, 3, item, { unlit: true }); }
+      // monnayeur et boutons
+      d.deco.rect(19, 10, 4, 3, '#ffe070', { unlit: true }); d.deco.rect(19.6, 14, 2.8, 1.4, '#1a1a1a');
+      for (let r = 0; r < 3; r++) d.deco.circ(21, 18 + r * 3.4, 1.1, ['#ff5050', '#50d050', '#ffffff'][r], { unlit: true });
+      // trappe de sortie
+      d.deco.rect(4, 32, 18, 6, '#141414'); d.deco.rect(4, 32, 18, 1.4, '#3a3a3a');
+      d.deco.rect(1, 6, 2, 37, 'rgba(255,255,255,0.25)');
+    } },
     weights: { w: 26, h: 22, n: 1, draw(d) {
       d.ell(13, 20, 11, 2.4, '#4a3a2a', 0, { flat: true });
       d.tube([[5, 13], [21, 13]], 2.4, 2.4, '#8a5a32');

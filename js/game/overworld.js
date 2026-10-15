@@ -24,6 +24,7 @@
       if (DW.MAPS[mapId].populate) DW.MAPS[mapId].populate();
       this.map = DW.getMap(mapId); this.mapId = mapId;
       if (DW.MapKit.dress) DW.MapKit.dress(this.map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
+      if (DW.Distrib) DW.Distrib.place(this.map, mapId);       // distributeurs de PV / PM / nourriture (maps/distrib.js)
       this.gfx = DW.World.prepare(this.map);
       // cartes voisines (sorties et portes) : préparées pendant qu'on explore ; les autres sont libérées
       const near = new Set([mapId, ...(this.map.warps || []).map(w => w.to), ...(this.map.doors || []).map(d => d.to)]);
@@ -408,14 +409,14 @@
       const st = DW.state;
       await DW.say('Tu perds connaissance...');
       await DW.fade(1, 0.6);
-      st.bits = Math.floor(st.bits / 2);
+      const lost = Math.floor(st.bits / 10); st.bits -= lost;
       st.party.forEach(m => m.heal());
       // toujours chez Jijimon (combat ordinaire ou boss) : il te ramène et soigne ton équipe
       this.load('maison', 12, 5, 'down');
       await DW.wait(0.5);
       await DW.fade(0, 0.6);
       await DW.say("Hohoho... Te voilà réveillé ! On t'a retrouvé évanoui, ton Digimon à tes côtés. Je vous ai ramenés ici et soignés.", 'Jijimon');
-      await DW.say('Tes Digimon ont récupéré... mais tu as perdu la moitié de tes Bits.');
+      await DW.say(`Tes Digimon ont récupéré... mais ${lost ? `tu as perdu ${lost} Bits (10 %).` : "tu n'avais pas de Bits à perdre."}`);
     }
 
     // ---------------------------------------------------------- rendu
