@@ -26,11 +26,11 @@
     DW.Game.replaceAll(new DW.Overworld('dunes', 30, 26, 'down'));
     await wait(600);
     log(`départ avec ${DW.SPECIES[baby].name}`);
-    const zoneFor = lv => lv < 6 ? 'dunes' : lv < 8 ? 'bosquet' : lv < 9 ? 'plage' : lv < 10 ? 'lisiere' : lv < 11 ? 'sentier' : 'clairiere';
+    const zoneFor = lv => lv < 6 ? 'dunes' : lv < 8 ? 'bosquet' : lv < 9 ? 'plage' : lv < 10 ? 'lisiere' : lv < 11 ? 'sentier' : lv < 13 || !DW.state.flags.kuwagamon ? 'clairiere' : lv < 15 ? 'antre1' : 'antre2';
     const ENC = id => (DW.FIRST_ZONES && DW.FIRST_ZONES[id]) || DW.getMap(id).encounters;
-    const fight = async (enemy, boss) => {
+    const fight = async (enemy, boss, ally) => {
       DW.timeScale = 4;
-      let res = '?'; DW.ow.battle({ enemy, boss, canLose: !!boss }).then(r => (res = r));
+      let res = '?'; DW.ow.battle({ enemy, boss, canLose: !!boss, ally }).then(r => (res = r));
       for (let i = 0; i < 900 && res === '?'; i++) {
         const b = DW.Game.top();
         if (b.arena) { if (b.mode === 'live' && !b.B.p.cast && b.B.p.cd <= 0) { key('Space'); await wait(50); key('Space'); } else if (b.mode === 'msg' || b.mode === 'charge') key('Space'); }
@@ -41,7 +41,7 @@
       for (let i = 0; i < 30 && DW.Game.top() !== DW.ow; i++) { key('Space'); await wait(150); }
       return res;
     };
-    for (let step = 0; step < (o.steps || 400) && !DW.state.flags.kuwagamon; step++) {
+    for (let step = 0; step < (o.steps || 400) && !DW.state.flags.shellmon; step++) {
       const m = DW.state.party[0];
       if (!m) { log('plus de Digimon !'); break; }
       // soins : manger, toilettes, maladie, blessure, sommeil
@@ -56,12 +56,20 @@
       // Digivolution dès que possible
       const evo = DW.Evo.available(m);
       if (evo.length) { const to = evo[0].to; m.evolve(to); DW.state.seen[to] = DW.state.owned[to] = true; log(`DIGIVOLUTION → ${DW.SPECIES[to].name}`); continue; }
-      // Kuwagamon (à partir du niveau 11, une tentative tous les 2 niveaux)
-      if (m.level >= 11 && m.level !== pt.lastKuwa && m.level % 2 === 1) {
+      // Kuwagamon (boss du milieu, à partir du niveau 11, une tentative tous les 2 niveaux)
+      if (!DW.state.flags.kuwagamon && m.level >= 11 && m.level !== pt.lastKuwa && m.level % 2 === 1) {
         pt.lastKuwa = m.level; pt.kuwaTries++; m.hp = m.maxHp; m.mp = m.maxMp;
         const r = await fight(new DW.Digimon('kuwagamon', 13), true);
         log(`KUWAGAMON : ${r === 'win' ? 'VICTOIRE' : 'défaite'}`);
-        if (r === 'win') { DW.state.flags.kuwagamon = true; break; }
+        if (r === 'win') { DW.state.flags.kuwagamon = true; pt.kuwaAt = hours(); }
+        m.hp = m.maxHp; continue;
+      }
+      // Shellmon (boss final, niveau 16, Tai et Greymon arrivent à mi-vie), après Kuwagamon, une tentative par niveau
+      if (DW.state.flags.kuwagamon && m.level >= 14 && m.level !== pt.lastShell) {
+        pt.lastShell = m.level; pt.shellTries = (pt.shellTries || 0) + 1; m.hp = m.maxHp; m.mp = m.maxMp;
+        const r = await fight(new DW.Digimon('shellmon', 16), true, { at: 0.5, from: 'agumon', sp: 'greymon', lvl: 16, hero: 'tai', name: 'Tai', move: 'mega_flamme', join: 'Tai arrive !' });
+        log(`SHELLMON : ${r === 'win' ? 'VICTOIRE' : 'défaite'}`);
+        if (r === 'win') { DW.state.flags.shellmon = true; break; }
         m.hp = m.maxHp; continue;
       }
       // entraînement pour la Digivolution visée (si le potentiel le permet), sinon combat
@@ -81,7 +89,7 @@
       if (pt.fights % 10 === 0) log(`${pt.fights} combats (${pt.wins} victoires) — zone ${z}`);
     }
     const m = DW.state.party[0];
-    pt.sum = `${DW.state.flags.kuwagamon ? 'Kuwagamon VAINCU' : 'Kuwagamon pas encore vaincu'} après ${hours()} h de jeu, ${pt.fights} combats (${pt.wins} victoires, ${pt.losses} défaites), ${pt.trains} séances d'entraînement, ${pt.buys || 0} RAM PV achetées, ${DW.state.bits} Bits à la fin, ${pt.kuwaTries} tentative(s) ; ${m ? m.name + ' niveau ' + m.level : ''}`;
+    pt.sum = `Kuwagamon ${DW.state.flags.kuwagamon ? 'vaincu à ' + pt.kuwaAt + ' h' : 'NON vaincu'} ; Shellmon ${DW.state.flags.shellmon ? 'VAINCU' : 'non vaincu'} après ${hours()} h de jeu (${pt.shellTries || 0} essai(s)), ${pt.fights} combats (${pt.wins} victoires, ${pt.losses} défaites), ${pt.trains} séances d'entraînement, ${pt.buys || 0} RAM PV achetées, ${DW.state.bits} Bits à la fin, ${pt.kuwaTries} tentative(s) ; ${m ? m.name + ' niveau ' + m.level : ''}`;
     pt.done = true;
     return pt.sum;
   };

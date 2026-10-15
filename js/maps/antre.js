@@ -282,7 +282,7 @@
     { sp: 'agumon', x: 36, y: 20, face: 'left', cond: s => perso() && !(s.kids || {}).tai, talk: () => say('Tai... j\'ai faim... Je ne peux plus rien faire...', 'Agumon') },
   );
   async function fight(ow) {
-    const s = st(), first = !s.flags.shellmon;
+    const s = st(), first = !s.flags.shellmon || (perso() && !(s.kids || {}).tai);   // (tant que Tai n'est pas délivré, c'est le vrai combat)
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Soigne-le d'abord."); return; }
     await say(first ? 'GRRRAAAH ! Personne ne touche à mes prisonniers !' : 'Encore toi ?! Cette fois, je vais t\'écraser !', 'Shellmon');
     if ((await DW.ask(first ? 'Affronter Shellmon ? (un Champion très puissant)' : 'Affronter Shellmon de nouveau ?')) !== 0) return;
