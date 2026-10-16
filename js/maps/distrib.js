@@ -98,4 +98,8 @@
     m._signsFor = m.rows;
   }
   DW.Distrib = { place, signs, MACHINES };
+  // la nuit, les fenêtres des maisons s'allument (comme l'école du Terrain d'entraînement) : points de lumière
+  // des bâtiments qui n'en avaient pas (tous les fichiers de dessins sont chargés à ce stade)
+  { const O = DW.World.OBJ, L = { house: [[18, 40, 11], [38, 40, 11]], shack: [[26, 44, 12], [54, 44, 12]], greenhouse: [[30, 44, 14], [58, 44, 14]], kiosk: [[30, 40, 14]] };
+    for (const k in L) if (O[k] && !O[k].lights) O[k].lights = L[k]; }
 })();
