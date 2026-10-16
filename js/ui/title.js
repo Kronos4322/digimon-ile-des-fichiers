@@ -389,11 +389,16 @@
         const I = this.info, px = 154 + (1 - e) * 180;
         UI.box(c, px, 140, W - 154 - 8, 52, this.i === 1 ? 'dwsel' : 'dw');
         UI.text(c, I.name, px + 8, 154, { size: 10, color: '#ffe070' });
-        UI.text(c, `Jour ${I.day}`, px + W - 154 - 16, 154, { size: 8, align: 'right', color: '#8ae0f0' });
-        UI.text(c, I.place, px + 8, 167, { size: 8 });
+        // (colonne de droite réservée au partenaire : le texte ne passe plus dessous)
+        const pw = W - 154 - 8, cut = (txt, n) => (txt.length > n ? txt.slice(0, n - 1) + '…' : txt);
+        UI.text(c, cut(I.place, 24), px + 8, 167, { size: 8 });
         const m = Math.floor(I.time / 60);
-        UI.text(c, `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}   DigiDex ${I.dex}`, px + 8, 180, { size: 8, color: '#8ae0f0' });
-        if (I.partner && DW.SPECIES[I.partner]) { DW.Sprites.draw(c, DW.Sprites.ow(I.partner), px + W - 154 - 26, 186, { frame: Math.floor(t * 2) }); UI.text(c, `N.${I.level}`, px + W - 154 - 40, 180, { size: 7, align: 'right' }); }
+        UI.text(c, `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}  ·  Jour ${I.day}  ·  Dex ${I.dex}`, px + 8, 180, { size: 7, color: '#8ae0f0' });
+        if (I.partner && DW.SPECIES[I.partner]) {
+          const spr = DW.Sprites.ow(I.partner), k = Math.min(1, 26 / spr.h, 26 / spr.w);
+          DW.Sprites.draw(c, spr, px + pw - 18, 187, { frame: Math.floor(t * 2), scale: k });
+          UI.text(c, `N.${I.level}`, px + pw - 8, 154, { size: 8, align: 'right', color: '#8ae0f0' });
+        }
       }
     }
     // transition : l'écran se défait en cases de données vertes, puis éclair blanc

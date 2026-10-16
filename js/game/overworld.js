@@ -25,6 +25,7 @@
       this.map = DW.getMap(mapId); this.mapId = mapId;
       if (DW.MapKit.dress) DW.MapKit.dress(this.map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
       if (DW.Distrib) { DW.Distrib.signs(this.map); DW.Distrib.place(this.map, mapId); }
+      if (DW.Antre) DW.Antre.hole(this.map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
       if (DW.YokoVillage) DW.YokoVillage.place(this.map, mapId);   // le tronc creux vers le village des Yokomon (maps/yokomon.js)   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
       this.gfx = DW.World.prepare(this.map);
       // cartes voisines (sorties et portes) : préparées pendant qu'on explore ; les autres sont libérées
@@ -409,6 +410,19 @@
       else DW.autosave();
       return res;
     }
+    // défaite contre un boss (combat « canLose ») : pas de K.O. compté ni de Bits perdus, mais on se réveille chez Jijimon,
+    // soigné (sinon on restait coincé : dans le Grand Arbre, les racines ne se rouvrent qu'après la victoire)
+    async bossDefeat(line) {
+      const st = DW.state;
+      await DW.fade(1, 0.6);
+      for (const m of st.party) m.heal();
+      this.load('maison', 12, 5, 'down');
+      DW.Audio.play('village');
+      await DW.wait(0.3);
+      await DW.fade(0, 0.6);
+      if (line) await DW.say(line, 'Jijimon');
+      DW.autosave();
+    }
     async blackout() {
       const st = DW.state;
       await DW.say('Tu perds connaissance...');
@@ -591,7 +605,7 @@
       }
       lights.push({ x: Math.round(pp.x * TS) + 8 - cx, y: Math.round(pp.y * TS) + 4 - cy, r: 52 });
       DW.Time.drawLight(c, lights, this.map.indoor ? 0.75 : 1, this.map.dark);
-      if (!this.locked || Game.top() === this) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); DW.Care.drawMood(c, DW.Care.lead(), W - 88, H - 28); }
+      if (!this.cine && (!this.locked || Game.top() === this)) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); DW.Care.drawMood(c, DW.Care.lead(), W - 88, H - 28); }
       DW.Care.drawToasts(c);
       if (DW.saveFlash > 0) {
         c.globalAlpha = Math.min(1, DW.saveFlash);

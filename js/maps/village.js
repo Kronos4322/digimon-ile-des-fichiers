@@ -348,7 +348,7 @@
       await say('À bientôt, bzzz !', 'Kunemon');
     },
     async betamon() {
-      await say("Bloub ! La fontaine coule de nouveau. Bois son eau quand tu es fatigué !", 'Betamon');
+      await say(`Bloub ! La fontaine coule de nouveau. Bois son eau quand tu es ${DW.gn('fatigué', 'fatiguée')} !`, 'Betamon');
     },
   };
   DW.Story.services = SERVICES;

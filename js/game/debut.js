@@ -33,12 +33,12 @@
 
   async function run(ow) {
     const s = DW.state, baby = DW.heroLine().baby, bname = DW.SPECIES[baby].name;
-    ow.wilds = [];
+    ow.wilds = []; ow.cine = true;   // (scène jouée : pas de jauges ni d'horloge à l'écran)
     await DW.fade(0, 1.2);
     DW.Audio.play('forest');
     ow.shake = 0.5; DW.Audio.sfx('hit');
     await wait(0.6);
-    await say("Aïe aïe aïe... Tu es tombé dans de hautes herbes. Autour de toi, une forêt immense et inconnue.");
+    await say(`Aïe aïe aïe... Tu es ${DW.gn('tombé', 'tombée')} dans l'herbe, au milieu d'une clairière. Autour de toi, une forêt immense et inconnue.`);
     // 1) il cherche les autres
     await walk(ow, 'left', 3);
     await say(`« Ohé ! Il y a quelqu'un ?! Tai ? Sora ?... »`, s.name);
@@ -47,7 +47,7 @@
     await say(`« Matt ? Izzy ?... Quelqu'un ?! »`, s.name);
     await walk(ow, 'down', 2);
     await say("Personne ne répond. Juste le vent dans les arbres... et des bruits étranges, tout autour.");
-    await say("Tu as peur. Tu es tout seul.");
+    await say(`Tu as peur. Tu es ${DW.gn('tout seul', 'toute seule')}.`);
     // 2) le bébé sort d'un buisson
     DW.Audio.sfx('swoosh');
     const bx = ow.p.x + 4, by = ow.p.y;
@@ -71,11 +71,11 @@
     await walk(ow, 'down', 3);
     await walk(ow, 'left', 2);
     const hx = ow.p.x * TS + 8, hy = ow.p.y * TS;
-    const K = { sp: 'kuwagamon', x: hx - 260, y: hy - 150, s: 0.55, sil: true, flip: true, shadow: 0.3 };
+    const K = { sp: 'kuwagamon', x: hx - 260, y: hy - 90, s: 0.55, sil: true, flip: true, shadow: 0.3 };
     ow.flyers = [K];
     DW.Audio.sfx('roar');
     await say('BZZZZZZ... Un bourdonnement énorme fait trembler les feuilles.');
-    await fly(K, { x: hx + 260, y: hy - 130 }, 1.8, DW.linear);
+    await fly(K, { x: hx + 260, y: hy - 70 }, 2.2, DW.linear);   // (assez bas pour passer dans le champ de la caméra)
     await say("Une grande ombre rouge passe au-dessus de la clairière... puis fait demi-tour !");
     DW.Audio.play('boss');
     Object.assign(K, { flip: false, sil: false, s: 0.8 });
@@ -92,11 +92,12 @@
     await walk(ow, 'down', 3);
     await say("Vous courez à perdre haleine, loin de la clairière... vers des toits, au loin.");
     await DW.fade(1, 1.0);
-    ow.flyers = null;
+    ow.flyers = null; ow.cine = false;
     s.flags.kuwaChase = true;
     // réveil chez Jijimon (comme avant)
     ow.load('maison', 12, 5, 'down');
     DW.Audio.play('village');
+    DW.fade(0, 0.8);   // (comme une partie normale : le réveil se fait sur l'image, sinon tout restait noir)
     await DW.Game.push(new DW.WakeScene());
     await DW.Story.opening();
     DW.autosave();

@@ -85,19 +85,18 @@
     const baby = DW.state.party[0] ? DW.state.party[0].name : 'Ton Digimon';
     await say('Mmh... Où est-ce que je suis ?');
     await say(`${baby} est blotti contre toi. Il ouvre les yeux en même temps que toi.`);
-    await say(`Tu es réveillé ! Moi c'est ${baby} ! Je ne t'ai pas quitté une seconde !`, baby);
+    await say(`Tu es ${DW.gn('réveillé', 'réveillée')} ! Moi c'est ${baby} ! Je ne t'ai pas quitté une seconde !`, baby);
     await say("Hohoho ! Doucement... Je suis Jijimon. Je vous ai trouvés tous les deux à l'entrée de la ville, épuisés, comme si vous aviez fui un monstre.", J);
     await say(`Un insecte rouge géant, dis-tu ? Kuwagamon... Il terrorise la forêt depuis quelque temps. Vous avez eu de la chance !`, J);
     await say(`Un humain... Je n'en avais jamais vu. Tu t'appelles ${hero()} ? Et d'où viens-tu ?... Tu ne sais pas non plus. Hohoho, nous voilà bien.`, J);
     await say("Ici, c'est la Ville des Fichiers. Enfin... ce qu'il en reste. Ses habitants sont partis du jour au lendemain, et ceux que je croise ne se souviennent plus de rien.", J);
     await say("Je ne sais pas ce qui leur est arrivé. Moi, je suis bien trop vieux pour courir l'île... Mais toi, avec ce petit, tu pourrais peut-être le découvrir ?", J);
-    DW.Audio.sfx('fanfare');
-    await say(`${baby} devient ton partenaire !`);
+    if (DW.state.hero !== 'perso') { DW.Audio.sfx('fanfare'); await say(`${baby} devient ton partenaire !`); }   // (le héros original l'a déjà rencontré dans la forêt)
     await say("Koromon, un petit qui est resté en ville, la connaît par cœur. Va le voir sur la place : il te fera visiter. Et reviens me voir si tu as des questions.", J);
     // un petit coup de pouce pour débuter : de quoi soigner son partenaire
     DW.giveItem('soin_p', 3); DW.giveItem('viande', 2); DW.Audio.sfx('buy');
     await say("Tiens, prends ceci : 3 RAM PV pour soigner ton partenaire, et 2 Viandes. Hohoho, il faut bien commencer quelque part !", J);
-    await say("(Déplacements : flèches ou ZQSD.  Courir : Maj.  Parler : ESPACE.  Menu : ENTRÉE.)");
+    await say("(Déplacements : flèches ou ZQSD.  Courir : Maj.  Parler : ESPACE.  Menu : ENTRÉE.)");   // (noms des touches adaptés au téléphone : Input.keys)
   }
 
   DW.Guide = { TOPICS, opening, questions, explainRules };

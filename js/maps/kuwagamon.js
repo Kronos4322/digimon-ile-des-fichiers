@@ -102,6 +102,10 @@
       // le fossé entre les stades : un Disciple n'a presque aucune chance contre un Champion
       const m = s.party[0];
       if (m && m.d.stage !== 'Champion') await say(`Kuwagamon est un CHAMPION... ${m.name} n'a presque aucune chance tant qu'il n'a pas digivolué ! Entraîne-le et regarde sa fiche (onglet Digivolution).`);
+      // les racines se rouvrent : Kuwagamon vous chasse de l'arbre (on se réveille chez Jijimon)
+      await say("Kuwagamon vous projette contre l'écorce... Les racines s'écartent et vous roulez dehors.");
+      st().flags.kuwaSeen = false;   // (en revenant, l'arbre se referme de nouveau derrière toi)
+      await ow.bossDefeat("Hohoho... Les petits Digimon de la clairière vous ont ramenés ici. Reprenez des forces : Kuwagamon vous attendra dans son arbre.");
       return;
     }
     s.flags.kuwagamon = true;

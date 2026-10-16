@@ -38,6 +38,9 @@
     })()],
     entry: { x: 17, y: H - 2 },
     populate() {
+      // la sortie ramène toujours devant le tronc creux de la Prairie (même après un chargement de partie ici)
+      const pm = DW.getMap('prairie'); DW.YokoVillage.place(pm, 'prairie');
+      const log = (pm.objects || []).find(o => o.yoko); if (log) Object.assign(this.warps[0], { tx: log.x, ty: log.y + 1, _zt: true });   // (déjà en coordonnées de la carte agrandie)
       const done = !!st().flags.yokoWell;
       this.npcs = [
         { sp: 'yokomon', x: 16, y: 13, face: 'down', talk: () => elder() },

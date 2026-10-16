@@ -109,14 +109,15 @@
       if (m) DW.Sprites.draw(c, DW.Sprites.battle(m.sp), 54, 150, { frame: Math.floor(t * 4), scale: Math.min(1, 70 / DW.Sprites.battle(m.sp).h) });
       // Tai et Agumon, délivrés pendant ce chapitre
       if ((st().kids || {}).tai) {
-        const hs = DW.Sprites.hero('down', Math.floor(t * 3) % 2 ? 0 : 2, 'tai'); c.drawImage(hs.img, 66, 166, hs.w * 1.4, hs.h * 1.4);
-        DW.Sprites.draw(c, DW.Sprites.battle('agumon'), 104, 220, { frame: Math.floor(t * 4) + 1, scale: 0.6 });
+        // (côte à côte, au-dessus de « ESPACE : continuer »)
+        const hs = DW.Sprites.hero('down', Math.floor(t * 3) % 2 ? 0 : 2, 'tai'); c.drawImage(hs.img, 26, 162, hs.w * 1.4, hs.h * 1.4);
+        DW.Sprites.draw(c, DW.Sprites.battle('agumon'), 84, 206, { frame: Math.floor(t * 4) + 1, scale: 0.55 });
       }
       this.lines.forEach(([k, v], i) => {
         const a = DW.clamp((t - 0.3 - i * 0.25) / 0.3, 0, 1);
         c.globalAlpha = a;
-        UI.text(c, k, 124, 62 + i * 18, { size: 9, color: '#a8c8d8' });
-        UI.text(c, v, W - 20, 62 + i * 18, { size: 10, align: 'right', color: '#ffffff' });
+        UI.text(c, k, 124, 58 + i * 16, { size: 8, color: '#a8c8d8' });
+        UI.text(c, v, W - 20, 58 + i * 16, { size: 9, align: 'right', color: '#ffffff' });
         c.globalAlpha = 1;
       });
       if (t > 1.2) UI.text(c, 'ESPACE : continuer', W / 2, H - 14, { size: 8, align: 'center', color: '#ffe070' });
@@ -139,10 +140,11 @@
     await Game.push(new RecapScene([
       ['Jours passés sur l\'île', String(days)],
       ['Temps de jeu', hm],
-      ['Partenaire', m ? `${m.name} (${m.d.stage}, niv. ${m.level})` : '-'],
+      ['Partenaire', m ? `${m.name} · N.${m.level}` : '-'],
       ['Habitants revenus en ville', `${rec} / ${T.RECRUITS.length}`],
       ['Développement de la ville', `${T.progress()} %`],
       ['Combats gagnés', String(wins)],
+      ['Kuwagamon', s.flags.kuwagamon ? 'vaincu !' : '-'],
       ['Shellmon', s.flags.shellmon ? 'vaincu !' : 'toujours sur la plage...'],
       ['Album de l\'île', `${DW.Cards ? DW.Cards.ch1Count() : 0} / ${DW.Cards ? DW.Cards.CH1.length : 12} cartes`],
       ['Bits', String(s.bits)],

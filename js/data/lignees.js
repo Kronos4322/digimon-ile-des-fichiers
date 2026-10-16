@@ -46,6 +46,8 @@
     joe: { baby: 'pichimon', partner: 'gomamon' },
     tk: { baby: 'poyomon', partner: 'patamon' },
   };
+  // accord au féminin quand le héros est une fille : DW.gn('tombé', 'tombée')
+  DW.gn = (m, f) => (DW.state && DW.state.hero === 'perso' && DW.state.look && DW.state.look.gender ? f : m);
   DW.heroLine = id => {
     const k = id || (DW.state && DW.state.hero);
     if (k === 'perso') {   // personnage original : le bébé choisi à la création, et le partenaire de cette lignée

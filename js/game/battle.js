@@ -5,7 +5,7 @@
 (function () {
   const { UI, Input, Audio, Game } = DW;
   const W = DW.W, H = DW.H;
-  const POS = { p: { x: 158, y: 178 }, e: { x: 250, y: 117 } };   // partenaire au centre, à droite du menu (façon Digimon World 2003)
+  const POS = { p: { x: 158, y: 178 }, e: { x: 250, y: 124 } };   // (ennemi un peu plus bas : le cadre du partenaire et sa barre d'énergie ne le recouvrent plus)   // partenaire au centre, à droite du menu (façon Digimon World 2003)
   const FXCOL = {
     'Feu': ['#ff6a1a', '#ffd040'], 'Eau': ['#4aa8ff', '#e0f4ff'], 'Plante': ['#40c848', '#b8f878'],
     'Électrique': ['#ffe030', '#ffffff'], 'Glace': ['#98ecff', '#ffffff'], 'Terre': ['#9a6a38', '#d8a860'],

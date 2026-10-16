@@ -5,11 +5,26 @@
 //  dalle de hiéroglyphes, prison de corail de Tai (fond + grille). Utilisés par maps/antre.js (et la ville en ruines).
 // =====================================================================
 (function () {
-  const T = DW.World.THEMES;
-  if (T && T.canyon && !T.sandtemple) T.sandtemple = { ...T.canyon, vignette: 'rgba(16,8,0,0.72)', particle: 'dust', sky: ['#2a1a0c', '#5a3a1c'], noRays: true,
-    grass: ['#8e6c40', '#9c7a4a', '#ab8956', '#ba9862', '#c8a872', '#d6b884'], dirt: ['#7a5a34', '#88683e', '#967648', '#a48452', '#b2925e', '#c0a06a'],
-    canopy: ['#2a1a0e', '#3e2814', '#54381c', '#6a4a26', '#826032', '#9a7840'], tall: ['#a88a50', '#c8a868', '#e8cc8c'],
-    objMap: { ...T.canyon.objMap, tree: 'spire', bush: 'boulder', fern: 'pebbles' } };
+  // (thème posé par maps/antre.js : ce fichier est chargé avant gfx/themes.js et gfx/biomes.js, qui créent
+  //  World.THEMES et le thème « canyon » dont il dérive ; posé ici, il se perdait et l'antre était tout vert)
+  DW.World.sandTheme = () => {
+    const T = DW.World.THEMES;
+    if (!T || T.sandtemple || !T.canyon) return;
+    T.sandtemple = { ...T.canyon, vignette: 'rgba(16,8,0,0.72)', particle: 'dust', sky: ['#2a1a0c', '#5a3a1c'], noRays: true,
+      grass: ['#8e6c40', '#9c7a4a', '#ab8956', '#ba9862', '#c8a872', '#d6b884'], dirt: ['#7a5a34', '#88683e', '#967648', '#a48452', '#b2925e', '#c0a06a'],
+      canopy: ['#2a1a0e', '#3e2814', '#54381c', '#6a4a26', '#826032', '#9a7840'], tall: ['#a88a50', '#c8a868', '#e8cc8c'],
+      objMap: { ...T.canyon.objMap, tree: 'spire', bush: 'boulder', fern: 'pebbles' } };
+  };
+  // trou dans le sable de la plage, entre les cabines (après l'énigme) : entonnoir de sable, marches de grès qui s'enfoncent
+  DW.World.OBJ.sandhole = { w: 48, h: 32, n: 1, draw(d) {
+    d.ell(24, 17, 23, 14, '#e8d098', 0, { flat: true });           // bourrelet de sable clair
+    d.ell(24, 17, 19, 11, '#c8a868', 0, { flat: true });
+    d.ell(24, 18, 15, 8.5, '#8a6a3a', 0, { flat: true });           // pente
+    d.ell(24, 19, 11, 6, '#3a2410', 0, { flat: true });             // fond sombre
+    d.ell(24, 20, 7, 3.6, '#120804', 0, { flat: true });
+    for (let i = 0; i < 4; i++) d.deco.rect(17 + i * 1.5, 12 + i * 2.2, 14 - i * 3, 1.6, ['#d8b87c', '#b8945a', '#8a6a3a', '#5a3e1e'][i]);   // marches
+    for (const [x, y] of [[9, 12], [38, 13], [12, 24], [36, 23]]) d.deco.line(x, y, x + (24 - x) * 0.35, y + (19 - y) * 0.35, 0.8, '#b8945a');   // sable qui coule
+  } };
   // pilier de temple : colonne de grès, bandes de hiéroglyphes, chapiteau en lotus
   DW.World.OBJ.templepillar = { w: 22, h: 52, n: 2, draw(d, v) {
     d.ell(11, 51, 9, 2, '#1a1008', 0, { flat: true });

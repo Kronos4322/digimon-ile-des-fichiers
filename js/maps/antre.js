@@ -13,6 +13,7 @@
   const MAPS = DW.MAPS, P = DW.Palais;
   const say = (t, s) => DW.say(t, s);
   const st = () => DW.state;
+  if (DW.World.sandTheme) DW.World.sandTheme();   // thème « temple ensablé » (gfx/temple.js)
   const perso = () => st().hero !== 'tai';   // (anciennes parties où l'on incarne Tai : pas de prisonnier)
 
   // ------------------------------------------------------------ 1) l'énigme des cabines
@@ -22,7 +23,7 @@
   async function booth(ow, i) {
     const s = st(), f = s.flags;
     if (f.shellLair) {
-      if ((await DW.ask("Le sable s'est effondré sous les cabines : un passage descend dans le noir. Descendre ?")) !== 0) return;
+      if ((await DW.ask("Entre les cabines, le sable s'est effondré : des marches descendent dans le noir. Descendre ?")) !== 0) return;
       DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4);
       ow.load('antre1', MAPS.antre1.entry.x, MAPS.antre1.entry.y, 'up'); await DW.fade(0, 0.4);
       return;
@@ -36,10 +37,20 @@
     if (f.boothPos < ORDER.length) return;
     // la phrase est complète : le sable s'ouvre
     f.shellLair = true; f.boothPos = 0;
+    if (ow.map) { hole(ow.map, ow.mapId); ow.gfx = DW.World.prepare(ow.map); }   // le trou apparaît entre les cabines
     await say(perso() ? "« Aide-moi, je suis sous le sable ! » Toutes les cabines sonnent ensemble, puis se taisent..." : 'Toutes les cabines sonnent ensemble, puis se taisent...');
     DW.Audio.sfx('roar'); ow.shake = 1.4;
-    await say("Le sable tremble... et s'effondre sous les cabines ! Un passage s'ouvre vers les profondeurs.");
+    await say("Le sable tremble... et s'effondre entre les cabines ! Un trou s'ouvre, des marches descendent vers les profondeurs.");
     DW.autosave();
+  }
+
+  // le trou dans le sable, entre les cabines (visible une fois l'énigme résolue) : on y descend en lui parlant
+  const HOLE = { kind: 'sandhole', x: 35, y: 52, w: 3, h: 2, back: true, antre: true };
+  function hole(m, id) {
+    if (id !== 'plage' || !st().flags.shellLair || !m.objects || m.objects.some(o => o.antre)) return;
+    m.objects.push({ ...HOLE }); m.signs = m.signs || {};
+    for (let y = HOLE.y; y < HOLE.y + HOLE.h; y++) for (let x = HOLE.x; x < HOLE.x + HOLE.w; x++) m.signs[`${x},${y}`] = ow => booth(ow, 0);
+    if (m.gfx) DW.World.unprepare(m);
   }
 
   // ------------------------------------------------------------ 2) l'antre : un grand labyrinthe ensablé
@@ -204,7 +215,12 @@
     const ally = first && perso() ? { at: 0.35, from: 'agumon', sp: 'greymon', lvl: 16, hero: 'tai', name: 'Tai', move: 'mega_flamme',
       join: "CRAC ! Le coquillage qui retenait Tai se fend ! « Agumon, on s'y met aussi ! »" } : null;
     const res = await ow.battle({ enemy: new DW.Digimon('shellmon', lvl), boss: true, canLose: true, ally, music: 'shellmon', intro: 'Shellmon déploie ses tentacules !' });
-    if (res !== 'win') { await say(first ? 'Shellmon est bien trop fort... Entraîne-toi, digivolue, et reviens délivrer Tai !' : 'Shellmon retourne se tapir dans sa coquille...'); return; }
+    if (res !== 'win') {
+      await say(first ? 'Shellmon est bien trop fort... Entraîne-toi, digivolue, et reviens délivrer Tai !' : 'Shellmon retourne se tapir dans sa coquille...');
+      // (partenaire à terre au fond de l'antre : on se réveille chez Jijimon ; le passage sous les cabines reste ouvert)
+      await ow.bossDefeat(first ? "Hohoho... Des Bukamon t'ont trouvé sur la plage, à côté des cabines. Ce Shellmon est redoutable : prépare-toi bien, et emporte des RAM !" : null);
+      return;
+    }
     if (!first) { s.bits += 30 * lvl; await say(`Shellmon s'enfonce dans le sable en grommelant. (+${30 * lvl} Bits)`); return; }
     s.flags.shellmon = true;
     if (perso()) {
@@ -212,6 +228,11 @@
       DW.Crests.freeKid('tai');
       await DW.Game.push(new DW.ShellmonCinema());
       ow.load('antre_shellmon', 30, 23, 'right');
+      // Tai et Agumon, sortis de la cage, viennent te parler (le temps de la scène : ensuite ils vivent chez toi)
+      const free = [[32, 23], [33, 23], [32, 24], [33, 22]].filter(([x, y]) => !ow.solid(x, y)), kids = [];
+      if (free[0]) kids.push({ hero: 'tai', x: free[0][0], y: free[0][1], face: 'left', talk: () => {} });
+      if (free[1]) kids.push({ sp: 'agumon', x: free[1][0], y: free[1][1], face: 'left', talk: () => {} });
+      ow.map.npcs.push(...kids);
       DW.Audio.play('village');
       await DW.fade(0, 0.8);
       await say("On a réussi ! Merci ! Sans toi, on y serait encore. Moi c'est Tai !", 'Tai');
@@ -219,12 +240,18 @@
       await say("Je peux venir chez toi ? Agumon et moi, on n'a nulle part où aller. Et dès que tu entends parler de Matt ou des autres, préviens-moi !", 'Tai');
       DW.Audio.sfx('fanfare');
       await say('Tai et Agumon sont délivrés ! Ils s\'installent dans une chambre de ta maison.');
+      for (const k of kids) ow.map.npcs.splice(ow.map.npcs.indexOf(k), 1);
     }
     DW.Trophies.give('shellmon'); DW.Audio.sfx('fanfare'); if (DW.Cards) { DW.Cards.give('shellmon'); DW.Cards.give('greymon'); }
     await say('Tu reçois le Trophée de Shellmon ! (Il rejoint la cave de ta maison.)');
     const extra = DW.giveItem('soin_m', 3) + DW.giveItem('pm_m', 2); s.bits += 800;
     await say(`Dans la coquille vide, tu trouves 3 RAM PV+, 2 RAM PM+ et 800 Bits !${DW.extraMsg(extra)}`);
     await say('(Shellmon reviendra hanter son antre : tu pourras l\'y affronter de nouveau pour t\'entraîner.)');
+    // retour en ville : la fin du chapitre se raconte chez Jijimon
+    await DW.fade(1, 0.8);
+    ow.load('maison', 12, 5, 'down');
+    await DW.wait(0.3);
+    await DW.fade(0, 0.8);
     DW.autosave();
     await DW.Chapter.end1();
   }
@@ -241,5 +268,5 @@
   const battle0 = DW.Overworld.prototype.battle;
   DW.Overworld.prototype.battle = function (o) { if (this.mapId === 'antre_shellmon' && o && o.enemy && o.enemy.sp === 'shellmon' && !o.field) o = { ...o, field: 'antre' }; return battle0.call(this, o); };
 
-  DW.Antre = { booth, fight, WORDS, ORDER };
+  DW.Antre = { booth, fight, hole, WORDS, ORDER };
 })();
