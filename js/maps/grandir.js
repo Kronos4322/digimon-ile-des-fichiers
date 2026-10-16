@@ -36,8 +36,8 @@
           if (!F) { this.warps = [{ ...exit }]; }
           DW.World.unprepare(this);
         }
-        if (F && F.npcs) this.npcs = F.npcs();
-        if (pop0) pop0.call(this);
+        if (F) this.npcs = F.npcs ? F.npcs() : [];
+        else if (pop0) pop0.call(this);   // (forme d'origine : son propre peuplement)
       };
       // arrivée depuis la ville : devant la porte, quelle que soit la taille
       m.arrive = () => { m.populate(); const w = m.warps[0]; return [w.x, w.y - 1]; };
@@ -112,6 +112,72 @@
             talk: () => say(DW.pick(['Il y a tout ce qu\'il faut, ici !', 'Je cherche le rayon des Viandes...', 'Avant, c\'était un petit bazar. Regarde ça maintenant !']), DW.SPECIES[c].name) }));
           return out;
         } },
+    ]);
+  }
+
+  // ------------------------------------------------------------ le Restaurant → Grand Restaurant → Restaurant gastronomique
+  const resto = MAPS.resto_in;
+  if (resto) {
+    const svc = () => DW.Story.services.mushroomon();
+    const sp = s => (DW.SPECIES[s] ? s : 'mushroomon');
+    // des habitants de la ville attablés (ceux qui sont revenus)
+    const diners = spots => DW.Town.RECRUITS.filter(r => DW.Town.has(r.id) && r.id !== 'mushroomon' && DW.SPECIES[r.id]).slice(0, spots.length).map((r, i) => ({ sp: r.id, x: spots[i][0], y: spots[i][1], face: i % 2 ? 'left' : 'right',
+      talk: () => say(DW.pick(['Mmmh ! Les champignons grillés de Mushroomon sont les meilleurs de l\'île !', 'On mange bien, ici. Tu devrais goûter le menu du jour !', 'Le service est rapide, avec tous ces serveurs !']), DW.SPECIES[r.id].name) }));
+    const waiter = (s, x, y) => ({ sp: sp(s), x, y, face: 'down', wander: 2, talk: () => say(DW.pick(['Bonjour ! Une table pour deux ? Mushroomon est en cuisine, au comptoir du fond.', 'Je vous apporte la carte tout de suite !', 'Attention, chaud devant !']), DW.SPECIES[sp(s)].name) });
+    const tables = list => list.map(([x, y], i) => ({ kind: 'dtable', v: i % 2, x, y, w: 2, h: 1 }));
+    Grow.set('resto_in', [
+      { min: 5, name: 'Grand Restaurant aux Champignons', w: 20, h: 9,
+        objects: [{ kind: 'oven', x: 1, y: 3, w: 2, h: 1 }, { kind: 'oven', x: 16, y: 3, w: 2, h: 1 }, { kind: 'counter', v: 1, x: 6, y: 4, w: 4, h: 1 }, { kind: 'counter', v: 1, x: 10, y: 4, w: 4, h: 1 },
+          ...tables([[2, 7], [7, 7], [12, 7], [16, 7], [4, 10], [14, 10]]), { kind: 'window', v: 0, x: 4, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'window', v: 0, x: 14, y: 1, w: 2, h: 2, back: true, oy: -6 },
+          { kind: 'plant', v: 1, x: 18, y: 10, w: 1, h: 1, small: true }, { kind: 'plant', v: 0, x: 1, y: 10, w: 1, h: 1, small: true }],
+        decor: m => { for (let x = 6; x < 14; x++) m.signs[`${x},4`] = svc; },
+        npcs: () => [{ sp: 'mushroomon', x: 9, y: 3, face: 'down', talk: svc }, waiter('tanemon', 9, 9), ...diners([[4, 7], [9, 7], [14, 7], [6, 10]])] },
+      { min: 8, name: 'Restaurant gastronomique de Mushroomon', w: 28, h: 12,
+        objects: [{ kind: 'oven', x: 1, y: 3, w: 2, h: 1 }, { kind: 'oven', x: 4, y: 3, w: 2, h: 1 }, { kind: 'oven', x: 22, y: 3, w: 2, h: 1 }, { kind: 'fridge', x: 25, y: 3, w: 1, h: 1, small: true },
+          ...[8, 12, 16].map(x => ({ kind: 'counter', v: 1, x, y: 4, w: 4, h: 1 })),
+          ...tables([[2, 7], [7, 7], [12, 7], [17, 7], [22, 7], [4, 10], [9, 10], [17, 10], [22, 10], [2, 13], [22, 13]]),
+          ...[6, 13, 20].map(x => ({ kind: 'window', v: 0, x, y: 1, w: 2, h: 2, back: true, oy: -6 })),
+          { kind: 'bigplant', x: 26, y: 13, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 1, y: 10, w: 1, h: 1, small: true }],
+        decor: m => { for (let x = 8; x < 20; x++) m.signs[`${x},4`] = svc; },
+        npcs: () => [{ sp: 'mushroomon', x: 13, y: 3, face: 'down', talk: svc }, waiter('tanemon', 11, 9), waiter('tokomon', 16, 12),
+          ...diners([[4, 7], [9, 7], [14, 7], [19, 7], [6, 10], [11, 10], [19, 10], [24, 10]])] },
+    ]);
+  }
+
+  // ------------------------------------------------------------ la Serre → Grande serre → Jardins maraîchers
+  const serre = MAPS.serre_in;
+  if (serre) {
+    const svc = () => DW.Story.services.yokomon();
+    const sp = s => (DW.SPECIES[s] ? s : 'yokomon');
+    const VEG = ['super_carotte', 'radis', 'digichampi', 'pomme_bleue'];
+    // un maraîcher : une récolte offerte par jour
+    const grower = (s, x, y) => {
+      const name = DW.SPECIES[sp(s)].name;
+      return { sp: sp(s), x, y, face: 'down', wander: 1, talk: async () => {
+        const f = st().flags, d = DW.Time.day(), key = 'maraicher_' + s;
+        f.maraich = f.maraich || {};
+        if (f.maraich[key] === d) { await say(DW.pick(['Les légumes poussent... Reviens demain pour la prochaine récolte !', 'Il faut arroser, désherber, arroser encore... Un vrai travail de Digimon !']), name); return; }
+        f.maraich[key] = d;
+        const id = DW.pick(VEG), extra = DW.giveItem(id, 1); DW.Audio.sfx('buy');
+        await say(`Tiens, c'est la récolte du jour : ${DW.ITEMS[id].name} ! Tout frais du potager.${DW.extraMsg(extra)}`, name);
+      } };
+    };
+    const beds = list => list.map(([x, y], i) => ({ kind: 'vegpatch', v: i % 2, x, y, w: 3, h: 2, walk: true }));
+    // les Digimon de la DigiFerme se promènent entre les plates-bandes
+    const farm = spots => (st().box || []).slice(0, spots.length).map((d, i) => ({ sp: d.sp, x: spots[i][0], y: spots[i][1], face: i % 2 ? 'left' : 'right', wander: 1, talk: () => say(`${d.name} se repose tranquillement à la DigiFerme. Il a l'air heureux.`) }));
+    Grow.set('serre_in', [
+      { min: 5, name: 'Grande serre de Yokomon', w: 22, h: 9,
+        objects: [{ kind: 'counter', v: 2, x: 9, y: 4, w: 4, h: 1 }, ...beds([[2, 7], [7, 7], [14, 7], [18, 7]]),
+          { kind: 'pots', x: 1, y: 3, w: 2, h: 1 }, { kind: 'pots', x: 19, y: 3, w: 2, h: 1 }, { kind: 'bigplant', x: 4, y: 3, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 17, y: 3, w: 1, h: 1, small: true },
+          ...[6, 14].map(x => ({ kind: 'window', v: 0, x, y: 1, w: 2, h: 2, back: true, oy: -6 }))],
+        decor: m => { for (let x = 9; x < 13; x++) m.signs[`${x},4`] = svc; },
+        npcs: () => [{ sp: 'yokomon', x: 10, y: 3, face: 'left', talk: svc }, grower('palmon', 4, 10), grower('tanemon', 16, 10), ...farm([[6, 6], [12, 9], [17, 6], [9, 11]])] },
+      { min: 8, name: 'Jardins maraîchers de Yokomon', w: 30, h: 12,
+        objects: [{ kind: 'counter', v: 2, x: 13, y: 4, w: 4, h: 1 }, ...beds([[2, 7], [7, 7], [19, 7], [24, 7], [2, 11], [7, 11], [19, 11], [24, 11]]),
+          ...[1, 4, 25, 27].map(x => ({ kind: 'pots', x, y: 3, w: 2, h: 1 })), ...[9, 20].map(x => ({ kind: 'bigplant', x, y: 3, w: 1, h: 1, small: true })),
+          ...[6, 14, 22].map(x => ({ kind: 'window', v: 0, x, y: 1, w: 2, h: 2, back: true, oy: -6 })), { kind: 'plant', v: 0, x: 28, y: 13, w: 1, h: 1, small: true }],
+        decor: m => { for (let x = 13; x < 17; x++) m.signs[`${x},4`] = svc; },
+        npcs: () => [{ sp: 'yokomon', x: 14, y: 3, face: 'left', talk: svc }, grower('palmon', 5, 9), grower('tanemon', 22, 9), grower('lalamon', 5, 13), grower('floramon', 22, 13), ...farm([[11, 7], [17, 7], [11, 11], [17, 11], [14, 13], [6, 6]])] },
     ]);
   }
 })();
