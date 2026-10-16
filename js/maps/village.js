@@ -220,7 +220,8 @@
        { kind: 'mailbox', x: 22, y: 6, w: 1, h: 1, small: true }, { kind: DW.Home && Object.keys((st().home || {}).owned || {}).length >= 4 ? 'cottage' : 'shack', v: 2, x: 29, y: 3, w: 5, h: 3, home: true }];   // ta maison : un taudis, rénové dès qu'elle est un peu meublée
     for (const id in LOTS) {
       const L = LOTS[id];
-      if (has(id)) m.objects.push({ kind: L.kind, x: L.x, y: L.y, w: L.w, h: L.h }, { kind: 'hangsign', v: L.sign[0], x: L.sign[1], y: L.sign[2], w: 1, h: 1, small: true });
+      // (la façade grandit avec la ville, comme l'intérieur : gfx/grandir.js, maps/grandir.js)
+      if (has(id)) m.objects.push({ kind: L.kind, v: DW.World.buildingForm ? DW.World.buildingForm() : 0, x: L.x, y: L.y, w: L.w, h: L.h }, { kind: 'hangsign', v: L.sign[0], x: L.sign[1], y: L.sign[2], w: 1, h: 1, small: true });
     }
     m.objects.push({ kind: 'bigfountain', v: has('betamon') ? 1 : 2, x: 18, y: 13, w: 4, h: 2 });
     // ville en ruines (niveaux 0 à 2) : la place n'est pas vide, elle est abandonnée — caisses, sacs, pilier tombé,
