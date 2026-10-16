@@ -42,12 +42,12 @@
         }
         if (b.arena) { if (b.mode === 'live' && !b.B.p.cast && b.B.p.cd <= 0) { key('Space'); await wait(50); key('Space'); } else if (b.mode === 'msg' || b.mode === 'charge') key('Space'); }
         else if (b !== DW.ow) key('Space');
-        await wait(70);
+        await wait(o.fast ? 45 : 70);
       }
       for (let i = 0; i < 40 && DW.Game.top() !== DW.ow; i++) { key('Space'); await wait(150); }
       return res;
     };
-    const fight = async (enemy, boss, ally) => { DW.timeScale = 4; const r = await drive(DW.ow.battle({ enemy, boss, canLose: !!boss, ally })); DW.timeScale = 1; return r; };
+    const fight = async (enemy, boss, ally) => { DW.timeScale = o.fast ? 12 : 4; const r = await drive(DW.ow.battle({ enemy, boss, canLose: !!boss, ally })); DW.timeScale = 1; return r; };
     const script = fn => drive(new Promise((ok, ko) => DW.ow.runScript(async ow => { try { ok(await fn(ow)); } catch (e) { ko(e); } })), 4000);
 
     // ---------------------------------------------------------------- nouvelle partie : le vrai début, dans la forêt
@@ -94,7 +94,7 @@
       if (DW.Life.sleepy(m) || m.tired >= 85) { await DW.Life.sleep(); m.heal(); const k0 = m.kos || 0; if (k0 > 0) m.kos = k0 - 1; log(`nuit chez Jijimon${k0 ? " : un K.O. s'efface (" + m.kos + '/3)' : ''}`); continue; }
       // Digivolution dès que possible
       const evo = DW.Evo.available(m);
-      if (evo.length) { const to = evo[0].to; m.evolve(to); DW.state.seen[to] = DW.state.owned[to] = true; log(`DIGIVOLUTION → ${DW.SPECIES[to].name} (${DW.SPECIES[to].stage})`); continue; }
+      if (evo.length) { const to = evo[0].to; m.evolve(to); DW.state.seen[to] = DW.state.owned[to] = true; await DW.learnEvoMoves(m); log(`DIGIVOLUTION → ${DW.SPECIES[to].name} (${DW.SPECIES[to].stage})`); continue; }
       const fit = m.hp >= m.maxHp * 0.95 && !(m.kos || 0) && m.tired < 50;
 
       // ---------- KUWAGAMON, dans le Cœur du Grand Arbre (le vrai combat scripté), une fois Champion
@@ -102,7 +102,7 @@
         pt.lastKuwa = m.level; pt.kuwaTries++;
         DW.ow.load('arbre_kuwagamon', 9, 11, 'up'); await wait(200);
         const n = DW.ow.map.npcs.find(x => x.sp === 'kuwagamon');
-        DW.timeScale = 4; await script(ow => n.talk(ow, n)); DW.timeScale = 1;
+        DW.timeScale = o.fast ? 12 : 4; await script(ow => n.talk(ow, n)); DW.timeScale = 1;
         log(`KUWAGAMON : ${DW.state.flags.kuwagamon ? 'VICTOIRE' : 'défaite'}`);
         if (DW.state.flags.kuwagamon) pt.kuwaAt = hours();
         continue;
@@ -118,7 +118,7 @@
       if (DW.state.flags.shellLair && champion(m) && m.level >= 15 && fit && m.level !== pt.lastShell) {
         pt.lastShell = m.level; pt.shellTries++;
         DW.ow.load('antre_shellmon', 30, 23, 'up'); await wait(200);
-        DW.timeScale = 4; await script(ow => DW.Antre.fight(ow)); DW.timeScale = 1;
+        DW.timeScale = o.fast ? 12 : 4; await script(ow => DW.Antre.fight(ow)); DW.timeScale = 1;
         log(`SHELLMON : ${DW.state.flags.shellmon ? 'VICTOIRE — Tai délivré : ' + !!(DW.state.kids || {}).tai : 'défaite'}`);
         continue;
       }
@@ -129,7 +129,7 @@
       const need = Object.keys(DW.Training.STATS).filter(k => req[k] && m.tr[k] < req[k] && !DW.Training.blocked(m, k));
       if (pt.trains % 4 === 3 && !DW.Training.blocked(m, 'int')) need.unshift('int');
       else if (!need.length) { const k = ['hp', 'atk', 'mp', 'def', 'spd'][pt.trains % 5]; if (!DW.Training.blocked(m, k)) need.push(k); }
-      if (need.length && m.tired < 55 && pt.streak < 2) {
+      if (need.length && m.tired < 55 && pt.streak < 2 && (pt.fightRun == null || pt.fightRun >= 6)) {   // 2 séances, puis ~6 combats
         const k = need[0], evoGoal = (req[k] && m.tr[k] < req[k]) || k === 'int';   // (l'Intelligence en points : elle ouvre les techniques de la classe)
         DW.Training.opts = { mode: evoGoal ? 'evo' : 'stat', level: DW.Training.LEVELS[1] };
         const where = k === 'int' ? 'classe' : 'gym', eq = k === 'atk' && Math.floor(pt.trains / 5) % 2 ? 'punchbag' : null;
@@ -148,7 +148,7 @@
           sc.rep(r);
         }
         for (let i = 0; i < 200 && sc.state !== 'done'; i++) await wait(60);
-        await wait(1000 * SP); sc.close('stop'); pt.trains++; pt.streak++;
+        await wait(1000 * SP); sc.close('stop'); pt.trains++; pt.streak++; if (pt.streak >= 2) pt.fightRun = 0;
         if (k === 'int' && DW.Classe) { const n0 = m.moves.map(x => x.id).join(); await DW.Classe.after(m, sc.score || 4); if (m.moves.map(x => x.id).join() !== n0) { pt.moves++; log(`leçon en classe : NOUVELLE TECHNIQUE → ${m.moves.map(x => DW.MOVES[x.id].name).join(', ')}`); } }
         log(`entraînement ${DW.Training.STATS[k].name}${sc.eq && sc.eq !== k ? ' (' + sc.eq + ')' : ''} — ${evoGoal ? 'points ' + m.tr[k] + (req[k] ? ' / ' + req[k] : '') : DW.Training.STATS[k].stat + ' ' + m.stat(k)}`);
         await wait(150); continue;
@@ -160,7 +160,7 @@
         await wait(60); continue;
       }
       // ---------- combat : un cran au-dessus de son niveau, sauf après un K.O. (zone de son niveau)
-      pt.streak = 0;
+      pt.streak = 0; pt.fightRun = (pt.fightRun || 0) + 1;
       const z = zoneFor(m.level - ((m.kos || 0) ? 1 : 0)), list = ENC(z), e = DW.weighted(list.map(x => ({ ...x, w: x.w || 1 })));
       if (DW.ow.mapId !== z) DW.ow.load(z, 20, 20, 'down');
       const r = await fight(new DW.Digimon(e.sp, DW.rand(e.min, e.max)), false);

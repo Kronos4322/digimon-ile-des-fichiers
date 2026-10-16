@@ -664,5 +664,9 @@
 
   DW.learnEvoMoves = async m => {
     for (const [l, id] of m.d.learn) if ((l === 0 || l === m.level) && !m.knows(id)) await DW.learnMove(m, id);
+    // la nouvelle forme sait d'instinct la technique de base de son élément (Agumon : Flamme de bébé...) ;
+    // les autres s'apprennent toujours par l'Intelligence et le hasard (DW.tryLearn, salle de classe)
+    const nat = m.d.learn.find(([l, id]) => l <= 1 && DW.MOVES[id] && m.d.types.includes(DW.MOVES[id].type));
+    if (nat && !m.knows(nat[1])) await DW.learnMove(m, nat[1]);
   };
 })();
