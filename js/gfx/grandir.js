@@ -65,6 +65,24 @@
       },
     });
   }
+  // ------------------------------------------------------------ ta maison devient un manoir, puis un palais (selon les enfants qui y vivent)
+  // v 0 : manoir (la maison rénovée au centre, deux ailes) ; v 1 : palais (un étage, fronton, tourelles)
+  const C = OBJ.cottage;
+  if (C) {
+    const cw = C.w, ch = C.h, S = { wall: '#f4ead8', line: '#c8b898', roof: '#c8583a', roofD: '#8a3a24', glass: '#ffe8a0' };
+    OBJ.homepalace = { w: 150, h: 128, n: 2, lights: [[40, 90, 14], [110, 90, 14], [75, 60, 16]], draw(d, v = 0) {
+      d.ell(75, 126, 72, 4, '#3a2a18', 0, { flat: true });
+      if (v >= 1) {
+        d.rect(24, 22, 102, 70, S.wall, { round: 0.04, tex: 0.2 });
+        for (let x = 32; x < 118; x += 15) { d.deco.rect(x, 34, 9, 13, S.glass); d.deco.rect(x, 34, 9, 1.6, '#ffffff'); d.deco.line(x + 4.5, 34, x + 4.5, 47, 0.8, S.line); }
+        d.poly([[18, 26], [75, 4], [132, 26]], S.roof, { tex: 0.15 }); d.deco.line(18, 26, 132, 26, 1.4, S.roofD);
+        for (const x of [12, 138]) { d.rect(x - 7, 20, 14, 70, S.wall, { round: 0.2 }); d.poly([[x - 9, 22], [x, 4], [x + 9, 22]], S.roof); d.deco.rect(x - 3, 34, 6, 9, S.glass); }
+        d.deco.circ(75, 16, 4, '#ffd040', { unlit: true });
+      }
+      wing(d, 4, 34, 54, S); wing(d, 112, 34, 54, S);
+      const i0 = d.shapes.length; C.draw.call(C, d, 2); scaleShapes(d, i0, 1.15, 75 - cw / 2 * 1.15, 128 - ch * 1.15);
+    } };
+  }
   // forme d'un bâtiment selon le niveau de la ville (mêmes paliers que les intérieurs : maps/grandir.js)
   DW.World.buildingForm = () => { const lv = DW.Town ? DW.Town.level() : 0; return lv >= 8 ? 2 : lv >= 5 ? 1 : 0; };
 })();

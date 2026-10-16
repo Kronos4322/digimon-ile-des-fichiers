@@ -121,7 +121,7 @@
 
   function build() {
     const m = MAPS.village, lvl = T().level(), has = id => T().has(id);
-    const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl + (st().hero || '') + (Object.keys((st().home || {}).owned || {}).length >= 4 ? 'H' : 'h');
+    const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl + (st().hero || '') + (Object.keys((st().home || {}).owned || {}).length >= 4 ? 'H' : 'h') + 'k' + Object.keys(st().kids || {}).filter(id => st().kids[id]).length;
     if (m.version === version && m.rows) return;
     m.version = version;
     m.decay = Math.max(0, 1 - lvl / 4);
@@ -217,7 +217,8 @@
     });
     // objets : maison de Jijimon, bâtiments ou chantiers, fontaine, clôtures
     m.objects = [{ kind: 'jhouse', v: lvl < 3 ? 0 : lvl < 7 ? 1 : 2, x: 14, y: 2, w: 12, h: 4 },   // taudis, rénovée, cossue   // grande maison à étage (centrée comme avant : porte au milieu)
-       { kind: 'mailbox', x: 22, y: 6, w: 1, h: 1, small: true }, { kind: DW.Home && Object.keys((st().home || {}).owned || {}).length >= 4 ? 'cottage' : 'shack', v: 2, x: 29, y: 3, w: 5, h: 3, home: true }];   // ta maison : un taudis, rénové dès qu'elle est un peu meublée
+       { kind: 'mailbox', x: 22, y: 6, w: 1, h: 1, small: true }, (() => { const k = Object.keys(st().kids || {}).filter(id => st().kids[id] && id !== st().hero).length;   // ta maison grandit avec les enfants qui y vivent : manoir (2), palais (4)
+         return k >= 2 ? { kind: 'homepalace', v: k >= 4 ? 1 : 0, x: 29, y: 3, w: 5, h: 3, home: true } : { kind: DW.Home && Object.keys((st().home || {}).owned || {}).length >= 4 ? 'cottage' : 'shack', v: 2, x: 29, y: 3, w: 5, h: 3, home: true }; })()];   // ta maison : un taudis, rénové dès qu'elle est un peu meublée
     for (const id in LOTS) {
       const L = LOTS[id];
       // (la façade grandit avec la ville, comme l'intérieur : gfx/grandir.js, maps/grandir.js)
