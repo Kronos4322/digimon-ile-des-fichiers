@@ -70,7 +70,6 @@
       Audio.play(this.map.music);
       // script d'arrivée (lancé dès que la scène est libre)
       this.onEnter = this.map.onEnter || null;
-      if (DW.KuwaChase) DW.KuwaChase.hook(this);   // première entrée dans la forêt : la poursuite de Kuwagamon (game/cine_kuwagamon.js)
     }
     tileAt(x, y) { return (this.map.rows[y] || '')[x] || '#'; }
     npcVisible(n) {

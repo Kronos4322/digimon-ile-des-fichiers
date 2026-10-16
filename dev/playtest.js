@@ -26,13 +26,29 @@
     DW.Game.replaceAll(new DW.Overworld('dunes', 30, 26, 'down'));
     await wait(600);
     log(`départ avec ${DW.SPECIES[baby].name}`);
-    const zoneFor = lv => lv < 6 ? 'dunes' : lv < 8 ? 'bosquet' : lv < 9 ? 'plage' : lv < 10 ? 'lisiere' : lv < 11 ? 'sentier' : lv < 13 || !DW.state.flags.kuwagamon ? 'clairiere' : lv < 15 ? 'antre1' : 'antre2';
+    // un joueur avisé combat des Digimon UN PEU PLUS FORTS que le sien (plus d'EXP et de Bits) : la zone dont les
+    // adversaires dépassent son niveau d'un ou deux crans
+    const ZONES = ['dunes', 'bosquet', 'plage', 'lisiere', 'geants', 'sentier', 'clairiere', 'antre1', 'antre2'];
+    const zoneFor = lv => {
+      const ok = ZONES.filter(z => !z.startsWith('antre') || DW.state.flags.kuwagamon);
+      const maxOf = z => Math.max(...ENC(z).map(e => e.max));
+      return ok.find(z => maxOf(z) >= lv + 1) || ok[ok.length - 1];
+    };
     const ENC = id => (DW.FIRST_ZONES && DW.FIRST_ZONES[id]) || DW.getMap(id).encounters;
     const fight = async (enemy, boss, ally) => {
       DW.timeScale = 4;
       let res = '?'; DW.ow.battle({ enemy, boss, canLose: !!boss, ally }).then(r => (res = r));
       for (let i = 0; i < 900 && res === '?'; i++) {
         const b = DW.Game.top();
+        if (b.constructor === DW.BagScene && pt.wantHeal) { pt.wantHeal = false; pt.ramFight = (pt.ramFight || 0) + 1; b.close({ item: 'soin_p', target: 0 }); await wait(70); continue; }
+        if (b.mode === 'cmd' && b.active) {
+          const P = b.active;
+          if (P.hp < P.maxHp * 0.35 && DW.state.bag.soin_p) { pt.wantHeal = true; b.cursor = 1; b.resolveMenu(1); await wait(120); continue; }
+          b.cursor = 0;
+        }
+        if (b.mode === 'moves' && b.active) {   // la technique la plus puissante qu'il peut payer
+          let best = 0, bp = -1; b.active.moves.forEach((mv, i) => { const M = DW.MOVES[mv.id] || {}; if (b.active.canPay(mv.id) && (M.pow || 0) > bp) { bp = M.pow || 0; best = i; } }); b.mcursor = best;
+        }
         if (b.arena) { if (b.mode === 'live' && !b.B.p.cast && b.B.p.cd <= 0) { key('Space'); await wait(50); key('Space'); } else if (b.mode === 'msg' || b.mode === 'charge') key('Space'); }
         else if (b !== DW.ow) key('Space');
         await wait(70);
@@ -53,6 +69,7 @@
       if (m.sick) { DW.state.bits -= 200; m.sick = 0; m.germs = 20; log('malade : médicament'); }
       if (m.hurt) { m.hurt = 0; }
       // un joueur se soigne : RAM PV (500 PV) sous 70 % de PV, achetée au distributeur ; il boit quand il a soif
+      if ((DW.state.bag.soin_p || 0) < 3 && DW.state.bits >= 300) { DW.state.bits -= 300; DW.giveItem('soin_p', 3); pt.buys = (pt.buys || 0) + 3; }
       if (m.hp > 0 && m.hp < m.maxHp * 0.7) { if (!DW.state.bag.soin_p) { DW.state.bits -= 300; DW.giveItem('soin_p', 3); pt.buys = (pt.buys || 0) + 3; } DW.useItem('soin_p', m); }
       if ((m.thirst || 0) >= 60) { DW.state.bits -= 40; m.thirst = Math.max(0, m.thirst - 70); }
       if (DW.Life.sleepy(m) || m.tired >= 85) { await DW.Life.sleep(); log('dodo'); }
@@ -78,10 +95,19 @@
       // entraînement pour la Digivolution visée (si le potentiel le permet), sinon combat
       const next = (DW.EVO[m.sp] || [])[0], req = next ? next.req : {};
       const need = Object.keys(DW.Training.STATS).filter(k => req[k] && m.tr[k] < req[k] && !DW.Training.blocked(m, k));
+      // il s'entraîne aussi pour se renforcer (Attaque, Défense, Vitesse) quand la Digivolution visée est prête côté points
+      if (!need.length && m.tired < 40 && (pt.trains % 3 !== 2 || Math.random() < 0.4)) { const k = ['atk', 'def', 'spd', 'hp'][pt.trains % 4]; if (!DW.Training.blocked(m, k)) need.push(k); }
       if (need.length && m.tired < 60) {
-        const k = need[0], sc = new DW.TrainingScene(m, k); sc.hits = [2, 1, 1]; sc.finish(); pt.trains++;
-        if (pt.trains % 3 === 1) log(`entraînement ${DW.Training.STATS[k].name} (${m.tr[k]} / ${req[k]})`);
-        await wait(80); continue;
+        const k = need[0], evoGoal = req[k] && m.tr[k] < req[k];
+        if (DW.ow.mapId !== 'village') DW.ow.load('village', 20, 20, 'down');
+        DW.Training.opts = { mode: evoGoal ? 'evo' : 'stat', level: DW.Training.LEVELS[1] };
+        const sc = new DW.TrainingScene(m, k); DW.Game.push(sc);
+        await wait(700); sc.start(); await wait(1100);
+        for (let j = 0; j < 3; j++) { await wait(650); sc.hit(Math.random() < 0.35 ? 2 : Math.random() < 0.8 ? 1 : 0); }
+        while (sc.state !== 'done') await wait(60);
+        await wait(1300); sc.close('stop'); pt.trains++;
+        log(`entraînement ${DW.Training.STATS[k].name} (${evoGoal ? 'points ' + m.tr[k] + ' / ' + req[k] : DW.Training.STATS[k].stat + ' ' + m.stat(k)}) — fatigue ${Math.round(m.tired)} %`);
+        await wait(200); continue;
       }
       // combat dans la zone de son niveau
       const z = zoneFor(m.level), list = ENC(z), e = DW.weighted(list.map(x => ({ ...x, w: x.w || 1 })));

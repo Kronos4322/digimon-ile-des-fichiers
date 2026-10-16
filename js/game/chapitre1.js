@@ -168,7 +168,7 @@
   function objective() {
     const s = st(), f = s.flags;
     if (!f.starter) return 'Ton bébé Digimon t\'attend sur la place de la ville.';
-    if (!f.kuwagamon) return f.kuwaChase ? 'Kuwagamon, le monstre rouge, se cache dans le Grand Arbre de la Clairière de l\'Arrivée. Entraîne ton Digimon avant de l\'affronter : des mots gravés dans l\'écorce gardent l\'entrée.' : 'Tu explores l\'île avec ton partenaire. Les habitants de la ville sont partis vers la forêt...';
+    if (!f.kuwagamon) return 'Kuwagamon, le monstre rouge, se cache dans le Grand Arbre de la Clairière de l\'Arrivée. Entraîne ton Digimon avant de l\'affronter : des mots gravés dans l\'écorce gardent l\'entrée.';
     if (!f.shellLair) return 'Kuwagamon est vaincu. Sur la plage, les cabines téléphoniques murmurent chacune un mot... Dans le bon ordre, c\'est un appel au secours.';
     if (!(s.kids || {}).tai && s.hero !== 'tai') return 'Le sable s\'est ouvert sous les cabines. Tout au fond de l\'antre, Shellmon retient un enfant prisonnier.';
     return 'Tai est libre et vit chez toi. On raconte qu\'un garçon blond a été vu près du grand lac...';
