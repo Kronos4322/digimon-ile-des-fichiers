@@ -117,7 +117,7 @@
       this.opts = { mode: goal === 1 ? 'stat' : 'evo', level: this.LEVELS[lv] };
       // séances enchaînées ; après chaque séance d'Intelligence, une technique peut être retenue (maps/classe.js)
       // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu
-      const at = spot && DW.ow && DW.FieldTrainingScene ? this.station(DW.ow, k, spot) : null;
+      const at = spot && DW.ow && DW.FieldTrainingScene ? (spot.eq ? { x: spot.x, y: spot.y, eq: spot.eq } : this.station(DW.ow, k, spot)) : null;
       for (;;) { const sc = at ? new DW.FieldTrainingScene(m, k, at) : new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
       if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre sa fiche, onglet Digivolution (ENTRÉE → DIGIMON, puis flèche droite).`);
     },

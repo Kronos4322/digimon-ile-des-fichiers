@@ -5,12 +5,133 @@
 //    Frappe : il cogne le mannequin   Endurance : il pousse le gros rocher
 //    Sprint : il court et saute la haie   Garde : il encaisse les pierres du mur
 //    Énergie : il absorbe la lumière du cristal   Méditation : il se concentre
-//  3 essais : une jauge défile, ESPACE au bon moment (zone jaune = bien, blanche = parfait).
+//  3 essais, et CHAQUE POSTE A SON EXERCICE (A = ESPACE ou bouton A, B = ÉCHAP ou bouton B) :
+//    mannequin (Attaque)      : marteler A le plus vite possible, la jauge de puissance doit monter haut
+//    sac de frappe (Attaque)  : enchaîner les coups demandés (A gauche, B droite) avant la fin du chrono
+//    rocher (PV)              : la jauge qui défile, A dans la zone jaune (blanc : parfait)
+//    haies (Vitesse)          : il prend son élan ; A pile sur la marque pour sauter la haie
+//    mur (Défense)            : une pierre part du mur ; A quand le cercle se referme sur lui
+//    cristal (PM)             : MAINTENIR A pour charger l'énergie, relâcher dans la zone (trop : surcharge)
 //  Les points, la fatigue et les résultats viennent de game/training.js (TrainingScene).
 // =====================================================================
 (function () {
   const { UI, Input, Audio } = DW;
   const W = DW.W, H = DW.H, TS = 16, Z = 2;
+
+
+  // ------------------------------------------------------------ les exercices (un par équipement)
+  // chaque jeu : hint, newRep(), update(dt) (seulement entre deux gestes), panel(c, y) (bas de l'écran)
+  const bar = (c, x0, y, w, k, col) => { c.fillStyle = '#0a1426'; c.fillRect(x0 - 1, y - 1, w + 2, 10); c.fillStyle = '#2a3a5a'; c.fillRect(x0, y, w, 8); c.fillStyle = col; c.fillRect(x0, y, Math.round(w * DW.clamp(k, 0, 1)), 8); };
+  const GAMES = {
+    // ROCHER (PV) : la jauge qui défile (zone jaune, centre blanc)
+    weights: sc => ({
+      hint: 'A quand le curseur passe dans la zone jaune (au centre blanc : parfait !)',
+      newRep() { this.t = 0; this.c = 0.3 + Math.random() * 0.4; this.w = 0.24 - sc.dif * 0.12; this.speed = 1.5 + sc.dif * 1.8; },
+      update(dt) {
+        this.t += dt; this.p = (Math.sin(this.t * this.speed * Math.PI - Math.PI / 2) + 1) / 2;
+        if (Input.hit('ok')) { const d = Math.abs(this.p - this.c); sc.rep(d < this.w / 6 ? 2 : d < this.w / 2 ? 1 : 0); }
+      },
+      panel(c, y) {
+        const x0 = 16, w = 220;
+        bar(c, x0, y, w, 0, '#000');
+        c.fillStyle = '#e8b830'; c.fillRect(x0 + (this.c - this.w / 2) * w, y, this.w * w, 8);
+        c.fillStyle = '#ffffff'; c.fillRect(x0 + (this.c - this.w / 6) * w, y, this.w / 3 * w, 8);
+        if (!sc.anim) { c.fillStyle = '#ff4040'; c.fillRect(Math.round(x0 + this.p * w) - 1, y - 3, 3, 14); }
+        UI.text(c, 'Soulève le rocher : A au bon moment !', 16, y + 22, { size: 7, color: '#c8f0ff' });
+      },
+    }),
+    // MANNEQUIN (Attaque) : marteler A, la puissance doit dépasser les repères
+    dummy: sc => ({
+      hint: 'Martèle A le plus vite possible : chaque coup fait monter la puissance !',
+      newRep() { this.pow = 0; this.max = 0; this.time = 2.4; this.go = false; },
+      update(dt) {
+        if (Input.hit('ok')) { this.go = true; this.pow = Math.min(1, this.pow + 0.07 * (1 - sc.dif * 0.4) * (sc.m.tired >= 60 ? 0.85 : 1)); sc.tap = 0.14; sc.tapSide = -(sc.tapSide || 1); Audio.sfx('move'); }
+        this.pow = Math.max(0, this.pow - dt * (0.22 + sc.dif * 0.2));
+        this.max = Math.max(this.max, this.pow);
+        if (this.go) this.time -= dt;
+        if (this.time <= 0) sc.rep(this.max >= 0.9 ? 2 : this.max >= 0.6 ? 1 : 0);
+      },
+      panel(c, y) {
+        const x0 = 16, w = 220;
+        bar(c, x0, y, w, this.pow, this.pow >= 0.9 ? '#ffffff' : this.pow >= 0.6 ? '#ffd040' : '#ff6a3a');
+        c.fillStyle = '#ffe070'; c.fillRect(x0 + w * 0.6, y - 3, 1, 14); c.fillStyle = '#ffffff'; c.fillRect(x0 + w * 0.9, y - 3, 1, 14);
+        UI.text(c, this.go ? `Puissance max ${Math.round(this.max * 100)} %   ·   ${Math.max(0, this.time).toFixed(1)} s` : 'Frappe le mannequin : martèle A !', 16, y + 22, { size: 7, color: '#c8f0ff' });
+      },
+    }),
+    // SAC DE FRAPPE (Attaque) : enchaîner les coups demandés, gauche (A) et droite (B)
+    punchbag: sc => ({
+      hint: 'Enchaîne les coups demandés : A = gauche, B = droite. Vite et sans erreur !',
+      newRep() { const n = 4 + Math.round(sc.dif * 3); this.seq = Array.from({ length: n }, () => (Math.random() < 0.5 ? 'ok' : 'back')); this.i = 0; this.err = 0; this.time = 1.0 + n * (0.62 - sc.dif * 0.18); this.T = this.time; },
+      update(dt) {
+        this.time -= dt;
+        const k = Input.hit('ok') ? 'ok' : Input.hit('back') ? 'back' : null;
+        if (k) {
+          if (k === this.seq[this.i]) { this.i++; sc.tap = 0.16; sc.tapSide = k === 'ok' ? -1 : 1; Audio.sfx('hit'); sc.shake = 0.06; }
+          else { this.err++; Audio.sfx('bump'); }
+        }
+        if (this.i >= this.seq.length) sc.rep(this.err === 0 ? 2 : this.err <= 1 ? 1 : 0);
+        else if (this.time <= 0 || this.err >= 3) sc.rep(this.i >= this.seq.length - 1 && this.err <= 1 ? 1 : 0);
+      },
+      panel(c, y) {
+        const n = this.seq.length, x0 = 22;
+        for (let j = 0; j < n; j++) {
+          const done = j < this.i, cur = j === this.i, k = this.seq[j];
+          c.fillStyle = done ? '#2a6a3a' : cur ? '#ffe070' : '#2a3a5a'; c.fillRect(x0 + j * 22, y - 4, 18, 14);
+          UI.text(c, k === 'ok' ? 'A' : 'B', x0 + j * 22 + 9, y + 6, { size: 9, align: 'center', color: cur ? '#1a1a2a' : done ? '#9affa0' : k === 'ok' ? '#ff9a8a' : '#8ac8ff' });
+        }
+        bar(c, 16, y + 16, 220, this.time / this.T, '#8ae0f0');
+        UI.text(c, `Erreurs ${this.err}/3`, 196, y + 4, { size: 7, color: this.err ? '#ff8a8a' : '#8ae0f0' });
+      },
+    }),
+    // HAIES (Vitesse) : il prend son élan ; A quand il passe sur la marque blanche
+    hurdle: sc => ({
+      hint: "Il prend son élan... A pile quand il passe sur la marque blanche, devant la haie !",
+      newRep() { this.run = -0.25; this.speed = 0.62 + sc.dif * 0.4; this.mark = 0.3; },
+      update(dt) {
+        this.run += dt * this.speed;
+        if (Input.hit('ok') && this.run > 0) { const d = Math.abs(this.run - this.mark); sc.run0 = this.run; sc.rep(d < 0.035 ? 2 : d < 0.09 ? 1 : 0); return; }
+        if (this.run > this.mark + 0.15) { sc.run0 = this.run; sc.rep(0); }
+      },
+      panel(c, y) {
+        UI.text(c, 'Saute au bon moment : A sur la marque blanche !', 16, y + 4, { size: 8, color: '#c8f0ff' });
+        bar(c, 16, y + 14, 220, Math.max(0, this.run) / (this.mark + 0.15), '#7aff7a');
+        c.fillStyle = '#ffffff'; c.fillRect(16 + 220 * this.mark / (this.mark + 0.15), y + 11, 2, 14);
+      },
+    }),
+    // MUR (Défense) : une pierre part du mur ; A quand le cercle se referme sur lui
+    guardwall: sc => ({
+      hint: 'Une pierre arrive ! A quand le cercle se referme sur ton Digimon pour encaisser.',
+      newRep() { this.wait = 0.5 + Math.random() * 1.2; this.t = 0; this.dur = (0.95 - sc.dif * 0.3) * (0.85 + Math.random() * 0.3); this.fly = false; },
+      update(dt) {
+        if (!this.fly) { this.wait -= dt; if (Input.hit('ok')) { sc.rep(0); return; } if (this.wait <= 0) { this.fly = true; Audio.sfx('swoosh'); } return; }   // trop tôt : raté
+        this.t += dt;
+        const tau = this.dur - this.t;
+        if (Input.hit('ok')) { const e = Math.abs(tau); sc.rep(e < 0.06 ? 2 : e < 0.14 ? 1 : 0); return; }
+        if (tau < -0.12) sc.rep(0);
+      },
+      panel(c, y) { UI.text(c, this.fly ? 'Maintenant... attends que le cercle se ferme !' : 'Attention... une pierre va partir du mur !', 16, y + 4, { size: 8, color: this.fly ? '#ffe070' : '#c8f0ff' }); UI.text(c, 'Appuyer trop tôt = raté', 16, y + 20, { size: 7, color: '#8ae0f0' }); },
+    }),
+    // CRISTAL (PM) : maintenir A pour charger, relâcher dans la zone ; au bout : surcharge
+    datacrystal: sc => ({
+      hint: "MAINTIENS A pour absorber l'énergie, relâche-le dans la zone bleue. Trop longtemps : surcharge !",
+      newRep() { this.e = 0; this.held = false; this.c = 0.55 + Math.random() * 0.3; this.w = 0.2 - sc.dif * 0.08; this.speed = 0.55 + sc.dif * 0.45; },
+      update(dt) {
+        const down = Input.isDown('ok');
+        if (down) { this.held = true; this.e += dt * this.speed * (0.8 + this.e * 0.8); }
+        else if (this.held) { const d = Math.abs(this.e - this.c); sc.rep(d < this.w / 6 ? 2 : d < this.w / 2 ? 1 : 0); return; }
+        if (this.e >= 1) { sc.shake = 0.3; Audio.sfx('weak'); sc.rep(0); }
+        sc.charge = this.e;
+      },
+      panel(c, y) {
+        const x0 = 16, w = 220;
+        bar(c, x0, y, w, this.e, '#4ae0f0');
+        c.strokeStyle = '#ffffff'; c.lineWidth = 1; c.strokeRect(x0 + (this.c - this.w / 2) * w + 0.5, y - 2.5, this.w * w, 12);
+        c.fillStyle = 'rgba(255,255,255,0.5)'; c.fillRect(x0 + (this.c - this.w / 6) * w, y, this.w / 3 * w, 8);
+        c.fillStyle = '#ff5a5a'; c.fillRect(x0 + w - 6, y, 6, 8);
+        UI.text(c, this.held ? 'Relâche dans la zone !' : 'Maintiens A pour charger...', 16, y + 22, { size: 7, color: '#c8f0ff' });
+      },
+    }),
+  };
 
   class FieldTrainingScene extends DW.TrainingScene {
     constructor(m, k, spot) {
@@ -18,32 +139,32 @@
       this.ow = DW.ow; this.spot = spot;
       this.oc = DW.Art.canvas(W, H);
       this.anim = null;   // geste en cours : { res, t }
+      this.eq = spot.eq || (DW.World.info(this.ow.tileAt(spot.x, spot.y)).obj) || k;   // l'équipement du poste
+      this.tap = 0;
     }
     enter() { this.ow.locked = true; this.ow.hidePartner = true; }
     close(r) { this.ow.locked = false; this.ow.hidePartner = false; super.close(r); }
-    // le jeu de la séance : la jauge (les essais sont notés par TrainingScene.hit)
+    // le jeu de la séance, selon l'équipement (les essais sont notés par TrainingScene.hit)
     start() {
       this.state = 'play'; this.readyT = 1.1; this.endT = 1.4; Audio.sfx('buff');
-      const sc = this;
-      this.game = {
-        hint: 'ESPACE quand le curseur passe dans la zone jaune (au centre blanc : parfait !)',
-        newRep() { this.t = 0; this.c = 0.3 + Math.random() * 0.4; this.w = 0.24 - sc.dif * 0.12; this.speed = 1.5 + sc.dif * 1.8; this.waiting = true; },
-        update(dt) {
-          if (sc.anim) { sc.anim.t += dt; if (sc.anim.t > 1.1) { sc.anim = null; if (sc.hits.length < 3) this.newRep(); } return; }
-          if (!this.waiting) this.newRep();
-          this.t += dt;
-          this.p = (Math.sin(this.t * this.speed * Math.PI - Math.PI / 2) + 1) / 2;
-          if (Input.hit('ok')) {
-            const d = Math.abs(this.p - this.c), res = d < this.w / 6 ? 2 : d < this.w / 2 ? 1 : 0;
-            this.waiting = false;
-            sc.anim = { res, t: 0 };
-            const [x, y] = sc.toScreen(sc.spot.x * TS + 8, sc.spot.y * TS);
-            sc.hit(res, x, y);
-          }
-        },
-        draw() {},
-      };
+      this.game = (GAMES[this.eq] || GAMES.weights)(this);
       this.game.newRep();
+    }
+    // un essai terminé : animation du geste, puis essai suivant
+    rep(res) {
+      this.anim = { res, t: 0 };
+      const [x, y] = this.toScreen(this.spot.x * TS + 8, this.spot.y * TS);
+      this.hit(res, x, y);
+    }
+    update(dt) {
+      if (this.tap > 0) this.tap -= dt;
+      if (this.state === 'play' && this.readyT <= 0) {
+        if (this.anim) { this.anim.t += dt; if (this.anim.t > 1.1) { this.anim = null; this.charge = 0; if (this.hits.length < 3) this.game.newRep(); } if (this.hits.length >= 3 && !this.anim) { if ((this.endT -= dt) <= 0) this.finish(); } return; }
+        if (this.hits.length >= 3) { if ((this.endT -= dt) <= 0) this.finish(); return; }
+        this.game.update(dt);
+        return;
+      }
+      super.update(dt);
     }
     // centre du zoom : le poste, sans sortir de l'écran
     view() {
@@ -77,14 +198,32 @@
       const P = ow.pos(ow.p), side = P.x * TS + 8 < sx ? -1 : 1;     // le partenaire se place du côté du héros
       let x = sx + side * 18, y = sy + 2, moving = false, flip = side > 0, lift = 0;
       const k1 = a ? Math.min(1, a.t / 0.35) : 0, back = a ? Math.max(0, (a.t - 0.6) / 0.5) : 0, power = a ? [0.4, 1, 1.4][a.res] : 0;
+      const G = this.game, eq = this.eq;
+      if (eq === 'punchbag') x = sx + side * 24;   // (le sac est large : il se place un peu plus loin)
+      if (k === 'atk' && !a && this.tap > 0) x = sx + side * ((eq === 'punchbag' ? 24 : 18) - 7 * Math.sin(this.tap / 0.15 * Math.PI)) + (eq === 'punchbag' ? (this.tapSide || 1) * 3 : 0);   // coups rapides
       if (k === 'atk' && a) { x = sx + side * (18 - 12 * k1 + 12 * back); if (a.t > 0.3 && a.t < 0.5) this.shake = Math.max(this.shake, 0.15 * power); }
       else if (k === 'hp' && a) { x = sx + side * (16 - 4 * k1); lift = a.t < 0.8 ? Math.sin(a.t * 30) * power : 0; }
       else if (k === 'spd') {
         // course : il descend la piste en ligne droite et saute la haie (le héros et le panneau restent sur le côté :
         // il ne leur passe plus à travers)
-        const run = a ? Math.min(1, a.t / 0.9) : 0;
-        x = sx - 8; y = sy - 20 + 36 * run; moving = !!a && run < 1; flip = false;
-        if (a) y -= Math.max(0, Math.sin(Math.min(1, Math.max(0, (run - 0.36) / 0.32)) * Math.PI)) * (a.res ? 16 : 5);
+        // il prend son élan (le joueur saute sur la marque), puis finit sa course
+        const r0 = a ? (this.run0 || 0.3) : 0, run = a ? Math.min(1, r0 + a.t * 0.8) : Math.max(0, G && G.run != null ? G.run : 0);
+        x = sx - 8; y = sy - 20 + 36 * run; moving = (a ? run < 1 : G && G.run > 0); flip = false;
+        if (this.state === 'play' && !a && G) { const my = sy - 20 + 36 * G.mark; c.fillStyle = 'rgba(255,255,255,0.85)'; c.fillRect(x - 7, my + 1, 14, 2); }
+        if (a) y -= Math.max(0, Math.sin(Math.min(1, a.t / 0.42) * Math.PI)) * (a.res ? 16 : 4);
+        if (a && !a.res && a.t > 0.3 && a.t < 0.5) this.shake = Math.max(this.shake, 0.12);
+      } else if (k === 'def' && !a && G && G.fly) {
+        // la pierre vole du mur vers lui, un cercle se referme
+        // (elle part de derrière le mur, haut dans le ciel, et retombe sur lui)
+        const pk = Math.min(1.15, G.t / G.dur), x0 = sx + (sx - x) * 1.6, px = DW.lerp(x0, x, pk), py = DW.lerp(sy - 30, y - 10, pk) - Math.sin(Math.min(1, pk) * Math.PI) * 26;
+        c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(px, DW.lerp(sy + 2, y + 1, pk), 3, 1, 0, 0, 7); c.fill();
+        c.fillStyle = '#7a746a'; c.beginPath(); c.arc(px, py, 4, 0, 7); c.fill(); c.fillStyle = '#b8b2a6'; c.fillRect(px - 2, py - 3, 3, 2);
+        const R = 4 + Math.max(0, 1 - pk) * 22; c.strokeStyle = pk > 0.9 ? 'rgba(255,240,120,0.95)' : 'rgba(120,200,255,0.8)'; c.lineWidth = 1; c.beginPath(); c.arc(x, y - 10, R, 0, 7); c.stroke();
+        c.strokeStyle = 'rgba(255,255,255,0.5)'; c.beginPath(); c.arc(x, y - 10, 4, 0, 7); c.stroke();
+      } else if (k === 'mp' && !a && this.charge > 0) {
+        c.save(); c.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 8; i++) { const ang = t * 5 + i, r = 14 - this.charge * 6 + Math.sin(t * 11 + i) * 2; c.fillStyle = this.charge > 0.9 ? 'rgba(255,120,120,0.6)' : 'rgba(120,200,255,0.55)'; c.beginPath(); c.arc(x + Math.cos(ang) * r, y - 10 + Math.sin(ang) * r * 0.6, 0.8 + this.charge * 2, 0, 7); c.fill(); }
+        c.restore(); lift = Math.sin(t * 40) * this.charge;
       } else if (k === 'def' && a) {
         // pierres lancées par le mur : il encaisse (moins il bouge, mieux c'est)
         const pk = Math.min(1, a.t / 0.4);
@@ -113,16 +252,7 @@
         UI.text(c, `${S.stat} actuel : ${this.before}   ·   1 h 30 d'entraînement`, 16, 217, { size: 7, color: '#8ae0f0' });
         UI.hints(c, [['ok', 'commencer'], ['back', 'annuler']], W - 14, 229);
       } else if (this.state === 'play') {
-        // jauge
-        const G = this.game, x0 = 16, w = 220, y = 202;
-        c.fillStyle = '#0a1426'; c.fillRect(x0 - 1, y - 1, w + 2, 10);
-        c.fillStyle = '#2a3a5a'; c.fillRect(x0, y, w, 8);
-        if (G.c != null) {
-          c.fillStyle = '#e8b830'; c.fillRect(x0 + (G.c - G.w / 2) * w, y, G.w * w, 8);
-          c.fillStyle = '#ffffff'; c.fillRect(x0 + (G.c - G.w / 6) * w, y, G.w / 3 * w, 8);
-          if (!this.anim) { c.fillStyle = '#ff4040'; c.fillRect(Math.round(x0 + G.p * w) - 1, y - 3, 3, 14); }
-        }
-        UI.text(c, 'ESPACE au bon moment !', 16, 224, { size: 7, color: '#c8f0ff' });
+        this.game.panel(c, 202);
         for (let j = 0; j < 3; j++) { const h = this.hits[j]; UI.text(c, h == null ? '·' : h === 2 ? '★' : h ? '●' : '✘', W - 60 + j * 14, 212, { size: 10, align: 'center', color: h == null ? '#5a8aa0' : h ? '#ffe060' : '#ff7a7a' }); }
         UI.text(c, `Essai ${Math.min(3, this.hits.length + 1)}/3`, W - 46, 228, { size: 7, align: 'center', color: '#8ae0f0' });
       } else {

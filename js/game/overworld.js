@@ -343,7 +343,10 @@
         if (I.train) return { x: ax, y: ay, k: I.train };
         // le panneau à pictogramme devant chaque poste lance aussi la séance
         const o = signAt(ax, ay);
-        if (o && SIGN_STAT[o.v || 0]) return { x: ax, y: ay, k: SIGN_STAT[o.v || 0] };
+        // le sac de frappe : un poste d'Attaque à part (son propre exercice), par son panneau ou en face de lui
+        const bag = (this.map.objects || []).find(b => b.kind === 'punchbag' && ((o && o.eq === 'punchbag') || (ax >= b.x && ax < b.x + (b.w || 1) && ay >= b.y && ay < b.y + (b.h || 1))));
+        if (o && SIGN_STAT[o.v || 0] && o.eq !== 'punchbag') return { x: ax, y: ay, k: SIGN_STAT[o.v || 0] };
+        if (bag) return { x: bag.x + ((bag.w || 1) >> 1), y: bag.y + (bag.h || 1) - 1, k: 'atk', eq: 'punchbag' };
       }
       return null;
     }

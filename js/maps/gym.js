@@ -146,6 +146,7 @@
       { kind: 'stationsign', v: 0, x: 3, y: 9, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 12, w: 1, h: 1, small: true },
       { kind: 'stationsign', v: 3, x: 9, y: 12, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 2, x: 28, y: 8, w: 1, h: 1, small: true },
       { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 9, y: 17, w: 1, h: 1, small: true },
+      { kind: 'stationsign', v: 1, eq: 'punchbag', x: 8, y: 14, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 1, h: 1, small: true },
       { kind: 'rock', v: 1, x: 24, y: 16, w: 1, h: 1, small: true }, { kind: 'rock', v: 0, x: 28, y: 15, w: 1, h: 1, small: true },
       { kind: 'bench', x: 12, y: 18, w: 1, h: 1, small: true }, { kind: 'bench', x: 19, y: 18, w: 1, h: 1, small: true },
       { kind: 'barrel', v: 0, x: 3, y: 16, w: 1, h: 1, small: true }, { kind: 'barrel', v: 1, x: 28, y: 12, w: 1, h: 1, small: true },
@@ -158,7 +159,7 @@
         await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Jardin zen : méditation (Intelligence).  Cristal de données : énergie (PM).");
         await say("Les COMBATS font monter le niveau, et le niveau fixe le POTENTIEL de ton Digimon (10 + 3 × niveau points par stat). Dé-digivoluer ton Digimon augmente son ABI : son potentiel grimpe encore !");
         await say("L'ENTRAÎNEMENT remplit ce potentiel. Ce sont les points d'entraînement qui permettent de digivoluer !");
-        await say("Chaque poste a son exercice : course de haies, haltère, sac de frappe, rochers à encaisser, méditation, cristal d'énergie. Parle au poste ou à son panneau pour commencer. Plus ton Digimon est entraîné, plus c'est dur !");
+        await say("Chaque poste a son exercice : marteler le mannequin, enchaîner les coups au sac de frappe, soulever le rocher au bon moment, sauter la haie sur la marque, encaisser les pierres du mur, charger l'énergie du cristal. Parle au poste ou à son panneau (le pictogramme indique la stat) pour commencer. Plus ton Digimon est entraîné, plus c'est dur !");
       },
       '7,4': 'Les gradins des spectateurs. Un jour, ils seront remplis pour tes séances !', '8,4': 'Les gradins des spectateurs. Un jour, ils seront remplis pour tes séances !',
       '25,9': 'Un râtelier plein de boucliers cabossés. Parfait pour apprendre à encaisser.',

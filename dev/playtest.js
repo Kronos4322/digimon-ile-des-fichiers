@@ -71,8 +71,10 @@
       // un joueur se soigne : RAM PV (500 PV) sous 70 % de PV, achetée au distributeur ; il boit quand il a soif
       if ((DW.state.bag.soin_p || 0) < 3 && DW.state.bits >= 300) { DW.state.bits -= 300; DW.giveItem('soin_p', 3); pt.buys = (pt.buys || 0) + 3; }
       if (m.hp > 0 && m.hp < m.maxHp * 0.7) { if (!DW.state.bag.soin_p) { DW.state.bits -= 300; DW.giveItem('soin_p', 3); pt.buys = (pt.buys || 0) + 3; } DW.useItem('soin_p', m); }
-      if ((m.thirst || 0) >= 60) { DW.state.bits -= 40; m.thirst = Math.max(0, m.thirst - 70); }
-      if (DW.Life.sleepy(m) || m.tired >= 85) { await DW.Life.sleep(); log('dodo'); }
+      // soif : une Eau fraîche (distributeur, 40 Bits) ; sans Bits, il boit à la rivière (gratuit, mais 10 minutes de marche)
+      if ((m.thirst || 0) >= 55) { if (!DW.state.bag.eau_fraiche && DW.state.bits >= 80) { DW.state.bits -= 80; DW.giveItem('eau_fraiche', 2); } if (DW.state.bag.eau_fraiche) DW.useItem('eau_fraiche', m); else { DW.Care.drink(m, 70); DW.state.clock += 10; } }
+      // la nuit, il dort chez Jijimon : une nuit là-bas efface un K.O.
+      if (DW.Life.sleepy(m) || m.tired >= 85) { await DW.Life.sleep(); const k0 = m.kos || 0; if (k0 > 0) m.kos = k0 - 1; log(`nuit chez Jijimon${k0 ? " : un K.O. s'efface (" + m.kos + '/3)' : ''}`); }
       // Digivolution dès que possible
       const evo = DW.Evo.available(m);
       if (evo.length) { const to = evo[0].to; m.evolve(to); DW.state.seen[to] = DW.state.owned[to] = true; log(`DIGIVOLUTION → ${DW.SPECIES[to].name}`); continue; }
@@ -96,21 +98,45 @@
       const next = (DW.EVO[m.sp] || [])[0], req = next ? next.req : {};
       const need = Object.keys(DW.Training.STATS).filter(k => req[k] && m.tr[k] < req[k] && !DW.Training.blocked(m, k));
       // il s'entraîne aussi pour se renforcer (Attaque, Défense, Vitesse) quand la Digivolution visée est prête côté points
-      if (!need.length && m.tired < 40 && (pt.trains % 3 !== 2 || Math.random() < 0.4)) { const k = ['atk', 'def', 'spd', 'hp'][pt.trains % 4]; if (!DW.Training.blocked(m, k)) need.push(k); }
+      // + une leçon d'Intelligence de temps en temps (à l'école : chance d'apprendre une technique) ; sinon renforcer ses stats
+      if (m.tired < 40 && pt.trains % 4 === 3 && !DW.Training.blocked(m, 'int')) need.unshift('int');
+      else if (!need.length && m.tired < 40 && (pt.trains % 3 !== 2 || Math.random() < 0.4)) { const k = ['atk', 'def', 'spd', 'hp'][pt.trains % 4]; if (!DW.Training.blocked(m, k)) need.push(k); }
       if (need.length && m.tired < 60) {
         const k = need[0], evoGoal = req[k] && m.tr[k] < req[k];
-        if (DW.ow.mapId !== 'village') DW.ow.load('village', 20, 20, 'down');
         DW.Training.opts = { mode: evoGoal ? 'evo' : 'stat', level: DW.Training.LEVELS[1] };
-        const sc = new DW.TrainingScene(m, k); DW.Game.push(sc);
-        await wait(700); sc.start(); await wait(1100);
-        for (let j = 0; j < 3; j++) { await wait(650); sc.hit(Math.random() < 0.35 ? 2 : Math.random() < 0.8 ? 1 : 0); }
+        // la séance se joue AU POSTE du Terrain d'entraînement (comme sur le téléphone) ; l'Intelligence, à l'école
+        let sc;
+        if (k !== 'int') {
+          if (DW.ow.mapId !== 'gym') DW.ow.load('gym', ...DW.MapKit.zpt('gym', 16, 9), 'down');
+          const M = DW.ow.map, eqs = k === 'atk' ? ['dummy', 'punchbag'] : [null], eq = eqs[pt.trains % eqs.length];
+          let spot = null;
+          if (eq === 'punchbag') { const b = M.objects.find(o => o.kind === 'punchbag'); spot = { x: b.x, y: b.y + (b.h || 1) - 1, eq }; }
+          else for (let y = 0; y < M.h && !spot; y++) for (let x = 0; x < M.w; x++) if (DW.World.info(DW.ow.tileAt(x, y)).train === k) { spot = { x, y }; break; }
+          DW.ow.load('gym', spot.x - 1, spot.y + 1, 'up'); await wait(150);
+          sc = new DW.FieldTrainingScene(m, k, spot);
+        } else sc = new DW.TrainingScene(m, k);
+        DW.Game.push(sc);
+        await wait(900); sc.start(); await wait(1300);
+        for (let j = 0; j < 3; j++) {
+          await wait(900);
+          const r = Math.random() < 0.35 ? 2 : Math.random() < 0.8 ? 1 : 0;
+          if (sc.rep) { while (sc.anim) await wait(50); if (sc.eq === 'datacrystal') sc.charge = 0.7; sc.rep(r); } else sc.hit(r);
+        }
         while (sc.state !== 'done') await wait(60);
         await wait(1300); sc.close('stop'); pt.trains++;
-        log(`entraînement ${DW.Training.STATS[k].name} (${evoGoal ? 'points ' + m.tr[k] + ' / ' + req[k] : DW.Training.STATS[k].stat + ' ' + m.stat(k)}) — fatigue ${Math.round(m.tired)} %`);
+        if (k === 'int' && DW.Classe) { const n0 = m.moves.length; await DW.Classe.after(m, sc.score || 4); if (m.moves.length > n0 || pt.learned !== m.moves.map(x => x.id).join()) log(`leçon à l'école : techniques ${m.moves.map(x => DW.MOVES[x.id].name).join(', ')}`); pt.learned = m.moves.map(x => x.id).join(); }
+        log(`entraînement ${DW.Training.STATS[k].name}${sc.eq ? ' (' + sc.eq + ')' : ''} — ${evoGoal ? 'points ' + m.tr[k] + ' / ' + req[k] : DW.Training.STATS[k].stat + ' ' + m.stat(k)} — fatigue ${Math.round(m.tired)} %`);
         await wait(200); continue;
       }
-      // combat dans la zone de son niveau
-      const z = zoneFor(m.level), list = ENC(z), e = DW.weighted(list.map(x => ({ ...x, w: x.w || 1 })));
+      // stratégie : on ne part au combat qu'en pleine forme (sinon une heure de repos chez Jijimon) ;
+      // avec 2 K.O., plus AUCUN combat avant d'avoir dormi chez Jijimon (au 3e, il meurt)
+      if ((m.kos || 0) >= 2 || m.hp < m.maxHp * 0.9 || m.tired >= 50) {
+        const before = m.kos || 0; await DW.Life.restOrSleep(); pt.rests = (pt.rests || 0) + 1;
+        if (DW.Life.sleepy(m) === false && before >= 2 && pt.rests % 4 === 1) log(`2 K.O. : pas de combat, il se repose (fatigue ${Math.round(m.tired)} %)`);
+        await wait(60); continue;
+      }
+      // combat : un cran au-dessus de son niveau, sauf après un K.O. (zone de son niveau)
+      const z = zoneFor(m.level - ((m.kos || 0) ? 1 : 0)), list = ENC(z), e = DW.weighted(list.map(x => ({ ...x, w: x.w || 1 })));
       if (DW.ow.mapId !== z) DW.ow.load(z, 20, 20, 'down');
       const r = await fight(new DW.Digimon(e.sp, DW.rand(e.min, e.max)), false);
       pt.fights++; if (r === 'win') pt.wins++; else if (r === 'lose') { pt.losses++; log(`défaite contre ${DW.SPECIES[e.sp].name} (K.O. ${m.kos || 0}/3)`); }

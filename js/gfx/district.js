@@ -144,8 +144,9 @@
     stationsign: { w: 24, h: 30, n: 6, draw(d, v) {
       d.ell(12, 29, 8, 1.6, '#1a1a1a', 0, { flat: true });
       d.tube([[5, 29], [5, 14]], 2, 2, '#4a3a2e'); d.tube([[19, 29], [19, 14]], 2, 2, '#4a3a2e');
-      d.rect(1, 2, 22, 16, '#2a2a30', { round: 0.08 });
-      d.deco.rect(1, 2, 22, 2, '#5a4a3e'); d.deco.rect(1, 16, 22, 2, '#5a4a3e');
+      d.rect(0, 1, 24, 18, '#f0e6c8', { round: 0.1 });   // cadre clair : il se voit de loin
+      d.rect(1.5, 2.5, 21, 15, '#2a2a30', { round: 0.08 });
+      d.deco.rect(1.5, 2.5, 21, 1.4, '#5a4a3e'); d.deco.rect(1.5, 16.1, 21, 1.4, '#5a4a3e');
       const C = ['#ff5a7a', '#ffd040', '#5ab8ff', '#7aff7a', '#c88aff', '#4ae0f0'][v];
       if (v === 0) { d.deco.circ(9.6, 8, 2.6, C, { unlit: true }); d.deco.circ(14.4, 8, 2.6, C, { unlit: true }); d.deco.poly([[7, 9], [17, 9], [12, 15]], C, { unlit: true }); }
       else if (v === 1) { d.deco.circ(12, 10, 3, C, { unlit: true }); for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; d.deco.line(12 + Math.cos(a) * 4, 10 + Math.sin(a) * 4, 12 + Math.cos(a) * 6, 10 + Math.sin(a) * 6, 1, C, { unlit: true }); } }
@@ -442,4 +443,5 @@
     } },
   });
   OBJ.kiosk.scale = 1.15;
+  OBJ.stationsign.scale = 1.5;   // panneaux des postes d'entraînement : bien visibles
 })();
