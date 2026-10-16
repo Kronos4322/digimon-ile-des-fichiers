@@ -478,7 +478,13 @@
           if (m === this.active) await DW.tween(this.xpShow, { v: m.xpRatio() }, 0.5);
           if (m === this.active) await this.observe(m);
           // il comprend peut-être une nouvelle technique de son espèce (hasard + Intelligence)
-          { const id = DW.tryLearn(m); if (id) { Audio.sfx('buff'); await this.msg(`${m.name} a une idée... Il a compris une nouvelle technique !`, 1.2); await DW.learnMove(m, id); } }
+          { const id = DW.tryLearn(m); if (id) { Audio.sfx('buff'); await this.msg(`${m.name} a une idée... Il a compris une nouvelle technique !`, 1.2); await DW.learnMove(m, id); }
+            // un équipier qui monte de niveau sans avoir combattu (expérience partagée) ne peut pas « observer » :
+            // il retient une technique de son espèce à sa portée une fois sur deux (sinon il resterait sans nouvelles attaques)
+            else if (!fought.has(m) && events.some(ev => ev.type === 'level') && Math.random() < 0.5) {
+              const pool = m.d.learn.filter(([l, mid]) => l > 0 && l <= m.level && !m.knows(mid) && DW.MOVES[mid]).map(([, mid]) => mid);
+              if (pool.length) { Audio.sfx('buff'); await this.msg(`En regardant le combat, ${m.name} a compris une nouvelle technique !`, 1.2); await DW.learnMove(m, pool[0]); }
+            } }
           if (events.length && m.evoTarget()) m.evoPending = true;
         }
       }

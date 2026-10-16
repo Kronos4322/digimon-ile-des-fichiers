@@ -141,7 +141,15 @@
       c.fillStyle = '#ffffff'; c.fillRect(bx - 6, by + 6, 5, 3);
       if (list.length > 1) for (let i = 0; i < list.length; i++) { c.fillStyle = list[i] === icon ? '#203040' : '#b0c0d0'; c.fillRect(bx - list.length * 2 + i * 4, by + 11, 2, 2); }
       if (icon === 'food') c.drawImage(DW.Icons.item('viande'), bx - 8, by - 8, 16, 16);
-      else if (icon === 'drink') { c.fillStyle = '#3aa0ff'; c.beginPath(); c.moveTo(bx, by - 7); c.quadraticCurveTo(bx + 6, by + 1, bx, by + 5); c.quadraticCurveTo(bx - 6, by + 1, bx, by - 7); c.fill(); c.fillStyle = '#c8ecff'; c.fillRect(bx - 2, by - 1, 1.5, 3); }
+      else if (icon === 'drink') {   // soif : une bouteille d'eau (la goutte, c'est la fatigue)
+        c.fillStyle = '#2a6ac0'; c.fillRect(bx - 1.5, by - 9, 3, 2);   // bouchon
+        c.fillStyle = '#d8f0ff'; c.fillRect(bx - 1, by - 7, 2, 2);   // goulot
+        c.beginPath(); c.moveTo(bx - 1, by - 5); c.lineTo(bx - 4, by - 3); c.lineTo(bx - 4, by + 6); c.lineTo(bx + 4, by + 6); c.lineTo(bx + 4, by - 3); c.lineTo(bx + 1, by - 5); c.closePath();
+        c.fillStyle = '#c8ecff'; c.fill(); c.strokeStyle = '#3a7ab8'; c.lineWidth = 0.8; c.stroke();
+        c.fillStyle = '#5ab8f0'; c.fillRect(bx - 3.5, by, 7, 5.5);   // l'eau
+        c.fillStyle = '#ffffff'; c.fillRect(bx - 3, by - 2, 1, 6);   // reflet
+        c.fillStyle = '#3a8ae0'; c.fillRect(bx - 4, by - 1, 8, 1.2);   // étiquette
+      }
       else if (icon === 'need') this.drawPoop(c, bx, by + 4, 1);
       else if (icon === 'sick') { c.fillStyle = '#7ac040'; c.beginPath(); c.arc(bx, by, 6, 0, 7); c.fill(); c.fillStyle = '#1a2a10'; c.fillRect(bx - 3, by - 2, 2, 2); c.fillRect(bx + 1, by - 2, 2, 2); c.fillRect(bx - 3, by + 2, 6, 1.5); c.fillStyle = '#a0e0ff'; c.fillRect(bx + 5, by - 6, 2, 3); }
       else if (icon === 'hurt') { c.save(); c.translate(bx, by); c.rotate(-0.5); c.fillStyle = '#f0d8b0'; c.fillRect(-8, -3, 16, 6); c.fillStyle = '#e8c090'; c.fillRect(-3, -3, 6, 6); c.fillStyle = '#c8a070'; for (const dx of [-1.5, 1.5]) for (const dy of [-1.5, 1.5]) c.fillRect(dx - 0.5, dy - 0.5, 1, 1); c.restore(); }

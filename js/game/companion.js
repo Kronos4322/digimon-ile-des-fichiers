@@ -40,8 +40,8 @@
         if (F.t >= 1) Object.assign(F, { moving: false, x: F.tx, y: F.ty, sx: F.tx, sy: F.ty, t: 0 });
         return;
       }
-      // la nuit, il finit par s'endormir près du héros
-      if (DW.Time.isNight() && !ow.map.indoor && C.idle > 9) { C.sleep = true; return; }
+      // à ses heures de sommeil (la nuit pour un diurne, le jour pour un nocturne), il finit par s'assoupir près du héros
+      if (DW.Life.sleepy(pt) && !ow.map.indoor && C.idle > 9) { C.sleep = true; return; }
       if (C.idle < 1.5) return;
       C.next -= dt;
       if (C.next > 0) return;

@@ -77,7 +77,8 @@
   async function healAll(msg) {
     await DW.fade(0.7, 0.3, '#ffffff');
     DW.Audio.sfx('heal');
-    st().party.forEach(m => { m.heal(); m.slept = st().clock; m.sick = 0; m.hurt = 0; m.germs = Math.floor((m.germs || 0) / 2); });
+    // (soigner n'est pas dormir : l'heure du dernier sommeil ne change pas, sinon il n'avait plus jamais sommeil le soir)
+    st().party.forEach(m => { m.heal(); m.sick = 0; m.hurt = 0; m.germs = Math.floor((m.germs || 0) / 2); });
     await DW.wait(1.0);
     await DW.fade(0, 0.3);
     if (msg) await say(msg);

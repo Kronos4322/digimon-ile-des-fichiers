@@ -493,6 +493,8 @@
       const anim = OBJ[o.kind].frames ? World.objFrames(o.kind, o.v || 0) : null;
       const spr = anim ? anim[0] : World.obj(o.kind, o.v || 0);
       if (!o.walk && !o.top) for (let yy = 0; yy < o.h; yy++) for (let xx = 0; xx < o.w; xx++) solid.add((o.x + xx) + ',' + (o.y + yy));
+      // cases bloquées autour d'un objet qu'on traverse en son centre (ex. les piliers d'une porte de temple)
+      for (const [bx, by] of o.block || []) solid.add((o.x + bx) + ',' + (o.y + by));
       // pareil pour les objets posés plus larges que leur emprise (bas : bûches, piliers tombés...)
       if (!o.walk && !o.top && !o.back && spr.h <= 34 && spr.w > o.w * 16 + 6) { const k = Math.round((spr.w - o.w * 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((o.x - xx) + ',' + (o.y + o.h - 1), (o.x + o.w - 1 + xx) + ',' + (o.y + o.h - 1)); widen.push(grp); }
       const flat = o.walk || o.back;

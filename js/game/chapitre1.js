@@ -149,7 +149,7 @@
       ['Album de l\'île', `${DW.Cards ? DW.Cards.ch1Count() : 0} / ${DW.Cards ? DW.Cards.CH1.length : 12} cartes`],
       ['Bits', String(s.bits)],
     ], 'BILAN DU CHAPITRE 1'));
-    await say("Les chemins de toute l'île sont ouverts : la montagne, le lac, les brumes, le marais... Chaque région cache un Digimon qui a perdu la mémoire.", 'Jijimon');
+    await say("Le voile de données s'est levé au nord de la Clairière de l'Arrivée : le chemin du grand lac est ouvert. Le reste de l'île est encore voilé... chaque chose en son temps.", 'Jijimon');
     await say("Retrouve-les, ramène les habitants en ville, et découvre qui leur a fait ça. Moi, je garde la maison. Hohoho !", 'Jijimon');
     await Game.push(new ChapterScene('CHAPITRE 2', 'Le Lac et le Loup', 'Un serpent de mer garde le lac... et un garçon blond a été vu sur ses rives.'));
     DW.autosave();
@@ -159,9 +159,18 @@
   // La ville, la plage et la forêt (dont le Sentier et le Village des Bébés, où vit Elecmon) ; tout le reste
   // ouvre après Kuwagamon. Renvoie le message de blocage, ou null si la carte est accessible.
   const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set(['crique']);
+  // les régions de l'île s'ouvrent chapitre après chapitre, dans l'ordre de l'anime :
+  // chapitre 2 (Garurumon) : le lac ; chapitre 3 (Birdramon) : le volcan ; les autres attendent leur chapitre
+  const OPENS = { lac: 2, volcan: 3 };
   function lock(to) {
-    if ((st().flags.chapter || 1) >= 2 || !DW.MAPS[to]) return null;   // (ouvert à la fin du chapitre 1 : après Shellmon)
-    const m = DW.MAPS[to];
+    const ch = st().flags.chapter || 1, m = DW.MAPS[to];
+    if (!m) return null;
+    if (ch >= 2) {
+      const rid = m.region;
+      if (!rid || CH1.has(rid) || !(DW.REGION_ENTRY && rid in DW.REGION_ENTRY)) return null;
+      if (OPENS[rid] && ch >= OPENS[rid]) return null;
+      return `Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.${ch === 2 ? " Pour l'instant, c'est vers le grand lac, au nord de la Clairière de l'Arrivée, qu'il faut aller." : ''}`;
+    }
     if (CH1.has(m.region) && !CH1_CLOSED.has(to)) return null;
     return "Un étrange voile de données bloque le passage... Il est apparu en même temps que les monstres de la forêt et de la plage. Il faut d'abord rétablir le calme sur cette partie de l'île.";
   }

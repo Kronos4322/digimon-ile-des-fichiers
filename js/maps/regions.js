@@ -224,8 +224,10 @@
         if (r !== 0) return;
         if (st.bits < 100) { await DW.say("Tu n'as pas assez de Bits...", name); return; }
         st.bits -= 100; st.heal = { map: DW.ow.mapId, x: nx, y: ny + 1 };
-        await DW.Life.sleep(false); st.party.forEach(p => p.heal());
-        await DW.say('Bonjour ! Ton équipe est en pleine forme.', name);
+        // (on ne dort qu'à l'heure du coucher du partenaire ; sinon une heure de repos, sans sauter une journée)
+        const lead = DW.Care.lead();
+        if (!lead || DW.Life.sleepy(lead)) { await DW.Life.sleep(false); st.party.forEach(p => p.heal()); await DW.say('Bonjour ! Ton équipe est en pleine forme.', name); }
+        else { await DW.fade(1, 0.4); DW.Care.rest(60, true); st.party.forEach(p => { p.heal(); p.tired = Math.max(0, (p.tired || 0) - 30); }); await DW.wait(0.4); await DW.fade(0, 0.4); await DW.say(`${lead.name} n'a pas sommeil : une heure de repos dans un bon lit. Toute l'équipe est soignée !`, name); }
       } });
       else m.npcs.push({ sp: folk, x: nx, y: ny, face: 'left', wander: 2, hamlet: true, talk: () => DW.say(DW.pick([
         `Bienvenue au ${title} ! Ici, on vit tranquille... sauf quand les Digimon sauvages s'énervent.`,

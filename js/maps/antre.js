@@ -133,7 +133,8 @@
     for (const [x, y] of [[sx, sy + 1], [sx, sy + 2], [ex, ey + 1], [ex, ey + 2]]) if (g[y][x] === '#' || g[y][x] === '~') g[y][x] = '.';
     const near = (o, x, y) => Math.abs(o.x - x) < 3 && Math.abs(o.y - y) < 3;
     const objects = dress(maze, seed).filter(o => !near(o, sx, sy) && !near(o, ex, ey));
-    objects.push({ kind: 'templegate', v: 1, x: sx, y: sy, w: 1, h: 1, walk: true }, { kind: 'templegate', v: 0, x: ex, y: ey, w: 1, h: 1, walk: true });
+    // (on passe par le milieu de la porte ; ses deux piliers bloquent : on ne les traverse plus)
+    objects.push({ kind: 'templegate', v: 1, x: sx, y: sy, w: 1, h: 1, walk: true, block: [[-1, 0], [1, 0]] }, { kind: 'templegate', v: 0, x: ex, y: ey, w: 1, h: 1, walk: true, block: [[-1, 0], [1, 0]] });
     for (const [x, y] of [[sx - 2, sy], [sx + 2, sy], [ex - 2, ey], [ex + 2, ey]]) if ('.,'.includes(g[y][x])) objects.push({ kind: 'brazier', v: 1, x, y, w: 1, h: 1, small: true });
     for (const o of objects) if (g[o.y] && g[o.y][o.x] === '#') o.skip = true;
     // trésors : 2 coffres au bout des culs-de-sac (salles reliées par un seul couloir, loin des portes)

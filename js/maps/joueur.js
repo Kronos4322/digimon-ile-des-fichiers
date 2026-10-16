@@ -34,16 +34,16 @@
     aquarium: { name: 'Aquarium', price: 2000, objs: [{ kind: 'aquarium', x: 11, y: 10, w: 3, h: 1 }], desc: 'Regarder les poissons détend : bonheur +5 une fois par jour.' },
     ordi:     { name: 'Ordinateur', price: 4000, objs: [{ kind: 'computer', x: 11, y: 7, w: 2, h: 1 }], desc: 'Gère ta DigiFerme depuis la maison.' },
     tapis:    { name: 'Grand tapis et canapé', price: 1800, objs: [{ kind: 'bigrug', v: 1, x: 2, y: 7, w: 4, h: 2, walk: true }, { kind: 'sofa', v: 0, x: 1, y: 10, w: 3, h: 1 }], desc: 'Un salon confortable : ton partenaire se repose mieux (le lit rend aussi +5 de bonheur).' },
-    sac1:     { name: 'Grand sac de voyage', price: 1500, objs: [], desc: 'Ton sac peut contenir 4 sortes d\'objets de plus (14).' },
-    sac2:     { name: 'Sac d\'explorateur', price: 5000, objs: [], desc: 'Encore 4 sortes d\'objets de plus dans ton sac (18).' },
+    sac1:     { name: 'Grand sac de voyage', price: 1500, objs: [], desc: 'Ton sac peut contenir 4 sortes d\'objets de plus (24).' },
+    sac2:     { name: 'Sac d\'explorateur', price: 5000, objs: [], desc: 'Encore 4 sortes d\'objets de plus dans ton sac (28).' },
     chambre_digi: { name: 'Chambre de ton Digimon', price: 2500, room: 'digi', needs: () => upstairs(), objs: [{ kind: 'bed', x: 6, y: 3, w: 2, h: 2 }, { kind: 'toybox', x: 2, y: 3, w: 2, h: 1 }, { kind: 'cushion', v: 1, x: 3, y: 6, w: 1, h: 1, small: true }], desc: 'Une chambre à l\'étage rien que pour ton partenaire : il y dort, ou s\'y repose une heure quand il n\'a pas sommeil.' },
     tableau:  { name: 'Tableaux', price: 800, objs: [{ kind: 'painting', v: 0, x: 9, y: 1, w: 2, h: 1, back: true, oy: 6 }, { kind: 'painting', v: 1, x: 12, y: 1, w: 2, h: 1, back: true, oy: 6 }], desc: 'De beaux tableaux aux murs. Pour le plaisir des yeux.' },
   };
   const ORDER = Object.keys(FURN);
   const owned = id => !!(st().home && st().home.owned[id]);
-  // salon aménagé, ou un enfant délivré qui vient habiter chez toi : la maison prend un étage (les chambres y sont)
+  // la télévision OU le canapé aménagent le salon, ou un enfant délivré vient habiter chez toi : la maison prend un étage (ta chambre et celles des enfants)
   const KIDS_HOME = ['tai', 'matt'];
-  const upstairs = () => (owned('tele') && owned('tapis')) || KIDS_HOME.some(k => !!(st().kids || {})[k] && st().hero !== k);
+  const upstairs = () => owned('tele') || owned('tapis') || KIDS_HOME.some(k => !!(st().kids || {})[k] && st().hero !== k);
   const roomOf = id => (typeof FURN[id].room === 'function' ? FURN[id].room() : FURN[id].room) || null;
   // pièces annexes : ouvertes par un achat ; porte dans le mur gauche ou droit du salon (side), à la hauteur y
   const ROOMS = {
@@ -286,23 +286,96 @@
   }
 
   // ------------------------------------------------------------ rayon « Meubles » (Bazar de Gotsumon)
+  // les meubles arrivent au Bazar au fil du développement de la ville (niveau de la ville requis)
+  const TIER = { plantes: 0, tele: 1, tableau: 1, tapis: 2, toilettes: 2, frigo: 3, biblio: 3, sac1: 3, aquarium: 4, cuisine: 4, chambre_digi: 4, halteres: 5, ordi: 6, sac2: 6 };
+  const tierOf = id => TIER[id] || 0;
+  // écran du rayon « Meubles » : même présentation que la boutique d'objets (icônes, prix, Bits, description)
+  // ENTRÉE (ou ESPACE) : choisir puis confirmer ; SUPPR : annuler / sortir
+  class FurnitureScene extends DW.Scene {
+    constructor() { super(); this.i = 0; this.top = 0; this.confirm = false; this.msgT = 0; }
+    get list() { return ORDER.filter(id => !owned(id) && FURN[id].price > 0 && (!FURN[id].needs || FURN[id].needs())).sort((a, b) => tierOf(a) - tierOf(b) || FURN[a].price - FURN[b].price); }
+    ok(id) { return DW.Town.level() >= tierOf(id); }
+    update() {
+      const { Input, Audio } = DW, s = st(), L = this.list, n = L.length + 1;
+      if (this.confirm) {
+        if (Input.hit('back')) { this.confirm = false; Audio.sfx('back'); return; }
+        if (Input.hit('ok')) {
+          const id = L[this.i], F = FURN[id];
+          this.confirm = false;
+          if (s.bits < F.price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+          s.bits -= F.price; s.home.owned[id] = true; Audio.sfx('buy');
+          (this.bought = this.bought || []).push(id);
+          this.msg = `Livré chez toi : ${F.name} !`; this.msgT = 2.2;
+          this.i = Math.min(this.i, this.list.length);
+        }
+        return;
+      }
+      if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
+      if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
+      if (Input.hit('back')) { Audio.sfx('back'); this.close(this.bought || []); return; }
+      if (Input.hit('ok')) {
+        if (this.i >= L.length) { Audio.sfx('back'); this.close(this.bought || []); return; }
+        const id = L[this.i];
+        if (!this.ok(id)) { Audio.sfx('bump'); this.msg = `Pas encore en rayon : la ville doit être « ${DW.Town.LEVELS[tierOf(id)]} ».`; this.msgT = 2.4; return; }
+        if (s.bits < FURN[id].price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+        Audio.sfx('select'); this.confirm = true;
+      }
+      if (this.i < this.top) this.top = this.i; if (this.i > this.top + 7) this.top = this.i - 7;
+    }
+    tick(dt) { if (this.msgT > 0) this.msgT -= dt; }
+    // vignette du meuble : son premier décor, réduit (les sacs : l'icône du sac)
+    thumb(c, id, x, y, size, dim) {
+      const o = FURN[id].objs[0];
+      if (!o) { c.drawImage(DW.Icons.menu('sac'), x, y, size, size); return; }
+      const sp = DW.World.obj(o.kind, o.v || 0), k = Math.min(size / sp.w, size / sp.h);
+      c.globalAlpha = dim ? 0.4 : 1;
+      c.drawImage(sp.img, Math.round(x + (size - sp.w * k) / 2), Math.round(y + (size - sp.h * k)), sp.w * k, sp.h * k);
+      c.globalAlpha = 1;
+    }
+    draw(c) {
+      const { UI } = DW, s = st(), L = this.list;
+      UI.menuBg(c, this.t, 'MEUBLES');
+      UI.box(c, 8, 26, 210, 150);
+      const rows = L.concat(['__quit']).slice(this.top, this.top + 8);
+      rows.forEach((id, k) => {
+        const y = 44 + k * 16;
+        if (id === '__quit') { UI.text(c, 'QUITTER', 26, y, { size: 10, color: '#9ab0e8' }); return; }
+        const F = FURN[id], ok = this.ok(id);
+        this.thumb(c, id, 11, y - 12, 13, !ok);
+        UI.text(c, UI.fit(c, F.name, 128, 9).s, 26, y, { size: 9, color: ok ? '#ffffff' : '#7a88a8' });
+        UI.text(c, ok ? `${F.price} B` : `niv. ${tierOf(id)}`, 210, y, { size: 9, align: 'right', color: ok ? (s.bits >= F.price ? '#ffd860' : '#c87a5a') : '#7a88a8' });
+      });
+      if (this.top > 0) UI.text(c, '▲', 113, 34, { size: 7, align: 'center', color: '#ffe070' });
+      if (this.top + 8 < L.length + 1) UI.text(c, '▼', 113, 174, { size: 7, align: 'center', color: '#ffe070' });
+      UI.cursor(c, 15, 40.5 + (this.i - this.top) * 16, this.t);
+      UI.box(c, 224, 26, 88, 56);
+      UI.text(c, 'Bits', 232, 42, { size: 9, color: '#9ab0e8' });
+      UI.text(c, String(s.bits), 304, 56, { size: 11, align: 'right', bold: true, color: '#ffd860' });
+      UI.text(c, `Ville : niv. ${DW.Town.level()}`, 304, 76, { size: 7, align: 'right', color: '#9ab0e8' });
+      const id = L[this.i];
+      // grand aperçu du meuble choisi
+      if (id) { UI.box(c, 224, 88, 88, 88); this.thumb(c, id, 236, 96, 64, !this.ok(id)); }
+      UI.box(c, 8, 180, 304, 54);
+      if (id) UI.wrap(c, FURN[id].desc, 290, 8).slice(0, 3).forEach((l, k) => UI.text(c, l, 16, 196 + k * 11, { size: 8, color: '#c8f0ff' }));
+      else UI.text(c, L.length ? 'À bientôt !' : 'Ta maison est entièrement meublée ! Bravo !', 16, 200, { size: 8, color: '#c8f0ff' });
+      if (this.confirm && id) {
+        UI.box(c, 40, 92, 240, 46);
+        UI.text(c, `Acheter « ${FURN[id].name} » (${FURN[id].price} B) ?`, 160, 110, { size: 9, align: 'center', color: '#ffffff' });
+        const N = DW.Input.names();
+        UI.text(c, `${N.ok === 'ESPACE' ? 'Entrée' : N.ok} : oui    ${N.back} : non`, 160, 128, { size: 8, align: 'center', color: '#ffe070' });
+      }
+      if (this.msgT > 0) UI.text(c, this.msg, 160, 172, { size: 8, align: 'center', color: '#7aff8a' });
+    }
+  }
   async function furnitureShop() {
     const s = st();
     if (!s.home) s.home = { owned: { lit: true, coffre: true } };
-    for (;;) {
-      const list = ORDER.filter(id => !owned(id) && (!FURN[id].needs || FURN[id].needs()));
-      if (!list.length) { await say('Ta maison est entièrement meublée ! Bravo !', 'Gotsumon'); return; }
-      const i = await DW.choose(list.map(id => `${FURN[id].name} — ${FURN[id].price} B`).concat(['Quitter']), { y: 8 });
-      if (i < 0 || i >= list.length) return;
-      const F = FURN[list[i]];
-      if ((await DW.ask(`${F.name} (${F.price} Bits) : ${F.desc} L'acheter ?`)) !== 0) continue;
-      if (s.bits < F.price) { await say('Tu n\'as pas assez de Bits...', 'Gotsumon'); continue; }
-      const before = Object.keys(ROOMS).filter(roomOpen), up0 = upstairs();
-      s.bits -= F.price; s.home.owned[list[i]] = true; DW.Audio.sfx('buy');
-      await say(`Merci ! Je fais livrer « ${F.name} » chez toi tout de suite !`, 'Gotsumon');
-      for (const r in ROOMS) if (roomOpen(r) && !before.includes(r)) await say(`Il lui faut une pièce rien qu'à lui : une nouvelle porte s'ouvre ${ROOMS[r].from ? 'à l\'étage' : 'dans ton salon'}. Ta maison a maintenant une ${ROOMS[r].name} !`, 'Gotsumon');
-      if (!up0 && upstairs()) await say('Ton salon est si bien aménagé que ta maison s\'agrandit : un ÉTAGE avec ta chambre (ton lit y est monté) et un grenier tout en haut !', 'Gotsumon');
-    }
+    const before = Object.keys(ROOMS).filter(roomOpen), up0 = upstairs();
+    const got = await DW.Game.push(new FurnitureScene());
+    if (!got || !got.length) return;
+    await say(`Merci ! Je fais livrer tout ça chez toi : ${got.map(id => FURN[id].name).join(', ')} !`, 'Gotsumon');
+    for (const r in ROOMS) if (roomOpen(r) && !before.includes(r)) await say(`Il lui faut une pièce rien qu'à lui : une nouvelle porte s'ouvre ${ROOMS[r].from ? 'à l’étage' : 'dans ton salon'}. Ta maison a maintenant une ${ROOMS[r].name} !`, 'Gotsumon');
+    if (!up0 && upstairs()) await say('Ton salon est si bien aménagé que ta maison s’agrandit : un ÉTAGE avec ta chambre (ton lit y est monté) et un grenier tout en haut !', 'Gotsumon');
   }
   DW.Home = { FURN, ROOMS, furnitureShop, owned };
 })();

@@ -3,7 +3,7 @@
 //  RECONSTRUCTION DE LA VILLE (comme la Ville des Fichiers de Digimon World)
 //  Des Digimon recrutés dans les zones viennent s'installer en ville :
 //  chacun construit un bâtiment utile. La ville progresse en POURCENTAGE de développement
-//  (habitants +7 % chacun, trophées de boss +2 % chacun jusqu'à 20 %, Digimon collectionnés jusqu'à 17 %) ;
+//  (habitants +4 % chacun, trophées de boss +2 % chacun jusqu'à 20 %, Digimon collectionnés jusqu'à 17 %) ;
 //  les niveaux habituels (Ruines → Mégapole) arrivent à des paliers de ce pourcentage.
 // =====================================================================
 (function () {
@@ -26,7 +26,7 @@
     has(id) { return !!(this.st.recruits && this.st.recruits[id]); },
     // développement de la ville (0 à 100 %)
     progress() {
-      const st = this.st, rec = RECRUITS.filter(r => this.has(r.id)).length * 7;
+      const st = this.st, rec = RECRUITS.filter(r => this.has(r.id)).length * 4;   // (4 % par habitant : la ville et ses boutiques grandissent moins vite)
       const troph = Math.min(20, (DW.Trophies && DW.Trophies.count ? DW.Trophies.count() : 0) * 2);
       const all = DW.DEX_ORDER ? DW.DEX_ORDER.length : 1, owned = st && st.owned ? Object.keys(st.owned).filter(k => st.owned[k]).length : 0;
       return Math.min(100, Math.floor(rec + troph + Math.min(17, owned / all * 17)));

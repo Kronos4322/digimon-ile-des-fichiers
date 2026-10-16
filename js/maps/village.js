@@ -268,8 +268,9 @@
     m.paintGround = c => paintTown(c, m, lvl);   // sol peint par-dessus les cases : place, bords des chemins, pelouses
     // grand panneau d'affichage de la ville, à droite de la maison de Jijimon : une note épinglée par habitant revenu
     { const J = m.objects.find(o => o.kind === 'jhouse'), bx = J.x + J.w + 1, by = J.y + J.h - 1;
-      m.objects.push({ kind: 'noticeboard', v: Math.min(8, lvl), x: bx, y: by, w: 2, h: 1 });
-      for (const x of [bx, bx + 1]) m.signs[`${x},${by}`] = () => DW.Chapter.townSign();
+      // (emprise de 4 cases : le grand panneau déborde de part et d'autre de ses pieds, on ne doit pas le traverser)
+      m.objects.push({ kind: 'noticeboard', v: Math.min(8, lvl), x: bx - 1, y: by, w: 4, h: 1 });
+      for (const x of [bx - 1, bx, bx + 1, bx + 2]) m.signs[`${x},${by}`] = () => DW.Chapter.townSign();
       // Motimon, le gardien du calendrier (saisons, météo : game/calendrier.js)
       m.npcs.push({ sp: 'motimon', x: bx + 3, y: by + 1, face: 'left', talk: () => DW.Calendar.talk() });
       // le Centre de météorologie de Motimon apparaît quand la ville atteint le niveau 6 (antenne et panneau)

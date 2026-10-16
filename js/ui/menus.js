@@ -293,7 +293,10 @@
         UI.box(c, 8, y, 304, 30, this.swap === i ? 'orange' : sel ? 'dwsel' : 'dw');
         const spr = DW.Sprites.ow(m.sp);
         const bob = sel ? Math.round(Math.sin(this.t * 8)) : 0;
-        DW.Sprites.draw(c, spr, 28, y + 26 + bob, { silhouette: false, alpha: m.hp > 0 ? 1 : 0.5 });
+        // (réduit pour tenir dans sa ligne, et découpé au cadre : un grand Champion ne recouvre plus ses voisins)
+        c.save(); c.beginPath(); c.rect(10, y + 2, 36, 26); c.clip();
+        DW.Sprites.draw(c, spr, 28, y + 27 + bob, { silhouette: false, alpha: m.hp > 0 ? 1 : 0.5, scale: Math.min(1, 25 / spr.h, 34 / spr.w) });
+        c.restore();
         UI.text(c, m.name, 48, y + 13, { size: 10, bold: true });
         UI.text(c, `N.${m.level}`, 48, y + 25, { size: 9, color: '#ffd860' });
         statusTag(c, m, 74, y + 17);
