@@ -34,7 +34,7 @@
     g.set(10, 12, 'N'); g.set(22, 12, 'N');
     g.set(27, 9, 'A');
     // (l'Intelligence s'entraîne désormais dans la salle de classe : maps/classe.js)
-    g.set(10, 17, 'Ψ');   // cristal de données (PM)
+    g.set(10, 16, 'Ψ');   // cristal de données (PM)
     // toilettes et panneau
     g.set(5, 18, 'y'); g.set(14, 6, 'S');
   });
@@ -67,7 +67,7 @@
     c.strokeStyle = 'rgba(255,255,255,0.35)'; c.lineWidth = 1;
     for (let y = X(7.4) + 16; y < X(12.4); y += 16) { c.beginPath(); c.moveTo(X(24.4) + 2, y); c.lineTo(X(28.7) - 2, y); c.stroke(); }
     // 4. plateforme du CRISTAL (sud-ouest) : dalle violette et cercle d'énergie
-    const cx0 = X(10.5), cy0 = X(16.9);
+    const cx0 = X(10.5), cy0 = X(15.9);
     c.fillStyle = '#f4eee0'; c.beginPath(); c.ellipse(cx0, cy0, 46, 30, 0, 0, 7); c.fill();
     c.fillStyle = '#6a46b0'; c.beginPath(); c.ellipse(cx0, cy0, 42, 27, 0, 0, 7); c.fill();
     c.strokeStyle = '#b89aff'; c.lineWidth = 2; c.beginPath(); c.ellipse(cx0, cy0, 32, 20, 0, 0, 7); c.stroke();
@@ -141,12 +141,13 @@
       { kind: 'torch', x: 13, y: 7, w: 1, h: 1, small: true }, { kind: 'torch', x: 18, y: 7, w: 1, h: 1, small: true },
       { kind: 'shieldrack', x: 25, y: 9, w: 1, h: 1, small: true },
       { kind: 'kanjirock', x: 6, y: 9, w: 2, h: 1 },
-      { kind: 'stake', x: 7, y: 12, w: 1, h: 1, small: true }, { kind: 'punchbag', x: 7, y: 14, w: 1, h: 1, small: true },
+      { kind: 'punchbag', x: 7, y: 15, w: 1, h: 1, small: true },   // sac de frappe : un poste à part, au bas de l'aire de force
       // panneaux à pictogramme devant chaque poste
-      { kind: 'stationsign', v: 0, x: 3, y: 9, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 12, w: 1, h: 1, small: true },
-      { kind: 'stationsign', v: 3, x: 9, y: 12, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 2, x: 28, y: 8, w: 1, h: 1, small: true },
-      { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 9, y: 17, w: 1, h: 1, small: true },
-      { kind: 'stationsign', v: 1, eq: 'punchbag', x: 8, y: 14, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 1, h: 1, small: true },
+      // (w: 2 : le panneau, agrandi, est solide sur toute sa largeur)
+      { kind: 'stationsign', v: 0, x: 5, y: 10, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 4, y: 14, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 3, x: 8, y: 12, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 2, x: 26, y: 8, w: 2, h: 1, small: true },
+      { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 8, y: 16, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 6, eq: 'punchbag', x: 5, y: 15, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 2, h: 1, small: true },
       { kind: 'rock', v: 1, x: 24, y: 16, w: 1, h: 1, small: true }, { kind: 'rock', v: 0, x: 28, y: 15, w: 1, h: 1, small: true },
       { kind: 'bench', x: 12, y: 18, w: 1, h: 1, small: true }, { kind: 'bench', x: 19, y: 18, w: 1, h: 1, small: true },
       { kind: 'barrel', v: 0, x: 3, y: 16, w: 1, h: 1, small: true }, { kind: 'barrel', v: 1, x: 28, y: 12, w: 1, h: 1, small: true },

@@ -46,8 +46,8 @@
     // ---------- objectif « Statistique » : formule de Digimon World 1 (digiworldwiki.com, Training tips)
     // gain = base du poste × bonus (stade, Manuel, coachs) × objet (Super carotte...) × réussite (×0,5 à ×4), arrondi
     // chaque poste monte une stat principale et une secondaire (valeurs affichées, échelle 999 / 9999)
-    BASE: { atk: { atk: 8, spd: 2 }, spd: { spd: 8, hp: 10 }, hp: { hp: 80, atk: 2 }, def: { def: 8, int: 2 }, mp: { mp: 80, def: 2 }, int: { int: 8, mp: 10 } },
-    STAGE_BONUS: { 'Bébé': -0.1, 'Entraînement': -0.1, 'Disciple': 0, 'Champion': 0.1, 'Ultime': 0.2, 'Méga': 0.3 },
+    BASE: { atk: { atk: 8, spd: 2 }, spd: { spd: 8, hp: 10 }, hp: { hp: 45, atk: 2 }, def: { def: 8, int: 2 }, mp: { mp: 45, def: 2 }, int: { int: 8, mp: 10 } },   // (PV / PM : 45, sinon un bébé doublait ses PV en 3 séances)
+    STAGE_BONUS: { 'Bébé': -0.55, 'Entraînement': -0.35, 'Disciple': 0, 'Champion': 0.15, 'Ultime': 0.25, 'Méga': 0.35 },   // les petits stades progressent bien moins vite
     // réussite des 3 essais (score 0 à 6) → multiplicateur final (comme le « Bonus Try »)
     tryMult: score => score === 0 ? 0.5 : score <= 2 ? 1 : score <= 4 ? 2 : score === 5 ? 3 : 4,
     statGain(m, k, score, L) {

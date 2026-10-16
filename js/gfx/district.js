@@ -141,7 +141,7 @@
     } },
     // ---------------------------------------------------------- Terrain d'entraînement
     // panneau de poste (comme Digimon World) : v0 PV cœur, v1 Attaque soleil, v2 Défense bouclier, v3 Vitesse chevrons, v4 Intelligence œil
-    stationsign: { w: 24, h: 30, n: 6, draw(d, v) {
+    stationsign: { w: 24, h: 30, n: 7, draw(d, v) {
       d.ell(12, 29, 8, 1.6, '#1a1a1a', 0, { flat: true });
       d.tube([[5, 29], [5, 14]], 2, 2, '#4a3a2e'); d.tube([[19, 29], [19, 14]], 2, 2, '#4a3a2e');
       d.rect(0, 1, 24, 18, '#f0e6c8', { round: 0.1 });   // cadre clair : il se voit de loin
@@ -153,6 +153,7 @@
       else if (v === 2) { d.deco.poly([[7, 5], [17, 5], [17, 10], [12, 15], [7, 10]], C, { unlit: true }); d.deco.line(12, 6, 12, 13, 0.8, '#2a2a30'); }
       else if (v === 3) { for (const x of [6, 11]) d.deco.poly([[x, 5], [x + 3, 5], [x + 7, 10], [x + 3, 15], [x, 15], [x + 4, 10]], C, { unlit: true }); }
       else if (v === 4) { d.deco.ell(12, 10, 6, 3.6, C, 0, { unlit: true }); d.deco.circ(12, 10, 2, '#2a2a30'); d.deco.circ(12.6, 9.4, 0.7, '#ffffff', { unlit: true }); }
+      else if (v === 6) { d.deco.rect(7, 7, 10, 7, '#ff8a4a', { unlit: true }); for (const x of [7.5, 10, 12.5, 15]) d.deco.rect(x, 5, 2, 3, '#ffb07a', { unlit: true }); d.deco.rect(5, 9, 3, 4, '#ff8a4a', { unlit: true }); d.deco.rect(9, 14, 6, 2, '#c8603a', { unlit: true }); }   // poing (sac de frappe)
       else d.deco.poly([[12, 4], [16, 10], [12, 16], [8, 10]], C, { unlit: true });   // cristal (PM)
     } },
     // pieu de frappe enveloppé de corde

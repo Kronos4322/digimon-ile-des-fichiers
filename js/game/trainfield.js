@@ -86,16 +86,18 @@
     // HAIES (Vitesse) : il prend son élan ; A quand il passe sur la marque blanche
     hurdle: sc => ({
       hint: "Il prend son élan... A pile quand il passe sur la marque blanche, devant la haie !",
-      newRep() { this.run = -0.25; this.speed = 0.62 + sc.dif * 0.4; this.mark = 0.3; },
+      // (fenêtre large : « bien » sur toute la marque, « parfait » au centre ; plus lent au début)
+      newRep() { this.run = -0.25; this.speed = 0.45 + sc.dif * 0.3; this.mark = 0.3; },
       update(dt) {
         this.run += dt * this.speed;
-        if (Input.hit('ok') && this.run > 0) { const d = Math.abs(this.run - this.mark); sc.run0 = this.run; sc.rep(d < 0.035 ? 2 : d < 0.09 ? 1 : 0); return; }
-        if (this.run > this.mark + 0.15) { sc.run0 = this.run; sc.rep(0); }
+        if (Input.hit('ok') && this.run > 0) { const d = Math.abs(this.run - this.mark); sc.run0 = this.run; sc.rep(d < 0.05 ? 2 : d < 0.13 ? 1 : 0); return; }
+        if (this.run > this.mark + 0.2) { sc.run0 = this.run; sc.rep(0); }
       },
       panel(c, y) {
         UI.text(c, 'Saute au bon moment : A sur la marque blanche !', 16, y + 4, { size: 8, color: '#c8f0ff' });
-        bar(c, 16, y + 14, 220, Math.max(0, this.run) / (this.mark + 0.15), '#7aff7a');
-        c.fillStyle = '#ffffff'; c.fillRect(16 + 220 * this.mark / (this.mark + 0.15), y + 11, 2, 14);
+        bar(c, 16, y + 14, 220, Math.max(0, this.run) / (this.mark + 0.2), '#7aff7a');
+        c.fillStyle = 'rgba(255,224,112,0.55)'; c.fillRect(16 + 220 * (this.mark - 0.13) / (this.mark + 0.2), y + 14, 220 * 0.26 / (this.mark + 0.2), 8);
+        c.fillStyle = '#ffffff'; c.fillRect(16 + 220 * this.mark / (this.mark + 0.2), y + 11, 2, 14);
       },
     }),
     // MUR (Défense) : une pierre part du mur ; A quand le cercle se referme sur lui
@@ -142,8 +144,20 @@
       this.eq = spot.eq || (DW.World.info(this.ow.tileAt(spot.x, spot.y)).obj) || k;   // l'équipement du poste
       this.tap = 0;
     }
-    enter() { this.ow.locked = true; this.ow.hidePartner = true; }
-    close(r) { this.ow.locked = false; this.ow.hidePartner = false; super.close(r); }
+    enter() {
+      const ow = this.ow, P = ow.p, s = this.spot, free = (x, y) => !ow.solid(x, y) && !ow.npcAt(x, y);
+      ow.locked = true; ow.hidePartner = true;
+      // le Digimon s'installe sur une case LIBRE à côté du poste, de préférence à l'opposé du héros
+      const pref = P.x < s.x ? 1 : P.x > s.x ? -1 : (free(s.x + 1, s.y) ? 1 : -1);
+      this.side = free(s.x + pref, s.y) || !free(s.x - pref, s.y) ? pref : -pref;
+      // le héros se met à l'écart pour regarder (jamais sur le chemin de son Digimon), il revient ensuite
+      this.home = { x: P.x, y: P.y, dir: P.dir };
+      const sd = this.side, spots = [[s.x - 2 * sd, s.y + 1], [s.x - 2 * sd, s.y], [s.x - 2 * sd, s.y + 2], [s.x - sd, s.y + 2], [s.x + 2 * sd, s.y + 2], [s.x, s.y + 3]];
+      const w = spots.find(([x, y]) => free(x, y) && !(x === s.x + sd && y === s.y));
+      if (w) this.place(w[0], w[1], w[0] < s.x ? 'right' : w[0] > s.x ? 'left' : 'up');
+    }
+    place(x, y, dir) { Object.assign(this.ow.p, { x, y, sx: x, sy: y, tx: x, ty: y, moving: false, t: 0, dir }); }
+    close(r) { const h = this.home; if (h) this.place(h.x, h.y, h.dir); this.ow.locked = false; this.ow.hidePartner = false; super.close(r); }
     // le jeu de la séance, selon l'équipement (les essais sont notés par TrainingScene.hit)
     start() {
       this.state = 'play'; this.readyT = 1.1; this.endT = 1.4; Audio.sfx('buff');
@@ -195,7 +209,7 @@
     drawWork(c) {
       const ow = this.ow, m = this.m, k = this.k, s = this.spot, t = this.t, a = this.anim;
       const sx = s.x * TS + 8, sy = s.y * TS + 15;
-      const P = ow.pos(ow.p), side = P.x * TS + 8 < sx ? -1 : 1;     // le partenaire se place du côté du héros
+      const side = this.side || 1;     // (case libre choisie à l'entrée, à l'opposé du héros)
       let x = sx + side * 18, y = sy + 2, moving = false, flip = side > 0, lift = 0;
       const k1 = a ? Math.min(1, a.t / 0.35) : 0, back = a ? Math.max(0, (a.t - 0.6) / 0.5) : 0, power = a ? [0.4, 1, 1.4][a.res] : 0;
       const G = this.game, eq = this.eq;
