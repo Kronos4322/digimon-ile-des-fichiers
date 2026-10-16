@@ -46,6 +46,7 @@
   const owned = id => !!(st().home && st().home.owned[id]);
   // la télévision OU le canapé aménagent le salon, ou un enfant délivré vient habiter chez toi : la maison prend un étage (ta chambre et celles des enfants)
   const KIDS_HOME = ['tai', 'matt'];
+  const kidsHere = () => KIDS_HOME.filter(k => !!(st().kids || {})[k] && st().hero !== k);
   const upstairs = () => owned('tele') || owned('tapis') || KIDS_HOME.some(k => !!(st().kids || {})[k] && st().hero !== k);
   const roomOf = id => (typeof FURN[id].room === 'function' ? FURN[id].room() : FURN[id].room) || null;
   // pièces annexes : ouvertes par un achat ; porte dans le mur gauche ou droit du salon (side), à la hauteur y
@@ -56,6 +57,12 @@
       decor: [{ kind: 'table', x: 5, y: 5, w: 2, h: 1 }, { kind: 'stool', x: 4, y: 5, w: 1, h: 1, small: true }, { kind: 'stool', x: 7, y: 5, w: 1, h: 1, small: true }, { kind: 'shelf', x: 8, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
     sport:   { name: 'Salle de sport', from: 'salon', at: { wall: 'right', y: 4 }, w: 16, h: 11, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
       decor: [{ kind: 'bigrug', v: 2, x: 2, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 1, y: 6, w: 1, h: 1, small: true }] },
+    // la GRANDE SALLE À MANGER : elle s'ouvre dès qu'un enfant délivré vit chez toi ; tout le monde y mange
+    salle:   { name: 'Grande salle à manger', from: 'salon', at: { wall: 'left', y: 4 }, w: 22, h: 13, by: [], open: () => kidsHere().length > 0,
+      floor: { type: 'herring', cols: ['#b88a58', '#94683c', '#5e4026'] }, wall: { base: '#f4e4cc', alt: '#e8d2b0', pattern: 'stripes', wood: '#7a4a2a' },
+      decor: [{ kind: 'fireplace', x: 9, y: 3, w: 3, h: 1 }, { kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'window', v: 0, x: 16, y: 1, w: 2, h: 2, back: true, oy: -6 },
+        { kind: 'longtable', x: 7, y: 7, w: 8, h: 1 }, ...[7, 9, 11, 13].flatMap(x => [{ kind: 'stool', x, y: 6, w: 1, h: 1, small: true }, { kind: 'stool', x: x + 1, y: 8, w: 1, h: 1, small: true }]),
+        { kind: 'bigplant', x: 1, y: 10, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 19, y: 10, w: 1, h: 1, small: true }, { kind: 'clock', x: 14, y: 3, w: 1, h: 1, small: true }] },
     // chambre de Tai : elle apparaît quand Tai est délivré (antre de Shellmon) ; décor de Tai (ballon, lunettes, posters orange)
     // chambres de l'étage : une porte chacune dans le couloir (ta chambre, celle de ton Digimon, puis celles des enfants délivrés)
     chambre: { name: 'Ma chambre', from: 'etage', w: 12, h: 9, by: [], open: () => upstairs(),
@@ -260,6 +267,14 @@
     d.deco.circ(23, 21, 1.4, '#e8d070', { unlit: true });
     d.deco.rect(11, 1, 10, 4, '#f0e8d0');
   } };
+  // longue table de banquet : nappe, assiettes, chandeliers
+  DW.World.OBJ.longtable = { w: 128, h: 34, n: 1, draw(d) {
+    for (const x of [6, 60, 118]) d.tube([[x, 22], [x, 33]], 2.4, 2, '#5a3a20');
+    d.rect(2, 8, 124, 16, '#8a5a32', { round: 0.1 });
+    d.rect(4, 6, 120, 13, '#f4ecdc', { tex: 0.05 }); d.deco.rect(4, 17, 120, 3, '#d84a3a');
+    for (let x = 14; x < 120; x += 18) { d.deco.ell(x, 11, 5, 2.6, '#ffffff'); d.deco.ell(x, 11, 2.6, 1.2, '#e8a050'); }
+    for (const x of [36, 92]) { d.tube([[x, 11], [x, 1]], 1, 0.8, '#c8a040'); d.deco.ell(x, 0.6, 1.2, 1.6, '#ffd060', 0, { unlit: true }); }
+  } };
   MAPS.maison_joueur_etage = {
     name: 'Ma maison — Couloir de l’étage', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
     floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#f8eef4', alt: '#ecdce8', pattern: 'stripes', wood: '#8a5a7a' },
@@ -316,6 +331,37 @@
         DW.World.unprepare(this);
       },
     };
+  }
+
+  // ------------------------------------------------------------ la grande salle à manger : les enfants et leurs Digimon à table
+  {
+    const S = MAPS.maison_joueur_salle, PARTNER = { tai: 'agumon', matt: 'gabumon' };
+    const mealTime = () => { const h = DW.Time.hour(); return (h >= 12 && h < 14) || (h >= 19 && h < 21); };
+    S.populate = function () {
+      const kids = kidsHere(), meal = mealTime();
+      this.npcs = [];
+      kids.forEach((k, i) => {
+        const [x, y] = meal ? [7 + 2 * i, 6] : [3 + i * 3, 10], [px, py] = meal ? [8 + 2 * i, 8] : [4 + i * 3, 10];
+        this.npcs.push({ hero: k, x, y, face: meal ? (y < 7 ? 'down' : 'up') : 'down', wander: meal ? 0 : 1,
+          talk: () => say(meal ? DW.pick(["Bon appétit ! On mange tous ensemble, comme au camp d'été.", 'Hmm, ça sent bon ! Assieds-toi avec nous !', 'Ici, on se sent un peu comme à la maison...'])
+            : DW.pick(['Le repas, c\'est à midi et à 19 h ! On s\'y retrouve tous.', 'Cette salle est immense ! Il faudra la remplir de monde.']), DW.HEROES[k] ? DW.HEROES[k].name : k) });
+        if (PARTNER[k]) this.npcs.push({ sp: PARTNER[k], x: px, y: py, face: meal ? (py < 7 ? 'down' : 'up') : 'left', wander: meal ? 0 : 1, talk: () => say('Miam ! J\'ai encore faim !', DW.SPECIES[PARTNER[k]].name) });
+      });
+    };
+    // le repas en commun : à midi et le soir, toute ton équipe mange (1 repas chacun), une fois par repas
+    const dinner = async () => {
+      const s = st(), key = `repas_${DW.Time.day()}_${DW.Time.hour() < 16 ? 'midi' : 'soir'}`;
+      if (!mealTime()) { await say('La grande table est mise. Les repas sont servis à midi (12 h - 14 h) et le soir (19 h - 21 h) : tout le monde mange ensemble !'); return; }
+      if (s.home.meal === key) { await say('Ton équipe a déjà mangé à ce repas. Hmm, il ne reste que des miettes !'); return; }
+      if ((await DW.ask('Le repas est servi ! Passer à table avec tout le monde ?')) !== 0) return;
+      s.home.meal = key;
+      for (const m of s.party) if (m.hp > 0) { DW.Care.feed(m, 60); m.addHappy(4); }
+      DW.Audio.sfx('heal');
+      await say(`Tout le monde mange de bon appétit en riant. ${kidsHere().map(k => DW.HEROES[k].name).join(' et ')} racontent leurs aventures... (un repas pour chaque Digimon de l'équipe, bonheur +4)`);
+    };
+    for (let x = 7; x < 15; x++) for (const y of [7]) S.signs[`${x},${y}`] = dinner;
+    const build0 = S.build;
+    S.build = function () { build0.apply(this, arguments); for (let x = 7; x < 15; x++) this.signs[`${x},7`] = dinner; };
   }
 
   // ------------------------------------------------------------ rayon « Meubles » (Bazar de Gotsumon)
