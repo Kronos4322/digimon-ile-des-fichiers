@@ -45,12 +45,17 @@
     gender: ['Garçon', 'Fille'],
     // allures proposées selon le genre choisi
     styles: [
-      [['Cheveux courts, short', { style: 'short', bottom: 'shorts' }], ['Cheveux courts, pantalon', { style: 'short', bottom: 'pants' }], ['En bataille, short', { style: 'spiky', bottom: 'shorts' }], ['En bataille, pantalon', { style: 'spiky', bottom: 'pants' }]],
-      [['Carré, jupe', { style: 'bob', bottom: 'skirt' }], ['Carré, pantalon', { style: 'bob', bottom: 'pants' }], ['Cheveux longs, jupe', { style: 'long', bottom: 'skirt' }], ['Cheveux longs, pantalon', { style: 'long', bottom: 'pants' }]],
+      [['Cheveux courts, short', { style: 'short', bottom: 'shorts' }], ['Cheveux courts, pantalon', { style: 'short', bottom: 'pants' }], ['En bataille, short', { style: 'spiky', bottom: 'shorts' }], ['En bataille, pantalon', { style: 'spiky', bottom: 'pants' }],
+       ['Courts, pantalon large', { style: 'short', bottom: 'baggy' }], ['En bataille, pantalon large', { style: 'spiky', bottom: 'baggy' }]],
+      [['Carré, jupe', { style: 'bob', bottom: 'skirt' }], ['Carré, pantalon', { style: 'bob', bottom: 'pants' }], ['Cheveux longs, jupe', { style: 'long', bottom: 'skirt' }], ['Cheveux longs, pantalon', { style: 'long', bottom: 'pants' }],
+       ['Carré, pantalon large', { style: 'bob', bottom: 'baggy' }], ['Longs, pantalon large', { style: 'long', bottom: 'baggy' }]],
     ],
     hair: [['Châtain', ['#5a3a24', '#7a5a3a']], ['Noir', ['#22222c', '#3a3a48']], ['Blond', ['#e8c060', '#fff0a0']], ['Roux', ['#c8582a', '#e8804a']], ['Bleu nuit', ['#2a3a7a', '#4a5aa8']], ['Rose', ['#e07aa8', '#ffb0d0']]],
     shirt: [['Rouge', '#e04a3a'], ['Orange', '#e8822a'], ['Vert', '#3a9a5a'], ['Bleu', '#2f6ad8'], ['Violet', '#8a4ac8'], ['Turquoise', '#2aa8a8'], ['Blanc', '#f0f0ec']],
-    head: [['Rien', ''], ['Casquette', 'cap'], ['Lunettes de plongée', 'goggles'], ['Bob', 'bucket'], ['Lunettes', 'glasses']],
+    head: [['Rien', ''], ['Casquette', 'cap'], ['Bonnet', 'beanie'], ['Lunettes de plongée', 'goggles'], ['Bob', 'bucket'], ['Lunettes', 'glasses']],
+    // haut (veste ouverte, sweat à capuche façon Digimon World 2003, tee-shirt) et sac à dos
+    top: [['Veste ouverte', 'jacket'], ['Sweat à capuche', 'hoodie'], ['Tee-shirt', 'tee']],
+    bag: [['Sans sac', false], ['Sac à dos', true]],
   };
   const lookOf = L => {
     const S = DW.LOOK_OPTS, b = DW.HEROES.perso, o = { ...b };
@@ -58,10 +63,13 @@
     Object.assign(o, L.gender != null ? S.styles[L.gender][L.style || 0][1] : S.style[L.style || 0][1]);   // (anciennes parties : sans genre)
     const [h, hl] = S.hair[L.hair || 0][1]; o.hair = h; o.hairL = hl;
     const sh = S.shirt[L.shirt || 0][1]; o.shirt = sh; o.sleeve = sh; o.crestCol = sh === '#f0f0ec' ? '#5adcc8' : sh;
-    o.head = S.head[L.head || 0][1]; o.headCol = sh === '#f0f0ec' ? '#e04a3a' : '#f0f0ec';
-    o.bottomCol = o.bottom === 'skirt' ? '#3a5a9a' : o.bottom === 'pants' ? '#4a5a7a' : '#3a5a9a';
-    o.fem = L.gender === 1; o.jacket = true; o.tee = sh === '#f0f0ec' ? '#3a4a6a' : '#f6f4ee';   // veste ouverte sur un tee-shirt
-    o.name = 'perso2-' + [L.gender, L.style, L.hair, L.shirt, L.head].join('-');   // (clé du cache des sprites)
+    // (anciennes parties : l'accessoire n°2 était les lunettes de plongée ; le bonnet s'insère sans rien décaler)
+    const HEADS = L.v2 ? S.head : S.head.filter(h => h[1] !== 'beanie');
+    o.head = (HEADS[L.head || 0] || HEADS[0])[1]; o.headCol = o.head === 'beanie' ? '#4a4a52' : sh === '#f0f0ec' ? '#e04a3a' : '#f0f0ec';
+    o.bottomCol = o.bottom === 'skirt' ? '#3a5a9a' : o.bottom === 'pants' ? '#4a5a7a' : o.bottom === 'baggy' ? '#4a4870' : '#3a5a9a';
+    const top = (S.top[L.top || 0] || S.top[0])[1]; o.top = top; o.hoodie = top === 'hoodie'; o.bag = !!(S.bag[L.bag || 0] || S.bag[0])[1]; o.bagCol = '#3a3a42';
+    o.fem = L.gender === 1; o.jacket = o.top === 'jacket'; o.tee = sh === '#f0f0ec' ? '#3a4a6a' : '#f6f4ee';   // veste ouverte sur un tee-shirt
+    o.name = 'perso3-' + [L.gender, L.style, L.hair, L.shirt, L.head, L.top || 0, L.bag || 0, L.v2 ? 1 : 0].join('-');   // (clé du cache des sprites)
     return o;
   };
   DW.lookOf = lookOf;
@@ -97,7 +105,7 @@
       d.deco.rect(x0, 21.6, w, 1.1, D);                                        // ceinture
       return;
     }
-    d.rect(x0, 21.8, w, C.bottom === 'pants' ? 4.6 : 5.2, B, { round: 0.4 });
+    d.rect(x0 - (C.bottom === 'baggy' ? 0.6 : 0), 21.8, w + (C.bottom === 'baggy' ? 1.2 : 0), longLegs(C) ? 4.6 : 5.2, B, { round: 0.4 });
     if (front) {
       d.deco.line(cx, 23.4, cx, 26.6, 0.6, D);
       // poches et ourlet du short
@@ -109,11 +117,13 @@
     d.deco.rect(x0 + 1.6, 21.5, 0.6, 1.5, D); d.deco.rect(x0 + w - 2.2, 21.5, 0.6, 1.5, D);
     if (front) { d.deco.rect(cx - 1, 21.5, 2, 1.4, '#e8c860'); d.deco.rect(cx - 0.4, 21.8, 0.8, 0.8, '#a8843a'); }
   }
+  const longLegs = C => C.bottom === 'pants' || C.bottom === 'baggy';
   function legsFront(d, C, s) {
-    const lift = k => (s === k ? 1.8 : 0), legCol = C.bottom === 'pants' ? C.bottomCol : C.skin;
+    const lift = k => (s === k ? 1.8 : 0), legCol = longLegs(C) ? C.bottomCol : C.skin, wide = C.bottom === 'baggy';
     for (const [x, k] of [[11.4, 1], [16.6, -1]]) {
-      d.tube([[x, 25], [x, 31.6 - lift(k)]], 3.6, 3.1, legCol);
-      if (C.bottom !== 'pants') { d.deco.rect(x - 1.5, 30.2 - lift(k), 3, 1.3, SOCK); d.deco.rect(x - 1.5, 30.2 - lift(k), 3, 0.45, C.crestCol || C.shirt); }   // chaussette à liseré
+      d.tube([[x, 25], [x, 31.6 - lift(k)]], wide ? 4.6 : 3.6, wide ? 4.4 : 3.1, legCol);
+      if (wide) { d.deco.rect(x - 2.2, 29.6 - lift(k), 4.4, 1.4, tint(C.bottomCol, 0.3)); d.deco.line(x - 2.2, 29.5 - lift(k), x + 2.2, 29.5 - lift(k), 0.4, tint(C.bottomCol, -0.4)); d.deco.line(x - 0.6, 26, x - 0.9, 29, 0.45, tint(C.bottomCol, -0.3)); shoe(d, x, 33 - lift(k), C); continue; }   // revers retroussés, pli
+      if (!longLegs(C)) { d.deco.rect(x - 1.5, 30.2 - lift(k), 3, 1.3, SOCK); d.deco.rect(x - 1.5, 30.2 - lift(k), 3, 0.45, C.crestCol || C.shirt); }   // chaussette à liseré
       else { d.deco.rect(x - 1.7, 30.4 - lift(k), 3.4, 0.8, tint(C.bottomCol, -0.3)); d.deco.line(x + 0.6, 26, x + 0.6, 30, 0.45, tint(C.bottomCol, 0.18)); }   // revers et pli
       shoe(d, x, 33 - lift(k), C);
     }
@@ -132,6 +142,25 @@
     d.blob([[8.6, 14.8], [19.4, 14.8], [19.8, 22.6], [8.2, 22.6]], C.shirt);
     const D = tint(C.shirt, -0.28), L = tint(C.shirt, 0.25);
     d.deco.line(10, 20.6, 12.4, 21.4, 0.5, tint(C.shirt, -0.22)); d.deco.line(18, 20.6, 15.8, 21.4, 0.5, tint(C.shirt, -0.22));
+    // coutures sombres : les vêtements se détachent bien les uns des autres
+    d.deco.line(8.7, 15.2, 8.4, 22.4, 0.5, tint(C.shirt, -0.55)); d.deco.line(19.3, 15.2, 19.6, 22.4, 0.5, tint(C.shirt, -0.55));
+    if (C.hoodie) {
+      // sweat à capuche : capuche autour du cou, poche kangourou, cordons, poignets et ceinture côtelés
+      d.deco.rect(8.4, 21.4, 11.2, 1.3, D); for (let x = 9; x < 19.5; x += 1.3) d.deco.rect(x, 21.5, 0.4, 1.1, tint(C.shirt, -0.45));
+      if (back) { d.deco.poly([[9.6, 14.6], [18.4, 14.6], [17.4, 19.4], [14, 20.4], [10.6, 19.4]], tint(C.shirt, -0.12)); d.deco.line(14, 15, 14, 20, 0.5, D); return; }
+      d.deco.poly([[9.2, 14.6], [12.2, 14.6], [13, 16.4], [10.4, 16.6]], tint(C.shirt, -0.15)); d.deco.poly([[15.8, 14.6], [18.8, 14.6], [17.6, 16.6], [15, 16.4]], tint(C.shirt, -0.15));   // capuche
+      d.deco.poly([[12.4, 14.7], [15.6, 14.7], [14, 16.2]], tint(C.skin, -0.25));                                                // encolure
+      d.deco.line(13.1, 16, 12.9, 18.6, 0.45, WHITE); d.deco.line(14.9, 16, 15.1, 18.6, 0.45, WHITE); d.deco.rect(12.6, 18.4, 0.7, 0.7, '#c8c8d0'); d.deco.rect(14.8, 18.4, 0.7, 0.7, '#c8c8d0');   // cordons
+      d.deco.poly([[10.8, 18.8], [17.2, 18.8], [17.8, 21.2], [10.2, 21.2]], tint(C.shirt, -0.12)); d.deco.line(10.6, 18.8, 17.4, 18.8, 0.5, D);   // poche kangourou
+      d.deco.rect(12.6, 16.8, 2.8, 1.2, C.crestCol === C.shirt ? '#ffffff' : C.crestCol || '#ffffff');   // petit logo
+      return;
+    }
+    if (C.top === 'tee') {
+      d.deco.ell(14, 15, 2.6, 0.9, tint(C.shirt, -0.4)); d.deco.ell(14, 14.8, 2, 0.6, C.skin);   // col rond
+      d.deco.rect(8.4, 21.5, 11.2, 0.8, tint(C.shirt, -0.35));
+      if (!back) { d.deco.circ(14, 18.4, 1.6, C.crestCol === C.shirt ? '#ffffff' : C.crestCol, { unlit: true }); d.deco.circ(14, 18.4, 0.8, C.shirt, { unlit: true }); }
+      return;
+    }
     if (C.jacket) {
       // ombres sur les côtés, ourlet côtelé
       d.deco.line(9.2, 15.8, 8.9, 21.4, 0.6, D); d.deco.line(18.8, 15.8, 19.1, 21.4, 0.6, D);
@@ -172,6 +201,7 @@
   }
   function eye(d, C, x, rx, s) {
     const iris = C.eye || '#5a3a20', lid = tint(C.hair, -0.5);
+    d.deco.ell(x, 9.95, rx * 1.1 + 0.18, 2.05, tint(C.skin, -0.55), 0, { unlit: true });                 // contour de l'œil (bien détaché du visage)
     d.deco.ell(x, 9.9, rx * 1.1, 1.9, WHITE, 0, { unlit: true });
     d.deco.ell(x + 0.15, 10.2, rx * 0.82, 1.55, iris, 0, { unlit: true });
     d.deco.ell(x + 0.15, 9.5, rx * 0.82, 0.7, tint(iris, -0.4), 0, { unlit: true });        // haut de l'iris, dans l'ombre de la paupière
@@ -190,6 +220,17 @@
   }
 
   // ------------------------------------------------------------ face / dos
+  function straps(d, C, back) {
+    if (!C.bag) return;
+    if (back) {   // le sac sur le dos : rabat, poche, coutures
+      d.rect(9.2, 15.2, 9.6, 7.8, C.bagCol, { round: 0.25 });
+      d.deco.rect(9.8, 15.6, 8.4, 2.6, tint(C.bagCol, 0.2)); d.deco.line(9.8, 18.2, 18.2, 18.2, 0.5, '#1a1a20');
+      d.deco.rect(11.4, 19.4, 5.2, 2.6, tint(C.bagCol, -0.2)); d.deco.rect(13.6, 18.6, 0.8, 1.2, '#d8b040');
+      d.deco.line(10.6, 15.2, 10.2, 14.4, 0.8, tint(C.bagCol, -0.3)); d.deco.line(17.4, 15.2, 17.8, 14.4, 0.8, tint(C.bagCol, -0.3));
+      return;
+    }
+    for (const [x0, x1] of [[10.2, 10.8], [17.8, 17.2]]) { d.deco.line(x0, 14.8, x1, 21.2, 1, C.bagCol); d.deco.line(x0 + 0.3, 14.8, x1 + 0.3, 21.2, 0.35, tint(C.bagCol, 0.35)); }   // bretelles
+  }
   function front(d, ph, back, C) {
     const s = SWING[ph], ay = s * 1.1;
     if (C.style === 'long' && !back) d.blob([[6.6, 8], [21.4, 8], [22.2, 21], [5.8, 21]], C.hair, { far: true });
@@ -198,6 +239,7 @@
     armFront(d, C, 8.2, ay, back, C.sleeve);
     armFront(d, C, 19.8, -ay, back, C.sleeve);
     torsoFront(d, C, back);
+    straps(d, C, back);
     if (back && C.style === 'long') d.blob([[6.8, 8], [21.2, 8], [21.8, 21.4], [6.2, 21.4]], C.hair);
     // cou et tête
     d.rect(12.6, 13, 2.8, 2.4, C.skin, { round: 0.3 });
@@ -297,6 +339,13 @@
         d.deco.circ(19, 6.2, 1.95, '#2a3a4a'); d.deco.circ(19, 6.2, 1.5, '#4aa8f0', { shiny: true });
         d.deco.rect(18.4, 5.2, 0.7, 0.7, WHITE, { unlit: true });
       }
+    } else if (C.head === 'beanie') {
+      // bonnet de laine (Digimon World 2003) : calotte côtelée, revers épais, petit écusson
+      d.ell(sd ? 14.4 : 14, 4.2, 7.2, 4.8, col);
+      d.rect(sd ? 7.6 : 6.8, 5.2, sd ? 13.6 : 14.4, 2.6, tint(col, -0.2), { round: 0.4 });
+      for (let x = (sd ? 8.6 : 8); x < (sd ? 21 : 20.6); x += 1.4) d.deco.line(x, 5.5, x, 7.5, 0.4, tint(col, -0.42));
+      for (let x = 9.5; x < 19.5; x += 2) d.deco.line(x, 1.2, x + (x - 14) * 0.15, 5, 0.4, tint(col, 0.25));
+      if (v === 'front') { d.deco.rect(12, 5.6, 4, 1.8, '#e8e8e0'); d.deco.rect(12.6, 6, 2.8, 1, '#c84a3a'); }
     } else if (C.head === 'cap') {
       d.ell(14, 4.4, 6.9, 3.8, col);
       if (v === 'front') d.ell(14, 6.6, 7.2, 1.3, col);
@@ -319,24 +368,27 @@
 
   // ------------------------------------------------------------ profil (vers la droite)
   function side(d, ph, C) {
-    const s = SWING[ph], legCol = C.bottom === 'pants' ? C.bottomCol : C.skin, hand = C.glove || C.skin;
+    const s = SWING[ph], legCol = longLegs(C) ? C.bottomCol : C.skin, hand = C.glove || C.skin;
+    if (C.bag) { d.rect(5.6, 15, 4.4, 8, C.bagCol, { round: 0.3, far: true }); d.deco.rect(5.8, 17.6, 3.6, 2.6, tint(C.bagCol, -0.2)); }   // le sac, dans le dos
     if (C.style === 'long') d.blob([[7.6, 6], [13, 6], [12.6, 21.6], [7.8, 21.6]], C.hair, { far: true });
     // jambe et bras éloignés
     d.tube([[14, 25], [14 - 3 * s, 31.6]], 3.6, 3.1, legCol, { far: true });
-    if (C.bottom !== 'pants') d.deco.rect(12.6 - 3 * s, 30.2, 3, 1.3, SOCK);
+    if (!longLegs(C)) d.deco.rect(12.6 - 3 * s, 30.2, 3, 1.3, SOCK);
     shoe(d, 15 - 3 * s, 33, C, { far: true });
     d.tube([[15.2, 16.4], [15.2 + 1.2 * s, 20.2], [15.2 + 2.4 * s, 23.4]], 2.7, 2.3, C.skin, { far: true });
     d.circ(15.2 + 2.4 * s, 24, 1.5, hand, { far: true });
     // corps
     bottoms(d, C, 14, 9.8, false);
     d.tube([[14, 25], [14 + 3 * s, 31.6]], 3.6, 3.1, legCol);
-    if (C.bottom !== 'pants') d.deco.rect(12.6 + 3 * s, 30.2, 3, 1.3, SOCK);
+    if (!longLegs(C)) d.deco.rect(12.6 + 3 * s, 30.2, 3, 1.3, SOCK);
     shoe(d, 15 + 3 * s, 33, C);
     d.blob([[9, 14.8], [19, 14.8], [19.4, 22.6], [8.6, 22.6]], C.shirt);
     d.deco.line(10.4, 21, 12.6, 21.6, 0.5, tint(C.shirt, -0.22));
     if (C.deco === 'star' || C.deco === 'heart') d.deco.ell(17.4, 18.2, 1.2, 1.5, C.decoCol, 0, { unlit: true });
     else if (C.deco === 'stripe') d.deco.rect(9, 18, 10.2, 1.5, C.decoCol);
     else if (C.deco === 'collar') d.deco.poly([[15.6, 14.6], [18.4, 14.6], [17.8, 17]], C.decoCol, { unlit: true });
+    if (C.bag) d.deco.line(12.2, 15, 11.6, 21, 1, C.bagCol);   // bretelle
+    if (C.hoodie) { d.deco.poly([[9.4, 14.6], [12.6, 14.6], [12, 17.4], [9.6, 16.6]], tint(C.shirt, -0.15)); d.deco.rect(13, 18.8, 5.6, 2.4, tint(C.shirt, -0.12)); d.deco.rect(8.8, 21.5, 10.6, 1.1, tint(C.shirt, -0.3)); }
     if (C.jacket) { d.deco.poly([[17.4, 14.8], [19, 14.8], [19.4, 21.4], [17.8, 21.4]], C.tee || '#f6f4ee'); d.deco.line(17.4, 14.9, 17.8, 21.4, 0.6, tint(C.shirt, -0.28)); d.deco.rect(8.8, 21.5, 10.6, 1.1, tint(C.shirt, -0.28)); }
     d.tube([[13, 16.6], [13 - 1.2 * s, 20.4], [13 - 2.4 * s, 23.6]], 3, 2.5, C.skin);
     d.tube([[13, 15.6], [13 - 0.5 * s, 18.6]], 3.4, 3, C.sleeve);
@@ -391,14 +443,15 @@
     return o;
   }
   function threeQuarter(d, ph, back, C) {
-    const s = SWING[ph], legCol = C.bottom === 'pants' ? C.bottomCol : C.skin, hand = C.glove || C.skin;
+    const s = SWING[ph], legCol = longLegs(C) ? C.bottomCol : C.skin, hand = C.glove || C.skin;
+    if (C.bag && back) { d.rect(9.4, 15.2, 9.2, 7.6, C.bagCol, { round: 0.25 }); }
     if (C.style === 'long' && !back) shifted(d, -1.4).blob([[6.6, 8], [21.4, 8], [22.2, 21], [5.8, 21]], C.hair, { far: true });
     // jambes : foulée en diagonale (celle du fond en retrait)
     const lift = k => (s === k ? 1.6 : 0);
     for (const [x, k, far] of [[11.8, 1, true], [16.6, -1, false]]) {
       const o = far ? { far: true } : {}, sx = x + (far ? -1 : 1) * s * 0.9;
       d.tube([[x, 25], [sx, 31.6 - lift(k)]], 3.6, 3.1, legCol, o);
-      if (C.bottom !== 'pants') d.deco.rect(sx - 1.5, 30.2 - lift(k), 3, 1.3, SOCK);
+      if (!longLegs(C)) d.deco.rect(sx - 1.5, 30.2 - lift(k), 3, 1.3, SOCK);
       shoe(d, sx + 0.6, 33 - lift(k), C, o);
     }
     bottoms(d, C, 14.4, 10.4, !back);
