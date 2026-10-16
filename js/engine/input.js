@@ -12,8 +12,8 @@
   const KEYMAP = {
     ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
     ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
-    // ESPACE ou ENTRÉE : parler / valider    SUPPR : retour / quitter    ÉCHAP : menu (Digivice)
-    Space: 'ok', KeyJ: 'ok', Enter: 'ok', NumpadEnter: 'ok',
+    // (règle du joueur) ESPACE : parler, frapper, valider    ENTRÉE : ouvrir le menu (Digivice)    SUPPR : sortir / retour
+    Space: 'ok', KeyJ: 'ok', Enter: 'menu', NumpadEnter: 'menu',
     Delete: 'back', Backspace: 'back', KeyK: 'back', KeyX: 'back', Escape: 'menu',
     ShiftLeft: 'run', ShiftRight: 'run', Tab: 'menu', KeyM: 'mute', Semicolon: 'mute',
   };
@@ -50,7 +50,7 @@
     // noms des commandes selon l'appareil : les textes du jeu écrivent ESPACE / ÉCHAP / ENTRÉE / Maj,
     // ils sont traduits à l'affichage (manette Xbox, PlayStation, Nintendo, écran tactile)
     NAMES: {
-      key: { ok: 'ESPACE', back: 'SUPPR', menu: 'ÉCHAP', run: 'Maj', move: 'flèches ou ZQSD' },
+      key: { ok: 'ESPACE', back: 'SUPPR', menu: 'ENTRÉE', run: 'Maj', move: 'flèches ou ZQSD' },
       xbox: { ok: 'A', back: 'B', menu: 'START', run: 'X', move: 'stick gauche' },
       ps: { ok: 'Croix', back: 'Rond', menu: 'START', run: 'Carré', move: 'stick gauche' },
       nintendo: { ok: 'B', back: 'A', menu: '+', run: 'Y', move: 'stick gauche' },

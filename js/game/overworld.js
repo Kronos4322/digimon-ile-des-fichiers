@@ -113,7 +113,8 @@
       if (this.onEnter) { const f = this.onEnter; this.onEnter = null; this.runScript(f); return; }
       const wc = DW.Wild.contact(this);
       if (wc) { this.runScript(wc); return; }
-      if (Input.hit('back') || Input.hit('menu')) { Audio.sfx('select'); this.runScript(async () => { await Game.push(new DW.MenuScene()); }); return; }
+      if (Input.hit('menu') || (Input.hit('back') && Input.device !== 'key')) {   // (clavier : ENTRÉE ouvre le menu, SUPPR ne sert qu'à sortir)
+        Audio.sfx('select'); this.runScript(async () => { await Game.push(new DW.MenuScene()); }); return; }
       if (Input.hit('ok')) { this.interact(); return; }
       const v = Input.vec();
       if (!v.x && !v.y) { P.turnT = 0; return; }

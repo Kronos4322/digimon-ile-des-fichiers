@@ -362,7 +362,7 @@
         UI.box(c, 40, 92, 240, 46);
         UI.text(c, `Acheter « ${FURN[id].name} » (${FURN[id].price} B) ?`, 160, 110, { size: 9, align: 'center', color: '#ffffff' });
         const N = DW.Input.names();
-        UI.text(c, `${N.ok === 'ESPACE' ? 'Entrée' : N.ok} : oui    ${N.back} : non`, 160, 128, { size: 8, align: 'center', color: '#ffe070' });
+        UI.text(c, `${N.ok} : oui    ${N.back} : non`, 160, 128, { size: 8, align: 'center', color: '#ffe070' });
       }
       if (this.msgT > 0) UI.text(c, this.msg, 160, 172, { size: 8, align: 'center', color: '#7aff8a' });
     }
