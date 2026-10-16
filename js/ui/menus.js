@@ -412,13 +412,18 @@
 
   // ------------------------------------------------------------ Banque : déposer / retirer des objets
   // Gauche/Droite : sac ou banque   Haut/Bas : objet   ESPACE : 1 objet   ENTRÉE : tout   ÉCHAP : sortir
-  // seuls les objets que tu possèdes (dans le sac ou ici) apparaissent : rien n'est dévoilé à l'avance
+  // banque et coffre : seuls les objets que tu possèdes apparaissent ; le frigo montre aussi les nourritures qui manquent (grisées)
   class BankScene extends DW.Scene {
     // o.store : 'bank' (coffre, Banque : tout SAUF la nourriture) ou 'fridge' (frigo : la nourriture seulement, 20 de chaque)
     constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; this.store = o.store || 'bank'; }
     get box() { const st = DW.state; return (st[this.store] = st[this.store] || {}); }
     accepts(id) { return this.store === 'fridge' ? DW.isFood(id) : !DW.isFood(id); }
-    get list() { const st = DW.state, bank = this.box; return DW.ITEM_ORDER.filter(id => (bank[id] || 0) > 0 || ((st.bag[id] || 0) > 0 && this.accepts(id))); }
+    get list() {
+      const st = DW.state, bank = this.box, have = id => (bank[id] || 0) > 0 || ((st.bag[id] || 0) > 0 && this.accepts(id));
+      // le frigo montre toutes les nourritures, même absentes (grisées, à la fin) : on voit ce qui manque
+      if (this.store === 'fridge') { const all = DW.ITEM_ORDER.filter(id => DW.isFood(id)); return all.filter(have).concat(all.filter(id => !have(id))); }
+      return DW.ITEM_ORDER.filter(have);
+    }
     move(id, all) {
       const st = DW.state, bank = this.box;
       const from = this.side ? bank : st.bag, have = from[id] || 0;

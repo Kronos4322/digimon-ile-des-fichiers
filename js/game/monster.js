@@ -201,7 +201,10 @@
       if (it.risky && Math.random() < it.risky) { m.sick = m.sick || st.clock; txt.push('... mais il tombe malade !'); }
       if (m.hp > hp0) txt.unshift(`+${m.hp - hp0} PV`);
       if (m.mp > mp0) txt.unshift(`+${m.mp - mp0} PM`);
-      return `${m.name} ${it.drink ? 'boit à grandes gorgées' : it.food ? 'mange avec appétit' : 'utilise ' + it.name}${fed ? ' (faim apaisée)' : ''}${txt.length ? ' : ' + txt.join(', ') : ''} !`;
+      // (portions : 1 repas pour un petit, 2 ou 3 pour un Champion ou plus — game/care.js)
+      const more = fed && m.hunger > 5 ? Math.ceil(m.hunger / (100 / DW.Care.portions(m))) : 0;
+      const fedTxt = !fed ? '' : more ? ` (il a encore faim : encore ${more} repas)` : ' (rassasié !)';
+      return `${m.name} ${it.drink ? 'boit à grandes gorgées' : it.food ? 'mange avec appétit' : 'utilise ' + it.name}${fedTxt}${txt.length ? ' : ' + txt.join(', ') : ''} !`;
     }
     if (it.use === 'cure') { m.status = null; m.slp = 0; return `${m.name} est en pleine forme !`; }
     if (it.use === 'revive') { m.hp = it.full ? m.maxHp : Math.floor(m.maxHp / 2); if (it.full) m.mp = m.maxMp; m.status = null; return `${m.name} reprend connaissance !`; }

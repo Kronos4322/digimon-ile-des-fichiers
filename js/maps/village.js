@@ -244,7 +244,7 @@
     m.npcs = [starterNpc(), GUIDE];
     if (has('betamon')) m.npcs.push({ sp: 'betamon', x: 22, y: 16, face: 'left', wander: 1, talk: SERVICES.betamon });
     // (Biyomon travaille à l'intérieur de la Poste : maps/interieurs.js)
-    if (has('kunemon')) m.npcs.push({ sp: 'kunemon', x: BANK.x + 3, y: BANK.y + BANK.h, face: 'left', wander: 1, talk: SERVICES.kunemon });
+    // (Kunemon tient la Banque à l'intérieur : maps/interieurs.js, banque_in)
     // passants : plus la ville se développe, plus elle s'anime (comme les villes de Digimon World 2003)
     const nPass = Math.min(PASSERS.length, Math.floor(T().progress() / 12));
     for (let i = 0; i < nPass; i++) { const [sp, x, y] = PASSERS[i]; if (DW.SPECIES[sp] && (!DW.Citizens || DW.Citizens.known(sp))) m.npcs.push({ sp, x, y, face: i % 2 ? 'left' : 'right', wander: 3, talk: () => passerTalk(sp) }); }
@@ -252,7 +252,8 @@
     if (DW.Collab) DW.Collab.place(m, { gotsumon: [LOTS.gotsumon.x + LOTS.gotsumon.w, LOTS.gotsumon.y + LOTS.gotsumon.h], elecmon: [LOTS.elecmon.x - 1, LOTS.elecmon.y + LOTS.elecmon.h], fontaine: [23, 15] });
     m.npcs.forEach(n => { delete n.hx; delete n.hy; delete n.home; });
     m.doors = [{ x: 19, y: 5, w: 2, dir: 'up', to: 'maison', tx: 7, ty: 10 },
-      { x: FREE_LOT.x + 2, y: FREE_LOT.y + FREE_LOT.h - 1, w: 2, dir: 'up', to: 'poste_in', tx: 6, ty: 8, cond: st => !!(st.recruits && st.recruits.biyomon) }].concat(Object.keys(LOTS).map(id => {
+      { x: FREE_LOT.x + 2, y: FREE_LOT.y + FREE_LOT.h - 1, w: 2, dir: 'up', to: 'poste_in', tx: 6, ty: 8, cond: st => !!(st.recruits && st.recruits.biyomon) },
+      { x: BANK.x + 2, y: BANK.y + BANK.h - 1, w: 2, dir: 'up', to: 'banque_in', tx: 5, ty: 8, cond: st => !!(st.recruits && st.recruits.kunemon) }].concat(Object.keys(LOTS).map(id => {
       const L = LOTS[id];
       return { x: L.x + 2, y: L.y + L.h - 1, w: 2, dir: 'up', to: L.in[0], tx: L.in[1], ty: L.in[2], cond: st => !!(st.recruits && st.recruits[id]) };
     }));
@@ -263,7 +264,7 @@
       '18,26': "Sud : Terrain d'entraînement. Le niveau se gagne en combat, les Digivolutions à l'entraînement !",
     };
     for (let x = 18; x < 22; x++) for (const y of [13, 14]) m.signs[`${x},${y}`] = fountainUse;
-    if (has('kunemon')) for (let x = BANK.x; x < BANK.x + BANK.w; x++) m.signs[`${x},${BANK.y + BANK.h - 1}`] = SERVICES.kunemon;
+    if (has('kunemon')) for (let x = BANK.x; x < BANK.x + BANK.w; x++) if (x < BANK.x + 2 || x > BANK.x + 3) m.signs[`${x},${BANK.y + BANK.h - 1}`] = 'LA BANQUE DE KUNEMON — entre par la porte : Kunemon garde tes objets en trop.';
     zoomMap(m, 'village');   // plan agrandi ×2 (maps/common.js)
     m.paintGround = c => paintTown(c, m, lvl);   // sol peint par-dessus les cases : place, bords des chemins, pelouses
     // grand panneau d'affichage de la ville, à droite de la maison de Jijimon : une note épinglée par habitant revenu
@@ -410,9 +411,14 @@
     async mushroomon() {
       const s = st();
       await say("Hihi ! Bienvenue au Restaurant aux Champignons !", 'Mushroomon');
-      const r = await DW.ask('Que veux-tu faire ?', ['Champi-repas (80 Bits)', 'Cuisiner', 'Au revoir'], 'Mushroomon');
+      const r = await DW.ask('Que veux-tu faire ?', ['Champi-repas (80 Bits)', 'Apprendre une recette', 'Cuisiner', 'Au revoir'], 'Mushroomon');
       if (r === 1) {
-        if (!s.flags.cookIntro) { s.flags.cookIntro = true; await say("Mes fourneaux sont à toi ! Apporte les ingrédients que t'offrent les habitants : je t'apprends les recettes.", 'Mushroomon'); await say('Les plats cuisinés rendent ton partenaire plus fort, pour toujours !', 'Mushroomon'); }
+        if (!s.flags.cookIntro) { s.flags.cookIntro = true; await say("Tu veux apprendre à cuisiner ? Hihi ! Rapporte-moi les ingrédients d'un plat : je le cuisine devant toi, et la recette est à toi.", 'Mushroomon'); await say('Les plats cuisinés rendent ton partenaire plus fort, pour toujours !', 'Mushroomon'); }
+        await DW.Cuisine.mushroomQuest();
+        return;
+      }
+      if (r === 2) {
+        if (!DW.Cuisine.known().length) { await say("Tu ne connais encore aucune recette ! Choisis « Apprendre une recette » : je vais t'en montrer une.", 'Mushroomon'); return; }
         await DW.Cuisine.cook('Restaurant');
         return;
       }
@@ -441,7 +447,7 @@
       const BOSS = [
         !f.kuwagamon && { boss: true, say: "Un monstre rouge aux pinces énormes, Kuwagamon, se cache dans le Grand Arbre de la Clairière de l'Arrivée. Des mots luisent, gravés dans l'écorce : réponds juste, et le tronc s'ouvrira... Mais entraîne-toi d'abord, c'est un Champion !" },
         f.kuwagamon && !f.shellmon && { boss: true, say: f.shellLair ? "Sous les cabines de la plage, le sable s'est ouvert. Tout au fond, un énorme coquillage, Shellmon, retient un enfant prisonnier ! Prends des RAM PV, c'est un Champion redoutable." : "Les cabines téléphoniques de la plage murmurent chacune un mot... Mises dans le bon ordre, elles forment un appel au secours. Un gros Digimon, Shellmon, se cache dessous !" },
-        f.shellmon && !f.whamon && { boss: true, say: "Au large de la Crique du Radeau, on voit jaillir un jet d'eau gigantesque... C'est Whamon ! Un Engrenage Noir le rend fou. Monte sur le radeau, si tu l'oses : il est bien plus fort que Shellmon." },
+        f.shellmon && !f.whamon && { boss: true, say: "Les pêcheurs de la Crique du Radeau ne sortent plus en mer... Au large, un jet d'eau gigantesque jaillit, et les vagues se soulèvent toutes seules, comme si quelque chose d'énorme se débattait sous la surface. Le vieux radeau de la crique pourrait t'y mener... si tu es prêt. Ce qui se cache là-dessous est bien plus fort que Shellmon." },
         // après Kuwagamon : le passage secret vers le Village des Yokomon (maps/yokomon.js)
         f.kuwagamon && !(st().visited || {}).village_yokomon && { boss: true, say: "Au nord-est de la Prairie des Lucioles, contre les arbres, il y a un tronc creux couché, avec un petit panneau. On entend des petites voix de l'autre côté... Parle au tronc pour t'y faufiler !" },
         // chapitre 2 (game/chapitre2.js)

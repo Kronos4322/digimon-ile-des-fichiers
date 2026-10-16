@@ -158,7 +158,7 @@
   // ------------------------------------------------------------ zones ouvertes pendant le chapitre 1
   // La ville, la plage et la forêt (dont le Sentier et le Village des Bébés, où vit Elecmon) ; tout le reste
   // ouvre après Kuwagamon. Renvoie le message de blocage, ou null si la carte est accessible.
-  const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set(['crique']);
+  const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set();   // (la Crique du Radeau est ouverte dès le début : Whamon n'y apparaît qu'après Shellmon)
   // les régions de l'île s'ouvrent chapitre après chapitre, dans l'ordre de l'anime :
   // chapitre 2 (Garurumon) : le lac ; chapitre 3 (Birdramon) : le volcan ; les autres attendent leur chapitre
   const OPENS = { lac: 2, volcan: 3 };

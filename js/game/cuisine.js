@@ -101,14 +101,46 @@
     }
   }
 
+  // ------------------------------------------------------------ recettes APPRISES (règle du joueur)
+  // une recette n'apparaît qu'une fois apprise : Mushroomon en enseigne une à chaque quête réussie
+  // (lui rapporter les ingrédients du plat : il le cuisine devant toi, t'apprend la recette, et te laisse le plat)
+  const learned = () => { const s = st(); s.recipes = s.recipes || {}; for (const id in s.cooked || {}) s.recipes[id] = true; return s.recipes; };
+  const known = () => RECIPES.filter(r => learned()[r[0]]);
+  const nextQuest = () => RECIPES.find(r => !learned()[r[0]]) || null;
+  const QUEST_WORDS = {
+    grillade: "Pour commencer, la base : une grillade ! Rapporte-moi 1 Viande et 1 Sel (Gotsumon taille du sel dans la roche).",
+    brochette: "Tu aimes quand ça pique ? Rapporte-moi 1 Viande et 1 Piment de feu.",
+    soupe: "Ma spécialité : la soupe aux champignons ! 2 Digichampignons et 1 Eau de source (la fontaine de Betamon, ou le puits des Yokomon).",
+  };
+  const ingrText = r => Object.entries(r[1]).map(([id, n]) => `${n} ${I[id].name}`).join(', ');
+  async function mushroomQuest() {
+    const s = st(), r = nextQuest();
+    if (!r) { await DW.say("Tu connais toutes mes recettes ! Tu es un vrai chef maintenant. Hihi !", 'Mushroomon'); return; }
+    const dish = I[r[0]].name;
+    if (s.flags.recipeQuest !== r[0]) {
+      s.flags.recipeQuest = r[0];
+      await DW.say(QUEST_WORDS[r[0]] || `Une nouvelle recette ? ${dish} ! Rapporte-moi ${ingrText(r)}, et je te montre comment on fait.`, 'Mushroomon');
+      return;
+    }
+    if (!can(r)) { await DW.say(`Pour ${dish}, il me faut : ${ingrText(r)}. Les habitants de la ville t'offrent un ingrédient par jour !`, 'Mushroomon'); return; }
+    if ((await DW.ask(`Donner ${ingrText(r)} à Mushroomon pour apprendre la recette « ${dish} » ?`)) !== 0) return;
+    for (const [id, k] of Object.entries(r[1])) s.bag[id] -= k;
+    learned()[r[0]] = true; s.flags.recipeQuest = null;
+    Audio.sfx('fanfare');
+    const extra = DW.giveItem(r[0], 1);
+    await DW.say(`Regarde bien... on mélange, on fait mijoter... Et voilà : ${dish} ! Tu connais la recette maintenant, et ce plat est pour toi.${DW.extraMsg(extra)}`, 'Mushroomon');
+    const n = nextQuest();
+    if (n) await DW.say("Reviens me voir quand tu veux : j'ai encore plein de recettes à t'apprendre !", 'Mushroomon');
+  }
+
   // ------------------------------------------------------------ écran de cuisine
   const have = id => st().bag[id] || 0;
   const can = r => Object.entries(r[1]).every(([id, n]) => have(id) >= n);
   class CookScene extends DW.Scene {
-    constructor(where) { super(); this.where = where || 'Restaurant'; this.i = 0; this.top = 0; this.cook = 0; this.bub = []; }
+    constructor(where) { super(); this.where = where || 'Restaurant'; this.i = 0; this.top = 0; this.cook = 0; this.bub = []; this.R = known(); }
     update() {
       if (this.cook > 0) return;
-      const n = RECIPES.length + 1;
+      const RECIPES = this.R, n = RECIPES.length + 1;
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); return; }
@@ -136,7 +168,7 @@
       this.bub.forEach(b => { b.t += dt; b.y -= b.v * dt; }); this.bub = this.bub.filter(b => b.t < 1.2);
     }
     draw(c) {
-      const s = st();
+      const s = st(), RECIPES = this.R;
       UI.menuBg(c, this.t, 'CUISINE — ' + this.where.toUpperCase());
       UI.box(c, 8, 26, 168, 150);
       const rows = RECIPES.concat([null]).slice(this.top, this.top + 8);
@@ -178,10 +210,10 @@
       }
       UI.box(c, 8, 180, 304, 54);
       if (r) UI.wrap(c, I[r[0]].desc, 290, 8).slice(0, 3).forEach((l, k) => UI.text(c, l, 16, 196 + k * 11, { size: 8, color: '#c8f0ff' }));
-      else UI.text(c, 'Les ingrédients se récoltent auprès des habitants de la ville (un cadeau par jour).', 16, 200, { size: 7, color: '#c8f0ff' });
+      else UI.text(c, RECIPES.length ? 'Les ingrédients se récoltent auprès des habitants de la ville (un cadeau par jour).' : 'Tu ne connais aucune recette : Mushroomon, au Restaurant, te les apprend (quêtes).', 16, 200, { size: 7, color: '#c8f0ff' });
       if (this.msgT > 0) UI.text(c, this.msg, 160, 20, { size: 8, align: 'center', color: '#7aff8a' });
     }
   }
 
-  DW.Cuisine = { INGR, DISH, RECIPES, PRODUCE, afterTalk, CookScene, cook: where => DW.Game.push(new CookScene(where)) };
+  DW.Cuisine = { INGR, DISH, RECIPES, PRODUCE, afterTalk, CookScene, known, mushroomQuest, cook: where => DW.Game.push(new CookScene(where)) };
 })();

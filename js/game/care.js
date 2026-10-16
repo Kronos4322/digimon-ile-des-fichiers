@@ -88,14 +88,19 @@
     },
     // boire (eau de la nature) : renvoie vrai s'il avait soif
     drink(m, amt = 60) { const t = m.thirst || 0; m.thirst = Math.max(0, t - amt); m.dry = 0; if (t >= 40) m.addHappy(2); return t > 5; },
-    // nourrir : renvoie un message
+    // PORTIONS (règle du joueur) : un Bébé, un Entraînement ou un Disciple est rassasié par 1 repas (1 Viande, ou 1 champignon) ;
+    // un Champion en demande 2, un gros Champion (150 kg et plus), un Ultime ou un Méga 3
+    portions(m) { const st = m.d.stage, kg = m.d.kg || 20; return ['Bébé', 'Entraînement', 'Disciple'].includes(st) ? 1 : st === 'Champion' ? (kg >= 150 ? 3 : 2) : 3; },
+    // valeur d'un aliment en repas : un plat (Viande, champignon, poisson...) = 1 repas, une Viande géante = 2, un en-cas = moins
+    meals: food => (food >= 100 ? 2 : food >= 40 ? 1 : food / 40),
+    // nourrir : renvoie vrai s'il a mangé (amt = valeur « food » de l'aliment)
     feed(m, amt) {
       const before = m.hunger;
-      m.hunger = Math.max(0, m.hunger - amt);
+      m.hunger = Math.max(0, m.hunger - Care.meals(amt) * 100 / Care.portions(m));
       const eaten = before - m.hunger;
       m.need = Math.min(99, m.need + eaten * 0.5);
       if (before >= 40) m.addHappy(3);
-      DW.Life.addFat(m, eaten / 40 / appetite(m));   // un repas complet : +1,5 environ (trop nourrir un petit mangeur le fait grossir vite)   // trop nourrir un petit mangeur le fait grossir vite
+      DW.Life.addFat(m, eaten / 66 / appetite(m));   // un repas complet : +1,5 environ (trop nourrir un petit mangeur le fait grossir vite)   // trop nourrir un petit mangeur le fait grossir vite
       m.starve = 0;
       return eaten > 0;
     },

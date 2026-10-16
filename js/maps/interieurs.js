@@ -120,4 +120,19 @@
   talkAt(poste, [5, 6, 7, 8], 4, svc('biyomon'));
   poste.signs['2,2'] = poste.signs['3,2'] = poste.signs['10,2'] = poste.signs['11,2'] = 'Des casiers pleins de lettres. Certaines sont adressées à des Digimon qui ne sont pas encore revenus...';
   poste.signs['11,7'] = poste.signs['12,7'] = 'Un nid douillet : Biyomon y fait la sieste entre deux tournées.';
+
+  // ------------------------------------------------------------ Banque de Kunemon (on entre et on la trouve au guichet)
+  const banque = shop('banque_in', {
+    name: 'Banque de Kunemon', w: 12, h: 6, lot: { x: 6, y: 3, w: 5, h: 3 },
+    floor: { type: 'stone', cols: ['#c8ccd4', '#a8acb8', '#7a7e8a'] }, wall: { base: '#e8e0c8', alt: '#d8ccb0', pattern: 'brick', wood: '#5a5a6a' },
+    objects: [
+      { kind: 'counter', v: 1, x: 4, y: 4, w: 4, h: 1 },
+      { kind: 'chest', x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'chest', x: 2, y: 3, w: 1, h: 1, small: true }, { kind: 'chest', x: 10, y: 3, w: 1, h: 1, small: true },
+      { kind: 'crates', v: 0, x: 1, y: 7, w: 1, h: 1, small: true }, { kind: 'crates', v: 1, x: 10, y: 7, w: 1, h: 1, small: true },
+      { kind: 'window', v: 0, x: 5, y: 1, w: 2, h: 2, back: true, oy: -6 },
+    ],
+    npcs: [{ sp: 'kunemon', x: 6, y: 3, face: 'down', talk: svc('kunemon') }],
+  });
+  talkAt(banque, [4, 5, 6, 7], 4, svc('kunemon'));
+  banque.signs['1,3'] = banque.signs['2,3'] = banque.signs['10,3'] = 'Des coffres scellés de soie : ce sont les cocons où Kunemon range les objets de toute la ville. Bzzz !';
 })();

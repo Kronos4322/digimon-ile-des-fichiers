@@ -47,11 +47,11 @@
   const roomOf = id => (typeof FURN[id].room === 'function' ? FURN[id].room() : FURN[id].room) || null;
   // pièces annexes : ouvertes par un achat ; porte dans le mur gauche ou droit du salon (side), à la hauteur y
   const ROOMS = {
-    sdb:     { name: 'Salle de bain', w: 10, h: 8, side: 'right', y: 4, by: ['toilettes'], floor: { type: 'tile', cols: ['#e8f4f8', '#c8dce8', '#9ab8cc'] }, wall: { base: '#e4f2f8', alt: '#cfe4ee', pattern: 'diamond', wood: '#5a8aa8' },
+    sdb:     { name: 'Salle de bain', from: 'salon', at: { wall: 'left', y: 8 }, w: 10, h: 8, by: ['toilettes'], floor: { type: 'tile', cols: ['#e8f4f8', '#c8dce8', '#9ab8cc'] }, wall: { base: '#e4f2f8', alt: '#cfe4ee', pattern: 'diamond', wood: '#5a8aa8' },
       decor: [{ kind: 'bigrug', v: 0, x: 2, y: 5, w: 3, h: 1, walk: true }, { kind: 'bigplant', x: 8, y: 6, w: 1, h: 1, small: true }, { kind: 'shelf', x: 2, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
-    cuisine: { name: 'Cuisine', w: 12, h: 8, side: 'right', y: 8, by: ['frigo', 'cuisine'], floor: { type: 'tile', cols: ['#f4e4c4', '#dcc49c', '#b49a70'] }, wall: { base: '#fff4e0', alt: '#f4e4c4', pattern: 'stripes', wood: '#a8703a' },
+    cuisine: { name: 'Cuisine', from: 'salon', at: { wall: 'back', x: 7 }, w: 12, h: 8, by: ['frigo', 'cuisine'], floor: { type: 'tile', cols: ['#f4e4c4', '#dcc49c', '#b49a70'] }, wall: { base: '#fff4e0', alt: '#f4e4c4', pattern: 'stripes', wood: '#a8703a' },
       decor: [{ kind: 'table', x: 5, y: 5, w: 2, h: 1 }, { kind: 'stool', x: 4, y: 5, w: 1, h: 1, small: true }, { kind: 'stool', x: 7, y: 5, w: 1, h: 1, small: true }, { kind: 'shelf', x: 8, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
-    sport:   { name: 'Salle de sport', w: 10, h: 8, side: 'left', y: 7, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
+    sport:   { name: 'Salle de sport', from: 'salon', at: { wall: 'right', y: 4 }, w: 10, h: 8, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
       decor: [{ kind: 'bigrug', v: 2, x: 2, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 1, y: 6, w: 1, h: 1, small: true }] },
     // chambre de Tai : elle apparaît quand Tai est délivré (antre de Shellmon) ; décor de Tai (ballon, lunettes, posters orange)
     // chambres de l'étage : une porte chacune dans le couloir (ta chambre, celle de ton Digimon, puis celles des enfants délivrés)
@@ -92,6 +92,8 @@
       decor: [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }] },
   };
   const fromOf = r => (ROOMS[r].from === 'etage' ? 'maison_joueur_etage' : 'maison_joueur');
+  // case du salon devant la porte d'une pièce du rez-de-chaussée (en sortant de la pièce, on réapparaît là)
+  const salonSpot = r => { const A = ROOMS[r].at; return A.wall === 'back' ? [A.x, 3] : A.wall === 'left' ? [1, A.y] : [W - 2, A.y]; };
   const FW = { maison_joueur: W };
   const roomOpen = r => (ROOMS[r].open ? ROOMS[r].open() : ROOMS[r].by.some(owned));
   const roomId = r => `maison_joueur_${r}`;
@@ -156,7 +158,7 @@
       DW.Life && DW.Life.addDisc ? DW.Life.addDisc(m, 5) : (m.disc = Math.min(100, (m.disc || 0) + 5));
       await say(`Tu lis « ${DW.pick(['Les Sept Écussons', 'Le Digivice perdu', 'La légende du Pont de l\'Infini', 'Agumon et le grand gâteau'])} » à ${m.name}. Il écoute très sagement. (discipline +5)`);
     },
-    async cuisine() { await DW.Cuisine.cook('Maison'); },
+    async cuisine() { if (!DW.Cuisine.known().length) { await say('Une belle cuisine... mais tu ne connais encore aucune recette. Mushroomon, au Restaurant, peut t\'en apprendre !'); return; } await DW.Cuisine.cook('Maison'); },
     async halteres() {
       const m = lead(); if (!m) return;
       if (!once('halteres')) { await say(`${m.name} s'est déjà entraîné à la maison aujourd'hui.`); return; }
@@ -199,13 +201,8 @@
       this.objects = [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'window', v: 0, x: 6, y: 1, w: 2, h: 2, back: true, oy: -6 }];
       this.signs = {};
       furnish(this, null);
-      // portes vers les pièces ouvertes (mur gauche ou droit du salon)
+      // (plus de pièces ouvertes dans les murs du salon : elles sont le long des couloirs)
       this.rows = rows(); this.warps.length = 1;
-      for (const r in ROOMS) if (roomOpen(r) && !ROOMS[r].from) {
-        const R = ROOMS[r], x = R.side === 'right' ? W - 1 : 0;
-        this.rows = this.rows.map((row, y) => y === R.y || y === R.y + 1 ? row.slice(0, x) + '1' + row.slice(x + 1) : row);
-        this.warps.push({ x, y: R.y, w: 1, h: 2, dir: R.side, to: roomId(r), tx: R.side === 'right' ? 1 : R.w - 2, ty: 4 });
-      }
       if (owned('tableau')) this.signs['9,2'] = this.signs['10,2'] = this.signs['12,2'] = this.signs['13,2'] = () => USE.tableau();
       // escalier de la cave aux trophées
       this.doors = [];
@@ -220,6 +217,19 @@
         this.objects = this.objects.filter(o => !(o.x < 14 && o.x + (o.w || 1) > 12 && (o.back || o.y <= 4)));
         this.objects.push({ kind: 'stairsdown', x: 12, y: 1, w: 2, h: 2, back: true });
         this.doors.push({ x: 12, y: 2, w: 2, dir: 'up', to: 'cave_joueur', tx: 7, ty: 3 });
+      }
+      // les pièces du rez-de-chaussée : une vraie porte dans le mur du salon (au fond, à gauche ou à droite)
+      for (const r in ROOMS) if (ROOMS[r].from === 'salon' && roomOpen(r)) {
+        const R = ROOMS[r], A = R.at, tx = Math.floor(R.w / 2) - 1, ty = R.h - 2;
+        if (A.wall === 'back') {
+          this.objects = this.objects.filter(o => !(o.x < A.x + 2 && o.x + (o.w || 1) > A.x && (o.back || o.y <= 4)));
+          this.objects.push({ kind: 'walldoor', v: DOOR_V[r] || 0, x: A.x, y: 1, w: 2, h: 2, back: true });
+          this.doors.push({ x: A.x, y: 2, w: 2, dir: 'up', to: roomId(r), tx, ty });
+        } else {
+          const x = A.wall === 'left' ? 0 : W - 1;
+          this.objects.push({ kind: 'sidedoor', v: A.wall === 'left' ? 0 : 1, x, y: A.y, w: 1, h: 1, top: true });
+          this.doors.push({ x, y: A.y, w: 1, dir: A.wall, to: roomId(r), tx, ty });
+        }
       }
       DW.World.unprepare(this);
     },
@@ -239,7 +249,7 @@
   // (places réservées pour les enfants qui viendront habiter chez toi)
   const SLOTS = ['chambre', 'digi', 'tai', 'matt', 'sora', 'izzy', 'mimi', 'joe', 'tk'], CW = 34;
   const slotX = r => 4 + SLOTS.indexOf(r) * 3;
-  const DOOR_V = { chambre: 0, digi: 1, tai: 2, matt: 3, sora: 4, izzy: 5, mimi: 6, joe: 7, tk: 0 };
+  const DOOR_V = { chambre: 0, digi: 1, tai: 2, matt: 3, sora: 4, izzy: 5, mimi: 6, joe: 7, tk: 0, cuisine: 2, sdb: 1, sport: 6 };
   // porte de chambre dans le mur du couloir (une couleur par occupant, plaque au-dessus)
   DW.World.OBJ.walldoor = { w: 32, h: 34, n: 8, draw(d, v) {
     const [C, Lt, Dk] = [['#9a6a3a', '#b8885a', '#7a4e2a'], ['#5a9ad8', '#7ab4ea', '#3a78b8'], ['#e8822a', '#f4a454', '#c0621a'], ['#3a5ab8', '#5a7ad0', '#2a4290'],
@@ -249,6 +259,14 @@
     d.deco.rect(8, 8, 16, 9, Lt); d.deco.rect(8, 20, 16, 11, Dk);
     d.deco.circ(23, 21, 1.4, '#e8d070', { unlit: true });
     d.deco.rect(11, 1, 10, 4, '#f0e8d0');
+  } };
+  // porte dans un mur de côté du salon, vue de profil (v 0 : mur gauche, v 1 : mur droit)
+  DW.World.OBJ.sidedoor = { w: 16, h: 44, n: 2, draw(d, v) {
+    const f = x => (v ? 16 - x : x);
+    d.poly([[f(2), 43], [f(2), 6], [f(13), 2], [f(13), 39]], '#5a3a20');
+    d.poly([[f(4), 41], [f(4), 9], [f(11), 6], [f(11), 37]], '#9a6a3a', { tex: 0.12 });
+    d.deco.poly([[f(5), 22], [f(5), 11], [f(10), 9], [f(10), 20]], '#b8885a');
+    d.deco.circ(f(9.5), 25, 1.2, '#e8d070', { unlit: true });
   } };
   MAPS.maison_joueur_etage = {
     name: 'Ma maison — Couloir de l’étage', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
@@ -285,7 +303,7 @@
 
   // ------------------------------------------------------------ les pièces annexes
   for (const r in ROOMS) {
-    const R = ROOMS[r], up = R.from === 'etage', dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon ; à l'étage, porte en bas (vers le couloir)
+    const R = ROOMS[r], up = R.from === 'etage' || R.from === 'salon', dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon ; à l'étage, porte en bas (vers le couloir)
     const mx = Math.floor(R.w / 2) - 1;
     const floorRow = y => { const row = '0' + '1'.repeat(R.w - 2) + '0'; return !up && (y === 4 || y === 5) ? row.slice(0, dx) + '1' + row.slice(dx + 1) : row; };
     const bottom = up ? '0'.repeat(mx) + '11' + '0'.repeat(R.w - mx - 2) : '0'.repeat(R.w);
@@ -293,7 +311,7 @@
     MAPS[roomId(r)] = {
       name: `Ma maison — ${R.name}`, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: R.floor, wall: R.wall, rows: rr, objects: [], npcs: (R.npcs || []).map(n => ({ ...n })), signs: {},
-      warps: [up ? { x: mx, y: R.h - 1, w: 2, h: 1, dir: 'down', to: 'maison_joueur_etage', tx: slotX(r), ty: 3 }
+      warps: [up ? { x: mx, y: R.h - 1, w: 2, h: 1, dir: 'down', to: fromOf(r), tx: R.from === 'salon' ? salonSpot(r)[0] : slotX(r), ty: R.from === 'salon' ? salonSpot(r)[1] : 3 }
         : { x: dx, y: 4, w: 1, h: 2, dir: R.side === 'right' ? 'left' : 'right', to: fromOf(r), tx: R.side === 'right' ? FW[fromOf(r)] - 2 : 1, ty: R.y }],
       build() {
         const version = ORDER.filter(owned).join(',');
