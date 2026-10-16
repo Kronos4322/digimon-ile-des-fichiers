@@ -145,7 +145,7 @@
 
   // ------------------------------------------------------------ boutiques (le stock grandit avec la ville)
   DW.SHOPS = {
-    bazar: ['viande', 'baton', 'pelle', 'soin_p', 'disque_pm', 'remede', 'bandage', 'cartes', 'medoc', 'pilote_auto', 'pot_portable', 'soin_m', 'pm_m', 'reveil',
+    bazar: ['viande', 'eau_fraiche', 'baton', 'pelle', 'soin_p', 'disque_pm', 'remede', 'bandage', 'cartes', 'medoc', 'pilote_auto', 'pot_portable', 'soin_m', 'pm_m', 'reveil',
       'double_disk', 'protection', 'repousse', 'cloche', 'oreiller', 'soin_g', 'pm_g', 'omnipotent', 'soin_s', 'super_reveil', 'chaussures', 'puce_pv', 'puce_pm'],
     resto: ['viande', 'digichampi', 'viande_moisie', 'super_viande', 'pomme_bleue', 'super_carotte', 'radis', 'steak', 'surlonge', 'epinard', 'baie_rouge',
       'grosse_baie', 'figue', 'digipomme', 'pluie_plante', 'noix_douce', 'super_legume', 'orange_bana', 'champi_joie', 'champi_glace', 'melon', 'champi_luxe'],
