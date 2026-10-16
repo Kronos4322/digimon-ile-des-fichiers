@@ -175,16 +175,7 @@
           if (p.kind === 'leaf') { c.fillStyle = p.c; const s = Math.sin(t * 4 + p.ph) > 0; c.fillRect(Math.round(p.x), Math.round(p.y), s ? 2 : 1, s ? 1 : 2); }
           else if (p.kind === 'petal') { c.fillStyle = p.c; const s = Math.sin(t * 5 + p.ph); c.fillRect(Math.round(p.x), Math.round(p.y), s > 0.3 ? 2 : 1, 1); if (s > 0.6) c.fillRect(Math.round(p.x) + 1, Math.round(p.y) + 1, 1, 1); }
           else if (p.kind === 'glow') { const a = 0.45 + 0.4 * Math.sin(t * 2.4 + p.ph); c.fillStyle = p.c; c.globalAlpha = a; c.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); c.globalAlpha = a * 0.35; c.fillRect(Math.round(p.x) - 1, Math.round(p.y), 3, 1); c.fillRect(Math.round(p.x), Math.round(p.y) - 1, 1, 3); c.globalAlpha = 1; }
-          else if (!DW.Time.isNight() && !(thm && thm.noFlies)) {
-            // papillon : deux ailes qui battent
-            const X = Math.round(p.x), Y = Math.round(p.y), open = Math.sin(t * 14 + p.ph) > 0;
-            const col = ['#ffffff', '#ffd040', '#7ab8ff', '#ff9ac8'][Math.floor(p.ph * 10) % 4];
-            c.fillStyle = 'rgba(0,0,0,0.12)'; c.fillRect(X + 3, Y + 10, 3, 1);
-            c.fillStyle = col;
-            if (open) { c.fillRect(X - 2, Y - 1, 2, 2); c.fillRect(X + 1, Y - 1, 2, 2); c.fillRect(X - 1, Y + 1, 1, 1); c.fillRect(X + 1, Y + 1, 1, 1); }
-            else { c.fillRect(X - 1, Y - 2, 1, 3); c.fillRect(X + 1, Y - 2, 1, 3); }
-            c.fillStyle = '#3a2a2a'; c.fillRect(X, Y - 1, 1, 3);
-          }
+          // (plus de papillons dessinés à l'écran : ils suivaient la caméra, donc le joueur ; les papillons du décor sont dans gfx/vivant.js)
         }
         // brume qui dérive (Sentier des Murmures)
         if (this.mist) {

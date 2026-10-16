@@ -393,7 +393,7 @@ test('Tai délivré : sa chambre apparaît à l’étage de ta maison (escalier 
   // (les chambres des enfants sont à l'étage : un escalier apparaît dans le salon)
   yes(M.doors.some(d => d.to === 'maison_joueur_etage'), "pas d'escalier vers l'étage");
   const E = DW.MAPS.maison_joueur_etage; E.version = null; E.build();
-  yes(E.warps.some(w => w.to === 'maison_joueur_tai'), 'pas de porte vers la chambre de Tai');
+  yes(E.doors.some(d => d.to === 'maison_joueur_tai'), 'pas de porte vers la chambre de Tai (couloir de l’étage)');
   const atJiji = DW.MAPS.maison.npcs.find(n => n.hero === 'tai');
   yes(!atJiji || !atJiji.cond(DW.state), 'Tai attend encore chez Jijimon');
 });

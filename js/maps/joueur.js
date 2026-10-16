@@ -22,7 +22,7 @@
 
   // ------------------------------------------------------------ catalogue des meubles (prix, objet posé, usage)
   const FURN = {
-    lit:      { name: 'Lit douillet', price: 0, room: () => (upstairs() ? 'etage' : null), objs: [{ kind: 'bed', x: 1, y: 3, w: 2, h: 2 }], desc: 'Dormir : soigne toute l\'équipe, sauvegarde, et fait passer la nuit.' },
+    lit:      { name: 'Lit douillet', price: 0, room: () => (upstairs() ? 'chambre' : null), objs: [{ kind: 'bed', x: 1, y: 3, w: 2, h: 2 }], desc: 'Dormir : soigne toute l\'équipe, sauvegarde, et fait passer la nuit.' },
     coffre:   { name: 'Coffre', price: 0, objs: [{ kind: 'chest', x: 1, y: 6, w: 1, h: 1, small: true }], desc: 'Range les objets que ton sac ne peut pas porter.' },
     toilettes:{ name: 'Toilettes privées', price: 600, room: 'sdb', objs: [{ kind: 'toiletroom', x: 6, y: 3, w: 2, h: 1 }], desc: 'Des toilettes rien qu\'à vous : plus besoin de courir dehors !' },
     plantes:  { name: 'Plantes vertes', price: 500, objs: [{ kind: 'bigplant', x: 14, y: 10, w: 1, h: 1, small: true }, { kind: 'flowerpots', v: 1, x: 3, y: 6, w: 2, h: 1 }], desc: 'Les arroser chaque jour rend ton partenaire heureux (bonheur +3).' },
@@ -54,7 +54,11 @@
     sport:   { name: 'Salle de sport', w: 10, h: 8, side: 'left', y: 7, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
       decor: [{ kind: 'bigrug', v: 2, x: 2, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 1, y: 6, w: 1, h: 1, small: true }] },
     // chambre de Tai : elle apparaît quand Tai est délivré (antre de Shellmon) ; décor de Tai (ballon, lunettes, posters orange)
-    tai:     { name: 'Chambre de Tai', from: 'etage', w: 10, h: 8, side: 'right', y: 3, by: [], open: () => !!(st().kids || {}).tai && st().hero !== 'tai',
+    // chambres de l'étage : une porte chacune dans le couloir (ta chambre, celle de ton Digimon, puis celles des enfants délivrés)
+    chambre: { name: 'Ma chambre', from: 'etage', w: 12, h: 9, by: [], open: () => upstairs(),
+      floor: { type: 'carpet', cols: ['#c8a0d8', '#a880bc', '#7a5a90'] }, wall: { base: '#f8eef4', alt: '#ecdce8', pattern: 'dots', wood: '#8a5a7a' },
+      decor: [{ kind: 'window', v: 0, x: 6, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 2, x: 5, y: 4, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 10, y: 6, w: 1, h: 1, small: true }] },
+    tai:     { name: 'Chambre de Tai', from: 'etage', w: 10, h: 8, by: [], open: () => !!(st().kids || {}).tai && st().hero !== 'tai',
       floor: { type: 'herring', cols: ['#d8a868', '#b07e48', '#7a5430'] }, wall: { base: '#fff0d8', alt: '#ffe0b0', pattern: 'stripes', wood: '#e8822a' },
       decor: [{ kind: 'bed', x: 6, y: 3, w: 2, h: 2 }, { kind: 'poster', v: 0, x: 2, y: 1, w: 1, h: 1, back: true, oy: 15 }, { kind: 'poster', v: 1, x: 4, y: 1, w: 1, h: 1, back: true, oy: 15 },
         { kind: 'bigrug', v: 1, x: 3, y: 5, w: 3, h: 1, walk: true }, { kind: 'toybox', x: 2, y: 3, w: 2, h: 1 }],
@@ -74,7 +78,7 @@
         "Tu as entendu ? Les cabines de la plage se sont remises à sonner... Shellmon est revenu dans son antre. Parfait pour s'entraîner !"]), 'Tai'); } },
         { sp: 'agumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say('Tu as quelque chose à manger ? Moi, j\'ai toujours faim !', 'Agumon') }] },
     // chambre de Matt : elle apparaît quand Matt est délivré (Lac du Tramway, chapitre 2) ; décor bleu, son harmonica
-    matt:    { name: 'Chambre de Matt', from: 'etage', w: 10, h: 8, side: 'left', y: 6, by: [], open: () => !!(st().kids || {}).matt && st().hero !== 'matt',
+    matt:    { name: 'Chambre de Matt', from: 'etage', w: 10, h: 8, by: [], open: () => !!(st().kids || {}).matt && st().hero !== 'matt',
       floor: { type: 'herring', cols: ['#b8b0a0', '#908878', '#5a5448'] }, wall: { base: '#dce8f8', alt: '#c4d6f0', pattern: 'stripes', wood: '#3a5a9a' },
       decor: [{ kind: 'bed', x: 2, y: 3, w: 2, h: 2 }, { kind: 'poster', v: 1, x: 5, y: 1, w: 1, h: 1, back: true, oy: 15 }, { kind: 'poster', v: 0, x: 7, y: 1, w: 1, h: 1, back: true, oy: 15 },
         { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }, { kind: 'shelf', x: 6, y: 1, w: 2, h: 1, back: true, oy: 6 }],
@@ -84,11 +88,11 @@
         "Tai ronfle. Même à travers le mur. Je te jure.", "Cet harmonica, c'est tout ce qu'il me reste de la maison... Je joue le soir, pour que TK l'entende, peut-être.",
         "Gabumon refuse de quitter sa fourrure. Même quand il fait chaud. Allez comprendre."]), 'Matt') },
         { sp: 'gabumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say(DW.pick(['Ne dis pas à Matt que je trouve sa musique très belle... Il serait gêné.', "Garurumon, c'était moi ! J'ai encore du mal à y croire."]), 'Gabumon') }] },
-    digi:    { name: 'Chambre du Digimon', from: 'etage', w: 10, h: 8, side: 'right', y: 5, by: ['chambre_digi'], floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
+    digi:    { name: 'Chambre du Digimon', from: 'etage', w: 10, h: 8, by: ['chambre_digi'], floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
       decor: [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }] },
   };
   const fromOf = r => (ROOMS[r].from === 'etage' ? 'maison_joueur_etage' : 'maison_joueur');
-  const FW = { maison_joueur: W, maison_joueur_etage: 14 };
+  const FW = { maison_joueur: W };
   const roomOpen = r => (ROOMS[r].open ? ROOMS[r].open() : ROOMS[r].by.some(owned));
   const roomId = r => `maison_joueur_${r}`;
   // pose les meubles d'une pièce (salon ou annexe) et leurs zones d'usage
@@ -210,7 +214,7 @@
         this.objects = this.objects.filter(o => !(o.x < 11 && o.x + (o.w || 1) > 9 && (o.back || o.y <= 4)));
         for (const k of ['9,2', '10,2']) delete this.signs[k];
         this.objects.push({ kind: 'stairsup', x: 9, y: 1, w: 2, h: 2, back: true });
-        this.doors.push({ x: 9, y: 2, w: 2, dir: 'up', to: 'maison_joueur_etage', tx: 6, ty: 3 });
+        this.doors.push({ x: 9, y: 2, w: 2, dir: 'up', to: 'maison_joueur_etage', tx: 1, ty: 3 });
       }
       if (cave) {
         this.objects = this.objects.filter(o => !(o.x < 14 && o.x + (o.w || 1) > 12 && (o.back || o.y <= 4)));
@@ -231,25 +235,39 @@
 
   // ------------------------------------------------------------ l'étage (chambre) et le grenier
   const roomRows = (w, h) => ['0'.repeat(w), '0' + '2'.repeat(w - 2) + '0', '0' + '2'.repeat(w - 2) + '0', ...Array.from({ length: h - 4 }, () => '0' + '1'.repeat(w - 2) + '0'), '0'.repeat(w)];
+  // l'étage est un COULOIR : l'escalier à gauche, le grenier à droite, et une porte par chambre le long du mur
+  // (places réservées pour les enfants qui viendront habiter chez toi)
+  const SLOTS = ['chambre', 'digi', 'tai', 'matt', 'sora', 'izzy', 'mimi', 'joe', 'tk'], CW = 34;
+  const slotX = r => 4 + SLOTS.indexOf(r) * 3;
+  const DOOR_V = { chambre: 0, digi: 1, tai: 2, matt: 3, sora: 4, izzy: 5, mimi: 6, joe: 7, tk: 0 };
+  // porte de chambre dans le mur du couloir (une couleur par occupant, plaque au-dessus)
+  DW.World.OBJ.walldoor = { w: 32, h: 34, n: 8, draw(d, v) {
+    const [C, Lt, Dk] = [['#9a6a3a', '#b8885a', '#7a4e2a'], ['#5a9ad8', '#7ab4ea', '#3a78b8'], ['#e8822a', '#f4a454', '#c0621a'], ['#3a5ab8', '#5a7ad0', '#2a4290'],
+      ['#e05a8a', '#ee82a8', '#b83a68'], ['#7a5ab8', '#9a7ad0', '#5a4090'], ['#58b058', '#7acc7a', '#3a8a3a'], ['#6a6a7a', '#8a8a9a', '#4a4a5a']][v];
+    d.rect(2, 2, 28, 32, '#5a3a20', { round: 0.08 });
+    d.rect(5, 5, 22, 29, C, { tex: 0.12 });
+    d.deco.rect(8, 8, 16, 9, Lt); d.deco.rect(8, 20, 16, 11, Dk);
+    d.deco.circ(23, 21, 1.4, '#e8d070', { unlit: true });
+    d.deco.rect(11, 1, 10, 4, '#f0e8d0');
+  } };
   MAPS.maison_joueur_etage = {
-    name: 'Ma maison — Étage', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
-    floor: { type: 'carpet', cols: ['#c8a0d8', '#a880bc', '#7a5a90'] }, wall: { base: '#f8eef4', alt: '#ecdce8', pattern: 'dots', wood: '#8a5a7a' },
-    rows: roomRows(14, 10), objects: [], npcs: [], signs: {}, warps: [], doors: [],
+    name: 'Ma maison — Couloir de l’étage', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
+    floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#f8eef4', alt: '#ecdce8', pattern: 'stripes', wood: '#8a5a7a' },
+    rows: roomRows(CW, 7), objects: [], npcs: [], signs: {}, warps: [], doors: [],
     build() {
       const version = ORDER.filter(owned).join(',') + '|' + Object.keys(ROOMS).filter(roomOpen).join(',');
       if (this.version === version && this.objects.length) return;
       this.version = version;
-      this.objects = [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 },
-        { kind: 'stairsdown', x: 6, y: 1, w: 2, h: 2, back: true }, { kind: 'stairsup', x: 11, y: 1, w: 2, h: 2, back: true },
-        { kind: 'bigrug', v: 2, x: 5, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 12, y: 8, w: 1, h: 1, small: true }];
+      this.objects = [{ kind: 'stairsdown', x: 1, y: 1, w: 2, h: 2, back: true }, { kind: 'stairsup', x: CW - 3, y: 1, w: 2, h: 2, back: true },
+        { kind: 'bigplant', x: 3, y: 5, w: 1, h: 1, small: true }, { kind: 'bigplant', x: CW - 4, y: 5, w: 1, h: 1, small: true }];
       this.signs = {};
       furnish(this, 'etage');
-      this.doors = [{ x: 6, y: 2, w: 2, dir: 'up', to: 'maison_joueur', tx: 9, ty: 3 }, { x: 11, y: 2, w: 2, dir: 'up', to: 'maison_joueur_grenier', tx: 5, ty: 3 }];
-      this.rows = roomRows(14, 10); this.warps = [];
+      this.doors = [{ x: 1, y: 2, w: 2, dir: 'up', to: 'maison_joueur', tx: 9, ty: 3 }, { x: CW - 3, y: 2, w: 2, dir: 'up', to: 'maison_joueur_grenier', tx: 5, ty: 3 }];
+      this.rows = roomRows(CW, 7); this.warps = [];
       for (const r in ROOMS) if (roomOpen(r) && ROOMS[r].from === 'etage') {
-        const R = ROOMS[r], x = R.side === 'right' ? 13 : 0;
-        this.rows = this.rows.map((row, y) => y === R.y || y === R.y + 1 ? row.slice(0, x) + '1' + row.slice(x + 1) : row);
-        this.warps.push({ x, y: R.y, w: 1, h: 2, dir: R.side, to: roomId(r), tx: R.side === 'right' ? 1 : R.w - 2, ty: 4 });
+        const R = ROOMS[r], x = slotX(r);
+        this.objects.push({ kind: 'walldoor', v: DOOR_V[r] || 0, x, y: 1, w: 2, h: 2, back: true });
+        this.doors.push({ x, y: 2, w: 2, dir: 'up', to: roomId(r), tx: Math.floor(R.w / 2) - 1, ty: R.h - 2 });
       }
       DW.World.unprepare(this);
     },
@@ -260,20 +278,23 @@
     rows: roomRows(12, 8), npcs: [], signs: {}, warps: [],
     objects: [{ kind: 'stairsdown', x: 5, y: 1, w: 2, h: 2, back: true }, { kind: 'crates', x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'crates', v: 1, x: 2, y: 3, w: 1, h: 1, small: true },
       { kind: 'sacks', x: 9, y: 3, w: 2, h: 1 }, { kind: 'teddy', x: 1, y: 6, w: 1, h: 1 }],
-    doors: [{ x: 5, y: 2, w: 2, dir: 'up', to: 'maison_joueur_etage', tx: 11, ty: 3 }],
+    doors: [{ x: 5, y: 2, w: 2, dir: 'up', to: 'maison_joueur_etage', tx: CW - 3, ty: 3 }],
   };
   // un vieux coffre oublié par l'ancien propriétaire
   if (DW.Palais && DW.Palais.treasure) DW.Palais.treasure('maison_joueur_grenier', 'grenier_joueur', null, [['cartes', 2], ['soin_m', 2]], 9, 6);
 
   // ------------------------------------------------------------ les pièces annexes
   for (const r in ROOMS) {
-    const R = ROOMS[r], dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon (ou de l'étage)
-    const floorRow = y => { const row = '0' + '1'.repeat(R.w - 2) + '0'; return y === 4 || y === 5 ? row.slice(0, dx) + '1' + row.slice(dx + 1) : row; };
-    const rr = ['0'.repeat(R.w), '0' + '2'.repeat(R.w - 2) + '0', '0' + '2'.repeat(R.w - 2) + '0', ...Array.from({ length: R.h - 4 }, (_, i) => floorRow(i + 3)), '0'.repeat(R.w)];
+    const R = ROOMS[r], up = R.from === 'etage', dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon ; à l'étage, porte en bas (vers le couloir)
+    const mx = Math.floor(R.w / 2) - 1;
+    const floorRow = y => { const row = '0' + '1'.repeat(R.w - 2) + '0'; return !up && (y === 4 || y === 5) ? row.slice(0, dx) + '1' + row.slice(dx + 1) : row; };
+    const bottom = up ? '0'.repeat(mx) + '11' + '0'.repeat(R.w - mx - 2) : '0'.repeat(R.w);
+    const rr = ['0'.repeat(R.w), '0' + '2'.repeat(R.w - 2) + '0', '0' + '2'.repeat(R.w - 2) + '0', ...Array.from({ length: R.h - 4 }, (_, i) => floorRow(i + 3)), bottom];
     MAPS[roomId(r)] = {
       name: `Ma maison — ${R.name}`, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: R.floor, wall: R.wall, rows: rr, objects: [], npcs: (R.npcs || []).map(n => ({ ...n })), signs: {},
-      warps: [{ x: dx, y: 4, w: 1, h: 2, dir: R.side === 'right' ? 'left' : 'right', to: fromOf(r), tx: R.side === 'right' ? FW[fromOf(r)] - 2 : 1, ty: R.y }],
+      warps: [up ? { x: mx, y: R.h - 1, w: 2, h: 1, dir: 'down', to: 'maison_joueur_etage', tx: slotX(r), ty: 3 }
+        : { x: dx, y: 4, w: 1, h: 2, dir: R.side === 'right' ? 'left' : 'right', to: fromOf(r), tx: R.side === 'right' ? FW[fromOf(r)] - 2 : 1, ty: R.y }],
       build() {
         const version = ORDER.filter(owned).join(',');
         if (this.version === version && this.objects.length) return;
@@ -377,5 +398,5 @@
     for (const r in ROOMS) if (roomOpen(r) && !before.includes(r)) await say(`Il lui faut une pièce rien qu'à lui : une nouvelle porte s'ouvre ${ROOMS[r].from ? 'à l’étage' : 'dans ton salon'}. Ta maison a maintenant une ${ROOMS[r].name} !`, 'Gotsumon');
     if (!up0 && upstairs()) await say('Ton salon est si bien aménagé que ta maison s’agrandit : un ÉTAGE avec ta chambre (ton lit y est monté) et un grenier tout en haut !', 'Gotsumon');
   }
-  DW.Home = { FURN, ROOMS, furnitureShop, owned };
+  DW.Home = { FURN, ROOMS, furnitureShop, owned, tierOf };
 })();

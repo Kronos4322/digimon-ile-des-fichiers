@@ -9,7 +9,7 @@
     const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
     await fetch('/dev/save?name=' + name, { method: 'POST', body: blob });
   }
-  DEV.guide = async function (id, hour = 13) {
+  DEV.guide = async function (id, hour = 13, tag = '') {
     const M = DW.getMap(id);
     // beau temps, sans interface ni Digimon sauvages : une vue nette du lieu
     const st = DW.state, spawn = DW.Wild.spawn, toasts = DW.Care.drawToasts, mood = DW.Care.drawMood;
@@ -36,9 +36,14 @@
     for (const n of ow.map.npcs || []) {
       if (n.pickup || n.item || n.obj || (!n.sp && !n.hero) || n.hamlet) continue;
       const kind = n.recruit ? 'recruit' : n.hero ? 'kid' : n.gear || ['kuwagamon', 'shellmon', 'whamon'].includes(n.sp) ? 'boss' : 'npc';
+      // (un habitant ou un enfant absent à ce moment de l'histoire n'a pas de rond : seuls les Digimon à ramener et les boss
+      //  gardent le leur même quand ils n'apparaissent qu'à certaines heures)
+      if ((kind === 'npc' || kind === 'kid') && n.cond && !n.cond(DW.state)) continue;
       list.push({ n, kind, name: nameOf(n), x: n.x, y: n.y });
     }
-    const COL = { recruit: '#ffcc22', boss: '#ff4a3a', kid: '#4aa8ff', npc: '#ffffff' };
+    // passages secrets (le tronc creux vers le Village des Yokomon)
+    for (const o of ow.map.objects || []) if (o.yoko) list.push({ n: {}, kind: 'passage', name: 'Tronc creux → Village des Yokomon', x: o.x, y: o.y });
+    const COL = { recruit: '#ffcc22', boss: '#ff4a3a', kid: '#4aa8ff', npc: '#ffffff', passage: '#c070ff' };
     list.forEach((e, i) => {
       const X = e.x * 16 + 8, Y = e.y * 16 - 22;
       g.strokeStyle = '#000'; g.lineWidth = 7; g.beginPath(); g.arc(e.x * 16 + 8, e.y * 16 + 6, 18, 0, 7); g.stroke();
@@ -47,9 +52,21 @@
       g.strokeStyle = '#000'; g.lineWidth = 2.5; g.stroke();
       g.fillStyle = '#000'; g.font = 'bold 18px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(i + 1), X, Y + 1);
     });
-    await save(big, `guide_${id}.png`);
+    // petites pièces : on recadre sur la carte (plus de grande zone noire)
+    const MW = ow.map.w * 16, MH = ow.map.h * 16;
+    let out = big;
+    if (MW < big.width || MH < big.height) { out = document.createElement('canvas'); out.width = MW; out.height = MH; out.getContext('2d').drawImage(big, 0, 0); }
+    await save(out, `guide_${id}${tag}.png`);
+    // zoom sur chaque Digimon à ramener et chaque boss (15 × 10 cases autour de lui)
+    for (const [i, e] of list.entries()) {
+      if (e.kind !== 'recruit' && e.kind !== 'boss' && e.kind !== 'passage') continue;
+      const zw = Math.min(240, MW), zh = Math.min(160, MH), zx = Math.max(0, Math.min(MW - zw, e.x * 16 + 8 - zw / 2)), zy = Math.max(0, Math.min(MH - zh, e.y * 16 - zh / 2));
+      const z = document.createElement('canvas'); z.width = zw * 2; z.height = zh * 2;
+      const zg = z.getContext('2d'); zg.imageSmoothingEnabled = false; zg.drawImage(big, zx, zy, zw, zh, 0, 0, zw * 2, zh * 2);
+      await save(z, `guide_${id}${tag}_z${i + 1}.png`);
+    }
     // Digimon sauvages de la carte
     const wild = (M.encounters || []).map(e => ({ sp: e.sp, name: DW.SPECIES[e.sp] ? DW.SPECIES[e.sp].name : e.sp, min: e.min, max: e.max, w: e.w, night: e.night, flag: e.flag }));
-    return { id, name: M.name, w: big.width, h: big.height, npcs: list.map((e, i) => ({ k: i + 1, kind: e.kind, name: e.name, sp: e.n.sp || null, x: e.x, y: e.y })), wild };
+    return { id, tag, name: M.name, w: out.width, h: out.height, npcs: list.map((e, i) => ({ k: i + 1, kind: e.kind, name: e.name, sp: e.n.sp || null, x: e.x, y: e.y })), wild };
   };
 })();
