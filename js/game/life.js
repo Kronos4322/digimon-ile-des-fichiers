@@ -279,8 +279,9 @@
       if (m.hunger >= 70) out.push('food');
       if ((m.thirst || 0) >= 70) out.push('drink');
       if (m.need >= 75) out.push('need');
-      if (m.sick) out.push('sick');
+      if (m.sick || (m.germs || 0) >= 85) out.push('sick');   // (aussi quand il est fiévreux : la maladie approche)
       if (m.hurt) out.push('hurt');
+      if ((m.tired || 0) >= 70) out.push('tired');   // (la fatigue reste une jauge cachée : la bulle n'apparaît que quand il doit vraiment se reposer)
       if (Life.sleepy(m)) out.push('sleep');
       if (m.happy < 25) out.push('sad');
       return out;

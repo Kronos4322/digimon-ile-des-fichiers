@@ -40,6 +40,62 @@
     },
   };
 
+  // ------------------------------------------------------------ icônes des appareils (liste) : flamme, goutte, flocon, tourbillon, éclair, rocher, œil
+  function icon(c, id, x, y, on) {
+    c.save(); c.translate(x, y);
+    if (!on) { c.fillStyle = '#3a4a5a'; c.fillRect(-5, -5, 10, 10); c.fillStyle = '#5a6a7a'; c.font = DW.UI.font(8, true); c.textAlign = 'center'; c.fillText('?', 0, 3); c.restore(); return; }
+    const P = (pts, col) => { c.fillStyle = col; c.beginPath(); pts.forEach(([a, b], i) => (i ? c.lineTo(a, b) : c.moveTo(a, b))); c.closePath(); c.fill(); };
+    if (id === 'feu') { P([[0, -6], [4, -1], [3, 4], [-3, 4], [-4, -1]], '#ff6a1a'); P([[0, -2], [2, 1], [1, 4], [-1, 4], [-2, 1]], '#ffe040'); }
+    else if (id === 'eau') { P([[0, -6], [4, 1], [2.5, 4.5], [-2.5, 4.5], [-4, 1]], '#3a8ae8'); c.fillStyle = '#c8ecff'; c.fillRect(-2, 0, 1.5, 2.5); }
+    else if (id === 'glace') { c.strokeStyle = '#a8f0ff'; c.lineWidth = 1.4; for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3; c.beginPath(); c.moveTo(Math.cos(a) * 5.5, Math.sin(a) * 5.5); c.lineTo(-Math.cos(a) * 5.5, -Math.sin(a) * 5.5); c.stroke(); } c.fillStyle = '#ffffff'; c.fillRect(-1, -1, 2, 2); }
+    else if (id === 'air') { c.strokeStyle = '#c8d8ff'; c.lineWidth = 1.4; c.beginPath(); c.arc(0, 0, 4.5, 0.3, 5.2); c.stroke(); c.beginPath(); c.arc(0.5, 0, 2, 0.8, 5.6); c.stroke(); }
+    else if (id === 'elec') P([[1, -6], [-3, 1], [0, 1], [-1, 6], [3, -1], [0, -1]], '#ffe030');
+    else if (id === 'terre') { P([[-5, 3], [-4, -2], [-1, -4], [3, -3], [5, 1], [3, 4], [-2, 5]], '#9a6a38'); c.fillStyle = '#c8945a'; c.fillRect(-2, -2, 3, 2); }
+    else { c.fillStyle = '#c890f0'; c.beginPath(); c.ellipse(0, 0, 5.5, 3.2, 0, 0, 7); c.fill(); c.fillStyle = '#1a0a24'; c.beginPath(); c.arc(0, 0, 2, 0, 7); c.fill(); }
+    c.restore();
+  }
+  // la salle d'entraînement : sol de dalles métalliques, l'appareil de l'élément en action sur le Digimon
+  function drawRoom(c, g, t, x0, y0, w, h, hitT, res) {
+    const cx = x0 + w / 2, fy = y0 + h - 8;
+    // murs et sol (façon DW3 : salle grise, panneaux bleus)
+    c.fillStyle = '#2a3442'; c.fillRect(x0, y0, w, h);
+    for (let x = x0; x < x0 + w; x += 16) { c.fillStyle = '#34405a'; c.fillRect(x + 2, y0 + 3, 12, 18); c.fillStyle = '#4a6a9a'; c.fillRect(x + 4, y0 + 6, 8, 2); }
+    c.fillStyle = '#3e4652'; c.fillRect(x0, y0 + 24, w, h - 24);
+    for (let x = x0 - ((t * 0) % 12); x < x0 + w; x += 12) for (let y = y0 + 26; y < y0 + h; y += 7) { c.fillStyle = ((x + y) / 6 | 0) % 2 ? '#48505e' : '#424a58'; c.fillRect(x, y, 11, 6); }
+    const k = hitT > 0 ? 1 : 0.55, [A, B] = g.fx, R = n => DW.Art.hash(Math.floor(t * 20), n, 7);
+    c.save();
+    if (g.id === 'feu') {   // deux lance-flammes tirent sur le Digimon
+      for (const sx of [x0 + 10, x0 + w - 10]) { c.fillStyle = '#5a5e6a'; c.fillRect(sx - 5, fy - 22, 10, 22); c.fillStyle = '#8a3a2a'; c.fillRect(sx - 3, fy - 26, 6, 5);
+        for (let i = 0; i < 10 * k; i++) { const u = (t * 2.4 + i / 10) % 1, dx = (cx - sx) * u * 0.8; c.fillStyle = i % 2 ? A : B; c.globalAlpha = 1 - u * 0.6; c.beginPath(); c.arc(sx + dx, fy - 24 + Math.sin(u * 9 + i) * 3, 2.5 + u * 3, 0, 7); c.fill(); } c.globalAlpha = 1; }
+    } else if (g.id === 'eau') {   // une cascade tombe du plafond
+      c.fillStyle = 'rgba(74,168,255,0.35)'; c.fillRect(cx - 18, y0, 36, fy - y0);
+      for (let i = 0; i < 18 * k; i++) { const u = (t * 1.6 + i / 18) % 1; c.fillStyle = i % 3 ? A : B; c.fillRect(cx - 16 + R(i) * 32, y0 + u * (fy - y0), 2, 6); }
+      c.fillStyle = 'rgba(224,244,255,0.6)'; c.beginPath(); c.ellipse(cx, fy, 26, 4, 0, 0, 7); c.fill();
+    } else if (g.id === 'glace') {   // chambre froide : givre aux murs, flocons, souffle glacé
+      c.fillStyle = 'rgba(200,240,255,0.18)'; c.fillRect(x0, y0, w, h);
+      for (let i = 0; i < 26 * k; i++) { const u = (t * 0.5 + i / 26) % 1; c.fillStyle = '#ffffff'; c.fillRect(x0 + R(i + 40) * w, y0 + u * h, 1.5, 1.5); }
+      for (const sx of [x0 + 4, x0 + w - 12]) { c.fillStyle = '#a8e8ff'; c.beginPath(); c.moveTo(sx, y0 + 24); c.lineTo(sx + 8, y0 + 24); c.lineTo(sx + 4, y0 + 34); c.fill(); }
+    } else if (g.id === 'air') {   // une grande soufflerie
+      const fx = x0 + 14, fy2 = fy - 20; c.fillStyle = '#5a5e6a'; c.beginPath(); c.arc(fx, fy2, 13, 0, 7); c.fill(); c.fillStyle = '#2a2e38'; c.beginPath(); c.arc(fx, fy2, 10, 0, 7); c.fill();
+      c.save(); c.translate(fx, fy2); c.rotate(t * 18); c.fillStyle = '#c8ccd8'; for (let b = 0; b < 3; b++) { c.rotate(Math.PI * 2 / 3); c.fillRect(-1.5, -9, 3, 9); } c.restore();
+      c.strokeStyle = '#e0e8ff'; c.lineWidth = 1; for (let i = 0; i < 9 * k; i++) { const u = (t * 2 + i / 9) % 1, yy = fy2 - 10 + R(i + 9) * 20; c.globalAlpha = 1 - u; c.beginPath(); c.moveTo(fx + 14 + u * (w - 30), yy); c.lineTo(fx + 26 + u * (w - 30), yy); c.stroke(); } c.globalAlpha = 1;
+    } else if (g.id === 'elec') {   // le paratonnerre : éclairs qui tombent sur le Digimon
+      c.fillStyle = '#7a7e8a'; c.fillRect(cx - 1, y0, 2, 14); c.fillStyle = '#ffe030'; c.beginPath(); c.arc(cx, y0 + 15, 3, 0, 7); c.fill();
+      if (hitT > 0 || (t * 3) % 1 < 0.25) { c.strokeStyle = (t * 10 | 0) % 2 ? A : B; c.lineWidth = 1.6; c.beginPath(); let yy = y0 + 18, xx = cx; c.moveTo(xx, yy); while (yy < fy - 26) { yy += 6; xx = cx + (R(yy) - 0.5) * 10; c.lineTo(xx, yy); } c.stroke(); }
+    } else if (g.id === 'terre') {   // bombardement de rochers
+      for (let i = 0; i < 5 * k; i++) { const u = (t * 1.2 + i / 5) % 1; c.fillStyle = i % 2 ? A : B; c.beginPath(); c.arc(cx - 20 + R(i + 77) * 40, y0 + u * (fy - y0 - 20), 3.5, 0, 7); c.fill(); }
+    } else {   // chambre noire : l'obscurité, des yeux qui brillent
+      c.fillStyle = 'rgba(10,0,20,0.6)'; c.fillRect(x0, y0, w, h);
+      for (let i = 0; i < 4; i++) { const ex = x0 + 12 + i * (w - 24) / 3, ey = y0 + 16 + (i % 2) * 8, o = (Math.sin(t * 2 + i * 2) + 1) / 2; c.fillStyle = `rgba(200,140,255,${o})`; c.fillRect(ex - 3, ey, 2, 1.5); c.fillRect(ex + 1, ey, 2, 1.5); }
+    }
+    c.restore();
+    // l'éclat du coup encaissé
+    if (hitT > 0) { c.fillStyle = `rgba(255,255,255,${hitT * 0.5})`; c.fillRect(x0, y0, w, h); }
+    // badge de la résistance actuelle
+    c.fillStyle = 'rgba(0,0,0,0.5)'; c.fillRect(x0 + w - 44, y0 + h - 12, 42, 10);
+    DW.UI.text(c, `${g.type.slice(0, 4).toUpperCase()} ${res}`, x0 + w - 4, y0 + h - 4, { size: 7, align: 'right', color: '#ffffff' });
+  }
+
   // ------------------------------------------------------------ l'écran du gymnase (façon DW3)
   class GymScene extends DW.Scene {
     constructor(m) { super(); this.m = m; this.i = 0; this.state = 'menu'; this.msg = ''; this.pt = []; this.hits = []; }
@@ -59,7 +115,7 @@
         if (Math.random() < 0.6) this.puff(1);
         if (Input.hit('ok')) {
           const d = Math.abs(this.p - this.c), r = d < this.w / 6 ? 2 : d < this.w / 2 ? 1 : 0;
-          this.hits.push(r); Audio.sfx(r === 2 ? 'super' : r ? 'hit' : 'weak'); this.puff(r ? 14 : 4); this.shake = r ? 0.2 : 0;
+          this.hits.push(r); Audio.sfx(r === 2 ? 'super' : r ? 'hit' : 'weak'); this.puff(r ? 14 : 4); this.shake = r ? 0.2 : 0.35; this.hitT = 0.4;
           if (this.hits.length >= 3) { this.pause = 0.8; this.finishT = 0.8; this.state = 'end'; }
           else { this.pause = 0.5; this.newRep(); }
         }
@@ -116,19 +172,22 @@
       UI.box(c, 122, 28, W - 128, 84);
       GYM.forEach((G, j) => {
         const y = 40 + j * 11, on = Gym.unlocked(G), sel = j === this.i;
-        if (sel) UI.cursor(c, 128, y - 3.5, t);
-        UI.text(c, on ? G.name : '???', 136, y, { size: 8, color: !on ? '#5a6a7a' : sel ? '#ffe070' : '#c8f0ff' });
+        if (sel) { c.fillStyle = 'rgba(255,224,112,0.14)'; c.fillRect(125, y - 8, W - 134, 10); }
+        icon(c, G.id, 132, y - 3, on);
+        UI.text(c, on ? G.name : '???', 141, y, { size: 8, color: !on ? '#5a6a7a' : sel ? '#ffe070' : '#c8f0ff' });
         if (on) UI.text(c, `${FEE} B`, W - 12, y, { size: 7, align: 'right', color: '#8ae0f0' });
       });
-      // la salle : le Digimon devant l'appareil, particules de l'élément
+      // la salle : l'appareil de l'élément en action, le Digimon encaisse ; essais réussis / ratés (○ ×) comme dans DW3
       UI.box(c, 122, 114, W - 128, 74);
       c.save(); c.beginPath(); c.rect(125, 117, W - 134, 68); c.clip();
-      const [a] = g.fx; c.fillStyle = a + '22'; c.fillRect(125, 117, W - 134, 68);
       if (this.shake > 0) { this.shake -= 1 / 60; c.translate((Math.random() - 0.5) * 4, 0); }
-      const spr = DW.Sprites.battle(m.sp), k = Math.min(1, 56 / spr.h);
-      DW.Sprites.draw(c, this.state === 'play' && this.hits.length ? DW.Sprites.pose(m.sp, 'hurt') : spr, 214, 182, { frame: Math.floor(t * 4), scale: k });
+      if (this.hitT > 0) this.hitT -= 1 / 60;
+      drawRoom(c, g, t, 125, 117, W - 134, 68, Math.max(0, this.hitT || 0), (m.res || {})[g.type] || 0);
+      const spr = DW.Sprites.battle(m.sp), k = Math.min(1, 46 / spr.h), hurt = (this.hitT || 0) > 0;
+      DW.Sprites.draw(c, hurt ? DW.Sprites.pose(m.sp, 'hurt') : spr, 214, 180, { frame: Math.floor(t * 4), scale: k });
       for (const p of this.pt) { c.globalAlpha = Math.min(1, p.life * 2); c.fillStyle = p.col; c.fillRect(p.x, p.y, 2, 2); }
       c.globalAlpha = 1; c.restore();
+      if (this.hits.length) this.hits.forEach((h, j) => { const x = 132 + j * 12, y = 124; if (h) { c.strokeStyle = h === 2 ? '#ffe070' : '#5ab0ff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 4, 0, 7); c.stroke(); } else { c.strokeStyle = '#ff4a4a'; c.lineWidth = 2; c.beginPath(); c.moveTo(x - 4, y - 4); c.lineTo(x + 4, y + 4); c.moveTo(x + 4, y - 4); c.lineTo(x - 4, y + 4); c.stroke(); } });
       // bas : jauge, message
       UI.box(c, 6, 192, W - 12, 42);
       if (this.state === 'play' || this.state === 'end') {
