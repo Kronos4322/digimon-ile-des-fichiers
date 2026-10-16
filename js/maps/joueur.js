@@ -226,9 +226,10 @@
           this.objects.push({ kind: 'walldoor', v: DOOR_V[r] || 0, x: A.x, y: 1, w: 2, h: 2, back: true });
           this.doors.push({ x: A.x, y: 2, w: 2, dir: 'up', to: roomId(r), tx, ty });
         } else {
-          const x = A.wall === 'left' ? 0 : W - 1;
-          this.objects.push({ kind: 'sidedoor', v: A.wall === 'left' ? 0 : 1, x, y: A.y, w: 1, h: 1, top: true });
-          this.doors.push({ x, y: A.y, w: 1, dir: A.wall, to: roomId(r), tx, ty });
+          const x = A.wall === 'left' ? 0 : W - 1, ex = A.wall === 'left' ? R.w - 2 : 1;
+          this.objects.push({ kind: 'sidedoor', v: A.wall === 'left' ? 0 : 1, x, y: A.y, w: 1, h: 1, top: true },
+            { kind: 'doormat', x: A.wall === 'left' ? 1 : W - 2, y: A.y, w: 1, h: 1, walk: true });
+          this.doors.push({ x, y: A.y, w: 1, dir: A.wall, to: roomId(r), tx: ex, ty: 4 });
         }
       }
       DW.World.unprepare(this);
@@ -261,12 +262,18 @@
     d.deco.rect(11, 1, 10, 4, '#f0e8d0');
   } };
   // porte dans un mur de côté du salon, vue de profil (v 0 : mur gauche, v 1 : mur droit)
-  DW.World.OBJ.sidedoor = { w: 16, h: 44, n: 2, draw(d, v) {
-    const f = x => (v ? 16 - x : x);
-    d.poly([[f(2), 43], [f(2), 6], [f(13), 2], [f(13), 39]], '#5a3a20');
-    d.poly([[f(4), 41], [f(4), 9], [f(11), 6], [f(11), 37]], '#9a6a3a', { tex: 0.12 });
-    d.deco.poly([[f(5), 22], [f(5), 11], [f(10), 9], [f(10), 20]], '#b8885a');
-    d.deco.circ(f(9.5), 25, 1.2, '#e8d070', { unlit: true });
+  DW.World.OBJ.sidedoor = { w: 18, h: 46, n: 2, draw(d, v) {
+    const f = x => (v ? 18 - x : x);   // v 0 : porte du mur gauche (elle s'ouvre vers la droite), v 1 : mur droit
+    d.poly([[f(3), 45], [f(3), 7], [f(15), 1], [f(15), 40]], '#4a2e18');                       // encadrement
+    d.poly([[f(5), 43], [f(5), 10], [f(13), 6], [f(13), 38]], '#a8743e', { tex: 0.1 });         // battant
+    for (const k of [0, 1, 2]) d.deco.line(f(5), 16 + k * 9, f(13), 12 + k * 9, 0.6, '#7a4e26');   // planches
+    d.deco.poly([[f(6), 20], [f(6), 12], [f(12), 9], [f(12), 17]], '#c8945a');                  // panneau clair
+    d.deco.poly([[f(2), 8], [f(16), 1], [f(16), 3.4], [f(2), 10.4]], '#6a4224');                // linteau
+    d.deco.circ(f(11.4), 26, 1.3, '#f0d070', { unlit: true });                                 // poignée
+    d.deco.line(f(3), 45, f(15), 40, 0.8, '#2a1a0c');                                         // seuil
+  } };
+  DW.World.OBJ.doormat = { w: 16, h: 12, n: 1, draw(d) {
+    d.rect(2, 2, 12, 8, '#8a5a3a', { round: 0.2 }); d.deco.rect(4, 4, 8, 4, '#b07a4a');
   } };
   MAPS.maison_joueur_etage = {
     name: 'Ma maison — Couloir de l’étage', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
@@ -303,7 +310,8 @@
 
   // ------------------------------------------------------------ les pièces annexes
   for (const r in ROOMS) {
-    const R = ROOMS[r], up = R.from === 'etage' || R.from === 'salon', dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon ; à l'étage, porte en bas (vers le couloir)
+    const R = ROOMS[r], side = R.from === 'salon' && R.at.wall !== 'back' ? (R.at.wall === 'left' ? 'right' : 'left') : null;
+    const up = !side && (R.from === 'etage' || R.from === 'salon'), dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon ; à l'étage, porte en bas (vers le couloir)
     const mx = Math.floor(R.w / 2) - 1;
     const floorRow = y => { const row = '0' + '1'.repeat(R.w - 2) + '0'; return !up && (y === 4 || y === 5) ? row.slice(0, dx) + '1' + row.slice(dx + 1) : row; };
     const bottom = up ? '0'.repeat(mx) + '11' + '0'.repeat(R.w - mx - 2) : '0'.repeat(R.w);
@@ -311,13 +319,19 @@
     MAPS[roomId(r)] = {
       name: `Ma maison — ${R.name}`, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: R.floor, wall: R.wall, rows: rr, objects: [], npcs: (R.npcs || []).map(n => ({ ...n })), signs: {},
-      warps: [up ? { x: mx, y: R.h - 1, w: 2, h: 1, dir: 'down', to: fromOf(r), tx: R.from === 'salon' ? salonSpot(r)[0] : slotX(r), ty: R.from === 'salon' ? salonSpot(r)[1] : 3 }
+      warps: side ? [] : [up ? { x: mx, y: R.h - 1, w: 2, h: 1, dir: 'down', to: fromOf(r), tx: R.from === 'salon' ? salonSpot(r)[0] : slotX(r), ty: R.from === 'salon' ? salonSpot(r)[1] : 3 }
         : { x: dx, y: 4, w: 1, h: 2, dir: R.side === 'right' ? 'left' : 'right', to: fromOf(r), tx: R.side === 'right' ? FW[fromOf(r)] - 2 : 1, ty: R.y }],
       build() {
         const version = ORDER.filter(owned).join(',');
         if (this.version === version && this.objects.length) return;
         this.version = version;
         this.objects = R.decor.map(o => ({ ...o })); this.signs = {};
+        // pièce ouverte sur le côté du salon : sa porte est dans le mur de côté (en face de celle du salon)
+        if (side) {
+          const x = side === 'right' ? R.w - 1 : 0, [sx, sy] = salonSpot(r);
+          this.objects.push({ kind: 'sidedoor', v: side === 'left' ? 0 : 1, x, y: 4, w: 1, h: 1, top: true }, { kind: 'doormat', x: side === 'right' ? R.w - 2 : 1, y: 4, w: 1, h: 1, walk: true });
+          this.doors = [{ x, y: 4, w: 1, dir: side, to: 'maison_joueur', tx: sx, ty: sy }];
+        }
         furnish(this, r);
         DW.World.unprepare(this);
       },

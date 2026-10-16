@@ -10,7 +10,7 @@
   const { say, st } = DW.MapKit;
   const MAPS = DW.MAPS;
   const Hh = (x, y, s) => DW.Art.hash(x, y, s);
-  const TRAP = [13, 9];   // la trappe, dans la maison de Jijimon
+  const TRAP = [14, 8];   // la trappe, dans la maison de Jijimon (case libre à toutes les étapes de rénovation : ni caisse, ni lampe)
   const WELL = [17, 11];  // le puits, au Village des Yokomon
 
   // ------------------------------------------------------------ objets : trappe en bois, vapeur de la source chaude
