@@ -54,14 +54,31 @@
   MAPS.village_yokomon.signs['17,11'] = async () => {
     const m = st().party[0];
     if (!st().flags.yokoWell) { await say("Un vieux puits de pierre... Tu te penches : il est complètement à sec."); return; }
+    const f = st().flags;
     if (m) { DW.Care.drink(m, 90); DW.Audio.sfx('water'); await say(`${m.name} boit l'eau fraîche du puits. Délicieuse ! (soif étanchée)`); }
+    // la première fois : l'eau revenue a fait remonter un trésor oublié au fond du puits
+    if (!f.yokoWellGift) {
+      f.yokoWellGift = true;
+      DW.Audio.sfx('fanfare');
+      await say("En remontant le seau, quelque chose brille au fond de l'eau... Un vieux coffret de pierre, remonté avec la source !");
+      const extra = DW.giveItem('puce_pv', 1) + DW.giveItem('eau_source', 2);
+      await say(`Dedans : une Puce PV (elle augmente pour toujours les PV d'un Digimon) et 2 Eaux de source !${DW.extraMsg(extra)}`);
+      DW.autosave();
+      return;
+    }
+    // ensuite, une bouteille d'Eau de source à remplir chaque jour
+    if (f.yokoWellDay !== DW.Time.day()) {
+      f.yokoWellDay = DW.Time.day();
+      const extra = DW.giveItem('eau_source', 1);
+      await say(`Tu remplis une bouteille au puits : 1 Eau de source ! (Reviens demain pour la suivante.)${DW.extraMsg(extra)}`);
+    }
   };
 
   // ------------------------------------------------------------ la doyenne des Yokomon : la quête de l'eau
   const WATER = ['eau_fraiche', 'eau_source'];
   async function elder() {
     const s = st(), f = s.flags;
-    if (f.yokoWell) { await say("Grâce à toi, le puits ne tarira plus. Les Yokomon chantent ton nom dans tout le village !", 'Yokomon'); return; }
+    if (f.yokoWell) { await say(f.yokoWellGift ? "Grâce à toi, le puits ne tarira plus. Puise une bouteille d'Eau de source chaque jour, elle est à toi !" : "Grâce à toi, le puits ne tarira plus... Et quelque chose brillait au fond : va puiser un seau !", 'Yokomon'); return; }
     if (!f.yokoQuest) {
       f.yokoQuest = true;
       await say("Oh ! Un humain ! Bienvenue au village des Yokomon. Je suis la doyenne.", 'Yokomon');
@@ -80,6 +97,7 @@
     const extra = DW.giveItem('cartes', 2) + DW.giveItem('pomme_bleue', 1); if (DW.Cards) DW.Cards.give('yokomon');
     s.party.forEach(m => m.addHappy(10));
     await say(`Les Yokomon t'offrent 2 Paquets de cartes et une Pomme bleue ! Ton équipe est toute joyeuse. (bonheur +10)${DW.extraMsg(extra)}`);
+    await say("Au fait... Quand l'eau est remontée, on a vu quelque chose briller tout au fond du puits. Va donc puiser un seau, humain !", 'Yokomon');
     DW.autosave();
   }
 

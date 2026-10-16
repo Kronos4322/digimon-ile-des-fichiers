@@ -13,6 +13,8 @@
     kuwaChase: 'poursuite de Kuwagamon vue (première entrée dans la forêt)',
     yokoQuest: "la doyenne des Yokomon a demandé de l'eau pour le puits",
     yokoWell: 'le puits du village des Yokomon coule de nouveau',
+    yokoWellGift: 'trésor du fond du puits des Yokomon trouvé (Puce PV)',
+    yokoWellDay: "jour de la dernière bouteille d'Eau de source puisée au puits des Yokomon",
     taiTrain: 'jour du dernier entraînement à deux avec Tai',
     taiMatch: 'jour du dernier match amical contre le Greymon de Tai',
     taiLead: 'Tai a parlé du garçon blond vu près du lac (piste du chapitre 2)',
