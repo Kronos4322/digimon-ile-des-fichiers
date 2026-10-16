@@ -120,11 +120,13 @@
   }
   function armFront(d, C, sx, ay, far, sleeveCol) {
     const hand = C.glove || C.skin, dir = sx < 14 ? -1 : 1, o = far ? { far: true } : {};
-    d.tube([[sx, 16], [sx + dir * 0.9, 20.4 + ay * 0.5], [sx + dir * 0.6, 23.6 + ay]], 2.8, 2.3, C.skin, o);
-    d.tube([[sx, 15.6], [sx + dir * 0.7, 18.6]], 3.6, 3.2, sleeveCol, o);
-    d.deco.line(sx - 1.6, 18.6, sx + 1.8, 18.6, 0.6, tint(sleeveCol, -0.3));
-    d.circ(sx + dir * 0.6, 24.4 + ay, 1.95, hand, o);
-    if (C.glove) d.deco.rect(sx + dir * 0.6 - 1.7, 22.6 + ay, 3.4, 0.9, tint(C.glove, -0.15));
+    d.tube([[sx, 16], [sx + dir * 0.9, 20.4 + ay * 0.5], [sx + dir * 0.6, 23.4 + ay]], 2.5, 2.1, C.skin, o);
+    d.tube([[sx, 15.6], [sx + dir * 0.6, 18.4]], 3.2, 2.9, sleeveCol, o);
+    d.deco.line(sx - 1.4, 18.4, sx + 1.6, 18.4, 0.6, tint(sleeveCol, -0.3));                 // ourlet de la manche
+    d.deco.line(sx - dir * 0.8, 16, sx - dir * 0.6, 18, 0.45, tint(sleeveCol, 0.25));          // reflet sur la manche
+    d.circ(sx + dir * 0.6, 24.1 + ay, 1.55, hand, o);
+    d.deco.line(sx + dir * 0.6 - 0.6, 24.5 + ay, sx + dir * 0.6 + 0.6, 24.5 + ay, 0.4, tint(hand, -0.2));   // doigts repliés
+    if (C.glove) d.deco.rect(sx + dir * 0.6 - 1.5, 22.6 + ay, 3, 0.9, tint(C.glove, -0.15));
   }
   function torsoFront(d, C, back) {
     d.blob([[8.6, 14.8], [19.4, 14.8], [19.8, 22.6], [8.2, 22.6]], C.shirt);
@@ -142,7 +144,13 @@
     }
     if (C.jacket) {
       const T = C.tee || '#f6f4ee';
+      // pans de la veste en aplats (façon dessin animé) : clair devant, ombre franche sur le bord extérieur
+      d.deco.poly([[8.9, 15.2], [12.2, 15], [11.8, 21.4], [8.7, 21.4]], tint(C.shirt, 0.06), { unlit: true });
+      d.deco.poly([[15.8, 15], [19.1, 15.2], [19.3, 21.4], [16.2, 21.4]], tint(C.shirt, 0.06), { unlit: true });
+      d.deco.poly([[8.9, 15.4], [9.9, 15.4], [9.6, 21.4], [8.7, 21.4]], D, { unlit: true }); d.deco.poly([[18.2, 15.4], [19.1, 15.4], [19.3, 21.4], [18.5, 21.4]], D, { unlit: true });
+      d.deco.line(10.6, 15.6, 10.4, 18.6, 0.5, L);                                           // reflet
       d.deco.poly([[12.1, 14.8], [15.9, 14.8], [16.3, 21.4], [11.7, 21.4]], T);           // le tee-shirt sous la veste
+      d.deco.poly([[12.1, 19.6], [16.1, 19.6], [16.3, 21.4], [11.7, 21.4]], tint(T, -0.1));   // ombre du bas du tee-shirt
       d.deco.poly([[12.6, 14.8], [15.4, 14.8], [14, 16.4]], tint(T, -0.18));               // encolure
       d.deco.line(12.1, 14.9, 11.7, 21.4, 0.7, D); d.deco.line(15.9, 14.9, 16.3, 21.4, 0.7, D);   // bords de la veste
       d.deco.line(11.2, 15, 12.5, 17.4, 0.6, L); d.deco.line(16.8, 15, 15.5, 17.4, 0.6, L);       // revers
@@ -172,7 +180,7 @@
     d.deco.rect(x - 0.6, 8.9, 0.8, 0.8, WHITE, { unlit: true }); d.deco.rect(x + 0.55, 10.8, 0.4, 0.4, WHITE, { unlit: true });   // deux reflets
     d.deco.line(x - rx * 1.2, 8.3, x + rx * 1.2, 8.05, 0.75, lid, { unlit: true });          // paupière
     if (C.fem) { d.deco.line(x + s * rx * 1.15, 8.15, x + s * rx * 1.7, 7.6, 0.5, lid, { unlit: true }); d.deco.line(x + s * rx * 0.6, 8.05, x + s * rx * 0.95, 7.45, 0.45, lid, { unlit: true }); }   // cils
-    d.deco.line(x - rx, 7, x + rx, 6.7, 0.7, tint(C.hair, -0.2));                           // sourcil
+    d.deco.line(x - rx * 0.9, 6.6, x + rx * 0.9, 6.4, 0.5, tint(C.hair, -0.1));                // sourcil (fin)
   }
   function face(d, C) {
     eye(d, C, 11.6, 1.35, -1); eye(d, C, 16.4, 1.35, 1);
@@ -197,7 +205,6 @@
     d.ell(14, 8.6, 6.3, 6.2, C.skin);
     if (!back) {
       d.deco.ell(14, 10.3, 5.3, 4.3, tint(C.skin, 0.03), 0, { unlit: true });   // visage net (le modelé du volume salissait le bas du visage)
-      d.deco.ell(14, 13.6, 3.6, 0.9, tint(C.skin, -0.05));   // menton, légèrement ombré
       if (C.head === 'glasses') { d.deco.circ(11.6, 9.9, 2.1, C.headCol, { shiny: true }); d.deco.circ(16.4, 9.9, 2.1, C.headCol, { shiny: true }); }
       face(d, C);
       if (C.head === 'glasses') d.deco.line(13.6, 9.6, 14.4, 9.6, 0.5, '#5a6a8a');
@@ -240,6 +247,10 @@
       lock(d, C.hair, 9.2, 11, 10, 8.8, 6.6); lock(d, C.hair, 11.4, 13.4, 12.4, 9, 6.6); lock(d, C.hair, 14.4, 16.6, 15.4, 8.8, 6.4); lock(d, C.hair, 17, 19, 18.4, 8.8, 6.8);
       d.poly([[7.4, 8.2], [8.8, 8.2], [8.2, 11.8]], C.hair); d.poly([[19.2, 8.2], [20.6, 8.2], [19.8, 11.8]], C.hair);
       for (const [x1, y1, x2, y2] of [[11, 3.4, 11.8, 7.4], [14, 2.6, 14.4, 6.6], [17, 3.4, 16.6, 7.4]]) d.deco.line(x1, y1, x2, y2, 0.5, DD);
+      // chaque mèche de la frange : un trait clair au milieu, un sillon sombre entre deux mèches
+      for (const [x1, x2] of [[10, 10.1], [12.4, 12.5], [15.4, 15.5], [18.1, 18.3]]) d.deco.line(x1, 6.8, x2, 8.2, 0.4, L);
+      for (const x of [11.2, 13.9, 16.8]) d.deco.line(x, 6.4, x + 0.1, 7.8, 0.4, DD);
+      d.deco.line(7.6, 6, 8, 10, 0.6, DD); d.deco.line(20.4, 6, 20, 10, 0.6, DD);                        // volume : côtés plus sombres
       shine(d, C, 14, 6.6, 5.4, 4.6);
     } else {
       d.poly([[7, 14.4], [6.8, 5], [9.6, 2], [14, 1.4], [18.4, 2], [21.2, 5], [21, 14.4], [19.2, 12.8], [19, 7.4], [15.4, 6.8], [14, 5.8], [12.6, 6.8], [9, 7.4], [8.8, 12.8]], C.hair);
@@ -315,7 +326,7 @@
     if (C.bottom !== 'pants') d.deco.rect(12.6 - 3 * s, 30.2, 3, 1.3, SOCK);
     shoe(d, 15 - 3 * s, 33, C, { far: true });
     d.tube([[15.2, 16.4], [15.2 + 1.2 * s, 20.2], [15.2 + 2.4 * s, 23.4]], 2.7, 2.3, C.skin, { far: true });
-    d.circ(15.2 + 2.4 * s, 24.2, 1.85, hand, { far: true });
+    d.circ(15.2 + 2.4 * s, 24, 1.5, hand, { far: true });
     // corps
     bottoms(d, C, 14, 9.8, false);
     d.tube([[14, 25], [14 + 3 * s, 31.6]], 3.6, 3.1, legCol);
@@ -328,9 +339,9 @@
     else if (C.deco === 'collar') d.deco.poly([[15.6, 14.6], [18.4, 14.6], [17.8, 17]], C.decoCol, { unlit: true });
     if (C.jacket) { d.deco.poly([[17.4, 14.8], [19, 14.8], [19.4, 21.4], [17.8, 21.4]], C.tee || '#f6f4ee'); d.deco.line(17.4, 14.9, 17.8, 21.4, 0.6, tint(C.shirt, -0.28)); d.deco.rect(8.8, 21.5, 10.6, 1.1, tint(C.shirt, -0.28)); }
     d.tube([[13, 16.6], [13 - 1.2 * s, 20.4], [13 - 2.4 * s, 23.6]], 3, 2.5, C.skin);
-    d.tube([[13, 15.6], [13 - 0.5 * s, 18.8]], 3.9, 3.4, C.sleeve);
+    d.tube([[13, 15.6], [13 - 0.5 * s, 18.6]], 3.4, 3, C.sleeve);
     d.deco.line(11.2 - 0.5 * s, 18.8, 14.8 - 0.5 * s, 18.8, 0.6, tint(C.sleeve, -0.3));
-    d.circ(13 - 2.4 * s, 24.4, 2, hand);
+    d.circ(13 - 2.4 * s, 24.2, 1.6, hand);
     if (C.glove) d.deco.rect(13 - 2.4 * s - 1.7, 22.6, 3.4, 0.9, tint(C.glove, -0.15));
     // tête de profil
     d.rect(13, 13, 3, 2.4, C.skin, { round: 0.3 });
@@ -393,7 +404,7 @@
     bottoms(d, C, 14.4, 10.4, !back);
     // bras du fond (à gauche, à moitié caché), torse, bras de devant
     d.tube([[9.4, 16], [8.8, 20.4 + s * 0.6], [9 , 23.4 + s]], 2.6, 2.2, C.skin, { far: true });
-    d.circ(9, 24.2 + s, 1.8, hand, { far: true });
+    d.circ(9, 24 + s, 1.45, hand, { far: true });
     d.blob([[9, 14.8], [19.4, 14.8], [19.8, 22.6], [8.6, 22.6]], C.shirt);
     if (!back) {
       const t = shifted(d, 1.4);
@@ -408,9 +419,9 @@
       else if (C.deco === 'heart') { t.deco.circ(13.3, 17.6, 0.9, C.decoCol); t.deco.circ(14.7, 17.6, 0.9, C.decoCol); t.deco.poly([[12.4, 17.9], [15.6, 17.9], [14, 19.6]], C.decoCol); }
     } else d.deco.line(13.2, 15.6, 13.2, 21.6, 0.5, tint(C.shirt, -0.2));
     d.tube([[19.2, 16], [19.9, 20.4 - s * 0.6], [19.6, 23.6 - s]], 2.8, 2.3, C.skin);
-    d.tube([[19.2, 15.6], [19.8, 18.6]], 3.6, 3.2, C.sleeve);
+    d.tube([[19.2, 15.6], [19.8, 18.4]], 3.2, 2.9, C.sleeve);
     d.deco.line(17.6, 18.6, 21.2, 18.6, 0.6, tint(C.sleeve, -0.3));
-    d.circ(19.8, 24.4 - s, 1.95, hand);
+    d.circ(19.8, 24.1 - s, 1.55, hand);
     if (C.glove) d.deco.rect(18.1, 22.6 - s, 3.4, 0.9, tint(C.glove, -0.15));
     // cou et tête (oreille du côté opposé au regard)
     d.rect(12.8, 13, 2.8, 2.4, C.skin, { round: 0.3 });
