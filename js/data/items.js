@@ -162,7 +162,9 @@
   // stock d'une boutique selon le niveau de la ville (les moins bons d'abord, puis on monte)
   DW.shopStock = name => {
     // rang des objets (tier 0 à 20) : un rang par tranche de 5 % de développement de la ville ; tout est en vente à 100 %
-    const lv = DW.Town ? Math.floor(DW.Town.progress() / 5) : 0;
+    // … et plafonné par le chapitre : pas d'objets trop puissants trop tôt (chapitre 1 : rang 4 maximum)
+    const CAP = { 1: 4, 2: 7, 3: 10 }, ch = (DW.state && DW.state.flags && DW.state.flags.chapter) || 1;
+    const lv = Math.min(DW.Town ? Math.floor(DW.Town.progress() / 5) : 0, CAP[ch] != null ? CAP[ch] : 20);
     return (DW.SHOPS[name] || []).filter(id => I[id] && (I[id].tier || 0) <= lv)
       .sort((a, b) => (I[a].tier || 0) - (I[b].tier || 0) || I[a].price - I[b].price);
   };

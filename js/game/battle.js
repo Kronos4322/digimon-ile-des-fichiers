@@ -491,7 +491,9 @@
       // Bits selon l'écart de niveau (comme l'expérience) : un adversaire de ton niveau ou plus fort paie bien,
       // écraser les petits ne rapporte presque rien (partie test : pas assez au début, beaucoup trop ensuite)
       const lv = this.active ? this.active.level : E.level, gapB = DW.clamp(1 + (E.level - lv) * 0.2, 0.2, 1.8);
-      const bits = Math.max(1, Math.floor((E.level * (this.wild ? 6 : 25) + DW.rand(0, E.level * 2)) * 2 * gapB));
+      // (défi d'un Digimon à ramener en ville : à peine plus qu'un sauvage — il rejoint la ville, ce n'est pas un boss)
+      const perLv = this.wild ? 6 : this.o.recruit ? 9 : 25;
+      const bits = Math.max(1, Math.floor((E.level * perLv + DW.rand(0, E.level * 2)) * 2 * gapB));
       this.st.bits += bits;
       await this.msg(`Tu récupères ${bits} Bits !`, 0.9);
     }
