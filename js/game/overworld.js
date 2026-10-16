@@ -297,7 +297,9 @@
     async enterDoor(o, nx) {
       Audio.sfx('door');
       await DW.fade(1, 0.25);
-      this.load(o.to, o.tx + (nx - o.x), o.ty, o.dir);
+      // (intérieur qui grandit avec la ville : l'arrivée suit sa taille — maps/grandir.js)
+      const M = DW.MAPS[o.to], a = M && M.arrive ? M.arrive() : null;
+      this.load(o.to, (a ? a[0] : o.tx) + (nx - o.x), a ? a[1] : o.ty, o.dir);
       DW.autosave();
       await DW.fade(0, 0.25);
     }
