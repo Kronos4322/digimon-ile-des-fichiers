@@ -26,7 +26,10 @@
     geants: [E('kunemon', 8, 10, 25), E('betamon', 8, 10, 20), E('tokomon', 8, 10, 15), E('mushroomon', 8, 10, 15, { night: 40 }), E('gotsumon', 9, 10, 10)],
     sentier: [E('kunemon', 9, 11, 25), E('elecmon', 9, 11, 20), E('motimon', 9, 11, 15), E('tsunomon', 9, 11, 12), E('mushroomon', 9, 11, 15, { night: 45 })],
     prairie: [E('kunemon', 9, 11, 20), E('yokomon', 9, 11, 20), E('elecmon', 9, 11, 15), E('tanemon', 9, 11, 15), E('motimon', 10, 11, 10), E('mushroomon', 10, 11, 15, { night: 40 })],
-    clairiere: [E('kunemon', 10, 12, 25), E('elecmon', 10, 12, 15), E('koromon', 10, 12, 15), E('tokomon', 10, 12, 12), E('mushroomon', 10, 12, 15, { night: 40 })],
+    // la forêt de Kuwagamon : de jeunes Kuwagamon y rôdent (des CHAMPIONS : rares, agressifs, beaucoup d'expérience) ;
+    // plus nombreux une fois le grand Kuwagamon du Grand Arbre vaincu (ils reviennent s'installer dans la clairière)
+    clairiere: [E('kunemon', 10, 12, 25), E('elecmon', 10, 12, 15), E('koromon', 10, 12, 15), E('tokomon', 10, 12, 12), E('mushroomon', 10, 12, 15, { night: 40 }),
+      E('kuwagamon', 9, 10, 5, { flag: 'kuwagamon', wFlag: 10 })],   // (N.9-10 : un Agumon entraîné gagne, mais y laisse ses RAM PV)
   };
 
   // ------------------------------------------------------------ DUNES DES BÉBÉS (40×30, agrandie ×2)

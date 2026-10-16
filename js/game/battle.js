@@ -460,7 +460,9 @@
         const total = Math.floor(E.d.xp * E.level / 7 * (this.wild ? 1 : 1.5));
         for (const m of alive) {
           // contre un adversaire plus faible, on apprend peu (on ne monte plus de niveau en écrasant les petits)
-          const gap = DW.clamp(1 - (m.level - E.level) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total * gap));
+          // (le stade compte : un Champion vaut 3 niveaux de plus qu'un Disciple, etc. — un jeune Kuwagamon rapporte gros)
+          const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'], sg = (ST.indexOf(E.d.stage) - ST.indexOf(m.d.stage)) * 3;
+          const gap = DW.clamp(1 - (m.level - E.level - sg) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total * gap));
           if (fought.has(m)) { m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.02); }   // (un combat fait à peine maigrir : 200 combats ne doivent pas affamer)
           await this.msg(`${m.name} gagne ${each} points d'EXP !`, 0.8);
           const events = m.addXp(each);

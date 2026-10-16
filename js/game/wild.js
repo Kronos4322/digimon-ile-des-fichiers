@@ -65,6 +65,7 @@
     // poids d'une espèce à l'heure actuelle : Ténèbres surtout la nuit ; Lumière, Air et Plante surtout le jour ;
     // une rareté à créneau (hours) n'apparaît que dans son créneau, et y est alors bien plus fréquente
     weight(x, night, hour) {
+      if (x.flag && DW.state.flags[x.flag] && x.wFlag != null) x = { ...x, w: x.wFlag };   // (plus ou moins fréquent selon l'histoire)
       if (x.hours) { const [a, b] = x.hours, inside = a <= b ? hour >= a && hour < b : hour >= a || hour < b; return inside ? x.w * 4 : 0; }
       if (night && x.night != null) return x.night;
       const T = DW.SPECIES[x.sp].types || [];
