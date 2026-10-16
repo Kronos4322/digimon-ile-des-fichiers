@@ -30,6 +30,9 @@
     tele:     { name: 'Télévision', price: 1000, objs: [{ kind: 'crttv', x: 5, y: 3, w: 2, h: 1 }], desc: 'Les nouvelles de l\'île et des rumeurs. Regarder ensemble rend heureux.' },
     biblio:   { name: 'Bibliothèque', price: 1500, objs: [{ kind: 'bookshelf', v: 1, x: 3, y: 3, w: 2, h: 1 }], desc: 'Lire une histoire chaque jour à ton partenaire : discipline +5.' },
     cuisine:  { name: 'Cuisine équipée', price: 2500, room: 'cuisine', objs: [{ kind: 'kitchen', x: 4, y: 3, w: 4, h: 1 }], desc: 'Cuisine tes recettes à la maison, quand tu veux.' },
+    // salle de sport : le matériel s'améliore (une séance de plus par jour et un point de plus par séance à chaque niveau)
+    sport2:   { name: 'Banc de musculation pro', price: 5000, room: 'sport', needs: () => owned('halteres'), objs: [{ kind: 'weights', x: 8, y: 4, w: 1, h: 1, small: true }, { kind: 'punchbag', x: 11, y: 4, w: 1, h: 1, small: true }, { kind: 'cushion', v: 1, x: 9, y: 4, w: 1, h: 1, small: true }], desc: 'Matériel de pro : 2 séances par jour à la maison, +3 points chacune.' },
+    sport3:   { name: 'Salle de sport complète', price: 12000, room: 'sport', needs: () => owned('sport2'), objs: [{ kind: 'dummy', x: 3, y: 8, w: 1, h: 1, small: true }, { kind: 'datacrystal', x: 7, y: 8, w: 1, h: 1, small: true }, { kind: 'hurdle', x: 11, y: 8, w: 1, h: 1, small: true }], desc: 'Tout le matériel du Terrain d\'entraînement : 3 séances par jour, +4 points chacune.' },
     halteres: { name: 'Coin musculation', price: 3000, room: 'sport', objs: [{ kind: 'weights', x: 3, y: 4, w: 1, h: 1, small: true }, { kind: 'cushion', x: 5, y: 4, w: 1, h: 1, small: true }], desc: 'Un entraînement maison par jour : +2 points dans la statistique de ton choix (fatigue).' },
     aquarium: { name: 'Aquarium', price: 2000, objs: [{ kind: 'aquarium', x: 11, y: 10, w: 3, h: 1 }], desc: 'Regarder les poissons détend : bonheur +5 une fois par jour.' },
     ordi:     { name: 'Ordinateur', price: 4000, objs: [{ kind: 'computer', x: 11, y: 7, w: 2, h: 1 }], desc: 'Gère ta DigiFerme depuis la maison.' },
@@ -49,9 +52,9 @@
   const ROOMS = {
     sdb:     { name: 'Salle de bain', from: 'salon', at: { wall: 'left', y: 8 }, w: 10, h: 8, by: ['toilettes'], floor: { type: 'tile', cols: ['#e8f4f8', '#c8dce8', '#9ab8cc'] }, wall: { base: '#e4f2f8', alt: '#cfe4ee', pattern: 'diamond', wood: '#5a8aa8' },
       decor: [{ kind: 'bigrug', v: 0, x: 2, y: 5, w: 3, h: 1, walk: true }, { kind: 'bigplant', x: 8, y: 6, w: 1, h: 1, small: true }, { kind: 'shelf', x: 2, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
-    cuisine: { name: 'Cuisine', from: 'salon', at: { wall: 'back', x: 7 }, w: 12, h: 8, by: ['frigo', 'cuisine'], floor: { type: 'tile', cols: ['#f4e4c4', '#dcc49c', '#b49a70'] }, wall: { base: '#fff4e0', alt: '#f4e4c4', pattern: 'stripes', wood: '#a8703a' },
+    cuisine: { name: 'Cuisine', from: 'salon', at: { wall: 'right', y: 8 }, w: 12, h: 8, by: ['frigo', 'cuisine'], floor: { type: 'tile', cols: ['#f4e4c4', '#dcc49c', '#b49a70'] }, wall: { base: '#fff4e0', alt: '#f4e4c4', pattern: 'stripes', wood: '#a8703a' },
       decor: [{ kind: 'table', x: 5, y: 5, w: 2, h: 1 }, { kind: 'stool', x: 4, y: 5, w: 1, h: 1, small: true }, { kind: 'stool', x: 7, y: 5, w: 1, h: 1, small: true }, { kind: 'shelf', x: 8, y: 1, w: 2, h: 1, back: true, oy: 6 }] },
-    sport:   { name: 'Salle de sport', from: 'salon', at: { wall: 'right', y: 4 }, w: 10, h: 8, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
+    sport:   { name: 'Salle de sport', from: 'salon', at: { wall: 'right', y: 4 }, w: 16, h: 11, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
       decor: [{ kind: 'bigrug', v: 2, x: 2, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 1, y: 6, w: 1, h: 1, small: true }] },
     // chambre de Tai : elle apparaît quand Tai est délivré (antre de Shellmon) ; décor de Tai (ballon, lunettes, posters orange)
     // chambres de l'étage : une porte chacune dans le couloir (ta chambre, celle de ton Digimon, puis celles des enfants délivrés)
@@ -93,7 +96,7 @@
   };
   const fromOf = r => (ROOMS[r].from === 'etage' ? 'maison_joueur_etage' : 'maison_joueur');
   // case du salon devant la porte d'une pièce du rez-de-chaussée (en sortant de la pièce, on réapparaît là)
-  const salonSpot = r => { const A = ROOMS[r].at; return A.wall === 'back' ? [A.x, 3] : A.wall === 'left' ? [1, A.y] : [W - 2, A.y]; };
+  const salonSpot = r => { const A = ROOMS[r].at; return A.wall === 'left' ? [1, A.y] : [W - 2, A.y]; };
   const FW = { maison_joueur: W };
   const roomOpen = r => (ROOMS[r].open ? ROOMS[r].open() : ROOMS[r].by.some(owned));
   const roomId = r => `maison_joueur_${r}`;
@@ -159,14 +162,18 @@
       await say(`Tu lis « ${DW.pick(['Les Sept Écussons', 'Le Digivice perdu', 'La légende du Pont de l\'Infini', 'Agumon et le grand gâteau'])} » à ${m.name}. Il écoute très sagement. (discipline +5)`);
     },
     async cuisine() { if (!DW.Cuisine.known().length) { await say('Une belle cuisine... mais tu ne connais encore aucune recette. Mushroomon, au Restaurant, peut t\'en apprendre !'); return; } await DW.Cuisine.cook('Maison'); },
+    async sport2() { await USE.halteres(); },
+    async sport3() { await USE.halteres(); },
     async halteres() {
       const m = lead(); if (!m) return;
-      if (!once('halteres')) { await say(`${m.name} s'est déjà entraîné à la maison aujourd'hui.`); return; }
+      const lv = owned('sport3') ? 3 : owned('sport2') ? 2 : 1, used = ['halteres', 'halteres2', 'halteres3'].slice(0, lv).find(k => once(k));
+      if (!used) { await say(`${m.name} s'est déjà entraîné ${lv > 1 ? lv + ' fois' : ''} à la maison aujourd'hui.${lv < 3 ? ' (Un meilleur matériel, au Bazar, permet plus de séances.)' : ''}`); return; }
       const K = ['hp', 'mp', 'atk', 'def', 'spd', 'int'], NAMES = ['PV', 'PM', 'Attaque', 'Défense', 'Vitesse', 'Intelligence'];
       const i = await DW.ask('Quelle statistique travailler ?', ['PV', 'PM', 'Attaque', 'Défense', 'Vitesse', 'Intelligence', 'Annuler']);
-      if (i < 0 || i > 5) { st().home.used.k = st().home.used.k.filter(k => k !== 'halteres'); return; }
+      if (i < 0 || i > 5) { st().home.used.k = st().home.used.k.filter(k => k !== used); return; }
+      const pts = lv + 1;
       m.tr = m.tr || {}; const v0 = K[i] === 'hp' ? m.maxHp : K[i] === 'mp' ? m.maxMp : m.stat(K[i]);
-      m.tr[K[i]] = (m.tr[K[i]] || 0) + 2; m.tired = Math.min(100, (m.tired || 0) + 15);
+      m.tr[K[i]] = (m.tr[K[i]] || 0) + pts; m.tired = Math.min(100, (m.tired || 0) + 15);
       const v1 = K[i] === 'hp' ? m.maxHp : K[i] === 'mp' ? m.maxMp : m.stat(K[i]);
       DW.Audio.sfx('super');
       await say(`Une, deux ! ${m.name} s'entraîne dur. ${NAMES[i]} +${Math.max(1, v1 - v0)} ! (fatigue +15)`);
@@ -218,19 +225,11 @@
         this.objects.push({ kind: 'stairsdown', x: 12, y: 1, w: 2, h: 2, back: true });
         this.doors.push({ x: 12, y: 2, w: 2, dir: 'up', to: 'cave_joueur', tx: 7, ty: 3 });
       }
-      // les pièces du rez-de-chaussée : une vraie porte dans le mur du salon (au fond, à gauche ou à droite)
+      // les pièces du rez-de-chaussée : une ouverture de 2 cases dans le mur de côté du salon (comme dans les autres bâtiments)
       for (const r in ROOMS) if (ROOMS[r].from === 'salon' && roomOpen(r)) {
-        const R = ROOMS[r], A = R.at, tx = Math.floor(R.w / 2) - 1, ty = R.h - 2;
-        if (A.wall === 'back') {
-          this.objects = this.objects.filter(o => !(o.x < A.x + 2 && o.x + (o.w || 1) > A.x && (o.back || o.y <= 4)));
-          this.objects.push({ kind: 'walldoor', v: DOOR_V[r] || 0, x: A.x, y: 1, w: 2, h: 2, back: true });
-          this.doors.push({ x: A.x, y: 2, w: 2, dir: 'up', to: roomId(r), tx, ty });
-        } else {
-          const x = A.wall === 'left' ? 0 : W - 1, ex = A.wall === 'left' ? R.w - 2 : 1;
-          this.objects.push({ kind: 'sidedoor', v: A.wall === 'left' ? 0 : 1, x, y: A.y, w: 1, h: 1, top: true },
-            { kind: 'doormat', x: A.wall === 'left' ? 1 : W - 2, y: A.y, w: 1, h: 1, walk: true });
-          this.doors.push({ x, y: A.y, w: 1, dir: A.wall, to: roomId(r), tx: ex, ty: 4 });
-        }
+        const R = ROOMS[r], A = R.at, x = A.wall === 'left' ? 0 : W - 1;
+        this.rows = this.rows.map((row, y) => (y === A.y || y === A.y + 1 ? row.slice(0, x) + '1' + row.slice(x + 1) : row));
+        this.warps.push({ x, y: A.y, w: 1, h: 2, dir: A.wall, to: roomId(r), tx: A.wall === 'left' ? R.w - 2 : 1, ty: 4 });
       }
       DW.World.unprepare(this);
     },
@@ -260,20 +259,6 @@
     d.deco.rect(8, 8, 16, 9, Lt); d.deco.rect(8, 20, 16, 11, Dk);
     d.deco.circ(23, 21, 1.4, '#e8d070', { unlit: true });
     d.deco.rect(11, 1, 10, 4, '#f0e8d0');
-  } };
-  // porte dans un mur de côté du salon, vue de profil (v 0 : mur gauche, v 1 : mur droit)
-  DW.World.OBJ.sidedoor = { w: 18, h: 46, n: 2, draw(d, v) {
-    const f = x => (v ? 18 - x : x);   // v 0 : porte du mur gauche (elle s'ouvre vers la droite), v 1 : mur droit
-    d.poly([[f(3), 45], [f(3), 7], [f(15), 1], [f(15), 40]], '#4a2e18');                       // encadrement
-    d.poly([[f(5), 43], [f(5), 10], [f(13), 6], [f(13), 38]], '#a8743e', { tex: 0.1 });         // battant
-    for (const k of [0, 1, 2]) d.deco.line(f(5), 16 + k * 9, f(13), 12 + k * 9, 0.6, '#7a4e26');   // planches
-    d.deco.poly([[f(6), 20], [f(6), 12], [f(12), 9], [f(12), 17]], '#c8945a');                  // panneau clair
-    d.deco.poly([[f(2), 8], [f(16), 1], [f(16), 3.4], [f(2), 10.4]], '#6a4224');                // linteau
-    d.deco.circ(f(11.4), 26, 1.3, '#f0d070', { unlit: true });                                 // poignée
-    d.deco.line(f(3), 45, f(15), 40, 0.8, '#2a1a0c');                                         // seuil
-  } };
-  DW.World.OBJ.doormat = { w: 16, h: 12, n: 1, draw(d) {
-    d.rect(2, 2, 12, 8, '#8a5a3a', { round: 0.2 }); d.deco.rect(4, 4, 8, 4, '#b07a4a');
   } };
   MAPS.maison_joueur_etage = {
     name: 'Ma maison — Couloir de l’étage', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
@@ -313,25 +298,20 @@
     const R = ROOMS[r], side = R.from === 'salon' && R.at.wall !== 'back' ? (R.at.wall === 'left' ? 'right' : 'left') : null;
     const up = !side && (R.from === 'etage' || R.from === 'salon'), dx = R.side === 'right' ? 0 : R.w - 1;   // porte du côté du salon ; à l'étage, porte en bas (vers le couloir)
     const mx = Math.floor(R.w / 2) - 1;
-    const floorRow = y => { const row = '0' + '1'.repeat(R.w - 2) + '0'; return !up && (y === 4 || y === 5) ? row.slice(0, dx) + '1' + row.slice(dx + 1) : row; };
+    const sx = side === 'right' ? R.w - 1 : 0;
+    const floorRow = y => { const row = '0' + '1'.repeat(R.w - 2) + '0'; return side && (y === 4 || y === 5) ? row.slice(0, sx) + '1' + row.slice(sx + 1) : row; };
     const bottom = up ? '0'.repeat(mx) + '11' + '0'.repeat(R.w - mx - 2) : '0'.repeat(R.w);
     const rr = ['0'.repeat(R.w), '0' + '2'.repeat(R.w - 2) + '0', '0' + '2'.repeat(R.w - 2) + '0', ...Array.from({ length: R.h - 4 }, (_, i) => floorRow(i + 3)), bottom];
     MAPS[roomId(r)] = {
       name: `Ma maison — ${R.name}`, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: R.floor, wall: R.wall, rows: rr, objects: [], npcs: (R.npcs || []).map(n => ({ ...n })), signs: {},
-      warps: side ? [] : [up ? { x: mx, y: R.h - 1, w: 2, h: 1, dir: 'down', to: fromOf(r), tx: R.from === 'salon' ? salonSpot(r)[0] : slotX(r), ty: R.from === 'salon' ? salonSpot(r)[1] : 3 }
+      warps: side ? [{ x: sx, y: 4, w: 1, h: 2, dir: side, to: 'maison_joueur', tx: salonSpot(r)[0], ty: salonSpot(r)[1] }] : [up ? { x: mx, y: R.h - 1, w: 2, h: 1, dir: 'down', to: fromOf(r), tx: R.from === 'salon' ? salonSpot(r)[0] : slotX(r), ty: R.from === 'salon' ? salonSpot(r)[1] : 3 }
         : { x: dx, y: 4, w: 1, h: 2, dir: R.side === 'right' ? 'left' : 'right', to: fromOf(r), tx: R.side === 'right' ? FW[fromOf(r)] - 2 : 1, ty: R.y }],
       build() {
         const version = ORDER.filter(owned).join(',');
         if (this.version === version && this.objects.length) return;
         this.version = version;
         this.objects = R.decor.map(o => ({ ...o })); this.signs = {};
-        // pièce ouverte sur le côté du salon : sa porte est dans le mur de côté (en face de celle du salon)
-        if (side) {
-          const x = side === 'right' ? R.w - 1 : 0, [sx, sy] = salonSpot(r);
-          this.objects.push({ kind: 'sidedoor', v: side === 'left' ? 0 : 1, x, y: 4, w: 1, h: 1, top: true }, { kind: 'doormat', x: side === 'right' ? R.w - 2 : 1, y: 4, w: 1, h: 1, walk: true });
-          this.doors = [{ x, y: 4, w: 1, dir: side, to: 'maison_joueur', tx: sx, ty: sy }];
-        }
         furnish(this, r);
         DW.World.unprepare(this);
       },
@@ -340,7 +320,7 @@
 
   // ------------------------------------------------------------ rayon « Meubles » (Bazar de Gotsumon)
   // les meubles arrivent au Bazar au fil du développement de la ville (niveau de la ville requis)
-  const TIER = { plantes: 0, tele: 1, tableau: 1, tapis: 2, toilettes: 2, frigo: 3, biblio: 3, sac1: 3, aquarium: 4, cuisine: 4, chambre_digi: 4, halteres: 5, ordi: 6, sac2: 6 };
+  const TIER = { sport2: 5, sport3: 8, plantes: 0, tele: 1, tableau: 1, tapis: 2, toilettes: 2, frigo: 3, biblio: 3, sac1: 3, aquarium: 4, cuisine: 4, chambre_digi: 4, halteres: 5, ordi: 6, sac2: 6 };
   const tierOf = id => TIER[id] || 0;
   // écran du rayon « Meubles » : même présentation que la boutique d'objets (icônes, prix, Bits, description)
   // ENTRÉE (ou ESPACE) : choisir puis confirmer ; SUPPR : annuler / sortir

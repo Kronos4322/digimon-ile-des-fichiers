@@ -80,6 +80,8 @@
   const build0 = MAPS.maison.build;
   MAPS.maison.build = function () {
     build0.apply(this, arguments);
+    // (la lampe sur pied près de la trappe gênait le passage : on l'enlève)
+    if (this.objects.some(o => o.kind === 'floorlamp')) { this.objects = this.objects.filter(o => o.kind !== 'floorlamp'); if (this.gfx) DW.World.unprepare(this); }
     const show = !!st().flags.jijiTrap, has = this.objects.some(o => o.kind === 'trapdoor');
     if (show && !has) {
       this.objects.push({ kind: 'trapdoor', x: TRAP[0], y: TRAP[1], w: 1, h: 1, walk: true });
