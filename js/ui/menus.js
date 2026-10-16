@@ -152,19 +152,21 @@
         const hg = c.createLinearGradient(x, y - r, x, y + r); hg.addColorStop(0, col); hg.addColorStop(1, '#1a1a2a');
         c.fillStyle = hg; c.fill(); c.lineWidth = on ? 2 : 1.4; c.strokeStyle = on ? '#ffffff' : '#cfe0f0'; c.stroke();
       };
+      // bandeau du choix (au travers de l'anneau, comme dans le modèle) : dessiné AVANT les icônes, qui restent toutes visibles
+      const [label, col, help] = RING[items[this.i][0]];
+      const by = cy - 8;
+      c.fillStyle = 'rgba(10,40,90,0.9)'; c.beginPath(); c.moveTo(cx - R + 16, by); c.lineTo(cx + R - 10, by); c.lineTo(cx + R - 18, by + 16); c.lineTo(cx - R + 16, by + 16); c.fill();
+      c.strokeStyle = '#8ad0ff'; c.lineWidth = 1; c.stroke();
+      UI.text(c, label, cx + 2, by + 12, { size: 11, align: 'center', color: '#ffffff' });
       // l'entrée suivante est en dessous de la sélection : Bas descend le long de l'anneau
       items.forEach(([k], i) => {
         const a = Math.PI - (i - this.rot) / n * Math.PI * 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R, on = i === this.i;
         const r = on ? 14 + Math.sin(t * 6) * 0.6 : 11;
+        if (on) { c.save(); c.globalCompositeOperation = 'lighter'; const gg = c.createRadialGradient(x, y, 4, x, y, 24); gg.addColorStop(0, RING[k][1] + 'aa'); gg.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = gg; c.fillRect(x - 24, y - 24, 48, 48); c.restore(); }   // halo de la sélection
+        c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.arc(x + 1.5, y + 2, r, 0, 7); c.fill();   // ombre portée
         hex(x, y, r, RING[k][1], on);
-        const ic = DW.Icons.menu(k), z = on ? 16 : 12; c.drawImage(ic, x - z / 2, y - z / 2, z, z);
+        const ic = DW.Icons.menu(k), z = on ? 17 : 12; c.drawImage(ic, x - z / 2, y - z / 2, z, z);
       });
-      // bandeau du choix (au travers de l'anneau, comme dans le modèle)
-      const [label, col, help] = RING[items[this.i][0]];
-      const by = cy - 8;
-      c.fillStyle = 'rgba(10,40,90,0.9)'; c.beginPath(); c.moveTo(cx - R + 16, by); c.lineTo(cx + R + 20, by); c.lineTo(cx + R + 12, by + 16); c.lineTo(cx - R + 16, by + 16); c.fill();
-      c.strokeStyle = '#8ad0ff'; c.lineWidth = 1; c.stroke();
-      UI.text(c, label, cx + 6, by + 12, { size: 11, align: 'center', color: '#ffffff' });
       // titre « Digivice »
       c.fillStyle = 'rgba(10,40,90,0.9)'; c.beginPath(); c.moveTo(0, 4); c.lineTo(98, 4); c.lineTo(88, 22); c.lineTo(0, 22); c.fill();
       c.strokeStyle = '#8ad0ff'; c.stroke();
@@ -199,7 +201,7 @@
           bar(y + 134, 'Faim', Math.round(m.hunger || 0), 100, (m.hunger || 0) >= 70 ? '#ff5a5a' : '#f0b040');
           const hl = DW.Life ? DW.Life.healthLabel(m) : '';
           UI.text(c, `Santé : ${hl}`, px + 8, y + 154, { size: 7, color: m.sick || (m.germs || 0) >= 80 ? '#c83a3a' : '#2a7a4a', shadow: false });
-          if (DW.Life) UI.text(c, `${DW.Life.daysLeft(m)} j de vie`, px + pw - 8, y + 154, { size: 7, align: 'right', color: dark, shadow: false });
+          if (DW.Life) UI.text(c, `Âge : ${m.age} j`, px + pw - 8, y + 154, { size: 7, align: 'right', color: dark, shadow: false });
         }
       }
       // --- Bits (porte-monnaie) et ligne d'aide
