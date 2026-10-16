@@ -22,6 +22,7 @@
 
   // ------------------------------------------------------------ création du personnage (un enfant qui n'est pas dans l'animé)
   // Haut/Bas : ligne   Gauche/Droite : choix   ESPACE : valider (sur la dernière ligne)
+  const FOREST = [110, 44];   // la forêt sur la carte de l'île (DW.islandImage) : là où tombe le héros
   class CreateScene extends DW.Scene {
     constructor() {
       super();
@@ -242,7 +243,7 @@
       const land = (x, y) => { const i = (y * img.width + x) * 4; return !(d[i + 2] > d[i] + 30 && d[i + 2] > d[i + 1]); };   // pas de bleu dominant = pas la mer
       for (let tries = 0; out.length < n && tries < 4000; tries++) {
         const x = 70 + Math.floor(Math.random() * 180), y = 40 + Math.floor(Math.random() * 160);
-        if (land(x, y) && Math.hypot(x - 122, y - 206) > 30 && out.every(([a, b]) => Math.hypot(a - x, b - y) > 34)) out.push([x, y]);
+        if (land(x, y) && Math.hypot(x - FOREST[0], y - FOREST[1]) > 30 && out.every(([a, b]) => Math.hypot(a - x, b - y) > 34)) out.push([x, y]);
       }
       return out;
     }
@@ -396,7 +397,7 @@
     drawSky(c) {
       const t = this.t, z = this.zoom.v;
       // la mer tout autour, l'île qui grandit, centrée peu à peu sur la plage
-      const s = 0.4 + z * z * 2.8, fx = DW.lerp(160, 122, z), fy = DW.lerp(122, 206, z);
+      const s = 0.4 + z * z * 2.8, fx = DW.lerp(160, FOREST[0], z), fy = DW.lerp(122, FOREST[1], z);   // (on plonge vers la forêt, où le héros atterrit)
       // l'océan, avec sa houle, sur tout l'écran
       const og = c.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, 260); og.addColorStop(0, '#1e5aa8'); og.addColorStop(1, '#0a2a66');
       c.fillStyle = og; c.fillRect(0, 0, W, H);
@@ -445,9 +446,56 @@
         c.strokeStyle = hc; c.globalAlpha = 0.5; c.lineWidth = 2; c.beginPath(); c.moveTo(W / 2, y - 30); c.lineTo(W / 2, y); c.stroke(); c.globalAlpha = 1;
         return;
       }
+      // de près : la cime des arbres, très détaillée, remplace peu à peu la carte de l'île ; une clairière au centre
+      if (z > 0.42) this.drawCanopy(c, (z - 0.42) / 0.58);
       const sc = 1.6 - z * 0.9, spr = DW.Sprites.hero('up', Math.floor(t * 8) % 4).img;
       c.save(); c.translate(W / 2 + Math.sin(t * 2) * 6, H / 2 - 20 + Math.cos(t * 1.6) * 4); c.rotate(Math.sin(t * 3) * 0.25); c.scale(sc, sc);
       c.drawImage(spr, -14, -18); c.restore();
+    }
+
+    // la forêt vue du ciel : des centaines de cimes (ombre, volume, reflets, feuilles), une clairière, un ruisseau
+    drawCanopy(c, a) {
+      if (!this.canopy) {
+        const CW = 640, CH = 480, cv = DW.Art.canvas(CW, CH), x = cv.getContext('2d'), R = (i, k) => DW.Art.hash(i, k, 913);
+        x.fillStyle = '#1f4a22'; x.fillRect(0, 0, CW, CH);
+        const cx = CW / 2, cy = CH / 2, inClear = (px, py) => Math.hypot((px - cx) / 70, (py - cy) / 52) < 1;
+        // clairière : herbe claire, fleurs, souche, chemin de terre qui s'en va
+        const g = x.createRadialGradient(cx, cy, 10, cx, cy, 90); g.addColorStop(0, '#7ec05a'); g.addColorStop(1, '#4a8a3a');
+        x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, 88, 66, 0, 0, 7); x.fill();
+        x.strokeStyle = '#b8945a'; x.lineWidth = 10; x.lineCap = 'round'; x.beginPath(); x.moveTo(cx + 30, cy + 20); x.quadraticCurveTo(cx + 120, cy + 90, cx + 170, CH + 20); x.stroke();
+        x.strokeStyle = '#d0ac70'; x.lineWidth = 5; x.stroke();
+        for (let i = 0; i < 90; i++) { const px = cx + (R(i, 1) - 0.5) * 150, py = cy + (R(i, 2) - 0.5) * 110; if (!inClear(px, py)) continue; x.fillStyle = ['#ffffff', '#ffe060', '#ff8ab0', '#a8d8ff'][i % 4]; x.fillRect(px, py, 2, 2); }
+        x.fillStyle = '#6a4a2a'; x.beginPath(); x.arc(cx - 34, cy + 10, 6, 0, 7); x.fill(); x.fillStyle = '#a07a4a'; x.beginPath(); x.arc(cx - 34, cy + 10, 4, 0, 7); x.fill();
+        // ruisseau qui serpente entre les arbres
+        x.strokeStyle = '#2a6aa8'; x.lineWidth = 8; x.beginPath(); x.moveTo(-10, cy - 140); x.bezierCurveTo(120, cy - 60, 40, cy + 60, 190, CH + 10); x.stroke();
+        x.strokeStyle = '#6ab0e8'; x.lineWidth = 3; x.stroke();
+        // cimes, du fond vers le premier plan (triées par hauteur)
+        const trees = [];
+        for (let i = 0; i < 520; i++) { const px = R(i, 3) * CW, py = R(i, 4) * CH, r = 12 + R(i, 5) * 16; if (Math.hypot((px - cx) / (70 + r), (py - cy) / (52 + r)) < 1) continue; trees.push([px, py, r, i]); }
+        trees.sort((p, q) => p[1] - q[1]);
+        const pal = [['#1e5a24', '#2e7a30', '#4ea040', '#7ac858'], ['#245e2a', '#357e34', '#56a448', '#86cc62'], ['#2a5a1e', '#3e7a28', '#62a03a', '#94c85a'], ['#5a6a1e', '#7a8a28', '#a0aa3a', '#c8c860']];
+        for (const [px, py, r, i] of trees) {
+          const P = pal[i % 23 === 0 ? 3 : i % 3];
+          x.fillStyle = 'rgba(0,0,0,0.35)'; x.beginPath(); x.ellipse(px + r * 0.25, py + r * 0.35, r, r * 0.9, 0, 0, 7); x.fill();   // ombre au sol
+          x.fillStyle = P[0]; x.beginPath(); x.arc(px, py, r, 0, 7); x.fill();
+          x.fillStyle = P[1]; x.beginPath(); x.arc(px - r * 0.12, py - r * 0.12, r * 0.84, 0, 7); x.fill();
+          for (let k = 0; k < 5; k++) { const aa = R(i, 10 + k) * 6.28, d = r * 0.45; x.fillStyle = P[2]; x.beginPath(); x.arc(px + Math.cos(aa) * d - r * 0.15, py + Math.sin(aa) * d - r * 0.18, r * 0.36, 0, 7); x.fill(); }   // touffes
+          x.fillStyle = P[3]; x.beginPath(); x.arc(px - r * 0.35, py - r * 0.38, r * 0.26, 0, 7); x.fill();   // reflet
+          for (let k = 0; k < 6; k++) { x.fillStyle = P[3]; x.fillRect(px + (R(i, 20 + k) - 0.6) * r * 1.4, py + (R(i, 30 + k) - 0.6) * r * 1.4, 1.5, 1.5); }   // feuilles éclairées
+        }
+        // lisière autour de la clairière : buissons
+        for (let k = 0; k < 28; k++) { const aa = k / 28 * 6.28, px = cx + Math.cos(aa) * 86, py = cy + Math.sin(aa) * 64; x.fillStyle = '#2e6a2a'; x.beginPath(); x.arc(px, py, 8, 0, 7); x.fill(); x.fillStyle = '#4e9a40'; x.beginPath(); x.arc(px - 2, py - 2, 5, 0, 7); x.fill(); }
+        this.canopy = cv;
+      }
+      const t = this.t, k = 1.02 + a * 0.6;   // la forêt grandit (toujours plein écran) : on descend vers la clairière
+      c.save(); c.globalAlpha = Math.min(1, a * 1.6);
+      c.translate(W / 2, H / 2 + 10); c.scale(k * 0.5, k * 0.5); c.translate(-320, -240);
+      c.drawImage(this.canopy, 0, 0);
+      c.restore();
+      // la cime bouge un peu dans le vent ; nuées de feuilles
+      c.save(); c.globalAlpha = a * 0.8;
+      for (let i = 0; i < 14; i++) { const lx = (i * 47 + t * 40) % (W + 20) - 10, ly = (i * 29 + t * 25 + Math.sin(t + i) * 10) % H; c.fillStyle = i % 2 ? '#7ac858' : '#4ea040'; c.fillRect(lx, ly, 2, 1.5); }
+      c.restore();
     }
 
     // ---------------------------------------------------------- la plage de l'arrivée (aube)
