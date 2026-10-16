@@ -166,7 +166,7 @@
       // le gymnase : fermé pendant le chapitre 1 (on y entre par la porte quand il est ouvert)
       ...Object.fromEntries(['7,4', '8,4', '9,4', '10,4'].map(k => [k, () => say(DW.Gymnase && DW.Gymnase.open()
         ? "GYMNASE — Entraînement des résistances aux éléments, avec Leomon. Entre par la grande porte !"
-        : "GYMNASE — « Fermé pour travaux. Ouverture prochaine : endurcissez vos Digimon contre le feu, l'eau, la glace, le vent et la foudre ! »")])),
+        : "GYMNASE — « Fermé. Le coach a disparu dans les montagnes... Celui qui le ramènera pourra endurcir ses Digimon contre le feu, l'eau, la glace, le vent et la foudre ! »")])),
       '25,9': 'Un râtelier plein de boucliers cabossés. Parfait pour apprendre à encaisser.',
     },
   };

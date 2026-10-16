@@ -151,7 +151,6 @@
     ], 'BILAN DU CHAPITRE 1'));
     await say("Les chemins de toute l'île sont ouverts : la montagne, le lac, les brumes, le marais... Chaque région cache un Digimon qui a perdu la mémoire.", 'Jijimon');
     await say("Retrouve-les, ramène les habitants en ville, et découvre qui leur a fait ça. Moi, je garde la maison. Hohoho !", 'Jijimon');
-    await say("Ah, et une bonne nouvelle : Leomon vient d'ouvrir le GYMNASE, au Terrain d'entraînement. Il y endurcit les Digimon contre les éléments : le feu, l'eau, la glace... Va le voir !", 'Jijimon');
     await Game.push(new ChapterScene('CHAPITRE 2', 'Le Lac et le Loup', 'Un serpent de mer garde le lac... et un garçon blond a été vu sur ses rives.'));
     DW.autosave();
   }

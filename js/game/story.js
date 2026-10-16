@@ -46,7 +46,7 @@
 
   // services des recrues (dans la ville) : rôle affiché à leur arrivée + effet
   const ROLES = {
-    leomon: ["Leomon entraîne les Digimon au Terrain : +1 point par séance de Frappe.", 'atk'],
+    leomon: ["Leomon rouvre le GYMNASE du Terrain d'entraînement (résistances aux éléments) et entraîne tes Digimon : +1 point par séance de Frappe.", 'atk'],
     okuwamon: ["Okuwamon soulève les rochers du Terrain : +1 point par séance de Frappe.", 'atk'],
     kabuterimon: ["Kabuterimon renforce le mur de garde : +1 point par séance de Garde.", 'def'],
     monochromon: ["Monochromon sert de bouclier d'entraînement : +1 point par séance de Garde.", 'def'],

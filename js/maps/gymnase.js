@@ -1,6 +1,7 @@
 'use strict';
 // =====================================================================
-//  GYMNASE (comme dans Digimon World 3) — ouvre au Terrain d'entraînement après le chapitre 1
+//  GYMNASE (comme dans Digimon World 3) — au Terrain d'entraînement, il ouvre quand LEOMON revient en ville
+//  (boss de la Montagne : une fois libéré, il s'installe et devient le coach)
 //  Leomon, le coach, y fait travailler les RÉSISTANCES aux éléments : chaque appareil endurcit le Digimon
 //  contre un élément (les dégâts de cet élément baissent : jusqu'à -40 % à 100 points, game/battle.js),
 //  avec un effet secondaire comme dans DW3 : le Mur de flammes donne des PM, le Bombardement des PV,
@@ -26,7 +27,7 @@
   ];
   const Gym = DW.Gymnase = {
     GYM, CAP,
-    open: () => (st().flags.chapter || 1) >= 2,
+    open: () => !!(DW.Town && DW.Town.has('leomon')),
     unlocked: g => (st().flags.chapter || 1) >= g.ch,
     // part des dégâts d'un élément qui est encaissée (0 à 0,4)
     resist: (m, type) => Math.min(0.4, ((m && m.res && m.res[type]) || 0) / 250),
