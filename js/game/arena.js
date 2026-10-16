@@ -148,8 +148,9 @@
         return;
       }
       const A = this.ally, b = A.b;
-      // se place de l'autre côté de l'ennemi, à distance d'attaque
-      const side = b.x < be.x ? -1 : 1, tx = DW.clamp(be.x + side * 74, F.x0 + 10, F.x1 - 10), ty = DW.clamp(be.y + 26, F.y0 + 6, F.y1 - 4);
+      // se place juste à côté de ton Digimon (un peu en retrait, au-dessous ou au-dessus selon la place) : on les voit côte à côte
+      const bp = this.B.p, below = bp.y + 38 <= F.y1 - 4, back = bp.x < be.x ? -1 : 1;
+      const tx = DW.clamp(bp.x + back * 14, F.x0 + 10, F.x1 - 10), ty = DW.clamp(bp.y + (below ? 38 : -38), F.y0 + 6, F.y1 - 4);
       const dx = tx - b.x, dy = ty - b.y, d = Math.hypot(dx, dy);
       if (d > 4) { const v = Math.min(d, 80 * dt); b.x += dx / d * v; b.y += dy / d * v; b.vx = dx / d * 80; b.vy = dy / d * 80; } else { b.vx = b.vy = 0; }
       b.face = be.x > b.x ? 1 : -1;

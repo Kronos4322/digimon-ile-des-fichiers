@@ -37,6 +37,16 @@
       { w: 'triangle', v: 0.09, n: 'E4/2 F4 G#4 A4/2 G#4 F4 | E4/4 -/4 | B4/2 C5 B4 A4/2 G#4 A4 | G#4/2 F4/2 E4/4 | E5/2 D5 C5 B4/2 A4 G#4 | A4/2 G#4/2 F4/2 E4/2 | F4 G#4 A4 B4 C5/2 B4/2 | G#4/4 E4/4' },
       { w: 'triangle', v: 0.2, n: 'E2/4 E3/4 | E2/4 E3/4 | F2/4 F3/4 | E2/4 E3/4 | C3/4 B2/4 | A2/4 G#2/4 | F2/4 G#2/4 | E2/8' },
     ] },
+    // l'harmonica de Matt, la nuit au bord du lac (lent, mélancolique ; une seule voix « soufflée » et une basse douce)
+    harmonica: { bpm: 72, ch: [
+      { w: 'triangle', v: 0.16, n: 'E5/2 G5 A5/2 G5 E5/2 | D5/2 E5 G5/2 E5 D5/2 | C5/2 D5 E5/2 D5 C5/2 | A4/6 -/2 | E5/2 G5 A5/2 C6 B5/2 | A5/2 G5 E5/2 D5 E5/2 | G5/2 E5 D5/2 C5 D5/2 | C5/6 -/2' },
+      { w: 'sine', v: 0.14, n: 'A2/8 | G2/8 | F2/8 | E2/8 | A2/8 | F2/8 | G2/8 | C3/8' },
+    ] },
+    // combat contre Seadramon : houle menaçante (ré mineur)
+    seadramon: { bpm: 150, ch: [
+      { w: 'sawtooth', v: 0.05, n: 'D5 F5 A5 D6 C6 A5 F5 A5 | A#4 D5 F5 A#5 A5 F5 D5 F5 | C5 E5 G5 C6 A#5 G5 E5 G5 | A4/2 C#5 E5 A5/2 G5/2 | D5/2 F5 A5 D6/2 C6/2 | A#5/2 A5 G5 F5/2 E5/2 | F5 A5 D6 F6 E6 C#6 A5 E5 | D5/4 -/4' },
+      { w: 'triangle', v: 0.24, n: 'D2 D3 D2 D3 D2 D3 D2 D3 | A#1 A#2 A#1 A#2 A#1 A#2 A#1 A#2 | C2 C3 C2 C3 C2 C3 C2 C3 | A1 A2 A1 A2 A1 A2 A1 A2 | D2 D3 D2 D3 D2 D3 D2 D3 | G1 G2 G1 G2 A1 A2 A1 A2 | D2 D3 D2 D3 A1 A2 A1 A2 | D2/4 A1/4' },
+    ] },
     // combat contre Shellmon : rapide et menaçant (la mineur)
     shellmon: { bpm: 160, ch: [
       { w: 'sawtooth', v: 0.055, n: 'A4 C5 E5 A5 G5 E5 C5 E5 | F4 A4 C5 F5 E5 C5 A4 C5 | G4 B4 D5 G5 F5 D5 B4 D5 | E5/2 E5 F5 G#5/2 B5/2 | A5/2 G5 F5 E5/2 C5/2 | D5/2 F5 E5 D5/2 B4/2 | C5 E5 A5 C6 B5 G#5 E5 B4 | A4/4 -/4' },

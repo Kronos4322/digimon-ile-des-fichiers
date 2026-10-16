@@ -38,7 +38,7 @@
   };
   const RID = Object.keys(REG);
   // certains boss ne se montrent qu'à certaines heures (comme Coelamon dans Digimon World 1)
-  const BOSS_TIME = { lac: [5, 10, "à l'aube"], brumes: [20, 5, 'la nuit'], marais: [18, 24, 'le soir'], decharge: [19, 24, 'le soir, pendant son concert'],
+  const BOSS_TIME = { lac: [20, 5, 'la nuit'], brumes: [20, 5, 'la nuit'], marais: [18, 24, 'le soir'], decharge: [19, 24, 'le soir, pendant son concert'],
     gel: [21, 5, 'la nuit'], overdell: [0, 5, 'au cœur de la nuit'] };
   const inHours = (a, b) => { const h = DW.Time.hour(); return a <= b ? h >= a && h < b : h >= a || h < b; };
   const bossHere = rid => !BOSS_TIME[rid] || inHours(BOSS_TIME[rid][0], BOSS_TIME[rid][1]);
@@ -139,7 +139,8 @@
     const near = () => freeSpots(ow, avoid, 3, m.spec.hub[0] - 3, m.spec.hub[1] + 1)[0];
     if (k === 7) {
       const p = near(); if (!p) return;
-      m.npcs.push({ sp: R.boss, x: p[0], y: p[1], face: 'left', gear: true, story: true, cond: s => !(s.gears || {})[rid] && bossHere(rid), talk: ow2 => bossFight(rid, ow2) });
+      // (chapitre 2 : pour le héros original, Seadramon n'est pas ici mais au Lac du Tramway, la nuit, avec Matt — game/chapitre2.js)
+      m.npcs.push({ sp: R.boss, x: p[0], y: p[1], face: 'left', gear: true, story: true, cond: s => !(s.gears || {})[rid] && bossHere(rid) && !(rid === 'lac' && s.hero === 'perso'), talk: ow2 => bossFight(rid, ow2) });
     }
     if (k === 4) {
       const p = near(); if (!p) return;

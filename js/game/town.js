@@ -16,7 +16,7 @@
     { id: 'palmon', hint: 'au pied de géants... de bois', building: 'Grange', zone: 'geants', district: 'champs', role: 'Palmon cultive les champs : passe chaque jour récolter de la nourriture.' },
     { id: 'biyomon', hint: 'au bord de la forêt', building: 'Poste', zone: 'lisiere', role: 'Biyomon distribue le courrier et sait où se cachent les Digimon errants.' },
     { id: 'kunemon', hint: "dans l'herbe haute, il bourdonnait", building: 'Banque', zone: 'prairie', role: 'Kunemon garde tes objets en trop dans la Banque : dépose-les et reprends-les quand tu veux.' },
-    { id: 'gomamon', hint: "une grande ombre qui nage près du rivage de la plage... en fin d'après-midi seulement (16 h - 19 h)", building: 'Ponton de pêche', zone: 'plage', district: 'champs', role: "Gomamon t'apprend à pêcher dans l'étang des Champs." },
+    { id: 'gomamon', hint: "une grande ombre qui nage près du rivage de la plage... en fin d'après-midi seulement (16 h - 19 h)", building: 'Ponton de pêche', zone: 'plage', district: 'champs', role: "Gomamon t'offre une canne à pêche : tu peux pêcher dans toutes les eaux de l'île (et avec lui, sur son ponton)." },
   ];
   const LEVELS = ['Ruines', 'Campement', 'Hameau', 'Petit village', 'Village', 'Bourg', 'Petite ville', 'Ville', 'Grande ville', 'Cité', 'Métropole', 'Mégapole'];
 

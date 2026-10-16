@@ -174,7 +174,7 @@
         await say('Blub blub ! Ce lac est le meilleur endroit de toute l\'île pour faire la sieste !', 'Bukamon');
         await say('Les arbres d\'ici sont plus vieux que l\'île elle-même. On dit qu\'ils gardent les données des anciens Digimon.', 'Bukamon');
       } },
-      recruitNPC({ sp: 'betamon', x: 28, y: 16, lvl: 9, face: 'right',
+      recruitNPC({ sp: 'betamon', x: 28, y: 17, lvl: 9, face: 'right',   // (au bord de l'eau, hors des herbes hautes qui le cachaient presque entièrement)
         lines: ["Bloub... Je surveille ce lac. Avant, j'habitais en ville, il me semble.", "Si tu es assez fort pour me battre, je te suivrai !"],
         win: 'Bloub bloub ! Je rentre en ville. Je sais exactement ce qui lui manque !' }),
       recruitNPC({ sp: "palmon", x: 14, y: 11, lvl: 9, face: "right",

@@ -7,7 +7,7 @@
   // (À bas niveau, certains passages sont fermés exprès : ils n'existent pas encore.)
   DW.Town.RECRUITS.forEach(r => (DW.state.recruits[r.id] = true));
   // maison entièrement meublée et Tai délivré : toutes les pièces et leurs portes existent
-  DW.state.hero = 'perso'; DW.state.kids = { tai: true };
+  DW.state.hero = 'perso'; DW.state.kids = { tai: true, matt: true };
   DW.state.home = { owned: Object.fromEntries(Object.keys(DW.Home.FURN).map(k => [k, true])) };
   // tout objet cité par la légende ou par une carte doit exister
   const OBJ = DW.World.OBJ, miss = new Set();

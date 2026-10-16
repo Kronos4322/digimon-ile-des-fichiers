@@ -99,6 +99,8 @@
     }
     evolve(to) {
       const oldMax = this.maxHp;
+      // une forme obtenue est débloquée dans la table des Digivolutions (l'avoir seulement croisée ne suffit pas)
+      if (DW.state) { DW.state.seen[to] = true; DW.state.owned = DW.state.owned || {}; DW.state.owned[to] = true; }
       // ABI (Cyber Sleuth) : +1 en digivoluant, +2 en dé-digivoluant (le stade d'arrivée est plus bas)
       const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
       this.abi = (this.abi || 0) + (ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage) ? 2 : 1);
@@ -219,10 +221,10 @@
   };
   DW.nextMove = m => { for (const [l, id] of m.d.learn) if (l > 0 && !m.knows(id) && DW.MOVES[id]) return id; return null; };
   // SAC DE VOYAGE (comme Digimon World 1) : 10 exemplaires de chaque objet, et un nombre limité de SORTES d'objets
-  // (10 places, +4 avec chaque Grand sac acheté au Bazar). Plein : on ne peut plus rien ramasser, il faut
+  // (20 places, +4 avec chaque Grand sac acheté au Bazar). Plein : on ne peut plus rien ramasser, il faut
   // passer à la maison (coffre : tout sauf la nourriture ; frigo : la nourriture) ou à la Banque de Kunemon.
   DW.BAG_MAX = 10;
-  DW.bagSlots = () => 10 + (DW.Home && DW.Home.owned('sac1') ? 4 : 0) + (DW.Home && DW.Home.owned('sac2') ? 4 : 0);
+  DW.bagSlots = () => 20 + (DW.Home && DW.Home.owned('sac1') ? 4 : 0) + (DW.Home && DW.Home.owned('sac2') ? 4 : 0);
   DW.bagUsed = () => Object.keys(DW.state.bag).filter(k => DW.state.bag[k] > 0).length;
   DW.bagRoom = id => (DW.state.bag[id] || 0) > 0 || DW.bagUsed() < DW.bagSlots() ? Math.max(0, DW.BAG_MAX - (DW.state.bag[id] || 0)) : 0;
   DW.isFood = id => DW.ITEMS[id] && DW.ITEMS[id].food != null;

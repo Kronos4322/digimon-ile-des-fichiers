@@ -615,12 +615,20 @@
       }
       if (this.flashA) { c.fillStyle = '#fff'; c.fillRect(0, 0, W, H); }
       // bandeau du nom de la zone
+      // (à l'arrivée : grand bandeau qui glisse ; ensuite le nom reste affiché en petit, en haut à gauche)
       const bt = this.banner.t;
-      if (bt < this.bannerT + 0.5) {
-        const k = bt < 0.3 ? bt / 0.3 : bt > this.bannerT ? 1 - (bt - this.bannerT) / 0.5 : 1;
+      if (bt < this.bannerT) {
+        const k = bt < 0.3 ? bt / 0.3 : 1;
         const w = UI.measure(c, this.map.name, 10) + 24;
         UI.box(c, -6 + (k - 1) * (w + 10), 8, w, 20);
         UI.text(c, this.map.name, 6 + (k - 1) * (w + 10), 22, { size: 10 });
+      } else if (!this.cine) {
+        const nf = UI.fit(c, this.map.name, 150, 8), w = Math.min(150, UI.measure(c, nf.s, nf.size)) + 12;
+        c.globalAlpha = Math.min(1, (bt - this.bannerT) / 0.3);
+        c.fillStyle = 'rgba(8,16,32,0.6)'; c.fillRect(2, 5, w, 14);
+        c.fillStyle = '#5adcc8'; c.fillRect(2, 5, 2, 14);
+        UI.text(c, nf.s, 8, 15, { size: nf.size, color: '#ffffff' });
+        c.globalAlpha = 1;
       }
     }
     // flaques après la pluie : reflet du ciel (bleu le jour, orangé au crépuscule, sombre la nuit),

@@ -50,7 +50,7 @@
       for (const [x, y] of [[22, 16], [42, 17]]) d.ell(x, y, 5, 3, '#c83a2a', 0.3, { shiny: true });
       d.deco.circ(32, 16, 3, '#ff5a3a', { unlit: true });
     } },
-    trophystand: { w: 26, h: 40, n: 4, draw(d, v) {
+    trophystand: { w: 26, h: 40, n: 5, draw(d, v) {
       d.ell(13, 38, 11, 2.2, '#1a1418', 0, { flat: true });
       d.rect(3, 26, 20, 12, '#7a5a3a', { round: 0.12, tex: 0.3 }); d.deco.rect(3, 26, 20, 2, '#a07a4a');
       d.deco.rect(8, 31, 10, 3, '#d8c070');                       // plaque
@@ -65,6 +65,15 @@
         d.ell(13, 14, 7, 6.5, '#f0a0b8', 0, { shiny: true });
         d.deco.curve([[13, 14], [16, 12], [15, 9], [11, 10], [10, 14], [13, 18]], 0.8, '#c06a88');
         d.tube([[7, 18], [4, 12], [6, 7]], 1.6, 1, '#5ab04a');
+      } else if (v === 3) {   // Monochromon : tête grise cuirassée, corne d'ivoire
+        d.ell(13, 15, 7, 5.5, '#7a7a86', 0, { shiny: true, tex: 0.3 });
+        d.poly([[13, 9], [11, 2], [15, 9]], '#ece4cc'); d.deco.line(8, 13, 18, 13, 0.7, '#4a4a56');
+        d.deco.circ(10, 15, 1, '#e8482a', { unlit: true }); d.deco.circ(16, 15, 1, '#e8482a', { unlit: true });
+      } else if (v === 4) {   // Seadramon : tête de serpent de mer bleue, crête orange
+        d.ell(13, 15, 6.5, 5, '#3a8ae0', 0, { shiny: true });
+        d.poly([[8, 11], [10, 4], [12, 10]], '#f0902a'); d.poly([[14, 10], [16, 4], [18, 11]], '#f0902a');
+        d.deco.ell(10.5, 14, 1.3, 0.9, '#ffffff', 0, { unlit: true }); d.deco.ell(15.5, 14, 1.3, 0.9, '#ffffff', 0, { unlit: true });
+        d.deco.line(9, 18, 17, 18, 0.7, '#1a4a8a');
       } else {         // trophée générique : une coupe
         d.poly([[7, 8], [19, 8], [16, 18], [10, 18]], '#e8c040', { shiny: true });
         d.tube([[13, 18], [13, 22]], 1.4, 2, '#d8b030');

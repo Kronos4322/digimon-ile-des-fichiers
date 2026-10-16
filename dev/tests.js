@@ -384,13 +384,16 @@ test("Shellmon : Tai et son Digimon (devenu Greymon) rejoignent le combat à mi-
   await B.allyTurn(); yes(B.allyMon && B.allyMon.sp === 'greymon', "Greymon ne rejoint pas le combat");
   const hp = B.enemy.hp; await B.allyTurn(); yes(B.enemy.hp < hp, "l'allié ne frappe pas");
 });
-test('Tai délivré : sa chambre apparaît dans ta maison (porte du salon), et il ne reste pas chez Jijimon', () => {
+test('Tai délivré : sa chambre apparaît à l’étage de ta maison (escalier dans le salon), et il ne reste pas chez Jijimon', () => {
   fresh();
   DW.state.hero = 'perso';
   const M = DW.MAPS.maison_joueur; M.version = null; M.build();
   yes(!M.warps.some(w => w.to === 'maison_joueur_tai'), 'chambre de Tai avant sa libération');
   DW.Crests.freeKid('tai'); M.version = null; M.build();
-  yes(M.warps.some(w => w.to === 'maison_joueur_tai'), 'pas de porte vers la chambre de Tai');
+  // (les chambres des enfants sont à l'étage : un escalier apparaît dans le salon)
+  yes(M.doors.some(d => d.to === 'maison_joueur_etage'), "pas d'escalier vers l'étage");
+  const E = DW.MAPS.maison_joueur_etage; E.version = null; E.build();
+  yes(E.warps.some(w => w.to === 'maison_joueur_tai'), 'pas de porte vers la chambre de Tai');
   const atJiji = DW.MAPS.maison.npcs.find(n => n.hero === 'tai');
   yes(!atJiji || !atJiji.cond(DW.state), 'Tai attend encore chez Jijimon');
 });

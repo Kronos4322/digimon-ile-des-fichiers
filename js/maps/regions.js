@@ -488,7 +488,7 @@
   const byLevel = (n, what) => ({ cond: () => T().level() >= n, lock: () => `Une barrière de données bloque ${what}. Elle se dissipera quand la Ville des Fichiers sera devenue « ${LV(n)} » (${T().STEPS[n]} % de développement ; actuellement ${T().progress()} %).` });
   const GATE = {
     montagne: { cond: () => T().has('gotsumon'), lock: "Un éboulis bloque le Pont de l'Infini... Un Digimon solide comme un roc pourrait le déblayer. (Recrute Gotsumon)" },
-    lac: { cond: () => T().has('betamon'), lock: "Le sentier du nord est inondé... Un Digimon amphibie saurait ouvrir un passage. (Recrute Betamon)" },
+    lac: { cond: () => T().has('betamon') || (DW.state.flags.chapter || 1) >= 2, lock: "Le sentier du nord est inondé... Un Digimon amphibie saurait ouvrir un passage. (Recrute Betamon)" },
     brumes: { cond: () => T().has('elecmon'), lock: "Le Bois Brumeux est plongé dans le noir total... Il faudrait quelqu'un pour rallumer les lanternes. (Recrute Elecmon)" },
     marais: { cond: () => T().has('palmon'), lock: "Des ronces géantes bloquent le chemin de l'ouest... Un Digimon plante pourrait les écarter. (Recrute Palmon)" },
     tunnel: { cond: () => T().level() >= 5, lock: () => `Une grille rouillée ferme le tunnel. Jijimon en a la clé : il te la confiera quand la ville sera devenue « ${LV(5)} ».` },

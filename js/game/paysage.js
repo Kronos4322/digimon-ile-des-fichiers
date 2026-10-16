@@ -75,13 +75,20 @@
       const m = pt();
       // la mer (régions de plage, sauf les mares) : salée, elle ne désaltère pas
       if (!spring && ow.map.climate === 'beach' && ow.tileAt(x, y) === '~') {
-        const r = await DW.ask('Les vagues viennent mourir sur le sable.', ['Goûter l\'eau', 'Jouer dans les vagues', 'Rien']);
+        const rod = DW.Peche && DW.Peche.has();
+        const r = await DW.ask('Les vagues viennent mourir sur le sable.', ['Goûter l\'eau', 'Jouer dans les vagues', ...(rod ? ['Pêcher'] : []), 'Rien']);
+        if (rod && r === 2) { await DW.Peche.cast(ow, 'mer'); return; }
         if (r === 0 && m) { DW.Audio.sfx('bump'); m.addHappy(-1); await say(`${m.name} recrache aussitôt : « Beurk, c'est salé ! » (L'eau de mer ne désaltère pas.)`); }
         else if (r === 1 && m) { DW.Audio.sfx('water'); m.addHappy(3); emote(ow, 'note'); await say(`${m.name} saute dans les vagues en riant ! (bonheur +3)`); }
         return;
       }
-      if (!m) { await say(spring ? 'Une source d\'eau claire.' : 'L\'eau est fraîche.'); return; }
-      const r = await DW.ask(spring ? 'Une source d\'eau claire.' : 'L\'eau clapote.', ['Boire un peu', 'Jouer dans l\'eau', 'Rien']);
+      // canne à pêche de Gomamon (game/peche.js) : partout sauf dans une source
+      const rod = !spring && DW.Peche && DW.Peche.has();
+      if (!m && !rod) { await say(spring ? 'Une source d\'eau claire.' : 'L\'eau est fraîche.'); return; }
+      const ch = [...(m ? ['Boire un peu', 'Jouer dans l\'eau'] : []), ...(rod ? ['Pêcher'] : []), 'Rien'];
+      const pick = ch[await DW.ask(spring ? 'Une source d\'eau claire.' : 'L\'eau clapote.', ch)];
+      if (pick === 'Pêcher') { await DW.Peche.cast(ow, DW.Peche.kindAt(ow)); return; }
+      const r = pick === 'Boire un peu' ? 0 : pick === 'Jouer dans l\'eau' ? 1 : 2;
       if (r === 0) { const thirsty = DW.Care.drink(m, spring ? 80 : 50); m.tired = Math.max(0, m.tired - 5); DW.Audio.sfx('water'); await say(thirsty ? `${m.name} boit à grandes gorgées. Ça fait du bien ! (soif étanchée)` : `${m.name} trempe les lèvres... Il n'avait pas vraiment soif.`); if (spring && once(ow, x, y)) await give('eau_source'); }
       else if (r === 1) { DW.Audio.sfx('water'); m.addHappy(3); emote(ow, 'note'); await say(`${m.name} s'éclabousse en riant ! (bonheur +3)`); }
     },

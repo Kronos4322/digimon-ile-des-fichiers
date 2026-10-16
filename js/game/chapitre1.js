@@ -41,7 +41,7 @@
     mushroomon: 'le Restaurant de Mushroomon (repas, recettes)', yokomon: 'le Jardin de Yokomon (la DigiFerme, où se reposent tes autres Digimon)',
     betamon: 'la fontaine de Betamon (elle soigne ton équipe)', biyomon: 'la Poste de Biyomon (vols rapides, nouvelles)',
     kunemon: 'la Banque de Kunemon (objets en trop)', palmon: 'la Grange de Palmon, aux Champs (récolte chaque jour)',
-    gomamon: 'le ponton de Gomamon, aux Champs (pêche)',
+    gomamon: 'le ponton de Gomamon, aux Champs (pêche ; il offre une canne)',
   };
   async function townSign() {
     const T = DW.Town, here = T.RECRUITS.filter(r => T.has(r.id));
@@ -178,7 +178,7 @@
   async function previously() {
     const s = st(), m = s.party[0];
     await say(`PRÉCÉDEMMENT... Jour ${Math.floor(s.clock / 1440) + 1}.${m ? ` ${m.name} (${m.d.stage}, niveau ${m.level}) est à tes côtés.` : ''}`);
-    await say(objective());
+    await say(DW.Chapter.objective());   // (le chapitre 2 complète les objectifs : game/chapitre2.js)
   }
 
   DW.Chapter = { ChapterScene, townSign, tour, end1, lock, objective, previously };

@@ -45,7 +45,7 @@
       const chk = DW.Evo.check(m, o);
       if (!chk.ok) { Audio.sfx('bump'); await DW.say('Les conditions ne sont pas encore remplies. Entraîne-toi et gagne des combats !'); return; }
       Audio.sfx('select');
-      const name = st.seen[o.to] ? DW.SPECIES[o.to].name : '???';
+      const name = (st.owned || {})[o.to] ? DW.SPECIES[o.to].name : '???';
       const r = await DW.ask(`Faire digivoluer ${m.name} en ${name} ?`);
       if (r !== 0) return;
       await Game.push(new DW.EvolutionScene(m, o.to, { manual: true }));
@@ -103,7 +103,7 @@
       if (top + VIS < opts.length) UI.text(c, '▼', 306, 166, { size: 7, color: '#8ae0f0' });
       shown.forEach((o, jj) => {
         const j = top + jj, y = 52 + jj * 28, sel = this.col === 1 && j === this.sel;
-        const known = st.seen[o.to], chk = DW.Evo.check(m, o);
+        const known = !!(st.owned || {})[o.to], chk = DW.Evo.check(m, o);
         UI.box(c, 214, y, 100, 26, sel ? 'dwsel' : 'dw');
         this.icon(c, o.to, 228, y + 24, known);
         { const nf = UI.fit(c, known ? DW.SPECIES[o.to].name : '???', 68, 8); UI.text(c, nf.s, 242, y + 12, { size: nf.size, color: sel ? '#ffffff' : '#c8f0ff' }); }
@@ -119,7 +119,7 @@
       } else if (opts[this.sel]) {
         const o = opts[this.sel], chk = DW.Evo.check(m, o);
         UI.label(c, 'CONDITIONS', 12, 173);
-        UI.text(c, st.seen[o.to] ? DW.SPECIES[o.to].name : 'Forme inconnue', 90, 182, { size: 9, color: '#ffe070' });
+        UI.text(c, (st.owned || {})[o.to] ? DW.SPECIES[o.to].name : 'Forme inconnue', 90, 182, { size: 9, color: '#ffe070' });
         chk.rows.forEach((r, j) => {
           const x = 14 + (j % 2) * 150, y = 196 + Math.floor(j / 2) * 10.5;
           UI.text(c, r.ok ? '✔' : '✘', x, y, { size: 8, color: r.ok ? OK : NO });

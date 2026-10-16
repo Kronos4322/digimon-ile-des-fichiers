@@ -41,7 +41,9 @@
   };
   const ORDER = Object.keys(FURN);
   const owned = id => !!(st().home && st().home.owned[id]);
-  const upstairs = () => owned('tele') && owned('tapis');   // salon aménagé : la maison prend un étage
+  // salon aménagé, ou un enfant délivré qui vient habiter chez toi : la maison prend un étage (les chambres y sont)
+  const KIDS_HOME = ['tai', 'matt'];
+  const upstairs = () => (owned('tele') && owned('tapis')) || KIDS_HOME.some(k => !!(st().kids || {})[k] && st().hero !== k);
   const roomOf = id => (typeof FURN[id].room === 'function' ? FURN[id].room() : FURN[id].room) || null;
   // pièces annexes : ouvertes par un achat ; porte dans le mur gauche ou droit du salon (side), à la hauteur y
   const ROOMS = {
@@ -52,7 +54,7 @@
     sport:   { name: 'Salle de sport', w: 10, h: 8, side: 'left', y: 7, by: ['halteres'], floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#e8ecf4', alt: '#d4dae6', pattern: 'stripes', wood: '#4a5a7a' },
       decor: [{ kind: 'bigrug', v: 2, x: 2, y: 5, w: 4, h: 2, walk: true }, { kind: 'bigplant', x: 1, y: 6, w: 1, h: 1, small: true }] },
     // chambre de Tai : elle apparaît quand Tai est délivré (antre de Shellmon) ; décor de Tai (ballon, lunettes, posters orange)
-    tai:     { name: 'Chambre de Tai', w: 10, h: 8, side: 'right', y: 6, by: [], open: () => !!(st().kids || {}).tai && st().hero !== 'tai',
+    tai:     { name: 'Chambre de Tai', from: 'etage', w: 10, h: 8, side: 'right', y: 3, by: [], open: () => !!(st().kids || {}).tai && st().hero !== 'tai',
       floor: { type: 'herring', cols: ['#d8a868', '#b07e48', '#7a5430'] }, wall: { base: '#fff0d8', alt: '#ffe0b0', pattern: 'stripes', wood: '#e8822a' },
       decor: [{ kind: 'bed', x: 6, y: 3, w: 2, h: 2 }, { kind: 'poster', v: 0, x: 2, y: 1, w: 1, h: 1, back: true, oy: 15 }, { kind: 'poster', v: 1, x: 4, y: 1, w: 1, h: 1, back: true, oy: 15 },
         { kind: 'bigrug', v: 1, x: 3, y: 5, w: 3, h: 1, walk: true }, { kind: 'toybox', x: 2, y: 3, w: 2, h: 1 }],
@@ -71,6 +73,17 @@
         "Le foot me manque. Tu crois qu'on pourrait faire une partie avec les Digimon de la ville ?",
         "Tu as entendu ? Les cabines de la plage se sont remises à sonner... Shellmon est revenu dans son antre. Parfait pour s'entraîner !"]), 'Tai'); } },
         { sp: 'agumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say('Tu as quelque chose à manger ? Moi, j\'ai toujours faim !', 'Agumon') }] },
+    // chambre de Matt : elle apparaît quand Matt est délivré (Lac du Tramway, chapitre 2) ; décor bleu, son harmonica
+    matt:    { name: 'Chambre de Matt', from: 'etage', w: 10, h: 8, side: 'left', y: 6, by: [], open: () => !!(st().kids || {}).matt && st().hero !== 'matt',
+      floor: { type: 'herring', cols: ['#b8b0a0', '#908878', '#5a5448'] }, wall: { base: '#dce8f8', alt: '#c4d6f0', pattern: 'stripes', wood: '#3a5a9a' },
+      decor: [{ kind: 'bed', x: 2, y: 3, w: 2, h: 2 }, { kind: 'poster', v: 1, x: 5, y: 1, w: 1, h: 1, back: true, oy: 15 }, { kind: 'poster', v: 0, x: 7, y: 1, w: 1, h: 1, back: true, oy: 15 },
+        { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }, { kind: 'shelf', x: 6, y: 1, w: 2, h: 1, back: true, oy: 6 }],
+      npcs: [{ hero: 'matt', x: 5, y: 4, face: 'down', wander: 1, talk: async () => DW.say(DW.pick([
+        "Merci pour l'autre nuit. Sans toi et Garurumon, Seadramon m'aurait broyé...",
+        "TK est quelque part sur l'île. Il est petit, il doit avoir peur... Si tu entends parler d'un garçon avec un bob vert, préviens-moi.",
+        "Tai ronfle. Même à travers le mur. Je te jure.", "Cet harmonica, c'est tout ce qu'il me reste de la maison... Je joue le soir, pour que TK l'entende, peut-être.",
+        "Gabumon refuse de quitter sa fourrure. Même quand il fait chaud. Allez comprendre."]), 'Matt') },
+        { sp: 'gabumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say(DW.pick(['Ne dis pas à Matt que je trouve sa musique très belle... Il serait gêné.', "Garurumon, c'était moi ! J'ai encore du mal à y croire."]), 'Gabumon') }] },
     digi:    { name: 'Chambre du Digimon', from: 'etage', w: 10, h: 8, side: 'right', y: 5, by: ['chambre_digi'], floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
       decor: [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }] },
   };
@@ -223,7 +236,7 @@
     floor: { type: 'carpet', cols: ['#c8a0d8', '#a880bc', '#7a5a90'] }, wall: { base: '#f8eef4', alt: '#ecdce8', pattern: 'dots', wood: '#8a5a7a' },
     rows: roomRows(14, 10), objects: [], npcs: [], signs: {}, warps: [], doors: [],
     build() {
-      const version = ORDER.filter(owned).join(',');
+      const version = ORDER.filter(owned).join(',') + '|' + Object.keys(ROOMS).filter(roomOpen).join(',');
       if (this.version === version && this.objects.length) return;
       this.version = version;
       this.objects = [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 },

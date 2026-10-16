@@ -169,6 +169,13 @@
   // pêche : une fois par heure de jeu
   async function gomamonTalk() {
     const s = st(), hr = Math.floor(s.clock / 60);
+    // la première fois, Gomamon offre sa canne à pêche (game/peche.js : pêcher partout où il y a de l'eau)
+    if (!(s.bag || {}).canne && !s.flags.canne) {
+      await say("Hé ! Avant tout... tiens, prends ça ! C'est ma vieille canne à pêche. Moi, je pêche avec les nageoires !", 'Gomamon');
+      s.flags.canne = true; DW.giveItem('canne', 1); DW.Audio.sfx('fanfare');
+      await say("Tu reçois la Canne à pêche ! Face à l'eau (rivière, lac, mer), choisis « Pêcher ».");
+      await say("Chaque eau a ses poissons : la mer, les rivières, les lacs... Et les plus gros sortent la nuit ou au petit matin !", 'Gomamon');
+    }
     await say('Hé ! Tu veux pêcher avec moi ?', 'Gomamon');
     if (s.flags.fish === hr) { await say('Les poissons se méfient... Attends un peu !', 'Gomamon'); return; }
     if ((await DW.ask('Lancer la ligne ?')) !== 0) return;

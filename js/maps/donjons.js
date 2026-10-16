@@ -140,7 +140,7 @@
     tk: "Quand je serai grand, je serai aussi courageux que toi !",
   };
   if (MAPS.maison) C.ORDER.forEach((k, i) => MAPS.maison.npcs.push({ hero: k, x: HOME_SPOTS[i][0], y: HOME_SPOTS[i][1], face: 'down',
-    cond: s => s.hero !== k && !!(s.kids || {})[k] && !(k === 'tai' && s.hero === 'perso'), talk: () => say(HOME_WORDS[k], DW.HEROES[k].name) }));   // (Tai vit dans ta maison)
+    cond: s => s.hero !== k && !!(s.kids || {})[k] && !((k === 'tai' || k === 'matt') && s.hero === 'perso'), talk: () => say(HOME_WORDS[k], DW.HEROES[k].name) }));   // (Tai et Matt vivent dans ta maison)
 
   // ------------------------------------------------------------ portails dans les régions (lus par regions.js)
   DW.Donjons = {
