@@ -601,7 +601,9 @@
       const reach = extra => { const st = goals.find(([x, y]) => !blocked(x, y, extra)); if (!st) return null; const seen = new Set([st.join()]), q = [st]; while (q.length) { const [x, y] = q.pop(); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + a, ny = y + b, k = nx + ',' + ny; if (!seen.has(k) && !blocked(nx, ny, extra)) { seen.add(k); q.push([nx, ny]); } } } return seen; };
       const base = reach(null), need = base ? goals.filter(([x, y]) => base.has(x + ',' + y)) : [];
       for (const grp of widen) {
-        const extra = new Set(grp.filter(k => !solid.has(k)));
+        // (jamais sur un chemin : un rocher ou un tuyau au bord du sentier ne doit pas le rétrécir)
+        const onPath = k => { const [x, y] = k.split(',').map(Number); const ch = (map.rows[y] || '')[x]; return ch === '=' || ch === 'z'; };
+        const extra = new Set(grp.filter(k => !solid.has(k) && !onPath(k)));
         if (!extra.size) continue;
         const r = reach(extra);
         if (r && need.every(([x, y]) => r.has(x + ',' + y) || extra.has(x + ',' + y))) for (const k of extra) solid.add(k);
