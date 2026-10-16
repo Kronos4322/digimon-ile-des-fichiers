@@ -4,7 +4,7 @@
 //  1) après Kuwagamon, chaque cabine de la plage murmure un mot ; écoutées dans le bon ordre (« Aide-moi,
 //     je suis sous le sable »), elles font s'ouvrir le sable : on descend dans l'antre ;
 //  2) deux grands labyrinthes ensablés (temple de Pharaomon, Digimon World 2003), Digimon de plus en plus forts ;
-//  3) au fond, Shellmon garde Tai et Agumon prisonniers. À 30 % de ses PV, Tai est libéré :
+//  3) au fond, Shellmon garde Tai et Agumon prisonniers. À 35 % de ses PV, Tai est libéré :
 //     Agumon digivolue en Greymon et combat à tes côtés (allié automatique, game/arena.js et battle.js) ;
 //  4) victoire : trophée de Shellmon (cave de ta maison), Tai s'installe dans sa chambre chez toi,
 //     fin du chapitre 1. Ensuite Shellmon reste là : on peut le réaffronter pour l'expérience.
@@ -150,9 +150,9 @@
   }
   const [px, py] = DW.MapKit.zpt('plage', 18, 27);
   const L1 = lairMap('antre1', 'Antre de Shellmon — Galeries ensablées', 311,
-    [{ sp: 'bukamon', min: 10, max: 11, w: 30 }, { sp: 'betamon', min: 10, max: 12, w: 40 }, { sp: 'gotsumon', min: 11, max: 12, w: 20 }], ['plage', px, py], 'antre2');
+    [{ sp: 'bukamon', min: 11, max: 13, w: 30 }, { sp: 'betamon', min: 12, max: 14, w: 40 }, { sp: 'gotsumon', min: 12, max: 14, w: 20 }], ['plage', px, py], 'antre2');
   const L2 = lairMap('antre2', 'Antre de Shellmon — Temple englouti', 523,
-    [{ sp: 'betamon', min: 12, max: 14, w: 40 }, { sp: 'gotsumon', min: 13, max: 14, w: 30 }, { sp: 'kunemon', min: 13, max: 15, w: 20 }, { sp: 'mushroomon', min: 14, max: 15, w: 15 }], ['antre1', L1.exitAt.x, L1.exitAt.y], 'antre_shellmon');
+    [{ sp: 'betamon', min: 14, max: 16, w: 40 }, { sp: 'gotsumon', min: 15, max: 17, w: 30 }, { sp: 'kunemon', min: 15, max: 17, w: 20 }, { sp: 'mushroomon', min: 16, max: 18, w: 15 }], ['antre1', L1.exitAt.x, L1.exitAt.y], 'antre_shellmon');   // (de quoi monter jusqu'au niveau 17-18 avant Shellmon)
   L1.signs[`${L1.entry.x + 1},${L1.entry.y - 1}`] = "Des marches taillées dans le grès s'enfoncent sous la plage. Sur la paroi, une gravure : un coquillage géant enroulé autour d'une pyramide.";
   // ------------------------------------------------------------ la grande caverne de Shellmon
   // une immense salle ovale : lagune au fond (la coquille de Shellmon), colonnade de piliers, braseros,
@@ -197,11 +197,11 @@
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Soigne-le d'abord."); return; }
     await say(first ? 'GRRRAAAH ! Personne ne touche à mes prisonniers !' : 'Encore toi ?! Cette fois, je vais t\'écraser !', 'Shellmon');
     if ((await DW.ask(first ? 'Affronter Shellmon ? (un Champion très puissant)' : 'Affronter Shellmon de nouveau ?')) !== 0) return;
-    // premier combat : niveau 18, Tai et Greymon n'arrivent qu'à 30 % de ses PV (il faut tenir seul longtemps) ;
+    // premier combat : niveau 17, Tai et Greymon n'arrivent qu'à 35 % de ses PV (il faut tenir seul longtemps) ;
     // ensuite il suit ton niveau (de l'expérience à volonté)
     const top = Math.max(...s.party.map(m => m.level || 1));
-    const lvl = first ? 18 : Math.min(60, Math.max(16, top + 1));
-    const ally = first && perso() ? { at: 0.3, from: 'agumon', sp: 'greymon', lvl: 16, hero: 'tai', name: 'Tai', move: 'mega_flamme',
+    const lvl = first ? 17 : Math.min(60, Math.max(16, top + 1));
+    const ally = first && perso() ? { at: 0.35, from: 'agumon', sp: 'greymon', lvl: 16, hero: 'tai', name: 'Tai', move: 'mega_flamme',
       join: "CRAC ! Le coquillage qui retenait Tai se fend ! « Agumon, on s'y met aussi ! »" } : null;
     const res = await ow.battle({ enemy: new DW.Digimon('shellmon', lvl), boss: true, canLose: true, ally, music: 'shellmon', intro: 'Shellmon déploie ses tentacules !' });
     if (res !== 'win') { await say(first ? 'Shellmon est bien trop fort... Entraîne-toi, digivolue, et reviens délivrer Tai !' : 'Shellmon retourne se tapir dans sa coquille...'); return; }
