@@ -43,7 +43,6 @@
       win: "Bien joué ! Allez, je viens en ville. J'ai repéré un endroit parfait pour pêcher..." });
     const cond = n.cond, talk = n.talk;
     n.shadow = true;   // dessiné comme une ombre sous l'eau (game/overworld.js)
-    n.hide = false;    // (déjà difficile à trouver : une ombre, de 16 h à 19 h seulement)
     n.cond = s => cond(s) && (h => h >= GOMA_HOURS[0] && h < GOMA_HOURS[1])(DW.Time.hour());
     n.talk = async ow => {
       await say("Une grande ombre nage juste sous la surface... Elle s'approche du rivage !");

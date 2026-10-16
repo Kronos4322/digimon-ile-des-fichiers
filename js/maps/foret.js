@@ -133,7 +133,7 @@
         await say('Regarde la table des Digivolutions dans le menu pour savoir quoi travailler.', 'Yokomon');
       } },
       pickup(31, 9, 'remede', 2, 'pk_prairie1'),
-      recruitNPC({ sp: "kunemon", x: 18, y: 4, lvl: 10, face: "left",
+      recruitNPC({ sp: "kunemon", x: 23, y: 7, lvl: 10, face: "left",   // (dans un coin dégagé au nord-est : plus caché sous les arbres)
         lines: ["Bzzz ! Je suis Kunemon. Je ramasse tout ce qui traîne et je le range dans mes cocons de soie...", "Tu veux mes trésors ? Bats-moi d'abord, bzzz !"],
         win: "Bzzz... Tu es fort ! D'accord, je viens en ville. J'ai une idée pour ranger tout ça !" }),
       recruitNPC({ sp: 'mushroomon', x: 21, y: 17, lvl: 10, face: 'left', cond: () => DW.Time.isNight(),
@@ -177,7 +177,7 @@
       recruitNPC({ sp: 'betamon', x: 28, y: 17, lvl: 9, face: 'right',   // (au bord de l'eau, hors des herbes hautes qui le cachaient presque entièrement)
         lines: ["Bloub... Je surveille ce lac. Avant, j'habitais en ville, il me semble.", "Si tu es assez fort pour me battre, je te suivrai !"],
         win: 'Bloub bloub ! Je rentre en ville. Je sais exactement ce qui lui manque !' }),
-      recruitNPC({ sp: "palmon", x: 14, y: 11, lvl: 9, face: "right",
+      recruitNPC({ sp: "palmon", x: 8, y: 15, lvl: 9, face: "right",   // (dans la clairière reculée à l'ouest, bien visible)
         lines: ["Oh ! Un visiteur... Je suis Palmon. Je fais pousser des fleurs entre ces arbres géants.", "On m'a dit que la ville renaissait... Mais je ne partirai qu'avec quelqu'un de fort !"],
         win: "Tu as gagné ! D'accord, je viens en ville. Mes graines vont adorer ça !" }),
       pickup(7, 15, 'viande', 3, 'pk_geants1'),

@@ -197,7 +197,7 @@
     const name = DW.SPECIES[o.sp].name;
     return {
       sp: o.sp, x: o.x, y: o.y, face: o.face || 'left', recruit: true,
-      hide: !o.noBattle && o.sp !== 'gotsumon',   // caché dans le décor : il faut fouiller la zone (sauf Gotsumon, le premier)
+      hide: false,   // (règle du joueur : jamais de Digimon invisible ; ils attendent dans des coins reculés, mais on les voit)
       cond: s => !(s.recruits && s.recruits[o.sp]) && (!o.cond || o.cond(s)),
       talk: async ow => {
         for (const l of o.lines) await say(l, name);

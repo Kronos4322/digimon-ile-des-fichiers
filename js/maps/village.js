@@ -451,7 +451,7 @@
       const list = reach.length ? reach : all, k = (f.biyoHint || 0) % list.length, next = list[k];
       f.biyoHint = (f.biyoHint || 0) + 1;
       if (next.boss) await say(`Cui ! Attention... ${next.say}`, 'Biyomon');
-      else await say(`On m'a parlé d'un Digimon qui aimerait vivre ici... On l'aurait aperçu ${next.hint}. Il se cache bien : fouille les recoins !`, 'Biyomon');
+      else await say(`On m'a parlé d'un Digimon qui aimerait vivre ici... On l'aurait aperçu ${next.hint}. Il attend dans un coin un peu à l'écart : explore bien les alentours !`, 'Biyomon');
       if (list.length > 1) await say(`(J'ai encore ${list.length - 1} autre${list.length > 2 ? 's' : ''} nouvelle${list.length > 2 ? 's' : ''} pour toi. Reviens me voir !)`, 'Biyomon');
     },
     async kunemon() {
