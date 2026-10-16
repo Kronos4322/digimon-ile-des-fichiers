@@ -571,6 +571,12 @@
           c.fillRect(X, Y + ((Math.floor(this.t * 20) + xx * 3) % TS), TS, 1);
         }
       }
+      // créatures qui VOLENT au-dessus de la carte pendant une scène (ex. Kuwagamon au début du jeu : game/debut.js)
+      for (const f of this.flyers || []) {
+        const spr = DW.Sprites.battle(f.sp);
+        if (f.shadow) { c.fillStyle = `rgba(0,0,0,${f.shadow})`; c.beginPath(); c.ellipse(f.x, f.y + 70, 30 * f.s, 8 * f.s, 0, 0, 7); c.fill(); }
+        DW.Sprites.draw(c, spr, f.x, f.y, { scale: f.s, flip: f.flip, silhouette: f.sil, frame: Math.floor(this.t * 10) });
+      }
       c.restore();
       this.amb.drawScreen(c, cam);
       if (!this.map.indoor) this.weather.draw(c);

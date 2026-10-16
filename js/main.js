@@ -8,6 +8,15 @@
 
   DW.startGame = isNew => {
     const st = DW.state;
+    // nouvelle partie (personnage original) : le début se JOUE dans la forêt (game/debut.js) — le bébé rejoint le héros là-bas
+    if (isNew && st.hero === 'perso' && DW.Debut) {
+      DW.giveItem('viande', 5); DW.giveItem('remede', 3);
+      const [x, y] = DW.MapKit.zpt('clairiere', 18, 13);
+      const ow = new DW.Overworld('clairiere', x, y, 'down');
+      Game.replaceAll(ow);
+      ow.runScript(() => DW.Debut.run(ow));
+      return;
+    }
     // nouvelle partie : le bébé de la lignée du héros est déjà là, à ses côtés, au réveil
     if (isNew && !st.party.length) {
       const sp = DW.heroLine().baby, m = new DW.Digimon(sp, 4);
