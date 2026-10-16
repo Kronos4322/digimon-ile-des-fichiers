@@ -332,7 +332,8 @@
       await DW.Game.push(new DW.FarmScene());
     },
     async biyomon() {
-      const r = await DW.ask('Cui cui ! Je peux te faire voler jusqu\'à un endroit que tu connais, ou te donner des nouvelles !', ['Vol rapide', 'Des nouvelles ?', 'Le jeu du courrier', 'Au revoir'], 'Biyomon');
+      const played = st().flags.biyoGame === DW.Time.day();
+      const r = await DW.ask('Cui cui ! Je peux te faire voler jusqu\'à un endroit que tu connais, ou te donner des nouvelles !', [`Vol rapide (${FLY_FEE} Bits)`, 'Des nouvelles ?', played ? 'Jeu du courrier (demain !)' : 'Le jeu du courrier (1 fois par jour)', 'Au revoir'], 'Biyomon');
       if (r === 0) { await flyMenu(); return; }
       if (r === 2) { await biyoGame(); return; }
       if (r !== 1) return;
@@ -380,9 +381,11 @@
     const extra = DW.giveItem('cartes', 1);
     await say(`Parfait ! Toutes les lettres sont arrivées ! Tiens, un Paquet de cartes pour te remercier.${DW.extraMsg(extra)}`, 'Biyomon');
   }
-  // vol rapide (comme Birdramon dans Digimon World) : lieux et régions déjà visités
+  // vol rapide (comme Birdramon dans Digimon World) : lieux et régions déjà visités — payant
+  const FLY_FEE = 80;
   async function flyMenu() {
     const s = st(), R = DW.REGION_ENTRY || {};
+    if (s.bits < FLY_FEE) { await say(`Un vol coûte ${FLY_FEE} Bits... Il me faut des graines pour avoir la force de voler ! Cui !`, 'Biyomon'); return; }
     const dest = [['Ville des Fichiers', 'village', 20, 16], ['Village des Bébés', 'berceau', 18, 15], ['Plage des Cabines', 'plage', 20, 8], ["Clairière de l'Arrivée", 'clairiere', 17, 14]]
       .filter(([, id]) => s.visited[id]).map(([n, id, x, y]) => [n, id, ...zpt(id, x, y)]);
     for (const rid in R) {
@@ -397,6 +400,8 @@
       if (i < 0 || opts[i] === 'Annuler') return;
       if (opts[i] === 'Plus loin...') { page++; continue; }
       const [name, id, x, y] = slice[i];
+      if ((await DW.ask(`Voler jusqu'à ${name} pour ${FLY_FEE} Bits ?`, ['Oui', 'Non'], 'Biyomon')) !== 0) return;
+      s.bits -= FLY_FEE; DW.Audio.sfx('buy');
       await say(`Accroche-toi bien ! Direction : ${name} !`, 'Biyomon');
       DW.Audio.sfx('swoosh');
       await DW.fade(1, 0.5, '#ffffff');

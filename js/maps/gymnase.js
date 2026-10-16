@@ -224,7 +224,7 @@
     if (!s.flags.gymIntro) {
       s.flags.gymIntro = true;
       await say("Bienvenue au Gymnase ! Je suis Leomon. Ici, on ne muscle pas : on ENDURCIT.", 'Leomon');
-      await say("Chaque appareil habitue ton Digimon à un élément : le feu, l'eau, la glace, le vent, la foudre... Les attaques de cet élément le blesseront de moins en moins (jusqu'à 40 % de dégâts en moins).", 'Leomon');
+      await say("Chaque appareil habitue ton Digimon à un élément : le feu, l'eau, la glace, le vent, la foudre... Les attaques de cet élément le blesseront de moins en moins.", 'Leomon');
       await say("Mais rien n'est gratuit : la Cascade fait un peu baisser l'Intelligence, la Soufflerie l'Attaque... Le Mur de flammes, lui, donne des PM. À toi de choisir !", 'Leomon');
     }
     let m = s.party[0];

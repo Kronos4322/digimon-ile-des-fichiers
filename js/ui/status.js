@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  FICHE DIGIMON (style Digimon World) : onglets Statut / Techniques
+//  FICHE DIGIMON (style Digimon World) : onglets Statut / Techniques / Digivolution / Résistances
 //  Gauche/Droite : onglet   Haut/Bas : Digimon (Statut) ou attaque (Techniques)
 // =====================================================================
 (function () {
@@ -21,8 +21,8 @@
     get mon() { return DW.state.party[this.i]; }
     update() {
       const n = DW.state.party.length;
-      if (Input.hit('left')) { this.tab = (this.tab + 2) % 3; Audio.sfx('move'); }
-      if (Input.hit('right')) { this.tab = (this.tab + 1) % 3; Audio.sfx('move'); }
+      if (Input.hit('left')) { this.tab = (this.tab + 3) % 4; Audio.sfx('move'); }
+      if (Input.hit('right')) { this.tab = (this.tab + 1) % 4; Audio.sfx('move'); }
       if (this.tab === 2 && Input.hit('ok')) { Audio.sfx('select'); DW.Game.push(new DW.EvoTableScene(this.i)); return; }
       if (this.tab === 0) {
         if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
@@ -38,10 +38,29 @@
       const m = this.mon, d = m.d;
       UI.menuBg(c, this.t);
       // onglets
-      UI.tabs(c, ['Statut', 'Techniques', 'Digivolution'], this.tab);
-      UI.text(c, `${this.i + 1} / ${DW.state.party.length}`, W - 10, 16, { size: 8, align: 'right', color: '#7ac8dc' });
+      UI.tabs(c, ['Statut', 'Techniques', 'Digivolution', 'Résistances'], this.tab);
+      if (DW.state.party.length > 1) UI.text(c, `${this.i + 1} / ${DW.state.party.length}`, W - 10, H - 7, { size: 7, align: 'right', color: '#7ac8dc' });   // (en bas : il recouvrait le 4e onglet)
       UI.box(c, 4, 22, W - 8, H - 26);
-      if (this.tab === 0) this.drawStatus(c, m, d); else if (this.tab === 1) this.drawTech(c, m); else this.drawEvo(c, m, d);
+      if (this.tab === 0) this.drawStatus(c, m, d); else if (this.tab === 1) this.drawTech(c, m); else if (this.tab === 2) this.drawEvo(c, m, d); else this.drawRes(c, m, d);
+    }
+    // onglet Résistances : ce que le Gymnase a endurci, et les dégâts reçus de chaque élément (élément du Digimon compris)
+    drawRes(c, m, d) {
+      UI.label(c, 'RÉSISTANCES', 12, 28);
+      UI.text(c, 'Endurcies au Gymnase : plus la valeur est haute, moins l\'élément le blesse.', 14, 46, { size: 7, color: '#8ae0f0' });
+      const types = Object.keys(DW.TYPES).filter(t => t !== 'Neutre');
+      types.forEach((t, j) => {
+        const half = Math.ceil(types.length / 2), col = j < half ? 0 : 1, y = 0, x = col ? 164 : 12, row = j < half ? j : j - half;
+        const yy = 64 + row * 27, v = (m.res || {})[t] || 0, mult = DW.typeMult(t, d.types) * (1 - (DW.Gymnase ? DW.Gymnase.resist(m, t) : 0));
+        void y;
+        UI.box(c, x, yy - 10, 146, 24, 'dark');
+        UI.typeTag(c, t, x + 6, yy - 6, 6);
+        UI.bar(c, x + 6, yy + 8, 80, 3, v / 100, DW.TYPES[t].c);
+        UI.text(c, `${v}`, x + 92, yy + 11, { size: 7, color: '#ffffff' });
+        // (pas de pourcentage : un mot, comme dans Digimon World)
+        const lab = mult >= 1.15 ? 'Point faible' : mult <= 0.6 ? 'Très résistant' : mult <= 0.9 ? 'Résiste' : 'Normal', good = mult <= 0.9, bad = mult >= 1.15;
+        UI.text(c, lab, x + 140, yy + 3, { size: 8, align: 'right', color: good ? '#7aff8a' : bad ? '#ff8a8a' : '#c8f0ff' });
+      });
+      UI.text(c, 'Selon son élément et son entraînement au Gymnase.', W / 2, H - 12, { size: 7, align: 'center', color: '#ffe070' });
     }
     // onglet Digivolution : un aperçu, ESPACE ouvre la table complète (conditions, digivoluer)
     drawEvo(c, m, d) {
@@ -66,24 +85,28 @@
       UI.tag(c, d.attr.toUpperCase(), 230, 40, '#3a6a9a', 6);
       UI.text(c, 'NIVEAU', 270, 36, { size: 7, color: '#ff70d0' });
       UI.text(c, `${m.level}`, 286, 50, { size: 11, align: 'center' });
-      [['VIE', `${m.age}/${Math.round(m.lifespan)} j`], ['POIDS', `${m.weight} kg`], ['VICTOIRES', `${m.wins}`], ['STADE', d.stage]].forEach(([k, v], j) => {
+      [['ÂGE', `${m.age} j`], ['POIDS', `${m.weight} kg`], ['VICTOIRES', `${m.wins}`], ['STADE', d.stage]].forEach(([k, v], j) => {
         const xx = 146 + j * 42;
         UI.text(c, k, xx, 63, { size: 6, color: '#5ad8ff' });
         field(c, xx, 64, 40, v);
       });
-      const ready = DW.Evo.available(m).length;
-      const evo = ready ? 'PRÊT ! (table des Digivolutions)' : d.evo ? `dès le niveau ${d.evo.lvl} + entraînement (voir la table)` : (d.stage === 'Méga' ? 'Stade maximal atteint' : '???');
-      UI.text(c, `Digivolution : ${evo}`, 14, 87, { size: 8, color: '#c8f0ff' });
+      // rythme de vie : diurne (soleil) ou nocturne (lune), et ses heures de sommeil
+      { const S = DW.Life.sched(m), night = S.bed < 12 || /noct/i.test(S.name || ''), ix = 20, iy = 84;
+        if (night) { c.fillStyle = '#f0e090'; c.beginPath(); c.arc(ix, iy, 4.5, 0, 7); c.fill(); c.fillStyle = '#16304a'; c.beginPath(); c.arc(ix + 2.4, iy - 1.6, 4, 0, 7); c.fill(); }
+        else { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(ix, iy, 3.6, 0, 7); c.fill(); c.strokeStyle = '#ffd040'; c.lineWidth = 1; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; c.beginPath(); c.moveTo(ix + Math.cos(a) * 5, iy + Math.sin(a) * 5); c.lineTo(ix + Math.cos(a) * 6.8, iy + Math.sin(a) * 6.8); c.stroke(); } }
+        const hh = v => `${Math.floor(v)} h`;
+        UI.text(c, `${night ? 'Nocturne' : 'Diurne'} : il dort de ${hh(S.bed)} à ${hh(S.wake)}`, 30, 87, { size: 8, color: '#c8f0ff' });
+        if (DW.Evo.available(m).length) UI.text(c, '★ Prêt à digivoluer !', W - 14, 87, { size: 8, align: 'right', color: Math.floor(this.t * 3) % 2 ? '#ffe070' : '#7aff8a' }); }
       // séparation
       c.fillStyle = 'rgba(90,220,240,0.35)'; c.fillRect(8, 92, W - 16, 1);
       // CONDITION + sprite
       UI.label(c, 'CONDITION', 12, 97);
       const spr = DW.Sprites.battle(m.sp);
       c.fillStyle = 'rgba(120,220,255,0.06)'; c.fillRect(12, 110, 132, 116);
-      DW.Sprites.draw(c, spr, 118, 143, { frame: Math.floor(this.t * 4), scale: Math.min(1, 36 / spr.h, 56 / spr.w) });
-      const r = m.hp / m.maxHp;
-      UI.text(c, 'PV', 18, 120, { size: 7, color: '#c8f0ff' }); UI.bar(c, 32, 116, 44, 5, r, UI.hpColor(r));
-      { const k = m.kos || 0; for (let i = 0; i < 3; i++) heart(c, 92 + i * 11, 118, i >= k); UI.text(c, 'vies', 124, 121, { size: 6, color: '#ff9ac0' }); }   // vies : 3 K.O. et il meurt
+      // le Digimon dans son cadre (à droite, au-dessus de la santé)
+      c.fillStyle = 'rgba(120,220,255,0.08)'; c.fillRect(90, 112, 52, 46); c.strokeStyle = 'rgba(120,220,255,0.3)'; c.lineWidth = 1; c.strokeRect(90.5, 112.5, 51, 45);
+      DW.Sprites.draw(c, spr, 116, 155, { frame: Math.floor(this.t * 4), scale: Math.min(1, 40 / spr.h, 46 / spr.w) });
+      { const k = m.kos || 0; for (let i = 0; i < 3; i++) heart(c, 22 + i * 12, 118, i >= k); }   // 3 cœurs : les K.O. (au 3e, il meurt)
       const cond = m.hp <= 0 ? 'K.O.' : m.status ? DW.STATUS_NAME[m.status] : m.sick ? 'Malade' : m.hurt ? 'Blessé' : DW.Life.sleepy(m) ? 'Somnolent' : 'En forme';
       UI.text(c, cond, 18, 134, { size: 9, color: cond === 'En forme' ? '#a0ffb0' : '#ff8a8a' });
       // santé : négligences accumulées (life.js) — plus la barre baisse, plus la maladie guette
@@ -106,7 +129,7 @@
       UI.text(c, `Discipline ${Math.round(m.disc)}`, 18, 211, { size: 7, color: '#9ad0ff' });
       UI.bar(c, 18, 214, 60, 4, m.disc / 100, '#5a9ae8');
       UI.text(c, `Erreurs de soin ${m.mistakes}`, 84, 211, { size: 7, color: m.mistakes >= 5 ? '#ff7a7a' : '#c8f0ff' });
-      UI.text(c, `${DW.Life.fatLabel(m)} · reste ${DW.Life.daysLeft(m)} j · vie n°${m.lives + 1} · ${DW.Life.sched(m).name} · K.O. ${m.kos || 0}/3`, 18, 228, { size: 7, color: (m.kos || 0) >= 2 ? '#ff8a8a' : '#c8f0ff' });
+      UI.text(c, `${DW.Life.fatLabel(m)} · vie n°${m.lives + 1}`, 18, 228, { size: 7, color: '#c8f0ff' });
       // PARAMÈTRES
       UI.label(c, 'PARAMÈTRES', 152, 97);
       PARAMS.forEach(([k, lab, col], j) => {

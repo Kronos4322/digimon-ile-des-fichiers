@@ -14,9 +14,10 @@
     { name: 'Distributeur de nourriture', stock: ['viande', 'eau_fraiche'] },
     { name: 'Distributeur de la ville', stock: ['soin_p', 'disque_pm', 'viande', 'eau_fraiche', 'bandage'] },
   ];
-  // cartes équipées : la forêt et la plage, puis l'entrée de chaque région
-  const BASE = ['clairiere', 'sentier', 'prairie', 'geants', 'lisiere', 'plage', 'crique', 'dunes', 'bosquet', 'champs'];
-  const list = () => BASE.concat(Object.values(DW.REGION_ENTRY || {}));
+  // cartes équipées (peu nombreuses : un distributeur doit rester une bonne surprise) : 3 dans la forêt et sur la plage,
+  // puis une région sur deux
+  const BASE = ['sentier', 'plage', 'geants'];
+  const list = () => BASE.concat(Object.values(DW.REGION_ENTRY || {}).filter((_, i) => i % 2 === 0));
   const hash = (x, y, s) => { let h = (x * 374761393 + y * 668265263 + s * 2246822519) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
   function place(m, id) {
