@@ -452,13 +452,16 @@
     // ---------------------------------------------------------- expérience
     async giveXp() {
       const E = this.enemy;
-      const alive = [...this.parts].filter(m => m.hp > 0 && this.st.party.includes(m));
+      // EXPÉRIENCE PARTAGÉE : toute l'équipe (sauf les K.O.) gagne autant que le Digimon qui a combattu ;
+      // la victoire, le bonheur et l'effort ne comptent que pour ceux qui ont combattu (l'entraînement reste individuel)
+      const fought = new Set([...this.parts].filter(m => m.hp > 0));
+      const alive = this.st.party.filter(m => m.hp > 0);
       if (alive.length) {
         const total = Math.floor(E.d.xp * E.level / 7 * (this.wild ? 1 : 1.5));
         for (const m of alive) {
           // contre un adversaire plus faible, on apprend peu (on ne monte plus de niveau en écrasant les petits)
-          const gap = DW.clamp(1 - (m.level - E.level) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total / alive.length * gap));
-          m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.02);   // (un combat fait à peine maigrir : 200 combats ne doivent pas affamer)
+          const gap = DW.clamp(1 - (m.level - E.level) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total * gap));
+          if (fought.has(m)) { m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.02); }   // (un combat fait à peine maigrir : 200 combats ne doivent pas affamer)
           await this.msg(`${m.name} gagne ${each} points d'EXP !`, 0.8);
           const events = m.addXp(each);
           for (const ev of events) {

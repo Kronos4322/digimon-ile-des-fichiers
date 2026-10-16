@@ -39,8 +39,14 @@
       const t = this.t, n = this.list.length;
       nurseryBg(c, t);
       UI.text(c, 'CHOISIS UN DIGIŒUF', W / 2, 22, { size: 12, align: 'center', bold: true, color: '#8a3a6a', shadowColor: 'rgba(255,255,255,0.8)' });
+      // (tous les œufs tiennent à l'écran : espacement réduit, et au-delà de 6 œufs le rang défile vers l'œuf choisi)
+      const vis = Math.min(n, 6), gap = Math.min(56, (W - 40) / Math.max(1, vis - 1)), target = n > vis ? DW.clamp(this.i - (vis - 1) / 2, 0, n - vis) : 0;
+      this.cam = this.cam == null ? target : this.cam + (target - this.cam) * 0.2;
+      const x0 = W / 2 - (vis - 1) / 2 * gap - this.cam * gap;
+      if (n > vis) { if (this.cam > 0.05) UI.text(c, '◀', 8, 116, { size: 10, color: '#e0508a', shadow: false }); if (this.cam < n - vis - 0.05) UI.text(c, '▶', W - 16, 116, { size: 10, color: '#e0508a', shadow: false }); }
       this.list.forEach((sp, j) => {
-        const sel = j === this.i, x = W / 2 + (j - (n - 1) / 2) * 56, bob = sel ? Math.sin(t * 5) * 2 : 0;
+        const sel = j === this.i, x = x0 + j * gap, bob = sel ? Math.sin(t * 5) * 2 : 0;
+        if (x < -20 || x > W + 20) return;
         // coussin
         c.fillStyle = sel ? '#ff9ac0' : '#f6c0d6'; c.beginPath(); c.ellipse(x, 126, 22, 6, 0, 0, 7); c.fill();
         const spr = DW.eggSprite(sp), k = sel ? 1.25 : 1;
