@@ -51,6 +51,7 @@
     bota: 'prochain conseil de Koromon, le guide de la ville (compteur)',
     cups: 'coupes du Colisée remportées { nom: true }',
     cuisineTip: 'explication de la cuisine entendue (game/cuisine.js)',
+    dojoDay: 'jour des dernières séances au Dojo agrandi { zen, combat }',
     maraich: 'jour de la dernière récolte offerte par chaque maraîcher de la serre { maraicher_xxx: jour }',
     recipeQuest: 'recette que Mushroomon a demandé de préparer (quête en cours)',
     cookIntro: 'présentation de la cuisine en ville entendue (maps/village.js)',

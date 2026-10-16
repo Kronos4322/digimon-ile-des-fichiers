@@ -204,6 +204,67 @@
     };
   }
 
+  // ------------------------------------------------------------ le Dojo → Grand Dojo (+ salle de méditation) → Dojo complet (+ salle des combats)
+  const dojo = MAPS.dojo_in;
+  if (dojo) {
+    const svc = () => DW.Story.services.elecmon();
+    const once = key => { const f = st().flags; f.dojoDay = f.dojoDay || {}; if (f.dojoDay[key] === DW.Time.day()) return false; f.dojoDay[key] = DW.Time.day(); return true; };
+    const open = (m, x, y) => { m.rows[y] = m.rows[y].slice(0, x) + '1' + m.rows[y].slice(x + 1); };
+    const room = (w, h) => ['0'.repeat(w), '0' + '2'.repeat(w - 2) + '0', '0' + '2'.repeat(w - 2) + '0', ...Array.from({ length: h - 4 }, () => '0' + '1'.repeat(w - 2) + '0'), '0'.repeat(w)];
+    const TATAMI = { type: 'tatami', cols: ['#dccf8e', '#c8ba78', '#6a8a4a'] }, WALL = { base: '#f4eedc', alt: '#e4dcc4', pattern: 'plain', wood: '#4a3020' };
+    // salle de méditation (à gauche du dojo)
+    MAPS.dojo_zen = { name: "Dojo d'Elecmon — Salle de méditation", music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true, secretEntry: true,   // (ouverte seulement quand le dojo a grandi)
+      floor: TATAMI, wall: WALL, rows: room(14, 10), npcs: [], signs: {}, doors: [],
+      objects: [...[3, 6, 9].map(x => ({ kind: 'scroll', v: x % 2, x, y: 1, w: 1, h: 2, back: true, oy: -4 })), ...[[3, 5], [6, 5], [9, 5], [4, 7], [8, 7]].map(([x, y], i) => ({ kind: 'cushion', v: i % 3, x, y, w: 1, h: 1, small: true })),
+        { kind: 'plant', v: 0, x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'plant', v: 1, x: 11, y: 8, w: 1, h: 1, small: true }],
+      warps: [{ x: 13, y: 5, w: 1, h: 2, dir: 'right', to: 'dojo_in', tx: 1, ty: 5 }] };
+    for (const y of [5, 6]) open(MAPS.dojo_zen, 13, y);
+    MAPS.dojo_zen.npcs.push({ sp: DW.SPECIES.patamon ? 'patamon' : 'elecmon', x: 6, y: 4, face: 'down', talk: async () => {
+      const m = st().party[0], n = DW.SPECIES.patamon ? 'Patamon' : 'Elecmon';
+      if (!m) return;
+      if (!once('zen')) { await say(`${m.name} a déjà médité aujourd'hui. L'esprit a besoin de repos, lui aussi !`, n); return; }
+      if ((await DW.ask('Méditer en silence sur les coussins ? (une fois par jour)')) !== 0) return;
+      await DW.fade(0.6, 0.4); st().clock += 30; m.tired = 0; DW.Life.addDisc(m, 5); m.addHappy(3); await DW.wait(0.6); await DW.fade(0, 0.4);
+      await say(`Inspire... expire... ${m.name} se sent calme et reposé. (fatigue effacée, discipline +5, bonheur +3)`, n);
+    } });
+    // salle des combats (à droite du dojo complet) : un adversaire d'entraînement par jour, à ton niveau, sans K.O.
+    MAPS.dojo_combat = { name: "Dojo d'Elecmon — Salle des combats", music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true, secretEntry: true,
+      floor: { type: 'tatami', cols: ['#e8d8a0', '#d4c288', '#8a4a3a'] }, wall: WALL, rows: room(16, 11), npcs: [], signs: {}, doors: [],
+      objects: [{ kind: 'bigrug', v: 2, x: 5, y: 5, w: 5, h: 3, walk: true }, ...[2, 13].map(x => ({ kind: 'dummy', x, y: 3, w: 1, h: 1, small: true })), { kind: 'scroll', v: 1, x: 7, y: 1, w: 1, h: 2, back: true, oy: -4 }],
+      warps: [{ x: 0, y: 5, w: 1, h: 2, dir: 'left', to: 'dojo_in', tx: 24, ty: 5 }] };
+    for (const y of [5, 6]) open(MAPS.dojo_combat, 0, y);
+    const POOL = ['agumon', 'gabumon', 'tentomon', 'palmon', 'gomamon', 'patamon', 'greymon', 'garurumon', 'kabuterimon', 'togemon', 'ikkakumon', 'angemon'];
+    MAPS.dojo_combat.npcs.push({ sp: DW.SPECIES.tsunomon ? 'tsunomon' : 'elecmon', x: 7, y: 4, face: 'down', talk: async ow => {
+      const s = st(), top = Math.max(1, ...s.party.map(m => m.level || 1)), n = DW.SPECIES.tsunomon ? 'Tsunomon' : 'Elecmon';
+      if (!s.party.some(m => m.hp > 0)) { await say('Ton équipe est épuisée. Soigne-la avant un combat d\'entraînement !', n); return; }
+      if (!once('combat')) { await say("C'est assez pour aujourd'hui ! Reviens demain pour un nouveau combat d'entraînement.", n); return; }
+      const champ = top >= 15, list = POOL.filter(p => DW.SPECIES[p] && (DW.SPECIES[p].stage === 'Champion') === champ);
+      const sp = DW.pick(list.length ? list : ['agumon']);
+      await say(`Un combat d'entraînement contre ${DW.SPECIES[sp].name} ! Ici, personne ne risque rien : on s'arrête avant le K.O.`, n);
+      if ((await DW.ask('Combattre ?')) !== 0) { s.flags.dojoDay.combat = null; return; }
+      const res = await ow.battle({ enemy: new DW.Digimon(sp, top), canLose: true, intro: `${DW.SPECIES[sp].name} salue, puis se met en garde !` });
+      s.party.forEach(m => { if (m.hp <= 0) m.hp = 1; });
+      await say(res === 'win' ? 'Bravo ! Un beau combat. Elecmon serait fier de toi !' : 'Pas mal du tout ! Tu feras mieux demain.', n);
+    } });
+    const tables = list => list.map(([x, y]) => ({ kind: 'dummy', x, y, w: 1, h: 1, small: true }));
+    Grow.set('dojo_in', [
+      { min: 5, name: "Grand Dojo d'Elecmon", w: 20, h: 9,
+        objects: [...[4, 9, 14].map(x => ({ kind: 'scroll', v: x % 2, x, y: 1, w: 1, h: 2, back: true, oy: -4 })), ...tables([[4, 4], [15, 4], [4, 9], [15, 9]]),
+          { kind: 'weights', x: 17, y: 6, w: 1, h: 1, small: true }, { kind: 'plant', v: 0, x: 18, y: 10, w: 1, h: 1, small: true }],
+        decor: m => { for (const y of [5, 6]) open(m, 0, y); m.warps.push({ x: 0, y: 5, w: 1, h: 2, dir: 'left', to: 'dojo_zen', tx: 12, ty: 5 }); m.signs['9,2'] = '« Le corps se forge au combat. L\'esprit, à l\'entraînement. » — À gauche : la salle de méditation.'; },
+        npcs: () => [{ sp: 'elecmon', x: 9, y: 4, face: 'down', talk: svc }] },
+      { min: 8, name: "Dojo d'Elecmon — Grand hall", w: 26, h: 11,
+        objects: [...[5, 12, 19].map(x => ({ kind: 'scroll', v: x % 2, x, y: 1, w: 1, h: 2, back: true, oy: -4 })), ...tables([[4, 4], [21, 4], [4, 11], [21, 11], [9, 8], [16, 8]]),
+          { kind: 'weights', x: 12, y: 11, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 24, y: 3, w: 1, h: 1, small: true }],
+        decor: m => {
+          for (const y of [5, 6]) { open(m, 0, y); open(m, 25, y); }
+          m.warps.push({ x: 0, y: 5, w: 1, h: 2, dir: 'left', to: 'dojo_zen', tx: 12, ty: 5 }, { x: 25, y: 5, w: 1, h: 2, dir: 'right', to: 'dojo_combat', tx: 1, ty: 5 });
+          m.signs['12,2'] = '« Le corps se forge au combat. L\'esprit, à l\'entraînement. » — À gauche : méditation. À droite : combats.';
+        },
+        npcs: () => [{ sp: 'elecmon', x: 12, y: 4, face: 'down', talk: svc }, { sp: DW.SPECIES.gotsumon ? 'gotsumon' : 'elecmon', x: 8, y: 7, face: 'right', wander: 1, talk: () => say('Hop ! Hop ! Je m\'entraîne pour devenir aussi fort que Golemon !', 'Gotsumon') }] },
+    ]);
+  }
+
   // ------------------------------------------------------------ la Serre → Grande serre → Jardins maraîchers
   const serre = MAPS.serre_in;
   if (serre) {
