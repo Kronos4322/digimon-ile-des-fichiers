@@ -148,8 +148,11 @@
       const ow = this.ow, P = ow.p, s = this.spot, free = (x, y) => !ow.solid(x, y) && !ow.npcAt(x, y);
       ow.locked = true; ow.hidePartner = true;
       // le Digimon s'installe sur une case LIBRE à côté du poste, de préférence à l'opposé du héros
-      const pref = P.x < s.x ? 1 : P.x > s.x ? -1 : (free(s.x + 1, s.y) ? 1 : -1);
-      this.side = free(s.x + pref, s.y) || !free(s.x - pref, s.y) ? pref : -pref;
+      // (au sac de frappe, il se tient plus loin : il lui faut 2 cases libres)
+      const reach = this.eq === 'punchbag' ? 2 : 1, room = d => { for (let i = 1; i <= reach; i++) if (!free(s.x + d * i, s.y)) return false; return true; };
+      const pref = P.x < s.x ? 1 : P.x > s.x ? -1 : (room(1) ? 1 : -1);
+      this.side = room(pref) || !room(-pref) ? pref : -pref;
+      this.reach = room(this.side) ? reach : 1;   // pas la place : il se tient tout près
       // le héros se met à l'écart pour regarder (jamais sur le chemin de son Digimon), il revient ensuite
       this.home = { x: P.x, y: P.y, dir: P.dir };
       const sd = this.side, spots = [[s.x - 2 * sd, s.y + 1], [s.x - 2 * sd, s.y], [s.x - 2 * sd, s.y + 2], [s.x - sd, s.y + 2], [s.x + 2 * sd, s.y + 2], [s.x, s.y + 3]];
@@ -213,7 +216,7 @@
       let x = sx + side * 18, y = sy + 2, moving = false, flip = side > 0, lift = 0;
       const k1 = a ? Math.min(1, a.t / 0.35) : 0, back = a ? Math.max(0, (a.t - 0.6) / 0.5) : 0, power = a ? [0.4, 1, 1.4][a.res] : 0;
       const G = this.game, eq = this.eq;
-      if (eq === 'punchbag') x = sx + side * 24;   // (le sac est large : il se place un peu plus loin)
+      if (eq === 'punchbag') x = sx + side * (this.reach > 1 ? 24 : 17);   // (le sac est large : il se place un peu plus loin)
       if (k === 'atk' && !a && this.tap > 0) x = sx + side * ((eq === 'punchbag' ? 24 : 18) - 7 * Math.sin(this.tap / 0.15 * Math.PI)) + (eq === 'punchbag' ? (this.tapSide || 1) * 3 : 0);   // coups rapides
       if (k === 'atk' && a) { x = sx + side * (18 - 12 * k1 + 12 * back); if (a.t > 0.3 && a.t < 0.5) this.shake = Math.max(this.shake, 0.15 * power); }
       else if (k === 'hp' && a) { x = sx + side * (16 - 4 * k1); lift = a.t < 0.8 ? Math.sin(a.t * 30) * power : 0; }

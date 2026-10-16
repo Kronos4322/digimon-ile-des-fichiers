@@ -4,7 +4,7 @@
 //  1) après Kuwagamon, chaque cabine de la plage murmure un mot ; écoutées dans le bon ordre (« Aide-moi,
 //     je suis sous le sable »), elles font s'ouvrir le sable : on descend dans l'antre ;
 //  2) deux grands labyrinthes ensablés (temple de Pharaomon, Digimon World 2003), Digimon de plus en plus forts ;
-//  3) au fond, Shellmon garde Tai et Agumon prisonniers. À la moitié de ses PV, Tai est libéré :
+//  3) au fond, Shellmon garde Tai et Agumon prisonniers. À 30 % de ses PV, Tai est libéré :
 //     Agumon digivolue en Greymon et combat à tes côtés (allié automatique, game/arena.js et battle.js) ;
 //  4) victoire : trophée de Shellmon (cave de ta maison), Tai s'installe dans sa chambre chez toi,
 //     fin du chapitre 1. Ensuite Shellmon reste là : on peut le réaffronter pour l'expérience.
@@ -197,10 +197,11 @@
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Soigne-le d'abord."); return; }
     await say(first ? 'GRRRAAAH ! Personne ne touche à mes prisonniers !' : 'Encore toi ?! Cette fois, je vais t\'écraser !', 'Shellmon');
     if ((await DW.ask(first ? 'Affronter Shellmon ? (un Champion très puissant)' : 'Affronter Shellmon de nouveau ?')) !== 0) return;
-    // premier combat : niveau 16, Tai et Greymon arrivent à mi-vie ; ensuite il suit ton niveau (de l'expérience à volonté)
+    // premier combat : niveau 18, Tai et Greymon n'arrivent qu'à 30 % de ses PV (il faut tenir seul longtemps) ;
+    // ensuite il suit ton niveau (de l'expérience à volonté)
     const top = Math.max(...s.party.map(m => m.level || 1));
-    const lvl = first ? 16 : Math.min(60, Math.max(16, top + 1));
-    const ally = first && perso() ? { at: 0.5, from: 'agumon', sp: 'greymon', lvl: 16, hero: 'tai', name: 'Tai', move: 'mega_flamme',
+    const lvl = first ? 18 : Math.min(60, Math.max(16, top + 1));
+    const ally = first && perso() ? { at: 0.3, from: 'agumon', sp: 'greymon', lvl: 16, hero: 'tai', name: 'Tai', move: 'mega_flamme',
       join: "CRAC ! Le coquillage qui retenait Tai se fend ! « Agumon, on s'y met aussi ! »" } : null;
     const res = await ow.battle({ enemy: new DW.Digimon('shellmon', lvl), boss: true, canLose: true, ally, music: 'shellmon', intro: 'Shellmon déploie ses tentacules !' });
     if (res !== 'win') { await say(first ? 'Shellmon est bien trop fort... Entraîne-toi, digivolue, et reviens délivrer Tai !' : 'Shellmon retourne se tapir dans sa coquille...'); return; }

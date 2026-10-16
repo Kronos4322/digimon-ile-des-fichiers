@@ -94,7 +94,7 @@
       if (DW.Life.sleepy(m) || m.tired >= 85) { await DW.Life.sleep(); m.heal(); const k0 = m.kos || 0; if (k0 > 0) m.kos = k0 - 1; log(`nuit chez Jijimon${k0 ? " : un K.O. s'efface (" + m.kos + '/3)' : ''}`); continue; }
       // Digivolution dès que possible
       const evo = DW.Evo.available(m);
-      if (evo.length) { const to = evo[0].to; m.evolve(to); DW.state.seen[to] = DW.state.owned[to] = true; await DW.learnEvoMoves(m); log(`DIGIVOLUTION → ${DW.SPECIES[to].name} (${DW.SPECIES[to].stage})`); continue; }
+      if (evo.length) { const to = evo[0].to; m.evolve(to); DW.state.seen[to] = DW.state.owned[to] = true; await drive(DW.learnEvoMoves(m), 300); log(`DIGIVOLUTION → ${DW.SPECIES[to].name} (${DW.SPECIES[to].stage})`); continue; }
       const fit = m.hp >= m.maxHp * 0.95 && !(m.kos || 0) && m.tired < 50;
 
       // ---------- KUWAGAMON, dans le Cœur du Grand Arbre (le vrai combat scripté), une fois Champion
@@ -149,7 +149,7 @@
         }
         for (let i = 0; i < 200 && sc.state !== 'done'; i++) await wait(60);
         await wait(1000 * SP); sc.close('stop'); pt.trains++; pt.streak++; if (pt.streak >= 2) pt.fightRun = 0;
-        if (k === 'int' && DW.Classe) { const n0 = m.moves.map(x => x.id).join(); await DW.Classe.after(m, sc.score || 4); if (m.moves.map(x => x.id).join() !== n0) { pt.moves++; log(`leçon en classe : NOUVELLE TECHNIQUE → ${m.moves.map(x => DW.MOVES[x.id].name).join(', ')}`); } }
+        if (k === 'int' && DW.Classe) { const n0 = m.moves.map(x => x.id).join(); await drive(DW.Classe.after(m, sc.score || 4), 300); if (m.moves.map(x => x.id).join() !== n0) { pt.moves++; log(`leçon en classe : NOUVELLE TECHNIQUE → ${m.moves.map(x => DW.MOVES[x.id].name).join(', ')}`); } }
         log(`entraînement ${DW.Training.STATS[k].name}${sc.eq && sc.eq !== k ? ' (' + sc.eq + ')' : ''} — ${evoGoal ? 'points ' + m.tr[k] + (req[k] ? ' / ' + req[k] : '') : DW.Training.STATS[k].stat + ' ' + m.stat(k)}`);
         await wait(150); continue;
       }
