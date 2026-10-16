@@ -134,7 +134,7 @@
     delete it.amt; delete it.full; delete it.mp; delete it.mpFull;
     if (!healed || !/PV|PM/.test(it.desc)) return;
     // on retire les phrases qui parlent de soigner (on garde « PV max +... pour toujours »)
-    const keep = it.desc.split(/(?<=[.!])\s+/).filter(p => !/PV|PM/.test(p) || /max/.test(p)).join(' ');
+    const keep = (it.desc.match(/[^.!]+[.!]*/g) || []).map(p => p.trim()).filter(p => p && (!/PV|PM/.test(p) || /max/.test(p))).join(' ');   // (sans « lookbehind » : les vieux iPhone ne le comprennent pas)
     const f = it.food, extra = [it.happy ? 'rend heureux' : '', it.tired ? 'chasse la fatigue' : '', it.disc ? 'aide la discipline' : '', it.life ? "allonge la vie d'un jour" : ''].filter(Boolean);
     const gen = (f >= 100 ? 'Rassasie complètement' : f >= 60 ? 'Rassasie bien' : f >= 30 ? 'Calme la faim' : 'Calme un peu la faim') + (extra.length ? ', ' + extra.join(', ') : '') + '.';
     it.desc = keep && /max|toujours/.test(keep) ? `${gen} ${keep}` : keep && !/^(Rassasie|Calme)/.test(keep) && keep.length > 12 ? `${keep} ${gen}` : `${gen} Fait prendre du poids.`;
