@@ -435,13 +435,20 @@
       await say('Cui cui ! Du courrier pour toi ? Hmm... Non, mais j\'ai des nouvelles !', 'Biyomon');
       // un indice par visite, sur un Digimon différent à chaque fois (tous ceux qui manquent y passent, à tour de rôle),
       // d'abord ceux qu'on peut trouver maintenant (ceux du chapitre 1 ont tous un indice)
+      // + les grands Digimon menaçants du chapitre 1, tant qu'ils ne sont pas vaincus (Kuwagamon, Shellmon, Whamon)
       const f = st().flags, all = T().RECRUITS.filter(x => !T().has(x.id) && x.hint), lock = DW.Chapter && DW.Chapter.lock;
-      const reach = all.filter(x => !lock || !lock(x.zone));
-      if (!all.length) { await say(T().RECRUITS.some(x => !T().has(x.id)) ? "Les Digimon d'ici sont tous rentrés ! Les autres sont plus loin, dans les régions de l'île..." : 'Tout le monde est rentré en ville ! Quelle joie !', 'Biyomon'); return; }
+      const BOSS = [
+        !f.kuwagamon && { boss: true, say: "Un monstre rouge aux pinces énormes, Kuwagamon, se cache dans le Grand Arbre de la Clairière de l'Arrivée. Des mots luisent, gravés dans l'écorce : réponds juste, et le tronc s'ouvrira... Mais entraîne-toi d'abord, c'est un Champion !" },
+        f.kuwagamon && !f.shellmon && { boss: true, say: f.shellLair ? "Sous les cabines de la plage, le sable s'est ouvert. Tout au fond, un énorme coquillage, Shellmon, retient un enfant prisonnier ! Prends des RAM PV, c'est un Champion redoutable." : "Les cabines téléphoniques de la plage murmurent chacune un mot... Mises dans le bon ordre, elles forment un appel au secours. Un gros Digimon, Shellmon, se cache dessous !" },
+        f.shellmon && !f.whamon && { boss: true, say: "Au large de la Crique du Radeau, on voit jaillir un jet d'eau gigantesque... C'est Whamon ! Un Engrenage Noir le rend fou. Monte sur le radeau, si tu l'oses : il est bien plus fort que Shellmon." },
+      ].filter(Boolean);
+      const reach = BOSS.concat(all.filter(x => !lock || !lock(x.zone)));
+      if (!reach.length && !all.length) { await say(T().RECRUITS.some(x => !T().has(x.id)) ? "Les Digimon d'ici sont tous rentrés ! Les autres sont plus loin, dans les régions de l'île..." : 'Tout le monde est rentré en ville ! Quelle joie !', 'Biyomon'); return; }
       const list = reach.length ? reach : all, k = (f.biyoHint || 0) % list.length, next = list[k];
       f.biyoHint = (f.biyoHint || 0) + 1;
-      await say(`On m'a parlé d'un Digimon qui aimerait vivre ici... On l'aurait aperçu ${next.hint}. Il se cache bien : fouille les recoins !`, 'Biyomon');
-      if (list.length > 1) await say(`(Il en reste ${list.length} à retrouver par ici. Reviens me voir : je te parlerai d'un autre !)`, 'Biyomon');
+      if (next.boss) await say(`Cui ! Attention... ${next.say}`, 'Biyomon');
+      else await say(`On m'a parlé d'un Digimon qui aimerait vivre ici... On l'aurait aperçu ${next.hint}. Il se cache bien : fouille les recoins !`, 'Biyomon');
+      if (list.length > 1) await say(`(J'ai encore ${list.length - 1} autre${list.length > 2 ? 's' : ''} nouvelle${list.length > 2 ? 's' : ''} pour toi. Reviens me voir !)`, 'Biyomon');
     },
     async kunemon() {
       await say('Bzzz... Bienvenue à la Banque ! Je garde tout ce que ton sac ne peut pas porter.', 'Kunemon');
