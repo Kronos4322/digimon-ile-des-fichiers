@@ -144,6 +144,66 @@
     ]);
   }
 
+  // ------------------------------------------------------------ la maison de Jijimon prend des étages
+  // ville « Village » (niveau 4) : un escalier remplace la seconde bibliothèque → le Dortoir des habitants ;
+  // ville « Grande ville » (niveau 8) : un second étage → la Grande bibliothèque de Jijimon
+  const J = MAPS.maison;
+  if (J) {
+    const lv = () => (DW.Town ? DW.Town.level() : 0);
+    const room = (w, h) => ['0'.repeat(w), '0' + '2'.repeat(w - 2) + '0', '0' + '2'.repeat(w - 2) + '0', ...Array.from({ length: h - 4 }, () => '0' + '1'.repeat(w - 2) + '0'), '0'.repeat(w)];
+    const residents = (spots, skip) => DW.Town.RECRUITS.filter(r => DW.Town.has(r.id) && DW.SPECIES[r.id] && !skip.includes(r.id)).slice(0, spots.length).map((r, i) => ({ sp: r.id, x: spots[i][0], y: spots[i][1], face: i % 2 ? 'left' : 'right', wander: 1,
+      talk: () => say(DW.pick(['Jijimon nous loge le temps que nos maisons soient reconstruites. Il est si gentil !', 'Hohoho, c\'est ce que dit toujours Jijimon. Je commence à le dire aussi !', 'La ville grandit à vue d\'œil. Bientôt, chacun aura sa maison !']), DW.SPECIES[r.id].name) }));
+    MAPS.maison_haut = {
+      name: 'Maison de Jijimon — Dortoir des habitants', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
+      floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#f0e0c8', alt: '#e0ccac', pattern: 'stripes', wood: '#6a4a2a' },
+      rows: room(18, 12), npcs: [], signs: {}, warps: [], doors: [], secretEntry: true,   // (l'escalier n'apparaît chez Jijimon qu'à partir du niveau 4)
+      objects: [{ kind: 'stairsdown', x: 3, y: 1, w: 2, h: 2, back: true },
+        ...[7, 10, 13].map(x => ({ kind: 'bed', x, y: 3, w: 2, h: 2 })), ...[7, 10, 13].map(x => ({ kind: 'bed', x, y: 7, w: 2, h: 2 })),
+        { kind: 'rug', x: 1, y: 7, w: 4, h: 3, walk: true }, { kind: 'plant', v: 0, x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'window', v: 0, x: 8, y: 1, w: 2, h: 2, back: true, oy: -6 }],
+      populate() {
+        this.doors = [{ x: 3, y: 2, w: 2, dir: 'up', to: 'maison', tx: 3, ty: 3 }];
+        this.npcs = residents([[5, 5], [9, 6], [12, 6], [15, 5], [3, 9]], ['jijimon']);
+        if (lv() >= 8) {
+          if (!this.objects.some(o => o.kind === 'stairsup')) { this.objects.push({ kind: 'stairsup', x: 15, y: 1, w: 2, h: 2, back: true }); DW.World.unprepare(this); }
+          this.doors.push({ x: 15, y: 2, w: 2, dir: 'up', to: 'maison_haut2', tx: 3, ty: 3 });
+        }
+      },
+    };
+    // un lit libre : se reposer ou dormir, comme chez Jijimon
+    for (const k of ['13,3', '14,3', '13,4', '14,4']) MAPS.maison_haut.signs[k] = async () => { await say('Un lit libre, tout propre. Jijimon le garde pour les voyageurs.'); await DW.Life.restOrSleep(); };
+    MAPS.maison_haut2 = {
+      name: 'Maison de Jijimon — Grande bibliothèque', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
+      floor: { type: 'carpet', cols: ['#8a3a3a', '#6a2a2a', '#4a1a1a'] }, wall: { base: '#e8dcc0', alt: '#d8c8a4', pattern: 'plain', wood: '#4a3020' },
+      rows: room(18, 12), npcs: [], signs: {}, warps: [], secretEntry: true, doors: [{ x: 3, y: 2, w: 2, dir: 'up', to: 'maison_haut', tx: 15, ty: 3 }],
+      objects: [{ kind: 'stairsdown', x: 3, y: 1, w: 2, h: 2, back: true },
+        ...[6, 8, 10, 12, 14].map((x, i) => ({ kind: 'bookshelf', v: i % 2, x, y: 3, w: 2, h: 1 })), ...[2, 4, 12, 14].map((x, i) => ({ kind: 'bookshelf', v: i % 2, x, y: 6, w: 2, h: 1 })),
+        { kind: 'desk', x: 7, y: 8, w: 2, h: 1 }, { kind: 'telescope', x: 16, y: 8, w: 1, h: 1, small: true }, { kind: 'armchair', v: 1, x: 10, y: 8, w: 1, h: 1, small: true }, { kind: 'plant', v: 1, x: 1, y: 9, w: 1, h: 1, small: true }],
+      populate() {
+        this.npcs = [{ sp: DW.SPECIES.motimon ? 'motimon' : 'jijimon', x: 9, y: 7, face: 'down', talk: () => DW.Guide && DW.Guide.questions ? DW.Guide.questions('Bienvenue à la Grande bibliothèque ! Que veux-tu savoir ?') : say('Chut... On lit, ici !') }];
+      },
+    };
+    for (const [x, y] of [[6, 3], [7, 3], [8, 3], [9, 3], [10, 3], [11, 3], [12, 3], [13, 3], [14, 3], [15, 3], [2, 6], [3, 6], [4, 6], [5, 6], [12, 6], [13, 6], [14, 6], [15, 6]])
+      MAPS.maison_haut2.signs[`${x},${y}`] = () => say(DW.pick(["« Histoire de l'Île des Fichiers » : autrefois, la ville comptait des centaines d'habitants...",
+        '« Les Digivolutions » : un Digimon bien entraîné, bien nourri et heureux choisit lui-même sa voie.', "« Les écussons » : sept écussons brillent quelque part sur l'île. Chacun réveille une force cachée.",
+        '« Les Engrenages Noirs » : on dit qu\'une ombre les plante dans le cœur des Digimon...', '« Cuisine de l\'île », par Mushroomon : un bon plat rend fort pour toujours !']));
+    for (const k of ['13,3', '14,3', '13,4', '14,4']) if (!MAPS.maison_haut.signs[k]) MAPS.maison_haut.signs[k] = MAPS.maison_haut.signs['13,3'];
+    MAPS.maison_haut2.signs['16,8'] = () => say(`La longue-vue de Jijimon, tournée vers le ciel. ${DW.Time.isNight() ? 'Les étoiles brillent comme des données lumineuses...' : 'Il faudra revenir la nuit pour voir les étoiles.'}`);
+    // l'escalier, dans la maison de Jijimon (à la place de la seconde bibliothèque)
+    const b0 = J.build;
+    J.build = function () {
+      b0.apply(this, arguments);
+      const want = lv() >= 4, has = this.objects.some(o => o.kind === 'stairsup');
+      if (want && !has) {
+        this.objects = this.objects.filter(o => !(o.kind === 'bookshelf' && o.x === 3) && !(o.kind === 'sacks' && o.x === 3));
+        this.objects.push({ kind: 'stairsup', x: 3, y: 1, w: 2, h: 2, back: true });
+        delete this.signs['3,3']; delete this.signs['4,3'];
+        if (this.gfx) DW.World.unprepare(this);
+      }
+      this.doors = (this.doors || []).filter(d => d.to !== 'maison_haut');
+      if (want) this.doors.push({ x: 3, y: 2, w: 2, dir: 'up', to: 'maison_haut', tx: 3, ty: 3 });
+    };
+  }
+
   // ------------------------------------------------------------ la Serre → Grande serre → Jardins maraîchers
   const serre = MAPS.serre_in;
   if (serre) {
