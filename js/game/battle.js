@@ -343,10 +343,11 @@
         * DW.clamp(1 + DW.BALANCE.lvGap * (user.level - tgt.level), 0.7, 1.5);
       const stab = user.d.types.includes(mv.type) ? 1.5 : 1;
       const tm = DW.typeMult(mv.type, tgt.d.types);
+      const resM = 1 - (DW.Gymnase ? DW.Gymnase.resist(tgt, mv.type) : 0);   // résistance travaillée au Gymnase
       const attr = DW.ATTR_ADV[user.d.attr] === tgt.d.attr ? 1.2 : 1;
       const crit = Math.random() < (uSide === 'p' && user.happy > 80 ? 1 / 10 : 1 / 16) ? 1.5 : 1;
       const rnd = (0.85 + Math.random() * 0.15) * DW.Time.weatherMult(mv.type) * (uSide === 'p' ? 1 + (user.happy - 50) / 500 : 1);
-      return { dmg: Math.max(1, Math.floor(base * stab * tm * attr * crit * rnd * mult)), tm, crit: crit > 1, attr: attr > 1 };
+      return { dmg: Math.max(1, Math.floor(base * stab * tm * resM * attr * crit * rnd * mult)), tm, crit: crit > 1, attr: attr > 1 };
     }
     async useMove(uSide, slot) {
       const user = this.mon(uSide), tSide = uSide === 'p' ? 'e' : 'p', tgt = this.mon(tSide);

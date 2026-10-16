@@ -19,6 +19,20 @@
       d.rect(20, 26, 36, 9, '#2e5a3e', { round: 0.2 }); d.deco.rect(22, 28, 32, 5, '#3e6e4e');
       const W = DW.World.signText; if (W) W(d, 'ECOLE', 28.5, 28.4, '#f0f0e0', 1);
     } },
+    // gymnase (4×2) : salle de sport au toit arrondi, murs bleu acier, grandes portes, fenêtres hautes, enseigne
+    gymnase: { w: 76, h: 74, n: 1, lights: [[38, 54, 16]], draw(d) {
+      d.ell(38, 72, 36, 3, '#1a2028', 0, { flat: true });
+      d.rect(4, 30, 68, 42, '#7a92b0', { round: 0.04, tex: 0.2 });
+      for (let x = 10; x < 70; x += 8) d.deco.line(x, 32, x, 71, 0.6, '#6a809c');           // bardage
+      d.deco.rect(4, 64, 68, 8, '#5a6a80');                                                    // soubassement
+      d.poly([[0, 32], [6, 18], [20, 10], [38, 7], [56, 10], [70, 18], [76, 32]], '#c84a3a', { shiny: true });   // toit arrondi
+      for (let k = 1; k < 6; k++) d.deco.line(6 + k * 11, 30, 10 + k * 9.5, 10, 0.6, '#a83a2a');
+      for (let x = 10; x < 66; x += 12) { d.deco.rect(x, 36, 8, 7, '#e8f0f8'); d.deco.rect(x + 1, 37, 6, 5, '#8ac8f0'); }   // fenêtres hautes
+      d.deco.rect(26, 48, 24, 24, '#3a4a5a'); d.deco.rect(27.5, 49.5, 10, 22, '#c88a3a'); d.deco.rect(38.5, 49.5, 10, 22, '#c88a3a');   // grandes portes
+      d.deco.circ(36, 61, 1, '#f0d070'); d.deco.circ(40, 61, 1, '#f0d070');
+      d.rect(16, 21, 44, 9, '#2a3a5a', { round: 0.2 }); d.deco.rect(18, 23, 40, 5, '#3a4e74');
+      const T = DW.World.signText; if (T) T(d, 'GYMNASE', 22, 23.4, '#ffe070', 1);
+    } },
     tableau: { w: 56, h: 36, n: 1, draw(d) {
       d.rect(0, 2, 56, 30, '#7a5230', { round: 0.05 });
       d.deco.rect(3, 5, 50, 24, '#2e5a3e'); d.deco.rect(3, 5, 50, 2, '#3e6e4e');

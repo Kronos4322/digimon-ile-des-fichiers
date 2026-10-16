@@ -12,9 +12,9 @@
   const KEYMAP = {
     ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
     ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
-    // ESPACE : parler / valider    ENTRÉE : menu
-    Space: 'ok', KeyJ: 'ok', Enter: 'menu', NumpadEnter: 'menu',
-    Escape: 'back', Backspace: 'back', KeyK: 'back', KeyX: 'back',
+    // ESPACE ou ENTRÉE : parler / valider    SUPPR : retour / quitter    ÉCHAP : menu (Digivice)
+    Space: 'ok', KeyJ: 'ok', Enter: 'ok', NumpadEnter: 'ok',
+    Delete: 'back', Backspace: 'back', KeyK: 'back', KeyX: 'back', Escape: 'menu',
     ShiftLeft: 'run', ShiftRight: 'run', Tab: 'menu', KeyM: 'mute', Semicolon: 'mute',
   };
   const DIRS = ['up', 'down', 'left', 'right'];
@@ -50,17 +50,19 @@
     // noms des commandes selon l'appareil : les textes du jeu écrivent ESPACE / ÉCHAP / ENTRÉE / Maj,
     // ils sont traduits à l'affichage (manette Xbox, PlayStation, Nintendo, écran tactile)
     NAMES: {
-      key: { ok: 'ESPACE', back: 'ÉCHAP', menu: 'ENTRÉE', run: 'Maj', move: 'flèches ou ZQSD' },
+      key: { ok: 'ESPACE', back: 'SUPPR', menu: 'ÉCHAP', run: 'Maj', move: 'flèches ou ZQSD' },
       xbox: { ok: 'A', back: 'B', menu: 'START', run: 'X', move: 'stick gauche' },
       ps: { ok: 'Croix', back: 'Rond', menu: 'START', run: 'Carré', move: 'stick gauche' },
       nintendo: { ok: 'B', back: 'A', menu: '+', run: 'Y', move: 'stick gauche' },
       touch: { ok: 'OK', back: 'Retour', menu: 'Menu', run: 'Courir', move: 'croix tactile' },
     },
     names() { return this.NAMES[this.device === 'pad' ? this.padKind : this.device] || this.NAMES.key; },
+    // (les textes écrivent ÉCHAP pour « retour » et ENTRÉE pour « menu » : au clavier, c'est SUPPR et ÉCHAP ;
+    //  remplacement en une seule passe, pour ne pas retraduire un mot déjà traduit)
     keys(s) {
-      if (this.device === 'key' || typeof s !== 'string' || !/ESPACE|ÉCHAP|Échap|ENTRÉE|Maj|ZQSD/.test(s)) return s;
-      const N = this.names();
-      return s.replace(/flèches ou ZQSD/g, N.move).replace(/ESPACE/g, N.ok).replace(/ÉCHAP|Échap/g, N.back).replace(/ENTRÉE/g, N.menu).replace(/Maj/g, N.run);
+      if (typeof s !== 'string' || !/ESPACE|ÉCHAP|Échap|ENTRÉE|Maj|ZQSD/.test(s)) return s;
+      const N = this.names(), T = { 'flèches ou ZQSD': N.move, ESPACE: N.ok, 'ÉCHAP': N.back, 'Échap': N.back, 'ENTRÉE': N.menu, Maj: N.run };
+      return s.replace(/flèches ou ZQSD|ESPACE|ÉCHAP|Échap|ENTRÉE|Maj/g, w => T[w]);
     },
     // petit message qui s'affiche quelques secondes en haut de l'écran (manette branchée...)
     notice: null,

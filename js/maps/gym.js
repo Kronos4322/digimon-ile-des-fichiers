@@ -137,7 +137,7 @@
       { kind: 'mat', x: 3, y: 12, w: 5, h: 3, walk: true },
       { kind: 'zenrakes', x: 23, y: 14, w: 6, h: 4, walk: true },
       // gradins, torches, râtelier à boucliers, rochers, bancs
-      { kind: 'bleachers', x: 7, y: 3, w: 4, h: 2 }, { kind: 'ecole', x: 21, y: 3, w: 4, h: 2 },   // école : la salle de classe (Intelligence)
+      { kind: 'gymnase', x: 7, y: 3, w: 4, h: 2 }, { kind: 'ecole', x: 21, y: 3, w: 4, h: 2 },   // gymnase (résistances, après le chapitre 1) ; école : la salle de classe (Intelligence)
       { kind: 'torch', x: 13, y: 7, w: 1, h: 1, small: true }, { kind: 'torch', x: 18, y: 7, w: 1, h: 1, small: true },
       { kind: 'shieldrack', x: 25, y: 9, w: 1, h: 1, small: true },
       { kind: 'kanjirock', x: 6, y: 9, w: 2, h: 1 },
@@ -154,7 +154,8 @@
       { kind: 'bunting', v: 6, x: 13, y: 4, w: 6, h: 1, top: true, oy: -14 },
     ],
     warps: [{ x: 15, y: 0, w: 2, h: 1, dir: 'up', to: 'village', tx: 19, ty: 29 }],
-    doors: [{ x: 22, y: 4, w: 2, dir: 'up', to: 'classe', tx: 7, ty: 10 }],
+    doors: [{ x: 22, y: 4, w: 2, dir: 'up', to: 'classe', tx: 7, ty: 10 },
+      { x: 8, y: 4, w: 2, dir: 'up', to: 'gymnase', tx: 8, ty: 10, cond: () => !!(DW.Gymnase && DW.Gymnase.open()) }],
     signs: {
       '14,6': async () => {
         await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Jardin zen : méditation (Intelligence).  Cristal de données : énergie (PM).");
@@ -162,7 +163,10 @@
         await say("L'ENTRAÎNEMENT remplit ce potentiel. Ce sont les points d'entraînement qui permettent de digivoluer !");
         await say("Chaque poste a son exercice : marteler le mannequin, enchaîner les coups au sac de frappe, soulever le rocher au bon moment, sauter la haie sur la marque, encaisser les pierres du mur, charger l'énergie du cristal. Parle au poste ou à son panneau (le pictogramme indique la stat) pour commencer. Plus ton Digimon est entraîné, plus c'est dur !");
       },
-      '7,4': 'Les gradins des spectateurs. Un jour, ils seront remplis pour tes séances !', '8,4': 'Les gradins des spectateurs. Un jour, ils seront remplis pour tes séances !',
+      // le gymnase : fermé pendant le chapitre 1 (on y entre par la porte quand il est ouvert)
+      ...Object.fromEntries(['7,4', '8,4', '9,4', '10,4'].map(k => [k, () => say(DW.Gymnase && DW.Gymnase.open()
+        ? "GYMNASE — Entraînement des résistances aux éléments, avec Leomon. Entre par la grande porte !"
+        : "GYMNASE — « Fermé pour travaux. Ouverture prochaine : endurcissez vos Digimon contre le feu, l'eau, la glace, le vent et la foudre ! »")])),
       '25,9': 'Un râtelier plein de boucliers cabossés. Parfait pour apprendre à encaisser.',
     },
   };

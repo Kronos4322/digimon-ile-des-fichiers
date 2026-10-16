@@ -617,7 +617,7 @@
       UI.box(c, 70, 96, 180, 24, 'dark');
       const caret = Math.floor(this.t * 2) % 2 ? '_' : ' ';
       UI.text(c, this.name + caret, 160, 113, { size: 13, align: 'center', color: '#ffd860' });
-      UI.text(c, DW.Touch && DW.Touch.on ? 'Touche le champ pour écrire, puis OK' : 'Tape ton nom au clavier puis ENTRÉE', 160, 140, { size: 8, align: 'center', color: '#9ab0e8' });
+      UI.text(c, DW.Touch && DW.Touch.on ? 'Touche le champ pour écrire, puis OK' : 'Tape ton nom au clavier puis Entrée', 160, 140, { size: 8, align: 'center', color: '#9ab0e8' });
       UI.text(c, `(vide = "${this.def}")`, 160, 151, { size: 8, align: 'center', color: '#6a7aa8' });
     }
   }

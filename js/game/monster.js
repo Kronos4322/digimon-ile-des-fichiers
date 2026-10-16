@@ -19,6 +19,7 @@
       this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
       this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
       this.raw = Object.assign({}, o.raw || {});                                    // entraînement « Statistique »
+      this.res = Object.assign({}, o.res || {});                                    // résistances aux éléments (Gymnase, maps/gymnase.js)
       this.abi = o.abi || 0;                                                         // ABI : repousse les plafonds d'entraînement
       this.tired = o.tired || 0;                                                     // fatigue 0-100
       this.hunger = o.hunger || 0; this.need = o.need || 0; this.thirst = o.thirst || 0;                          // faim / toilettes 0-100 (voir care.js)
@@ -108,7 +109,7 @@
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {} };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {} };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);
