@@ -149,9 +149,12 @@
       ow.locked = true; ow.hidePartner = true;
       // le Digimon s'installe sur une case LIBRE à côté du poste, de préférence à l'opposé du héros
       // (au sac de frappe, il se tient plus loin : il lui faut 2 cases libres)
-      const reach = this.eq === 'punchbag' ? 2 : 1, room = d => { for (let i = 1; i <= reach; i++) if (!free(s.x + d * i, s.y)) return false; return true; };
-      const pref = P.x < s.x ? 1 : P.x > s.x ? -1 : (room(1) ? 1 : -1);
-      this.side = room(pref) || !room(-pref) ? pref : -pref;
+      const reach = 2, /* 2 cases libres : ni panneau ni arbre qui déborde sur lui */ room = d => { for (let i = 1; i <= reach; i++) if (!free(s.x + d * i, s.y)) return false; return true; };
+      // le côté le plus DÉGAGÉ (3 cases sur sa rangée et celle du dessus, où débordent les feuillages et les panneaux),
+      // à égalité : à l'opposé du héros
+      const TREE = 'T#Ybk', open = d => { let n = 0; for (let i = 1; i <= 3; i++) { if (free(s.x + d * i, s.y)) n++; for (const dy of [0, -1]) if (TREE.includes(ow.tileAt(s.x + d * i, s.y + dy))) n -= 3; } return n; };   // (un arbre tout près : son feuillage le recouvrirait)
+      const pref = P.x < s.x ? 1 : P.x > s.x ? -1 : 1, oR = open(1) + (pref > 0 ? 0.5 : 0), oL = open(-1) + (pref < 0 ? 0.5 : 0);
+      this.side = (oR >= oL ? 1 : -1); if (!room(this.side) && room(-this.side)) this.side = -this.side;
       this.reach = room(this.side) ? reach : 1;   // pas la place : il se tient tout près
       // le héros se met à l'écart pour regarder (jamais sur le chemin de son Digimon), il revient ensuite
       this.home = { x: P.x, y: P.y, dir: P.dir };
@@ -201,6 +204,12 @@
       // le partenaire, dans les coordonnées de la carte
       c.save(); c.scale(Z, Z); c.translate(-v.cam.cx - v.x0, -v.cam.cy - v.y0);
       this.drawWork(c);
+      // les objets DEVANT le Digimon (panneaux, poteaux...) repassent par-dessus, comme en jeu : il ne marche plus « sur » un panneau
+      { const s = this.spot, fy = s.y * TS + 18, fx = s.x * TS + 8;
+        for (const o of (this.ow.gfx && this.ow.gfx.objs) || []) {
+          if (o.flat || !o.spr || o.y <= fy || o.y > fy + 64 || Math.abs(o.x - fx) > 60) continue;
+          const img = o.sprs ? o.sprs[0].img : o.spr.img; c.drawImage(img, Math.round(o.x - o.spr.w / 2), Math.round(o.y - o.spr.h + 1));
+        } }
       c.restore();
       for (const p of this.pt) { c.fillStyle = p.col; c.fillRect(p.x, p.y, 2, 2); }
       if (this.state === 'play' && this.readyT > 0) UI.text(c, this.readyT > 0.35 ? 'Prêt ?' : 'Partez !', W / 2, 110, { size: 16, align: 'center', color: '#ffffff' });

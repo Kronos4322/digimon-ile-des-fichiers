@@ -208,6 +208,12 @@
   }
   DW.GymScene = GymScene;
 
+  // le bâtiment, au Terrain d'entraînement : portes condamnées (v1) tant que Leomon n'est pas revenu en ville
+  DW.MAPS.gym.populate = function () {
+    const o = (this.objects || []).find(x => x.kind === 'gymnase'), v = Gym.open() ? 0 : 1;
+    if (o && (o.v || 0) !== v) { o.v = v; if (this.gfx) DW.World.unprepare(this); }
+  };
+
   // ------------------------------------------------------------ la salle du gymnase (intérieur)
   const room = DW.Palais.room('gymnase', 'village', { name: 'Gymnase', w: 18, h: 12, music: 'village',
     floor: { type: 'tatami', cols: ['#d8c890', '#b8a870', '#6a5a3a'] }, wall: { base: '#9ab0c8', alt: '#8aa0b8', pattern: 'stripes', wood: '#4a5a6a' },

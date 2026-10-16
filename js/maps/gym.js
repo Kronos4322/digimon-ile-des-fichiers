@@ -144,7 +144,7 @@
       { kind: 'punchbag', x: 7, y: 15, w: 1, h: 1, small: true },   // sac de frappe : un poste à part, au bas de l'aire de force
       // panneaux à pictogramme devant chaque poste
       // (w: 2 : le panneau, agrandi, est solide sur toute sa largeur)
-      { kind: 'stationsign', v: 0, x: 5, y: 10, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 4, y: 14, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 0, x: 5, y: 10, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 12, w: 2, h: 1, small: true },
       { kind: 'stationsign', v: 3, x: 8, y: 12, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 2, x: 26, y: 8, w: 2, h: 1, small: true },
       { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 8, y: 16, w: 2, h: 1, small: true },
       { kind: 'stationsign', v: 6, eq: 'punchbag', x: 5, y: 15, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 2, h: 1, small: true },

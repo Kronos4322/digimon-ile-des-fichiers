@@ -25,6 +25,100 @@
   const BANK = { x: 6, y: 3, w: 5, h: 3 };   // à l'ouest de la grande maison de Jijimon (route du nord : x 11-12)
 
   // ------------------------------------------------------------ construction de la carte
+  // ------------------------------------------------------------ sol de la ville, peint au pixel (plus esthétique, plus réaliste)
+  // - la place : bordure de pierre claire, anneau de pavés rouges, rosace en étoile autour de la fontaine
+  //   (ternie et envahie d'herbe tant que la ville est en ruines) ;
+  // - les chemins de terre : bords adoucis, cailloux et touffes d'herbe (plus de taches) ;
+  // - les pelouses : nuances naturelles, trèfles, fleurs des champs ; - devant les portes : gravier clair
+  function paintTown(c, m, lvl) {
+    const U = 16, H0 = DW.Art.hash, rows = m.rows, Wd = rows[0].length, Hd = rows.length, at = (x, y) => (rows[y] || '')[x];
+    const ruin = Math.max(0, 1 - lvl / 3);   // 1 = ruines, 0 = ville rebâtie
+    // 1. pelouses : grandes nuances douces (pas un aplat uniforme)
+    for (let i = 0; i < 70; i++) {
+      const x = H0(i, 1, 801) * Wd * U, y = H0(i, 2, 801) * Hd * U, r = 30 + H0(i, 3, 801) * 70;
+      c.fillStyle = H0(i, 4, 801) < 0.5 ? 'rgba(20,60,10,0.07)' : 'rgba(255,255,200,0.06)';
+      c.beginPath(); c.ellipse(x, y, r, r * 0.7, H0(i, 5, 801) * 3, 0, 7); c.fill();
+    }
+    // trèfles et fleurs des champs sur l'herbe
+    for (let i = 0; i < 900; i++) {
+      const tx = Math.floor(H0(i, 6, 802) * Wd), ty = Math.floor(H0(i, 7, 802) * Hd);
+      if (at(tx, ty) !== '.') continue;
+      const x = tx * U + H0(i, 8, 802) * U, y = ty * U + H0(i, 9, 802) * U, k = H0(i, 10, 802);
+      if (k < 0.55) { c.fillStyle = '#3e8a34'; c.fillRect(x, y, 1, 2); c.fillRect(x + 2, y + 1, 1, 2); c.fillStyle = '#5aa846'; c.fillRect(x + 1, y - 1, 1, 2); }   // touffe
+      else if (k < 0.8) { c.fillStyle = '#4e9a3e'; for (const [dx, dy] of [[0, 0], [2, 0], [1, -1.5]]) { c.beginPath(); c.arc(x + dx, y + dy, 1.1, 0, 7); c.fill(); } }      // trèfle
+      else if (ruin < 0.7) { c.fillStyle = ['#ffffff', '#ffe060', '#ff9ac0', '#b8a0ff'][i % 4]; c.fillRect(x, y, 1.5, 1.5); c.fillStyle = '#f0c040'; c.fillRect(x + 0.5, y + 0.5, 0.6, 0.6); }   // fleur
+    }
+    // 2. chemins de terre : un vrai chemin continu aux bords lisses (la couleur de la terre est relevée sur le sol),
+    //    bordure plus sombre, puis touffes d'herbe et cailloux
+    { const isP = (x, y) => at(x, y) === '=';
+      // traits épais et arrondis entre cases voisines du chemin : un tracé continu, aux bords lisses
+      const pass = (col, w) => {
+        c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.beginPath();
+        for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) if (isP(tx, ty)) {
+          const x = tx * U + 8, y = ty * U + 8;
+          c.moveTo(x, y); c.lineTo(x + 0.1, y);
+          for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) if (isP(tx + dx, ty + dy)) { c.moveTo(x, y); c.lineTo(x + dx * U, y + dy * U); }
+        }
+        c.stroke();
+      };
+      pass('#a8865a', 24); pass('#c4a274', 20); pass('#cfae80', 12);   // bordure, terre, milieu plus clair (sol tassé)
+      // grain de la terre
+      for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) if (isP(tx, ty)) for (let k = 0; k < 5; k++) {
+        const u = H0(tx * 5 + k, ty, 807), v = H0(tx, ty * 5 + k, 807); c.fillStyle = k < 2 ? 'rgba(255,240,210,0.45)' : 'rgba(110,80,50,0.3)'; c.fillRect(tx * U + u * U, ty * U + v * U, k < 2 ? 2 : 1, 1);
+      } }
+    for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) {
+      if (at(tx, ty) !== '=') continue;
+      const x0 = tx * U, y0 = ty * U;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        if (at(tx + dx, ty + dy) !== '.') continue;
+        // touffes d'herbe qui débordent sur la terre, le long du bord
+        for (let k = 0; k < 4; k++) {
+          const u = H0(tx * 7 + k, ty * 5 + dx * 3 + dy, 803) * U, x = dx ? x0 + (dx > 0 ? U - 2 : 0) : x0 + u, y = dy ? y0 + (dy > 0 ? U - 2 : 0) : y0 + u;
+          c.fillStyle = k % 2 ? '#4a943a' : '#5aa846'; c.fillRect(x, y, 2, 2);
+        }
+      }
+      // cailloux et grains
+      for (let k = 0; k < 3; k++) { const u = H0(tx, ty * 3 + k, 804), v = H0(tx * 3 + k, ty, 804); c.fillStyle = k ? 'rgba(120,90,60,0.45)' : 'rgba(240,225,190,0.6)'; c.fillRect(x0 + u * U, y0 + v * U, k ? 1 : 2, k ? 1 : 1.5); }
+    }
+    // 3. la place : bordure, anneau de pavés rouges, rosace en étoile
+    const P = m.plazas && m.plazas[0];
+    if (P) {
+      const cx = 19.5 * 32 + 16, cy = 14 * 32 + 16, rx = 6.2 * 32, ry = 6.2 / 1.15 * 32;
+      c.save();
+      c.globalAlpha = 1 - ruin * 0.55;
+      // bordure de pierre claire et son ombre
+      c.strokeStyle = 'rgba(40,30,20,0.35)'; c.lineWidth = 7; c.beginPath(); c.ellipse(cx, cy + 2, rx + 1, ry + 1, 0, 0, 7); c.stroke();
+      c.strokeStyle = '#d8d0bc'; c.lineWidth = 5; c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, 7); c.stroke();
+      c.strokeStyle = '#efe8d6'; c.lineWidth = 1.5; c.beginPath(); c.ellipse(cx, cy - 1, rx - 1, ry - 1, 0, 0, 7); c.stroke();
+      // anneau de pavés rouges (deux rangs de pavés décalés)
+      for (const [rr, n, off] of [[0.83, 150, 0], [0.77, 140, 0.5]]) for (let i = 0; i < n; i++) {
+        const a = (i + off) / n * Math.PI * 2, x = cx + Math.cos(a) * rx * rr, y = cy + Math.sin(a) * ry * rr;
+        c.save(); c.translate(x, y); c.rotate(a + Math.PI / 2);
+        c.fillStyle = 'rgba(60,30,20,0.5)'; c.fillRect(-4.5, -3.5, 9, 7); c.fillStyle = (i + Math.round(off)) % 3 ? '#b06a4c' : '#c47e5e'; c.fillRect(-4, -3, 8, 6);
+        c.fillStyle = 'rgba(255,230,210,0.25)'; c.fillRect(-4, -3, 8, 1); c.restore();
+      }
+      // rosace : étoile à 8 branches en pierre claire et ardoise, autour de la fontaine
+      for (let k = 0; k < 16; k++) {
+        const a = k / 16 * Math.PI * 2, long = k % 2 === 0, R1 = 50, R2 = long ? 112 : 84, w = long ? 0.12 : 0.09;
+        c.fillStyle = long ? '#e2dac6' : '#7a8494';
+        c.beginPath(); c.moveTo(cx + Math.cos(a - w) * R1, cy + Math.sin(a - w) * R1 * 0.87); c.lineTo(cx + Math.cos(a) * R2, cy + Math.sin(a) * R2 * 0.87); c.lineTo(cx + Math.cos(a + w) * R1, cy + Math.sin(a + w) * R1 * 0.87); c.closePath(); c.fill();
+      }
+      c.strokeStyle = '#c8bca4'; c.lineWidth = 3; c.beginPath(); c.ellipse(cx, cy, 50, 44, 0, 0, 7); c.stroke();
+      c.restore();
+      // ville en ruines : herbe et mousse qui poussent entre les pavés, dalles fendues
+      if (ruin > 0) for (let i = 0; i < 260 * ruin; i++) {
+        const a = H0(i, 1, 805) * 6.28, d = Math.sqrt(H0(i, 2, 805)), x = cx + Math.cos(a) * rx * d, y = cy + Math.sin(a) * ry * d;
+        c.fillStyle = i % 3 ? 'rgba(70,130,50,0.7)' : 'rgba(40,40,40,0.35)'; c.fillRect(x, y, i % 3 ? 2 : 4, i % 3 ? 2 : 1);
+      }
+    }
+    // 4. gravier clair devant les portes
+    for (const d of (m.doors || []).filter(d => !d.cond || d.cond(DW.state))) {   // (seulement les bâtiments construits)
+      const x = (d.x + (d.w || 1) / 2) * U, y = (d.y + 1) * U + 4;
+      c.fillStyle = 'rgba(230,215,180,0.75)'; c.beginPath(); c.ellipse(x, y, 16, 7, 0, 0, 7); c.fill();
+      for (let k = 0; k < 14; k++) { c.fillStyle = k % 2 ? 'rgba(150,130,100,0.6)' : 'rgba(255,250,235,0.8)'; c.fillRect(x - 13 + H0(k, d.x, 806) * 26, y - 5 + H0(d.y, k, 806) * 10, 1, 1); }
+    }
+  }
+
   function build() {
     const m = MAPS.village, lvl = T().level(), has = id => T().has(id);
     const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl + (st().hero || '') + (Object.keys((st().home || {}).owned || {}).length >= 4 ? 'H' : 'h');
@@ -171,6 +265,7 @@
     for (let x = 18; x < 22; x++) for (const y of [13, 14]) m.signs[`${x},${y}`] = fountainUse;
     if (has('kunemon')) for (let x = BANK.x; x < BANK.x + BANK.w; x++) m.signs[`${x},${BANK.y + BANK.h - 1}`] = SERVICES.kunemon;
     zoomMap(m, 'village');   // plan agrandi ×2 (maps/common.js)
+    m.paintGround = c => paintTown(c, m, lvl);   // sol peint par-dessus les cases : place, bords des chemins, pelouses
     // grand panneau d'affichage de la ville, à droite de la maison de Jijimon : une note épinglée par habitant revenu
     { const J = m.objects.find(o => o.kind === 'jhouse'), bx = J.x + J.w + 1, by = J.y + J.h - 1;
       m.objects.push({ kind: 'noticeboard', v: Math.min(8, lvl), x: bx, y: by, w: 2, h: 1 });
@@ -338,10 +433,15 @@
       if (r === 2) { await biyoGame(); return; }
       if (r !== 1) return;
       await say('Cui cui ! Du courrier pour toi ? Hmm... Non, mais j\'ai des nouvelles !', 'Biyomon');
-      const next = T().RECRUITS.find(x => !T().has(x.id));
-      if (!next) { await say('Tout le monde est rentré en ville ! Quelle joie !', 'Biyomon'); return; }
-      // indice volontairement vague : il faut encore fouiller (les Digimon errants se cachent)
-      await say(`On m'a parlé d'un Digimon qui aimerait vivre ici... On l'aurait aperçu ${next.hint || "quelque part sur l'île"}. Il se cache bien : fouille les recoins !`, 'Biyomon');
+      // un indice par visite, sur un Digimon différent à chaque fois (tous ceux qui manquent y passent, à tour de rôle),
+      // d'abord ceux qu'on peut trouver maintenant (ceux du chapitre 1 ont tous un indice)
+      const f = st().flags, all = T().RECRUITS.filter(x => !T().has(x.id) && x.hint), lock = DW.Chapter && DW.Chapter.lock;
+      const reach = all.filter(x => !lock || !lock(x.zone));
+      if (!all.length) { await say(T().RECRUITS.some(x => !T().has(x.id)) ? "Les Digimon d'ici sont tous rentrés ! Les autres sont plus loin, dans les régions de l'île..." : 'Tout le monde est rentré en ville ! Quelle joie !', 'Biyomon'); return; }
+      const list = reach.length ? reach : all, k = (f.biyoHint || 0) % list.length, next = list[k];
+      f.biyoHint = (f.biyoHint || 0) + 1;
+      await say(`On m'a parlé d'un Digimon qui aimerait vivre ici... On l'aurait aperçu ${next.hint}. Il se cache bien : fouille les recoins !`, 'Biyomon');
+      if (list.length > 1) await say(`(Il en reste ${list.length} à retrouver par ici. Reviens me voir : je te parlerai d'un autre !)`, 'Biyomon');
     },
     async kunemon() {
       await say('Bzzz... Bienvenue à la Banque ! Je garde tout ce que ton sac ne peut pas porter.', 'Kunemon');

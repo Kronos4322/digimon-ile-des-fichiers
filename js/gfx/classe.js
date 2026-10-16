@@ -20,7 +20,8 @@
       const W = DW.World.signText; if (W) W(d, 'ECOLE', 28.5, 28.4, '#f0f0e0', 1);
     } },
     // gymnase (4×2) : salle de sport au toit arrondi, murs bleu acier, grandes portes, fenêtres hautes, enseigne
-    gymnase: { w: 76, h: 74, n: 1, lights: [[38, 54, 16]], draw(d) {
+    // v0 : ouvert ; v1 : fermé (planches clouées en travers des portes, panneau « FERMÉ ») tant que Leomon n'est pas revenu
+    gymnase: { w: 76, h: 74, n: 2, lights: [[38, 54, 16]], draw(d, v) {
       d.ell(38, 72, 36, 3, '#1a2028', 0, { flat: true });
       d.rect(4, 30, 68, 42, '#7a92b0', { round: 0.04, tex: 0.2 });
       for (let x = 10; x < 70; x += 8) d.deco.line(x, 32, x, 71, 0.6, '#6a809c');           // bardage
@@ -32,6 +33,12 @@
       d.deco.circ(36, 61, 1, '#f0d070'); d.deco.circ(40, 61, 1, '#f0d070');
       d.rect(16, 21, 44, 9, '#2a3a5a', { round: 0.2 }); d.deco.rect(18, 23, 40, 5, '#3a4e74');
       const T = DW.World.signText; if (T) T(d, 'GYMNASE', 22, 23.4, '#ffe070', 1);
+      if (v === 1) {   // fermé : deux planches en croix sur les portes, un écriteau
+        d.deco.poly([[25, 52], [28, 49], [51, 67], [48, 70]], '#8a6a42'); d.deco.poly([[48, 49], [51, 52], [28, 70], [25, 67]], '#9a7a4e');
+        for (const [x, y] of [[27, 51], [49, 51], [27, 68], [49, 68]]) d.deco.circ(x, y, 0.8, '#3a3a3a');
+        d.deco.rect(29, 55, 18, 7, '#e8dcc0'); d.deco.rect(29, 55, 18, 1, '#b8a888'); if (T) T(d, 'FERMÉ', 30.5, 56.2, '#c83a2a', 1);
+        for (const x of [12, 24, 36, 48, 60]) if (x < 66) d.deco.rect(x + 1, 37, 6, 5, '#5a6a7a');   // vitres éteintes
+      }
     } },
     tableau: { w: 56, h: 36, n: 1, draw(d) {
       d.rect(0, 2, 56, 30, '#7a5230', { round: 0.05 });

@@ -20,6 +20,7 @@
     gotsuBet: 'parties du pari de Gotsumon aujourd\u2019hui { d, n }',
     biyoGame: 'jour du dernier jeu du courrier de Biyomon',
     boothPos: 'énigme des cabines : nombre de mots déjà entendus dans le bon ordre',
+    biyoHint: 'Biyomon : nombre d\u2019indices donnés (un Digimon différent à chaque visite)',
     gymIntro: 'Leomon a présenté le Gymnase (résistances aux éléments, maps/gymnase.js)',
     // histoire
     kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière, fin du chapitre 1)',
