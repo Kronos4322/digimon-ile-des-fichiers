@@ -130,6 +130,8 @@
   window.addEventListener('gamepaddisconnected', () => { Input.notify('Manette débranchée : le clavier reprend la main.'); Input.device = 'key'; Input.releaseAll(); padHeld.clear(); });
   // maintenir une direction dans un menu : la sélection défile (comme la répétition du clavier)
   const REPEAT_DELAY = 380, REPEAT_EVERY = 85;
+  // saisie du nom : la croix / le stick déplacent la sélection parmi les prénoms proposés
+  const ARROW = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' };
   function pollPads() {
     if (!navigator.getGamepads) return;
     let pads;
@@ -148,12 +150,12 @@
     for (const src of [...padHeld.keys()]) if (!now.has(src)) { padHeld.delete(src); Input.release(src, action(src)); }
     for (const [src, t0] of padHeld) {
       const a = action(src);
-      if (DIRS.includes(a) && t - t0 > REPEAT_DELAY) { padHeld.set(src, t - REPEAT_DELAY + REPEAT_EVERY); if (!Input.textMode) Input.press(src, a, true); }
+      if (DIRS.includes(a) && t - t0 > REPEAT_DELAY) { padHeld.set(src, t - REPEAT_DELAY + REPEAT_EVERY); if (!Input.textMode) Input.press(src, a, true); else Input.typed.push(ARROW[a]); }
     }
     for (const src of now) if (!padHeld.has(src)) {
       padHeld.set(src, t);
       // dans la saisie du nom, la manette valide (nom par défaut) ou efface
-      if (Input.textMode) { const a = action(src); if (a === 'ok' || a === 'menu') Input.typed.push('Enter'); else if (a === 'back') Input.typed.push('Backspace'); continue; }
+      if (Input.textMode) { const a = action(src); if (a === 'ok' || a === 'menu') Input.typed.push('Enter'); else if (a === 'back') Input.typed.push('Backspace'); else if (ARROW[a]) Input.typed.push(ARROW[a]); continue; }
       Input.press(src, action(src));
     }
   }
