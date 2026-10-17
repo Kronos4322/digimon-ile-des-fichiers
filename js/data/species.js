@@ -135,10 +135,14 @@
     learn: [[0, 'force_gaia'], [1, 'tornade_courage'], [1, 'giga_destruction'], [1, 'mega_flamme'], [50, 'bras_trident'], [55, 'coup_corne']], rate: 8, xp: 300,
     desc: "L'ultime guerrier dragon, vêtu d'une armure de Chrome Digizoïde. Il concentre l'énergie de l'atmosphère dans sa Force de Gaïa." });
 
+  def('metalgarurumon', { name: 'MetalGarurumon', stage: 'Méga', types: ['Glace', 'Métal'], attr: 'Données', base: { hp: 112, atk: 128, def: 116, spd: 132, int: 106 }, kg: 90,
+    learn: [[0, 'souffle_cocyte'], [1, 'griffe_garuru'], [1, 'flamme_bleue'], [1, 'tempete_neige'], [50, 'poing_zero'], [55, 'vive_attaque']], rate: 8, xp: 300,
+    desc: "Le loup d'acier, cuirassé de Chrome Digizoïde. Son Souffle de Cocyte gèle tout, jusqu'au temps lui-même." });
+
   // personnages de la ville (non capturables, hors DigiDex)
   def('jijimon', { name: 'Jijimon', stage: 'Ultime', types: ['Neutre'], attr: 'Données', base: { hp: 90, atk: 60, def: 80, spd: 40, int: 120 }, kg: 30,
     learn: [[1, 'charge']], rate: 0, xp: 0, npc: true, desc: "Le sage de la Ville des Fichiers. Il veille sur l'île depuis toujours." });
 
   DW.DEX_ORDER = ['botamon', 'koromon', 'agumon', 'greymon', 'metalgreymon', 'wargreymon', 'punimon', 'tsunomon', 'gabumon', 'garurumon', 'meramon', 'pichimon', 'bukamon', 'gomamon', 'ikkakumon', 'zudomon', 'yuramon', 'tanemon', 'palmon', 'togemon', 'lillymon',
-    'nyokimon', 'yokomon', 'biyomon', 'birdramon', 'kunemon', 'kuwagamon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon', 'shellmon', 'weregarurumon', 'skullmeramon', 'garudamon', 'okuwamon', 'numemon', 'sukamon', 'monzaemon'];
+    'nyokimon', 'yokomon', 'biyomon', 'birdramon', 'kunemon', 'kuwagamon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon', 'shellmon', 'weregarurumon', 'metalgarurumon', 'skullmeramon', 'garudamon', 'okuwamon', 'numemon', 'sukamon', 'monzaemon'];
 })();

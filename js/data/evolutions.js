@@ -35,6 +35,7 @@
     metalgreymon: [{ to: 'wargreymon', lvl: 45, req: { atk: 64, def: 50, happy: 90, wins: 80 } }],
     ikkakumon: [{ to: "zudomon", lvl: 32, req: { def: 50, hp: 30, happy: 70, wins: 40 } }],
     garurumon: [{ to: 'weregarurumon', lvl: 32, req: { spd: 50, atk: 30, happy: 70, wins: 40 } }],
+    weregarurumon: [{ to: 'metalgarurumon', lvl: 45, req: { spd: 64, atk: 50, happy: 90, wins: 80 } }],
     meramon: [{ to: 'skullmeramon', lvl: 32, req: { int: 50, atk: 30, happy: 50, wins: 40 } }],
     birdramon: [{ to: 'garudamon', lvl: 32, req: { spd: 50, hp: 30, happy: 70, wins: 40 } }],
     kuwagamon: [{ to: 'okuwamon', lvl: 32, req: { atk: 50, def: 30, wins: 40 } }],

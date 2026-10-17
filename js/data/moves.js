@@ -51,6 +51,7 @@
     ombre_ailee:    { name: 'Ailes Ombrageuses', type: 'Air', pow: 100, acc: 95, desc: 'Projette un phénix de feu en forme d\'ailes.' },
     double_ciseaux: { name: 'Double Cisaille', type: 'Insecte', pow: 105, acc: 90, contact: true, desc: 'Tranche avec ses quatre mandibules à la fois.' },
     bulles_acides:  { name: 'Bulles Acides', type: 'Neutre', pow: 30, acc: 100, sc: { who: 'foe', s: 'def', n: -1, ch: 0.2 }, desc: 'Crache des bulles acides qui rongent la défense.' },
+    souffle_cocyte: { name: 'Souffle de Cocyte', type: 'Glace', pow: 130, acc: 90, desc: 'Un souffle glacé venu des abysses : il gèle tout, jusqu’au temps lui-même.' },
     force_gaia:     { name: 'Force de Gaïa', type: 'Feu', pow: 130, acc: 90, desc: "Concentre toute l'énergie de l'atmosphère en une sphère géante et la projette." },
     tornade_courage:{ name: 'Tornade du Courage', type: 'Neutre', pow: 110, acc: 95, contact: true, desc: 'Tournoie comme une tornade, griffes Dramon en avant.' },
     giga_destruction:{ name: 'Giga Destruction', type: 'Feu', pow: 110, acc: 85, desc: 'Deux missiles organiques jaillissent de son torse.' },
@@ -94,7 +95,7 @@
     super_tonnerre: 'thunder', champi_bombe: 'mushbomb', jet_pierres: 'rocks', poing_roc: 'punch', souffle_ardent: 'flamebeam',
     coup_queue: 'tackle', giga_destruction: 'missiles', bras_trident: 'claw', grande_vague: 'wave', tempete_neige: 'blizzard',
     marteau_vulcain: 'hammer', boomerang: 'boomerang', feuille: 'leaves', feuille_rasoir: 'leaves', uppercut: 'punch',
-    gadoue_nume: 'mushbomb', ordure_toxique: 'spores', attaque_coeur: 'hearts', griffe_garuru: 'claw', feu_metal: 'bluefire', ombre_ailee: 'meteor', double_ciseaux: 'scissor', bulles_acides: 'bubbles', force_gaia: 'meteor', tornade_courage: 'dash', canon_floral: 'flowercannon', charme: 'hearts', souffle_bleu: 'bluefire', flamme_bleue: 'bluefire', poing_ardent: 'firepunch', meteore: 'meteor',
+    gadoue_nume: 'mushbomb', ordure_toxique: 'spores', attaque_coeur: 'hearts', griffe_garuru: 'claw', feu_metal: 'bluefire', ombre_ailee: 'meteor', double_ciseaux: 'scissor', bulles_acides: 'bubbles', force_gaia: 'meteor', souffle_cocyte: 'bluefire', tornade_courage: 'dash', canon_floral: 'flowercannon', charme: 'hearts', souffle_bleu: 'bluefire', flamme_bleue: 'bluefire', poing_ardent: 'firepunch', meteore: 'meteor',
   };
   for (const id in M) M[id].fx = FX[id] || (M[id].contact ? 'tackle' : 'orb');
   // PM (comme dans Digimon World 1) : les techniques puisent dans une réserve commune.
@@ -106,7 +107,7 @@
   // ------------------------------------------------------------ coup spécial de chaque Digimon (sa technique signature)
   // Utilisable quand la jauge d'énergie du combat est pleine : puissance ×1.5, ne rate jamais.
   DW.SIG = {
-    botamon: 'bulles_acides', punimon: 'bulles', pichimon: 'bulles', yuramon: 'bulles', nyokimon: 'bulles', wargreymon: 'force_gaia',
+    botamon: 'bulles_acides', punimon: 'bulles', pichimon: 'bulles', yuramon: 'bulles', nyokimon: 'bulles', wargreymon: 'force_gaia', metalgarurumon: 'souffle_cocyte',
     numemon: 'gadoue_nume', sukamon: 'ordure_toxique', monzaemon: 'attaque_coeur', weregarurumon: 'griffe_garuru', skullmeramon: 'feu_metal', garudamon: 'ombre_ailee', okuwamon: 'double_ciseaux',
     koromon: 'bulles', tsunomon: 'bulles', bukamon: 'bulles', tanemon: 'bulles', yokomon: 'bulles',
     agumon: 'flamme_bebe', greymon: 'mega_flamme', metalgreymon: 'giga_destruction', gabumon: 'souffle_bleu', garurumon: 'flamme_bleue',
