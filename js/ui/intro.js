@@ -29,15 +29,15 @@
       const L = DW.LOOK_OPTS;
       // chaque partie du personnage sur sa propre ligne (règle du joueur) : coiffure, cheveux, yeux, haut, bas, chaussures...
       const n = a => a.map(x => x[0]);
-      this.rows = [['Je suis', L.gender, 'gender'], ['Coiffure', n(L.cut), 'cut'], ['Couleur des cheveux', n(L.hair), 'hair'], ['Yeux', n(L.eye), 'eye'],
+      this.rows = [['Je suis', L.gender, 'gender'], ['Peau', n(L.skin), 'skin'], ['Coiffure', n(L.cut), 'cut'], ['Couleur des cheveux', n(L.hair), 'hair'], ['Yeux', n(L.eye), 'eye'],
         ['Haut', n(L.top), 'top'], ['Couleur du haut', n(L.shirt), 'shirt'], ['Bas', n(L.bottom), 'bottom'], ['Couleur du bas', n(L.bottomCol), 'bottomCol'],
         ['Chaussures', n(L.shoe), 'shoe'], ['Accessoire', n(L.head), 'head'], ['Sac', n(L.bag), 'bag'], ['DigiŒuf', Object.values(DW.HERO_LINE).map(l => l.baby), 'baby'], ["C'est moi !", [''], null]];
-      this.r = 0; this.v = { gender: 0, cut: 0, hair: 0, eye: 0, shirt: 0, top: 0, bottom: 0, bottomCol: 0, shoe: 0, head: 0, bag: 0, baby: 0 };
+      this.r = 0; this.v = { gender: 0, skin: 0, cut: 0, hair: 0, eye: 0, shirt: 0, top: 0, bottom: 0, bottomCol: 0, shoe: 0, head: 0, bag: 0, baby: 0 };
       DW.state.hero = 'perso'; this.apply();
     }
     apply() {
       const v = this.v;
-      DW.state.look = { gender: v.gender, style: 0, cut: v.cut, hair: v.hair, eye: v.eye, shirt: v.shirt, top: v.top, bottom: v.bottom, bottomCol: v.bottomCol, shoe: v.shoe, head: v.head, bag: v.bag, v2: true, v3: true, baby: Object.values(DW.HERO_LINE)[v.baby].baby };
+      DW.state.look = { gender: v.gender, style: 0, skin: v.skin, cut: v.cut, hair: v.hair, eye: v.eye, shirt: v.shirt, top: v.top, bottom: v.bottom, bottomCol: v.bottomCol, shoe: v.shoe, head: v.head, bag: v.bag, v2: true, v3: true, baby: Object.values(DW.HERO_LINE)[v.baby].baby };
     }
     update() {
       const n = this.rows.length, R = this.rows[this.r];
@@ -51,7 +51,7 @@
       const t = this.t, look = DW.heroLook('perso');
       UI.menuBg(c, t);
       UI.text(c, 'QUI ES-TU ?', W / 2, 17, { size: 11, align: 'center', bold: true, color: '#ffe680' });
-      // le personnage tourne sur lui-même
+      // le personnage, de face et immobile (il ne tourne plus), sur son socle
       const cx = 78, g = c.createRadialGradient(cx, 130, 4, cx, 130, 64);
       g.addColorStop(0, look.crestCol + 'aa'); g.addColorStop(1, 'rgba(0,0,0,0)');
       c.fillStyle = g; c.fillRect(cx - 70, 60, 140, 120);
@@ -65,7 +65,7 @@
       c.fillStyle = '#b8b4cc'; c.beginPath(); c.ellipse(cx, 159, 28, 5.6, 0, 0, 7); c.fill();
       c.strokeStyle = look.crestCol; c.lineWidth = 1; c.beginPath(); c.ellipse(cx, 159, 24 + Math.sin(t * 3), 4.6, 0, 0, 7); c.stroke();
       for (let i = 0; i < 10; i++) { const a = t * 0.8 + i / 10 * Math.PI * 2, px = cx + Math.cos(a) * 40, py = 120 + Math.sin(a) * 9 - ((t * 12 + i * 9) % 50); c.fillStyle = 'rgba(255,240,200,0.7)'; c.fillRect(Math.round(px), Math.round(py), 1, 1); }
-      const dir = DIRS[Math.floor(t / 0.9) % 4], fr = Math.floor(t * 6) % 4;
+      const dir = 'down', fr = 0;
       c.imageSmoothingEnabled = false;
       c.drawImage(DW.Sprites.hero(dir, fr, 'perso').img, Math.round(cx - 29), 86, 58, 75);
       // l'œuf choisi et son bébé
@@ -74,12 +74,12 @@
       UI.text(c, `${DW.SPECIES[baby].name} → ${DW.SPECIES[line.partner].name}`, cx, 214, { size: 7, align: 'center', color: '#ffe680' });
       // les lignes de choix
       this.rows.forEach(([label, opts, k], i) => {
-        const y = 24 + i * 16, on = i === this.r;   // (13 lignes : une par partie du personnage)
-        UI.box(c, 150, y, 160, 15, on ? 'dwsel' : 'dw');
-        if (!k) { UI.text(c, label, 230, y + 11, { size: 9, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' }); return; }
-        UI.text(c, label, 156, y + 10, { size: 7, color: '#8ae0f0' });
+        const y = 23 + i * 14, on = i === this.r;   // (14 lignes : une par partie du personnage)
+        UI.box(c, 150, y, 160, 13, on ? 'dwsel' : 'dw');
+        if (!k) { UI.text(c, label, 230, y + 10, { size: 9, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' }); return; }
+        UI.text(c, label, 156, y + 9, { size: 7, color: '#8ae0f0' });
         const val = k === 'baby' ? DW.SPECIES[opts[this.v[k]]].name : opts[this.v[k]];
-        UI.text(c, (on ? '◀ ' : '') + val + (on ? ' ▶' : ''), 304, y + 11, { size: 8, align: 'right', color: '#ffffff' });
+        UI.text(c, (on ? '◀ ' : '') + val + (on ? ' ▶' : ''), 304, y + 10, { size: 8, align: 'right', color: '#ffffff' });
       });
       UI.text(c, '▲▼ choisir la ligne   ◀ ▶ changer   ESPACE valider', W / 2, 238, { size: 6, align: 'center', color: '#7a8ab8' });
     }

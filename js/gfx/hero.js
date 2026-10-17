@@ -50,18 +50,22 @@
       [['Carré, jupe', { style: 'bob', bottom: 'skirt' }], ['Carré, pantalon', { style: 'bob', bottom: 'pants' }], ['Cheveux longs, jupe', { style: 'long', bottom: 'skirt' }], ['Cheveux longs, pantalon', { style: 'long', bottom: 'pants' }],
        ['Carré, pantalon large', { style: 'bob', bottom: 'baggy' }], ['Longs, pantalon large', { style: 'long', bottom: 'baggy' }]],
     ],
-    hair: [['Châtain', ['#5a3a24', '#7a5a3a']], ['Noir', ['#22222c', '#3a3a48']], ['Blond', ['#e8c060', '#fff0a0']], ['Roux', ['#c8582a', '#e8804a']], ['Bleu nuit', ['#2a3a7a', '#4a5aa8']], ['Rose', ['#e07aa8', '#ffb0d0']]],
-    shirt: [['Rouge', '#e04a3a'], ['Orange', '#e8822a'], ['Vert', '#3a9a5a'], ['Bleu', '#2f6ad8'], ['Violet', '#8a4ac8'], ['Turquoise', '#2aa8a8'], ['Blanc', '#f0f0ec']],
+    hair: [['Châtain', ['#5a3a24', '#7a5a3a']], ['Noir', ['#22222c', '#3a3a48']], ['Blond', ['#e8c060', '#fff0a0']], ['Roux', ['#c8582a', '#e8804a']], ['Bleu nuit', ['#2a3a7a', '#4a5aa8']], ['Rose', ['#e07aa8', '#ffb0d0']],
+           ['Gris argent', ['#9a9aa8', '#d0d0dc']], ['Blanc', ['#e8e8f0', '#ffffff']], ['Vert', ['#2a8a4a', '#5ac06a']], ['Violet', ['#6a3aa8', '#9a6ad8']], ['Brun foncé', ['#3a2418', '#5a3a28']], ['Bleu ciel', ['#4a9ae0', '#8ac8ff']], ['Rouge vif', ['#c8202a', '#f05a4a']]],
+    shirt: [['Rouge', '#e04a3a'], ['Orange', '#e8822a'], ['Vert', '#3a9a5a'], ['Bleu', '#2f6ad8'], ['Violet', '#8a4ac8'], ['Turquoise', '#2aa8a8'], ['Blanc', '#f0f0ec'],
+           ['Jaune', '#f0c030'], ['Rose', '#e86aa8'], ['Noir', '#2a2a34'], ['Gris', '#7a7a88'], ['Bleu ciel', '#5ab0f0'], ['Vert pomme', '#7ac83a'], ['Bordeaux', '#8a2a3a'], ['Marron', '#7a4a2a']],
     head: [['Rien', ''], ['Casquette', 'cap'], ['Bonnet', 'beanie'], ['Lunettes de plongée', 'goggles'], ['Bob', 'bucket'], ['Lunettes', 'glasses']],
     // haut (veste ouverte, sweat à capuche façon Digimon World 2003, tee-shirt) et sac à dos
     top: [['Veste ouverte', 'jacket'], ['Sweat à capuche', 'hoodie'], ['Tee-shirt', 'tee']],
     bag: [['Sans sac', false], ['Sac à dos', true]],
     // création détaillée (chaque partie séparée) : coupe, yeux, bas et sa couleur, chaussures
     cut: [['Courts', 'short'], ['En bataille', 'spiky'], ['Carré', 'bob'], ['Longs', 'long']],
-    eye: [['Marron', '#5a3a20'], ['Noisette', '#8a5a2a'], ['Vert', '#2a8a4a'], ['Bleu', '#2a6ad8'], ['Gris', '#6a7a8a'], ['Violet', '#7a4ab8'], ['Rouge', '#c83a3a']],
+    eye: [['Marron', '#5a3a20'], ['Noisette', '#8a5a2a'], ['Vert', '#2a8a4a'], ['Bleu', '#2a6ad8'], ['Gris', '#6a7a8a'], ['Violet', '#7a4ab8'], ['Rouge', '#c83a3a'], ['Doré', '#c8962a'], ['Noir', '#22222a'], ['Turquoise', '#2aa8a8']],
     bottom: [['Short', 'shorts'], ['Pantalon', 'pants'], ['Pantalon large', 'baggy'], ['Jupe', 'skirt']],
-    bottomCol: [['Bleu jean', '#3a5a9a'], ['Gris', '#5a5a6a'], ['Noir', '#2a2a32'], ['Beige', '#c8b088'], ['Kaki', '#5a6a3a'], ['Rouge', '#a83a3a'], ['Blanc', '#e8e8e4']],
-    shoe: [['Anthracite', '#3a3a4a'], ['Rouge', '#c83a3a'], ['Bleu', '#2f5ad8'], ['Blanc', '#e8e8e8'], ['Jaune', '#e8c040'], ['Vert', '#3a9a5a']],
+    bottomCol: [['Bleu jean', '#3a5a9a'], ['Gris', '#5a5a6a'], ['Noir', '#2a2a32'], ['Beige', '#c8b088'], ['Kaki', '#5a6a3a'], ['Rouge', '#a83a3a'], ['Blanc', '#e8e8e4'],
+                ['Bleu marine', '#22305a'], ['Vert', '#2a7a4a'], ['Rose', '#d86a9a'], ['Violet', '#6a3a9a'], ['Marron', '#6a4228'], ['Orange', '#d8702a']],
+    shoe: [['Anthracite', '#3a3a4a'], ['Rouge', '#c83a3a'], ['Bleu', '#2f5ad8'], ['Blanc', '#e8e8e8'], ['Jaune', '#e8c040'], ['Vert', '#3a9a5a'], ['Noir', '#1e1e24'], ['Rose', '#e86aa8'], ['Orange', '#e8822a'], ['Violet', '#8a4ac8']],
+    skin: [['Claire', '#f6c08c'], ['Très claire', '#fbd8b8'], ['Mate', '#e0a878'], ['Hâlée', '#c08a58'], ['Brune', '#94603a'], ['Foncée', '#6a4228']],
   };
   const lookOf = L => {
     const S = DW.LOOK_OPTS, b = DW.HEROES.perso, o = { ...b };
@@ -78,9 +82,10 @@
     // création détaillée (v3) : coupe, yeux, bas, couleur du bas, chaussures choisis séparément
     if (L.v3) {
       o.style = (S.cut[L.cut || 0] || S.cut[0])[1]; o.eye = (S.eye[L.eye || 0] || S.eye[0])[1];
+      if (L.skin) o.skin = (S.skin[L.skin] || S.skin[0])[1];
       o.bottom = (S.bottom[L.bottom || 0] || S.bottom[0])[1]; o.bottomCol = (S.bottomCol[L.bottomCol || 0] || S.bottomCol[0])[1]; o.shoe = (S.shoe[L.shoe || 0] || S.shoe[0])[1];
     }
-    o.name = 'perso3-' + [L.gender, L.style, L.hair, L.shirt, L.head, L.top || 0, L.bag || 0, L.v2 ? 1 : 0, L.v3 ? [L.cut, L.eye, L.bottom, L.bottomCol, L.shoe].join('.') : ''].join('-');   // (clé du cache des sprites)
+    o.name = 'perso3-' + [L.gender, L.style, L.hair, L.shirt, L.head, L.top || 0, L.bag || 0, L.v2 ? 1 : 0, L.v3 ? [L.cut, L.eye, L.bottom, L.bottomCol, L.shoe, L.skin || 0].join('.') : ''].join('-');   // (clé du cache des sprites)
     return o;
   };
   DW.lookOf = lookOf;
