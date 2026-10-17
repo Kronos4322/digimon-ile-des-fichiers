@@ -138,26 +138,53 @@
       d.deco.ell(39, 12, 1.4, 1.2, '#e03a2a', 0, { unlit: true }); d.deco.curve([[36, 17], [42, 17.6]], 1, '#2a1a1a', { unlit: true });
       d.deco.poly([[37, 16.6], [38, 19], [39, 16.8]], CL, { unlit: true });
     },
-    seadramon(d) {
-      // serpent de mer bleu-vert enroulé, nageoires rouges, grande tête cuirassée jaune, gueule ouverte
-      const T = '#2aa6b8', Tb = '#d8f0e8', Y = '#f2c628', Yd = '#b8860e', Rf = '#e2402e';
-      const body = [[12, 2], [8, 10], [10, 20], [18, 28], [28, 30], [34, 24], [32, 16], [24, 14], [18, 20], [18, 30], [22, 40], [32, 48], [42, 50]];
-      d.tube(smooth(body), 3, 9, T, { shiny: true });
-      d.deco.tube([[20, 26], [26, 28.5], [31, 26]], 1.8, 1.4, Tb); d.deco.tube([[21, 34], [25, 42], [32, 46.5], [40, 48]], 2.2, 2.4, Tb);
-      // nageoires rouges sur le dos et nageoire de queue
-      for (const [x, y, a] of [[9, 14, -2.6], [13, 24, -2.2], [26, 31, 1.6], [36, 21, 0.2], [17, 34, 3.1], [24, 44, 2.4]])
-        d.poly([[x, y], [x + Math.cos(a) * 5, y + Math.sin(a) * 5], [x + Math.cos(a + 0.7) * 3, y + Math.sin(a + 0.7) * 3]], Rf, { shiny: true });
-      d.poly([[12, 2], [9, -1], [16, 0], [13, 5]], Rf, { shiny: true }); d.poly([[12, 3], [16, -1], [18, 4]], Rf);
-      // tête cuirassée
-      d.ell(48, 46, 10, 7.5, Y, -0.1, { shiny: true });
-      d.poly([[40, 42], [44, 33], [47, 41]], Y, { shiny: true }); d.poly([[45, 40], [51, 32], [52, 40]], Yd, { shiny: true });
-      d.poly([[52, 44], [63, 46], [56, 49]], Y, { shiny: true });
-      d.deco.line(43, 45, 56, 43.5, 0.8, Yd);
-      d.eye(50, 43, 2.2, 2, '#2a6ae0');
-      // gueule ouverte : langue violette, dents blanches
-      d.poly([[46, 50], [60, 49], [57, 57], [46, 54]], '#5a1830');
-      d.deco.ell(52, 53, 4, 1.6, '#a050c0');
-      for (const x of [48, 51, 54, 57]) d.deco.poly([[x, 49.6], [x + 0.9, 52], [x + 1.8, 49.6]], '#ffffff', { unlit: true });
+    seadramon(d, p = {}) {
+      // (fidèle au dessin animé) long serpent de mer turquoise enroulé, dos sombre marqué de traits rouges,
+      // ventre blanc annelé, UNE nageoire rouge au bout de la queue, grand masque doré à pointes, œil bleu,
+      // gueule ouverte sombre, langue violette ; en attaque la gueule s'ouvre en grand (Flèche Glaciale)
+      const T = '#22a8b4', Td = '#14606e', Tk = '#0e2a3a', Tb = '#eef4f0', Tr = '#c8d8d4', Y = '#f4c42a', Yd = '#b8840c', Yl = '#ffe680', Rf = '#e2402e';
+      const atk = p.pose === 'attack';
+      // le corps en deux tronçons : la queue descend À L'EXTÉRIEUR de la boucle (tronçon arrière, plus sombre),
+      // puis le dernier tour passe DEVANT (tronçon avant) jusqu'au cou : on lit bien l'enroulement
+      const back = smooth([[21, 4], [15, 9], [9.4, 18], [7.4, 28], [10, 37], [17, 42], [25, 41.6], [31, 36]]);
+      const front = smooth([[31, 36], [33.4, 28], [29, 21], [22, 20], [17.6, 25], [18.6, 33], [24, 41], [31, 47], [38, 50.6]]);
+      // nageoire rouge en bout de queue (en feuille, nervure sombre)
+      d.poly([[20.6, 7.4], [17.6, 3], [20.6, 0.6], [26.6, 0.4], [32.6, 2.6], [28.6, 5.6], [24.6, 6.8]], Rf, { shiny: true });   // (dans le cadre : rien de coupé)
+      d.deco.line(21, 6, 31, 2.8, 0.7, '#9a2014'); d.deco.line(23.6, 5, 21.6, 2, 0.5, '#9a2014'); d.deco.line(26.6, 4, 25.6, 1.2, 0.5, '#9a2014');
+      d.tube(back, 2.2, 7.4, T, { shiny: true, far: true });
+      d.deco.tube(back.map(([x, y]) => [x - 1, y - 0.8]), 1, 3, Td, { far: true });
+      d.deco.tube(smooth([[10.6, 36], [17, 41], [24, 40.6]]).map(([x, y]) => [x, y + 1.6]), 2, 2.6, Tb, { far: true });
+      d.tube(front, 7.4, 10.4, T, { shiny: true });
+      d.deco.tube(front.map(([x, y]) => [x - 1, y - 1.2]), 3, 4.2, Td);
+      const belly = smooth([[19.6, 30], [21.6, 37], [26.6, 43], [32, 47], [38.6, 49]]).map(([x, y]) => [x + 1, y + 1]);
+      d.deco.tube(belly, 3.6, 4.2, Tb);
+      for (let i = 1; i < belly.length - 1; i += 2) { const [x, y] = belly[i]; d.deco.line(x - 1.4, y + 1.2, x + 1.2, y - 1.2, 0.5, Tr); }
+      // traits rouges sur le dos
+      for (const [x0, y0, x1, y1] of [[11.6, 14.6, 9.8, 18.4], [7.6, 24, 7.6, 28], [12.6, 39.4, 16, 41.4], [32.6, 31.4, 33, 27.4], [27.6, 20, 23.6, 20.2], [17.6, 27, 17.8, 31], [26.6, 43, 30.4, 45.6]]) d.deco.line(x0, y0, x1, y1, 1.1, Rf);
+      // petites nageoires turquoise le long du cou
+      for (const [x, y, ang] of [[30, 44.6, -2.2], [35.6, 47.2, -1.9]]) d.poly([[x, y], [x + Math.cos(ang) * 5.4, y + Math.sin(ang) * 5.4], [x + Math.cos(ang + 0.9) * 3, y + Math.sin(ang + 0.9) * 3]], T, { shiny: true });
+      // MASQUE DORÉ : pointes rabattues vers l'arrière, nageoire de joue
+      d.poly([[40, 44], [31.6, 38.6], [41.6, 41.4]], Yd, { shiny: true });
+      d.poly([[43.4, 41.6], [37.6, 32.4], [46.6, 39.6]], Y, { shiny: true });
+      d.poly([[48.4, 40.4], [46.6, 30.6], [52.6, 39.6]], Y, { shiny: true });
+      d.poly([[39.6, 49], [32.6, 48.4], [37.6, 53]], T, { shiny: true });
+      d.blob([[38, 46.6], [41.6, 41.4], [49, 38.8], [57, 41], [62.6, 45], [63.4, 47.6], [58, 48.6], [50, 48.8], [43, 50.6]], Y, { shiny: true });
+      d.deco.curve([[42, 44], [49, 41.4], [57, 43]], 0.9, Yl);
+      d.deco.curve([[46, 47.6], [53, 46.4], [61, 46.6]], 0.7, Yd);
+      // œil bleu dans son orbite sombre, arcade du masque
+      d.deco.ell(51, 43.8, 2.8, 2.1, '#1a1a3a', -0.1, { unlit: true });
+      d.deco.ell(51.4, 43.9, 2, 1.5, '#3a8ae0', -0.1, { unlit: true });
+      d.deco.ell(51.8, 44, 0.8, 1, '#0a1428', 0, { unlit: true }); d.deco.circ(50.6, 43.2, 0.5, '#e8f4ff', { unlit: true });
+      d.deco.curve([[47.6, 42], [51, 40.8], [54.6, 42]], 1, Yd, { unlit: true });
+      d.deco.ell(62, 46.2, 0.7, 0.5, Tk, 0, { unlit: true });   // narine
+      // mâchoire inférieure, gueule ouverte, dents, langue violette
+      const o = atk ? 3 : 0;
+      d.blob([[43.4, 50.4], [52, 51 + o * 0.4], [61, 53 + o], [61.4, 55.6 + o], [55, 57 + o], [47, 55]], Y, { shiny: true });
+      d.deco.poly([[45, 49.6], [62.6, 48.4], [61, 53 + o], [52, 52 + o * 0.5], [46.6, 52.6]], '#3a1030', { unlit: true });
+      for (const x of [48, 51.2, 54.4, 57.6, 60.4]) d.deco.poly([[x, 49.4 - (x - 48) * 0.05], [x + 0.8, 51.6], [x + 1.6, 49.2 - (x - 48) * 0.05]], '#ffffff', { unlit: true });
+      for (const x of [50, 54, 58]) d.deco.poly([[x, 53 + o * 0.6], [x + 0.8, 51 + o * 0.6], [x + 1.6, 53.2 + o * 0.6]], '#ffffff', { unlit: true });
+      d.tube(atk ? [[50, 52], [56, 52.6], [62, 52]] : [[50, 52.4], [55.6, 54], [59.6, 57], [58.4, 60.6]], 2.4, 1.4, '#a050c0', { shiny: true });
+      if (atk) { d.deco.ell(62.4, 51.4, 3, 2, '#bfe8ff', 0, { unlit: true }); d.deco.ell(63.2, 51.4, 1.6, 1.1, '#ffffff', 0, { unlit: true }); }
     },
     gekomon(d) {
       const G = '#4aa84a', Gd = '#2e7a30', Y = '#f0d860', R = '#e04a4a';
