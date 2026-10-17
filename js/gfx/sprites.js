@@ -19,8 +19,13 @@
   const RES_OW = { 'Bébé': 22, 'Entraînement': 27, 'Disciple': 33, 'Champion': 46, 'Ultime': 54, 'Méga': 60 };   // bien visibles, surtout sur téléphone
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
   const S = DW.Sprites = {
-    mon(sp, res, nFrames = 1, back = false) {
-      const key = sp + '_' + res + '_' + nFrames + (back ? '_dos' : '');
+    // view : null (profil), 'back' (de dos) ou 'front' (de face) ; sans dessin de face, on garde le profil
+    mon(sp, res, nFrames = 1, view = null) {
+      if (view === true) view = 'back';
+      const draw0 = D[sp] || D.koromon;
+      if (view === 'front' && !(draw0.views && draw0.views.includes('front'))) view = null;
+      const back = view === 'back';
+      const key = sp + '_' + res + '_' + nFrames + (back ? '_dos' : view === 'front' ? '_face' : '');
       if (!cache[key]) {
         const draw = D[sp] || D.koromon;
         const frames = [];
@@ -30,8 +35,8 @@
           const same = nFrames === 4 ? BREATH.indexOf(sq) : -1;
           if (same >= 0 && same < f) { frames.push(frames[same]); continue; }
           // vu de dos : vrai dessin de dos si l'espèce en a un (draw.views), sinon profil sans les détails du visage
-          const real = back && draw.views && draw.views.includes('back');
-          frames.push(Art.render(draw, res, res, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30, back: back && !real, param: real ? { view: 'back' } : undefined }));
+          const real = view && draw.views && draw.views.includes(view);
+          frames.push(Art.render(draw, res, res, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30, back: back && !real, param: real ? { view } : undefined }));
         }
         cache[key] = Object.assign({ frames }, frames[0]);
       }
@@ -49,8 +54,10 @@
       }
       return cache[key];
     },
-    hasBack(sp) { const d = D[sp]; return !!(d && d.views && d.views.includes('back')); },
-    ow(sp, back) { return S.mon(sp, RES_OW[DW.SPECIES[sp].stage] || 24, 2, !!back); },   // back : vu de dos (quand il monte)
+    hasBack(sp) { return S.hasView(sp, 'back'); },
+    hasView(sp, v) { const d = D[sp]; return !!(d && d.views && d.views.includes(v)); },
+    // view : true / 'back' = vu de dos (quand il monte), 'front' = de face (quand il descend) — gfx/digimon/vues.js
+    ow(sp, view) { return S.mon(sp, RES_OW[DW.SPECIES[sp].stage] || 24, 2, view === true ? 'back' : view || null); },
     // (x, y) = centre bas du sprite
     draw(c, spr, x, y, o = {}) {
       const fr = spr.frames ? spr.frames[(o.frame || 0) % spr.frames.length] : spr;

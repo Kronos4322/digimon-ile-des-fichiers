@@ -47,7 +47,7 @@
       if (C.next > 0) return;
       C.next = 2.2 + Math.random() * 3.2;
       const r = Math.random();
-      if (r < 0.32) { F.face = F.face === 'left' ? 'right' : 'left'; F.back = false; }
+      if (r < 0.32) { F.face = F.face === 'left' ? 'right' : 'left'; F.back = false; F.front = false; }
       else if (r < 0.52) { C.hop = 0.5; Audio.sfx('text'); }
       else if (r < 0.78) {
         // petit pas vers une case libre à côté du héros
@@ -58,7 +58,7 @@
         }
         if (cand.length) {
           const [x, y] = DW.pick(cand);
-          if (x > F.x) F.face = 'right'; else if (x < F.x) F.face = 'left'; F.back = false;
+          if (x > F.x) F.face = 'right'; else if (x < F.x) F.face = 'left'; F.back = false; F.front = false;
           Object.assign(F, { moving: true, sx: F.x, sy: F.y, tx: x, ty: y, t: 0 });
         }
       } else Companion.emote(ow, mood(pt));
@@ -79,7 +79,7 @@
       }
       const hop = C.hop > 0 ? Math.sin((1 - C.hop / 0.5) * Math.PI) * 5 : 0;
       if (DW.Meteo && DW.Meteo.fear > 0) x += Math.round((Math.random() - 0.5) * 2.4);   // il tremble de peur (orage)
-      ow.drawMon(c, pt.sp, x, y - hop, F.face === 'left', F.moving ? t * 14 : t * 1.6, F.moving, F.back);
+      ow.drawMon(c, pt.sp, x, y - hop, F.face === 'left', F.moving ? t * 14 : t * 1.6, F.moving, F.back, F.front);
       const busy = pt.need >= 75 || pt.hunger >= 70;
       DW.Care.drawBubble(c, pt, x, y, t);
       if (C.emote && !busy) this.drawEmote(c, C.emote, x, y - hop);

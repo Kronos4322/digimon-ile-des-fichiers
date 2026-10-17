@@ -260,6 +260,7 @@
         else if (nx > F.sx) F.face = 'right'; else if (nx < F.sx) F.face = 'left';
         // il monte avec le héros : on le voit de DOS, comme le héros ; il redescend ou va de côté : de face / de profil
         if (ty < F.sy) F.back = true; else if (ty > F.sy || tx !== F.sx) F.back = false;
+        F.front = ty > F.sy && tx === F.sx;   // il descend droit vers nous : de face (s'il a un dessin de face)
         if (DW.World.isTall(this.tileAt(P.x, P.y))) this.rustle[P.x + ',' + P.y] = 0.5;
       }
     }
@@ -553,7 +554,7 @@
             const v = typeof n.ov === 'function' ? n.ov(DW.state) : n.ov || 0, O = DW.World.OBJ[n.obj];
             const fr = O.frames ? DW.World.objFrames(n.obj, v) : null, s2 = fr ? fr[Math.floor(this.t * (O.fps || 4)) % fr.length] : DW.World.obj(n.obj, v);
             c.drawImage(s2.img || s2, Math.round(X * TS + 8 - s2.w / 2), Math.round(Y * TS + 16 - s2.h));
-          } else this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv);
+          } else this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv, n.face === 'up' && DW.Sprites.hasBack(n.sp), n.face === 'down');   // (de face / de dos s'il a ces dessins)
           if (n.gear) DW.Story.drawGear(c, X * TS + 8, Y * TS + 15, this.t, n.sp);
           // « ! » au-dessus des habitants qui ont une demande (game/requests.js)
           if (n.story && DW.Requests && DW.Requests.has(n.sp)) { const h = DW.Sprites.ow(n.sp).h, bx = Math.round(X * TS + 8), by = Math.round(Y * TS + 15 - h - 8 + Math.sin(this.t * 4) * 1.5); c.fillStyle = '#1a0e22'; c.fillRect(bx - 4, by - 1, 8, 11); c.fillStyle = '#ffe060'; c.fillRect(bx - 3, by, 6, 9); c.fillStyle = '#1a0e22'; c.fillRect(bx - 1, by + 1, 2, 4); c.fillRect(bx - 1, by + 6, 2, 2); }
@@ -689,8 +690,9 @@
       const k = (this.t * 1.5) % 1;
       if (k < 0.5) { c.fillStyle = `rgba(255,255,220,${1 - k * 2})`; c.fillRect(x + 3, y - 14 + b, 1, 3); c.fillRect(x + 2, y - 13 + b, 3, 1); }
     }
-    drawMon(c, sp, x, y, flip, t, moving, back) {
-      const spr = DW.Sprites.ow(sp, back);
+    drawMon(c, sp, x, y, flip, t, moving, back, front) {
+      const spr = DW.Sprites.ow(sp, back ? 'back' : front ? 'front' : null);
+      if (front && !back && DW.Sprites.hasView(sp, 'front')) flip = false;
       c.fillStyle = 'rgba(0,0,0,0.22)';
       c.beginPath(); c.ellipse(x, y, spr.w / 2.8, 2.5, 0, 0, 7); c.fill();
       const by = y + 2 - (moving ? Math.abs(Math.round(Math.sin(t) * 1.5)) : 0);
