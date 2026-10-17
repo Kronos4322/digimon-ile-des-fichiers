@@ -27,7 +27,7 @@
       }
     };
     // grosses branches partant du haut du fût, en éventail
-    const main = [[-2.3, 8.5], [-1.9, 9.8], [-1.5, 10], [-1.1, 9.6], [-0.7, 8.4]];
+    const main = [[-2.3, 6.8], [-1.9, 7.6], [-1.5, 7.8], [-1.1, 7.4], [-0.7, 6.6]];   // (assez courtes pour que la cime tienne dans le cadre : rien de coupé en haut)
     main.forEach(([a, l], i) => grow(cx + (i - 2) * w * 0.12, top + 1 + Math.abs(i - 2) * 0.8, a + (hash(seed, i, 956) - 0.5) * 0.2, l * (0.85 + hash(seed, i, 957) * 0.3), w * 0.42, 0, i + 1));
     x.lineCap = 'round';
     // contour sombre, puis le bois (clair au-dessus, ombré en dessous)
@@ -70,4 +70,24 @@
   OBJ.oak.paint = (x, v) => (v >= 2 ? bare(x, { top: 27, w: 8.4, seed: 21 + v, roots: 4, bark: '#5a3c24', snow: v === 3, spread: 1.15 }) : paint0.oak(x, v));
   OBJ.birch.paint = (x, v) => (v >= 2 ? bare(x, { top: 22, w: 5.2, seed: 31 + v, roots: 2, bark: '#e6e2d4', bark2: '#8a8070', smooth: true, snow: v === 3, spread: 0.85 }) : paint0.birch(x, v));
   OBJ.tree.painted = OBJ.oak.painted = OBJ.birch.painted = () => true;
+
+  // ------------------------------------------------------------ LE GRAND ARBRE (ville, forêt) au même pinceau
+  // fût massif qui s'évase en racines, creux sombre, mousse, branches maîtresses, et une couronne immense
+  // faite de quatre masses de feuillage (gauche, droite, cime, bas) éclairées en haut à gauche
+  OBJ.bigtree.paint = (x, v) => {
+    const P = v ? ['#2f8a48', '#1c5a32', '#62b262'] : ['#45a03e', '#2a6e32', '#86ce5a'], bark = v ? '#6a4a2c' : '#7a5634';
+    x.fillStyle = 'rgba(10,24,14,0.4)'; x.beginPath(); x.ellipse(40, 95, 30, 4.6, 0, 0, 7); x.fill();
+    DW.World.Paint.trunk(x, { cx: 40, top: 46, base: 96, w: 20, seed: 71 + v, roots: 6, bark });
+    // creux dans le tronc, mousse au pied
+    x.fillStyle = '#20140c'; x.beginPath(); x.ellipse(42, 74, 4.6, 6.6, 0, 0, 7); x.fill();
+    x.fillStyle = '#3a2416'; x.beginPath(); x.ellipse(43, 75.4, 3, 4.6, 0, 0, 7); x.fill();
+    for (const [mx, my, r] of [[31, 90, 4], [50, 92, 3.4], [36, 62, 2.6]]) { x.fillStyle = 'rgba(96,150,70,0.85)'; x.beginPath(); x.ellipse(mx, my, r * 1.4, r * 0.7, 0, 0, 7); x.fill(); }
+    // la couronne : quatre masses, de l'arrière vers l'avant
+    const C = DW.World.Paint.crown;
+    C(x, { seed: 301 + v, cx: 19, cy: 38, rx: 13.5, ry: 12, P, n: 15 });
+    C(x, { seed: 311 + v, cx: 61, cy: 36, rx: 13.5, ry: 12, P, n: 15 });
+    C(x, { seed: 321 + v, cx: 40, cy: 25, rx: 24, ry: 19.5, P, n: 26 });
+    C(x, { seed: 331 + v, cx: 40, cy: 44, rx: 18, ry: 9, P, n: 12 });
+  };
+  OBJ.bigtree.painted = () => true;
 })();
