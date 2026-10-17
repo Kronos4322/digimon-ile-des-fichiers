@@ -39,10 +39,10 @@
     name: 'Dunes des Bébés', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.14, wildN: 10, noLandmark: true,
     rows: forestGen(zoomGen({ w: 40, h: 30, seed: 41, autoTall: 0.5, deco: 0.8, landmarks: [['{', 3]],
       clearings: [{ x: 20, y: 16, rx: 15, ry: 10 }, { x: 8, y: 8, rx: 5, ry: 4 }],
-      paths: [{ pts: [[41, 13.5], [30, 14], [22, 17], [12, 15], [6, 9]], r: 1.6 }, { pts: [[20, 16], [20, 6], [20, -1]], r: 1.4 }],
+      paths: [{ pts: [[41, 13.5], [30, 14], [22, 17], [12, 15], [6, 9]], r: 1.6 }, { pts: [[20, 16], [20, 6], [20, -1]], r: 1.4 }, { pts: [[20, 17], [20, 24], [20, 31]], r: 1.6 }],
       lakes: [{ x: 30, y: 22, rx: 4.5, ry: 2.6 }],
       tall: [{ x: 14, y: 21, r: 4 }, { x: 28, y: 9, r: 3.5 }],
-      free: [[36, 13, 3], [20, 3, 3]],
+      free: [[36, 13, 3], [20, 3, 3], [20, 27, 3]],
       set: [[34, 12, 'S']],
     })).map((r, y) => [...r].map((ch, x) => {
       // des DUNES : le sable domine (herbe des dunes en touffes), plus de phares au milieu de l'herbe
@@ -53,42 +53,51 @@
       return ch;
     }).join('')),
     warps: [
-      { x: 39, y: 13, w: 1, h: 2, dir: 'right', to: 'plage', tx: 0, ty: 2 },
+      { x: 39, y: 13, w: 1, h: 2, dir: 'right', to: 'lisiere', tx: 0, ty: 13 },   // à l'est, la Lisière du Ravin
       { x: 19, y: 0, w: 3, h: 1, dir: 'up', to: 'bosquet', tx: 19, ty: 29 },
+      { x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'crique', tx: 19, ty: 0 },   // les dunes descendent jusqu'à la Crique du Radeau
     ],
     npcs: [], triggers: [],
-    signs: { '34,12': "Dunes des Bébés. Les tout petits Digimon viennent jouer dans les herbes. Idéal pour un partenaire qui vient de naître !  Nord : Bosquet des Pousses." },
+    signs: { '34,12': "Dunes des Bébés. Les tout petits Digimon viennent jouer dans les herbes. Idéal pour un partenaire qui vient de naître !  Nord : Bosquet des Pousses.  Est : Lisière du Ravin.  Sud : Crique du Radeau." },
   };
   // ------------------------------------------------------------ BOSQUET DES POUSSES (40×30, agrandi ×2)
   MAPS.bosquet = {
     name: 'Bosquet des Pousses', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'plage', rate: 0.14, wildN: 10,
     rows: forestGen(zoomGen({ w: 40, h: 30, seed: 42, autoTall: 0.48, deco: 1, landmarks: [['}', 3], ['>', 2]],
       clearings: [{ x: 20, y: 15, rx: 13, ry: 9 }, { x: 31, y: 8, rx: 5, ry: 4 }, { x: 9, y: 22, rx: 5, ry: 4 }],
-      paths: [{ pts: [[20, 31], [20, 22], [16, 15], [22, 9], [31, 8]], r: 1.5 }, { pts: [[16, 15], [9, 22]], r: 1.3, dirt: false }],
+      paths: [{ pts: [[20, 31], [20, 22], [16, 15], [22, 9], [31, 8], [41, 8.5]], r: 1.5 }, { pts: [[16, 15], [9, 22]], r: 1.3, dirt: false }],
       tall: [{ x: 27, y: 18, r: 4 }, { x: 10, y: 11, r: 3.5 }],
       bigtrees: [[30, 22]],
       free: [[20, 27, 3]],
       set: [[21, 25, 'S']],
     })),
-    warps: [{ x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'dunes', tx: 19, ty: 0 }],
+    warps: [{ x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'dunes', tx: 19, ty: 0 },
+      { x: 39, y: 7, w: 1, h: 3, dir: 'right', to: 'geants', tx: 0, ty: 14 }],   // à l'est, un sentier vers le Bois des Géants
     npcs: [], triggers: [],
     signs: { '21,25': "Bosquet des Pousses. Les jeunes Digimon (stade Entraînement) s'y bagarrent toute la journée. Ici, on devient plus fort !" },
   };
   // agrandies ×2 comme les autres cartes faites à la main (plan d'origine 40×30)
-  DW.MapKit.ZOOM.dunes = [2, 40, 30]; DW.MapKit.ZOOM.bosquet = [2, 40, 30];
+  // (leur facteur d'agrandissement est déclaré dans MapKit.ZOOM, avant toute carte qui y mène)
   zoomMap(MAPS.dunes, 'dunes', { rows: false }); zoomMap(MAPS.bosquet, 'bosquet', { rows: false });
-  // bord ouest de l'île : les dunes descendent vers la mer (ouest et sud), le bosquet domine l'océan du haut d'une falaise
+  // bord ouest de l'île : les dunes descendent vers la mer à l'ouest (au sud, elles rejoignent la Crique), le bosquet domine l'océan du haut d'une falaise
   { const near = M => { const pts = [...(M.warps || []).flatMap(w => { const a = []; for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) a.push([x, y]); return a; }), ...Object.keys(M.signs || {}).map(k => k.split(',').map(Number))];
       return (x, y) => pts.some(([px, py]) => Math.abs(px - x) < 4 && Math.abs(py - y) < 4); };
-    MAPS.dunes.rows = DW.MapKit.coast(MAPS.dunes.rows, { left: 'beach', down: 'beach' }, { seed: 41, sea: 11, keep: near(MAPS.dunes) });
-    MAPS.bosquet.rows = DW.MapKit.coast(MAPS.bosquet.rows, { left: 'cliff' }, { seed: 42, sea: 10, keep: near(MAPS.bosquet) }); }
+    MAPS.dunes.rows = DW.MapKit.coast(MAPS.dunes.rows, { left: 'beach' }, { seed: 41, sea: 11, keep: near(MAPS.dunes) });
+    MAPS.bosquet.rows = DW.MapKit.coast(MAPS.bosquet.rows, { left: 'cliff' }, { seed: 42, sea: 10, keep: near(MAPS.bosquet) });
+    // au sud, les dunes s'ouvrent en grande plage de sable jusqu'à la Crique du Radeau (plus de forêt ni de mer de ce côté)
+    const H = MAPS.dunes.rows.length;
+    MAPS.dunes.rows = MAPS.dunes.rows.map((r, y) => {
+      const k = (y - (H - 18)) / 12; if (k <= 0) return r;
+      return [...r].map((ch, x) => {
+        if (!'#TbknpR'.includes(ch)) return ch;
+        const n = DW.Art.fbm(x * 0.12, y * 0.12, 431);
+        if (n > 0.2 + k * 0.7) return ch === '#' ? 'T' : ch;           // lisière de forêt qui s'effiloche
+        if (DW.Art.hash(x, y, 432) < 0.03) return 'T';                   // quelques arbres isolés dans le sable
+        return n > 0.45 ? ';' : 's';                                     // sable et herbe des dunes
+      }).join('');
+    }); }
 
-  // la plage s'ouvre vers les dunes (haut de la falaise, à l'ouest)
-  MAPS.plage.warps.push({ x: 0, y: 4, w: 1, h: 4, dir: 'left', to: 'dunes', tx: 39, ty: 13 });   // (plage déjà agrandie : coordonnées ×2 ; l'arrivée est convertie)
-  { const P = MAPS.plage, g = P.rows.map(r => [...r]);
-    for (let y = 4; y < 8; y++) for (let x = 0; x < 18; x++) if ('T#bk'.includes(g[y][x])) g[y][x] = x % 7 === 3 && y === 4 ? g[y][x] : '.';
-    for (let y = 4; y < 8; y++) for (let x = 0; x < 34; x++) if (Math.abs(y - 5.5) < 1.2 && g[y][x] === '.') g[y][x] = '=';
-    P.rows = g.map(r => r.join('')); }
+  // (la Plage des Cabines ne touche plus les dunes : elle est au sud de la Lisière ; à l'ouest, la Crique du Radeau)
 
   // ------------------------------------------------------------ difficulté par stade
   for (const id in STAGES) if (MAPS[id]) MAPS[id].encounters = STAGES[id];

@@ -28,7 +28,7 @@
       if (DW.MapKit.dress) DW.MapKit.dress(this.map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
       if (DW.Distrib) { DW.Distrib.signs(this.map); DW.Distrib.place(this.map, mapId); }
       if (DW.Antre) DW.Antre.hole(this.map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
-      if (DW.YokoVillage) DW.YokoVillage.place(this.map, mapId);   // le tronc creux vers le village des Yokomon (maps/yokomon.js)   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
+      if (DW.YokoVillage) DW.YokoVillage.place(this.map, mapId);   // le tronc creux vers le village des Poyomon (maps/yokomon.js)   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
       this.gfx = DW.World.prepare(this.map);
       // cartes voisines (sorties et portes) : préparées pendant qu'on explore ; les autres sont libérées
       const near = new Set([mapId, ...(this.map.warps || []).map(w => w.to), ...(this.map.doors || []).map(d => d.to)]);
@@ -538,7 +538,6 @@
           return;
         }
         if (e.ent === 'poop') DW.Care.drawPoop(c, e.x * TS + 8, e.y * TS + 12);
-        else if (e.ent === 'npc' && e.n.pickup) this.drawPickup(c, e.n.x * TS + 8, e.n.y * TS + 13);
         else if (e.ent === 'npc') {
           const n = e.n, X = n.hx != null ? n.hx : n.x, Y = n.hy != null ? n.hy : n.y;
           if (n.shadow) {   // ombre qui nage sous l'eau (Gomamon, façon Coelamon)
@@ -684,13 +683,6 @@
       }
       c.drawImage(spr.img, X, Y);
       return { x: X + 3, y: Y + 2, w: spr.w - 6, h: spr.h - 2 };
-    }
-    drawPickup(c, x, y) {
-      const b = Math.round(Math.sin(this.t * 3) * 1.5);
-      c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(x, y + 2, 4, 1.6, 0, 0, 7); c.fill();
-      c.drawImage(DW.Icons.item('capsule'), x - 8, y - 14 + b);
-      const k = (this.t * 1.5) % 1;
-      if (k < 0.5) { c.fillStyle = `rgba(255,255,220,${1 - k * 2})`; c.fillRect(x + 3, y - 14 + b, 1, 3); c.fillRect(x + 2, y - 13 + b, 3, 1); }
     }
     drawMon(c, sp, x, y, flip, t, moving, back, front) {
       const spr = DW.Sprites.ow(sp, back ? 'back' : front ? 'front' : null);

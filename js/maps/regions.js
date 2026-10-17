@@ -501,19 +501,22 @@
   //     |   |   |
   //     8   2   4            (2 = Lac du Tramway : l'eau, l'île, le tramway — game/chapitre2.js)
   //     |       |
-  //     1 — 0 — 3            (0 ↓ Clairière de l'Arrivée ; 1 ← Pays des Scarabées)
-  region('lac', { name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[1, 'left']], lm: [['Ð', 3]],
-    plan: [[1, 2], [0, 2], [1, 1], [2, 2], [2, 1], [2, 0], [1, 0], [0, 0], [0, 1], [1, -1]],
-    links: [[0, 1], [1, 8], [8, 7], [7, 6], [6, 5], [5, 4], [4, 3], [3, 0], [6, 2], [6, 9]],
+  //     1 — 0 — 3            (0 ↓ Clairière de l'Arrivée ; 1 ↓ Pays des Scarabées, en attendant le futur village au sud de la Rosière)
+  //  10 au nord et 11 à l'ouest du Lac de l'Œil du Dragon (7) : prairies au bord des falaises, la mer en contrebas
+  region('lac', { name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[1, 'down']], lm: [['Ð', 3]],
+    plan: [[1, 2], [0, 2], [1, 1], [2, 2], [2, 1], [2, 0], [1, 0], [0, 0], [0, 1], [1, -1], [0, -1], [-1, 0]],
+    links: [[0, 1], [1, 8], [8, 7], [7, 6], [6, 5], [5, 4], [4, 3], [3, 0], [6, 2], [6, 9], [7, 10], [7, 11], [9, 10]],
     lake: { cx: 1.5, cy: 1.5, r: 1.02 }, subs: [
     // (bord nord-ouest de l'île : plages à l'ouest, côte rocheuse autour du Phare)
-    ['Rive Sud', 'trail'], ['Roselière', 'trail', { lm: [['Ð', 8]] }],
+    ['Rive Sud', 'trail'], ['Rosière', 'plaza', { lm: [['Ð', 3], ['ŗ', 10]], coast: { left: 'beach' } }],
     ['Lac du Tramway', 'trail', { sandWalk: true }],
-    ['Ponton des Pêcheurs', 'trail'], ['Pointe Coela', 'trail', { lm: [['Ð', 3]] }], ['Îlots aux Nénuphars', 'islands'],
-    ['Cascade du Dragon', 'trail', { sandWalk: true }], ["Lac de l'Œil du Dragon", 'lake', { coast: { left: 'beach', up: 'beach' } }], ['Pont Numérique', 'trail', { lm: [['<', 2]], coast: { left: 'beach' }, opts: { rivers: [{ pts: [[-1, 30], [30, 33], [58, 30], [89, 35]], r: 2.6 }] } }],   // (la rivière se jette dans le lac : le chemin la franchit sur le pont)
-    ['Phare du Lac', 'set', { piece: { kind: 'lighthouse', w: 3, h: 2 }, coast: { up: 'cliff', left: 'beach', right: 'cliff' } }],
+    ['Ponton des Pêcheurs', 'trail', { coast: { right: 'cliff' } }], ['Pointe Coela', 'trail', { lm: [['Ð', 3]], coast: { right: 'cliff' } }], ['Îlots aux Nénuphars', 'islands', { coast: { up: 'cliff', right: 'cliff' } }],   // (bord est de l'île : falaises)
+    ['Cascade du Dragon', 'trail', { sandWalk: true }], ["Lac de l'Œil du Dragon", 'lake'], ['Pont Numérique', 'trail', { coast: { left: 'beach' } }],   // (terre ferme entre la plage et le lac : plus de rivière ni de pont)
+    ['Phare du Lac', 'set', { piece: { kind: 'lighthouse', w: 3, h: 2 }, coast: { up: 'cliff', right: 'cliff' } }],   // (à l'ouest, la Prairie des Falaises)
+    ['Prairie des Falaises', 'plaza', { theme: 'meadow', coast: { up: 'cliff', left: 'cliff' } }],
+    ['Falaises du Couchant', 'plaza', { theme: 'meadow', coast: { left: 'cliff', up: 'cliff', down: 'cliff' } }],
   ] });
-  region('scarabees', { name: 'Pays des Scarabées', theme: 'beetle', entry: 'right', lm: [['ý', 2], ['þ', 1]], subs: [
+  region('scarabees', { name: 'Pays des Scarabées', theme: 'beetle', entry: 'up', lm: [['ý', 2], ['þ', 1]], subs: [
     ['Bois Ancien', 'trail'], ['Souches Géantes', 'grove', { lm: [['ý', 5]] }], ['Ruches Sauvages', 'grove', { lm: [['þ', 5]] }],
     ['Sentier des Lucanes', 'maze'], ['Clairière Dorée', 'plaza'], ['Mare aux Libellules', 'lake'],
     ['Forêt de Champignons', 'grove', { lm: [['}', 6]] }], ['Statues des Scarabées', 'grove', { lm: [['ÿ', 4]] }],
@@ -546,7 +549,7 @@
     ['savane1', 'up', R('usine')], ['savane4', 'right', R('decharge')], ['savane5', 'down', R('canyon')],
     ['canyon7', 'left', R('dino')], ['canyon8', 'down', R('jungle')], ['jungle5', 'down', R('overdell')],
     ['berceau', 'up', R('brumes')], ['brumes4', 'right', R('jouets')], ['brumes5', 'up', R('gel')],
-    ['clairiere', 'up', R('lac')], ['lac1', 'left', R('scarabees')], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
+    ['clairiere', 'up', R('lac')], ['lac1', 'down', R('scarabees')], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
   );
   // portes des régions (comme dans Digimon World 1 : les recrues ouvrent le monde, la ville qui grandit aussi)
   const T = () => DW.Town, LV = n => T().LEVELS[n];

@@ -9,15 +9,6 @@
 
   // Kuwagamon, premier boss, se cache dans le Grand Arbre de la clairière : maps/kuwagamon.js
 
-  // objet ramassable (sphère brillante posée au sol)
-  const pickup = (x, y, id, n, flag) => ({ pickup: true, x, y, cond: s => !s.flags[flag], talk: async () => {
-    const s = st();
-    s.flags[flag] = true;
-    const extra = DW.giveItem(id, n);
-    DW.Audio.sfx('buy');
-    await say(`Tu trouves ${n > 1 ? n + ' ' : ''}${DW.ITEMS[id].name}${n > 1 ? 's' : ''} !${DW.extraMsg(extra)}`);
-  } });
-
   // ------------------------------------------------------------ 1. CLAIRIÈRE DE L'ARRIVÉE (36x30)
   MAPS.clairiere = {
     name: "Clairière de l'Arrivée", music: 'forest', bg: 'foret', ambient: 'forest', theme: 'spring', climate: 'forest', rate: 0.13, region: 'foret', wildN: 9,
@@ -44,7 +35,6 @@
       recruitNPC({ sp: 'yokomon', x: 17, y: 11, face: 'left', noBattle: true, cond: s => s.flags.kuwagamon,
         lines: ["Merci d'avoir chassé Kuwagamon ! On avait si peur qu'on n'osait plus rentrer...", 'On se souvient maintenant : on vivait à la Ville des Fichiers !'],
         win: "On rentre en ville ! On a plein d'idées... Tu verras bien !" }),
-      pickup(30, 15, 'viande', 2, 'pk_clairiere'),
     ],
     triggers: [],
     signs: {
@@ -99,8 +89,6 @@
       recruitNPC({ sp: 'elecmon', x: 37, y: 12, lvl: 10, face: 'left',
         lines: ["Halte ! Je suis Elecmon. Autrefois, je vivais à la Ville des Fichiers...", "Mais je ne suivrai qu'un dresseur plus fort que moi !"],
         win: "Quelle force ! D'accord, je rentre en ville. J'ai une petite idée de ce que je vais y faire..." }),
-      pickup(39, 11, 'remede', 1, 'pk_sentier1'),
-      pickup(4, 13, 'super_viande', 1, 'pk_sentier2'),
     ],
     triggers: [],
     signs: { '23,7': 'Les murmures que tu entends ? Ce sont les données de la forêt qui circulent...' },
@@ -132,7 +120,6 @@
         await say("Pour digivoluer, il faut s'entraîner au terrain au sud de la Ville des Fichiers. Les combats, eux, font grandir ton potentiel !", 'Yokomon');
         await say('Regarde la table des Digivolutions dans le menu pour savoir quoi travailler.', 'Yokomon');
       } },
-      pickup(31, 9, 'remede', 2, 'pk_prairie1'),
       recruitNPC({ sp: "kunemon", x: 23, y: 7, lvl: 10, face: "left",   // (dans un coin dégagé au nord-est : plus caché sous les arbres)
         lines: ["Bzzz ! Je suis Kunemon. Je ramasse tout ce qui traîne et je le range dans mes cocons de soie...", "Tu veux mes trésors ? Bats-moi d'abord, bzzz !"],
         win: "Bzzz... Tu es fort ! D'accord, je viens en ville. J'ai une idée pour ranger tout ça !" }),
@@ -153,6 +140,7 @@
         { pts: [[30, -1], [30, 6], [24, 12], [26, 19], [18, 24], [14, 30], [14, 36]], r: 2 },
         { pts: [[18, 24], [26, 27], [32, 29]], r: 1.5, dirt: false },
         { pts: [[24, 12], [12, 10], [8, 15]], r: 1.4, dirt: false },
+        { pts: [[8, 15], [3, 15], [-1, 15]], r: 1.4 },   // vers le Bosquet des Pousses, à l'ouest
       ],
       clearings: [{ x: 22, y: 17, rx: 7, ry: 5 }, { x: 8, y: 16, rx: 4, ry: 3.5 }, { x: 32, y: 29, rx: 6, ry: 4 }],
       lakes: [{ x: 35, y: 16, rx: 5.5, ry: 4.2 }],
@@ -168,6 +156,7 @@
     warps: [
       { x: 29, y: 0, w: 3, h: 1, dir: 'up', to: 'sentier', tx: 29, ty: 35 },
       { x: 13, y: 35, w: 3, h: 1, dir: 'down', to: 'lisiere', tx: 17, ty: 0 },
+      { x: 0, y: 14, w: 1, h: 3, dir: 'left', to: 'bosquet', tx: 39, ty: 7 },
     ],
     npcs: [
       { sp: 'bukamon', x: 28, y: 14, face: 'right', talk: async () => {
@@ -180,8 +169,6 @@
       recruitNPC({ sp: "palmon", x: 8, y: 15, lvl: 9, face: "right",   // (dans la clairière reculée à l'ouest, bien visible)
         lines: ["Oh ! Un visiteur... Je suis Palmon. Je fais pousser des fleurs entre ces arbres géants.", "On m'a dit que la ville renaissait... Mais je ne partirai qu'avec quelqu'un de fort !"],
         win: "Tu as gagné ! D'accord, je viens en ville. Mes graines vont adorer ça !" }),
-      pickup(7, 15, 'viande', 3, 'pk_geants1'),
-      pickup(35, 29, 'reveil', 1, 'pk_geants2'),
     ],
     triggers: [],
     signs: { '27,19': 'Bois des Géants. Ne réveillez pas les arbres qui dorment.' },
@@ -190,7 +177,7 @@
   // ------------------------------------------------------------ 4. LISIÈRE DU RAVIN (38x32)
   const lis = forestGen(zoomGen({ landmarks: [['|', 5], ['!', 3], ['$', 1]], avoid: [[26, 29], [27, 8]],
     w: 38, h: 32, seed: 4, autoTall: 0.56,
-    paths: [{ pts: [[18, -1], [18, 6], [12, 12], [15, 18], [22, 22], [18, 27], [18, 32]], r: 2 }, { pts: [[14, 10], [21, 9], [27, 9]], r: 1.4, dirt: false }],
+    paths: [{ pts: [[18, -1], [18, 6], [12, 12], [15, 18], [22, 22], [18, 27], [18, 32]], r: 2 }, { pts: [[-1, 13.5], [6, 13.5], [12, 13]], r: 1.6 }, { pts: [[14, 10], [21, 9], [27, 9]], r: 1.4, dirt: false }],
     clearings: [{ x: 15, y: 17, rx: 8, ry: 4 }, { x: 27, y: 9, rx: 4, ry: 3 }, { x: 18, y: 29, rx: 14, ry: 2.6 }],
     tall: [{ x: 26, y: 10, r: 3 }, { x: 9, y: 22, r: 3 }],
     bigtrees: [[30, 20]],
@@ -208,8 +195,9 @@
     warps: [
       { x: 17, y: 0, w: 3, h: 1, dir: 'up', to: 'geants', tx: 13, ty: 35 },
       { x: 17, y: 31, w: 3, h: 1, dir: 'down', to: 'plage', tx: 17, ty: 0 },
+      { x: 0, y: 13, w: 1, h: 2, dir: 'left', to: 'dunes', tx: 39, ty: 13 },   // à l'ouest, les Dunes des Bébés
     ],
-    npcs: [pickup(27, 8, 'super_viande', 1, 'pk_lisiere'),
+    npcs: [
       recruitNPC({ sp: "biyomon", x: 26, y: 29, lvl: 8, face: "left",
         lines: ["Cui ! Je suis Biyomon. D'ici, je vois toute l'île quand je vole !", "Je m'ennuie un peu toute seule... Mais prouve-moi d'abord que tu es fort !"],
         win: "Bravo ! Je m'envole vers la ville. J'ai déjà une idée !" })],

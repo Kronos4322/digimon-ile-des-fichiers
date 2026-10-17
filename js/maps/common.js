@@ -249,6 +249,7 @@
   const ZOOM = {
     clairiere: [2, 36, 30], sentier: [2, 44, 36], prairie: [2, 40, 30], geants: [2, 44, 36], lisiere: [2, 38, 32],
     plage: [2, 40, 36], crique: [2, 40, 30], village: [2, 40, 30], champs: [2, 40, 28], gym: [2, 32, 22], berceau: [2, 44, 32],
+    dunes: [2, 40, 30], bosquet: [2, 40, 30],
   };
   // une case du plan d'origine → case du plan agrandi (les bords restent collés aux bords)
   const zc = (Z, c, n) => (c <= 0 ? 0 : c >= n - 1 ? n * Z - 1 : Math.floor(c * Z));

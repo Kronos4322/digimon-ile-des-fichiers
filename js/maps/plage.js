@@ -189,11 +189,12 @@
 
   // ============================================================ CRIQUE DU RADEAU (40×30)
   const criqueRows = paint(40, 30, '~', g => {
-    // haut des falaises : jungle de palmiers
-    g.rect(0, 0, 40, 5, '#');
-    for (let y = 1; y < 5; y++) for (let x = 2; x < 38; x++) if (N(x * 0.3, y * 0.4, 51) > 0.45) g.set(x, y, '.');
-    for (let y = 1; y < 5; y++) for (let x = 2; x < 38; x++) if (g.get(x, y) === '.' && H(x, y, 52) < 0.25) g.set(x, y, 'p');
-    for (let x = 0; x < 40; x++) g.set(x, 5, 'C');
+    // au nord : le pied des Dunes des Bébés (sable et herbes des dunes, sans arbres) ; la mer reste à l'ouest
+    for (let y = 0; y < 6; y++) for (let x = 0; x < 40; x++) {
+      const coastX = 5 + Math.round((N(y * 0.4, 1, 57) - 0.5) * 3);
+      g.set(x, y, x < coastX ? '~' : N(x * 0.18, y * 0.3, 51) > 0.6 ? ';' : 's');
+    }
+    for (let y = 0; y < 8; y++) for (let x = 18; x < 22; x++) g.set(x, y, 's');   // passage vers les dunes
     // croissant de sable autour d'une baie abritée, ouverte au sud
     for (let y = 6; y < 30; y++) for (let x = 0; x < 40; x++) {
       const out = Math.hypot((x - 20) / 18.5, (y - 14) / 11.5) < 1 + (N(x * 0.3, y * 0.3, 53) - 0.5) * 0.18;
@@ -228,7 +229,8 @@
       { kind: 'starfish', v: 0, x: 14, y: 23, w: 1, h: 1, small: true, walk: true }, { kind: 'starfish', v: 1, x: 25, y: 17, w: 1, h: 1, small: true, walk: true },
     ],
     encounters: ENCOUNTERS.filter(e => e.sp !== 'gotsumon').concat([{ sp: 'gomamon', min: 3, max: 4, w: 15 }]),
-    warps: [{ x: 39, y: 7, w: 1, h: 5, dir: 'right', to: 'plage', tx: 0, ty: 23 }],
+    warps: [{ x: 39, y: 7, w: 1, h: 5, dir: 'right', to: 'plage', tx: 0, ty: 23 },
+      { x: 19, y: 0, w: 3, h: 1, dir: 'up', to: 'dunes', tx: 19, ty: 29 }],   // au nord : les Dunes des Bébés
     npcs: [],
     triggers: [],
     signs: {

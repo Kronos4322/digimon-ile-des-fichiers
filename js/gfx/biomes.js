@@ -573,6 +573,7 @@
   });
 
   // ------------------------------------------------------------ légende des cartes (objets des biomes)
+  DW.World.OBJ.rosebush = { w: 26, h: 24, n: 3, draw(d, v) { d.circ(13, 14, 9, '#3a8a40'); d.circ(9, 11, 2, ['#e03a5a', '#f8f0f0', '#f0a0c0'][v]); d.circ(16, 13, 2, ['#e03a5a', '#f8f0f0', '#f0a0c0'][v]); } };
   const CH = DW.World.CH, add = (ch, o) => (CH[ch] = Object.assign({ t: 'grass', solid: true }, o));
   add('à', { obj: 'cairn' }); add('â', { obj: 'spire' }); add('ä', { obj: 'termite' }); add('ã', { obj: 'blackgear' });
   add('å', { obj: 'icerock' }); add('æ', { obj: 'snowman' }); add('ç', { obj: 'icecrystal' }); add('è', { obj: 'icepillar' });
@@ -584,6 +585,7 @@
   add('þ', { obj: 'honeycomb' }); add('ÿ', { obj: 'beetlestatue' }); add('Ñ', { obj: 'halfgear' }); add('Ò', { obj: 'junkpile' });
   add('Ó', { obj: 'boulder' }); add('Ô', { obj: 'cycad' }); add('Õ', { obj: 'igloo' });
   add('Ð', { obj: 'reeds', solid: false });
+  add('ŗ', { obj: 'rosebush' });   // rosier (la Rosière, au bord du lac)
   // sol métallique (usine)
   add('¢', { t: 'metal', solid: false });
   for (const k in CH) if (CH[k].solid) DW.SOLID.add(k);

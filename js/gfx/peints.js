@@ -537,4 +537,18 @@
     box(1, 11, 12, '#b8844c', 241); box(v ? 7 : 4, 1, 10, '#c8945a', 242);
     if (v) { x.fillStyle = '#9a6a3c'; x.beginPath(); x.ellipse(15, 19, 2.6, 4, 0, 0, 7); x.fill(); }
   };
+
+  // ------------------------------------------------------------ rosier (Rosière) : buisson sombre et roses épanouies (v : rouge, blanc, rose)
+  OBJ.rosebush.paint = (x, v) => {
+    x.fillStyle = 'rgba(14,40,16,0.4)'; x.beginPath(); x.ellipse(13, 22, 11, 2, 0, 0, 7); x.fill();
+    P.crown(x, { seed: 301 + v, cx: 13, cy: 13.5, rx: 11, ry: 8.5, P: ['#2f7a3a', '#1a4a28', '#5aa04a'], n: 10, touches: 80 });
+    const C = [['#c8203a', '#f04a62', '#ff9aa8'], ['#e8e2dc', '#fffaf6', '#ffffff'], ['#e86a9a', '#ffa0c4', '#ffd8e8']][v];
+    for (let i = 0; i < 7; i++) {
+      const rx = 4 + hash(v, i, 311) * 18, ry = 7 + hash(v, i, 312) * 11, r = 1.6 + hash(v, i, 313) * 0.8;
+      x.fillStyle = C[0]; x.beginPath(); x.arc(rx, ry, r, 0, 7); x.fill();
+      x.fillStyle = C[1]; x.beginPath(); x.arc(rx - 0.3, ry - 0.3, r * 0.7, 0, 7); x.fill();
+      x.strokeStyle = C[0]; x.lineWidth = 0.4; x.beginPath(); x.arc(rx - 0.2, ry - 0.2, r * 0.35, 0.5, 5.2); x.stroke();
+      x.fillStyle = C[2]; x.fillRect(rx - r * 0.6, ry - r * 0.6, 0.6, 0.6);
+    }
+  };
 })();

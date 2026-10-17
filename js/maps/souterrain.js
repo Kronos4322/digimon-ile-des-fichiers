@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
-//  LE SOUTERRAIN DE JIJIMON — un passage secret entre la maison de Jijimon et le Village des Yokomon
-//  Une fois le puits des Yokomon remis en eau, l'eau découvre une échelle de fer au fond du puits :
+//  LE SOUTERRAIN DE JIJIMON — un passage secret entre la maison de Jijimon et le Village des Poyomon
+//  Une fois le puits des Poyomon remis en eau, l'eau découvre une échelle de fer au fond du puits :
 //  elle descend dans un vieux tunnel éclairé (aucun Digimon sauvage), qui remonte par une trappe
 //  dans la maison de Jijimon. Un raccourci sûr pour aller au nord de la forêt.
 //  Au village, la mare devient une source chaude : un bain par jour (soins, fatigue, bonheur).
@@ -11,7 +11,7 @@
   const MAPS = DW.MAPS;
   const Hh = (x, y, s) => DW.Art.hash(x, y, s);
   const TRAP = [14, 8];   // la trappe, dans la maison de Jijimon (case libre à toutes les étapes de rénovation : ni caisse, ni lampe)
-  const WELL = [17, 11];  // le puits, au Village des Yokomon
+  const WELL = [17, 11];  // le puits, au Village des Poyomon
 
   // ------------------------------------------------------------ objets : trappe en bois, vapeur de la source chaude
   Object.assign(DW.World.OBJ, {
@@ -57,7 +57,7 @@
       if (f.jijiTunnel) return;
       f.jijiTunnel = true;
       await say("Un long tunnel creusé dans la roche, éclairé par de vieilles torches. Aucun Digimon sauvage ne rôde ici : c'est un passage sûr.");
-      await say('Une échelle remonte à chaque bout : vers le puits des Yokomon... et de l\'autre côté, vers la Ville des Fichiers ?');
+      await say('Une échelle remonte à chaque bout : vers le puits des Poyomon... et de l\'autre côté, vers la Ville des Fichiers ?');
     },
   };
   // en arrivant chez Jijimon par la trappe, la première fois : il est tout surpris
@@ -70,7 +70,7 @@
     f.jijiTrap = true;
     DW.Audio.sfx('swoosh');
     await say('Hohoho ?! Ma vieille trappe s\'est ouverte toute seule... Ah, c\'est toi !', 'Jijimon');
-    await say("J'avais complètement oublié ce souterrain ! Je l'ai creusé quand j'étais jeune, pour rendre visite aux Yokomon sans traverser la forêt.", 'Jijimon');
+    await say("J'avais complètement oublié ce souterrain ! Je l'ai creusé quand j'étais jeune, pour rendre visite aux Poyomon sans traverser la forêt.", 'Jijimon');
     await say("Garde-le pour toi : c'est le chemin le plus court et le plus sûr vers le nord de la forêt. La trappe restera ouverte, maintenant !", 'Jijimon');
     ow.load('maison', ow.p.x, ow.p.y, 'up');   // (la trappe apparaît dans la pièce)
     ow.banner.t = 99;
@@ -86,7 +86,7 @@
     if (show && !has) {
       this.objects.push({ kind: 'trapdoor', x: TRAP[0], y: TRAP[1], w: 1, h: 1, walk: true });
       this.signs[`${TRAP[0]},${TRAP[1]}`] = async ow => {
-        if ((await DW.ask("La trappe du souterrain. Descendre vers le Village des Yokomon ?")) !== 0) return;
+        if ((await DW.ask("La trappe du souterrain. Descendre vers le Village des Poyomon ?")) !== 0) return;
         DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4); ow.load('souterrain_jiji', 2, 3, 'down'); await DW.fade(0, 0.4);
       };
       if (this.gfx) DW.World.unprepare(this);
@@ -104,10 +104,10 @@
       f.yokoTunnel = true;
       DW.Audio.sfx('evolve');
       await say("En te penchant, tu remarques des barreaux de fer scellés dans la pierre, juste au-dessus de l'eau. Une échelle ! Elle descend vers un passage creusé sur le côté...");
-      await say("Ce puits cache un souterrain !", 'Yokomon');
+      await say("Ce puits cache un souterrain !", 'Poyomon');
       return;
     }
-    const r = await DW.ask('Le puits des Yokomon.', ["Puiser de l'eau", "Descendre par l'échelle", 'Rien']);
+    const r = await DW.ask('Le puits des Poyomon.', ["Puiser de l'eau", "Descendre par l'échelle", 'Rien']);
     if (r === 0) await well0(ow);
     else if (r === 1) { DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4); ow.load('souterrain_jiji', W - 4, 3, 'down'); await DW.fade(0, 0.4); }
   };
@@ -124,7 +124,7 @@
     for (const m of s.party) { m.heal(); m.tired = 0; m.germs = Math.max(0, (m.germs || 0) - 25); m.addHappy(8); }
     await DW.wait(0.8); await DW.fade(0, 0.4);
     if (DW.Companion) DW.Companion.emote(ow, 'note', 1.6);
-    await say("Aaah... L'eau chaude détend tout le monde. Les Yokomon viennent barboter avec vous en chantant ! (soins complets, fatigue effacée, bonheur +8)");
+    await say("Aaah... L'eau chaude détend tout le monde. Les Poyomon viennent barboter avec vous en chantant ! (soins complets, fatigue effacée, bonheur +8)");
   };
   for (let y = 6; y < 9; y++) for (let x = 25; x < 30; x++) if (Math.hypot((x - 27.5) / 2.4, (y - 7.5) / 1.4) < 1) V.signs[`${x},${y}`] = bath;
 })();

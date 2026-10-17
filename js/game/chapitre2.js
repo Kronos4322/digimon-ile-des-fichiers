@@ -101,7 +101,7 @@
         { sp: 'monochromon', x: x + 1, y: y + 2, face: 'left', cond: s => ch2() && !s.flags.monoSeen, talk: () => say('GRRROOOH !', 'Monochromon') },
       );
     };
-    // le chemin du lac (vers la Roselière) est gardé tant que Monochromon n'est pas vaincu
+    // le chemin du lac (vers la Rosière) est gardé tant que Monochromon n'est pas vaincu
     for (const w of R0.warps.filter(w0 => w0.to === 'lac1' || w0.to === 'lac3')) { w.cond = s => !ch2() || !!s.flags.monoCh2; w.lock = "Monochromon te barre la route en grattant le sol de ses pattes. Impossible de passer tant qu'il garde les rives du lac !"; }
     R0.onEnter = async ow => {
       const s = st();

@@ -2,9 +2,9 @@
 // =====================================================================
 //  VILLAGE DES YOKOMON (épisode 4 de l'animé) — un hameau caché dans la forêt
 //  On y entre en se faufilant dans un tronc creux, au bord de la Prairie des Lucioles.
-//  Les Yokomon vivent dans des nids autour d'un vieux puits... à sec. Quête : rapporter 3 bouteilles
+//  Les Poyomon vivent dans des nids autour d'un vieux puits... à sec. Quête : rapporter 3 bouteilles
 //  d'eau (Eau fraîche ou Eau de source). Récompense : cartes Digimon, Pomme bleue, et un puits qui
-//  désaltère gratuitement ensuite. Les Yokomon parlent aussi de la menace de la forêt.
+//  désaltère gratuitement ensuite. Les Poyomon parlent aussi de la menace de la forêt.
 // =====================================================================
 (function () {
   const { say, st, paint } = DW.MapKit;
@@ -20,7 +20,7 @@
     for (let y = 6; y < 9; y++) for (let x = 25; x < 30; x++) if (Math.hypot((x - 27.5) / 2.4, (y - 7.5) / 1.4) < 1) g.set(x, y, '~');
   });
   MAPS.village_yokomon = {
-    name: 'Village des Yokomon', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'foret',
+    name: 'Village des Poyomon', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'foret',
     rows, encounters: [], wildN: 0, dress: false, secretEntry: true,   // (on y entre par le tronc creux de la Prairie : pas de passage normal)
     objects: [
       { kind: 'well', x: 17, y: 11, w: 1, h: 1 },
@@ -43,10 +43,10 @@
       const log = (pm.objects || []).find(o => o.yoko); if (log) Object.assign(this.warps[0], { tx: log.x, ty: log.y + 1, _zt: true });   // (déjà en coordonnées de la carte agrandie)
       const done = !!st().flags.yokoWell;
       this.npcs = [
-        { sp: 'yokomon', x: 16, y: 13, face: 'down', talk: () => elder() },
-        ...[[7, 9], [11, 17], [24, 16], [13, 7], [22, 6], [27, 11]].map(([x, y], i) => ({ sp: 'yokomon', x, y, face: i % 2 ? 'left' : 'right', wander: 2,
+        { sp: 'poyomon', x: 16, y: 13, face: 'down', talk: () => elder() },
+        ...[[7, 9], [11, 17], [24, 16], [13, 7], [22, 6], [27, 11]].map(([x, y], i) => ({ sp: 'poyomon', x, y, face: i % 2 ? 'left' : 'right', wander: 2,
           talk: () => say(done ? DW.pick(["Le puits chante de nouveau ! Merci, merci !", "On a bu, on a ri, on a dansé toute la nuit !", "Reviens nous voir quand tu veux !"])
-            : DW.pick(["Le puits est à sec... On a si soif.", "Chut ! Le monstre rouge passe parfois au-dessus du village...", "Avant, il y avait de l'eau fraîche ici. Et des chansons."]), 'Yokomon') })),
+            : DW.pick(["Le puits est à sec... On a si soif.", "Chut ! Le monstre rouge passe parfois au-dessus du village...", "Avant, il y avait de l'eau fraîche ici. Et des chansons."]), 'Poyomon') })),
       ];
     },
   };
@@ -74,30 +74,30 @@
     }
   };
 
-  // ------------------------------------------------------------ la doyenne des Yokomon : la quête de l'eau
+  // ------------------------------------------------------------ la doyenne des Poyomon : la quête de l'eau
   const WATER = ['eau_fraiche', 'eau_source'];
   async function elder() {
     const s = st(), f = s.flags;
-    if (f.yokoWell) { await say(f.yokoWellGift ? "Grâce à toi, le puits ne tarira plus. Puise une bouteille d'Eau de source chaque jour, elle est à toi !" : "Grâce à toi, le puits ne tarira plus... Et quelque chose brillait au fond : va puiser un seau !", 'Yokomon'); return; }
+    if (f.yokoWell) { await say(f.yokoWellGift ? "Grâce à toi, le puits ne tarira plus. Puise une bouteille d'Eau de source chaque jour, elle est à toi !" : "Grâce à toi, le puits ne tarira plus... Et quelque chose brillait au fond : va puiser un seau !", 'Poyomon'); return; }
     if (!f.yokoQuest) {
       f.yokoQuest = true;
-      await say("Oh ! Un humain ! Bienvenue au village des Yokomon. Je suis la doyenne.", 'Yokomon');
-      await say("Notre puits s'est tari le jour où le monstre rouge est arrivé dans la forêt. Plus une goutte...", 'Yokomon');
-      await say("Si tu pouvais nous rapporter 3 bouteilles d'eau (de l'Eau fraîche, ou de l'Eau de source), le puits se remettrait peut-être à couler. On saura te remercier !", 'Yokomon');
+      await say("Oh ! Un humain ! Bienvenue au village des Poyomon. Je suis la doyenne.", 'Poyomon');
+      await say("Notre puits s'est tari le jour où le monstre rouge est arrivé dans la forêt. Plus une goutte...", 'Poyomon');
+      await say("Si tu pouvais nous rapporter 3 bouteilles d'eau (de l'Eau fraîche, ou de l'Eau de source), le puits se remettrait peut-être à couler. On saura te remercier !", 'Poyomon');
       return;
     }
     const have = WATER.reduce((a, id) => a + (s.bag[id] || 0), 0);
-    if (have < 3) { await say(`Il nous faudrait 3 bouteilles d'eau... (Tu en as ${have}.) Les distributeurs de nourriture en vendent, et les sources en donnent parfois.`, 'Yokomon'); return; }
-    if ((await DW.ask("Donner 3 bouteilles d'eau aux Yokomon ?")) !== 0) return;
+    if (have < 3) { await say(`Il nous faudrait 3 bouteilles d'eau... (Tu en as ${have}.) Les distributeurs de nourriture en vendent, et les sources en donnent parfois.`, 'Poyomon'); return; }
+    if ((await DW.ask("Donner 3 bouteilles d'eau aux Poyomon ?")) !== 0) return;
     let n = 3; for (const id of WATER) { const k = Math.min(n, s.bag[id] || 0); s.bag[id] -= k; n -= k; }
     DW.Audio.sfx('water');
-    await say("Les Yokomon versent l'eau dans le puits en chantant... Glou... glou... Un grondement monte des profondeurs !", 'Yokomon');
+    await say("Les Poyomon versent l'eau dans le puits en chantant... Glou... glou... Un grondement monte des profondeurs !", 'Poyomon');
     DW.Audio.sfx('fanfare'); f.yokoWell = true;
     await say("L'eau jaillit ! Le puits coule de nouveau ! Tout le village danse autour de toi !");
-    const extra = DW.giveItem('cartes', 2) + DW.giveItem('pomme_bleue', 1); if (DW.Cards) DW.Cards.give('yokomon');
+    const extra = DW.giveItem('cartes', 2) + DW.giveItem('pomme_bleue', 1); if (DW.Cards) DW.Cards.give('poyomon');
     s.party.forEach(m => m.addHappy(10));
-    await say(`Les Yokomon t'offrent 2 Paquets de cartes et une Pomme bleue ! Ton équipe est toute joyeuse. (bonheur +10)${DW.extraMsg(extra)}`);
-    await say("Au fait... Quand l'eau est remontée, on a vu quelque chose briller tout au fond du puits. Va donc puiser un seau, humain !", 'Yokomon');
+    await say(`Les Poyomon t'offrent 2 Paquets de cartes et une Pomme bleue ! Ton équipe est toute joyeuse. (bonheur +10)${DW.extraMsg(extra)}`);
+    await say("Au fait... Quand l'eau est remontée, on a vu quelque chose briller tout au fond du puits. Va donc puiser un seau, humain !", 'Poyomon');
     DW.autosave();
   }
 
@@ -121,7 +121,7 @@
       m.objects.push({ kind: 'hollowlog', v: 0, x, y, w: 1, h: 1, small: true, yoko: true });
       m.signs = m.signs || {};
       m.signs[`${x},${y}`] = async ow => {
-        if ((await DW.ask(st().flags.yokoQuest ? 'Le tronc creux qui mène au village des Yokomon. Se faufiler dedans ?' : "Un tronc creux couché contre les arbres... On entend des petites voix de l'autre côté. Se faufiler dedans ?")) !== 0) return;
+        if ((await DW.ask(st().flags.yokoQuest ? 'Le tronc creux qui mène au village des Poyomon. Se faufiler dedans ?' : "Un tronc creux couché contre les arbres... On entend des petites voix de l'autre côté. Se faufiler dedans ?")) !== 0) return;
         DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4);
         MAPS.village_yokomon.warps[0].tx = x; MAPS.village_yokomon.warps[0].ty = y + 1;
         ow.load('village_yokomon', 17, H - 2, 'up'); await DW.fade(0, 0.4);
