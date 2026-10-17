@@ -145,6 +145,9 @@
     const id = new Int16Array(N).fill(-1), dec = new Int16Array(N).fill(-1);
     let prev = null;
     shapes.forEach((s, si) => {
+      // vu de dos : on cache les détails du VISAGE (yeux, bouche, truffe : détails à l'avant et en haut, la créature regarde à droite) ;
+      // les rayures, taches et motifs du dos restent
+      if (o.back && s.deco) { const [x0, y0, x1, y1] = bounds(s), mx = (x0 + x1) / 2, my = (y0 + y1) / 2; if (mx > bw * 0.56 && my < bh * 0.62) return; }
       c.setTransform(1, 0, 0, 1, 0, 0);
       if (prev) c.clearRect(prev[0], prev[1], prev[2], prev[3]);
       c.setTransform(W / bw, 0, 0, H / bh, 0, 0);

@@ -19,8 +19,8 @@
   const RES_OW = { 'Bébé': 22, 'Entraînement': 27, 'Disciple': 33, 'Champion': 46, 'Ultime': 54, 'Méga': 60 };   // bien visibles, surtout sur téléphone
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
   const S = DW.Sprites = {
-    mon(sp, res, nFrames = 1) {
-      const key = sp + '_' + res + '_' + nFrames;
+    mon(sp, res, nFrames = 1, back = false) {
+      const key = sp + '_' + res + '_' + nFrames + (back ? '_dos' : '');
       if (!cache[key]) {
         const draw = D[sp] || D.koromon;
         const frames = [];
@@ -29,7 +29,9 @@
           // même respiration qu'une image déjà rendue : on la réutilise
           const same = nFrames === 4 ? BREATH.indexOf(sq) : -1;
           if (same >= 0 && same < f) { frames.push(frames[same]); continue; }
-          frames.push(Art.render(draw, res, res, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30 }));
+          // vu de dos : vrai dessin de dos si l'espèce en a un (draw.views), sinon profil sans les détails du visage
+          const real = back && draw.views && draw.views.includes('back');
+          frames.push(Art.render(draw, res, res, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30, back: back && !real, param: real ? { view: 'back' } : undefined }));
         }
         cache[key] = Object.assign({ frames }, frames[0]);
       }
@@ -47,7 +49,8 @@
       }
       return cache[key];
     },
-    ow(sp) { return S.mon(sp, RES_OW[DW.SPECIES[sp].stage] || 24, 2); },
+    hasBack(sp) { const d = D[sp]; return !!(d && d.views && d.views.includes('back')); },
+    ow(sp, back) { return S.mon(sp, RES_OW[DW.SPECIES[sp].stage] || 24, 2, !!back); },   // back : vu de dos (quand il monte)
     // (x, y) = centre bas du sprite
     draw(c, spr, x, y, o = {}) {
       const fr = spr.frames ? spr.frames[(o.frame || 0) % spr.frames.length] : spr;

@@ -255,6 +255,8 @@
         // regard : dans le sens de sa marche ; s'il monte, descend ou attend, il se tourne vers le héros
         if (tx > F.sx) F.face = 'right'; else if (tx < F.sx) F.face = 'left';
         else if (nx > F.sx) F.face = 'right'; else if (nx < F.sx) F.face = 'left';
+        // il monte avec le héros : on le voit de DOS, comme le héros ; il redescend ou va de côté : de face / de profil
+        if (ty < F.sy) F.back = true; else if (ty > F.sy || tx !== F.sx) F.back = false;
         if (DW.World.isTall(this.tileAt(P.x, P.y))) this.rustle[P.x + ',' + P.y] = 0.5;
       }
     }
@@ -677,11 +679,14 @@
       const k = (this.t * 1.5) % 1;
       if (k < 0.5) { c.fillStyle = `rgba(255,255,220,${1 - k * 2})`; c.fillRect(x + 3, y - 14 + b, 1, 3); c.fillRect(x + 2, y - 13 + b, 3, 1); }
     }
-    drawMon(c, sp, x, y, flip, t, moving) {
-      const spr = DW.Sprites.ow(sp);
+    drawMon(c, sp, x, y, flip, t, moving, back) {
+      const spr = DW.Sprites.ow(sp, back);
       c.fillStyle = 'rgba(0,0,0,0.22)';
       c.beginPath(); c.ellipse(x, y, spr.w / 2.8, 2.5, 0, 0, 7); c.fill();
-      DW.Sprites.draw(c, spr, x, y + 2 - (moving ? Math.abs(Math.round(Math.sin(t) * 1.5)) : 0), { flip, frame: moving ? 0 : Math.floor(t) });
+      const by = y + 2 - (moving ? Math.abs(Math.round(Math.sin(t) * 1.5)) : 0);
+      // de dos sans dessin dédié : silhouette resserrée (vue de derrière plutôt que de profil)
+      if (back && !DW.Sprites.hasBack(sp)) { c.save(); c.translate(x, 0); c.scale(0.72, 1); DW.Sprites.draw(c, spr, 0, by, { flip, frame: moving ? 0 : Math.floor(t) }); c.restore(); return; }
+      DW.Sprites.draw(c, spr, x, by, { flip: back ? false : flip, frame: moving ? 0 : Math.floor(t) });
     }
   }
   const objRect = o => ({ x: o.x - o.spr.w / 2, y: o.y - o.spr.h, w: o.spr.w, h: o.spr.h * 0.8 });

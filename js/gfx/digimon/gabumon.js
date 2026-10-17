@@ -63,6 +63,21 @@
     // ---------------------------------------------------------- Disciple : Gabumon, reptile jaune sous la fourrure de Garurumon
     gabumon(d, p = {}) {
       const Y = '#f6c832', Yd = '#c8961c', Yl = '#ffe486', Hn = '#f0d050', Hd = '#9a7020', Fb = '#dfe4fa', CW = '#f2f2f6';
+      if (p.view === 'back') {   // VU DE DOS (sur la carte, quand il monte) : la fourrure rayée couvre tout le dos
+        d.tube([[32, 54], [40, 57], [45, 52], [46, 46]], 6.4, 2.8, Y);                                   // queue jaune
+        for (const s of [-1, 1]) {
+          d.ell(32 + s * 8, 56, 5.6, 6.6, Y);                                                            // jambes
+          for (let i = 0; i < 3; i++) d.poly([[32 + s * 8 - 3 + i * 3, 62.4], [32 + s * 8 - 1.6 + i * 3, 58.6], [32 + s * 8 - 0.2 + i * 3, 62.4]], CW);
+          d.tube([[32 + s * 10, 34], [32 + s * 15, 40], [32 + s * 16, 45]], 5, 4.4, Y);                 // bras
+        }
+        d.blob([[32, 6], [42, 10], [46, 20], [47, 34], [45, 48], [38, 54], [26, 54], [19, 48], [17, 34], [18, 20], [22, 10]], Fb, { tex: 0.1 });   // fourrure
+        for (const s of [-1, 1]) d.poly([[32 + s * 7, 12], [32 + s * 15, 8], [32 + s * 12, 18]], Fb);   // oreilles rabattues
+        for (const y of [16, 24, 32, 40, 47]) for (const s of [-1, 1]) stripe(d, [[32 + s * 3, y], [32 + s * 12, y - 1.4]], 2);   // rayures
+        for (const x of [24, 30, 36, 42]) d.poly([[x - 2, 51], [x, 56], [x + 2, 51]], '#c84a7a');        // bouts roses des poils
+        d.tube([[32, 8], [32, 1], [31, -2]], 4.4, 0.5, Hn, { shiny: true });                             // corne dorée
+        for (const y of [5.4, 2.4]) d.deco.line(30.6, y, 33.4, y, 0.7, Hd);
+        return;
+      }
       const atk = p.pose === 'attack';
       // queue jaune (relevée pendant l'attaque)
       d.tube(atk ? [[20, 52], [13, 54], [8, 50], [7, 44]] : [[20, 52], [12, 55], [6, 52], [3, 47]], 7, 3, Y);
@@ -219,3 +234,4 @@
 // Gabumon : la tête touche le bord droit du cadre — en attaque on penche moins et on recule
 // pour que le museau et la flamme bleue ne soient pas coupés.
 DW.DRAW.gabumon.poses = { attack: { shear: 0.07, dx: -5 } };
+DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
