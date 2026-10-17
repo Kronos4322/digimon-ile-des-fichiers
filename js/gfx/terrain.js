@@ -766,22 +766,34 @@
     // « grass@automne » : herbes hautes aux couleurs du thème de la zone
     const [base, theme] = kind.split('@');
     const [c0, c1, c2, n] = theme ? [...World.THEMES[theme].tall, TALL[base][3]] : TALL[kind];
-    const cv = Art.canvas(16, 24), x = cv.getContext('2d');
-    const cols = [Art.hex(c0), Art.hex(c1), Art.hex(c2)];
+    // HERBES HAUTES PEINTES (haute définition) : touffes de brins effilés et courbés, pied sombre et froid,
+    // pointe claire et chaude, quelques épis ou fleurs ; f = position dans le vent (0, 1, 2)
+    const K = Art.HD || 1, cv = Art.canvas(16 * K, 24 * K), x = cv.getContext('2d');
+    x.scale(K, K);
+    const C0 = Art.hex(c0), C1 = Art.hex(c1), C2 = Art.hex(c2), rgbS = a => `rgb(${a[0] | 0},${a[1] | 0},${a[2] | 0})`;
+    const foot = rgbS(Art.mix(C0, C1, 0.35)), tipc = rgbS(Art.mix(C2, [255, 240, 160], 0.3));
+    const wind = (f - 1) * 1.8;
+    // 3 touffes, plus serrées au centre ; on peint du fond vers l'avant
+    const tufts = [[2.5 + hash(v, 1, 87) * 3.5, 17.5 + hash(v, 1, 89) * 5], [7 + hash(v, 2, 87) * 3, 19 + hash(v, 2, 89) * 5], [11.5 + hash(v, 3, 87) * 3, 17 + hash(v, 3, 89) * 6]];
     const blades = [];
-    for (let k = 0; k < n; k++) blades.push({ bx: Math.floor(hash(v, k, 80) * 16), by: 12 + Math.floor(hash(v, k, 81) * 12), h: 7 + Math.floor(hash(v, k, 82) * (kind === 'dune' ? 9 : 6)), dir: hash(v, k, 83) < 0.5 ? -1 : 1 });
-    blades.sort((a, b) => a.by - b.by);
-    for (const bl of blades) {
-      for (let s = 0; s <= bl.h; s++) {
-        const k = s / bl.h;
-        const sx = bl.bx + Math.round((f - 1) * k * k * 2 + bl.dir * k * 1.2);
-        const c = k < 0.3 ? cols[0] : k < 0.75 ? cols[1] : cols[2];
-        x.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
-        x.fillRect(((sx % 16) + 16) % 16, bl.by - s, 1, 1);
-      }
-      if (kind === 'pastel' && hash(v, bl.bx, 84) < 0.25) { x.fillStyle = '#ffb0d0'; x.fillRect(bl.bx, bl.by - bl.h - 1, 1, 1); }
-      if (kind === 'grass' && hash(v, bl.bx + bl.by * 7, 85) < 0.07) { x.fillStyle = hash(v, bl.bx, 86) < 0.5 ? '#fff6c0' : '#ffffff'; x.fillRect(((bl.bx + (f - 1)) % 16 + 16) % 16, bl.by - bl.h - 1, 1, 1); }
+    tufts.forEach(([tx0, ty0], ti) => { const m = Math.round(n / 3); for (let k = 0; k < m; k++) blades.push({ x0: tx0 + (hash(v, ti * 50 + k, 80) - 0.5) * 4, y0: ty0 + hash(v, ti * 50 + k, 81) * 1.2, h: (kind === 'dune' ? 9 : 7) + hash(v, ti * 50 + k, 82) * (kind === 'dune' ? 9 : 8), lean: (hash(v, ti * 50 + k, 83) - 0.5) * 5, w: 0.9 + hash(v, ti * 50 + k, 84) * 0.7 }); });
+    blades.sort((a, b) => a.y0 - b.y0);
+    // ombre au pied des touffes
+    x.fillStyle = 'rgba(8,30,24,0.16)'; for (const [tx0, ty0] of tufts) { x.beginPath(); x.ellipse(tx0, ty0 + 0.4, 2.6, 0.8, 0, 0, 7); x.fill(); }
+    for (const b of blades) {
+      const ex = b.x0 + b.lean + wind * (b.h / 12), ey = b.y0 - b.h, mx = b.x0 + b.lean * 0.3, my = b.y0 - b.h * 0.55;
+      const g = x.createLinearGradient(0, b.y0, 0, ey);
+      g.addColorStop(0, foot); g.addColorStop(0.45, rgbS(C1)); g.addColorStop(1, tipc);
+      x.fillStyle = g;
+      // brin effilé : deux courbes qui se rejoignent à la pointe
+      x.beginPath(); x.moveTo(b.x0 - b.w / 2, b.y0); x.quadraticCurveTo(mx - b.w * 0.3, my, ex, ey); x.quadraticCurveTo(mx + b.w * 0.3, my, b.x0 + b.w / 2, b.y0); x.closePath(); x.fill();
     }
+    if (kind === 'grass') for (let k = 0; k < 2; k++) if (hash(v, k, 85) < 0.45) {   // épis et petites fleurs au bout de quelques brins
+      const b = blades[Math.floor(hash(v, k, 86) * blades.length)], ex = b.x0 + b.lean + wind * (b.h / 12), ey = b.y0 - b.h;
+      x.fillStyle = hash(v, k, 88) < 0.5 ? '#fff4c8' : '#ffffff'; x.beginPath(); x.ellipse(ex, ey, 0.9, 1.3, 0, 0, 7); x.fill();
+    }
+    if (kind === 'pastel') for (let k = 0; k < 3; k++) { const b = blades[Math.floor(hash(v, k, 84) * blades.length)]; x.fillStyle = '#ffb0d0'; x.beginPath(); x.arc(b.x0 + b.lean + wind * (b.h / 12), b.y0 - b.h, 0.9, 0, 7); x.fill(); }
+    cv._k = K;
     return (tallCache[key] = cv);
   };
 

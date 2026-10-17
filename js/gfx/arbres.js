@@ -58,13 +58,13 @@
       if (L > 0.45) { x.fillStyle = rgb(top, 0.85); x.beginPath(); x.arc(c.x - r * 0.4, c.y - r * 0.46, r * 0.26, 0, 7); x.fill(); }
     }
     // 3) feuilles en touches (petites ellipses inclinées), teintées par la lumière du dôme
-    for (let i = 0; i < 160; i++) {
+    for (let i = 0; i < (o.touches || 160); i++) {
       const a = hash(seed, i, 911) * Math.PI * 2, d = Math.sqrt(hash(seed, i, 912)) * 0.95;
       const px = cx + Math.cos(a) * rx * d, py = cy + Math.sin(a) * ry * d;
       const L = lit(px, py, cx, cy, rx, ry) + (hash(seed, i, 913) - 0.5) * 0.35;
       x.fillStyle = L > 0.25 ? rgb(mix(hi, top, Math.min(1, L - 0.25)), 0.9) : L > -0.25 ? rgb(mix(base, hi, L + 0.25), 0.75) : rgb(mix(deep, dark, 0.6), 0.6);
       x.save(); x.translate(px, py); x.rotate(-0.6 + hash(seed, i, 914) * 1.2);
-      x.beginPath(); x.ellipse(0, 0, 1.1, 0.7, 0, 0, 7); x.fill(); x.restore();
+      x.beginPath(); x.ellipse(0, 0, 1.1 * (o.leaf || 1), 0.7 * (o.leaf || 1), 0, 0, 7); x.fill(); x.restore();
     }
     // 4) liseré de lumière sur le bord haut-gauche
     x.strokeStyle = rgb(top, 0.75); x.lineWidth = 0.7;
@@ -103,17 +103,24 @@
   const TREE_P = { 0: ['#4aa23e', '#2b7034', '#8ad25e'], 1: ['#3f9648', '#276440', '#74c868'], 2: ['#58aa3a', '#36782e', '#98d856'],
     5: ['#e2802c', '#a84a1c', '#ffbe5a'], 6: ['#d0503a', '#8e2a20', '#f48a5a'], 7: ['#e4b434', '#a87e1c', '#ffe27a'],
     8: ['#2c7040', '#18462a', '#4a9a52'], 9: ['#3a9676', '#226856', '#72c8a2'], 10: ['#2e6a4c', '#1a4434', '#56966c'], 11: ['#9cbac4', '#6a8a98', '#dcecf0'],
-    12: ['#f2a6c8', '#c46c92', '#ffdcec'], 13: ['#f4eef2', '#bcb0c4', '#ffffff'] };
+    12: ['#6aa24a', '#3e6e3a', '#a8d070'], 13: ['#5e9a48', '#35663a', '#9ccc68'] };
   function paintTree(x, v) {
     const P = TREE_P[v] || TREE_P[0], seed = 40 + v * 7;
     trunk(x, { cx: 18, top: 27, base: 45, w: 7.6, bark: v === 8 ? '#5a3a22' : v === 9 ? '#6a5a3a' : '#7a5230' });
     crownShadow(x, 18, 28, 5);
     crown(x, { seed, cx: 18, cy: 16, rx: 15, ry: 12.5, P });
     if (v === 9) { x.fillStyle = 'rgba(110,180,80,0.85)'; x.beginPath(); x.ellipse(16.5, 37, 2.2, 4.5, 0.1, 0, 7); x.fill(); }
-    if (v === 12 || v === 13) for (let i = 0; i < 26; i++) {   // fleurs : pétales clairs et jeunes feuilles
-      const px = 18 + (hash(v, i, 921) - 0.5) * 28, py = 17 + (hash(v, i, 922) - 0.5) * 22;
-      x.fillStyle = i % 3 ? (v === 12 ? '#fff2f8' : '#fffbe0') : '#86c858';
-      x.beginPath(); x.arc(px, py, 0.9, 0, 7); x.fill();
+    if (v === 12 || v === 13) {   // FLEURS : des centaines de petites fleurs à 5 pétales sur la couronne, plus claires au soleil
+      const petal = v === 12 ? ['#f6a8c8', '#ffd2e4', '#fff0f6'] : ['#f2eadc', '#fff8ec', '#ffffff'], heart = v === 12 ? '#e0607a' : '#f0c040';
+      for (let i = 0; i < 140; i++) {
+        const a = hash(v, i, 921) * Math.PI * 2, d = Math.sqrt(hash(v, i, 922)) * 0.92, px = 18 + Math.cos(a) * 15 * d, py = 16 + Math.sin(a) * 12.5 * d;
+        const L = lit(px, py, 18, 16, 15, 12.5) + (hash(v, i, 923) - 0.5) * 0.4;
+        if (L < -0.55 && hash(v, i, 924) < 0.6) continue;   // moins de fleurs dans l'ombre : on y voit les feuilles
+        const r = 0.75 + hash(v, i, 925) * 0.45, col = petal[L > 0.35 ? 2 : L > -0.15 ? 1 : 0];
+        x.fillStyle = col;
+        for (let k = 0; k < 5; k++) { const b = k / 5 * Math.PI * 2 + i; x.beginPath(); x.arc(px + Math.cos(b) * r * 0.9, py + Math.sin(b) * r * 0.9, r * 0.62, 0, 7); x.fill(); }
+        x.fillStyle = heart; x.fillRect(px - 0.3, py - 0.3, 0.6, 0.6);
+      }
     }
     if (v === 10 || v === 11) for (let i = 0; i < 9; i++) {   // neige posée sur le haut des grappes
       const px = 18 + (hash(v, i, 931) - 0.5) * 26, py = 6 + hash(v, i, 932) * 14, r = 3 + hash(v, i, 933) * 3;
