@@ -183,9 +183,12 @@
           const nr = gg * 0.98 + r * 0.12, ng = gg * 0.84 + r * 0.04, nb = b * 0.55;
           d[i] = r + (nr - r) * k; d[i + 1] = gg + (ng - gg) * k; d[i + 2] = b + (nb - b) * k;
         }
-        if (snow >= 0.1 && !water) {   // NEIGE : tout blanchit (sauf l'eau), en gardant un peu du relief
-          const l = (d[i] + d[i + 1] + d[i + 2]) / 3, s = snow * 0.88, v = 205 + l * 0.2;
-          d[i] += (v - d[i]) * s; d[i + 1] += (v + 4 - d[i + 1]) * s; d[i + 2] += (v + 14 - d[i + 2]) * s;
+        if (snow >= 0.1 && !water) {   // NEIGE (sauf sur l'eau) : le relief reste — creux bleutés, bosses blanches au soleil
+          const r0 = d[i], g0 = d[i + 1], b0 = d[i + 2], l = (r0 + g0 + b0) / 3;
+          const dirt = r0 > g0 * 1.05 && r0 > b0 * 1.25;   // chemins : neige tassée, on devine encore la piste
+          const cov = snow * (dirt ? 0.58 : 0.94) * Math.min(1, Math.max(0.32, (l - 18) / 115));   // sous-bois sombre : un peu moins couvert
+          const t = Math.min(1, Math.max(0, (l - 35) / 150));
+          d[i] = r0 + (170 + t * 80 - r0) * cov; d[i + 1] = g0 + (188 + t * 64 - g0) * cov; d[i + 2] = b0 + (224 + t * 31 - b0) * cov;
         }
       }
       if (fmode) this.fadeFlowers(d, cv.width, cv.height, g.flowers, fmode, snow);
@@ -252,13 +255,35 @@
     FLOWERS: { giantflower: 1, flowerbed: 1 },
     objImg(o, img) {
       const C = this.cur;
-      if (!C || !C.tmp || o.flat) return img;
+      if (!C || !C.tmp) return img;
+      if (o.flat) return this.DRY[o.kind] && C.m >= 9 ? this.dry(img, this.DRY[o.kind]) : img;   // (fougères : objets plats)
       if (this.TREES[o.kind] && !o.sprs) {
         const r = this.treeV(o);
         if (r) { img = DW.World.obj(r[0], r[1]).img; if (r[1] === (r[0] === 'tree' ? 15 : 3)) return img; }   // (déjà enneigé)
         else if (o.kind === 'tree' && (o.v === 10 || o.v === 11)) return img;
       } else if (this.FLOWERS[o.kind] && (o.v || 0) < 3 && C.m >= 7) img = DW.World.obj(o.kind, C.m >= 9 ? 3 : 4).img;
+      else if (this.DRY[o.kind] && C.m >= 9) img = this.dry(img, this.DRY[o.kind]);   // hiver : fougères fanées, buissons ternis
       return C.snow >= 0.3 ? this.snowCap(img, C.snow >= 0.7 ? 2 : 1) : img;
+    },
+    // plantes en hiver : 1 = fanée (paille brune), 0.45 = feuillage terni
+    DRY: { fern: 1, bigfern: 1, junglebush: 0.7, bush: 0.45, hedge: 0.3 },
+    _dryC: new WeakMap(),
+    dry(img, k) {
+      let e = this._dryC.get(img);
+      if (e) return e;
+      const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height; cv._k = img._k;
+      const x = cv.getContext('2d'); Art.drawRaw(x, img, 0, 0);
+      const im = x.getImageData(0, 0, cv.width, cv.height), d = im.data;
+      for (let i = 0; i < d.length; i += 4) {
+        if (!d[i + 3]) continue;
+        const r = d[i], g = d[i + 1], b = d[i + 2];
+        if (!(g > r * 1.02 && g > b)) continue;   // seulement le vert
+        const l = (r + g + b) / 3;
+        d[i] = r + (l * 0.95 + 34 - r) * k; d[i + 1] = g + (l * 0.82 + 22 - g) * k; d[i + 2] = b + (l * 0.55 + 12 - b) * k;
+      }
+      x.putImageData(im, 0, 0);
+      this._dryC.set(img, cv);
+      return cv;
     },
     // neige posée sur le dessus des objets (toits, rochers, buissons, sapins...) : image recalculée une fois
     _cap: new WeakMap(),
@@ -269,9 +294,12 @@
       const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height; cv._k = img._k;
       const x = cv.getContext('2d'); Art.drawRaw(x, img, 0, 0);   // (copie pixel pour pixel : image haute définition)
       const im = x.getImageData(0, 0, cv.width, cv.height), d = im.data, Wd = cv.width, Hd = cv.height;
-      const th = Math.max(2, Math.round((img._k || 1) * (lv + 1))), y1 = Math.round(Hd * 0.86);   // (pas sur l'ombre au pied)
+      const kk = img._k || 1, big = Hd / kk > 60, y1 = Math.round(Hd * 0.86);   // (pas sur l'ombre au pied)
+      // épaisseur : un liseré sur les petits objets, une vraie couche sur les toits des bâtiments (bord irrégulier)
+      const th0 = big ? Hd * (0.05 + 0.025 * lv) : Math.max(2, kk * (lv + 1));
       for (let X = 0; X < Wd; X++) {
         let run = 0;
+        const th = Math.max(2, Math.round(th0 * (big ? 0.7 + 0.6 * Art.fbm(X / kk * 0.15, lv, 77) : 1)));
         for (let Y = 0; Y < y1; Y++) {
           const i = (Y * Wd + X) * 4;
           if (d[i + 3] < 60) { run = 0; continue; }
@@ -299,8 +327,10 @@
       for (let i = 0; i < d.length; i += 4) {
         if (!d[i + 3]) continue;
         const l = (d[i] + d[i + 1] + d[i + 2]) / 3, y = Math.floor(i / 4 / o.width) / o.height;
-        d[i] = l * 0.8 + 52; d[i + 1] = l * 0.74 + 46; d[i + 2] = l * 0.55 + 30;   // brins secs, couleur paille grise
-        const k = Math.min(1, sn / 4 * (1.25 - y * 0.6)); d[i] += (236 - d[i]) * k; d[i + 1] += (242 - d[i + 1]) * k; d[i + 2] += (252 - d[i + 2]) * k;
+        // sous la neige, seul le haut des brins dépasse (paille sèche, poudrée de blanc) : le bas est enfoui
+        if (y > 0.92 - sn * 0.09) { d[i + 3] = 0; continue; }
+        d[i] = l * 0.62 + 92; d[i + 1] = l * 0.56 + 80; d[i + 2] = l * 0.42 + 58;
+        const k = Math.min(0.6, sn / 4 * 0.5 * (1.2 - y)); d[i] += (240 - d[i]) * k; d[i + 1] += (244 - d[i + 1]) * k; d[i + 2] += (252 - d[i + 2]) * k;
       }
       x.putImageData(im, 0, 0);
       return (e[mode] = o);

@@ -8,6 +8,8 @@
   const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
   const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
   const SIGN_STAT = ['hp', 'atk', 'def', 'spd', 'int', 'mp'];   // pictogramme des panneaux du Terrain d'entraînement (v) → poste
+  // (seul le feuillage ondule au vent : jamais les maisons ni les grands décors)
+  const SWAY = { tree: 1, oak: 1, birch: 1, bigtree: 1, palm: 1, pine: 1, fruittree: 1, jungletree: 1, swamptree: 1, cycad: 1, acacia: 1, baobab: 1, mangrove: 1, candytree: 1 };
   const WALK = 0.2, RUN = 0.11; // secondes par case (×√2 en diagonale : même vitesse dans toutes les directions)
 
   class Overworld extends DW.Scene {
@@ -524,7 +526,7 @@
           if (o.flip) img = DW.Rendu.mirror(img);
           const X = Math.round(o.x - s.w / 2), Y = Math.round(o.y - s.h + 1);
           // le feuillage (haut du sprite) ondule doucement au vent ; sans décalage, un seul dessin suffit
-          const sway = o.big && !o.flat ? Math.round(Math.sin(this.t * 1.3 + o.x * 0.07) * 0.8 + Math.sin(this.t * 0.37 + o.y * 0.05) * 0.5) : 0;
+          const sway = o.big && !o.flat && SWAY[o.kind] ? Math.round(Math.sin(this.t * 1.3 + o.x * 0.07) * 0.8 + Math.sin(this.t * 0.37 + o.y * 0.05) * 0.5) : 0;
           if (sway) {
             const cut = Math.round(s.h * 0.62);
             c.drawImage(img, 0, 0, s.w, cut, X + sway, Y, s.w, cut);
