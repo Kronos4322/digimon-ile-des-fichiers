@@ -135,7 +135,7 @@
   // ------------------------------------------------------------ rendu
   // draw(kit) ; W×H pixels ; o.box = [bw,bh] repère des coordonnées ; o.squash = facteur respiration
   const L = (() => { const v = [-0.55, -0.8, 0.95], l = Math.hypot(...v); return v.map(x => x / l); })();
-  Art.render = (draw, W, H, o = {}) => {
+  const renderRaw = (draw, W, H, o = {}) => {
     const k = new Kit();
     draw(k, o.param);
     const shapes = k.shapes;
@@ -305,9 +305,34 @@
     }
     return R;
   };
+  // HAUTE DÉFINITION : chaque dessin est calculé Art.HD fois plus fin (le canvas du jeu fait 960 × 720 pour un
+  // écran logique de 320 × 240). L'image garde sa taille logique (R.w, R.h) : son facteur est noté img._k,
+  // et drawImage (ci-dessous) la place toujours à sa taille logique, quel que soit l'appel.
+  Art.HD = 2;
+  Art.render = (draw, W, H, o = {}) => {
+    const k = o.hd != null ? o.hd : Art.HD;
+    if (!(k > 1)) return renderRaw(draw, W, H, o);
+    const R = renderRaw(draw, Math.round(W * k), Math.round(H * k), { ...o, box: o.box || [W, H] });
+    for (const im of [R.img, R.white, R.black]) if (im) im._k = k;
+    R.w = R.img.width / k; R.h = R.img.height / k; R.k = k;
+    return R;
+  };
   Art.tint = (img, col) => {
     const c = Art.canvas(img.width, img.height), x = c.getContext('2d');
-    x.drawImage(img, 0, 0); x.globalCompositeOperation = 'source-in'; x.fillStyle = col; x.fillRect(0, 0, c.width, c.height);
+    HD_DRAW.call(x, img, 0, 0);   // (copie pixel pour pixel, haute définition comprise)
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = col; x.fillRect(0, 0, c.width, c.height);
+    c._k = img._k;
     return c;
   };
+  // drawImage d'une image haute définition : (img, x, y) → taille logique ; (img, sx, sy, sw, sh, ...) → découpe en coordonnées logiques
+  const C2D = typeof CanvasRenderingContext2D !== 'undefined' ? CanvasRenderingContext2D : null;   // (absent sous Node : tests)
+  const HD_DRAW = C2D ? C2D.prototype.drawImage : function () {};
+  if (C2D) C2D.prototype.drawImage = function (img, a, b, c, d, e, f, g, h) {
+    const k = img && img._k;
+    if (!k || k === 1) return HD_DRAW.apply(this, arguments);
+    if (arguments.length === 3) return HD_DRAW.call(this, img, a, b, img.width / k, img.height / k);
+    if (arguments.length === 5) return HD_DRAW.call(this, img, a, b, c, d);
+    return HD_DRAW.call(this, img, a * k, b * k, c * k, d * k, e, f, g, h);
+  };
+  Art.drawRaw = (ctx, ...args) => HD_DRAW.apply(ctx, args);
 })();

@@ -515,8 +515,9 @@
     let spr;
     if (dir.endsWith('left')) {   // gauche = miroir de la droite (profil et trois-quarts)
       const r = DW.Sprites.hero(dir.replace('left', 'right'), frame, id);
-      const cv = Art.canvas(r.w, r.h), x = cv.getContext('2d');
-      x.translate(r.w, 0); x.scale(-1, 1); x.drawImage(r.img, 0, 0);
+      const cv = Art.canvas(r.img.width, r.img.height), x = cv.getContext('2d');
+      x.translate(cv.width, 0); x.scale(-1, 1); Art.drawRaw(x, r.img, 0, 0);
+      cv._k = r.img._k;   // (haute définition conservée)
       spr = { img: cv, w: r.w, h: r.h };
     } else {
       const draw = dir === 'right' ? d => side(d, ph, look) : dir === 'downright' ? d => threeQuarter(d, ph, false, look)
