@@ -487,17 +487,18 @@
       list.length = 0;
       // ombres portées qui suivent la course du soleil (longues le matin et le soir) : un seul remplissage, au sol, sous tout le reste
       const sun = this.sun, shade = sun.a > 0.01;
-      if (shade) { c.fillStyle = `rgba(0,20,10,${sun.a})`; c.beginPath(); }
+      if (shade) { c.fillStyle = sun.dx < -0.4 ? `rgba(36,26,60,${sun.a})` : sun.dx > 0.4 ? `rgba(46,20,40,${sun.a})` : `rgba(10,26,42,${sun.a})`; c.beginPath(); }
       for (const o of g.objs) {
         if (o.x < vx0 - 30 || o.x > vx1 + 30 || o.y < vy0 || o.y > vy1 + 40) continue;
         if (o.s === undefined) o.s = o.sort;
         list.push(o);
-        if (shade && !o.flat) {
-          const rw = Math.min(16, o.spr.w / 3) * (1 + Math.abs(sun.dx) * (o.big ? 0.9 : 0.4)), sx = o.x + 2 + sun.dx * (o.big ? 10 : 4);
+        if (shade && !o.flat && o.spr.h < 34) {   // petits objets : ombre ronde (les grands ont leur ombre projetée)
+          const rw = Math.min(16, o.spr.w / 3) * (1 + Math.abs(sun.dx) * 0.4), sx = o.x + sun.dx * 5;
           c.moveTo(sx + rw, o.y); c.ellipse(sx, o.y, rw, 3, 0, 0, 7);
         }
       }
       if (shade) c.fill();
+      if (shade) DW.Rendu.cast(this, c, list, sun);   // ombres projetées des bâtiments et des arbres (forme réelle, gfx/rendu.js)
       DW.Rendu.contact(this, c, vx0, vx1, vy0, vy1);   // ombres de contact (gfx/rendu.js)
       for (const [x, y] of DW.state.poops[this.mapId] || []) list.push({ s: y - 0.02, ent: 'poop', x, y, tile: [x, y] });
       for (const n of this.map.npcs || []) {

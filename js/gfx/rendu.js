@@ -137,9 +137,51 @@
     return m;
   }
 
+  // ------------------------------------------------------------ ombres projetées (bâtiments, arbres, grands objets)
+  // La silhouette réelle de l'objet, couchée au sol à l'opposé du soleil : courte à midi (un peu vers la droite,
+  // la lumière vient du haut-gauche), longue le matin et le soir. Silhouette floutée une fois, mise en cache.
+  const sils = {};
+  function silhouette(img, tint = '#0a1a26') {
+    const sil = sils[tint] || (sils[tint] = new WeakMap());
+    let s = sil.get(img);
+    if (s) return s;
+    const k = img._k || 1, pad = Math.ceil(3 * k);
+    s = cv(img.width + pad * 2, img.height + pad * 2); const x = s.getContext('2d');
+    x.filter = `blur(${(1.2 * k).toFixed(1)}px)`;
+    DW.Art.drawRaw(x, img, pad, pad); x.filter = 'none';
+    x.globalCompositeOperation = 'source-in'; x.fillStyle = tint; x.fillRect(0, 0, s.width, s.height);
+    s._k = k; s._pad = pad / k;
+    // pied réel du dessin (dernière ligne non transparente) : l'ombre part de là, collée à l'objet
+    const d = DW.Art.drawRaw ? (() => { const t = cv(img.width, img.height), tx = t.getContext('2d'); DW.Art.drawRaw(tx, img, 0, 0); return tx.getImageData(0, 0, img.width, img.height).data; })() : null;
+    let bot = img.height - 1;
+    if (d) { search: for (; bot > 0; bot--) for (let xx = 0; xx < img.width; xx += 2) if (d[(bot * img.width + xx) * 4 + 3] > 100) break search; }
+    s._bot = (bot + 1) / k;
+    sil.set(img, s);
+    return s;
+  }
+  function cast(ow, c, list, sun) {
+    // COURSE DU SOLEIL : lever à l'est (droite), coucher à l'ouest (gauche). Le matin l'ombre part vers la gauche et
+    // s'allonge, à midi elle est courte (un peu vers le bas, la lumière vient du sud), le soir elle part vers la droite.
+    // Couleur de l'ombre : bleu froid à midi, violet le matin, brun pourpre au couchant.
+    const dx = sun.dx, shear = dx * 0.85, sq = 0.22 + Math.abs(dx) * 0.38, a = Math.min(0.45, sun.a * 1.6);
+    const tint = dx < -0.4 ? '#241a3c' : dx > 0.4 ? '#2e1428' : '#0a1a2a';
+    c.save(); c.globalAlpha = a;
+    for (const o of list) {
+      if (!o.spr || o.flat || o.spr.h < 34) continue;
+      const img = o.sprs ? o.sprs[0].img : o.spr.img, S = silhouette(o.flip ? mirror(img) : img, tint), h = o.spr.h, w = o.spr.w, p = S._pad;
+      const X = Math.round(o.x - w / 2), Y = Math.round(o.y - h + 1), hb = S._bot, base = Y + hb;
+      // (u, v) de l'image → (X + u + (hb - v)·shear , base + (hb - v)·sq) : la silhouette se couche sur le sol, depuis le pied
+      c.save();
+      c.transform(1, 0, -shear, -sq, X + hb * shear, base + hb * sq);
+      c.drawImage(S, -p, -p);
+      c.restore();
+    }
+    c.restore();
+  }
+
   // ------------------------------------------------------------ passes appelées par Overworld.draw
   DW.Rendu = {
-    MOODS, moodOf, mirror,
+    MOODS, moodOf, mirror, cast,
     // sous les objets : ombres de contact
     contact(ow, c, x0, x1, y0, y1) { if (ow.gfx && ow.gfx.objs) drawContact(c, ow.gfx.objs, x0, x1, y0, y1, ow.map.indoor); },
     // après le décor (écran) : rais de lumière

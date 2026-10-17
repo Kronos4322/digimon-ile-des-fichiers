@@ -19,6 +19,7 @@
   };
   const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
   Art.hex = hex; Art.mix = mix;
+  Art.lum = h => { const c = hex(h); return (c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11) / 255; };
   const rampCache = {};
   // 5 tons : ombre profonde, ombre, base, lumière, reflet (avec décalage de teinte)
   Art.ramp = col => {
@@ -61,7 +62,12 @@
       }
     }
     add(type, args, col, o = {}) { this.shapes.push({ type, args, col, o, deco: this._deco || !!o.deco }); }
-    ell(x, y, rx, ry, col, rot = 0, o) { this.add('ell', [x, y, rx, ry, rot], col, o); }
+    ell(x, y, rx, ry, col, rot = 0, o) {
+      // ancienne ombre « peinte » sous les objets (ellipse plate et sombre) : remplacée par les ombres projetées
+      // et de contact du rendu (gfx/rendu.js) ; on ne la dessine plus
+      if (o && o.flat && !o.unlit && typeof col === 'string' && col[0] === '#' && Art.lum && Art.lum(col) < 0.3 && ry <= 5) return;
+      this.add('ell', [x, y, rx, ry, rot], col, o);
+    }
     circ(x, y, r, col, o) { this.add('ell', [x, y, r, r, 0], col, o); }
     rect(x, y, w, h, col, o) { this.add('rect', [x, y, w, h], col, o); }
     poly(pts, col, o) { this.add('poly', [pts], col, o); }

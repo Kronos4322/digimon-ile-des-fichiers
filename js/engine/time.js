@@ -7,8 +7,11 @@
   const W = DW.W, H = DW.H;
   // images-clés de la lumière : [heure, obscurité, teinte]
   const KEYS = [
-    [0, 0.66, '#0c1440'], [4.5, 0.64, '#0c1440'], [5.5, 0.42, '#3a2a70'], [6.5, 0.2, '#ff8a6a'], [7.5, 0.05, '#ffd0a0'],
-    [8.5, 0, '#ffffff'], [16.5, 0, '#ffffff'], [17.5, 0.12, '#ffb070'], [18.5, 0.26, '#ff6a5a'], [19.5, 0.44, '#6a3a8a'],
+    // aube bleu-violet → lever rose orangé → matinée dorée et douce → midi neutre → après-midi chaud →
+    // coucher orange puis rose pourpre → crépuscule violet → nuit bleue
+    [0, 0.66, '#0c1440'], [4.5, 0.64, '#0c1440'], [5.5, 0.42, '#3a2a70'], [6.5, 0.22, '#ff8a6a'], [7.5, 0.1, '#ffc088'],
+    [8.5, 0.05, '#ffe2b0'], [10, 0.02, '#fff4dc'], [11.5, 0, '#ffffff'], [14.5, 0, '#ffffff'], [16, 0.03, '#fff0d0'],
+    [17, 0.08, '#ffcf8a'], [18, 0.18, '#ff9a5a'], [18.8, 0.3, '#ff6a6a'], [19.5, 0.44, '#8a3a8a'],
     [20.5, 0.62, '#0c1440'], [24, 0.66, '#0c1440'],
   ];
   const CLIMATE = {
