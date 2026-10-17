@@ -166,13 +166,21 @@
 
   // ------------------------------------------------------------ choix d'un des 3 emplacements de sauvegarde
   class SlotScene extends DW.Scene {
-    constructor(mode) { super(); this.overlay = true; this.mode = mode; this.info = [1, 2, 3].map(n => DW.saveInfo(n)); this.i = Math.max(0, this.info.findIndex(x => (mode === 'load' ? !!x : !x))); }
+    constructor(mode) {
+      super(); this.overlay = true; this.mode = mode; this.info = [1, 2, 3].map(n => DW.saveInfo(n)); this.i = Math.max(0, this.info.findIndex(x => (mode === 'load' ? !!x : !x)));
+      // pour reprendre : chaque emplacement peut avoir plusieurs versions (◀ ▶)
+      this.vars = [1, 2, 3].map(n => (DW.saveVariants ? DW.saveVariants(n) : [])); this.vi = [0, 0, 0];
+      if (mode === 'load') this.vars.forEach((V, k) => { if (!this.info[k] && V.length) this.info[k] = V[0].info; });
+    }
     update() {
       if (Input.hit('up')) { this.i = (this.i + 2) % 3; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % 3; Audio.sfx('move'); }
+      const V = this.vars[this.i];
+      if (this.mode === 'load' && V.length > 1 && (Input.hit('left') || Input.hit('right'))) { this.vi[this.i] = (this.vi[this.i] + (Input.hit('left') ? V.length - 1 : 1)) % V.length; this.info[this.i] = V[this.vi[this.i]].info; Audio.sfx('move'); }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(-1); return; }
       if (Input.hit('ok')) {
         if (this.mode === 'load' && !this.info[this.i]) { Audio.sfx('bump'); return; }
+        if (this.mode === 'load' && V.length && V[this.vi[this.i]].kind !== 'actuelle') DW.restoreVariant(this.i + 1, V[this.vi[this.i]].kind);
         Audio.sfx('select'); this.close(this.i + 1);
       }
     }
@@ -189,6 +197,8 @@
         UI.text(c, o.name, 90, y + 28, { size: 10, color: '#ffe070' });
         UI.text(c, `${o.partner ? DW.SPECIES[o.partner].name + ' N.' + o.level : ''}   Jour ${o.day}   ${Math.floor(o.time / 3600)} h ${String(Math.floor(o.time / 60) % 60).padStart(2, '0')}`, 90, y + 41, { size: 7, color: '#c8f0ff' });
         UI.text(c, UI.fit(c, o.place, 110, 7).s, W - 34, y + 14, { size: 7, align: 'right', color: '#c8f0ff' });
+        const V = this.vars[k];
+        if (this.mode === 'load' && V.length > 1) UI.text(c, `${on ? '◀ ' : ''}${V[this.vi[k]].label}${on ? ' ▶' : ''}`, W - 34, y + 28, { size: 7, align: 'right', color: V[this.vi[k]].kind === 'actuelle' ? '#9ab0e8' : '#ffb070' });
       });
       UI.hints(c, [['ok', 'choisir'], ['back', 'retour']], W - 12, H - 8);
     }
@@ -256,6 +266,7 @@
             });
             return;
           }
+          if (had) DW.archiveSave(slot);   // l'ancienne partie est mise de côté (récupérable depuis « Continuer »)
           DW.state = DW.newState();
           DW.fade(1, 0.01).then(() => { Game.replaceAll(new DW.IntroScene()); DW.fade(0, 0.6); });
         } };

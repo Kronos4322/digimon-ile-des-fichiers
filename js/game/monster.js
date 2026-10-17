@@ -272,6 +272,38 @@
   const write = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
   // supprimer un emplacement (la sauvegarde et sa copie précédente)
   DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { localStorage.removeItem(K.KEY); localStorage.removeItem(K.BAK); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
+  // VERSIONS d'un emplacement : la partie actuelle, la version précédente (avant la dernière sauvegarde)
+  // et l'ANCIENNE partie (mise de côté quand on commence une nouvelle partie sur cet emplacement)
+  const infoOf = json => {
+    try {
+      const o = JSON.parse(json); if (!o) return null;
+      const m = DW.MAPS[o.map], lead = o.party && o.party[0];
+      return { name: o.name, time: o.time || 0, place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
+        level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
+    } catch (e) { return null; }
+  };
+  const OLD = n => keyOf(n) + '_ancienne';
+  DW.archiveSave = n => { const keep = DW.slot; DW.slot = n; try { const cur = read(K.KEY) || read(K.BAK); if (cur) write(OLD(n), cur); } finally { DW.slot = keep; } };
+  DW.saveVariants = n => {
+    const keep = DW.slot; DW.slot = n;
+    try {
+      const cur = read(K.KEY), bak = read(K.BAK), old = read(OLD(n)), out = [];
+      if (cur) out.push({ kind: 'actuelle', label: 'Partie actuelle', info: infoOf(cur) });
+      if (bak && bak !== cur) out.push({ kind: 'precedente', label: 'Version précédente', info: infoOf(bak) });
+      if (old && old !== cur && old !== bak) out.push({ kind: 'ancienne', label: 'Ancienne partie (mise de côté)', info: infoOf(old) });
+      return out.filter(v => v.info);
+    } finally { DW.slot = keep; }
+  };
+  // reprendre une autre version : elle devient la partie de l'emplacement ; la partie remplacée est mise de côté (rien n'est perdu)
+  DW.restoreVariant = (n, kind) => {
+    const keep = DW.slot; DW.slot = n;
+    try {
+      const cur = read(K.KEY), pick = kind === 'precedente' ? read(K.BAK) : kind === 'ancienne' ? read(OLD(n)) : cur;
+      if (!pick || pick === cur) return;
+      if (cur) write(OLD(n), cur);
+      write(K.KEY, pick);
+    } finally { DW.slot = keep; }
+  };
   // résumé affiché sur l'écran titre
   DW.saveInfo = (slot = DW.slot) => {
     const keep = DW.slot; DW.slot = slot;
