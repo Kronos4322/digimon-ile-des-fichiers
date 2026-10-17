@@ -135,7 +135,12 @@
     hold(root.querySelector('.a'), 'ok'); hold(root.querySelector('.b'), 'back');
     hold(root.querySelector('.menu'), 'menu'); toggleRun(root.querySelector('.run'));
     // toucher l'écran de jeu = OK (dialogues, menus)
-    DW.canvas.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') return; e.preventDefault(); buzz(); Input.press('touch:screen', 'ok'); });
+    DW.canvas.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse') return; e.preventDefault(); buzz();
+      // pendant la saisie du nom, toucher l'écran valide aussi (avant, rien ne se passait : on croyait le jeu bloqué)
+      if (Input.textMode) { Input.typed.push('Enter'); if (field) field.blur(); return; }
+      Input.press('touch:screen', 'ok');
+    });
     for (const ev of ['pointerup', 'pointercancel']) DW.canvas.addEventListener(ev, () => Input.release('touch:screen', 'ok'));
     // saisie du nom : le clavier du téléphone écrit dans ce champ, recopié lettre par lettre dans Input.typed
     field = root.querySelector('input');
