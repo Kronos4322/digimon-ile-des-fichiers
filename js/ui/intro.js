@@ -27,22 +27,24 @@
     constructor() {
       super();
       const L = DW.LOOK_OPTS;
-      this.rows = [['Je suis', L.gender, 'gender'], ['Allure', L.styles[0].map(x => x[0]), 'style'], ['Cheveux', L.hair.map(x => x[0]), 'hair'], ['Couleur du haut', L.shirt.map(x => x[0]), 'shirt'],
-        ['Haut', L.top.map(x => x[0]), 'top'], ['Accessoire', L.head.map(x => x[0]), 'head'], ['Sac', L.bag.map(x => x[0]), 'bag'], ['DigiŒuf', Object.values(DW.HERO_LINE).map(l => l.baby), 'baby'], ['C\'est moi !', [''], null]];
-      this.r = 0; this.v = { gender: 0, style: 0, hair: 0, shirt: 0, top: 0, head: 0, bag: 0, baby: 0 };
+      // chaque partie du personnage sur sa propre ligne (règle du joueur) : coiffure, cheveux, yeux, haut, bas, chaussures...
+      const n = a => a.map(x => x[0]);
+      this.rows = [['Je suis', L.gender, 'gender'], ['Coiffure', n(L.cut), 'cut'], ['Couleur des cheveux', n(L.hair), 'hair'], ['Yeux', n(L.eye), 'eye'],
+        ['Haut', n(L.top), 'top'], ['Couleur du haut', n(L.shirt), 'shirt'], ['Bas', n(L.bottom), 'bottom'], ['Couleur du bas', n(L.bottomCol), 'bottomCol'],
+        ['Chaussures', n(L.shoe), 'shoe'], ['Accessoire', n(L.head), 'head'], ['Sac', n(L.bag), 'bag'], ['DigiŒuf', Object.values(DW.HERO_LINE).map(l => l.baby), 'baby'], ["C'est moi !", [''], null]];
+      this.r = 0; this.v = { gender: 0, cut: 0, hair: 0, eye: 0, shirt: 0, top: 0, bottom: 0, bottomCol: 0, shoe: 0, head: 0, bag: 0, baby: 0 };
       DW.state.hero = 'perso'; this.apply();
     }
     apply() {
       const v = this.v;
-      this.rows[1][1] = DW.LOOK_OPTS.styles[v.gender].map(x => x[0]);   // l'allure dépend du genre
-      DW.state.look = { gender: v.gender, style: v.style, hair: v.hair, shirt: v.shirt, top: v.top, head: v.head, bag: v.bag, v2: true, baby: Object.values(DW.HERO_LINE)[v.baby].baby };
+      DW.state.look = { gender: v.gender, style: 0, cut: v.cut, hair: v.hair, eye: v.eye, shirt: v.shirt, top: v.top, bottom: v.bottom, bottomCol: v.bottomCol, shoe: v.shoe, head: v.head, bag: v.bag, v2: true, v3: true, baby: Object.values(DW.HERO_LINE)[v.baby].baby };
     }
     update() {
       const n = this.rows.length, R = this.rows[this.r];
       if (Input.hit('up')) { this.r = (this.r + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.r = (this.r + 1) % n; Audio.sfx('move'); }
       const d = Input.hit('left') ? -1 : Input.hit('right') ? 1 : 0;
-      if (d && R[2]) { const k = R[2], m = R[1].length; this.v[k] = (this.v[k] + d + m) % m; if (k === 'gender') this.v.style = 0; Audio.sfx('move'); this.apply(); }
+      if (d && R[2]) { const k = R[2], m = R[1].length; this.v[k] = (this.v[k] + d + m) % m; if (k === 'gender') { this.v.cut = this.v.gender ? 2 : 0; this.v.bottom = this.v.gender ? 3 : 0; } Audio.sfx('move'); this.apply(); }
       if (Input.hit('ok')) { if (this.r === n - 1) { Audio.sfx('select'); this.close('perso'); } else { this.r++; Audio.sfx('select'); } }
     }
     draw(c) {
@@ -72,14 +74,14 @@
       UI.text(c, `${DW.SPECIES[baby].name} → ${DW.SPECIES[line.partner].name}`, cx, 214, { size: 7, align: 'center', color: '#ffe680' });
       // les lignes de choix
       this.rows.forEach(([label, opts, k], i) => {
-        const y = 28 + i * 21, on = i === this.r;   // (9 lignes : plus serrées)
-        UI.box(c, 150, y, 160, 19, on ? 'dwsel' : 'dw');
-        if (!k) { UI.text(c, label, 230, y + 13, { size: 10, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' }); return; }
-        UI.text(c, label, 156, y + 8, { size: 7, color: '#8ae0f0' });
+        const y = 24 + i * 16, on = i === this.r;   // (13 lignes : une par partie du personnage)
+        UI.box(c, 150, y, 160, 15, on ? 'dwsel' : 'dw');
+        if (!k) { UI.text(c, label, 230, y + 11, { size: 9, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' }); return; }
+        UI.text(c, label, 156, y + 10, { size: 7, color: '#8ae0f0' });
         const val = k === 'baby' ? DW.SPECIES[opts[this.v[k]]].name : opts[this.v[k]];
-        UI.text(c, (on ? '◀ ' : '') + val + (on ? ' ▶' : ''), 304, y + 15, { size: 9, align: 'right', color: '#ffffff' });
+        UI.text(c, (on ? '◀ ' : '') + val + (on ? ' ▶' : ''), 304, y + 11, { size: 8, align: 'right', color: '#ffffff' });
       });
-      UI.text(c, '▲▼ choisir la ligne   ◀ ▶ changer   ESPACE valider', W / 2, 232, { size: 7, align: 'center', color: '#7a8ab8' });
+      UI.text(c, '▲▼ choisir la ligne   ◀ ▶ changer   ESPACE valider', W / 2, 238, { size: 6, align: 'center', color: '#7a8ab8' });
     }
   }
   DW.CreateScene = CreateScene;

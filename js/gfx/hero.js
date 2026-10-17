@@ -56,6 +56,12 @@
     // haut (veste ouverte, sweat à capuche façon Digimon World 2003, tee-shirt) et sac à dos
     top: [['Veste ouverte', 'jacket'], ['Sweat à capuche', 'hoodie'], ['Tee-shirt', 'tee']],
     bag: [['Sans sac', false], ['Sac à dos', true]],
+    // création détaillée (chaque partie séparée) : coupe, yeux, bas et sa couleur, chaussures
+    cut: [['Courts', 'short'], ['En bataille', 'spiky'], ['Carré', 'bob'], ['Longs', 'long']],
+    eye: [['Marron', '#5a3a20'], ['Noisette', '#8a5a2a'], ['Vert', '#2a8a4a'], ['Bleu', '#2a6ad8'], ['Gris', '#6a7a8a'], ['Violet', '#7a4ab8'], ['Rouge', '#c83a3a']],
+    bottom: [['Short', 'shorts'], ['Pantalon', 'pants'], ['Pantalon large', 'baggy'], ['Jupe', 'skirt']],
+    bottomCol: [['Bleu jean', '#3a5a9a'], ['Gris', '#5a5a6a'], ['Noir', '#2a2a32'], ['Beige', '#c8b088'], ['Kaki', '#5a6a3a'], ['Rouge', '#a83a3a'], ['Blanc', '#e8e8e4']],
+    shoe: [['Anthracite', '#3a3a4a'], ['Rouge', '#c83a3a'], ['Bleu', '#2f5ad8'], ['Blanc', '#e8e8e8'], ['Jaune', '#e8c040'], ['Vert', '#3a9a5a']],
   };
   const lookOf = L => {
     const S = DW.LOOK_OPTS, b = DW.HEROES.perso, o = { ...b };
@@ -69,7 +75,12 @@
     o.bottomCol = o.bottom === 'skirt' ? '#3a5a9a' : o.bottom === 'pants' ? '#4a5a7a' : o.bottom === 'baggy' ? '#4a4870' : '#3a5a9a';
     const top = (S.top[L.top || 0] || S.top[0])[1]; o.top = top; o.hoodie = top === 'hoodie'; o.bag = !!(S.bag[L.bag || 0] || S.bag[0])[1]; o.bagCol = '#3a3a42';
     o.fem = L.gender === 1; o.jacket = o.top === 'jacket'; o.tee = sh === '#f0f0ec' ? '#3a4a6a' : '#f6f4ee';   // veste ouverte sur un tee-shirt
-    o.name = 'perso3-' + [L.gender, L.style, L.hair, L.shirt, L.head, L.top || 0, L.bag || 0, L.v2 ? 1 : 0].join('-');   // (clé du cache des sprites)
+    // création détaillée (v3) : coupe, yeux, bas, couleur du bas, chaussures choisis séparément
+    if (L.v3) {
+      o.style = (S.cut[L.cut || 0] || S.cut[0])[1]; o.eye = (S.eye[L.eye || 0] || S.eye[0])[1];
+      o.bottom = (S.bottom[L.bottom || 0] || S.bottom[0])[1]; o.bottomCol = (S.bottomCol[L.bottomCol || 0] || S.bottomCol[0])[1]; o.shoe = (S.shoe[L.shoe || 0] || S.shoe[0])[1];
+    }
+    o.name = 'perso3-' + [L.gender, L.style, L.hair, L.shirt, L.head, L.top || 0, L.bag || 0, L.v2 ? 1 : 0, L.v3 ? [L.cut, L.eye, L.bottom, L.bottomCol, L.shoe].join('.') : ''].join('-');   // (clé du cache des sprites)
     return o;
   };
   DW.lookOf = lookOf;
