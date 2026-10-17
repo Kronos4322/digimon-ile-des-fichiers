@@ -81,6 +81,7 @@
     const WX = half((x, y) => noise(x * 0.07, y * 0.07, 1)), WY = half((x, y) => noise(x * 0.07, y * 0.07, 2));
     const G5 = half((x, y) => fbm(x * 0.035, y * 0.035, 5)), D7 = half((x, y) => fbm(x * 0.06, y * 0.06, 7));
     const S8 = half((x, y) => fbm(x * 0.04, y * 0.04, 8)), S9 = half((x, y) => fbm(x * 0.05, y * 0.05, 9));
+    const TUFT = half((x, y) => noise(x * 0.18, y * 0.18, 313)), MID6 = half((x, y) => noise(x * 0.09, y * 0.09, 6));   // (herbe peinte : nappes et touffes)
     const L12 = half((x, y) => fbm(x * 0.04, y * 0.04, 12)), C21 = half((x, y) => fbm(x * 0.08, y * 0.08, 21));
     // thème de la zone (couleurs propres à chaque zone)
     const TH = World.themeOf ? World.themeOf(map) : World.THEMES && World.THEMES[map.theme];
@@ -98,12 +99,12 @@
     const COFF = new Uint8Array(GW); for (let x = 0; x < GW; x++) COFF[x] = Math.floor(hash(x, 0, 310) * 3);   // décalage des brins par colonne
     // HERBE PEINTE : grandes nappes douces (lumière / ombre), touffes moyennes, brins discrets (plus de « bruit » au pixel)
     const lushGrassV = (px, py, i, tx, ty) => {
-      let v = 2.75 + (G5(px, py) - 0.5) * 3.2 + (noise(px * 0.09, py * 0.09, 6) - 0.5) * 1.3;
+      let v = 2.75 + (G5(px, py) - 0.5) * 3.2 + (MID6(px, py) - 0.5) * 1.3;
       // brins : petits traits verticaux de 3 pixels (clair à la pointe, sombre au pied), peu contrastés
       const off = COFF[px], k = Math.floor((py + off) / 3), pos = (py + off) - k * 3;
       v += (hash(px, k, 311) - 0.5) * 0.7 + (pos === 0 ? 0.22 : pos === 2 ? -0.2 : 0);
       const tip = hash(px, py, 312); if (tip < 0.015) v += 0.8; else if (tip > 0.99) v -= 0.6;
-      if (noise(px * 0.18, py * 0.18, 313) > 0.72) v -= 0.5;            // touffes plus sombres
+      if (TUFT(px, py) > 0.72) v -= 0.5;            // touffes plus sombres
       v -= SH[i] * 0.2; if (tallAt(tx, ty)) v -= 1;
       return v;
     };
@@ -214,6 +215,27 @@
     const CW13 = Math.ceil(GW / 13) + 3, CF13 = new Float32Array(CW13 * (Math.ceil(GH / 13) + 3) * 2).fill(NaN);
     const cell13 = (cx, cy) => { const k = ((cy + 1) * CW13 + cx + 1) * 2; if (CF13[k] !== CF13[k]) { CF13[k] = cx * 13 + 2 + hash(cx, cy, 26) * 9; CF13[k + 1] = cy * 13 + 2 + hash(cx, cy, 27) * 9; } return k; };
     const cell7 = (cx, cy) => { const k = ((cy + 1) * CW + cx + 1) * 2; if (CF[k] !== CF[k]) { CF[k] = cx * 7 + hash(cx, cy, 16) * 7; CF[k + 1] = cy * 7 + hash(cx, cy, 17) * 7; } return k; };
+    // relief de la voûte de feuillage (deux tailles de grappes, Worley), calculé une fois par bloc de 2×2 pixels
+    // (moitié de résolution lissée : 4 fois moins de calculs, sans effet de mosaïque)
+    const halfL = fn => { const Hf = half(fn); return (px, py) => { const x0 = px & ~1, y0 = py & ~1, fx = (px - x0) / 2, fy = (py - y0) / 2, a = Hf(x0, y0), b = Hf(x0 + 2, y0), c = Hf(x0, y0 + 2), d = Hf(x0 + 2, y0 + 2); return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy; }; };
+    const CANV = halfL((px, py) => {
+      const cx = Math.floor(px / 13), cy = Math.floor(py / 13);
+      let d1 = 99, d2 = 99, ox = 0, oy = 0;
+      for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+        const k = cell13(cx + xx, cy + yy), ex = px - CF13[k], ey = py - CF13[k + 1], dd = Math.sqrt(ex * ex + ey * ey);
+        if (dd < d1) { d2 = d1; d1 = dd; ox = ex; oy = ey; } else if (dd < d2) d2 = dd;
+      }
+      const sx = Math.floor(px / 7), sy = Math.floor(py / 7);
+      let s1 = 99, s2 = 99, sox = 0, soy = 0;
+      for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+        const k = cell7(sx + xx, sy + yy), ex = px - CF[k], ey = py - CF[k + 1], dd = Math.sqrt(ex * ex + ey * ey);
+        if (dd < s1) { s2 = s1; s1 = dd; sox = ex; soy = ey; } else if (dd < s2) s2 = dd;
+      }
+      let v = 3.6 - d1 * 0.11 - (ox + oy) * 0.05 - s1 * 0.16 - (sox + soy) * 0.07;
+      if (d2 - d1 < 1.4) v -= 0.6 * (1 - (d2 - d1) / 1.4);   // creux entre les grandes grappes
+      if (s2 - s1 < 0.9) v -= 0.35;                           // et entre les petites
+      return v;
+    });
     for (let py = 0; py < GH; py++) { if (py & 1) yield; for (let px = 0; px < GW; px++) {
       const i = py * GW + px, j = i * 4, t = T[i], ed = ED[i], en = EN[i];
       const tx = px >> 4, ty = py >> 4, lx = px & 15, ly = py & 15;
@@ -301,23 +323,7 @@
       } else if (t === TER.canopy && !ROCKY) {
         // VOÛTE DE FEUILLAGE PEINTE : grandes grappes (Worley 13 px), chacune éclairée en haut à gauche,
         // creux sombres et froids entre elles, tons continus (pas de paliers)
-        const cx = Math.floor(px / 13), cy = Math.floor(py / 13);
-        let d1 = 99, d2 = 99, ox = 0, oy = 0;
-        for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
-          const k = cell13(cx + xx, cy + yy), fx = CF13[k], fy = CF13[k + 1], ex = px - fx, ey = py - fy;
-          const dd = Math.sqrt(ex * ex + ey * ey);
-          if (dd < d1) { d2 = d1; d1 = dd; ox = ex; oy = ey; } else if (dd < d2) d2 = dd;
-        }
-        // petites grappes de feuilles (Worley 7 px) posées sur les grandes
-        const sx = Math.floor(px / 7), sy = Math.floor(py / 7);
-        let s1 = 99, s2 = 99, sox = 0, soy = 0;
-        for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
-          const k = cell7(sx + xx, sy + yy), ex = px - CF[k], ey = py - CF[k + 1], dd = Math.sqrt(ex * ex + ey * ey);
-          if (dd < s1) { s2 = s1; s1 = dd; sox = ex; soy = ey; } else if (dd < s2) s2 = dd;
-        }
-        let v = 3.6 - d1 * 0.11 - (ox + oy) * 0.05 - s1 * 0.16 - (sox + soy) * 0.07 + (hash(px >> 1, py >> 1, 18) - 0.5) * 0.4 - Math.min(ed, 40) * 0.03;
-        if (d2 - d1 < 1.4) v -= 0.6 * (1 - (d2 - d1) / 1.4);   // creux entre les grandes grappes
-        if (s2 - s1 < 0.9) v -= 0.35;                           // et entre les petites
+        let v = CANV(px, py) + (hash(px >> 1, py >> 1, 18) - 0.5) * 0.4 - Math.min(ed, 40) * 0.03;
         col = lerpPal(CANOPY, v);
         if (v < 1.6) { const k = (1.6 - v) * 0.25; col[0] += (12 - col[0]) * k; col[1] += (40 - col[1]) * k * 0.6; col[2] += (60 - col[2]) * k; }   // ombre bleutée
         else if (v > 3.6) { const k = Math.min(0.4, (v - 3.6) * 0.3); col[0] += (230 - col[0]) * k; col[1] += (230 - col[1]) * k * 0.5; col[2] += (120 - col[2]) * k * 0.3; }   // éclat doré
