@@ -389,7 +389,8 @@
       Audio.play(o.music || (o.boss ? 'boss' : 'battle'));
       await this.encounterFx({ enemy: o.enemy, bg: o.bg || this.battleKey() });
       if (!o.boss) { const zs = st.zoneSeen[this.mapId] = st.zoneSeen[this.mapId] || {}; zs[o.enemy.sp] = true; }
-      const res = await Game.push(new (DW.Options.classic ? DW.BattleScene : DW.ArenaScene)({ bg: this.battleKey(), ...o }));
+      const res = await Game.push(new DW.BattleScene(   // (combat en arène retiré : toujours au tour par tour)
+        { bg: this.battleKey(), ...o }));
       this.stepCd = 4;
       // Digivolution possible : on propose la table des Digivolutions
       for (const m of st.party) {

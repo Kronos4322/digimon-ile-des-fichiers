@@ -7,7 +7,7 @@
   const SPEEDS = [{ name: 'Lente', cps: 30 }, { name: 'Normale', cps: 60 }, { name: 'Rapide', cps: 120 }, { name: 'Instantanée', cps: 99999 }];
   const O = DW.Options = {
     textSpeed: 1,
-    classic: false,   // combats : false = arène en temps réel (game/arena.js), true = tour par tour (game/battle.js)
+    classic: true,    // combats : toujours au tour par tour (game/battle.js) — l'arène en temps réel est retirée
     SPEEDS,
     cps() { return SPEEDS[this.textSpeed].cps; },
     // avance rapide : Maj maintenu (ou ESPACE maintenu un instant)
@@ -16,6 +16,7 @@
     save() { try { localStorage.setItem(KEY, JSON.stringify({ textSpeed: this.textSpeed, muted: DW.Audio.muted, classic: !!this.classic })); } catch (e) { /* stockage indisponible */ } },
   };
   O.load();
+  O.classic = true;      // ancien réglage « Arène » ignoré
   delete O.battleMode;   // ancien réglage (mode « Ordres » retiré : on choisit toujours ses techniques)
   if (O.muted) DW.Audio.muted = true;
 })();

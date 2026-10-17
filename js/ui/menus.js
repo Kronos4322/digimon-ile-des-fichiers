@@ -227,12 +227,11 @@
       if (d) {
         if (this.i === 0) O.textSpeed = (O.textSpeed + d + O.SPEEDS.length) % O.SPEEDS.length;
         else if (this.i === 1) Audio.toggleMute();
-        else O.classic = !O.classic;
         Audio.sfx('move'); O.save();
       }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
     }
-    rows() { const O = DW.Options; return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé'], ['Combats', O.classic ? 'Tour par tour' : 'Arène']]; }
+    rows() { const O = DW.Options; return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé']]; }
     draw(c) {
       const x = 40, rows = this.rows(), y = 70;
       UI.box(c, x, y, 240, 76 + rows.length * 20);
