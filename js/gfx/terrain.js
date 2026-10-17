@@ -79,6 +79,7 @@
     const HW = (GW >> 1) + 1;
     const half = fn => { const A = new Float32Array(HW * ((GH >> 1) + 1)).fill(NaN); return (px, py) => { const k = (py >> 1) * HW + (px >> 1); let v = A[k]; if (v !== v) v = A[k] = fn(px & ~1, py & ~1); return v; }; };
     const WX = half((x, y) => noise(x * 0.07, y * 0.07, 1)), WY = half((x, y) => noise(x * 0.07, y * 0.07, 2));
+    const WLX = half((x, y) => noise(x * 0.022, y * 0.022, 3)), WLY = half((x, y) => noise(x * 0.022, y * 0.022, 4));
     const G5 = half((x, y) => fbm(x * 0.035, y * 0.035, 5)), D7 = half((x, y) => fbm(x * 0.06, y * 0.06, 7));
     const S8 = half((x, y) => fbm(x * 0.04, y * 0.04, 8)), S9 = half((x, y) => fbm(x * 0.05, y * 0.05, 9));
     const TUFT = half((x, y) => noise(x * 0.18, y * 0.18, 313)), MID6 = half((x, y) => noise(x * 0.09, y * 0.09, 6));   // (herbe peinte : nappes et touffes)
@@ -143,7 +144,8 @@
     for (let py = 0; py < GH; py++) { if ((py & 3) === 3) yield; for (let px = 0; px < GW; px++) {
       const base = TT[(py >> 4) * MW + (px >> 4)];
       if (isHard[base] || uni[(py >> 4) * MW + (px >> 4)]) { T[py * GW + px] = base; continue; }
-      const wx = px + 0.5 + (WX(px, py) - 0.5) * 10, wy = py + 0.5 + (WY(px, py) - 0.5) * 10;
+      // frontières organiques : petite ondulation + grande vague (les chemins ne sont plus des octogones)
+      const wx = px + 0.5 + (WX(px, py) - 0.5) * 10 + (LUSH ? (WLX(px, py) - 0.5) * 14 : 0), wy = py + 0.5 + (WY(px, py) - 0.5) * 10 + (LUSH ? (WLY(px, py) - 0.5) * 14 : 0);
       const u = wx / TS - 0.5, v = wy / TS - 0.5, i0 = Math.floor(u), j0 = Math.floor(v), fu = u - i0, fv = v - j0;
       const a = tF(i0, j0), b = tF(i0 + 1, j0), c = tF(i0, j0 + 1), d = tF(i0 + 1, j0 + 1);
       if (a === b && a === c && a === d) { T[py * GW + px] = isHard[a] ? base : a; continue; }
@@ -243,8 +245,7 @@
       let col;
       if (t === TER.grass && LUSH) {
         // près d'un chemin : l'herbe s'éclaircit en touffes mêlées de terre (fondu tramé, sans contour)
-        if (en === TER.dirt && ed <= 2 && hash(px, py, 314) < (3 - ed) / 4) col = lerpPal(DIRT, lushDirtV(px, py, i) - 0.3);
-        else {
+        {
           col = lerpPal(GRASS, lushGrassV(px, py, i, tx, ty));
           const p5 = G5(px, py), sh = SH[i];
           if (p5 > 0.55) { const w = (p5 - 0.55) * 0.55; col[0] += (236 - col[0]) * w; col[1] += (226 - col[1]) * w * 0.6; col[2] += (110 - col[2]) * w * 0.4; }   // nappe de soleil (jaune doré)
@@ -253,8 +254,12 @@
         }
       } else if (t === TER.dirt && LUSH) {
         // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre
-        if (en === TER.grass && ed <= 3 && hash(px, py, 98) < (4 - ed) / 6) col = lerpPal(GRASS, lushGrassV(px, py, i, tx, ty) - 0.4);
-        else col = lerpPal(DIRT, lushDirtV(px, py, i) - (en === TER.grass && ed <= 3 ? (4 - ed) * 0.18 : 0));
+        col = lerpPal(DIRT, lushDirtV(px, py, i) - (en === TER.grass && ed <= 4 ? (5 - ed) * 0.14 : 0));
+        if (en === TER.grass && ed <= 4) {
+          col = [col[0], col[1], col[2]];   // (copie : lerpPal réutilise son tableau)   // l'herbe gagne doucement sur le bord du chemin (fondu, sans pointillés)
+          const k = (5 - ed) / 5 * (0.35 + TUFT(px, py) * 0.5), gc = lerpPal(GRASS, 2.2 + (G5(px, py) - 0.5) * 2);
+          col = [col[0] + (gc[0] - col[0]) * k, col[1] + (gc[1] - col[1]) * k, col[2] + (gc[2] - col[2]) * k];
+        }
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
       } else if (t === TER.lawn && LUSH) {
         // pelouse (Village des Bébés) : mêmes brins fins, palette pastel, fleurs semées

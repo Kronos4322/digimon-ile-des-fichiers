@@ -48,37 +48,57 @@
       else if (k < 0.8) { c.fillStyle = '#4e9a3e'; for (const [dx, dy] of [[0, 0], [2, 0], [1, -1.5]]) { c.beginPath(); c.arc(x + dx, y + dy, 1.1, 0, 7); c.fill(); } }      // trèfle
       else if (ruin < 0.7) { c.fillStyle = ['#ffffff', '#ffe060', '#ff9ac0', '#b8a0ff'][i % 4]; c.fillRect(x, y, 1.5, 1.5); c.fillStyle = '#f0c040'; c.fillRect(x + 0.5, y + 0.5, 0.6, 0.6); }   // fleur
     }
-    // 2. chemins de terre : un vrai chemin continu aux bords lisses (la couleur de la terre est relevée sur le sol),
-    //    bordure plus sombre, puis touffes d'herbe et cailloux
-    { const isP = (x, y) => at(x, y) === '=';
-      // traits épais et arrondis entre cases voisines du chemin : un tracé continu, aux bords lisses
-      const pass = (col, w) => {
-        c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round'; c.beginPath();
+    // 2. CHEMINS DE TERRE PEINTS : tracé arrondi et irrégulier (disques et capsules entre cases voisines, rayons
+    //    variés), bordure sombre fondue, terre en dégradé (milieu tassé plus clair), grain, cailloux,
+    //    touffes d'herbe en brins qui débordent sur le bord
+    { const isP = (x, y) => at(x, y) === '=', CW = Wd * U, CH = Hd * U;
+      const mask = (rad, wid) => {   // forme du chemin (blanc) dans un calque à part
+        const m2 = document.createElement('canvas'); m2.width = CW; m2.height = CH; const g = m2.getContext('2d');
+        g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.lineCap = 'round';
         for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) if (isP(tx, ty)) {
-          const x = tx * U + 8, y = ty * U + 8;
-          c.moveTo(x, y); c.lineTo(x + 0.1, y);
-          for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) if (isP(tx + dx, ty + dy)) { c.moveTo(x, y); c.lineTo(x + dx * U, y + dy * U); }
+          const x = tx * U + 8 + (H0(tx, ty, 811) - 0.5) * 4, y = ty * U + 8 + (H0(tx, ty, 812) - 0.5) * 4, r = rad + (H0(tx, ty, 813) - 0.5) * 5;
+          g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+          for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) if (isP(tx + dx, ty + dy) && !(dx && dy && (isP(tx + dx, ty) || isP(tx, ty + dy)))) {
+            g.lineWidth = wid + (H0(tx + dx, ty + dy, 814) - 0.5) * 4; g.beginPath(); g.moveTo(x, y); g.lineTo(tx * U + 8 + dx * U, ty * U + 8 + dy * U); g.stroke();
+          }
         }
-        c.stroke();
+        return m2;
       };
-      pass('#a8865a', 24); pass('#c4a274', 20); pass('#cfae80', 12);   // bordure, terre, milieu plus clair (sol tassé)
-      // grain de la terre
-      for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) if (isP(tx, ty)) for (let k = 0; k < 5; k++) {
-        const u = H0(tx * 5 + k, ty, 807), v = H0(tx, ty * 5 + k, 807); c.fillStyle = k < 2 ? 'rgba(255,240,210,0.45)' : 'rgba(110,80,50,0.3)'; c.fillRect(tx * U + u * U, ty * U + v * U, k < 2 ? 2 : 1, 1);
-      } }
-    for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) {
-      if (at(tx, ty) !== '=') continue;
-      const x0 = tx * U, y0 = ty * U;
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        if (at(tx + dx, ty + dy) !== '.') continue;
-        // touffes d'herbe qui débordent sur la terre, le long du bord
-        for (let k = 0; k < 4; k++) {
-          const u = H0(tx * 7 + k, ty * 5 + dx * 3 + dy, 803) * U, x = dx ? x0 + (dx > 0 ? U - 2 : 0) : x0 + u, y = dy ? y0 + (dy > 0 ? U - 2 : 0) : y0 + u;
-          c.fillStyle = k % 2 ? '#4a943a' : '#5aa846'; c.fillRect(x, y, 2, 2);
+      const tinted = (m2, col, blur) => {   // calque coloré à la forme du masque (bords adoucis)
+        const t = document.createElement('canvas'); t.width = CW; t.height = CH; const g = t.getContext('2d');
+        if (blur) g.filter = `blur(${blur}px)`;
+        g.drawImage(m2, 0, 0); g.filter = 'none';
+        g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, CW, CH);
+        return t;
+      };
+      const outer = mask(13, 21), inner = mask(6, 9);
+      c.save();
+      c.globalAlpha = 0.55; c.drawImage(tinted(outer, '#6e5434', 4), 0, 1.5);   // bord sombre fondu (le chemin est un peu en creux)
+      c.globalAlpha = 1; c.drawImage(tinted(outer, '#c2a072', 1.2), 0, 0);      // terre
+      c.globalAlpha = 0.7; c.drawImage(tinted(inner, '#d8bc8c', 5), 0, 0);      // milieu tassé, plus clair
+      c.restore();
+      // grain, ornières et cailloux
+      for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) if (isP(tx, ty)) {
+        for (let k = 0; k < 7; k++) {
+          const u = H0(tx * 7 + k, ty, 807), v = H0(tx, ty * 7 + k, 807);
+          c.fillStyle = k < 3 ? 'rgba(255,244,214,0.5)' : 'rgba(110,80,50,0.32)'; c.fillRect(tx * U + u * U, ty * U + v * U, k < 3 ? 1.5 : 1, 1);
+        }
+        if (H0(tx, ty, 815) < 0.35) { const x = tx * U + H0(tx, ty, 816) * 12 + 2, y = ty * U + H0(tx, ty, 817) * 12 + 2; c.fillStyle = '#7a6a58'; c.beginPath(); c.ellipse(x, y + 0.6, 2, 1.3, 0, 0, 7); c.fill(); c.fillStyle = '#c8bcaa'; c.beginPath(); c.ellipse(x - 0.3, y, 1.7, 1, 0, 0, 7); c.fill(); }
+      }
+      // touffes d'herbe (brins) sur le bord, là où le chemin touche la pelouse
+      c.lineCap = 'round';
+      for (let ty = 0; ty < Hd; ty++) for (let tx = 0; tx < Wd; tx++) {
+        if (!isP(tx, ty)) continue;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          if (at(tx + dx, ty + dy) !== '.' || H0(tx * 3 + dx, ty * 3 + dy, 818) < 0.35) continue;
+          const bx = tx * U + 8 + dx * 10 + (dy ? (H0(tx, ty + dy, 819) - 0.5) * 12 : 0), by = ty * U + 10 + dy * 8 + (dx ? (H0(tx + dx, ty, 819) - 0.5) * 10 : 0);
+          for (let b = 0; b < 5; b++) {
+            const h = 3 + H0(tx * 5 + b, ty, 820) * 3, lean = (b - 2) * 0.7;
+            c.strokeStyle = b % 2 ? '#3e8a34' : '#5aa846'; c.lineWidth = 1;
+            c.beginPath(); c.moveTo(bx + b - 2, by); c.quadraticCurveTo(bx + b - 2 + lean * 0.4, by - h * 0.6, bx + b - 2 + lean, by - h); c.stroke();
+          }
         }
       }
-      // cailloux et grains
-      for (let k = 0; k < 3; k++) { const u = H0(tx, ty * 3 + k, 804), v = H0(tx * 3 + k, ty, 804); c.fillStyle = k ? 'rgba(120,90,60,0.45)' : 'rgba(240,225,190,0.6)'; c.fillRect(x0 + u * U, y0 + v * U, k ? 1 : 2, k ? 1 : 1.5); }
     }
     // 3. la place : bordure, anneau de pavés rouges, rosace en étoile
     const P = m.plazas && m.plazas[0];
