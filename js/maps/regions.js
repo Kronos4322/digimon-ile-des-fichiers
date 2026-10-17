@@ -69,6 +69,12 @@
     const lm = (o.lm || []).map(([ch, n]) => [ch, Math.round(n * (o.lmMul || 1))]);
     let rows = forestGen({ w, h, seed, paths, free, clearings: [{ x: hub[0], y: hub[1], rx: o.hubR, ry: o.hubR * 0.75 }, ...(o.clearings || [])],
       lakes: o.lakes, rivers: o.rivers, autoTall: o.autoTall, deco: o.deco, landmarks: lm, bigtrees: o.bigtrees, tall: o.tall });
+    // bord de l'île : la mer, une plage ou une falaise sur les côtés sans passage (on garde la pièce maîtresse et ses abords)
+    if (m.coast) {
+      const P = m.piece, keep = P ? (x, y) => x >= P.x - 3 && x < P.x + P.w + 3 && y >= P.y - 1 && y < P.y + P.h + 4 : null;
+      for (const s in m.coast) if (ex[s]) throw new Error(`${m.name} : côte ${s} sur un passage`);
+      rows = DW.MapKit.coast(rows, m.coast, { seed, keep });
+    }
     // emprise des objets posés (bloquants)
     const occ = new Set();
     for (const ob of m.objects) if (!ob.walk && !ob.top) for (let y = ob.y; y < ob.y + ob.h; y++) for (let x = ob.x; x < ob.x + ob.w; x++) occ.add(x + ',' + y);
@@ -152,7 +158,7 @@
       const m = MAPS[id] = { idx: i,
         name, regionName: R.name, music: x.music || DW.REGION_MUSIC[rid] || R.music || 'field', bg: 'foret', ambient: R.ambient || 'forest', theme, climate: R.climate || 'forest', region: rid,
         w, h, rate: 0, encounters: [], npcs: [], warps: [], exits, objects: [...(x.objects || [])], signs: { ...(x.signs || {}) }, doors: [],
-        indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard,
+        indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard, coast: x.coast,
         spec, build() { if (!this.rows) this.rows = genRows(this); },
       };
       // pièce maîtresse (grand décor) en haut à gauche, avec son parvis relié au carrefour
@@ -444,11 +450,12 @@
     ['Temple de Glace', 'set', { piece: { kind: 'icetemple', w: 6, h: 5 }, lm: [['è', 4]], pieceSign: "TEMPLE DE GLACE — Seuls les Digimon à l'âme pure (Vaccin) peuvent en franchir les portes." }],
   ] });
   region('lac', { name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[7, 'left']], lm: [['Ð', 3]], subs: [
-    ['Rive Sud', 'trail'], ['Roselière', 'islands', { lm: [['Ð', 6]] }],
+    // (bord nord-ouest de l'île : plage à l'ouest de la Rive Sud et du Pont Numérique, falaise au nord du Phare)
+    ['Rive Sud', 'trail', { coast: { left: 'beach' } }], ['Roselière', 'islands', { lm: [['Ð', 6]] }],
     ['Lac du Tramway', 'set', { piece: { kind: 'tram', w: 4, h: 1 }, opts: { lakes: [{ x: 26, y: 18, rx: 9, ry: 6 }] }, pieceSign: "Un vieux tramway échoué au bord du lac. Personne ne sait comment il est arrivé là." }],
     ['Ponton des Pêcheurs', 'lake'], ['Pointe Coela', 'bridge'], ['Îlots aux Nénuphars', 'islands'],
-    ['Cascade du Dragon', 'lake'], ["Lac de l'Œil du Dragon", 'bigLake'], ['Pont Numérique', 'bridge', { lm: [['<', 2]] }],
-    ['Phare du Lac', 'set', { piece: { kind: 'lighthouse', w: 3, h: 2 }, opts: { lakes: [{ x: 28, y: 18, rx: 8, ry: 6 }] } }],
+    ['Cascade du Dragon', 'lake'], ["Lac de l'Œil du Dragon", 'bigLake'], ['Pont Numérique', 'bridge', { lm: [['<', 2]], coast: { left: 'beach', up: 'beach' } }],
+    ['Phare du Lac', 'set', { piece: { kind: 'lighthouse', w: 3, h: 2 }, opts: { lakes: [{ x: 28, y: 18, rx: 8, ry: 6 }] }, coast: { up: 'cliff' } }],
   ] });
   region('scarabees', { name: 'Pays des Scarabées', theme: 'beetle', entry: 'right', lm: [['ý', 2], ['þ', 1]], subs: [
     ['Bois Ancien', 'trail'], ['Souches Géantes', 'grove', { lm: [['ý', 5]] }], ['Ruches Sauvages', 'grove', { lm: [['þ', 5]] }],

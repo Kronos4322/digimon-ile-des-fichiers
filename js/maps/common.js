@@ -354,5 +354,35 @@
     return { door, rows: ['0'.repeat(w), line('2'), line('2'), ...Array.from({ length: floorH }, () => line('1')), '0'.repeat(door) + '11' + '0'.repeat(w - door - 2)] };
   };
 
-  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom };
+  // ------------------------------------------------------------ CÔTES : bords de l'île (mer + plage, ou falaise au-dessus de l'eau)
+  // sides : { left|right|up|down: 'beach' | 'cliff' } (côtés sans passage) ; o : { seed, sea (largeur de mer), keep(x, y) : cases à garder }
+  // Le trait de côte ondule (grande vague + petites anses) ; plage : sable, quelques palmiers et rochers dans l'eau ;
+  // 'cliff' : côte rocheuse (dalles de roche, gros rochers, écueils), une bande d'herbe derrière pour longer la mer.
+  function coast(rows, sides, o = {}) {
+    const h = rows.length, w = rows[0].length, seed = o.seed || 1, g = rows.map(r => [...r]);
+    const H = (x, y, k) => DW.Art.hash(x, y, seed * 17 + k), F = (t, k) => DW.Art.fbm(t, k, seed * 7 + 3);
+    for (const side in sides) {
+      const kind = sides[side], span = side === 'left' || side === 'right' ? h : w, sea = o.sea || Math.max(8, Math.round(Math.min(w, h) * 0.15));
+      const shore = Array.from({ length: span }, (_, t) => sea + (F(t * 0.03, side.length) - 0.5) * 26 + (F(t * 0.11, 9 + side.length) - 0.5) * 8);   // caps et anses
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const [t, d] = { left: [y, x], right: [y, w - 1 - x], up: [x, y], down: [x, h - 1 - y] }[side];
+        if (o.keep && o.keep(x, y)) continue;
+        const D = shore[t], c = g[y][x];
+        if (d < D) { g[y][x] = d > D - 2.5 && H(x, y, 1) < (kind === 'beach' ? 0.025 : 0.08) ? 'R' : '~'; continue; }   // la mer (rochers près du bord)
+        if (c === '~' && d < D + 3) continue;
+        if (kind === 'beach') {
+          const sand = 4.5 + (F(t * 0.13, 21) - 0.3) * 3;
+          if (d < D + sand) g[y][x] = H(x, y, 2) < 0.03 && d > D + 1.5 ? 'p' : 's';
+          else if (d < D + sand + 3 && DW.SOLID.has(g[y][x]) && g[y][x] !== 'p') g[y][x] = H(x, y, 3) < 0.55 ? ';' : H(x, y, 4) < 0.2 ? 'p' : 's';   // la forêt s'arrête sur les dunes
+        } else {
+          const rk = 2.5 + (F(t * 0.17, 31) - 0.3) * 2.5;   // côte rocheuse : dalles de roche et gros rochers au ras de l'eau
+          if (d < D + rk) g[y][x] = H(x, y, 6) < (d < D + 1.2 ? 0.34 : 0.14) ? 'r' : 's';
+          else if (d < D + rk + 3 && DW.SOLID.has(c)) g[y][x] = H(x, y, 5) < 0.35 ? ',' : '.';   // rebord d'herbe en haut de la falaise
+        }
+      }
+    }
+    return g.map(r => r.join(''));
+  }
+
+  DW.MapKit = { say, st, rle, paint, coast, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom };
 })();

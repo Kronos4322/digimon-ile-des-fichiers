@@ -15,12 +15,14 @@
 
   // lieux de la carte (coordonnées dans la zone carte 320×176)
   const NODES = {
-    clairiere: { x: 64, y: 40, b: 'forest', desc: 'La clairière où tu as atterri. Une source de données y soigne les Digimon.' },
+    // (chapitres 1-2, d'après les passages : le lac AU NORD de la Clairière, au bord nord-ouest de l'île ;
+    //  la Plage des Cabines, les Dunes et la Crique sur la côte sud-ouest)
+    clairiere: { x: 60, y: 52, b: 'forest', desc: 'La clairière où tu as atterri. Une source de données y soigne les Digimon.' },
     sentier: { x: 84, y: 64, b: 'forest', desc: 'Un sentier sinueux traversé par une rivière. On y entend des murmures...' },
     prairie: { x: 114, y: 58, b: 'meadow', desc: "Une prairie d'herbes hautes où de nombreux Digimon viennent jouer. Idéal pour s'aguerrir au combat !" },
     geants: { x: 72, y: 90, b: 'forest', desc: 'Des arbres immenses entourent un lac paisible.' },
     lisiere: { x: 94, y: 112, b: 'autumn', desc: "La forêt s'arrête au bord d'un ravin. Kuwagamon y rôde." },
-    plage: { x: 112, y: 140, b: 'beach', desc: "Une plage de sable avec d'étranges cabines téléphoniques." },
+    plage: { x: 104, y: 156, b: 'beach', desc: "Une plage de sable avec d'étranges cabines téléphoniques." },
     village: { x: 190, y: 128, b: 'town', desc: 'La ville de Jijimon. Fais-y revenir les Digimon pour la reconstruire !' },
     gym: { x: 206, y: 150, b: 'town', desc: "Le terrain d'entraînement de la ville. C'est ici que les Digimon se préparent à digivoluer." },
     champs: { x: 176, y: 150, b: 'farm', desc: 'Le quartier agricole de la ville : un moulin, des champs et un étang où tombe une cascade.' },
@@ -37,8 +39,8 @@
     brumes: { x: 150, y: 22, b: 'fog', name: 'Bois Brumeux', desc: "Un brouillard épais où l'on se perd. Les lanternes de pierre montrent le chemin." },
     jouets: { x: 190, y: 18, b: 'toy', name: 'Ville des Jouets', desc: 'Manège, petit train, nounours et boîtes à surprise, autour du château de Monzaemon.' },
     gel: { x: 106, y: 20, b: 'snow', name: 'Terre Gelée', desc: 'Neige éternelle, lacs gelés, igloos et le Temple de Glace.' },
-    lac: { x: 46, y: 50, b: 'lake', name: 'Lac du Tramway', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
-    scarabees: { x: 30, y: 82, b: 'beetle', name: 'Pays des Scarabées', desc: "Une forêt ancienne de souches géantes, l'Arbre-Monde et le Colisée des Scarabées." },
+    lac: { x: 70, y: 40, b: 'lake', name: 'Lac du Tramway', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
+    scarabees: { x: 38, y: 62, b: 'beetle', name: 'Pays des Scarabées', desc: "Une forêt ancienne de souches géantes, l'Arbre-Monde et le Colisée des Scarabées." },
     marais: { x: 146, y: 160, b: 'swamp', name: 'Marais des Geko', desc: 'Tourbières, roseaux chantants, cabanes sur pilotis et le Palais Geko.' },
     tunnel: { x: 196, y: 166, b: 'cave', name: 'Tunnel Foreur', desc: "Galeries de foreuses, rails abandonnés, cristaux... jusqu'à la Grotte de Lave." },
   };

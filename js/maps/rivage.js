@@ -77,6 +77,11 @@
   // agrandies ×2 comme les autres cartes faites à la main (plan d'origine 40×30)
   DW.MapKit.ZOOM.dunes = [2, 40, 30]; DW.MapKit.ZOOM.bosquet = [2, 40, 30];
   zoomMap(MAPS.dunes, 'dunes', { rows: false }); zoomMap(MAPS.bosquet, 'bosquet', { rows: false });
+  // bord ouest de l'île : les dunes descendent vers la mer (ouest et sud), le bosquet domine l'océan du haut d'une falaise
+  { const near = M => { const pts = [...(M.warps || []).flatMap(w => { const a = []; for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) a.push([x, y]); return a; }), ...Object.keys(M.signs || {}).map(k => k.split(',').map(Number))];
+      return (x, y) => pts.some(([px, py]) => Math.abs(px - x) < 4 && Math.abs(py - y) < 4); };
+    MAPS.dunes.rows = DW.MapKit.coast(MAPS.dunes.rows, { left: 'beach', down: 'beach' }, { seed: 41, sea: 11, keep: near(MAPS.dunes) });
+    MAPS.bosquet.rows = DW.MapKit.coast(MAPS.bosquet.rows, { left: 'cliff' }, { seed: 42, sea: 10, keep: near(MAPS.bosquet) }); }
 
   // la plage s'ouvre vers les dunes (haut de la falaise, à l'ouest)
   MAPS.plage.warps.push({ x: 0, y: 4, w: 1, h: 4, dir: 'left', to: 'dunes', tx: 39, ty: 13 });   // (plage déjà agrandie : coordonnées ×2 ; l'arrivée est convertie)
