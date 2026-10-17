@@ -439,4 +439,45 @@
     x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); x.closePath(); x.fill(); x.stroke();
     x.fillStyle = 'rgba(255,240,208,0.9)'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + k * Math.PI * 2 / 5; for (const r of [1.4, 2.6]) { x.beginPath(); x.arc(6 + Math.cos(a) * r, 5.4 + Math.sin(a) * r * 0.8, 0.35, 0, 7); x.fill(); } }
   };
+
+  // ------------------------------------------------------------ cabine téléphonique et distributeur
+  function rr(x, x0, y0, w, h, r) { x.beginPath(); x.moveTo(x0 + r, y0); x.lineTo(x0 + w - r, y0); x.quadraticCurveTo(x0 + w, y0, x0 + w, y0 + r); x.lineTo(x0 + w, y0 + h - r); x.quadraticCurveTo(x0 + w, y0 + h, x0 + w - r, y0 + h); x.lineTo(x0 + r, y0 + h); x.quadraticCurveTo(x0, y0 + h, x0, y0 + h - r); x.lineTo(x0, y0 + r); x.quadraticCurveTo(x0, y0, x0 + r, y0); x.closePath(); }
+  function glass(x, x0, y0, w, h) {
+    const g = x.createLinearGradient(x0, y0, x0 + w, y0 + h); g.addColorStop(0, '#d8f4ff'); g.addColorStop(0.45, '#7ccaf0'); g.addColorStop(1, '#3a7ab0');
+    x.fillStyle = g; x.fillRect(x0, y0, w, h);
+    x.fillStyle = 'rgba(255,255,255,0.55)'; x.beginPath(); x.moveTo(x0 + 1, y0 + h * 0.55); x.lineTo(x0 + w * 0.45, y0 + 1); x.lineTo(x0 + w * 0.62, y0 + 1); x.lineTo(x0 + 1, y0 + h * 0.8); x.closePath(); x.fill();
+  }
+  OBJ.booth.lights = [[15, 3.4, 14, 'rgba(255,230,120,0.6)'], [15, 30, 20, 'rgba(160,230,255,0.45)']];   // gyrophare et intérieur éclairés la nuit
+  OBJ.booth.paint = x => {
+    x.fillStyle = 'rgba(60,50,30,0.4)'; x.beginPath(); x.ellipse(15, 56, 13, 2.2, 0, 0, 7); x.fill();
+    stone(x, [[3, 56], [3, 50.5], [27, 50.5], [27, 56]], '#9aa0aa', 181, { sharp: true });
+    // cadre métallique laqué blanc, vitres avec reflet
+    const fg = x.createLinearGradient(4, 0, 26, 0); fg.addColorStop(0, '#ffffff'); fg.addColorStop(1, '#a8b2c0');
+    x.fillStyle = fg; x.strokeStyle = '#4a5468'; x.lineWidth = 0.9; rr(x, 4, 14, 22, 38, 1.4); x.fill(); x.stroke();
+    glass(x, 6.5, 17, 17, 31);
+    x.strokeStyle = '#d8e0ea'; x.lineWidth = 1; x.beginPath(); x.moveTo(15, 17); x.lineTo(15, 48); x.moveTo(6.5, 32); x.lineTo(23.5, 32); x.stroke();
+    // téléphone vert, écran, combiné et fil
+    x.fillStyle = '#2f9a58'; rr(x, 16.5, 22, 5.4, 9, 0.8); x.fill(); x.fillStyle = '#c8f0d0'; x.fillRect(17.2, 23, 4, 2.4);
+    x.fillStyle = '#1a5a30'; x.fillRect(15.6, 24, 1.4, 6); x.strokeStyle = '#1a1a1a'; x.lineWidth = 0.5; x.beginPath(); x.moveTo(16.3, 30); x.quadraticCurveTo(15, 34, 18, 36); x.stroke();
+    x.save(); x.shadowColor = '#ff7a3a'; x.shadowBlur = 3; x.fillStyle = '#ff8a4a'; x.fillRect(16, 18.4, 7, 1.4); x.restore();
+    // toit bleu bombé, enseigne TEL, gyrophare
+    const tg = x.createLinearGradient(0, 7, 0, 15); tg.addColorStop(0, '#6a9ae8'); tg.addColorStop(1, '#2a56a8');
+    x.fillStyle = tg; x.strokeStyle = '#1a3470'; x.lineWidth = 0.9; rr(x, 2, 7, 26, 8, 3); x.fill(); x.stroke();
+    x.fillStyle = '#ffffff'; x.fillRect(7, 8.4, 16, 6); const W = DW.World.signText; if (W) W({ deco: { rect: (a, b, c, d, col) => { x.fillStyle = col; x.fillRect(a, b, c, d); } }, rect: (a, b, c, d, col) => { x.fillStyle = col; x.fillRect(a, b, c, d); } }, 'TEL', 9, 9, '#2a5ab8', 1);
+    x.fillStyle = '#3f72cc'; rr(x, 13, 2, 4, 6, 1.6); x.fill();
+    x.save(); x.shadowColor = '#ffe060'; x.shadowBlur = 4; x.fillStyle = '#ffe060'; x.beginPath(); x.arc(15, 3.4, 1.3, 0, 7); x.fill(); x.restore();
+  };
+  OBJ.vending.paint = (x, v) => {
+    const body = ['#2ec060', '#2a74e8', '#f07a1a'][v], dark = ['#147a38', '#163e96', '#9a4410'][v], item = ['#ff4a5a', '#7ad0ff', '#c8643c'][v], B = hex(body);
+    x.fillStyle = 'rgba(20,20,20,0.4)'; x.beginPath(); x.ellipse(13, 43, 12, 2, 0, 0, 7); x.fill();
+    const g = x.createLinearGradient(1, 0, 25, 0); g.addColorStop(0, rgb(mix(B, '#ffffff', 0.3))); g.addColorStop(0.55, body); g.addColorStop(1, rgb(mix(B, INK, 0.35)));
+    x.fillStyle = g; x.strokeStyle = rgb(mix(B, INK, 0.6)); x.lineWidth = 0.9; rr(x, 1, 6, 24, 37, 2); x.fill(); x.stroke();
+    x.fillStyle = dark; rr(x, 0, 0, 26, 8, 2); x.fill();
+    x.save(); x.shadowColor = '#fff6c0'; x.shadowBlur = 4; x.fillStyle = '#fff6c0'; x.fillRect(2, 1.6, 22, 4.8); x.restore(); x.fillStyle = item; x.fillRect(4, 2.6, 18, 2.8);
+    glass(x, 3, 9, 14, 20);
+    for (let r = 0; r < 4; r++) { x.fillStyle = 'rgba(120,150,170,0.9)'; x.fillRect(3, 13.6 + r * 5, 14, 0.8); for (let k = 0; k < 3; k++) { x.fillStyle = item; rr(x, 4 + k * 4.4, 10.4 + r * 5, 3.2, 3, 0.6); x.fill(); x.fillStyle = 'rgba(255,255,255,0.5)'; x.fillRect(4.4 + k * 4.4, 10.8 + r * 5, 0.8, 1.6); } }
+    x.fillStyle = '#ffe070'; x.fillRect(19, 10, 4, 3); x.fillStyle = '#1a1a1a'; x.fillRect(19.6, 14, 2.8, 1.4);
+    for (let r = 0; r < 3; r++) { x.fillStyle = ['#ff5050', '#50d050', '#ffffff'][r]; x.beginPath(); x.arc(21, 18 + r * 3.4, 1.1, 0, 7); x.fill(); }
+    x.fillStyle = '#141414'; rr(x, 4, 32, 18, 6, 1); x.fill(); x.fillStyle = '#3a3a3a'; x.fillRect(4, 32, 18, 1.4);
+  };
 })();

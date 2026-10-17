@@ -369,9 +369,16 @@
           col = GRASS[DW.clamp(Math.round(v), 0, 4)];
         }
       } else if (t === TER.stairs) {
-        const s = ly % 4;
-        col = Art.hex(s === 0 ? '#e0d0b0' : s === 3 ? '#7a6a50' : '#bca888');
-        if (lx < 2 || lx > 13) col = CLIFF[lx < 2 ? 2 : 1];
+        // MARCHES DE PIERRE : dalles taillées (dessus clair et chaud, contremarche sombre et froide), joints,
+        // usure au milieu, mousse dans les coins, murets de falaise de chaque côté
+        const s = ly % 4, slab = Math.floor((px + (Math.floor(py / 4) & 1) * 5) / 9), tone = 0.9 + hash(slab, py >> 2, 26) * 0.2;
+        let c = s === 0 ? [236 * tone, 220 * tone, 186 * tone] : s === 3 ? [96, 86, 82] : [196 * tone, 178 * tone, 146 * tone];
+        if (s === 2) c = Art.mix(c, [120, 108, 96], 0.3);
+        if ((px + (Math.floor(py / 4) & 1) * 5) % 9 === 0 && s !== 3) c = Art.mix(c, [90, 80, 70], 0.55);           // joints
+        if (lx >= 5 && lx <= 10 && s === 0) c = Art.mix(c, [255, 246, 220], 0.25);                                  // usure (plus clair au milieu)
+        if ((lx <= 3 || lx >= 12) && s === 3 && hash(px, py, 27) < 0.5) c = [74, 128, 64];                         // mousse
+        if (lx < 2 || lx > 13) c = Art.mix(CLIFF[lx < 2 ? 3 : 1], [0, 0, 0], lx === 0 || lx === 15 ? 0.35 : 0);    // murets
+        col = c;
       } else if (t === TER.bridge) {
         // PONTON / PASSERELLE PEINTS : planches de longueurs et de tons variés, veines du bois, clous,
         // interstices sombres où l'on devine l'eau, bords usés, pieux d'amarrage tous les 3 cases
