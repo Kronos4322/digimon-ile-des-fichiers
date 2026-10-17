@@ -27,7 +27,7 @@
       for (const o of map.gfx.objs || []) {
         const D = OBJ[o.kind];
         if (!D) continue;
-        for (const L of D.lights || []) this.lit.push({ ...at(o, L), r: L[2], fire: !!D.fire, col: L[3] });
+        for (const L of (D.lightsOf ? D.lightsOf(o.v || 0) : D.lights) || []) this.lit.push({ ...at(o, L), r: L[2], fire: !!D.fire, col: L[3] });
         if (D.smoke) this.smokers.push({ ...at(o, D.smoke), t: Math.random() });
         if (D.fire) this.fires.push(at(o, D.fire));
         if (o.kind === 'bigfountain' && o.def && o.def.v === 1) this.sprays = (this.sprays || []).concat([at(o, [35, 2])]);
