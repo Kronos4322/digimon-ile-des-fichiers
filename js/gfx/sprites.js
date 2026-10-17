@@ -40,9 +40,9 @@
     pose(sp, pose) {
       const res = RES_BATTLE[DW.SPECIES[sp].stage] || 72, key = sp + '_' + res + '_' + pose;
       if (!cache[key]) {
-        const draw = D[sp] || D.koromon;
-        const fr = Art.render(draw, res, res, { box: [64, 64], ground: 62, rim: true, selout: true, param: { pose },
-          shear: pose === 'attack' ? 0.16 : -0.12, squash: pose === 'hurt' ? 0.95 : 1.02 });
+        const draw = D[sp] || D.koromon, P = (draw.poses && draw.poses[pose]) || {};   // réglage propre à l'espèce (ex. tête au bord du cadre)
+        const fr = Art.render(draw, res, res, { box: [64, 64], ground: 62, rim: true, selout: true, param: { pose }, dx: P.dx || 0,
+          shear: P.shear != null ? P.shear : pose === 'attack' ? 0.16 : -0.12, squash: pose === 'hurt' ? 0.95 : 1.02 });
         cache[key] = Object.assign({ frames: [fr] }, fr);
       }
       return cache[key];

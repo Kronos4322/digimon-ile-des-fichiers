@@ -267,17 +267,28 @@
       for (let i = 0; i < 26; i++) { const ang = R() * TAU, v = 60 + R() * 80; part(B, b.x, b.y, Math.cos(ang) * v, Math.sin(ang) * v, 0.6, [c0, c1, c2][i % 3], 2); }
       await wait(0.3);
     },
-    // flamme bleue : un jet de feu bleu-blanc
+    // flamme bleue : un jet de feu bleu-blanc qui part de la GUEULE (pas du ventre) et reste continu jusqu'à la cible
     async bluefire(B, a, b) {
       A.sfx('fire');
-      add(B, 0.7, (c, k) => {
-        const p = Math.min(1, k * 2.5);
-        for (let i = 0; i < 14; i++) { const t = i / 14 * p, x = lerp(a.x, b.x, t), y = lerp(a.y, b.y, t) + Math.sin(t * 20 + k * 30) * 3, r = 3 + t * 6; c.fillStyle = i % 3 ? '#4a8aff' : '#c8e0ff'; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
-        c.fillStyle = '#ffffff'; c.beginPath(); c.arc(lerp(a.x, b.x, p), lerp(a.y, b.y, p), 4, 0, TAU); c.fill();
+      const dir = b.x >= a.x ? 1 : -1, m = { x: a.x + dir * 18, y: a.y - 12 };   // la gueule : devant et en haut du sprite
+      add(B, 0.8, (c, k) => {
+        const p = Math.min(1, k * 2.4), fade = k > 0.8 ? (1 - k) * 5 : 1, N = 40;
+        c.globalAlpha = fade;
+        for (const [rs, col] of [[1.6, '#2a5aff'], [1.1, '#6aa8ff'], [0.55, '#e8f4ff']]) {   // halo, cœur, âme blanche
+          c.fillStyle = col;
+          for (let i = 0; i <= N; i++) {
+            const t = i / N * p, x = lerp(m.x, b.x, t), y = lerp(m.y, b.y, t) + Math.sin(t * 18 - k * 40) * 2.4 * t;
+            c.beginPath(); c.arc(x, y, (2.6 + t * 6.5) * rs, 0, TAU); c.fill();
+          }
+        }
+        // langues de feu qui lèchent le bord du jet
+        c.fillStyle = '#9ac8ff';
+        for (let i = 0; i < 6; i++) { const t = ((i / 6 + k * 3) % 1) * p, x = lerp(m.x, b.x, t), y = lerp(m.y, b.y, t) - 6 - t * 8 - (i % 2) * 3; c.beginPath(); c.arc(x, y, 1.6 + t * 2, 0, TAU); c.fill(); }
+        c.globalAlpha = 1;
       });
-      await wait(0.55);
+      await wait(0.6);
       for (let i = 0; i < 18; i++) part(B, b.x, b.y, (R() - 0.5) * 60, -20 - R() * 50, 0.6, i % 2 ? '#4a8aff' : '#ffffff', 2);
-      await wait(0.2);
+      await wait(0.25);
     },
     // poing de feu : bond, poing enflammé, explosion
     async firepunch(B, a, b, side) {

@@ -64,22 +64,23 @@
     gabumon(d, p = {}) {
       const Y = '#f6c832', Yd = '#c8961c', Yl = '#ffe486', Hn = '#f0d050', Hd = '#9a7020', Fb = '#dfe4fa', CW = '#f2f2f6';
       const atk = p.pose === 'attack';
-      // queue jaune
-      d.tube([[20, 52], [12, 55], [6, 52], [3, 47]], 7, 3, Y);
+      // queue jaune (relevée pendant l'attaque)
+      d.tube(atk ? [[20, 52], [13, 54], [8, 50], [7, 44]] : [[20, 52], [12, 55], [6, 52], [3, 47]], 7, 3, Y);
       // jambe éloignée
       d.ell(37, 55, 5.4, 6.8, Yd, 0, { far: true });
       for (let i = 0; i < 3; i++) d.poly([[34 + i * 3, 61], [35.4 + i * 3, 57.4], [36.8 + i * 3, 61]], CW, { far: true });
-      // cape de fourrure FINE, sur la nuque, les épaules et le dos (bout des poils rose)
-      d.blob([[30, 16], [36, 22], [33, 30], [27, 38], [22, 47], [17, 53], [12, 51], [13, 43], [17, 33], [22, 24]], Fb, { tex: 0.1 });
-      for (const [a, b] of [[[17, 44], [22, 43]], [[18, 36], [24, 35]], [[22, 28], [28, 28]], [[26, 21], [31, 23]]]) stripe(d, [a, b], 2.2);
-      for (const [x, y] of [[13, 51], [17, 53]]) d.poly([[x - 2, y - 2], [x, y + 3], [x + 2, y - 2]], '#c84a7a');
       // corps jaune, ventre avec l'emblème bleu au crâne rose
-      d.blob([[22, 40], [31, 34], [41, 38], [42, 50], [35, 57], [24, 57], [19, 48]], Y);
+      // (le corps monte jusque sous la tête : pas de trou entre la tête, le dos et la cape)
+      d.blob([[24, 28], [34, 22], [44, 26], [44, 38], [42, 50], [35, 57], [24, 57], [18, 48], [19, 36]], Y);
       d.deco.blob([[29, 41], [39, 42], [39, 52], [32, 55], [28, 48]], Yl);
       d.deco.ell(33.6, 47.6, 4, 4.4, '#4aa8e8'); d.deco.ell(33.6, 47, 2.2, 2.2, '#e05a8a'); d.deco.circ(32.8, 46.6, 0.5, '#1a1a2a'); d.deco.circ(34.4, 46.6, 0.5, '#1a1a2a');
       // jambe proche, griffes blanches
       d.ell(26, 54, 6.6, 7.4, Y);
       for (let i = 0; i < 3; i++) d.poly([[22 + i * 3.4, 62.4], [23.6 + i * 3.4, 57.8], [25.2 + i * 3.4, 62.4]], CW, { shiny: true });
+      // cape de fourrure FINE, posée PAR-DESSUS le dos, sur la nuque, les épaules et le dos (bout des poils rose)
+      d.blob([[30, 14], [38, 20], [37, 30], [31, 40], [26, 50], [18, 55], [11, 52], [11, 42], [15, 31], [21, 21]], Fb, { tex: 0.1 });
+      for (const [a, b] of [[[15, 46], [21, 45]], [[16, 38], [23, 37]], [[19, 30], [26, 30]], [[24, 22], [30, 24]]]) stripe(d, [a, b], 2.2);
+      for (const [x, y] of [[12, 52], [17, 54]]) d.poly([[x - 2, y - 2], [x, y + 3], [x + 2, y - 2]], '#c84a7a');
       // TÊTE = la tête de loup de la fourrure, ajustée : les yeux sont SUR la fourrure
       d.poly([[36, 14], [26, 8], [30, 18]], Fb); stripe(d, [[29, 10.6], [32, 13]], 1.2);   // oreille-pan rabattue en arrière
       d.blob([[34, 20], [37, 11], [45, 7.4], [53, 9], [59, 13], [62, 18], [61, 22], [54, 24], [44, 25], [37, 24]], Fb, { tex: 0.08 });
@@ -93,11 +94,15 @@
       d.deco.circ(51, 16.2, 1, '#2a0808', { unlit: true }); d.deco.circ(49.8, 14.6, 0.8, '#ffffff', { unlit: true });
       d.deco.curve([[47.4, 12.4], [53.4, 12.4]], 1, '#2a2a5a', { unlit: true });
       // la BOUCHE jaune sort sous la fourrure (crocs de la fourrure au-dessus)
-      d.blob([[42, 24], [50, 23.6], [60, 22.4], [60.6, 27], [54, 31], [45, 30.6]], Y);
-      if (atk || true) d.deco.poly([[47, 24.4], [59.4, 23.2], [57, 27.6], [49, 28]], '#a8202a', { unlit: true });
+      // (en attaque la mâchoire s'ouvre grand et la Petite Flamme bleue jaillit de la gueule)
+      const jy = atk ? 4 : 0;
+      d.blob([[42, 24], [50, 23.6 + jy * 0.5], [60, 22.4 + jy], [60.6, 27 + jy], [54, 31 + jy], [45, 30.6]], Y);
+      d.deco.poly([[47, 24.4], [59.4, 23.2], [57, 27.6 + jy], [49, 28 + jy * 0.6]], '#a8202a', { unlit: true });
+      if (atk) d.deco.ell(53, 27, 3, 1.4, '#e05a6a', 0, { unlit: true });   // langue
       for (let i = 0; i < 4; i++) d.poly([[46 + i * 3.4, 23.4], [47.2 + i * 3.4, 27], [48.4 + i * 3.4, 23.4]], CW);
-      d.deco.ell(52, 29.4, 4, 1.2, Yl);
-      if (atk) blueFire(d, 59.6, 26, 0.8);
+      if (atk) for (let i = 0; i < 2; i++) d.poly([[51 + i * 4, 28 + jy], [52.2 + i * 4, 25 + jy], [53.4 + i * 4, 28 + jy]], CW);
+      d.deco.ell(52, 29.4 + jy, 4, 1.2, Yl);
+      if (atk) blueFire(d, 58.6, 26.4, 0.95);
       // bras proche : jaune, grosse main aux griffes blanches levées
       d.tube([[36, 34], [41, 38], [46, 39]], 5.6, 5, Y);
       d.ell(48.6, 39, 3.8, 3.6, Y);
@@ -210,3 +215,7 @@
     },
   });
 })();
+
+// Gabumon : la tête touche le bord droit du cadre — en attaque on penche moins et on recule
+// pour que le museau et la flamme bleue ne soient pas coupés.
+DW.DRAW.gabumon.poses = { attack: { shear: 0.07, dx: -5 } };

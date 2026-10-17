@@ -148,6 +148,7 @@
       c.setTransform(1, 0, 0, 1, 0, 0);
       if (prev) c.clearRect(prev[0], prev[1], prev[2], prev[3]);
       c.setTransform(W / bw, 0, 0, H / bh, 0, 0);
+      if (o.dx) c.translate(o.dx, 0);   // décalage horizontal (pose qui sortirait du cadre)
       if (o.shear) { // inclinaison (pose d'attaque / de recul) autour du sol
         const g = o.ground != null ? o.ground : bh - 2;
         c.translate(0, g); c.transform(1, 0, -o.shear, 1, 0, 0); c.translate(0, -g);
