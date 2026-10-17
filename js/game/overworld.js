@@ -358,6 +358,7 @@
       return null;
     }
     async talkPartner(m) {
+      if (DW.Abri.can(this)) return DW.Abri.menu(this, m);   // à l'abri pendant l'orage : activités (game/abri.js)
       const lines = m.hp < m.maxHp / 3
         ? [`${m.name} a l'air épuisé... Il faudrait le soigner.`]
         : [`${m.name} te regarde avec un grand sourire.`, `${m.name} : J'ai un petit creux... On mange quand ?`,

@@ -64,6 +64,7 @@
       if (m.need >= 100) this.accident(ow, m);
       DW.Life.update(ow, min);
       if (DW.Calendar) DW.Calendar.tick(ow, min);   // intempéries (game/calendrier.js)
+      if (DW.Abri) DW.Abri.tick(ow, min);   // orage : peur dehors, réconfort à l'abri (game/abri.js)
     },
     // accident : une petite crotte apparaît là où se trouve le partenaire
     accident(ow, m) {

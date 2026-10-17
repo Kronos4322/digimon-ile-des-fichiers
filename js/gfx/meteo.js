@@ -46,7 +46,9 @@
       if (this.fear > 0) this.fear -= dt;
       for (let i = this.bolts.length - 1; i >= 0; i--) { const b = this.bolts[i]; b.t += dt; if (b.t > b.life) this.bolts.splice(i, 1); else if (!b.re && b.t > 0.11) { b.re = true; this.flash = Math.max(this.flash, 0.75); } }
       for (let i = this.scorch.length - 1; i >= 0; i--) { this.scorch[i].t += dt; if (this.scorch[i].t > 8) this.scorch.splice(i, 1); }
-      if (w !== 'storm' || !ow || ow.map.indoor) return;
+      // à l'abri : on voit les éclairs par les fenêtres (lueur faible) et on entend le tonnerre au loin (game/abri.js)
+      if (w === 'storm' && ow && ow.map.indoor) { this.next -= dt; if (this.next <= 0) { this.next = 4 + R() * 6; this.flash = Math.max(this.flash, 0.18 + R() * 0.12); DW.wait(0.6 + R()).then(() => DW.Audio.sfx('thunder')); } return; }
+      if (w !== 'storm' || !ow) return;
       this.next -= dt;
       if (this.next > 0) return;
       const violent = T.front && T.front().violent;   // orages d'été : bien plus violents
@@ -95,7 +97,7 @@
         c.fillStyle = `rgba(255,150,60,${Math.max(0, 0.8 - s.t * 0.4)})`; c.beginPath(); c.ellipse(x, y, 4, 1.8, 0, 0, 7); c.fill();
         for (let i = 0; i < 3; i++) { const k = (s.t * 0.6 + i / 3) % 1; c.fillStyle = `rgba(120,120,130,${0.35 * a * (1 - k)})`; c.beginPath(); c.arc(x + Math.sin(k * 6 + i) * 3, y - k * 22, 2 + k * 5, 0, 7); c.fill(); }
       }
-      if (w === 'storm') {
+      if (w === 'storm' && !ow.map.indoor) {
         // nuages noirs qui défilent (ombres sur la carte)
         this.clouds = this.clouds || Array.from({ length: 5 }, () => ({ x: R() * W * 1.5, y: R() * H, r: 70 + R() * 70 }));
         for (const k of this.clouds) {
