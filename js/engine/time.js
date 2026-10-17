@@ -73,7 +73,7 @@
       let col = Art.mix(Art.hex(c0), Art.hex(c1), k);
       const w = this.weather();
       if (w === 'rain') { dark = Math.max(dark, 0.22); col = Art.mix(col, [90, 100, 130], 0.5); }
-      else if (w === 'storm') { dark = Math.max(dark, 0.38); col = Art.mix(col, [60, 66, 100], 0.6); }
+      else if (w === 'storm') { dark = Math.max(dark, 0.6); col = Art.mix(col, [40, 46, 90], 0.8); }   // orage : ciel noir bleuté (gfx/meteo.js)
       else if (w === 'blizzard') { dark = Math.max(dark, 0.2); col = Art.mix(col, [215, 225, 245], 0.6); }
       else if (w === 'gale') { dark = Math.max(dark, 0.14); col = Art.mix(col, [170, 165, 150], 0.4); }
       else if (w === 'heat' && dark < 0.3) { dark = Math.max(dark, 0.08); col = Art.mix(col, [255, 200, 120], 0.6); }
@@ -195,7 +195,7 @@
           d.y += d.v * fast * dt; d.x -= d.v * (w === 'storm' ? 0.55 : 0.25) * dt;
           if (d.y > H * (0.3 + (i % 7) / 10)) { if (Math.random() < 0.5) this.splash.push({ x: d.x, y: d.y, t: 0 }); this.drops[i] = this.drop(false); }
         }
-        if (Math.random() < dt * (w === 'storm' ? 0.35 : 0.04)) { this.flash = 1; this.bolt = w === 'storm' ? { x: 30 + Math.random() * (W - 60), t: 0.25 } : null; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }
+        if (w === 'rain' && Math.random() < dt * 0.04) { this.flash = 1; this.bolt = null; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }   // (l'orage : gfx/meteo.js)
       }
       if (this.bolt) { this.bolt.t -= dt; if (this.bolt.t <= 0) this.bolt = null; }
       if (w === 'snow' || w === 'blizzard') for (let i = 0; i < this.flakes.length; i++) {

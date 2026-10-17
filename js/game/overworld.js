@@ -158,6 +158,7 @@
       if (Game.top() === this) this.background();
       if (!this.locked && Game.top() === this) { DW.state.time += dt; DW.Time.advance(dt, this.map.climate); DW.Care.update(this, dt); DW.Companion.update(this, dt); }
       this.weather.update(dt);
+      DW.Meteo.update(this, dt);   // orages, brouillard, canicule (gfx/meteo.js)
       const rain = !this.map.indoor && DW.Time.rainy();
       this.wet = DW.clamp((this.wet || 0) + (rain ? 0.25 : -0.02) * dt, 0, 1);
       if (DW.saveFlash > 0) DW.saveFlash -= dt;
@@ -465,7 +466,7 @@
       const sx = this.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
       c.save(); c.translate(-cx + sx, -cy);
       // sol fixe + calque d'eau animé (seulement la partie visible)
-      c.drawImage(g.ground, 0, 0);
+      c.drawImage(DW.Meteo.ground(this), 0, 0);   // (herbe jaunie pendant la canicule / sécheresse)
       if (g.water && g.water.frames.length) { const w = g.water, fr = w.frames[Math.floor(this.t * g.fps) % w.frames.length]; c.drawImage(fr, w.x, w.y); }
       const vx0 = cx - 48, vx1 = cx + W + 48, vy0 = cy - 16, vy1 = cy + H + 64;
       if (this.wet > 0.02 && g.puddles) this.drawPuddles(c, g.puddles, vx0, vx1, vy0, vy1);
@@ -611,6 +612,7 @@
       }
       lights.push({ x: Math.round(pp.x * TS) + 8 - cx, y: Math.round(pp.y * TS) + 4 - cy, r: 52 });
       DW.Time.drawLight(c, lights, this.map.indoor ? 0.75 : 1, this.map.dark);
+      DW.Meteo.draw(this, c);   // éclairs, flashs, brouillard épais, soleil de plomb
       if (!this.cine && (!this.locked || Game.top() === this)) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); DW.Care.drawMood(c, DW.Care.lead(), W - 88, H - 28); }
       DW.Care.drawToasts(c);
       if (DW.saveFlash > 0) {

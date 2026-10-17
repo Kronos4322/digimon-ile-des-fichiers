@@ -78,6 +78,7 @@
         return;
       }
       const hop = C.hop > 0 ? Math.sin((1 - C.hop / 0.5) * Math.PI) * 5 : 0;
+      if (DW.Meteo && DW.Meteo.fear > 0) x += Math.round((Math.random() - 0.5) * 2.4);   // il tremble de peur (orage)
       ow.drawMon(c, pt.sp, x, y - hop, F.face === 'left', F.moving ? t * 14 : t * 1.6, F.moving, F.back);
       const busy = pt.need >= 75 || pt.hunger >= 70;
       DW.Care.drawBubble(c, pt, x, y, t);
