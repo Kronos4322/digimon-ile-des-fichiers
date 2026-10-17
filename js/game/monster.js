@@ -201,7 +201,7 @@
       if (it.risky && Math.random() < it.risky) { m.sick = m.sick || st.clock; txt.push('... mais il tombe malade !'); }
       if (m.hp > hp0) txt.unshift(`+${m.hp - hp0} PV`);
       if (m.mp > mp0) txt.unshift(`+${m.mp - mp0} PM`);
-      // (portions : 1 repas pour un petit, 2 ou 3 pour un Champion ou plus — game/care.js)
+      // (ventre plein = 4 repas ; la faim revient 4 à 14 fois par jour selon le stade — game/care.js)
       const more = fed && m.hunger > 5 ? Math.ceil(m.hunger / (100 / DW.Care.portions(m))) : 0;
       const fedTxt = !fed ? '' : more ? ` (il a encore faim : encore ${more} repas)` : ' (rassasié !)';
       return `${m.name} ${it.drink ? 'boit à grandes gorgées' : it.food ? 'mange avec appétit' : 'utilise ' + it.name}${fedTxt}${txt.length ? ' : ' + txt.join(', ') : ''} !`;

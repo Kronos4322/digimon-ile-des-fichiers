@@ -106,7 +106,8 @@
       }
       DW.World.unprepare(this);
     },
-    npcs: [{ sp: 'jijimon', x: 9, y: 7, face: 'right', talk: () => DW.Story.jijimonTalk() }],
+    npcs: [{ sp: 'jijimon', x: 9, y: 7, face: 'right', talk: () => DW.Story.jijimonTalk() },
+      { sp: 'poyomon', x: 11, y: 4, face: 'right', talk: () => DW.Story.poyomonTalk() }],   // fixe, près du lit : il propose la sieste
     warps: [{ x: 7, y: 11, w: 2, h: 1, dir: 'down', to: 'village', tx: 19, ty: 6 }],
     signs: {
       '1,3': () => library(),

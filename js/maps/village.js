@@ -339,7 +339,7 @@
       if (m && DW.Training.total(m) < 10) tips.push("Les combats font monter le niveau. Mais pour digivoluer, il faut s'entraîner au Terrain d'entraînement, au sud.");
       if (next) tips.push(`On m'a dit qu'un Digimon rôde du côté de « ${MAPS[next.zone].name} »... Il cherche peut-être un endroit où vivre.`);
       if (DW.bagUsed() >= DW.bagSlots() || Object.values(s.bag).some(n => n >= DW.BAG_MAX)) tips.push(`Ton sac est limité : ${DW.BAG_MAX} exemplaires par objet et ${DW.bagSlots()} sortes d'objets. Plein, il ne ramasse plus rien : range tes affaires dans ton coffre, et la nourriture dans ton frigo !`);
-      tips.push("Jijimon te laisse dormir chez lui : ça soigne toute l'équipe.", "Ton partenaire a besoin d'aller aux toilettes de temps en temps. Sinon... gare aux accidents !");
+      tips.push("Chez Jijimon, Poyomon te propose une sieste dans le lit : ça soigne toute l'équipe.", "Ton partenaire a besoin d'aller aux toilettes de temps en temps. Sinon... gare aux accidents !");
     }
     if (urgent.length) { await say(urgent[0], 'Koromon'); return; }
     const k = (s.flags.bota || 0) % tips.length;
@@ -370,22 +370,32 @@
       await say(`Tiens, prends ceci : un Manuel de technique, 2 RAM PV++ et 1000 Bits !${DW.extraMsg(extra)}`, 'Jijimon');
     }
     if (!s.flags.jiji_tanemon) { s.flags.jiji_tanemon = true; await say("Si ton partenaire a faim, va voir Tanemon au Quartier des Champs : il cultive de la Digiviande et en donne chaque jour.", 'Jijimon'); }
-    const r = await DW.ask("Que veux-tu, jeune DigiSélectionné ?", ['Se reposer', 'Des conseils', 'Questions', 'Au revoir'], 'Jijimon');
+    // (le repos et la sieste, c'est Poyomon, près du lit : poyomonTalk)
+    const r = 1 + await DW.ask("Que veux-tu, jeune DigiSélectionné ?", ['Des conseils', 'Questions', 'Au revoir'], 'Jijimon');
     if (r === 2) { await DW.Guide.questions('Que veux-tu savoir ?'); return; }
+    if (r === 1) await jijimonAdvice();
+  }
+  // ------------------------------------------------------------ Poyomon (près du lit de Jijimon) : la sieste
+  async function poyomonTalk() {
+    const s = st();
+    const r = await DW.ask("Poyo poyo ! Tu veux faire une sieste ? Le lit de Jijimon est tout moelleux !", ['Faire la sieste', 'Non merci'], 'Poyomon');
     if (r === 0) {
       // dormir seulement à l'heure du coucher de ton Digimon ; sinon une heure de repos
       const m = DW.Care.lead(), sleepy = m && DW.Life.sleepy(m);
-      await say(sleepy ? "Ton Digimon tombe de sommeil ! Dormez donc ici. Hohoho !" : "Il n'a pas sommeil... Reposez-vous un peu, ça fera du bien.", 'Jijimon');
+      await say(sleepy ? "Poyo ! Ton Digimon tombe de sommeil... Dodo ! Je veille sur vous !" : "Poyo... Il n'a pas sommeil. Une petite sieste d'une heure, alors !", 'Poyomon');
       const res = await DW.Life.restOrSleep();
       if (!res) return;
       s.heal = { map: 'maison', x: 12, y: 5 };
       if (res === 'sleep') {
         await healAll('Toute ton équipe est en pleine forme !');
         // une nuit chez Jijimon efface un K.O. (la règle des 3 K.O. reste, sans être un piège)
-        for (const m of s.party) if ((m.kos || 0) > 0) { m.kos--; await say(`${m.name} a bien récupéré : un K.O. s'efface (${m.kos}/3).`, 'Jijimon'); }
+        for (const m of s.party) if ((m.kos || 0) > 0) { m.kos--; await say(`${m.name} a bien récupéré : un K.O. s'efface (${m.kos}/3).`, 'Poyomon'); }
       }
       DW.autosave();
-    } else if (r === 1) {
+    }
+  }
+  async function jijimonAdvice() {
+    {
       const next = T().RECRUITS.find(x => !T().has(x.id));
       if (next) await say(`On raconte qu'un Digimon solitaire erre du côté de « ${MAPS[next.zone].name} »... Il cherche peut-être un endroit où vivre. Qui sait ce qu'il apporterait à la ville ?`, 'Jijimon');
       else await say("La ville n'a jamais été aussi belle ! Merci, mon enfant.", 'Jijimon');
@@ -394,6 +404,7 @@
     }
   }
   DW.Story.jijimonTalk = jijimonTalk;
+  DW.Story.poyomonTalk = poyomonTalk;
 
   // ------------------------------------------------------------ services des habitants
   const SERVICES = {

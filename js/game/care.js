@@ -17,14 +17,21 @@
 // =====================================================================
 (function () {
   const { UI, Audio } = DW;
-  const HUNGER_RATE = 1 / 10, NEED_RATE = 1 / 14, THIRST_RATE = 1 / 9;   // toilettes : ≈ 2 passages par jour (temps + repas)
+  const NEED_RATE = 1 / 14, THIRST_RATE = 1 / 9;   // toilettes : ≈ 2 passages par jour (temps + repas)
   const REST = 0.25;
   // APPÉTIT : un bébé mange peu, un Champion beaucoup ; les gros Digimon (lourds) mangent encore plus
   const STAGE_EAT = { 'Bébé': 0.45, 'Entraînement': 0.7, 'Disciple': 1, 'Champion': 1.45, 'Ultime': 1.8, 'Méga': 2.1 };
+  // REPAS PAR JOUR (règle du joueur) : un Bébé doit manger au moins 4 fois par jour (il faut chercher des champignons...),
+  // un Entraînement 6, un Disciple 8, un Champion 10 (Ultime 12, Méga 14 ; +2 pour les très gros, 150 kg et plus).
+  // Une Viande, un champignon ou un petit poisson = 1 repas = MEAL points de faim.
+  const MEALS_DAY = { 'Bébé': 4, 'Entraînement': 6, 'Disciple': 8, 'Champion': 10, 'Ultime': 12, 'Méga': 14 };
+  const MEAL = 25, DAY_AWAKE = 1080;   // (journée « éveillée » équivalente : le sommeil ralentit la faim)
+  const mealsDay = m => (MEALS_DAY[m.d.stage] || 8) + ((m.d.kg || 20) >= 150 ? 2 : 0);
+  const hungerRate = m => mealsDay(m) * MEAL / DAY_AWAKE;
   const appetite = m => { const kg = m.d.kg || 20; return (STAGE_EAT[m.d.stage] || 1) * (kg >= 150 ? 1.4 : kg >= 60 ? 1.2 : kg <= 8 ? 0.9 : 1); };   // pendant le sommeil ou le repos : besoins 4 fois plus lents
 
   const Care = DW.Care = {
-    appetite,
+    appetite, mealsDay, MEAL,
     appetiteLabel: m => { const a = appetite(m); return a < 0.6 ? 'petit' : a < 0.95 ? 'modéré' : a < 1.3 ? 'normal' : a < 1.7 ? 'gros' : 'énorme'; },
     toasts: [],
     lead: () => DW.state.party[0] || null,
@@ -42,7 +49,7 @@
       const h0 = m.hunger, n0 = m.need, t0 = m.thirst || 0;
       for (const d of DW.state.party) if (d.hp > 0 && d.hp < d.maxHp) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.08 * min / 60));   // +8 % de PV par heure de jeu
       const ap = appetite(m);
-      m.hunger = Math.min(100, m.hunger + min * HUNGER_RATE * ap);
+      m.hunger = Math.min(100, m.hunger + min * hungerRate(m));
       m.need = Math.min(100, m.need + min * NEED_RATE);
       const hot = DW.Time.weather() === 'heat' || !!(DW.Time.drought && DW.Time.drought());
       m.thirst = Math.min(100, t0 + min * THIRST_RATE * (hot ? 2 : 1) * (0.6 + ap * 0.4));
@@ -81,26 +88,25 @@
       const st = DW.state, k = sleeping ? REST : 0.5;
       st.clock += min; st.careClock = st.clock;
       for (const d of st.party) {
-        d.hunger = Math.min(95, d.hunger + min * HUNGER_RATE * k * appetite(d));
+        d.hunger = Math.min(95, d.hunger + min * hungerRate(d) * k);
         d.need = Math.min(90, d.need + min * NEED_RATE * k);
         d.thirst = Math.min(95, (d.thirst || 0) + min * THIRST_RATE * k);
       }
     },
     // boire (eau de la nature) : renvoie vrai s'il avait soif
     drink(m, amt = 60) { const t = m.thirst || 0; m.thirst = Math.max(0, t - amt); m.dry = 0; if (t >= 40) m.addHappy(2); return t > 5; },
-    // PORTIONS (règle du joueur) : un Bébé, un Entraînement ou un Disciple est rassasié par 1 repas (1 Viande, ou 1 champignon) ;
-    // un Champion en demande 2, un gros Champion (150 kg et plus), un Ultime ou un Méga 3
-    portions(m) { const st = m.d.stage, kg = m.d.kg || 20; return ['Bébé', 'Entraînement', 'Disciple'].includes(st) ? 1 : st === 'Champion' ? (kg >= 150 ? 3 : 2) : 3; },
-    // valeur d'un aliment en repas : un plat (Viande, champignon, poisson...) = 1 repas, une Viande géante = 2, un en-cas = moins
-    meals: food => (food >= 100 ? 2 : food >= 40 ? 1 : food / 40),
+    // ventre plein = 4 repas (la faim monte plus ou moins vite selon le stade : voir MEALS_DAY)
+    portions(m) { return 100 / MEAL; },
+    // valeur d'un aliment en repas : Viande, champignon, petit poisson = 1 repas, une Viande géante = 2, un en-cas = moins
+    meals: food => (food >= 100 ? 2 : food >= 30 ? 1 : food / 30),
     // nourrir : renvoie vrai s'il a mangé (amt = valeur « food » de l'aliment)
     feed(m, amt) {
       const before = m.hunger;
-      m.hunger = Math.max(0, m.hunger - Care.meals(amt) * 100 / Care.portions(m));
+      m.hunger = Math.max(0, m.hunger - Care.meals(amt) * MEAL);
       const eaten = before - m.hunger;
       m.need = Math.min(99, m.need + eaten * 0.5);
       if (before >= 40) m.addHappy(3);
-      DW.Life.addFat(m, eaten / 66 / appetite(m));   // un repas complet : +1,5 environ (trop nourrir un petit mangeur le fait grossir vite)   // trop nourrir un petit mangeur le fait grossir vite
+      DW.Life.addFat(m, eaten / MEAL * 1.6 / mealsDay(m));   // ~1,6 de réserve par journée de repas complète   // un repas complet : +1,5 environ (trop nourrir un petit mangeur le fait grossir vite)   // trop nourrir un petit mangeur le fait grossir vite
       m.starve = 0;
       return eaten > 0;
     },
@@ -159,7 +165,7 @@
       else if (icon === 'sick') { c.fillStyle = '#7ac040'; c.beginPath(); c.arc(bx, by, 6, 0, 7); c.fill(); c.fillStyle = '#1a2a10'; c.fillRect(bx - 3, by - 2, 2, 2); c.fillRect(bx + 1, by - 2, 2, 2); c.fillRect(bx - 3, by + 2, 6, 1.5); c.fillStyle = '#a0e0ff'; c.fillRect(bx + 5, by - 6, 2, 3); }
       else if (icon === 'hurt') { c.save(); c.translate(bx, by); c.rotate(-0.5); c.fillStyle = '#f0d8b0'; c.fillRect(-8, -3, 16, 6); c.fillStyle = '#e8c090'; c.fillRect(-3, -3, 6, 6); c.fillStyle = '#c8a070'; for (const dx of [-1.5, 1.5]) for (const dy of [-1.5, 1.5]) c.fillRect(dx - 0.5, dy - 0.5, 1, 1); c.restore(); }
       else if (icon === 'lowhp') { c.fillStyle = '#e84a5a'; c.fillRect(bx - 2, by - 6, 4, 12); c.fillRect(bx - 6, by - 2, 12, 4); c.fillStyle = '#ffd0d4'; c.fillRect(bx - 1, by - 5, 1, 3); }   // PV bas : une croix de soin
-      else if (icon === 'tired') { c.fillStyle = '#5a8ad8'; c.beginPath(); c.moveTo(bx + 3, by - 7); c.quadraticCurveTo(bx + 8, by, bx + 3, by + 3); c.quadraticCurveTo(bx - 2, by, bx + 3, by - 7); c.fill(); c.fillStyle = '#203040'; c.fillRect(bx - 7, by + 1, 3, 1); c.fillRect(bx - 2, by + 1, 3, 1); }
+      else if (icon === 'tired') { c.fillStyle = '#5a8ad8'; c.beginPath(); c.moveTo(bx, by - 8); c.quadraticCurveTo(bx + 6.5, by + 1, bx, by + 6); c.quadraticCurveTo(bx - 6.5, by + 1, bx, by - 8); c.fill(); c.fillStyle = '#c8e0ff'; c.fillRect(bx - 2.5, by - 1, 1.5, 3); }   // fatigue : juste la goutte de sueur
       else if (icon === 'sad') { c.strokeStyle = '#3a5ab0'; c.lineWidth = 1.2; c.beginPath(); c.arc(bx, by, 6, 0, 7); c.stroke(); c.fillStyle = '#3a5ab0'; c.fillRect(bx - 3, by - 2, 1.5, 1.5); c.fillRect(bx + 1.5, by - 2, 1.5, 1.5); c.beginPath(); c.arc(bx, by + 4, 2.5, Math.PI * 1.1, Math.PI * 1.9); c.stroke(); }
       else if (icon === 'good' || icon === 'bad') { c.fillStyle = icon === 'good' ? '#e8a020' : '#c84a4a'; c.font = DW.UI.font(14, true); c.textAlign = 'center'; c.fillText(icon === 'good' ? '★' : '!', bx, by + 5); }
       else { c.fillStyle = '#3a5ab0'; c.font = DW.UI.font(10, true); c.textAlign = 'center'; c.fillText('Zz', bx, by + 4); }

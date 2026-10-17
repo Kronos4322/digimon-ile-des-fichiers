@@ -114,7 +114,7 @@
 
   // ------------------------------------------------------------ Frappe : le sac de frappe se balance
   class Punch {
-    constructor(sc) { this.sc = sc; this.ph = Math.random() * TAU; this.w = (2.2 + sc.dif * 2.4) * (sc.m.tired >= 60 ? 1.12 : 1); this.lunge = 0; this.wait = 0.6; this.hint = 'ESPACE quand le sac revient tout près pour frapper fort !'; }
+    constructor(sc) { this.sc = sc; this.ph = Math.random() * TAU; this.w = (2.0 + sc.dif * 1.2) * (sc.m.tired >= 60 ? 1.08 : 1); this.lunge = 0; this.wait = 0.6;   /* (difficile : le sac va moins vite qu'avant, on peut suivre) */ this.hint = 'ESPACE quand le sac revient tout près pour frapper fort !'; }
     get bx() { return 214 + 46 * Math.sin(this.ph); }   // position du bas du sac (le Digimon frappe vers x = 172)
     update(dt) {
       const sc = this.sc;
@@ -122,8 +122,8 @@
       if (this.lunge > 0) this.lunge -= dt;
       if (this.wait > 0) { this.wait -= dt; return; }
       if (sc.hits.length >= 3 || !Input.hit('ok')) return;
-      const d = Math.abs(this.bx - 172), r = d < 6 ? 2 : d < 16 ? 1 : 0;
-      this.lunge = 0.35; this.wait = 0.9;
+      const d = Math.abs(this.bx - 172), r = d < 9 ? 2 : d < 20 ? 1 : 0;
+      this.lunge = 0.35; this.wait = 0.7;
       if (r) this.kick = 0.5;
       sc.hit(r, this.bx, 120);
     }

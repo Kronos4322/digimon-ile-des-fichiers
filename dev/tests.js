@@ -399,9 +399,10 @@ test('Tai délivré : sa chambre apparaît à l’étage de ta maison (escalier 
 });
 test("poids : un repas fait grossir, un combat fait à peine maigrir (on peut atteindre les Digivolutions « costaudes »)", () => {
   fresh();
-  const m = new DW.Digimon('agumon', 12); DW.state.party = [m]; DW.Life.init(m); m.fat = 0; m.hunger = 80;
-  DW.Care.feed(m, 60);
-  yes(m.fat >= 1, `une Viande ne fait presque pas grossir (${m.fat})`);
+  const m = new DW.Digimon('agumon', 12); DW.state.party = [m]; DW.Life.init(m); m.fat = 0;
+  // une journée de repas (8 pour un Disciple, game/care.js) fait prendre du poids
+  for (let i = 0; i < DW.Care.mealsDay(m); i++) { m.hunger = 30; DW.Care.feed(m, 60); }
+  yes(m.fat >= 1, `une journée de repas ne fait presque pas grossir (${m.fat})`);
   const f0 = m.fat; for (let i = 0; i < 20; i++) DW.Life.addFat(m, -0.02);
   yes(f0 - m.fat <= 1.01, 'vingt combats font trop maigrir');
 });
