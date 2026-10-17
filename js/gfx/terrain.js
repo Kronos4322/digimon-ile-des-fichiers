@@ -397,6 +397,7 @@
     } }
     lap('couleur');
     // décor peint (fleurs, champignons)
+    const flowers = [];
     const decorate = (tx, ty, kind) => {
       const n = kind === 'mushrooms' ? 3 : 5;
       for (let k = 0; k < n; k++) {
@@ -419,6 +420,7 @@
           set(x - 1, y - 1, '#e04040'); set(x, y - 1, '#ff7070'); set(x + 1, y - 1, '#e04040'); set(x, y, '#ffffff');
           set(x - 2, y + 3, '#2c6a2c'); set(x + 2, y + 3, '#2c6a2c');
         } else {
+          if (k === 0) flowers.push([x, y]);   // (une par case : les saisons les fanent ou les changent, gfx/meteo.js)
           const cols = kind === 'flowers2' ? ['#ff9ac8', '#fff2a0', '#c8b4ff', '#ffffff'] : ['#ff5a7a', '#ffd84a', '#ffffff', '#b48aff', '#ff9a4a'];
           const c = cols[Math.floor(hash(tx, ty, 50 + k) * cols.length)];
           set(x, y + 2, '#2e7a2c'); set(x, y + 1, '#3a8a30');
@@ -484,7 +486,7 @@
       // objets bas et larges posés au sol (bûches, troncs creux, bois flotté, rochers) : toute leur largeur bloque
       // le passage, pas seulement leur case (on ne traverse plus le bout d'une bûche)
       { const sp0 = anim ? anim[0] : World.obj(kind, v); if (inf.solid && inf.obj !== 'tree' && sp0.h <= 34 && sp0.w > 22) { const k = Math.round((sp0.w - 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((tx - xx) + ',' + ty, (tx + xx) + ',' + ty); widen.push(grp); } }
-      objs.push({ kind, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
+      objs.push({ kind, v, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
     }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
     for (const o of map.objects || []) {
@@ -498,7 +500,7 @@
       // pareil pour les objets posés plus larges que leur emprise (bas : bûches, piliers tombés...)
       if (!o.walk && !o.top && !o.back && spr.h <= 34 && spr.w > o.w * 16 + 6) { const k = Math.round((spr.w - o.w * 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((o.x - xx) + ',' + (o.y + o.h - 1), (o.x + o.w - 1 + xx) + ',' + (o.y + o.h - 1)); widen.push(grp); }
       const flat = o.walk || o.back;
-      objs.push({ kind: o.kind, spr, sprs: anim, fps: OBJ[o.kind].fps || 4, x: (o.x + o.w / 2) * TS + (o.ox || 0), y: (o.y + o.h) * TS - 1 + (o.oy || 0), sort: flat ? -10 + o.y * 0.01 : o.top ? 1000 : o.y + o.h - 0.5, big: !flat && !o.small && !o.top, flat: flat || o.top, tx: o.x, ty: o.y, def: o });
+      objs.push({ kind: o.kind, v: o.v || 0, spr, sprs: anim, fps: OBJ[o.kind].fps || 4, x: (o.x + o.w / 2) * TS + (o.ox || 0), y: (o.y + o.h) * TS - 1 + (o.oy || 0), sort: flat ? -10 + o.y * 0.01 : o.top ? 1000 : o.y + o.h - 0.5, big: !flat && !o.small && !o.top, flat: flat || o.top, tx: o.x, ty: o.y, def: o });
     }
     // herbes hautes
     const tall = [];
@@ -611,7 +613,7 @@
         if (r && need.every(([x, y]) => r.has(x + ',' + y) || extra.has(x + ',' + y))) for (const k of extra) solid.add(k);
       }
     }
-    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof };
+    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers };
     lap('sol');
     if (!water) { map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }
     else {

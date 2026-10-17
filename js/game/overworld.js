@@ -476,7 +476,7 @@
       for (const tg of g.tall) {
         const X = tg.tx * TS, Y = tg.ty * TS;
         if (X < vx0 || X > vx1 || Y < vy0 || Y > vy1) continue;
-        c.drawImage(DW.World.tall(tg.kind, tg.v, tallFrame(tg.tx, tg.ty)), X, Y - 8);
+        c.drawImage(DW.Meteo.tall(DW.World.tall(tg.kind, tg.v, tallFrame(tg.tx, tg.ty))), X, Y - 8);
       }
       // objets & personnages triés en profondeur
       // direction et intensité des ombres selon l'heure
@@ -517,7 +517,7 @@
       list.forEach((e, i) => {
         if (e.spr) {
           const o = e, s = o.spr;
-          const img = o.sprs ? o.sprs[Math.floor(this.t * o.fps + o.x * 0.013) % o.sprs.length].img : s.img;
+          const img = DW.Meteo.objImg(o, o.sprs ? o.sprs[Math.floor(this.t * o.fps + o.x * 0.013) % o.sprs.length].img : s.img);   // (saisons : arbres, neige posée)
           const X = Math.round(o.x - s.w / 2), Y = Math.round(o.y - s.h + 1);
           // le feuillage (haut du sprite) ondule doucement au vent ; sans décalage, un seul dessin suffit
           const sway = o.big && !o.flat ? Math.round(Math.sin(this.t * 1.3 + o.x * 0.07) * 0.8 + Math.sin(this.t * 0.37 + o.y * 0.05) * 0.5) : 0;
@@ -558,7 +558,7 @@
         const [tx, ty] = e.tile;
         const ch = this.tileAt(tx, ty);
         if (DW.World.isTall(ch)) {
-          const spr = DW.World.tall(DW.World.tallKind(this.map, DW.World.info(ch).tall), Math.floor(DW.Art.hash(tx, ty, 70) * 4), tallFrame(tx, ty));
+          const spr = DW.Meteo.tall(DW.World.tall(DW.World.tallKind(this.map, DW.World.info(ch).tall), Math.floor(DW.Art.hash(tx, ty, 70) * 4), tallFrame(tx, ty)));
           c.drawImage(spr, 0, 15, 16, 9, tx * TS, ty * TS + 7, 16, 9);
         }
       });

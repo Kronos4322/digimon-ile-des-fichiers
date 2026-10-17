@@ -52,7 +52,7 @@
       m.hunger = Math.min(100, m.hunger + min * hungerRate(m));
       m.need = Math.min(100, m.need + min * NEED_RATE);
       const hot = DW.Time.weather() === 'heat' || !!(DW.Time.drought && DW.Time.drought());
-      m.thirst = Math.min(100, t0 + min * THIRST_RATE * (hot ? 2 : 1) * (0.6 + ap * 0.4));
+      m.thirst = Math.min(100, t0 + min * THIRST_RATE * (hot ? 2.6 : 1) * (0.6 + ap * 0.4));   // vague de chaleur : très soif
       // (bulle au-dessus du partenaire à la place du message)
       if (m.thirst >= 100) { m.dry = (m.dry || 0) + min; if (m.dry >= 30) { m.dry -= 30; m.addHappy(-2); } }
       // (bulle au-dessus du partenaire à la place du message)

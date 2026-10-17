@@ -294,7 +294,8 @@
     flowerbed: { w: 20, h: 16, n: 3, draw(d, v) {
       d.rect(1, 7, 18, 8, '#9a5a2a', { round: 0.25, tex: 0.3 });
       d.deco.rect(2, 8, 16, 2, '#4a2a14');
-      const cols = [['#ff5a7a', '#ffd84a', '#ffffff'], ['#b48aff', '#ff9ac8', '#fff2a0'], ['#ff9a4a', '#ffe060', '#ff5a5a']][v];
+      // (saisons, gfx/meteo.js : v3 pensées d'hiver, v4 chrysanthèmes d'automne)
+      const cols = [['#ff5a7a', '#ffd84a', '#ffffff'], ['#b48aff', '#ff9ac8', '#fff2a0'], ['#ff9a4a', '#ffe060', '#ff5a5a'], ['#7a4ad8', '#ffd84a', '#f4f0ff'], ['#e8902a', '#c84a3a', '#f0c040']][v];
       for (let i = 0; i < 6; i++) { const x = 3 + i * 2.8, y = 5 + (i % 2) * 2; d.tube([[x, 9], [x, y + 1]], 1, 1, '#3a8a30'); d.circ(x, y, 1.8, cols[i % 3], { noshadow: true }); }
     } },
     well: { w: 30, h: 40, n: 1, draw(d) {

@@ -52,21 +52,36 @@
   World.isTall = ch => !!(CH[ch] && CH[ch].tall);
   DW.SOLID = new Set(Object.keys(CH).filter(k => CH[k].solid));
 
+  // arbre en hiver : branches nues (couleur du tronc), avec la neige posée dessus si snow
+  const bare = (d, tr, snow) => {
+    const L = [[[18, 27], [11, 17], [6, 10]], [[18, 27], [25, 16], [31, 9]], [[18, 26], [18.5, 13], [17, 4]], [[17, 31], [9, 25], [3, 22]], [[19, 31], [27, 25], [33, 22]]];
+    for (const p of L) d.tube(p, 2.8, 1, tr, { tex: 0.3 });
+    const TW = [[11, 17, 7, 9], [11, 17, 13, 10], [25, 16, 22, 9], [25, 16, 31, 15], [18, 13, 14, 6], [18, 13, 22, 5], [9, 25, 5, 19], [27, 25, 31, 19], [6, 10, 4, 6], [31, 9, 33, 5], [17, 4, 15, 1], [17, 4, 20, 1]];
+    for (const [a, b, c, e] of TW) d.deco.line(a, b, c, e, 0.7, tr);
+    if (snow) {
+      for (const p of L) for (let i = 0; i < p.length - 1; i++) d.deco.line(p[i][0], p[i][1] - 1, p[i + 1][0], p[i + 1][1] - 1, 0.9, '#f4f8ff');
+      for (const [a, b, c, e] of TW.slice(0, 8)) d.deco.line(a, b - 0.6, c, e - 0.6, 0.5, '#ffffff');
+    }
+  };
+
   // ------------------------------------------------------------ objets en volume
   const OBJ = {
     tree: { w: 36, h: 46, n: 10, draw(d, v) {
       if (v === 3) return OBJ.oak.draw(d);
       if (v === 4) return OBJ.birch.draw(d);
+      // SAISONS (gfx/meteo.js) : 12 cerisier en fleurs (rose), 13 fleurs blanches, 14 nu (hiver), 15 nu et enneigé
       // [feuillage, ombre, lumière] : 0-2 verts, 5 orange, 6 rouge, 7 doré, 8 vert profond, 9 moussu
       const P = { 0: ['#45a03e', '#2f7a34', '#6cc458'], 1: ['#3c9444', '#2c7040', '#62bc62'], 2: ['#52a83a', '#3a8030', '#7ac850'],
         5: ['#e07a2a', '#b0521c', '#f4a84a'], 6: ['#cc4a30', '#962a1e', '#ee7a52'], 7: ['#e2b232', '#b4861c', '#f6d868'],
-        8: ['#2a6e3a', '#1a4c2a', '#3e8c4a'], 9: ['#3a9474', '#26705a', '#64ba96'], 10: ['#2e6a48', '#1e4c36', '#4a8a62'], 11: ['#9ab8c0', '#6e8e9a', '#cfe2e8'] }[v] || ['#45a03e', '#2f7a34', '#6cc458'];
+        8: ['#2a6e3a', '#1a4c2a', '#3e8c4a'], 9: ['#3a9474', '#26705a', '#64ba96'], 10: ['#2e6a48', '#1e4c36', '#4a8a62'], 11: ['#9ab8c0', '#6e8e9a', '#cfe2e8'],
+        12: ['#f0a0c4', '#c87094', '#ffd4e6'], 13: ['#f2ecf0', '#c4b8c8', '#ffffff'] }[v] || ['#45a03e', '#2f7a34', '#6cc458'];
       const tr = v === 8 ? '#5a3a22' : v === 9 ? '#6a5a3a' : '#7a5230', lf = P[0], ld = P[1], lt = P[2];
       d.ell(18, 44, 9, 2.4, '#5a3a20', 0, { flat: true });
       d.tube([[11, 45], [15, 41]], 3, 2, tr, { far: true }); d.tube([[25, 45], [21, 41]], 3, 2, tr);
       d.tube([[18, 45], [18.5, 30], [18, 24]], 8.5, 6, tr, { tex: 0.35 });
       d.deco.line(16, 42, 16.5, 32, 0.8, '#5a3a1e'); d.deco.line(20.5, 44, 20, 35, 0.8, '#5a3a1e');
       d.deco.ell(17, 38, 1.6, 2.2, '#3a2412');
+      if (v === 14 || v === 15) return bare(d, tr, v === 15);
       d.circ(8, 21, 8, ld, { tex: 0.55, texSize: 1, far: true }); d.circ(28, 20, 8.5, ld, { tex: 0.55, texSize: 1, far: true });
       d.circ(18, 12, 10.5, lf, { tex: 0.55, texSize: 1 });
       d.circ(8, 26, 7.5, lf, { tex: 0.55, texSize: 1 }); d.circ(28, 26, 7.5, lf, { tex: 0.55, texSize: 1 });
@@ -76,23 +91,28 @@
       // 10-11 (hiver) : neige posée sur les cimes
       if (v >= 10) for (const [x, y, rx] of [[18, 4, 8], [8, 15, 5.5], [28, 14, 5.5], [8, 21, 4.5], [28, 21, 4.5], [18, 19, 6]]) { d.ell(x, y, rx, rx * 0.42, '#f4f8ff', 0, { shiny: true }); d.deco.ell(x - rx * 0.3, y - 0.4, rx * 0.4, rx * 0.14, '#ffffff', 0, { unlit: true }); }
       if (v >= 5 && v <= 7) { d.deco.circ(9, 30, 1.2, lt, { unlit: true }); d.deco.circ(27, 14, 1, lt, { unlit: true }); }
+      // fleurs : quelques jeunes feuilles vertes et des pétales plus clairs
+      if (v === 12 || v === 13) { for (const [x, y] of [[10, 28], [26, 24], [20, 17], [12, 18], [24, 30], [16, 6]]) d.deco.circ(x, y, 1.1, '#7ac850', { unlit: true }); for (const [x, y] of [[6, 22], [30, 20], [18, 25], [22, 9], [9, 13]]) d.deco.circ(x, y, 0.9, v === 12 ? '#fff0f6' : '#fff8d0', { unlit: true }); }
     } },
-    oak: { w: 36, h: 46, n: 1, draw(d) {
-      const tr = '#5e3e24', lf = '#2f8040', ld = '#205e30', lt = '#4a9c4a';
+    // (saisons, gfx/meteo.js : v 1 automne, 2 nu, 3 nu et enneigé — n reste 1 : jamais tirées au hasard)
+    oak: { w: 36, h: 46, n: 1, draw(d, v) {
+      const tr = '#5e3e24', [lf, ld, lt] = v === 1 ? ['#c8682a', '#94461c', '#e8984a'] : ['#2f8040', '#205e30', '#4a9c4a'];
       d.ell(18, 44, 10, 2.4, '#3a2614', 0, { flat: true });
       d.tube([[9, 45], [14, 40]], 3.4, 2, tr, { far: true }); d.tube([[27, 45], [22, 40]], 3.4, 2, tr);
       d.tube([[18, 45], [18, 32], [17, 26]], 10, 7, tr, { tex: 0.4 });
       d.deco.ell(19, 36, 2, 3, '#2a1a0c');
+      if (v >= 2) return bare(d, tr, v === 3);
       d.circ(7, 24, 8, ld, { tex: 0.6, texSize: 1, far: true }); d.circ(29, 23, 8, ld, { tex: 0.6, texSize: 1, far: true });
       d.circ(18, 14, 12, lf, { tex: 0.6, texSize: 1 }); d.circ(9, 26, 7.5, lf, { tex: 0.6, texSize: 1 }); d.circ(27, 27, 7.5, lf, { tex: 0.6, texSize: 1 });
       d.circ(18, 28, 8, lf, { tex: 0.6, texSize: 1 });
       d.circ(14, 9, 5, lt, { tex: 0.5, texSize: 1 });
     } },
-    birch: { w: 36, h: 46, n: 1, draw(d) {
-      const tr = '#ecebe2', lf = '#8cc850', ld = '#5ea43c', lt = '#b8e070';
+    birch: { w: 36, h: 46, n: 1, draw(d, v) {
+      const tr = '#ecebe2', [lf, ld, lt] = v === 1 ? ['#e8c83a', '#b89a22', '#f8e070'] : ['#8cc850', '#5ea43c', '#b8e070'];
       d.ell(18, 44, 7, 2, '#5a4a30', 0, { flat: true });
       d.tube([[18, 45], [17.5, 28], [18, 20]], 6, 4.4, tr);
       for (const y of [41, 36, 31, 27]) d.deco.line(16 + (y % 3), y, 18.5 + (y % 2), y - 0.4, 0.9, '#3a3a3a');
+      if (v >= 2) return bare(d, '#d8d4c8', v === 3);
       d.circ(10, 20, 7, ld, { tex: 0.5, texSize: 1, far: true }); d.circ(26, 18, 7, ld, { tex: 0.5, texSize: 1, far: true });
       d.circ(18, 12, 9.5, lf, { tex: 0.5, texSize: 1 }); d.circ(11, 25, 6, lf, { tex: 0.5, texSize: 1 }); d.circ(25, 24, 6.5, lf, { tex: 0.5, texSize: 1 });
       d.circ(14, 8, 4.5, lt, { tex: 0.4, texSize: 1 });

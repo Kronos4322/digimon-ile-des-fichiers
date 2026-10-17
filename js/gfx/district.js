@@ -327,6 +327,7 @@
       d.deco.ell(5, 9, 3.4, 1.4, '#5aa040'); d.deco.ell(12, 29, 3, 1.4, '#5aa040'); d.deco.ell(4, 24, 1.4, 2, '#4a9036');
     } },
     // fleur géante (Prairie) : v0 tournesol, v1 tulipe rose, v2 campanule bleue
+    // (saisons, gfx/meteo.js : v3 perce-neige géant en hiver, v4 colchique mauve en automne — jamais tirées au hasard)
     giantflower: { w: 34, h: 52, n: 3, draw(d, v) {
       d.ell(17, 50, 8, 2, '#2a4a1a', 0, { flat: true });
       d.tube([[17, 51], [16, 32], [17, 16]], 3.2, 2.4, '#3e8a30');
@@ -334,6 +335,14 @@
       if (v === 0) {
         for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; d.ell(17 + Math.cos(a) * 9, 14 + Math.sin(a) * 9, 4.6, 2.2, '#f8c830', a, { noshadow: true }); }
         d.circ(17, 14, 6, '#7a4a1a', { tex: 0.5, texSize: 1 }); d.deco.circ(15, 12, 2, '#a86a2a');
+      } else if (v === 3) {   // perce-neige : la tête penchée, trois pétales blancs et un cœur vert
+        d.tube([[17, 16], [20, 11], [24, 14]], 2.2, 1.6, '#3e8a30');
+        d.ell(24, 17, 2.6, 2, '#5aa046');
+        for (const [x, a] of [[20, -0.35], [24, 0], [28, 0.35]]) d.ell(x, 23, 3, 6.5, '#f8f8ff', a, { shiny: true });
+        d.deco.ell(24, 27.5, 1.6, 1, '#7ac850');
+      } else if (v === 4) {   // colchique d'automne : grande coupe mauve sur une tige pâle
+        d.blob([[9, 18], [7, 7], [12, 10], [17, 3], [22, 10], [27, 7], [25, 18], [17, 23]], '#c87ae0', { shiny: true });
+        d.deco.line(13, 10, 15, 20, 0.7, '#9a4ab8'); d.deco.line(21, 10, 19, 20, 0.7, '#9a4ab8'); d.deco.circ(17, 13, 1.6, '#ffe060', { unlit: true });
       } else if (v === 1) {
         d.blob([[8, 20], [8, 8], [12, 3], [17, 8], [22, 3], [26, 8], [26, 20], [17, 24]], '#ff7aa8', { shiny: true });
         d.deco.line(17, 9, 17, 22, 0.8, '#d84a80');

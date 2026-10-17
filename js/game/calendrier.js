@@ -35,7 +35,18 @@
     //  8+ : la température s'affiche en permanence sur l'horloge
     skill() { const L = DW.Town.level(); return L >= 6 ? 2 : L >= 3 ? 1 : 0; },
     showTemp() { return DW.Town && DW.Town.level() >= 8; },
-    // prévision du lendemain : la météo la plus probable de la saison (probabilités réelles du jeu)
+    // ALERTES de Motimon (le jeu n'annonce plus rien tout seul) :
+    //  niveau 0 : il ne sait rien prévoir ; niveau 1 : il prévient quand une intempérie COMMENCE (et la sécheresse) ;
+    //  niveau 2 (Centre de météorologie) : il prévient aussi une demi-heure AVANT qu'elle arrive
+    alert(kind, type) {
+      const sk = this.skill(), ow = DW.ow;
+      if (!sk || !DW.Care || !ow || ow.cine) return;
+      const send = t => DW.Care.toast('Motimon (alerte météo) : ' + t, '#ffd890');
+      if (kind === 'drought') send('SÉCHERESSE ! Les champs souffrent, les Digimon ont soif et se fatiguent vite...');
+      else if (kind === 'now' && T.WARN[type]) { if (!ow.map.indoor) send(T.WARN[type]); }
+      else if (kind === 'soon' && sk >= 2 && T.WARN[type] && type !== T.weather()) send(`${T.WNAME[type].toUpperCase()} dans une demi-heure environ ! Prépare-toi.`);
+    },
+    // prévision du lendemain : la météo la plus probable de l'épisode en cours (probabilités réelles du jeu)
     forecast() {
       const list = T.climateList('village'), tot = list.reduce((a, [, w]) => a + w, 0);
       const top = list.slice().sort((a, b) => b[1] - a[1]).slice(0, 2);
@@ -72,8 +83,14 @@
           heat: 'CANICULE : techniques Feu plus fortes ; ton Digimon a vite faim et se fatigue.' };
         await say(info[w] || 'Le temps est calme.');
         if (T.drought()) await say(`Et nous sommes en pleine SÉCHERESSE (encore ${Math.max(1, Math.ceil((DW.state.drought - DW.state.clock) / 1440))} jour(s)) : la récolte des Champs est maigre.`);
-        if (sk === 2) await say(`Prévisions pour demain : ${this.forecast()}. Montagne : ${T.temp('snow')} °C, volcan : ${T.temp('volcano')} °C.`);
-        else await say("Pour les prévisions, il me faudrait un vrai centre de météorologie... La ville doit encore grandir !");
+        const F = T.frontInfo();
+        if (sk === 2) {
+          await say(`En ce moment : ${F.name.toLowerCase()}, encore ${F.daysLeft} jour${F.daysLeft > 1 ? 's' : ''} environ.${DW.state.nextW ? ` Dans peu de temps : ${T.WNAME[DW.state.nextW].toLowerCase()}.` : ''}`);
+          await say(`Prévisions : ${this.forecast()}. Montagne : ${T.temp('snow')} °C, volcan : ${T.temp('volcano')} °C. Et je t'envoie une alerte avant chaque intempérie !`);
+        } else {
+          await say(`On dirait un épisode de « ${F.name.toLowerCase()} ». Je te préviendrai quand une intempérie commencera !`);
+          await say("Pour prévoir à l'avance, il me faudrait un vrai centre de météorologie... La ville doit encore grandir !");
+        }
       }
     },
   };
