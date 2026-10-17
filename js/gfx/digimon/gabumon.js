@@ -62,43 +62,46 @@
 
     // ---------------------------------------------------------- Disciple : Gabumon, reptile jaune sous la fourrure de Garurumon
     gabumon(d, p = {}) {
-      const Y = '#f6cc3a', Yd = '#c8981e', Yl = '#ffe68a', Hn = '#f0d050', Hd = '#9a7020';
+      const Y = '#f6c832', Yd = '#c8961c', Yl = '#ffe486', Hn = '#f0d050', Hd = '#9a7020', Fb = '#dfe4fa', CW = '#f2f2f6';
       const atk = p.pose === 'attack';
-      // queue jaune qui sort de sous la fourrure
-      d.tube([[20, 52], [12, 54], [6, 50], [3, 45]], 7, 3, Y);
+      // queue jaune
+      d.tube([[20, 52], [12, 55], [6, 52], [3, 47]], 7, 3, Y);
       // jambe éloignée
-      d.ell(37, 55, 5.4, 6.8, Yd, 0, { far: true }); foot(d, 35, 61.6, 0.8, true);
-      // corps jaune, ventre clair avec l'emblème
-      d.blob([[20, 40], [30, 34], [40, 38], [41, 50], [34, 57], [24, 56], [18, 48]], Y);
-      d.deco.blob([[29, 41], [38, 42], [38, 51], [32, 55], [28, 48]], Yl);
-      d.deco.ell(33, 47, 3.2, 3.6, '#e05a8a'); d.deco.ell(33, 46.4, 1.8, 2, '#4ab8e8'); d.deco.circ(32.2, 45.8, 0.5, '#1a1a2a'); d.deco.circ(33.8, 45.8, 0.5, '#1a1a2a');
-      // jambe proche
-      d.ell(26, 54, 6.4, 7.4, Y); foot(d, 23, 62, 0.9);
-      // FOURRURE D'UN SEUL TENANT : du bas du dos jusqu'au museau du loup, qui forme la capuche
-      d.blob([[14, 50], [12, 40], [15, 30], [21, 20], [29, 12], [39, 8], [50, 9], [58, 13], [62, 19], [59, 23], [50, 22], [42, 24], [36, 30], [30, 38], [24, 46], [20, 52]], FUR, { tex: 0.1 });
-      // rayures qui suivent la fourrure
-      for (const [a, b, w] of [[[14, 44], [20, 42], 2.4], [[15, 36], [22, 34], 2.4], [[19, 27], [26, 26], 2.2], [[25, 19], [31, 20], 2.2], [[33, 11], [35, 16], 2], [[42, 9], [43, 14], 1.8], [[49, 10], [49, 15], 1.6], [[55, 13], [54, 17], 1.4], [[28, 34], [33, 31], 1.8]]) stripe(d, [a, b], w);
-      // oreilles de la capuche
-      d.poly([[30, 12], [24, 3], [35, 9]], FUR); stripe(d, [[27, 7], [30, 10]], 1.2);
-      // corne jaune striée sur le front
-      d.tube([[42, 9], [41, 2], [39, -1.6]], 4.4, 0.6, Hn, { shiny: true });
-      for (const y of [6, 3, 0.4]) d.deco.line(40.4, y, 42.4, y - 0.6, 0.7, Hd);
-      d.deco.ell(61.4, 17.6, 1.2, 1, '#2a2a3a', 0, { unlit: true });
-      // crocs de la capuche (mâchoire du haut), juste au-dessus du visage
-      for (let i = 0; i < 4; i++) d.poly([[44 + i * 4, 21.6], [45.4 + i * 4, 25.6], [46.8 + i * 4, 21.6]], '#ffffff');
-      // le visage jaune, DANS la gueule de la capuche ; œil rouge sous le rebord
-      d.blob([[38, 26], [44, 22], [54, 22.6], [60, 26], [59, 32], [50, 34.6], [42, 33.6]], Y);
-      d.deco.ell(52, 32, 5, 1.6, Yl);
-      d.eye(45.4, 26.4, 2.8, 3.2, '#d42020', { look: 0.4 });
-      d.deco.ell(58.6, 27.4, 0.8, 0.6, '#5a2a10', 0, { unlit: true });
-      if (atk) { d.deco.poly([[45, 30.6], [59, 29], [58, 34.6], [48, 34]], '#7a1010', { unlit: true }); blueFire(d, 59, 32, 0.9); }
-      else d.deco.curve([[44, 31.6], [51, 32.4], [58.6, 30.6]], 1.1, '#7a3a10', { unlit: true });
-      // pan de fourrure qui retombe sur l'épaule (relie la capuche au bras)
-      d.blob([[34, 30], [40, 30], [43, 36], [38, 40], [33, 37]], FUR); stripe(d, [[36, 32], [40, 35]], 1.6);
-      // bras : manche de fourrure, main jaune aux griffes rose foncé
-      d.tube([[38, 35], [42, 40], [46, 42]], 5.2, 4.6, FUR); stripe(d, [[40, 37.6], [42.6, 40.6]], 1.6);
-      d.ell(48, 42.4, 3.2, 3, Y);
-      claws(d, 50, 42.2, atk ? 4.6 : 3.4, { w: 1.4, spread: 1.6, ang: atk ? -0.3 : 0.2 });
+      d.ell(37, 55, 5.4, 6.8, Yd, 0, { far: true });
+      for (let i = 0; i < 3; i++) d.poly([[34 + i * 3, 61], [35.4 + i * 3, 57.4], [36.8 + i * 3, 61]], CW, { far: true });
+      // cape de fourrure FINE, sur la nuque, les épaules et le dos (bout des poils rose)
+      d.blob([[30, 16], [36, 22], [33, 30], [27, 38], [22, 47], [17, 53], [12, 51], [13, 43], [17, 33], [22, 24]], Fb, { tex: 0.1 });
+      for (const [a, b] of [[[17, 44], [22, 43]], [[18, 36], [24, 35]], [[22, 28], [28, 28]], [[26, 21], [31, 23]]]) stripe(d, [a, b], 2.2);
+      for (const [x, y] of [[13, 51], [17, 53]]) d.poly([[x - 2, y - 2], [x, y + 3], [x + 2, y - 2]], '#c84a7a');
+      // corps jaune, ventre avec l'emblème bleu au crâne rose
+      d.blob([[22, 40], [31, 34], [41, 38], [42, 50], [35, 57], [24, 57], [19, 48]], Y);
+      d.deco.blob([[29, 41], [39, 42], [39, 52], [32, 55], [28, 48]], Yl);
+      d.deco.ell(33.6, 47.6, 4, 4.4, '#4aa8e8'); d.deco.ell(33.6, 47, 2.2, 2.2, '#e05a8a'); d.deco.circ(32.8, 46.6, 0.5, '#1a1a2a'); d.deco.circ(34.4, 46.6, 0.5, '#1a1a2a');
+      // jambe proche, griffes blanches
+      d.ell(26, 54, 6.6, 7.4, Y);
+      for (let i = 0; i < 3; i++) d.poly([[22 + i * 3.4, 62.4], [23.6 + i * 3.4, 57.8], [25.2 + i * 3.4, 62.4]], CW, { shiny: true });
+      // TÊTE = la tête de loup de la fourrure, ajustée : les yeux sont SUR la fourrure
+      d.poly([[36, 14], [26, 8], [30, 18]], Fb); stripe(d, [[29, 10.6], [32, 13]], 1.2);   // oreille-pan rabattue en arrière
+      d.blob([[34, 20], [37, 11], [45, 7.4], [53, 9], [59, 13], [62, 18], [61, 22], [54, 24], [44, 25], [37, 24]], Fb, { tex: 0.08 });
+      stripe(d, [[39, 11], [42, 15]], 1.8); stripe(d, [[47, 8], [48, 12]], 1.6); stripe(d, [[53, 10], [53, 13.6]], 1.4); stripe(d, [[36, 18], [40, 20]], 1.6);
+      d.deco.ell(61.4, 16.6, 1.3, 1, '#2a2a3a', 0, { unlit: true });   // truffe
+      // corne dorée striée sur le front
+      d.tube([[45, 8.4], [44, 1.6], [42, -2]], 4.4, 0.5, Hn, { shiny: true });
+      for (const y of [5.6, 2.6, 0]) d.deco.line(43.4, y, 45.4, y - 0.6, 0.7, Hd);
+      // œil rouge-orangé, sur la fourrure
+      d.deco.ell(50.4, 15.4, 3, 3.4, '#2a1010', 0, { unlit: true }); d.deco.ell(50.8, 15.8, 2.2, 2.6, '#e05a1a', 0, { unlit: true });
+      d.deco.circ(51, 16.2, 1, '#2a0808', { unlit: true }); d.deco.circ(49.8, 14.6, 0.8, '#ffffff', { unlit: true });
+      d.deco.curve([[47.4, 12.4], [53.4, 12.4]], 1, '#2a2a5a', { unlit: true });
+      // la BOUCHE jaune sort sous la fourrure (crocs de la fourrure au-dessus)
+      d.blob([[42, 24], [50, 23.6], [60, 22.4], [60.6, 27], [54, 31], [45, 30.6]], Y);
+      if (atk || true) d.deco.poly([[47, 24.4], [59.4, 23.2], [57, 27.6], [49, 28]], '#a8202a', { unlit: true });
+      for (let i = 0; i < 4; i++) d.poly([[46 + i * 3.4, 23.4], [47.2 + i * 3.4, 27], [48.4 + i * 3.4, 23.4]], CW);
+      d.deco.ell(52, 29.4, 4, 1.2, Yl);
+      if (atk) blueFire(d, 59.6, 26, 0.8);
+      // bras proche : jaune, grosse main aux griffes blanches levées
+      d.tube([[36, 34], [41, 38], [46, 39]], 5.6, 5, Y);
+      d.ell(48.6, 39, 3.8, 3.6, Y);
+      for (let i = -1; i <= 1; i++) { const a = (atk ? -0.5 : -0.2) + i * 0.42; d.tube([[50.4, 39 + i * 1.8], [50.4 + Math.cos(a) * 3, 39 + i * 1.8 + Math.sin(a) * 3], [50.4 + Math.cos(a + 0.4) * 5.4, 39 + i * 1.8 + Math.sin(a + 0.4) * 5.4]], 2, 0.3, CW, { shiny: true }); }
     },
 
     // ---------------------------------------------------------- Champion : Garurumon, loup blanc lavande rayé, accroupi
