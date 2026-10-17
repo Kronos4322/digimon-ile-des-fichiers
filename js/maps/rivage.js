@@ -29,7 +29,7 @@
     // la forêt de Kuwagamon : de jeunes Kuwagamon y rôdent (des CHAMPIONS : rares, agressifs, beaucoup d'expérience) ;
     // plus nombreux une fois le grand Kuwagamon du Grand Arbre vaincu (ils reviennent s'installer dans la clairière)
     clairiere: [E('kunemon', 10, 12, 25), E('elecmon', 10, 12, 15), E('koromon', 10, 12, 15), E('tokomon', 10, 12, 12), E('mushroomon', 10, 12, 15, { night: 40 }),
-      E('kuwagamon', 9, 10, 5, { flag: 'kuwagamon', wFlag: 10 })],
+      E('kuwagamon', 10, 11, 5, { flag: 'kuwagamon', wFlag: 10 })],
     // (chaque zone garde SES Digimon et SES niveaux, quel que soit le chapitre : les Champions du chapitre 2
     //  — Monochromon, Kuwagamon plus forts — vivent dans la région du lac, game/wild.js)
   };

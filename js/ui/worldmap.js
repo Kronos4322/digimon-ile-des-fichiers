@@ -231,6 +231,14 @@
             while (used.has(p.join(','))) p = [p[0] + step[w.dir][0], p[1] + step[w.dir][1]];
             place(w.to, p); q.push(w.to);
           }
+          // zones où l'on entre autrement que par un passage (tronc creux, trappe...) : placées d'après leur sortie
+          // vers celle-ci (on sort du village des Yokomon par le bas vers la Prairie : il est au nord de la Prairie)
+          const back = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] };
+          for (const other of ids) if (!grid[other]) for (const w of DW.MAPS[other].warps || []) if (w.to === id && back[w.dir]) {
+            let p = [grid[id][0] + back[w.dir][0], grid[id][1] + back[w.dir][1]];
+            while (used.has(p.join(','))) p = [p[0] + back[w.dir][0], p[1] + back[w.dir][1]];
+            place(other, p); q.push(other); break;
+          }
         }
       }
       // la zone principale (ou le centre du groupe) tombe sur le lieu de la région
