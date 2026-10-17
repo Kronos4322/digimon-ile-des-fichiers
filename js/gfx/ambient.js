@@ -156,17 +156,7 @@
     drawScreen(c, cam) {
       const t = this.t, W = DW.W, H = DW.H;
       if (this.type === 'forest') {
-        const thm = World.themeOf(this.map);
-        c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = thm && thm.noRays ? 0 : Math.max(0, 1 - DW.Time.light().dark * 3) * (DW.Time.weather() === 'clear' ? 1 : 0.3);
-        for (let i = 0; i < 4; i++) {
-          const x = ((i * 97 - cam.cx * 0.3) % (W + 160) + W + 160) % (W + 160) - 80;
-          const a = 0.05 + 0.03 * Math.sin(t * 0.6 + i * 2);
-          const g = c.createLinearGradient(x, 0, x - 60, H);
-          g.addColorStop(0, `rgba(255,250,200,${a})`); g.addColorStop(1, 'rgba(255,250,200,0)');
-          c.fillStyle = g;
-          c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 26, 0); c.lineTo(x - 50, H); c.lineTo(x - 90, H); c.fill();
-        }
-        c.restore();
+        const thm = World.themeOf(this.map);   // (rais de lumière et vignette : gfx/rendu.js)
         for (const p of this.p) {
           if (p.kind === 'snow') { c.fillStyle = 'rgba(255,255,255,0.9)'; c.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); continue; }
           if (p.kind === 'ember') { const a = 0.5 + 0.5 * Math.sin(t * 6 + p.ph); c.fillStyle = p.c; c.globalAlpha = a; c.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); c.globalAlpha = a * 0.3; c.fillRect(Math.round(p.x) - 1, Math.round(p.y), 3, 1); c.globalAlpha = 1; continue; }
@@ -189,7 +179,6 @@
           c.restore();
         }
         if (thm && thm.tint) { c.fillStyle = thm.tint; c.fillRect(0, 0, W, H); }
-        vignette(c, (thm && thm.vignette) || 'rgba(8,30,12,0.5)');
       } else if (this.type === 'beach') {
         for (let i = 0; i < 3; i++) {
           const x = ((i * 220 + t * 7 - cam.cx) % 700 + 700) % 700 - 190, y = ((i * 150 + t * 2 - cam.cy) % 460 + 460) % 460 - 110;
@@ -207,7 +196,6 @@
         const g = c.createLinearGradient(0, 0, 0, H);
         g.addColorStop(0, 'rgba(255,230,160,0.10)'); g.addColorStop(1, 'rgba(255,230,160,0)');
         c.fillStyle = g; c.fillRect(0, 0, W, H);
-        vignette(c, 'rgba(20,30,60,0.25)');
       } else if (this.type === 'town') {
         if (!DW.Time.isNight()) for (const p of this.p) {
           const X = Math.round(p.x), Y = Math.round(p.y), open = Math.sin(t * 14 + p.ph) > 0;
@@ -218,7 +206,6 @@
         const g = c.createLinearGradient(0, 0, 0, H);
         g.addColorStop(0, 'rgba(255,230,170,0.10)'); g.addColorStop(1, 'rgba(255,230,170,0)');
         c.fillStyle = g; c.fillRect(0, 0, W, H);
-        vignette(c, 'rgba(20,40,20,0.3)');
       } else if (this.type === 'home') {
         // poussière dorée dans la lumière, ambiance chaleureuse
         for (const p of this.p) {
@@ -228,7 +215,6 @@
         const g = c.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, W * 0.7);
         g.addColorStop(0, 'rgba(255,200,120,0.06)'); g.addColorStop(1, 'rgba(255,170,90,0)');
         c.fillStyle = g; c.fillRect(0, 0, W, H);
-        vignette(c, 'rgba(30,14,4,0.45)');
       } else {
         for (const p of this.p) {
           c.globalAlpha = 0.55; c.fillStyle = p.c;
@@ -239,20 +225,8 @@
         const g = c.createLinearGradient(0, 0, 0, H);
         g.addColorStop(0, 'rgba(255,200,230,0.12)'); g.addColorStop(1, 'rgba(255,240,200,0.05)');
         c.fillStyle = g; c.fillRect(0, 0, W, H);
-        vignette(c, 'rgba(120,60,110,0.22)');
       }
     }
-  }
-  const vigCache = {};
-  function vignette(c, col) {
-    if (!vigCache[col]) {
-      const cv = Art.canvas(DW.W, DW.H), x = cv.getContext('2d');
-      const g = x.createRadialGradient(DW.W / 2, DW.H / 2, DW.H * 0.45, DW.W / 2, DW.H / 2, DW.W * 0.75);
-      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, col);
-      x.fillStyle = g; x.fillRect(0, 0, DW.W, DW.H);
-      vigCache[col] = cv;
-    }
-    c.drawImage(vigCache[col], 0, 0);
   }
   World.Ambient = Ambient;
 })();

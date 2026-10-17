@@ -68,6 +68,7 @@
   // ------------------------------------------------------------ préparation d'une carte
   // Générateur : rend la main régulièrement (yield) pour pouvoir préparer une carte
   // par petites tranches pendant le jeu (cartes voisines préparées à l'avance).
+  const NATURAL = new Set(['tree', 'bush', 'rock', 'boulder', 'mossrock', 'fern', 'stump', 'log', 'hollowlog', 'palm', 'bigtree', 'pine', 'flowers']);
   function* prep(map) {
     if (!map.rows && map.build) map.build();
     const t0 = performance.now(), prof = {};
@@ -95,19 +96,20 @@
       return TMP;
     };
     const COFF = new Uint8Array(GW); for (let x = 0; x < GW; x++) COFF[x] = Math.floor(hash(x, 0, 310) * 3);   // décalage des brins par colonne
+    // HERBE PEINTE : grandes nappes douces (lumière / ombre), touffes moyennes, brins discrets (plus de « bruit » au pixel)
     const lushGrassV = (px, py, i, tx, ty) => {
-      let v = 2.7 + (G5(px, py) - 0.5) * 2.4 + (noise(px * 0.25, py * 0.25, 6) - 0.5) * 1.0;
-      // brins : petits traits verticaux de 3 pixels (clair à la pointe, sombre au pied)
+      let v = 2.75 + (G5(px, py) - 0.5) * 3.2 + (noise(px * 0.09, py * 0.09, 6) - 0.5) * 1.3;
+      // brins : petits traits verticaux de 3 pixels (clair à la pointe, sombre au pied), peu contrastés
       const off = COFF[px], k = Math.floor((py + off) / 3), pos = (py + off) - k * 3;
-      v += (hash(px, k, 311) - 0.5) * 1.6 + (pos === 0 ? 0.35 : pos === 2 ? -0.3 : 0);
-      const tip = hash(px, py, 312); if (tip < 0.04) v += 1.1; else if (tip > 0.965) v -= 0.9;
-      if (hash(px >> 2, py >> 2, 313) < 0.07) v -= 0.6;            // touffes plus sombres
+      v += (hash(px, k, 311) - 0.5) * 0.7 + (pos === 0 ? 0.22 : pos === 2 ? -0.2 : 0);
+      const tip = hash(px, py, 312); if (tip < 0.015) v += 0.8; else if (tip > 0.99) v -= 0.6;
+      if (noise(px * 0.18, py * 0.18, 313) > 0.72) v -= 0.5;            // touffes plus sombres
       v -= SH[i] * 0.2; if (tallAt(tx, ty)) v -= 1;
       return v;
     };
     const lushDirtV = (px, py, i) => {
-      let v = 3.1 + (D7(px, py) - 0.5) * 2 + (noise(px * 0.35, py * 0.35, 95) - 0.5) * 0.8;
-      const p = hash(px, py, 96); if (p < 0.035) v -= 1.2; else if (p > 0.97) v += 1;   // cailloux
+      let v = 3.1 + (D7(px, py) - 0.5) * 2 + (noise(px * 0.2, py * 0.2, 95) - 0.5) * 0.6 + Math.min(ED[i], 10) * 0.04;   // (le milieu du chemin, tassé, est plus clair)
+      const p = hash(px, py, 96); if (p < 0.012) v -= 0.9; else if (p > 0.99) v += 0.7;   // petits cailloux
       return v - SH[i] * 0.18;
     };
     const CANOPY = TH ? TH.canopy.map(Art.hex) : PAL.canopy;
@@ -209,6 +211,8 @@
     const D = base;
     // canopée (bruit de Worley) : un point par cellule de 7 px, calculé une seule fois
     const CW = Math.ceil(GW / 7) + 3, CF = new Float32Array(CW * (Math.ceil(GH / 7) + 3) * 2).fill(NaN);
+    const CW13 = Math.ceil(GW / 13) + 3, CF13 = new Float32Array(CW13 * (Math.ceil(GH / 13) + 3) * 2).fill(NaN);
+    const cell13 = (cx, cy) => { const k = ((cy + 1) * CW13 + cx + 1) * 2; if (CF13[k] !== CF13[k]) { CF13[k] = cx * 13 + 2 + hash(cx, cy, 26) * 9; CF13[k + 1] = cy * 13 + 2 + hash(cx, cy, 27) * 9; } return k; };
     const cell7 = (cx, cy) => { const k = ((cy + 1) * CW + cx + 1) * 2; if (CF[k] !== CF[k]) { CF[k] = cx * 7 + hash(cx, cy, 16) * 7; CF[k + 1] = cy * 7 + hash(cx, cy, 17) * 7; } return k; };
     for (let py = 0; py < GH; py++) { if (py & 1) yield; for (let px = 0; px < GW; px++) {
       const i = py * GW + px, j = i * 4, t = T[i], ed = ED[i], en = EN[i];
@@ -218,12 +222,18 @@
       if (t === TER.grass && LUSH) {
         // près d'un chemin : l'herbe s'éclaircit en touffes mêlées de terre (fondu tramé, sans contour)
         if (en === TER.dirt && ed <= 2 && hash(px, py, 314) < (3 - ed) / 4) col = lerpPal(DIRT, lushDirtV(px, py, i) - 0.3);
-        else col = lerpPal(GRASS, lushGrassV(px, py, i, tx, ty));
+        else {
+          col = lerpPal(GRASS, lushGrassV(px, py, i, tx, ty));
+          const p5 = G5(px, py), sh = SH[i];
+          if (p5 > 0.55) { const w = (p5 - 0.55) * 0.55; col[0] += (236 - col[0]) * w; col[1] += (226 - col[1]) * w * 0.6; col[2] += (110 - col[2]) * w * 0.4; }   // nappe de soleil (jaune doré)
+          const cool = Math.min(0.5, (p5 < 0.42 ? (0.42 - p5) * 1.2 : 0) + sh * 0.035);
+          if (cool > 0) { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; }   // ombre bleutée
+        }
       } else if (t === TER.dirt && LUSH) {
         // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre
         if (en === TER.grass && ed <= 3 && hash(px, py, 98) < (4 - ed) / 6) col = lerpPal(GRASS, lushGrassV(px, py, i, tx, ty) - 0.4);
         else col = lerpPal(DIRT, lushDirtV(px, py, i) - (en === TER.grass && ed <= 3 ? (4 - ed) * 0.18 : 0));
-        if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.05) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);   // feuilles mortes
+        if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
       } else if (t === TER.lawn && LUSH) {
         // pelouse (Village des Bébés) : mêmes brins fins, palette pastel, fleurs semées
         if (en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2 && hash(px, py, 315) < (3 - ed) / 4) col = lerpPal(SAND, 3.4 + (hash(px, py, 316) - 0.5));
@@ -288,6 +298,29 @@
         if (hb < decay * 0.32) c = Art.hex(hash(px, py, 163) < 0.5 ? '#8a6a44' : (hash(px >> 1, py >> 1, 164) < 0.4 ? '#4a9a3e' : '#7a5a3a'));
         if (ed <= 3 && en !== TER.cobble) c = Art.hex(ed === 1 ? '#4e4a44' : (ix === 0 || iy === 0) ? '#5e5a52' : '#8a8478');
         col = Art.mix(c, [0, 0, 0], SH[i] * 0.03);
+      } else if (t === TER.canopy && !ROCKY) {
+        // VOÛTE DE FEUILLAGE PEINTE : grandes grappes (Worley 13 px), chacune éclairée en haut à gauche,
+        // creux sombres et froids entre elles, tons continus (pas de paliers)
+        const cx = Math.floor(px / 13), cy = Math.floor(py / 13);
+        let d1 = 99, d2 = 99, ox = 0, oy = 0;
+        for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+          const k = cell13(cx + xx, cy + yy), fx = CF13[k], fy = CF13[k + 1], ex = px - fx, ey = py - fy;
+          const dd = Math.sqrt(ex * ex + ey * ey);
+          if (dd < d1) { d2 = d1; d1 = dd; ox = ex; oy = ey; } else if (dd < d2) d2 = dd;
+        }
+        // petites grappes de feuilles (Worley 7 px) posées sur les grandes
+        const sx = Math.floor(px / 7), sy = Math.floor(py / 7);
+        let s1 = 99, s2 = 99, sox = 0, soy = 0;
+        for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+          const k = cell7(sx + xx, sy + yy), ex = px - CF[k], ey = py - CF[k + 1], dd = Math.sqrt(ex * ex + ey * ey);
+          if (dd < s1) { s2 = s1; s1 = dd; sox = ex; soy = ey; } else if (dd < s2) s2 = dd;
+        }
+        let v = 3.6 - d1 * 0.11 - (ox + oy) * 0.05 - s1 * 0.16 - (sox + soy) * 0.07 + (hash(px >> 1, py >> 1, 18) - 0.5) * 0.4 - Math.min(ed, 40) * 0.03;
+        if (d2 - d1 < 1.4) v -= 0.6 * (1 - (d2 - d1) / 1.4);   // creux entre les grandes grappes
+        if (s2 - s1 < 0.9) v -= 0.35;                           // et entre les petites
+        col = lerpPal(CANOPY, v);
+        if (v < 1.6) { const k = (1.6 - v) * 0.25; col[0] += (12 - col[0]) * k; col[1] += (40 - col[1]) * k * 0.6; col[2] += (60 - col[2]) * k; }   // ombre bleutée
+        else if (v > 3.6) { const k = Math.min(0.4, (v - 3.6) * 0.3); col[0] += (230 - col[0]) * k; col[1] += (230 - col[1]) * k * 0.5; col[2] += (120 - col[2]) * k * 0.3; }   // éclat doré
       } else if (t === TER.canopy) {
         // bruit de Worley : touffes de feuilles
         const cx = Math.floor(px / 7), cy = Math.floor(py / 7);
@@ -493,7 +526,9 @@
       // objets bas et larges posés au sol (bûches, troncs creux, bois flotté, rochers) : toute leur largeur bloque
       // le passage, pas seulement leur case (on ne traverse plus le bout d'une bûche)
       { const sp0 = anim ? anim[0] : World.obj(kind, v); if (inf.solid && inf.obj !== 'tree' && sp0.h <= 34 && sp0.w > 22) { const k = Math.round((sp0.w - 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((tx - xx) + ',' + ty, (tx + xx) + ',' + ty); widen.push(grp); } }
-      objs.push({ kind, v, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
+      // décor naturel retourné une fois sur deux (gauche / droite) : les rangées d'arbres ne se répètent plus à l'identique
+      const flip = !anim && NATURAL.has(inf.obj) && hash(tx, ty, 63) < 0.5;
+      objs.push({ kind, v, flip, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
     }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
     for (const o of map.objects || []) {

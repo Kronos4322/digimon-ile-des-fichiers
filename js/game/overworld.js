@@ -498,6 +498,7 @@
         }
       }
       if (shade) c.fill();
+      DW.Rendu.contact(this, c, vx0, vx1, vy0, vy1);   // ombres de contact (gfx/rendu.js)
       for (const [x, y] of DW.state.poops[this.mapId] || []) list.push({ s: y - 0.02, ent: 'poop', x, y, tile: [x, y] });
       for (const n of this.map.npcs || []) {
         if (!this.npcVisible(n)) continue;
@@ -517,7 +518,8 @@
       list.forEach((e, i) => {
         if (e.spr) {
           const o = e, s = o.spr;
-          const img = DW.Meteo.objImg(o, o.sprs ? o.sprs[Math.floor(this.t * o.fps + o.x * 0.013) % o.sprs.length].img : s.img);   // (saisons : arbres, neige posée)
+          let img = DW.Meteo.objImg(o, o.sprs ? o.sprs[Math.floor(this.t * o.fps + o.x * 0.013) % o.sprs.length].img : s.img);   // (saisons : arbres, neige posée)
+          if (o.flip) img = DW.Rendu.mirror(img);
           const X = Math.round(o.x - s.w / 2), Y = Math.round(o.y - s.h + 1);
           // le feuillage (haut du sprite) ondule doucement au vent ; sans décalage, un seul dessin suffit
           const sway = o.big && !o.flat ? Math.round(Math.sin(this.t * 1.3 + o.x * 0.07) * 0.8 + Math.sin(this.t * 0.37 + o.y * 0.05) * 0.5) : 0;
@@ -602,6 +604,7 @@
       }
       c.restore();
       this.amb.drawScreen(c, cam);
+      DW.Rendu.scene(this, c, cam);   // rais de lumière
       if (!this.map.indoor) this.weather.draw(c);
       // lumières en coordonnées écran ; celles qui ne touchent pas l'écran sont ignorées (même rendu, moins de calcul)
       const lights = [];
@@ -613,6 +616,7 @@
       lights.push({ x: Math.round(pp.x * TS) + 8 - cx, y: Math.round(pp.y * TS) + 4 - cy, r: 52 });
       DW.Time.drawLight(c, lights, this.map.indoor ? 0.75 : 1, this.map.dark);
       DW.Meteo.draw(this, c);   // éclairs, flashs, brouillard épais, soleil de plomb
+      DW.Rendu.grade(this, c);  // étalonnage des couleurs, halo du ciel, vignette
       if (!this.cine && (!this.locked || Game.top() === this)) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); DW.Care.drawMood(c, DW.Care.lead(), W - 88, H - 28); }
       DW.Care.drawToasts(c);
       if (DW.saveFlash > 0) {

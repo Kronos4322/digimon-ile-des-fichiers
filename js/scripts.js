@@ -20,8 +20,8 @@
     'gfx/sprites.js',
     'gfx/digimon/entrainement.js', 'gfx/digimon/disciples.js', 'gfx/digimon/champions.js', 'gfx/digimon/ultimes.js',
     'gfx/digimon/ultimes2.js', 'gfx/digimon/ile.js', 'gfx/digimon/agumon.js', 'gfx/digimon/bebes.js', 'gfx/digimon/lignees.js', 'gfx/digimon/gabumon.js',
-    'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/town.js', 'gfx/district.js', 'gfx/littoral.js', 'gfx/ecussons.js', 'gfx/chapitre1.js', 'gfx/temple.js', 'gfx/classe.js', 'gfx/themes.js',
-    'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js', 'gfx/regionfx.js',
+    'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/arbres.js', 'gfx/town.js', 'gfx/district.js', 'gfx/littoral.js', 'gfx/ecussons.js', 'gfx/chapitre1.js', 'gfx/temple.js', 'gfx/classe.js', 'gfx/themes.js',
+    'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/peints.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js', 'gfx/rendu.js', 'gfx/regionfx.js',
     'gfx/battlebg.js', 'gfx/grandir.js', 'engine/time.js', 'gfx/ciel.js', 'gfx/meteo.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/objets.js', 'game/sauvegarde.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js', 'game/paysage.js',

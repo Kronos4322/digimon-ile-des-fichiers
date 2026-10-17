@@ -495,9 +495,21 @@
   const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;
     const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)
     return { w, h, W: Math.round(w * S), H: Math.round(h * S) }; };
+  // dessin « au pinceau » (o.paint, ex. arbres peints : gfx/arbres.js) : canvas en haute définition, repère = boîte de l'objet
+  const paintRender = (o, v, z) => {
+    const k = Art.HD || 1, c = Art.canvas(Math.round((z.W + 2) * k), Math.round((z.H + 2) * k)), x = c.getContext('2d');
+    x.scale(k * z.W / z.w, k * z.H / z.h); x.translate(1, 1);
+    o.paint(x, v);
+    c._k = k;
+    return { img: c, w: c.width / k, h: c.height / k, k };
+  };
   World.obj = (kind, v = 0) => {
     const o = OBJ[kind], key = kind + v;
-    if (!objCache[key]) { const z = objSize(kind, v); objCache[key] = Art.render(dd => o.draw(dd, v, 0), z.W, z.H, { box: [z.w, z.h], silhouettes: false, noOutline: !!o.noOutline }); }
+    if (!objCache[key]) {
+      const z = objSize(kind, v);
+      objCache[key] = o.paint && (!o.painted || o.painted(v)) ? paintRender(o, v, z)
+        : Art.render(dd => o.draw(dd, v, 0), z.W, z.H, { box: [z.w, z.h], silhouettes: false, noOutline: !!o.noOutline });
+    }
     return objCache[key];
   };
   // images d'un objet animé (moulin, cascade, linge...) : OBJ.frames images
