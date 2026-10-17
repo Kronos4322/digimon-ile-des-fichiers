@@ -94,10 +94,11 @@
       TMP[0] = A[0] + (B[0] - A[0]) * f; TMP[1] = A[1] + (B[1] - A[1]) * f; TMP[2] = A[2] + (B[2] - A[2]) * f;
       return TMP;
     };
+    const COFF = new Uint8Array(GW); for (let x = 0; x < GW; x++) COFF[x] = Math.floor(hash(x, 0, 310) * 3);   // décalage des brins par colonne
     const lushGrassV = (px, py, i, tx, ty) => {
       let v = 2.7 + (G5(px, py) - 0.5) * 2.4 + (noise(px * 0.25, py * 0.25, 6) - 0.5) * 1.0;
       // brins : petits traits verticaux de 3 pixels (clair à la pointe, sombre au pied)
-      const off = Math.floor(hash(px, 0, 310) * 3), k = Math.floor((py + off) / 3), pos = (py + off) - k * 3;
+      const off = COFF[px], k = Math.floor((py + off) / 3), pos = (py + off) - k * 3;
       v += (hash(px, k, 311) - 0.5) * 1.6 + (pos === 0 ? 0.35 : pos === 2 ? -0.3 : 0);
       const tip = hash(px, py, 312); if (tip < 0.04) v += 1.1; else if (tip > 0.965) v -= 0.9;
       if (hash(px >> 2, py >> 2, 313) < 0.07) v -= 0.6;            // touffes plus sombres
@@ -131,18 +132,23 @@
       for (let dy = -1; dy <= 1 && u; dy++) for (let dx = -1; dx <= 1; dx++) if (tAt(tx + dx, ty + dy) !== t) { u = 0; break; }
       uni[ty * map.w + tx] = u;
     }
+    // (accès rapides : terrain des cases à plat, terrains « durs » en table)
+    const MW = map.w, MH = map.h, TT = new Uint8Array(MW * MH), isHard = new Uint8Array(32);
+    for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) TT[ty * MW + tx] = tt[ty][tx];
+    for (const h of HARD) isHard[h] = 1;
+    const tF = (x, y) => TT[(y < 0 ? 0 : y >= MH ? MH - 1 : y) * MW + (x < 0 ? 0 : x >= MW ? MW - 1 : x)];
     for (let py = 0; py < GH; py++) { if ((py & 3) === 3) yield; for (let px = 0; px < GW; px++) {
-      const base = tt[py >> 4][px >> 4];
-      if (HARD.has(base) || uni[(py >> 4) * map.w + (px >> 4)]) { T[py * GW + px] = base; continue; }
+      const base = TT[(py >> 4) * MW + (px >> 4)];
+      if (isHard[base] || uni[(py >> 4) * MW + (px >> 4)]) { T[py * GW + px] = base; continue; }
       const wx = px + 0.5 + (WX(px, py) - 0.5) * 10, wy = py + 0.5 + (WY(px, py) - 0.5) * 10;
       const u = wx / TS - 0.5, v = wy / TS - 0.5, i0 = Math.floor(u), j0 = Math.floor(v), fu = u - i0, fv = v - j0;
-      const a = tAt(i0, j0), b = tAt(i0 + 1, j0), c = tAt(i0, j0 + 1), d = tAt(i0 + 1, j0 + 1);
-      if (a === b && a === c && a === d) { T[py * GW + px] = HARD.has(a) ? base : a; continue; }
+      const a = tF(i0, j0), b = tF(i0 + 1, j0), c = tF(i0, j0 + 1), d = tF(i0 + 1, j0 + 1);
+      if (a === b && a === c && a === d) { T[py * GW + px] = isHard[a] ? base : a; continue; }
       wsum.fill(0);
-      if (!HARD.has(a)) wsum[a] += (1 - fu) * (1 - fv);
-      if (!HARD.has(b)) wsum[b] += fu * (1 - fv);
-      if (!HARD.has(c)) wsum[c] += (1 - fu) * fv;
-      if (!HARD.has(d)) wsum[d] += fu * fv;
+      if (!isHard[a]) wsum[a] += (1 - fu) * (1 - fv);
+      if (!isHard[b]) wsum[b] += fu * (1 - fv);
+      if (!isHard[c]) wsum[c] += (1 - fu) * fv;
+      if (!isHard[d]) wsum[d] += fu * fv;
       wsum[base] += 0.001;
       let best = base, bw = -1;
       for (let k = 0; k < 11; k++) if (wsum[k] > bw) { bw = wsum[k]; best = k; }
@@ -170,15 +176,16 @@
       else if (py < GH - 1 && T[i + GW] !== t) n = i + GW;
       if (n >= 0) { ED[i] = 1; EN[i] = T[n]; Q[qt++] = i; }
     } }
-    const visit = (n, i, d) => { if (!ED[n] && T[n] === T[i]) { ED[n] = d + 1; EN[n] = EN[i]; Q[qt++] = n; } };
     while (qh < qt) {
       if ((qh & 32767) === 32767) yield;
-      const i = Q[qh++], px = i % GW, d = ED[i];
+      const i = Q[qh++], d = ED[i];
       if (d >= 40) continue;
-      if (px > 0) visit(i - 1, i, d);
-      if (px < GW - 1) visit(i + 1, i, d);
-      if (i >= GW) visit(i - GW, i, d);
-      if (i < N - GW) visit(i + GW, i, d);
+      const px = i % GW, t = T[i], e = EN[i], d1 = d + 1;
+      let n;
+      if (px > 0 && !ED[n = i - 1] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
+      if (px < GW - 1 && !ED[n = i + 1] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
+      if (i >= GW && !ED[n = i - GW] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
+      if (i < N - GW && !ED[n = i + GW] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
     }
     for (let i = 0; i < N; i++) if (!ED[i]) ED[i] = 60;
     lap('bfs');
@@ -598,19 +605,38 @@
     if (map.paintGround) map.paintGround(ground.getContext('2d'), GW, GH);
     const water = WI.length ? { x: wx0, y: wy0, frames: [] } : null;
     if (widen.length) {
-      const blocked = (x, y, extra) => x < 0 || y < 0 || x >= map.w || y >= map.h || World.info(map.rows[y][x]).solid || solid.has(x + ',' + y) || (extra && extra.has(x + ',' + y));
+      // (parcours en tableaux d'octets : une exploration de la carte par groupe d'objets, il faut qu'elle soit rapide)
+      const MW = map.w, MH = map.h, NB = MW * MH, BLK = new Uint8Array(NB), EXTRA = new Uint8Array(NB), SEEN = new Uint8Array(NB), STK = new Int32Array(NB);
+      for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (World.info(map.rows[y][x]).solid || solid.has(x + ',' + y)) BLK[y * MW + x] = 1;
+      const inside = (x, y) => x >= 0 && y >= 0 && x < MW && y < MH;
+      const blocked = (x, y) => !inside(x, y) || BLK[y * MW + x] || EXTRA[y * MW + x];
       const goals = [];
       for (const w of [...(map.warps || []), ...(map.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) goals.push([x, y + (map.doors && map.doors.includes(w) ? 1 : 0)]);
       for (const k in map.signs || {}) { const [x, y] = k.split(',').map(Number); goals.push([x, y + 1]); }
-      const reach = extra => { const st = goals.find(([x, y]) => !blocked(x, y, extra)); if (!st) return null; const seen = new Set([st.join()]), q = [st]; while (q.length) { const [x, y] = q.pop(); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + a, ny = y + b, k = nx + ',' + ny; if (!seen.has(k) && !blocked(nx, ny, extra)) { seen.add(k); q.push([nx, ny]); } } } return seen; };
-      const base = reach(null), need = base ? goals.filter(([x, y]) => base.has(x + ',' + y)) : [];
+      // cases atteignables depuis le premier but libre (SEEN), false si aucun but n'est libre
+      const reach = () => {
+        const st = goals.find(([x, y]) => !blocked(x, y)); if (!st) return false;
+        SEEN.fill(0); let sp = 0; const s0 = st[1] * MW + st[0]; SEEN[s0] = 1; STK[sp++] = s0;
+        while (sp) {
+          const i = STK[--sp], x = i % MW, y = (i / MW) | 0;
+          if (x + 1 < MW && !SEEN[i + 1] && !BLK[i + 1] && !EXTRA[i + 1]) { SEEN[i + 1] = 1; STK[sp++] = i + 1; }
+          if (x > 0 && !SEEN[i - 1] && !BLK[i - 1] && !EXTRA[i - 1]) { SEEN[i - 1] = 1; STK[sp++] = i - 1; }
+          if (y + 1 < MH && !SEEN[i + MW] && !BLK[i + MW] && !EXTRA[i + MW]) { SEEN[i + MW] = 1; STK[sp++] = i + MW; }
+          if (y > 0 && !SEEN[i - MW] && !BLK[i - MW] && !EXTRA[i - MW]) { SEEN[i - MW] = 1; STK[sp++] = i - MW; }
+        }
+        return true;
+      };
+      const need = reach() ? goals.filter(([x, y]) => inside(x, y) && SEEN[y * MW + x]) : [];
+      // (jamais sur un chemin : un rocher ou un tuyau au bord du sentier ne doit pas le rétrécir)
+      const onPath = (x, y) => { const ch = (map.rows[y] || '')[x]; return ch === '=' || ch === 'z'; };
       for (const grp of widen) {
-        // (jamais sur un chemin : un rocher ou un tuyau au bord du sentier ne doit pas le rétrécir)
-        const onPath = k => { const [x, y] = k.split(',').map(Number); const ch = (map.rows[y] || '')[x]; return ch === '=' || ch === 'z'; };
-        const extra = new Set(grp.filter(k => !solid.has(k) && !onPath(k)));
-        if (!extra.size) continue;
-        const r = reach(extra);
-        if (r && need.every(([x, y]) => r.has(x + ',' + y) || extra.has(x + ',' + y))) for (const k of extra) solid.add(k);
+        const cells = [];
+        for (const k of grp) { if (solid.has(k)) continue; const [x, y] = k.split(',').map(Number); if (!onPath(x, y)) cells.push([x, y, k]); }
+        if (!cells.length) continue;
+        for (const [x, y] of cells) if (inside(x, y)) EXTRA[y * MW + x] = 1;
+        const ok = reach() && need.every(([x, y]) => SEEN[y * MW + x] || EXTRA[y * MW + x]);
+        for (const [x, y] of cells) if (inside(x, y)) EXTRA[y * MW + x] = 0;
+        if (ok) for (const [x, y, k] of cells) { solid.add(k); if (inside(x, y)) BLK[y * MW + x] = 1; }
       }
     }
     map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers };
