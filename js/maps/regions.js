@@ -499,7 +499,6 @@
     canyon: byLevel(6, 'la descente vers le canyon'), scarabees: byLevel(6, 'le Pays des Scarabées'), dino: byLevel(7, 'la Région des Dinosaures'),
     jungle: byLevel(7, 'la jungle'), gel: byLevel(7, 'la Terre Gelée'), overdell: byLevel(8, "le Cimetière d'Overdell"),
   };
-  DW.REGION_GATE = GATE;
 
   // sorties ajoutées aux cartes existantes (cases ouvertes dans leurs fichiers)
   // (plan d'origine des cartes agrandies ×2 : voir MapKit.ZOOM)

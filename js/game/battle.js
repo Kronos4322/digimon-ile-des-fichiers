@@ -5,14 +5,7 @@
 (function () {
   const { UI, Input, Audio, Game } = DW;
   const W = DW.W, H = DW.H;
-  const POS = { p: { x: 158, y: 178 }, e: { x: 250, y: 124 } };   // (ennemi un peu plus bas : le cadre du partenaire et sa barre d'énergie ne le recouvrent plus)   // partenaire au centre, à droite du menu (façon Digimon World 2003)
-  const FXCOL = {
-    'Feu': ['#ff6a1a', '#ffd040'], 'Eau': ['#4aa8ff', '#e0f4ff'], 'Plante': ['#40c848', '#b8f878'],
-    'Électrique': ['#ffe030', '#ffffff'], 'Glace': ['#98ecff', '#ffffff'], 'Terre': ['#9a6a38', '#d8a860'],
-    'Air': ['#b8c8ff', '#ffffff'], 'Insecte': ['#98c020', '#e8f860'], 'Ténèbres': ['#6a3a8a', '#c890f0'],
-    'Lumière': ['#fff0a0', '#ffffff'], 'Neutre': ['#ffffff', '#ffe0a0'],
-  };
-  const SFX = { 'Feu': 'fire', 'Eau': 'water', 'Électrique': 'elec', 'Plante': 'leaf', 'Glace': 'water' };
+  const POS = { p: { x: 158, y: 178 }, e: { x: 250, y: 124 } };   // ennemi un peu plus bas (le cadre du partenaire ne le recouvre pas) ; partenaire au centre, à droite du menu (façon Digimon World 2003)
   const STAT_NAME = { atk: "L'Attaque", def: 'La Défense', spd: 'La Vitesse' };
   const ST_TXT = { brn: 'est brûlé', psn: 'est empoisonné', par: 'est paralysé', slp: "s'endort" };
   // statuts stables et prévisibles : chacun dure un nombre fixe de tours (affiché), puis s'en va tout seul
@@ -259,11 +252,11 @@
       this.energy[side] = Math.min(100, was + n);
       if (was < 100 && this.energy[side] >= 100 && side === 'p' && this.active && DW.sigOf(this.active)) this.energyFull = 1.5;
     }
-    // ALLIÉ (mode tour par tour) : même règle que l'arène (o.ally) — à la moitié des PV de l'ennemi, l'enfant délivré
+    // ALLIÉ (o.ally) : à la moitié des PV de l'ennemi, l'enfant délivré
     // et son Digimon (qui digivolue) se joignent au combat, puis attaquent seuls à la fin de chaque tour
     async allyTurn() {
       const C = this.o.ally, E = this.enemy;
-      if (!C || this.arena || E.hp <= 0) return null;
+      if (!C || E.hp <= 0) return null;
       if (!this.allyMon) {
         if (E.hp > E.maxHp * (C.at || 0.5)) return null;
         await this.msg(C.join || `${C.name} entre dans le combat !`);

@@ -40,11 +40,10 @@
       if (v.fish && (v.fish.t += dt) > 1.6) v.fish = null;
       for (const b of v.bugs) {
         b.ph += dt * 6;
-        const tx = b.tx == null || Math.random() < dt * 0.3 ? (b.tx = b.x + (Math.random() - 0.5) * 120, b.ty = b.y + (Math.random() - 0.5) * 80) : 0;
+        if (b.tx == null || Math.random() < dt * 0.3) { b.tx = b.x + (Math.random() - 0.5) * 120; b.ty = b.y + (Math.random() - 0.5) * 80; }
         b.vx += ((b.tx - b.x) * 0.4 - b.vx) * dt; b.vy += ((b.ty - b.y) * 0.4 - b.vy) * dt;
         b.x += b.vx * dt; b.y += b.vy * dt + Math.sin(b.ph) * 8 * dt;
         b.x = Math.max(0, Math.min(ow.map.w * TS, b.x)); b.y = Math.max(0, Math.min(ow.map.h * TS, b.y));
-        void tx;
       }
       for (const f of v.flies) { f.ph += dt; f.x += Math.sin(f.ph * 0.7) * 6 * dt; f.y += Math.cos(f.ph * 0.5) * 4 * dt; }
     },

@@ -149,7 +149,6 @@
       await say(`Dans le frigo : ${DW.ITEMS[id].name} !${DW.extraMsg(extra)}`);
     },
     async tele() {
-      const s = st();
       await say(DW.pick([
         'Météo de l\'île : « ' + DW.Time.weatherName() + ' » en ce moment. Saison : ' + DW.Time.date().seasonName + '.',
         'Flash spécial : des Engrenages Noirs auraient été vus dans les régions lointaines...',
@@ -160,7 +159,6 @@
         'Pub : « Bazar de Gotsumon, tout pour la maison ! »',
       ]));
       if (once('tele') && lead()) { lead().addHappy(3); await say(`${lead().name} a adoré regarder la télé avec toi ! (bonheur +3)`); }
-      void s;
     },
     async biblio() {
       const m = lead(); if (!m) return;

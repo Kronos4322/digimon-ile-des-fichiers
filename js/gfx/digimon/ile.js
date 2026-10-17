@@ -140,7 +140,7 @@
     },
     seadramon(d) {
       // serpent de mer bleu-vert enroulé, nageoires rouges, grande tête cuirassée jaune, gueule ouverte
-      const T = '#2aa6b8', Td = '#16707e', Tb = '#d8f0e8', Y = '#f2c628', Yd = '#b8860e', Rf = '#e2402e';
+      const T = '#2aa6b8', Tb = '#d8f0e8', Y = '#f2c628', Yd = '#b8860e', Rf = '#e2402e';
       const body = [[12, 2], [8, 10], [10, 20], [18, 28], [28, 30], [34, 24], [32, 16], [24, 14], [18, 20], [18, 30], [22, 40], [32, 48], [42, 50]];
       d.tube(smooth(body), 3, 9, T, { shiny: true });
       d.deco.tube([[20, 26], [26, 28.5], [31, 26]], 1.8, 1.4, Tb); d.deco.tube([[21, 34], [25, 42], [32, 46.5], [40, 48]], 2.2, 2.4, Tb);

@@ -498,8 +498,6 @@
     d.ell(14.4, 8.6, 6.2, 6.2, C.skin);
     if (!back) {
       d.deco.ell(14.8, 10.3, 5, 4.3, tint(C.skin, 0.03), 0, { unlit: true });   // visage net
-      const iris = C.eye || '#5a3a20';
-      void iris;
       eye(d, C, 12.6, 1.05, -1); eye(d, C, 17.4, 1.3, 1);
       if (C.head === 'glasses') { d.deco.circ(12.6, 9.9, 1.8, C.headCol, { shiny: true }); d.deco.circ(17.4, 9.9, 2.1, C.headCol, { shiny: true }); d.deco.line(14.4, 9.6, 15.3, 9.6, 0.5, '#5a6a8a'); }
       d.deco.ell(15.6, 11.6, 0.6, 0.45, tint(C.skin, -0.18));
@@ -532,8 +530,4 @@
     return (cache[key] = spr);
   };
   // portrait en pied, de face, rendu k fois plus fin (menu, fiche du DigiSélectionné)
-  DW.Sprites.heroPortrait = (k = 3, id) => {
-    const look = DW.heroLook(id), key = 'portrait' + look.name + k;
-    return cache[key] || (cache[key] = Art.render(d => front(d, 0, false, look), Math.round(HW * k), Math.round(HH * k), { box: [HW, HH], silhouettes: false, dither: 0.05 }));
-  };
 })();

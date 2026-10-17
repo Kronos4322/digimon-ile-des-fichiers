@@ -3,8 +3,7 @@
 //  MONDE — fonds de combat et plateformes
 // =====================================================================
 (function () {
-  const Art = DW.Art, hash = Art.hash, noise = Art.noise, fbm = Art.fbm;
-  const TS = 16;
+  const Art = DW.Art, hash = Art.hash, fbm = Art.fbm;
   const World = DW.World, PAL = World.PAL;
 
   // ------------------------------------------------------------ fonds de combat

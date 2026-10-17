@@ -5,8 +5,6 @@
 //   - impact : flammes et braises (Feu), gerbe et gouttes (Eau), arcs (Électrique), éclats et givre (Glace),
 //     feuilles (Plante), rochers et poussière (Terre), bourrasque (Air), dards (Insecte), rayons (Lumière),
 //     fumée violette (Ténèbres), bulles et nuage toxique (Poison), étoiles (Neutre)
-//   - marque au sol dans l'arène (brûlure, flaque, givre, cratère, tache toxique...) qui s'efface lentement
-//   - aura de l'élément sous le Digimon qui prépare une technique (on voit ce qui arrive)
 //   - statuts visibles sur le Digimon : flammèches (brûlé), bulles (empoisonné), étincelles (paralysé), Zz (endormi)
 //  Les grandes animations nouvelles (tempête de feu, raz-de-marée, orage, séisme...) s'ajoutent à DW.FX.
 // =====================================================================
@@ -76,45 +74,6 @@
         add(B, 0.25, (c, t) => { c.globalAlpha = 1 - t; c.fillStyle = c1; c.beginPath(); for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, r = (i % 2 ? 5 : 14) * k * (0.5 + t); c.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } c.fill(); c.globalAlpha = 1; });
         for (let i = 0; i < 10 * k; i++) part(B, x, y, (R() - 0.5) * 120, (R() - 0.5) * 120, 0.35, i % 2 ? c1 : c2, 2);
     }
-  }
-
-  // ------------------------------------------------------------ marques au sol (arène)
-  function decal(B, x, y, type, big) {
-    if (!B.decals) B.decals = [];
-    B.decals.push({ x, y, type, t: 0, life: big ? 9 : 6, r: (big ? 16 : 9) + R() * 4, seed: R() * 100 });
-    if (B.decals.length > 24) B.decals.shift();
-  }
-  function drawDecals(B, c) {
-    for (const d of B.decals || []) {
-      const a = Math.min(1, (d.life - d.t) / 2), [c0, c1] = pal(d.type);
-      c.globalAlpha = a * 0.75;
-      if (d.type === 'Feu') { c.fillStyle = '#2a1a10'; c.beginPath(); c.ellipse(d.x, d.y, d.r, d.r * 0.45, 0, 0, TAU); c.fill(); c.fillStyle = `rgba(255,${100 + Math.floor(Math.sin(d.t * 8 + d.seed) * 50)},20,${0.6 * a})`; for (let i = 0; i < 4; i++) c.fillRect(d.x - d.r * 0.6 + i * d.r * 0.4, d.y - 1, 2, 2); }
-      else if (d.type === 'Eau') { c.fillStyle = 'rgba(60,140,220,0.55)'; c.beginPath(); c.ellipse(d.x, d.y, d.r, d.r * 0.4, 0, 0, TAU); c.fill(); c.fillStyle = 'rgba(220,245,255,0.6)'; c.fillRect(d.x - d.r * 0.4, d.y - 1, d.r * 0.5, 1); }
-      else if (d.type === 'Glace') { c.fillStyle = 'rgba(200,240,255,0.7)'; c.beginPath(); c.ellipse(d.x, d.y, d.r, d.r * 0.4, 0, 0, TAU); c.fill(); c.strokeStyle = '#ffffff'; c.lineWidth = 0.6; for (let i = 0; i < 5; i++) { const ang = i / 5 * TAU + d.seed; c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x + Math.cos(ang) * d.r, d.y + Math.sin(ang) * d.r * 0.4); c.stroke(); } }
-      else if (d.type === 'Terre') { c.fillStyle = '#4a3420'; c.beginPath(); c.ellipse(d.x, d.y, d.r, d.r * 0.42, 0, 0, TAU); c.fill(); c.strokeStyle = '#2a1c10'; c.lineWidth = 0.8; for (let i = 0; i < 4; i++) { const ang = i / 4 * TAU + d.seed; c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x + Math.cos(ang) * d.r * 1.3, d.y + Math.sin(ang) * d.r * 0.55); c.stroke(); } }
-      else if (d.type === 'Poison' || d.type === 'Ténèbres') { c.fillStyle = d.type === 'Poison' ? 'rgba(130,60,170,0.55)' : 'rgba(40,20,60,0.55)'; c.beginPath(); c.ellipse(d.x, d.y, d.r, d.r * 0.42, 0, 0, TAU); c.fill(); if (d.type === 'Poison' && Math.floor(d.t * 3 + d.seed) % 3 === 0) { c.strokeStyle = '#d8a0ff'; c.beginPath(); c.arc(d.x + Math.sin(d.seed) * d.r * 0.5, d.y - 2, 1.5, 0, TAU); c.stroke(); } }
-      else if (d.type === 'Électrique') { if (Math.sin(d.t * 30 + d.seed) > 0.6) { c.strokeStyle = '#ffe040'; c.lineWidth = 0.8; c.beginPath(); c.moveTo(d.x - d.r, d.y); c.lineTo(d.x - d.r * 0.3, d.y - 2); c.lineTo(d.x + d.r * 0.2, d.y + 1); c.lineTo(d.x + d.r, d.y - 1); c.stroke(); } c.fillStyle = 'rgba(40,40,30,0.4)'; c.beginPath(); c.ellipse(d.x, d.y, d.r * 0.7, d.r * 0.3, 0, 0, TAU); c.fill(); }
-      else if (d.type === 'Plante') { c.fillStyle = c1; for (let i = 0; i < 6; i++) c.fillRect(d.x + Math.cos(i + d.seed) * d.r, d.y + Math.sin(i * 2 + d.seed) * d.r * 0.4, 3, 1); }
-      else { c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(d.x, d.y, d.r * 0.8, d.r * 0.3, 0, 0, TAU); c.fill(); }
-      c.globalAlpha = 1;
-    }
-  }
-  function tickDecals(B, dt) {
-    if (!B.decals) return;
-    for (let i = B.decals.length - 1; i >= 0; i--) { const d = B.decals[i]; d.t += dt; if (d.t >= d.life) B.decals.splice(i, 1); }
-  }
-
-  // ------------------------------------------------------------ aura de préparation (sous le Digimon)
-  function aura(c, x, y, type, t, s = 1) {
-    const [c0, c1, c2] = pal(type), p = 0.5 + 0.5 * Math.sin(t * 10);
-    c.save(); c.globalCompositeOperation = 'lighter';
-    const g = c.createRadialGradient(x, y, 2, x, y, 22 * s);
-    g.addColorStop(0, `${c1}aa`); g.addColorStop(1, `${c1}00`);
-    c.fillStyle = g; c.beginPath(); c.ellipse(x, y, 22 * s, 8 * s, 0, 0, TAU); c.fill();
-    c.strokeStyle = c2; c.globalAlpha = 0.6 + 0.4 * p; c.lineWidth = 1;
-    c.beginPath(); c.ellipse(x, y, (14 + p * 6) * s, (5 + p * 2) * s, 0, 0, TAU); c.stroke();
-    for (let i = 0; i < 6; i++) { const a = t * 3 + i, r = 12 * s, yy = y - ((t * 30 + i * 9) % 30) * s; c.fillStyle = i % 2 ? c1 : c2; c.fillRect(x + Math.cos(a) * r, yy, 1.5, 1.5); }
-    c.restore();
   }
 
   // ------------------------------------------------------------ statuts visibles (x = centre, top = haut du sprite, y = pieds)
@@ -301,12 +260,12 @@
       await wait(0.35);
     },
   });
-  // les anciens effets « plein écran » suivent la cible (dans l'arène, la caméra bouge)
+  // les anciens effets « plein écran » suivent la cible
   FX.blizzard = async (B, a, b) => {
     A.sfx('swoosh'); A.sfx('water');
     add(B, 1.0, (c, k) => { for (let i = 0; i < 70; i++) { const x = b.x - 170 + ((i * 53 + k * 400) % 340), y = b.y - 120 + (i * 37 + k * 120) % 240; c.fillStyle = i % 3 ? '#ffffff' : '#bfefff'; c.fillRect(x, y, 2, 2); } c.fillStyle = `rgba(200,240,255,${Math.sin(k * Math.PI) * 0.25})`; c.fillRect(b.x - 170, b.y - 120, 340, 240); });
     await wait(1.0);
   };
 
-  DW.Elem = { PAL, pal, impact, decal, drawDecals, tickDecals, aura, status, drawParticle };
+  DW.Elem = { impact, status, drawParticle };
 })();

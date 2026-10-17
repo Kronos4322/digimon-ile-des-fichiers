@@ -37,7 +37,6 @@
     label() { return `${this.progress()} % · niveau ${this.level()} « ${this.levelName()} »`; },
     LEVELS,
     levelName() { return LEVELS[Math.min(LEVELS.length - 1, this.level())]; },
-    nextName() { return LEVELS[Math.min(LEVELS.length - 1, this.level() + 1)]; },
     info(id) { return RECRUITS.find(r => r.id === id); },
     // à l'arrivée en ville : découverte des nouveaux bâtiments
     async reveal() {

@@ -110,7 +110,6 @@
       ow.cine = true; ow.wilds = [];
       ow.shake = 0.8; Audio.sfx('hit');
       await say("BAM ! BAM ! Un fracas terrible résonne le long de la rive...");
-      const [x, y] = spot();
       await say(`Plus loin à l'est, deux Monochromon se battent à grands coups de cornes ! Ils se disputent le chemin du lac.`);
       for (let i = 0; i < 3; i++) { ow.shake = 0.5; Audio.sfx('hit'); await DW.wait(0.35); }
       await say("Le plus petit finit par céder et s'enfuit dans les roseaux. Le vainqueur, encore furieux, se plante au milieu du chemin...");
@@ -119,7 +118,6 @@
       const pt = ow.partner;
       if (pt) await say(`${pt.name} : Il est énorme... Sa carapace a l'air dure comme le diamant ! Il faudra le battre pour passer.`);
       ow.cine = false;
-      void x; void y;
     };
   }
   async function monoFight(ow) {

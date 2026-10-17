@@ -9,7 +9,6 @@
 //    forêts : pollen, feuilles (rousses en automne)
 // =====================================================================
 (function () {
-  const TS = 16;
   // type d'effet → { n (particules à l'écran), make, step, draw }
   const R = Math.random;
   const FX = {

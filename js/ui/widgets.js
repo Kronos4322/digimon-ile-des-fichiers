@@ -130,11 +130,6 @@
     return { s: t.trimEnd() + '…', size: minSize };
   };
   // nom de champ bleu à liseré blanc (NAME, DIGI, AGE... dans Digimon World)
-  UI.fieldName = (c, s, x, y, size = 8) => {
-    c.font = UI.font(size); c.textAlign = 'left';
-    c.fillStyle = '#ffffff'; for (const [dx, dy] of [[-0.7, 0], [0.7, 0], [0, -0.7], [0, 0.7]]) c.fillText(s, x + dx, y + dy);
-    c.fillStyle = '#3a6af0'; c.fillText(s, x, y);
-  };
   // onglets du haut d'une fenêtre (Status / Tech dans Digimon World) ; renvoie rien
   UI.tabs = (c, names, sel, x = 8, w = 78) => {
     names.forEach((s, k) => {

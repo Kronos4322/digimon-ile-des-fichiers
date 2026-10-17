@@ -3,7 +3,7 @@
 //  MONDE — ambiances (lumière, particules, vignettage) par type de zone
 // =====================================================================
 (function () {
-  const Art = DW.Art, hash = Art.hash, noise = Art.noise, fbm = Art.fbm;
+  const Art = DW.Art, hash = Art.hash;
   const TS = 16;
   const World = DW.World;
 

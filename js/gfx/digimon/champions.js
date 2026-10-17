@@ -157,7 +157,7 @@
       d.deco.line(40, 20, 44, 26, 0.6, Hd);
     },
     garurumon(d) {
-      const Wt = '#e8f0ff', Bl = '#3a64c8', Bd = '#24408e', Sh = '#b8c8e8';
+      const Wt = '#e8f0ff', Bl = '#3a64c8', Sh = '#b8c8e8';
       d.tube([[14, 32], [8, 22], [6, 12]], 10, 4, Wt);
       d.deco.tube([[8, 24], [11, 22]], 2.4, 1.6, Bl); d.deco.tube([[6, 17], [9, 16]], 2.4, 1.6, Bl);
       d.tube([[22, 44], [20, 60]], 5.6, 4.6, Wt, { far: true }); d.tube([[44, 44], [46, 60]], 5.6, 4.6, Wt, { far: true });
@@ -179,7 +179,6 @@
     },
     meramon(d) {
       const O = '#f2701e', R = '#d83a14', Y = '#ffd84a', K = '#2a0a06';
-      const fl = (pts, col, o = {}) => d.blob(pts, col, Object.assign({ unlit: false }, o));
       d.poly([[14, 24], [10, 6], [18, 14], [19, 0.5], [25, 11], [31, 0.2], [36, 11], [43, 1], [44, 14], [52, 6], [48, 24]], R, { far: true });
       d.tube([[24, 44], [20, 62]], 7, 6, O, { far: true }); d.tube([[38, 44], [42, 62]], 7, 6, O);
       d.tube([[18, 30], [8, 40], [6, 48]], 6, 5, O, { far: true }); d.circ(6, 49, 4, R, { far: true });

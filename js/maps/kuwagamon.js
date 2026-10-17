@@ -97,7 +97,7 @@
     await say('BZZZZZZZZZ !!!', 'Kuwagamon');
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Donne-lui de quoi se soigner (menu → OBJETS)."); return; }
     if ((await DW.ask('Affronter Kuwagamon ?')) !== 0) return;
-    const res = await ow.battle({ enemy: new DW.Digimon('kuwagamon', 11), boss: true, canLose: true, field: 'grandarbre', intro: 'Kuwagamon fond sur vous, pinces grandes ouvertes !' });
+    const res = await ow.battle({ enemy: new DW.Digimon('kuwagamon', 11), boss: true, canLose: true, intro: 'Kuwagamon fond sur vous, pinces grandes ouvertes !' });
     if (res !== 'win') {
       // le fossé entre les stades : un Disciple n'a presque aucune chance contre un Champion
       const m = s.party[0];
@@ -192,64 +192,6 @@
     } else await say("Et sur la plage, les cabines téléphoniques sonnent sans arrêt... Un gros Digimon s'y cache, paraît-il. Sois prudent !", J);
     DW.autosave();
   }
-
-  // ------------------------------------------------------------ 4) l'arène du combat : le cœur du Grand Arbre
-  // une salle ronde creusée dans le tronc : plancher aux cernes de l'arbre, écorce épaisse tout autour, racines,
-  // champignons lumineux, le nid de Kuwagamon au fond, et un rai de lumière qui tombe d'une fissure du tronc
-  DW.ArenaScene.FIELDS.grandarbre = () => {
-    const W = 36, H = 24, CX = W / 2, CY = H / 2 + 0.5, RX = 15.5, RY = 9.6;
-    const inside = (x, y) => Math.hypot((x + 0.5 - CX) / RX, (y + 0.5 - CY) / RY) < 1;
-    const rows = [];
-    for (let y = 0; y < H; y++) { let r = ''; for (let x = 0; x < W; x++) r += inside(x, y) ? '=' : '#'; rows.push(r); }
-    const objects = [
-      { kind: 'kuwanest', x: 16, y: 4, w: 4, h: 1 },
-      { kind: 'glowshroom', x: 6, y: 6, w: 1, h: 1, small: true }, { kind: 'glowshroom', x: 29, y: 6, w: 1, h: 1, small: true },
-      { kind: 'glowshroom', x: 4, y: 15, w: 1, h: 1, small: true }, { kind: 'glowshroom', x: 31, y: 16, w: 1, h: 1, small: true },
-      { kind: 'glowshroom', x: 12, y: 19, w: 1, h: 1, small: true }, { kind: 'glowshroom', x: 24, y: 19, w: 1, h: 1, small: true },
-      { kind: 'treeroots', v: 0, x: 9, y: 4, w: 2, h: 1, small: true }, { kind: 'treeroots', v: 1, x: 25, y: 4, w: 2, h: 1, small: true },
-      { kind: 'hollowlog', x: 28, y: 11, w: 2, h: 1, small: true }, { kind: 'mossrock', x: 6, y: 10, w: 1, h: 1, small: true },
-    ];
-    const P = (x) => x * 16;
-    function paintGround(c) {
-      const H0 = DW.Art.hash;
-      // écorce : stries verticales sombres
-      c.fillStyle = '#2a1a0e'; c.fillRect(0, 0, P(W), P(H));
-      for (let x = 0; x < P(W); x += 3) { c.fillStyle = H0(x, 1, 71) < 0.5 ? '#3a2412' : '#4a2e18'; c.fillRect(x, 0, 2, P(H)); }
-      for (let i = 0; i < 160; i++) { c.fillStyle = 'rgba(20,10,4,0.5)'; c.fillRect(H0(i, 2, 71) * P(W), H0(i, 3, 71) * P(H), 1, 6 + H0(i, 4, 71) * 12); }
-      // plancher : cernes de l'arbre (anneaux concentriques)
-      const cx = P(CX), cy = P(CY), rx = P(RX), ry = P(RY);
-      c.save(); c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); c.clip();
-      for (let r = 1; r > 0; r -= 0.04) { c.fillStyle = Math.round(r * 25) % 2 ? '#b08454' : '#c09464'; c.beginPath(); c.ellipse(cx, cy, rx * r, ry * r, 0, 0, Math.PI * 2); c.fill(); }
-      c.strokeStyle = 'rgba(90,56,28,0.5)'; c.lineWidth = 1;
-      for (let r = 0.08; r < 1; r += 0.08) { c.beginPath(); c.ellipse(cx, cy, rx * r, ry * r, 0, 0, Math.PI * 2); c.stroke(); }
-      // fentes radiales du bois
-      for (let i = 0; i < 9; i++) { const a = H0(i, 5, 71) * Math.PI * 2; c.beginPath(); c.moveTo(cx + Math.cos(a) * rx * 0.15, cy + Math.sin(a) * ry * 0.15); c.lineTo(cx + Math.cos(a) * rx * 0.9, cy + Math.sin(a) * ry * 0.9); c.strokeStyle = 'rgba(70,40,18,0.55)'; c.stroke(); }
-      // mousse lumineuse par plaques
-      for (let i = 0; i < 26; i++) { const a = H0(i, 6, 71) * Math.PI * 2, d = 0.7 + H0(i, 7, 71) * 0.3; c.fillStyle = 'rgba(110,200,90,0.5)'; c.beginPath(); c.ellipse(cx + Math.cos(a) * rx * d, cy + Math.sin(a) * ry * d, 6, 3, 0, 0, Math.PI * 2); c.fill(); }
-      c.restore();
-      // bord : l'écorce déborde sur le plancher, et des racines rampent vers le centre
-      c.strokeStyle = '#1a0e06'; c.lineWidth = 6; c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); c.stroke();
-      c.strokeStyle = '#5a3a1e'; c.lineWidth = 2; c.beginPath(); c.ellipse(cx, cy, rx - 3, ry - 3, 0, 0, Math.PI * 2); c.stroke();
-      for (let i = 0; i < 14; i++) {
-        const a = i / 14 * Math.PI * 2 + H0(i, 8, 71) * 0.3, x0 = cx + Math.cos(a) * rx, y0 = cy + Math.sin(a) * ry, len = 0.18 + H0(i, 9, 71) * 0.14;
-        c.strokeStyle = '#4a2e14'; c.lineWidth = 5; c.lineCap = 'round'; c.beginPath(); c.moveTo(x0, y0);
-        c.quadraticCurveTo(cx + Math.cos(a + 0.2) * rx * (1 - len / 2), cy + Math.sin(a + 0.2) * ry * (1 - len / 2), cx + Math.cos(a) * rx * (1 - len), cy + Math.sin(a) * ry * (1 - len)); c.stroke();
-        c.strokeStyle = '#6a4626'; c.lineWidth = 2; c.stroke();
-      }
-    }
-    // rai de lumière qui tombe d'une fissure du tronc + poussières lumineuses (dessinés par-dessus l'obscurité)
-    function fxDraw(c, t) {
-      const x = P(CX) + 20, top = P(CY) - P(RY) - 30, bottom = P(CY) + 20;
-      c.save(); c.globalCompositeOperation = 'lighter';
-      const g = c.createLinearGradient(0, top, 0, bottom); g.addColorStop(0, 'rgba(255,230,160,0.35)'); g.addColorStop(1, 'rgba(255,230,160,0)');
-      c.fillStyle = g; c.beginPath(); c.moveTo(x - 10, top); c.lineTo(x + 10, top); c.lineTo(x + 46, bottom); c.lineTo(x - 26, bottom); c.fill();
-      for (let i = 0; i < 26; i++) { const px = x - 20 + ((i * 37 + t * 6) % 70), py = top + ((i * 53 + t * (8 + i % 5)) % (bottom - top)), a = 0.4 + 0.4 * Math.sin(t * 2 + i); c.fillStyle = `rgba(255,240,190,${a})`; c.fillRect(px, py, 1, 1); }
-      for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + t * 0.2, px = P(CX) + Math.cos(a) * P(RX) * 0.8, py = P(CY) + Math.sin(a) * P(RY) * 0.8 - ((t * 10 + i * 20) % 30); c.fillStyle = `rgba(150,255,140,${0.5 + 0.3 * Math.sin(t * 3 + i)})`; c.fillRect(px, py, 1.5, 1.5); }
-      c.restore();
-    }
-    return { name: 'Cœur du Grand Arbre', rows, w: W, h: H, theme: 'deep', climate: 'forest', ambient: 'forest', bg: 'foret', indoor: true, lush: false, dense: false,
-      dark: { d: 0.5, col: '#1a0e06' }, npcs: [], warps: [], triggers: [], objects, paintGround, fxDraw };
-  };
 
   DW.Kuwa = { tree, fight, RIDDLE };
 })();

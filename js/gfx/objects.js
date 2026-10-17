@@ -3,8 +3,7 @@
 //  MONDE — légende des cartes et objets en volume (arbres, rochers, maisons...)
 // =====================================================================
 (function () {
-  const Art = DW.Art, hash = Art.hash, noise = Art.noise, fbm = Art.fbm;
-  const TS = 16;
+  const Art = DW.Art;
   const World = DW.World = {};
 
   // ------------------------------------------------------------ légende
@@ -187,16 +186,6 @@
       d.deco.curve([[6, 40], [40, 36], [74, 40]], 1, '#a88a3a'); d.deco.curve([[14, 28], [40, 22], [66, 28]], 1, '#a88a3a');
       d.deco.circ(40, 26, 4, '#f8f0d0'); d.deco.circ(40, 26, 2.4, '#e05a3a');
       d.rect(34, 34, 12, 4, '#7a5028', { round: 0.4 });
-    } },
-    ruin: { w: 52, h: 40, n: 2, draw(d, v) {
-      const S = '#9a948a', S2 = '#857f76';
-      d.blob([[2, 38], [3, 22], [9, 14], [13, 20], [16, 38]], S, { tex: 0.35, texSize: 1 });
-      d.blob([[34, 38], [36, 18], [42, 10], [46, 16], [50, 26], [50, 38]], S2, { tex: 0.35, texSize: 1 });
-      d.tube([[14, 36], [32, 24]], 3.4, 3, '#7a5a34', { tex: 0.3 });
-      d.tube([[18, 38], [40, 34]], 3, 3, '#8a6a3c', { tex: 0.3 });
-      d.blob([[18, 39], [22, 32], [30, 31], [33, 39]], '#a8a296', { tex: 0.3 });
-      d.deco.ell(6, 24, 3, 2, '#5aa040'); d.deco.ell(44, 20, 3, 1.6, '#5aa040');
-      if (v) { d.circ(26, 30, 3, '#5aa040', { tex: 0.5 }); }
     } },
     bazar: { w: 58, h: 62, n: 1, draw(d) {
       d.rect(5, 26, 48, 34, '#c09060', { round: 0.15, tex: 0.25 });
@@ -475,27 +464,6 @@
       d.deco.ell(20, 14, 5, 2, '#ff9ab0'); d.deco.ell(36, 22, 4, 1.6, '#ff9ab0');
       d.ell(10, 58, 4, 2.6, '#ff9ac0'); d.ell(46, 58, 4, 2.6, '#a8c8ff');
     } },
-    fountain: { w: 40, h: 34, n: 3, draw(d, v) {
-      if (v) {
-        const dry = v === 2, St = '#a8a6a0';
-        d.ell(20, 24, 18, 8.5, St, 0, { tex: 0.2 });
-        d.deco.ell(20, 23, 14.5, 5.8, dry ? '#6a6458' : '#4ab0e8', 0, { unlit: !dry });
-        if (dry) { d.deco.line(10, 22, 16, 25, 0.8, '#4a463e'); d.deco.line(26, 21, 30, 25, 0.8, '#4a463e'); d.deco.ell(14, 24, 2, 1, '#5aa040'); }
-        else d.deco.ell(17, 22, 6, 2, '#a8ecff', 0, { unlit: true });
-        d.rect(17.5, 10, 5, 13, St, { round: 0.5, tex: 0.2 });
-        d.ell(20, 10, 8, 3.2, St, 0, { tex: 0.2 });
-        if (!dry) { d.deco.ell(20, 9.6, 5.6, 1.8, '#7ad8ff', 0, { unlit: true }); d.ell(20, 4, 2, 4, '#c8f4ff', 0, { unlit: true }); }
-        else d.poly([[24, 8], [28, 6], [27, 10]], St);
-        return;
-      }
-      d.ell(20, 24, 18, 8.5, '#d8cce8');
-      d.deco.ell(20, 23, 14.5, 5.8, '#5ac4f0', 0, { unlit: true });
-      d.deco.ell(17, 22, 6, 2, '#a8ecff', 0, { unlit: true });
-      d.rect(17.5, 10, 5, 13, '#e8dcf4', { round: 0.5 });
-      d.ell(20, 10, 8, 3.2, '#d8cce8');
-      d.deco.ell(20, 9.6, 5.6, 1.8, '#7ad8ff', 0, { unlit: true });
-      d.ell(20, 4, 2, 4, '#c8f4ff', 0, { unlit: true });
-    } },
     stall: { w: 36, h: 34, n: 1, draw(d) {
       d.tube([[4, 33], [4, 8]], 2.4, 2.4, '#8a5a32'); d.tube([[32, 33], [32, 8]], 2.4, 2.4, '#8a5a32');
       d.rect(1, 18, 34, 15, '#c08a52', { round: 0.25, tex: 0.25 });
@@ -522,7 +490,7 @@
   for (const k of ['bush', 'fern', 'bigfern', 'junglebush', 'snowbush', 'drybush', 'reeds', 'hedge']) OBJ_SCALE[k] = 1.3;
   // fleurs et champignons (même « géants ») restent plus petits que les arbres et les maisons
   for (const k of ['giantflower', 'giantshroom', 'glowshroom']) OBJ_SCALE[k] = 0.9;
-  for (const k of ['rock', 'boulder', 'mossrock', 'icerock', 'lavarock', 'searock', 'rockpile', 'basalt', 'crystal', 'stalagmite', 'icecrystal', 'termite', 'log', 'hollowlog', 'stump']) OBJ_SCALE[k] = 1.3;
+  for (const k of ['rock', 'boulder', 'mossrock', 'icerock', 'lavarock', 'searock', 'basalt', 'crystal', 'stalagmite', 'icecrystal', 'termite', 'log', 'hollowlog', 'stump']) OBJ_SCALE[k] = 1.3;
   World.OBJ_SCALE = OBJ_SCALE;
   const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;
     const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)

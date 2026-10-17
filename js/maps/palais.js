@@ -33,7 +33,7 @@
   const open = (m, x, y) => { m.rows[y] = m.rows[y].slice(0, x) + '1' + m.rows[y].slice(x + 1); };
   // passage latéral entre deux pièces (a à gauche de b)
   function side(aId, bId) {
-    const A = MAPS[aId], B = MAPS[bId], ya = A.mid, yb = B.mid, wa = A.rows[0].length, wb = B.rows[0].length;
+    const A = MAPS[aId], B = MAPS[bId], ya = A.mid, yb = B.mid, wa = A.rows[0].length;
     for (const d of [0, 1]) { open(A, wa - 1, ya + d); open(B, 0, yb + d); }
     const clear = (M, x0, y0) => { M.objects = M.objects.filter(o => o.back || o.walk || !(o.x <= x0 + 2 && o.x + (o.w || 1) >= x0 - 1 && o.y <= y0 + 2 && o.y + (o.h || 1) >= y0 - 1)); };
     clear(A, wa - 3, ya); clear(B, 1, yb);
@@ -82,7 +82,6 @@
       await say('Bien joué... Le trésor est à toi.', name);
     } });
   }
-  const deco = (m, list) => { for (const o of list) m.objects.push({ w: 1, h: 1, ...o }); };
 
   // ============================================================ MANOIR DU SEIGNEUR GRIS (Overdell)
   {

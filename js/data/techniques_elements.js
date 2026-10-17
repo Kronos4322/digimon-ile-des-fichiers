@@ -5,7 +5,7 @@
 //    faible contre Terre, Poison, Ténèbres ; la Terre le neutralise)
 //  - une grande technique spectaculaire par élément (tempête de feu, raz-de-marée, orage, séisme...)
 //  - quelques Digimon les apprennent (EXTRA_LEARN) ; d'autres deviennent de type Poison
-//  Animations : game/fxelem.js. Portées dans l'arène : game/arena.js (RANGE_FX).
+//  Animations : game/fxelem.js.
 // =====================================================================
 (function () {
   DW.TYPES.Poison = { c: '#9a48c0' };

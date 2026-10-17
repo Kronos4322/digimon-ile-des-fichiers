@@ -8,7 +8,6 @@
   DW.FLAGS = {
     // réglages de partie
     starter: 'espèce du premier partenaire choisi (active la sauvegarde automatique)',
-    arenaTuto: 'explications du combat en arène déjà vues',
     shellLair: "le sable s'est ouvert sous les cabines : l'antre de Shellmon (maps/antre.js)",
     kuwaChase: 'poursuite de Kuwagamon vue (première entrée dans la forêt)',
     yokoQuest: "la doyenne des Yokomon a demandé de l'eau pour le puits",

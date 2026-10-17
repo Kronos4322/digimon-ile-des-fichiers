@@ -186,7 +186,7 @@
       this.drawBottom(c);
       this.drawOverlays(c);
     },
-    // panneau de niveau gagné + bandes noires d'entrée (aussi pour l'arène)
+    // panneau de niveau gagné + bandes noires d'entrée
     drawOverlays(c) {
       if (this.lvPanel) {
         const { m, before, after } = this.lvPanel;

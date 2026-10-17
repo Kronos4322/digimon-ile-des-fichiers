@@ -158,12 +158,6 @@
       else if (v === 6) { d.deco.rect(7, 7, 10, 7, '#ff8a4a', { unlit: true }); for (const x of [7.5, 10, 12.5, 15]) d.deco.rect(x, 5, 2, 3, '#ffb07a', { unlit: true }); d.deco.rect(5, 9, 3, 4, '#ff8a4a', { unlit: true }); d.deco.rect(9, 14, 6, 2, '#c8603a', { unlit: true }); }   // poing (sac de frappe)
       else d.deco.poly([[12, 4], [16, 10], [12, 16], [8, 10]], C, { unlit: true });   // cristal (PM)
     } },
-    // pieu de frappe enveloppé de corde
-    stake: { w: 14, h: 34, n: 1, draw(d) {
-      d.ell(7, 32, 6, 1.8, '#2a1a10', 0, { flat: true });
-      d.tube([[7, 33], [7, 4]], 9, 8, '#8a6040', { tex: 0.3 }); d.ell(7, 4, 4.2, 1.8, '#b08a5a');
-      for (let y = 10; y < 26; y += 3) d.deco.line(2.6, y, 11.4, y + 1.4, 1, '#d8c890');
-    } },
     // sac de frappe rouge suspendu à un portique
     punchbag: { w: 26, h: 40, n: 1, draw(d) {
       d.ell(13, 38, 11, 2, '#2a1a10', 0, { flat: true });
@@ -180,20 +174,6 @@
       d.deco.line(28, 14, 34, 16, 1.4, '#d02a2a', { unlit: true }); d.deco.line(31, 12, 30, 28, 1.4, '#d02a2a', { unlit: true }); d.deco.line(27, 24, 35, 27, 1.4, '#d02a2a', { unlit: true });
       d.deco.ell(8, 30, 4, 2, '#5aa040');
     } },
-    // marquages blancs de la piste ovale (décalque au sol, sans contour)
-    tracklines: { w: 224, h: 144, n: 1, noOutline: true, draw(d) {
-      const cx = 112, cy = 72, RX = 99, RY = 62, F = { unlit: true, noline: true, noshadow: true, flat: true };
-      for (const k of [0.74, 0.86]) {
-        for (let i = 0; i < 48; i++) {
-          if (i % 2) continue;
-          const a0 = i / 48 * Math.PI * 2, a1 = (i + 1) / 48 * Math.PI * 2;
-          d.curve([[cx + Math.cos(a0) * RX * k, cy + Math.sin(a0) * RY * k], [cx + Math.cos(a1) * RX * k, cy + Math.sin(a1) * RY * k]], 1.2, '#f4ecd8', F);
-        }
-      }
-      // ligne de départ
-      for (let i = 0; i < 4; i++) d.rect(cx - 2 + (i % 2) * 2, cy + RY * 0.64 + i * 3, 2, 3, i % 2 ? '#2a2a2a' : '#f4ecd8', F);
-      for (let i = 0; i < 4; i++) d.rect(cx + (i % 2) * 2, cy + RY * 0.64 + i * 3, 2, 3, i % 2 ? '#f4ecd8' : '#2a2a2a', F);
-    } },
     // tapis de paille sous les mannequins
     mat: { w: 80, h: 48, n: 1, noOutline: true, draw(d) {
       const F = { flat: true, noline: true, noshadow: true, tex: 0.2 };
@@ -207,18 +187,6 @@
       const F = { unlit: true, noline: true, noshadow: true, flat: true };
       for (let y = 6; y < 62; y += 5) d.curve([[2, y], [30, y + 1], [60, y], [94, y + 1]], 0.8, '#f6e6bc', F);
       for (const r of [14, 19, 24]) { const pts = []; for (let i = 0; i <= 24; i++) { const a = i / 24 * Math.PI * 2; pts.push([56 + Math.cos(a) * r, 38 + Math.sin(a) * r * 0.6]); } d.curve(pts, 0.9, '#c8a870', F); }
-    } },
-    // gradins en bois (3 marches)
-    bleachers: { w: 68, h: 44, n: 1, draw(d) {
-      d.ell(34, 42, 32, 2.4, '#3a2a18', 0, { flat: true });
-      for (let k = 0; k < 3; k++) {
-        const y = 8 + k * 11;
-        d.rect(2 + k * 2, y + 4, 64 - k * 4, 7, '#7a5030', { round: 0.1, tex: 0.25 });
-        d.rect(1 + k * 2, y, 66 - k * 4, 5, '#c8945a', { round: 0.3, tex: 0.2 });
-        for (let x = 6 + k * 2; x < 64 - k * 2; x += 12) d.deco.line(x, y + 5, x, y + 11, 0.7, '#5a3a1e');
-      }
-      d.rect(0, 0, 4, 42, '#8a5a32', { round: 0.3 }); d.rect(64, 0, 4, 42, '#8a5a32', { round: 0.3 });
-      d.poly([[4, 2], [12, 2], [8, 8]], '#e04848', { noshadow: true }); d.poly([[56, 2], [64, 2], [60, 8]], '#3a8ae8', { noshadow: true });
     } },
     // torche : vasque en fer et vraie flamme (animée par l'ambiance)
     torch: { w: 16, h: 40, n: 1, fire: [8, 10], lights: [[8, 8, 44]], draw(d) {
@@ -234,14 +202,6 @@
       d.tube([[3, 29], [3, 6]], 2, 2, '#8a5a32'); d.tube([[23, 29], [23, 6]], 2, 2, '#8a5a32'); d.tube([[2, 8], [24, 8]], 2, 2, '#9a6a3a');
       for (const [x, c] of [[7, '#c84838'], [13, '#3a6ac8'], [19, '#c8a040']]) { d.circ(x, 17, 5, c, { shiny: true }); d.deco.circ(x, 17, 2.4, '#e8e0d0'); d.deco.circ(x, 17, 1, c); }
       d.deco.line(15, 13, 18, 18, 0.8, '#2a2a3a');
-    } },
-    rockpile: { w: 36, h: 26, n: 1, draw(d) {
-      d.ell(18, 24, 16, 2.4, '#3a2a18', 0, { flat: true });
-      d.blob([[1, 24], [2, 15], [8, 11], [14, 14], [15, 24]], '#9a948a', { tex: 0.35, texSize: 1 });
-      d.blob([[13, 24], [14, 12], [21, 9], [28, 12], [30, 24]], '#8a847a', { tex: 0.35, texSize: 1 });
-      d.blob([[8, 14], [10, 5], [17, 2], [23, 6], [22, 12], [14, 14]], '#a8a296', { tex: 0.35, texSize: 1 });
-      d.blob([[28, 24], [29, 17], [33, 15], [35, 24]], '#958f86', { tex: 0.35 });
-      d.deco.line(10, 18, 13, 22, 0.7, '#6a665e'); d.deco.line(20, 15, 24, 19, 0.7, '#6a665e');
     } },
     // rocher marin couvert de bernacles et d'algues
     searock: { w: 26, h: 22, n: 3, draw(d, v) {
@@ -402,14 +362,6 @@
       d.curve([[20, 2], [23, 14], [22, 26]], 0.5, '#e8e8e8', { noline: true });
       d.rect(2, 20, 9, 9, '#7a7a82', { round: 0.3, shiny: true }); d.deco.ell(6.5, 20.6, 4, 1.2, '#4ab0e8');
       d.ell(6, 19, 2.4, 1, '#5ab8f0', 0, { shiny: true });
-    } },
-    // ---------------------------------------------------------- portail du quartier (arche en bois)
-    arch: { w: 48, h: 50, n: 1, draw(d) {
-      d.tube([[5, 49], [5, 10]], 4, 4, WOOD); d.tube([[43, 49], [43, 10]], 4, 4, WOOD);
-      d.rect(0, 8, 48, 6, WOOD_L, { round: 0.3, tex: 0.25 }); d.rect(2, 3, 44, 6, '#b8583a', { round: 0.4, shiny: true });
-      d.rect(14, 14, 20, 9, '#e8d8b0', { round: 0.2 }); d.deco.line(17, 18.5, 31, 18.5, 1, '#6a4a28');
-      for (const x of [5, 43]) for (let y = 20; y < 48; y += 7) d.deco.circ(x + ((y / 7) % 2 ? 1.4 : -1.4), y, 1.8, '#4aa046');
-      for (const x of [5, 43]) for (let y = 23; y < 48; y += 9) d.deco.circ(x, y, 1, '#ff8ac0', { unlit: true });
     } },
     // ---------------------------------------------------------- stand d'une recrue (3×1) : comptoir, auvent rayé, enseigne à pictogramme
     // v : 0 clinique  1 puce  2 grill  3 glace  4 cartes  5 disque  6 livre  7 lune  8 rumeurs  9 plume  10 cœur

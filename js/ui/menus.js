@@ -126,7 +126,7 @@
     }
     // le Digivice : anneau d'icônes, fiches de l'équipe, Bits, aide
     draw(c) {
-      const st = DW.state, t = this.t, items = this.items, n = items.length, look = DW.heroLook();
+      const st = DW.state, t = this.t, items = this.items, n = items.length;
       // fond bleu nuit, quadrillage de circuits, bandes lumineuses
       const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#062a5a'); g.addColorStop(0.55, '#0a1c44'); g.addColorStop(1, '#04102a');
       c.fillStyle = g; c.fillRect(0, 0, W, H);

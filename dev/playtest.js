@@ -40,8 +40,7 @@
         if (b.mode === 'moves' && b.active) {   // la technique la plus puissante qu'il peut payer
           let best = 0, bp = -1; b.active.moves.forEach((mv, i) => { const M = DW.MOVES[mv.id] || {}; if (b.active.canPay(mv.id) && (M.pow || 0) > bp) { bp = M.pow || 0; best = i; } }); b.mcursor = best;
         }
-        if (b.arena) { if (b.mode === 'live' && !b.B.p.cast && b.B.p.cd <= 0) { key('Space'); await wait(50); key('Space'); } else if (b.mode === 'msg' || b.mode === 'charge') key('Space'); }
-        else if (b !== DW.ow) key('Space');
+        if (b !== DW.ow) key('Space');
         await wait(o.fast ? 45 : 70);
       }
       for (let i = 0; i < 40 && DW.Game.top() !== DW.ow; i++) { key('Space'); await wait(150); }
@@ -55,7 +54,7 @@
     st.look = { gender: 0, style: 0, hair: 0, shirt: 0, head: 0, baby: Object.values(DW.HERO_LINE)[0].baby };
     DW.startGame(true);
     for (let i = 0; i < 900 && !(DW.ow && DW.ow.mapId === 'maison' && DW.Game.top() === DW.ow && !DW.ow.locked); i++) { if (DW.Game.top() !== DW.ow) key('Space'); await wait(80); }
-    st.flags.arenaTuto = true; st.flags.tour = true;
+    st.flags.tour = true;
     log(`début joué dans la forêt → réveil chez Jijimon avec ${lead() ? lead().name : '???'} (Kuwagamon vu : ${!!st.flags.kuwaChase})`);
 
     const ZONES = ['dunes', 'bosquet', 'plage', 'lisiere', 'geants', 'sentier', 'clairiere', 'antre1', 'antre2'];

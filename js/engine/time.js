@@ -29,11 +29,6 @@
   const DAYS_M = 10;
   // durée du jour : autour de midi, l'heure « solaire » est étirée (été : jours longs) ou serrée (hiver : jours courts)
   const DAYLEN = [1, 0.86, 1, 1.14];
-  // météo selon la saison (zones tempérées : forêt, village, plage) : multiplicateurs, la pluie devient neige en hiver
-  const SEASON_W = [{ rain: 1.4, clear: 0.9 }, { rain: 0.5, clear: 1.4, fog: 0.5 }, { fog: 1.8, cloudy: 1.4 }, { snow: 1, clear: 0.8 }];
-  // phénomènes de saison (zones tempérées) : orages au printemps et en été, canicule l'été,
-  // tempêtes de vent l'automne, tempêtes de neige l'hiver ; pendant une SÉCHERESSE (été), canicule et beau temps seulement
-  const SEASON_EXTRA = [[['storm', 6]], [['heat', 18], ['storm', 8]], [['gale', 12], ['storm', 3]], [['blizzard', 12]]];
 
   // ÉPISODES MÉTÉO DE PLUSIEURS JOURS (vraie logique sur l'année, zones tempérées : forêt, village, plage)
   //   printemps : temps doux, pluies douces (les fleurs éclosent), parfois orageux
@@ -70,17 +65,14 @@
       return { d: n % DAYS_M + 1, m, month: MONTHS[m], short: MSHORT[m], season: Math.floor(m / 3), seasonName: SEASONS[Math.floor(m / 3)], year: Math.floor(n / (DAYS_M * 12)) + 1, weekday: WEEK[n % 7] };
     },
     season() { return Math.floor((Math.floor((this.day() - 1) / DAYS_M) % 12) / 3); },
-    dateStr() { const D = this.date(); return `${D.weekday} ${D.d} ${D.month}, an ${D.year}`; },
     // heure « solaire » (sert à la lumière et à la nuit)
     solar() { const h = this.hour(), f = DAYLEN[this.season()]; return Math.max(0, Math.min(23.99, 12 + (h - 12) * f)); },
     str() { const h = Math.floor(this.hour()), m = Math.floor(this.st.clock % 60); return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; },
     isNight() { const h = this.solar(); return h >= 19.5 || h < 5.5; },
-    phase() { const h = this.hour(); return h < 5.5 ? 'Nuit' : h < 8 ? 'Aube' : h < 17 ? 'Jour' : h < 19.5 ? 'Crépuscule' : 'Nuit'; },
     weather() { return this.st.weather.type; },
     // il pleut (pluie ou orage) : sol mouillé, flaques...
     rainy() { const w = this.weather(); return w === 'rain' || w === 'storm'; },
     // intempérie qui fatigue les Digimon dehors
-    harsh() { return ['storm', 'blizzard', 'gale', 'heat'].includes(this.weather()); },
     WNAME, WARN,
     weatherName() { return WNAME[this.weather()]; },
     // { dark, col:[r,g,b] } interpolés

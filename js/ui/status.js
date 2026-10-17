@@ -49,9 +49,8 @@
       UI.text(c, 'Endurcies au Gymnase : plus la valeur est haute, moins l\'élément le blesse.', 14, 46, { size: 7, color: '#8ae0f0' });
       const types = Object.keys(DW.TYPES).filter(t => t !== 'Neutre');
       types.forEach((t, j) => {
-        const half = Math.ceil(types.length / 2), col = j < half ? 0 : 1, y = 0, x = col ? 164 : 12, row = j < half ? j : j - half;
+        const half = Math.ceil(types.length / 2), col = j < half ? 0 : 1, x = col ? 164 : 12, row = j < half ? j : j - half;
         const yy = 64 + row * 27, v = (m.res || {})[t] || 0, mult = DW.typeMult(t, d.types) * (1 - (DW.Gymnase ? DW.Gymnase.resist(m, t) : 0));
-        void y;
         UI.box(c, x, yy - 10, 146, 24, 'dark');
         UI.typeTag(c, t, x + 6, yy - 6, 6);
         UI.bar(c, x + 6, yy + 8, 80, 3, v / 100, DW.TYPES[t].c);

@@ -7,7 +7,6 @@
 (function () {
   const OBJ = DW.World.OBJ;
   const shade = (c, k) => { const a = DW.Art.hex(c), b = k < 0 ? [0, 0, 0] : [255, 255, 255]; return '#' + DW.Art.mix(a, b, Math.abs(k)).map(x => Math.round(x).toString(16).padStart(2, '0')).join(''); };
-  const flat = (d, x, y, rx, ry, col) => d.ell(x, y, rx, ry, col, 0, { flat: true });
 
   Object.assign(OBJ, {
     // ---------------------------------------------------------- montagne

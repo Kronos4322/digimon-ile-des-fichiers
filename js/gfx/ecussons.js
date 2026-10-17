@@ -35,7 +35,6 @@
       for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, l = i % 2 ? r * 0.55 : r; d.deco.poly([[x + Math.cos(a + 1.57) * r * 0.12, y + Math.sin(a + 1.57) * r * 0.12], [x + Math.cos(a) * l, y + Math.sin(a) * l], [x - Math.cos(a + 1.57) * r * 0.12, y - Math.sin(a + 1.57) * r * 0.12]], c, o); }
     }
   }
-  DW.World.crestGlyph = glyph;
 
   Object.assign(OBJ, {
     // ---------------------------------------------------------- écusson seul (icône), v = index dans KEYS

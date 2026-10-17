@@ -10,10 +10,8 @@
 // =====================================================================
 (function () {
   const { say } = DW.MapKit;
-  const TS = 16, FINAL = 12;
+  const FINAL = 12;
   const st = () => DW.state;
-  const hour = () => DW.Time.hour();
-  const day = () => DW.Time.day();
   // service une fois par jour
 
   // ------------------------------------------------------------ régions : boss possédé + habitant

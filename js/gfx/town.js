@@ -31,19 +31,8 @@
     d.rect(W * 0.04, wy - H * 0.07, W * 0.05, H * 0.07, '#7a8088', { round: 0.3 });
   };
   const OBJ = DW.World.OBJ;
-  const STRAW = '#d8b45a', STRAW_D = '#a8843a', WOOD = '#8a5a32', WOOD_D = '#5a3a1e', STONE = '#a8a296';
+  const WOOD = '#8a5a32', WOOD_D = '#5a3a1e';
 
-  // fenêtre à croisillons (+ jardinière en option)
-  const win = (d, x, y, w, h, o = {}) => {
-    d.deco.rect(x - 1.5, y - 1.5, w + 3, h + 3, o.frame || '#4a2e16');
-    d.deco.rect(x, y, w, h, o.glass || '#9ad8f0');
-    d.deco.rect(x + 1, y + 1, w * 0.35, h * 0.4, '#d8f4ff', { unlit: true });
-    d.deco.line(x + w / 2, y, x + w / 2, y + h, 1, o.frame || '#4a2e16'); d.deco.line(x, y + h / 2, x + w, y + h / 2, 1, o.frame || '#4a2e16');
-    if (o.box) {
-      d.rect(x - 3, y + h + 1, w + 6, 4, '#9a5a2a', { round: 0.3 });
-      for (let i = 0; i < w + 4; i += 3) d.deco.circ(x - 1.5 + i, y + h + 0.5, 1.4, ['#ff6a8a', '#ffd84a', '#ffffff', '#ff9a4a'][(i / 3) % 4], { unlit: true });
-    }
-  };
   // rangées de tuiles / chaume sur un toit
   const rows = (d, x0, x1, y0, y1, step, col, bend = 4) => {
     for (let y = y0; y <= y1; y += step) d.deco.curve([[x0, y], [(x0 + x1) / 2, y - bend], [x1, y]], 0.9, col);
@@ -323,14 +312,6 @@
       d.tube([[6, 23], [6, 10]], 2, 2, WOOD_D);
       d.rect(1, 3, 10, 8, '#d84838', { round: 0.45, shiny: true });
       d.deco.rect(2, 6, 4, 1, '#3a1a10'); d.rect(10, 1, 1.4, 5, '#ffd040');
-    } },
-    lantern: { w: 14, h: 36, n: 1, draw(d) {
-      d.ell(7, 35, 5, 1.6, '#2a2a2a', 0, { flat: true });
-      d.rect(3, 29, 8, 5, '#9a948a', { tex: 0.3 });
-      d.tube([[7, 30], [7, 12]], 2.6, 2.2, '#3a3040');
-      d.poly([[1, 6], [7, 1], [13, 6]], '#3a3040'); d.rect(2, 6, 10, 9, '#3a3040', { round: 0.2 });
-      d.deco.rect(3.6, 7.4, 6.8, 6.2, '#ffe08a', { unlit: true }); d.deco.rect(4.6, 8.4, 2, 2.6, '#ffffff', { unlit: true });
-      d.deco.line(7, 7.4, 7, 13.6, 0.6, '#3a3040');
     } },
     bunting: { w: v => v * 16, h: 18, n: 1, draw(d, v) {
       const W = v * 16, cols = ['#e04848', '#ffd040', '#3a8ae8', '#4ac878', '#ff8ac0'];

@@ -138,7 +138,7 @@
       c.fillStyle = '#3a2018'; c.fillRect(0, 168, W, H - 168);
       for (const x of [20, 44, 68]) { c.fillStyle = '#2a1410'; c.fillRect(x, 120, 16, 50); c.fillRect(x - 2, 116, 20, 6); }
       // le héros, son partenaire, Tai et Agumon en silhouette, qui avancent puis s'arrêtent
-      const k = DW.ease(v.walk), dark = { white: 0, alpha: 1 };
+      const k = DW.ease(v.walk);
       const sil = (img, x, y, w, h) => { const cv = DW.Art.canvas(w, h), x2 = cv.getContext('2d'); x2.drawImage(img, 0, 0, w, h); x2.globalCompositeOperation = 'source-in'; x2.fillStyle = '#1a0c08'; x2.fillRect(0, 0, w, h); c.drawImage(cv, Math.round(x - w / 2), Math.round(y - h)); };
       const me = DW.Sprites.hero('up', Math.floor(t * 6) % 4), tai = DW.Sprites.hero('up', (Math.floor(t * 6) + 2) % 4, 'tai');
       sil(me.img, 150 + k * 30, 192, me.w * 1.6, me.h * 1.6);
@@ -146,7 +146,6 @@
       const ps = DW.Sprites.battle(this.pt), ag = DW.Sprites.battle('agumon');
       sil(ps.img, 124 + k * 30, 194, ps.w * 0.7, ps.h * 0.7);
       sil(ag.img, 222 + k * 30, 194, ag.w * 0.7, ag.h * 0.7);
-      void dark;
     }
   }
   DW.ShellmonCinema = ShellmonCinema;

@@ -213,7 +213,6 @@
     if (it.use === 'chip') return `${m.name} absorbe la puce : ${applyChips(m, it.chip)} !`;
     return '';
   };
-  DW.ITEM_STAGES = STAGES;
   // prochaine technique de l'espèce que le Digimon ne connaît pas encore (Manuel de technique)
   // APPRENTISSAGE (comme Digimon World 1) : après une victoire, un Digimon peut comprendre tout seul une technique
   // de son espèce (déjà à sa portée par le niveau) ; la chance dépend surtout de son INTELLIGENCE — rare au début
@@ -244,7 +243,7 @@
   // et une copie « illisible » mise de côté si le chargement échoue (jamais écrasée par une nouvelle partie).
   // 3 emplacements de sauvegarde (DW.slot = 1, 2 ou 3) ; l'emplacement 1 garde le nom d'origine (anciennes parties)
   const BASE = 'digimon_ile_des_fichiers_save';
-  DW.slot = 1; DW.SLOTS = 3;
+  DW.slot = 1;
   const keyOf = n => (n > 1 ? BASE + '_' + n : BASE);
   const K = { get KEY() { return keyOf(DW.slot); }, get BAK() { return keyOf(DW.slot) + '_precedente'; }, get BROKEN() { return keyOf(DW.slot) + '_illisible'; } };
   // échelle des statistiques (façon Digimon World 1) : PV/PM ×20 jusqu'à 9999, Attaque/Défense/Vitesse/Intelligence ×4 jusqu'à 999
@@ -318,7 +317,6 @@
   // sauvegarde automatique silencieuse (changement de zone, après un combat)
   const warnedFlags = new Set();
   DW.autosave = () => { if (DW.state.flags.starter) { DW.save(); DW.saveFlash = 2; } };
-  DW.hasSave = () => !!(read(K.KEY) || read(K.BAK));
   DW.save = () => {
     const st = DW.state;
     if (DW.ow) { st.map = DW.ow.mapId; st.x = DW.ow.p.x; st.y = DW.ow.p.y; st.dir = DW.ow.p.dir; }

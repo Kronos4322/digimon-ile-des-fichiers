@@ -20,7 +20,6 @@ window.DW = window.DW || {};
 
   // ------------------------------------------------------------ utilitaires
   DW.rand = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-  DW.chance = p => Math.random() < p;
   DW.pick = arr => arr[Math.floor(Math.random() * arr.length)];
   DW.clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   DW.lerp = (a, b, t) => a + (b - a) * t;

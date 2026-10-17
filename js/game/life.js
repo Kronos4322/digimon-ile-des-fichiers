@@ -42,7 +42,6 @@
       if (m.slept == null) m.slept = DW.state ? DW.state.clock : 0;
       return m;
     },
-    daysLeft: m => Math.max(0, Math.ceil(m.lifespan - m.age)),
     fatLabel: m => (m.fat <= -6 ? 'Maigre' : m.fat <= -3 ? 'Mince' : m.fat < 3 ? 'Normal' : m.fat < 6 ? 'Enrobé' : 'Gros'),
     mistake(m, why) {
       Life.init(m);
@@ -248,7 +247,6 @@
     },
     addGerms(m, n) {
       Life.init(m);
-      const g0 = m.germs;
       m.germs = DW.clamp(m.germs + n, 0, 100);
       if (m !== DW.Care.lead() || m.sick) return;
       // (bulle au-dessus du partenaire à la place du message)
@@ -260,9 +258,9 @@
       // au-delà de 70, il peut tomber malade ; à 100, c'est certain
       if (m.germs >= 100 || (m.germs > 70 && Math.random() < min * (m.germs - 70) / 30 / 600)) Life.fallSick(m, c);
     },
-    fallSick(m, c = Life.causes(m)) {
+    // plus de message : la bulle « malade » au-dessus du partenaire suffit ; les causes sont dans sa fiche
+    fallSick(m) {
       m.sick = DW.state.clock; m.germs = 60;
-      void c;   // (plus de message : la bulle « malade » au-dessus du partenaire suffit ; les causes sont dans sa fiche)
       Life.moment('bad', 'il est tombé malade');
     },
     healthLabel: m => (Life.init(m), m.sick ? 'Malade' : m.germs >= 80 ? 'Fiévreux' : m.germs >= 50 ? 'Fragile' : m.germs >= 25 ? 'Correcte' : 'Excellente'),
@@ -270,7 +268,6 @@
     // désobéissance en combat (discipline basse)
     disobeys(m) { Life.init(m); return Math.random() < Math.max(0, (45 - m.disc) / 100); },
     // affichage : petite bulle d'état (maladie, blessure, sommeil)
-    bubbleIcon(m) { Life.init(m); return m.sick ? 'sick' : m.hurt ? 'hurt' : Life.sleepy(m) ? 'sleep' : null; },
     // tous les besoins en cours, pour la grande bulle (ils défilent l'un après l'autre)
     needs(m) {
       Life.init(m);

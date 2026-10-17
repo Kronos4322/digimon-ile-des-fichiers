@@ -181,67 +181,6 @@ test('une erreur pendant un combat referme le combat au lieu de le bloquer', asy
   } finally { DW.reportError = rep; DW.fade = fade; }
 });
 
-// ------------------------------------------------------------ combat en arène (game/arena.js)
-// arène sans carte (noMap) ; les effets visuels sont remplacés par une attente nulle
-const arena = (pSp = 'agumon', eSp = 'palmon', lv = 15) => {
-  fresh();
-  const P = new DW.Digimon(pSp, lv), E = new DW.Digimon(eSp, lv);
-  DW.state.party = [P];
-  const A = new DW.ArenaScene({ enemy: E, noMap: true });
-  A.active = P; A.live = true; A.mode = 'live'; A.hpShow = { p: P.hp, e: E.hp };
-  return { A, P, E };
-};
-// (sans écran : les effets visuels ne durent rien, les sprites ont une taille fixe)
-const noFx = async fn => {
-  const f = DW.playFXAt, p = DW.playFX, sb = DW.Sprites.battle, sp = DW.Sprites.pose;
-  DW.playFXAt = async () => {}; DW.playFX = async () => {}; DW.Sprites.battle = DW.Sprites.pose = () => ({ w: 60, h: 60 });
-  try { return await fn(); } finally { DW.playFXAt = f; DW.playFX = p; DW.Sprites.battle = sb; DW.Sprites.pose = sp; }
-};
-const firstMove = (cond) => Object.keys(DW.MOVES).find(id => cond(DW.MOVES[id]));
-test('arène : chaque technique a une portée (corps à corps, proche, loin, terrain, sur soi)', () => {
-  const S = DW.ArenaScene.shapeOf;
-  eq(S(DW.MOVES[firstMove(m => m.contact && m.pow > 0)]), 'melee');
-  eq(S(DW.MOVES[firstMove(m => m.fx === 'wave' && m.pow > 0)]), 'field');
-  eq(S(DW.MOVES[firstMove(m => m.heal && !m.pow)]), 'self');
-  for (const id in DW.MOVES) yes(['melee', 'near', 'far', 'field', 'self'].includes(S(DW.MOVES[id])), 'portée inconnue : ' + id);
-});
-test("arène : une attaque à distance touche la cible restée dans la zone visée, et rate si elle en est sortie", async () => {
-  const far = firstMove(m => m.pow > 0 && !m.contact && DW.ArenaScene.shapeOf(m) === 'far' && (m.acc || 100) >= 90);
-  await noFx(async () => {
-    // touché : la cible ne bouge pas
-    let { A, E } = arena();
-    await withRandom(0.6, async () => { A.startCast('p', { id: far }); await A.release('p'); });
-    yes(E.hp < E.maxHp, "la cible restée sur place n'a pas été touchée");
-    // raté : la cible part à l'autre bout du terrain après la visée
-    ({ A, E } = arena());
-    await withRandom(0.6, async () => {
-      A.startCast('p', { id: far });
-      const F = DW.ArenaScene.FIELD; A.B.e.x = A.B.e.x > (F.x0 + F.x1) / 2 ? F.x0 + 2 : F.x1 - 2; A.B.e.y = A.B.e.y > (F.y0 + F.y1) / 2 ? F.y0 + 2 : F.y1 - 2;
-      await A.release('p');
-    });
-    eq(E.hp, E.maxHp, 'la cible sortie de la zone a quand même été touchée');
-  });
-});
-test("arène : pendant que le joueur choisit dans la roue, l'ennemi continue d'agir", async () => {
-  await noFx(async () => {
-    const { A } = arena();
-    A.mode = 'acmd'; A.sub = 'wheel'; A.B.e.cd = 0.2;
-    for (let i = 0; i < 20 && !A.B.e.cast; i++) A.update(0.05);
-    yes(!!A.B.e.cast, "l'ennemi n'a rien lancé pendant le menu");
-    eq(A.mode, 'acmd', 'le menu a été fermé');
-  });
-});
-test("arène : l'ennemi vaincu termine le combat (victoire)", async () => {
-  await noFx(async () => {
-    const { A, E } = arena('agumon', 'palmon', 30);
-    let result = null; A.endR = r => { result = r; };
-    E.hp = 1;
-    const far = firstMove(m => m.pow > 0 && !m.contact && DW.ArenaScene.shapeOf(m) === 'far' && (m.acc || 100) >= 90);
-    await withRandom(0.6, async () => { A.startCast('p', { id: far }); await A.release('p'); });
-    eq(result, 'win'); yes(!A.live, "le combat continue après la victoire");
-  });
-});
-
 // ------------------------------------------------------------ sauvegarde
 test("sauvegarde puis chargement : la partie revient à l'identique", () => {
   fresh();

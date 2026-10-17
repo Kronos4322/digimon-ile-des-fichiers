@@ -5,7 +5,7 @@
 //     je suis sous le sable »), elles font s'ouvrir le sable : on descend dans l'antre ;
 //  2) deux grands labyrinthes ensablés (temple de Pharaomon, Digimon World 2003), Digimon de plus en plus forts ;
 //  3) au fond, Shellmon garde Tai et Agumon prisonniers. À 35 % de ses PV, Tai est libéré :
-//     Agumon digivolue en Greymon et combat à tes côtés (allié automatique, game/arena.js et battle.js) ;
+//     Agumon digivolue en Greymon et combat à tes côtés (allié automatique, game/battle.js) ;
 //  4) victoire : trophée de Shellmon (cave de ta maison), Tai s'installe dans sa chambre chez toi,
 //     fin du chapitre 1. Ensuite Shellmon reste là : on peut le réaffronter pour l'expérience.
 // =====================================================================
@@ -256,18 +256,6 @@
     DW.autosave();
     await DW.Chapter.end1();
   }
-
-  // ------------------------------------------------------------ arène du combat : la grande coquille
-  DW.ArenaScene.FIELDS.antre = () => {
-    const W = 36, H = 24, CX = W / 2, CY = H / 2 + 0.5, RX = 15.5, RY = 9.6, rows = [];
-    for (let y = 0; y < H; y++) { let r = ''; for (let x = 0; x < W; x++) { const d = Math.hypot((x + 0.5 - CX) / RX, (y + 0.5 - CY) / RY); r += d >= 1 ? 'C' : DW.Art.hash(x, y, 91) < 0.06 ? '3' : 's'; } rows.push(r); }
-    const objects = [{ kind: 'tidepool', x: 6, y: 7, w: 2, h: 1, small: true }, { kind: 'tidepool', x: 28, y: 15, w: 2, h: 1, small: true }, { kind: 'driftwood', x: 26, y: 6, w: 2, h: 1, small: true }, { kind: 'driftwood', x: 8, y: 16, w: 2, h: 1, small: true }];
-    return { name: 'La grande coquille', rows, w: W, h: H, theme: 'beach', climate: 'beach', ambient: 'beach', bg: 'plage', indoor: true, lush: false, dense: false,
-      dark: { d: 0.35, col: '#0a1420' }, npcs: [], warps: [], triggers: [], objects };
-  };
-  // les combats de la grande coquille se déroulent dans cette arène
-  const battle0 = DW.Overworld.prototype.battle;
-  DW.Overworld.prototype.battle = function (o) { if (this.mapId === 'antre_shellmon' && o && o.enemy && o.enemy.sp === 'shellmon' && !o.field) o = { ...o, field: 'antre' }; return battle0.call(this, o); };
 
   DW.Antre = { booth, fight, hole, WORDS, ORDER };
 })();

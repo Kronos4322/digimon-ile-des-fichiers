@@ -516,7 +516,6 @@
       // le bébé
       if (F.mon.a > 0) { const ps = DW.Sprites.battle(F.baby); c.globalAlpha = F.mon.a; DW.Sprites.draw(c, ps, F.mon.x, F.mon.y - Math.abs(Math.sin(t * 9)) * 3, { scale: Math.min(0.9, 34 / ps.h), flip: F.mon.dir < 0, frame: Math.floor(t * 6) }); c.globalAlpha = 1; }
       // le héros : chute en tournoyant, puis debout (il marche, court, regarde autour de lui)
-      const hc = (DW.HEROES[DW.state.hero] ? DW.heroLook() : DW.HEROES.tai);
       if (!F.hero.landed) {
         const hs = DW.Sprites.hero('down', 0); c.save(); c.translate(F.hero.x, F.hero.y - 10); c.rotate(F.hero.rot); c.drawImage(hs.img, -hs.w, -hs.h, hs.w * 2, hs.h * 2); c.restore();
       } else {
@@ -524,7 +523,6 @@
         c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(F.hero.x, F.hero.y + 8, 12, 3, 0, 0, 7); c.fill();
         c.drawImage(hs.img, Math.round(F.hero.x - hs.w), Math.round(F.hero.y + 10 - hs.h * 2), hs.w * 2, hs.h * 2);
       }
-      void hc;
       // herbes hautes au premier plan
       for (let x = -4; x < W + 8; x += 7) { const h = 12 + (x * 37 % 9); c.fillStyle = x % 14 ? '#3a7a2e' : '#4a9a3a'; c.beginPath(); c.moveTo(x, 228); c.lineTo(x + 3 + Math.sin(t * 2 + x) * 1.5, 228 - h); c.lineTo(x + 6, 228); c.fill(); }
       if (F.puff > 0 && F.puff < 1) for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, r = 6 + F.puff * 26; c.fillStyle = `rgba(160,200,120,${0.7 * (1 - F.puff)})`; c.fillRect(F.hero.x + Math.cos(a) * r, 210 + Math.sin(a) * r * 0.3 - F.puff * 10, 3, 2); }

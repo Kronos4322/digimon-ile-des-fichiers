@@ -46,7 +46,7 @@
       if (min < 1) return;
       st.careClock = st.clock;
       if (!m) return;
-      const h0 = m.hunger, n0 = m.need, t0 = m.thirst || 0;
+      const t0 = m.thirst || 0;
       for (const d of DW.state.party) if (d.hp > 0 && d.hp < d.maxHp) d.hp = Math.min(d.maxHp, d.hp + Math.ceil(d.maxHp * 0.08 * min / 60));   // +8 % de PV par heure de jeu
       const ap = appetite(m);
       m.hunger = Math.min(100, m.hunger + min * hungerRate(m));
@@ -72,7 +72,6 @@
       const F = ow.f, x = F.moving ? F.tx : F.x, y = F.moving ? F.ty : F.y;
       const L = st.poops[ow.mapId] = st.poops[ow.mapId] || [];
       if (!L.some(p => p[0] === x && p[1] === y) && !(x === ow.p.x && y === ow.p.y) && L.length < 12) L.push([x, y]);
-      st.poopCount = (st.poopCount || 0) + 1;
       this.toast(`Oh non... ${m.name} n'a pas pu se retenir ! (bonheur -6)`, '#ffb070');
       DW.Life.mistake(m, 'accident'); DW.Life.moment('bad', 'un accident');
     },
