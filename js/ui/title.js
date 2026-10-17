@@ -217,7 +217,7 @@
       this.bootT = 0;
     }
     mote(init) { return { x: 60 + Math.random() * 200, y: init ? HZ - Math.random() * 100 : HZ - 6, v: 6 + Math.random() * 10, ph: Math.random() * 6, ch: Math.random() < 0.5 ? '0' : '1' }; }
-    get opts() { return this.info ? ['NOUVELLE PARTIE', 'CONTINUER'] : ['NOUVELLE PARTIE']; }
+    get opts() { return (this.info ? ['NOUVELLE PARTIE', 'CONTINUER'] : ['NOUVELLE PARTIE']).concat(['FICHIER']); }   // FICHIER : parties sur l'ordinateur (game/fichier.js)
     toTitle() {
       if (this.phase !== 'boot') return;
       this.phase = 'press'; this.flashA = 1; Audio.sfx('evolve');
@@ -237,10 +237,22 @@
       const n = this.opts.length;
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
-      if (Input.hit('ok') && !this.busy) this.choose(this.i === 1);
+      if (Input.hit('ok') && !this.busy) {
+        if (this.opts[this.i] === 'FICHIER') this.fileMenu();
+        else this.choose(this.i === 1);
+      }
     }
     // NOUVELLE PARTIE demande confirmation si une partie existe ; CONTINUER ne lance jamais
     // une nouvelle partie en silence quand la sauvegarde est illisible
+    // fichier de sauvegarde partagé : après l'avoir relié, l'écran titre montre les parties qu'il contenait
+    async fileMenu() {
+      this.busy = true;
+      try {
+        await DW.saveFileMenu();
+        this.info = [1, 2, 3].map(n => DW.saveInfo(n)).filter(Boolean).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))[0] || null;
+        this.i = this.info ? 1 : 0;
+      } finally { this.busy = false; }
+    }
     async choose(cont) {
       this.busy = true;
       try {

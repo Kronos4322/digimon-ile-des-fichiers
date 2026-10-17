@@ -85,11 +85,12 @@
         this.close();
         await DW.Life.educate(k === 'feliciter');
       } else if (k === 'systeme') {
-        const r = await DW.ask('Système du Digivice :', ['Sauvegarder', 'Options', 'Supprimer une partie', 'Écran titre', 'Retour']);
+        const r = await DW.ask('Système du Digivice :', ['Sauvegarder', "Fichier sur l'ordinateur", 'Options', 'Supprimer une partie', 'Écran titre', 'Retour']);
         if (r === 0) await this.act('sauver');
-        else if (r === 1) await this.act('options');
-        else if (r === 2) await deleteSave();
-        else if (r === 3) await this.act('titre');
+        else if (r === 1) await DW.saveFileMenu();
+        else if (r === 2) await this.act('options');
+        else if (r === 3) await deleteSave();
+        else if (r === 4) await this.act('titre');
       } else if (k === 'sac') await Game.push(new BagScene({}));
       else if (k === 'dex') await Game.push(new DexScene());
       else if (k === 'cartes') await Game.push(new DW.AlbumScene());

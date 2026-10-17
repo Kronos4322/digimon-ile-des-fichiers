@@ -24,7 +24,7 @@
     'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/peints.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js', 'gfx/rendu.js', 'gfx/regionfx.js',
     'gfx/battlebg.js', 'gfx/grandir.js', 'engine/time.js', 'gfx/ciel.js', 'gfx/meteo.js',
     // logique de jeu
-    'game/options.js', 'game/monster.js', 'game/objets.js', 'game/sauvegarde.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js', 'game/paysage.js',
+    'game/options.js', 'game/monster.js', 'game/objets.js', 'game/sauvegarde.js', 'game/fichier.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js', 'game/paysage.js',
     'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/fxelem.js', 'game/battle.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus

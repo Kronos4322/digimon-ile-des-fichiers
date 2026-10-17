@@ -86,7 +86,9 @@
     try { json = JSON.stringify(st); } catch (e) { DW.reportError(e, 'sauvegarde'); return false; }
     const old = read(K.KEY);
     if (old && old !== json) write(K.BAK, old);
-    return write(K.KEY, json);
+    const ok = write(K.KEY, json);
+    if (ok && DW.SaveFile) DW.SaveFile.afterSave();   // copie dans le fichier de l'ordinateur (game/fichier.js)
+    return ok;
   };
 
   // Digimon d'une sauvegarde : une espèce ou une technique disparue du jeu ne doit pas tout casser.
