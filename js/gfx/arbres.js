@@ -75,22 +75,54 @@
     }
     return C;
   }
+  // TRONC NATUREL : fût légèrement sinueux qui s'évase en racines, deux branches en fourche vers le feuillage,
+  // éclairage de cylindre (reflet à gauche, ombre froide à droite), sillons d'écorce qui suivent la forme,
+  // nœud, mousse au pied, contour sombre. o : { cx, top, base, w, bark, seed, roots }
   function trunk(x, o) {
-    const { cx, top, base, w, bark } = o, B = hex(bark), lite = mix(B, '#ffe0b0', 0.25), dk = mix(B, COOL, 0.5);
-    // racines
-    x.fillStyle = rgb(dk);
-    for (const s of [-1, 1]) { x.beginPath(); x.moveTo(cx + s * w * 0.3, base - 4); x.quadraticCurveTo(cx + s * w * 0.9, base - 1, cx + s * w * 1.25, base + 0.6); x.lineTo(cx + s * w * 0.2, base + 0.6); x.fill(); }
-    // fût légèrement évasé, dégradé (lumière à gauche)
-    const g = x.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0);
-    g.addColorStop(0, rgb(lite)); g.addColorStop(0.45, rgb(B)); g.addColorStop(1, rgb(dk));
-    x.fillStyle = g;
-    x.beginPath(); x.moveTo(cx - w * 0.42, top); x.lineTo(cx + w * 0.42, top); x.quadraticCurveTo(cx + w * 0.5, base - 6, cx + w * 0.62, base);
-    x.lineTo(cx - w * 0.62, base); x.quadraticCurveTo(cx - w * 0.5, base - 6, cx - w * 0.42, top); x.fill();
-    // écorce
-    x.strokeStyle = rgb(dk, 0.7); x.lineWidth = 0.6;
-    for (let i = 0; i < 4; i++) { const xx = cx - w * 0.3 + i * w * 0.2; x.beginPath(); x.moveTo(xx, top + 2 + i); x.quadraticCurveTo(xx + 0.6, (top + base) / 2, xx - 0.3, base - 2); x.stroke(); }
-    // creux de nœud
-    x.fillStyle = rgb(mix(dk, INK, 0.5)); x.beginPath(); x.ellipse(cx + w * 0.1, (top + base) / 2 + 2, 1, 1.5, 0, 0, 7); x.fill();
+    const { cx, top, base, w, bark } = o, seed = o.seed || 1, B = hex(bark);
+    const lite = mix(B, '#ffe2b8', 0.32), dk = mix(B, COOL, 0.5), ink = rgb(mix(B, INK, 0.62));
+    const H = base - top, N = 10;
+    // ligne médiane qui ondule un peu, demi-largeur qui s'évase fort au pied
+    const mid = t => cx + Math.sin(t * 2.6 + seed) * w * 0.09 + (t - 0.5) * w * (hash(seed, 1, 971) - 0.5) * 0.3;
+    const half = t => w / 2 * (0.82 + 0.75 * Math.pow(1 - t, 4));
+    const L = [], R = [];
+    for (let k = 0; k <= N; k++) { const t = k / N, y = base - t * H; L.push([mid(t) - half(t), y]); R.push([mid(t) + half(t), y]); }
+    // racines : langues de bois qui plongent dans le sol, effilées
+    const roots = o.roots || 3;
+    for (let r = 0; r < roots; r++) {
+      const side = r % 2 ? 1 : -1, k = (r >> 1) + 1, sx = mid(0.08) + side * half(0.08) * (0.55 + 0.15 * k), ex = sx + side * w * (0.32 + 0.22 * k + hash(seed, r, 972) * 0.2);
+      const g = x.createLinearGradient(0, base - 5, 0, base + 1); g.addColorStop(0, rgb(B)); g.addColorStop(1, rgb(dk)); x.fillStyle = g; x.strokeStyle = ink; x.lineWidth = 0.7;
+      x.beginPath(); x.moveTo(sx - side * w * 0.12, base - 4.5 - k); x.quadraticCurveTo(sx + side * w * 0.2, base - 1, ex, base + 0.8); x.quadraticCurveTo(sx, base + 0.6, sx - side * w * 0.2, base); x.closePath(); x.fill(); x.stroke();
+    }
+    // branches en fourche (cachées en partie par la couronne, peinte ensuite)
+    x.lineCap = 'round';
+    for (const [dx, dy, ww] of [[-0.95, -0.55, 0.42], [0.85, -0.7, 0.36], [0.1, -0.85, 0.3]]) {
+      const x0 = mid(1), y0 = top + 1, x1 = x0 + dx * w * 1.05, y1 = top + dy * w * 1.25;
+      x.strokeStyle = ink; x.lineWidth = w * ww + 1; x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(x0 + dx * w * 0.3, y0 - w * 0.5, x1, y1); x.stroke();
+      x.strokeStyle = rgb(mix(B, lite, dx < 0 ? 0.5 : 0)); x.lineWidth = w * ww; x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(x0 + dx * w * 0.3, y0 - w * 0.5, x1, y1); x.stroke();
+    }
+    // fût : contour sombre puis remplissage en dégradé de cylindre
+    const path = () => { x.beginPath(); L.forEach((p, k) => (k ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); for (let k = R.length - 1; k >= 0; k--) x.lineTo(R[k][0], R[k][1]); x.closePath(); };
+    x.strokeStyle = ink; x.lineWidth = 1.1; path(); x.stroke();
+    const g = x.createLinearGradient(cx - w * 0.6, 0, cx + w * 0.6, 0);
+    g.addColorStop(0, rgb(mix(B, dk, 0.2))); g.addColorStop(0.22, rgb(lite)); g.addColorStop(0.5, rgb(B)); g.addColorStop(0.85, rgb(dk)); g.addColorStop(1, rgb(mix(dk, INK, 0.3)));
+    x.fillStyle = g; path(); x.fill();
+    x.save(); path(); x.clip();
+    // sillons d'écorce : lignes ondulées qui suivent le fût, plus serrées au centre ; crêtes claires à côté
+    const nG = o.smooth ? 0 : Math.max(4, Math.round(w / 1.6));   // (bouleau : écorce lisse)
+    for (let gi = 0; gi < nG; gi++) {
+      const u = (gi + 0.5) / nG * 2 - 1, t0 = hash(seed, gi, 973) * 0.25, t1 = 0.75 + hash(seed, gi, 974) * 0.25;
+      x.beginPath();
+      for (let k = 0; k <= 12; k++) { const t = t0 + (t1 - t0) * k / 12, px = mid(t) + u * half(t) * 0.92 + Math.sin(t * 9 + gi * 2.1) * 0.35, py = base - t * H; k ? x.lineTo(px, py) : x.moveTo(px, py); }
+      x.strokeStyle = rgb(mix(dk, INK, 0.35), 0.75); x.lineWidth = 0.55 + (1 - Math.abs(u)) * 0.25; x.stroke();
+      x.translate(-0.55, 0); x.strokeStyle = rgb(lite, u < 0.2 ? 0.45 : 0.15); x.lineWidth = 0.35; x.stroke(); x.translate(0.55, 0);
+    }
+    // nœud et mousse au pied
+    const ky = base - H * (0.45 + hash(seed, 2, 975) * 0.2), kx = mid(0.5) + w * 0.12;
+    x.fillStyle = ink; x.beginPath(); x.ellipse(kx, ky, w * 0.11, w * 0.17, 0, 0, 7); x.fill();
+    x.strokeStyle = rgb(lite, 0.6); x.lineWidth = 0.5; x.beginPath(); x.ellipse(kx, ky, w * 0.16, w * 0.23, 0, Math.PI * 0.6, Math.PI * 1.5); x.stroke();
+    for (let m = 0; m < 9; m++) { const t = hash(seed, m, 976) * 0.22, side = hash(seed, m, 977) < 0.7 ? -1 : 1; x.fillStyle = m % 3 ? '#4f9a3e' : '#86c858'; x.beginPath(); x.ellipse(mid(t) + side * half(t) * (0.5 + hash(seed, m, 978) * 0.4), base - t * H, 1.3, 0.75, 0, 0, 7); x.fill(); }
+    x.restore();
   }
   // ombre du feuillage sur le haut du tronc
   function crownShadow(x, cx, y, w) {
@@ -106,7 +138,7 @@
     12: ['#6aa24a', '#3e6e3a', '#a8d070'], 13: ['#5e9a48', '#35663a', '#9ccc68'] };
   function paintTree(x, v) {
     const P = TREE_P[v] || TREE_P[0], seed = 40 + v * 7;
-    trunk(x, { cx: 18, top: 27, base: 45, w: 7.6, bark: v === 8 ? '#5a3a22' : v === 9 ? '#6a5a3a' : '#7a5230' });
+    trunk(x, { cx: 18, top: 27, base: 45, w: 6.6, seed: 3 + v, bark: v === 8 ? '#5a3a22' : v === 9 ? '#6a5a3a' : '#7a5230' });
     crownShadow(x, 18, 28, 5);
     crown(x, { seed, cx: 18, cy: 16, rx: 15, ry: 12.5, P });
     if (v === 9) { x.fillStyle = 'rgba(110,180,80,0.85)'; x.beginPath(); x.ellipse(16.5, 37, 2.2, 4.5, 0.1, 0, 7); x.fill(); }
@@ -130,16 +162,17 @@
   }
   function paintOak(x, v) {
     const P = v === 1 ? ['#c8682a', '#8e441c', '#f0a050'] : ['#327f42', '#1c5630', '#62ae58'];
-    trunk(x, { cx: 18, top: 27, base: 45, w: 9.5, bark: '#5e3e24' });
+    trunk(x, { cx: 18, top: 27, base: 45, w: 8.4, seed: 21 + v, roots: 4, bark: '#5e3e24' });
     crownShadow(x, 18, 28, 6);
     crown(x, { seed: 7 + v, cx: 18, cy: 16.5, rx: 15.5, ry: 13.5, P, n: 22 });
   }
   function paintBirch(x, v) {
     const P = v === 1 ? ['#e8c83a', '#b08e20', '#fff07a'] : ['#8ccc50', '#58a03a', '#c4ec78'];
     // tronc clair taché de noir
-    const g = x.createLinearGradient(15, 0, 21, 0); g.addColorStop(0, '#fbfaf2'); g.addColorStop(1, '#bfbcae');
-    x.fillStyle = g; x.beginPath(); x.moveTo(15.6, 22); x.lineTo(20.2, 22); x.lineTo(21, 45); x.lineTo(15, 45); x.fill();
-    x.fillStyle = '#2a2a28'; for (const y of [27, 31, 35, 39, 42]) { x.fillRect(15.6 + (y % 3), y, 2.2, 0.8); }
+    trunk(x, { cx: 18, top: 22, base: 45, w: 5.2, seed: 31 + v, roots: 2, bark: '#e6e2d4', smooth: true });
+    // taches noires du bouleau (lenticelles horizontales)
+    x.fillStyle = '#26241f';
+    for (let i = 0; i < 9; i++) { const y = 24 + i * 2.4 + hash(v, i, 981) * 1.2, w0 = 1 + hash(v, i, 982) * 1.8, x0 = 16 + hash(v, i, 983) * 2.2; x.beginPath(); x.ellipse(x0, y, w0, 0.38, 0, 0, 7); x.fill(); }
     crownShadow(x, 18, 23, 4);
     crown(x, { seed: 13 + v, cx: 18, cy: 15, rx: 13, ry: 12, P, n: 16 });
   }

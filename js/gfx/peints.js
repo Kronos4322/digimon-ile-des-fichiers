@@ -240,19 +240,8 @@
   // v0 écorce gravée, v1-v2 fissures lumineuses (énigmes résolues), v3 écorce éclatée sur un passage sombre
   OBJ.grandarbre.paint = (x, v) => {
     x.fillStyle = 'rgba(14,26,16,0.4)'; x.beginPath(); x.ellipse(66, 146, 60, 5, 0, 0, 7); x.fill();
-    // racines puissantes
-    const T = hex('#6a4626'), Tl = rgb(mix(T, WARM, 0.3)), Td = rgb(mix(T, COOL, 0.5));
-    for (const [x0, x1, s] of [[44, 10, -1], [56, 30, -1], [76, 104, 1], [88, 126, 1]]) {
-      const g = x.createLinearGradient(0, 128, 0, 147); g.addColorStop(0, Tl); g.addColorStop(1, Td); x.fillStyle = g;
-      x.beginPath(); x.moveTo(x0 - 4 * s, 124); x.quadraticCurveTo((x0 + x1) / 2, 132, x1, 147); x.lineTo(x1 + 7 * s * -1, 147); x.quadraticCurveTo((x0 + x1) / 2 - 3 * s, 138, x0 + 6 * s, 126); x.closePath(); x.fill();
-    }
-    // tronc massif évasé, lumière à gauche
-    const g = x.createLinearGradient(44, 0, 90, 0); g.addColorStop(0, Tl); g.addColorStop(0.45, rgb(T)); g.addColorStop(1, Td);
-    x.fillStyle = g; x.strokeStyle = rgb(mix(T, INK, 0.6)); x.lineWidth = 1.2;
-    x.beginPath(); x.moveTo(52, 50); x.lineTo(80, 50); x.quadraticCurveTo(80, 110, 90, 146); x.lineTo(42, 146); x.quadraticCurveTo(52, 110, 52, 50); x.closePath(); x.fill(); x.stroke();
-    x.strokeStyle = rgb(mix(T, INK, 0.5), 0.7); x.lineWidth = 0.9;
-    for (const bx of [50, 58, 74, 82]) { x.beginPath(); x.moveTo(bx + 2, 60); x.quadraticCurveTo(bx - 1, 100, bx + (bx < 66 ? -4 : 4), 142); x.stroke(); }
-    x.fillStyle = rgb(mix(T, INK, 0.55)); x.beginPath(); x.ellipse(56, 92, 3, 6, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(82, 116, 2.4, 4.4, 0, 0, 7); x.fill();
+    // tronc massif, racines puissantes (même pinceau que les arbres : gfx/arbres.js)
+    P.trunk(x, { cx: 66, top: 54, base: 146, w: 30, seed: 9, roots: 6, bark: '#6a4626' });
     // l'entrée
     if (v >= 3) {
       x.fillStyle = '#120a06'; x.beginPath(); x.ellipse(66, 128, 15, 19, 0, 0, 7); x.fill();
