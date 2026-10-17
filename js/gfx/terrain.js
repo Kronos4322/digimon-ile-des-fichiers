@@ -259,7 +259,7 @@
         let v = 3.2 + (S9(px, py) - 0.5) * 1.6 + b * 0.7 + (r > 0.9 ? -1 : r < -0.96 ? 1 : 0);
         if (hash(px, py, 10) < 0.03) v += hash(px, py, 11) < 0.5 ? -1 : 1;
         v -= SH[i] * 0.2;
-        if (en === TER.water && ed <= 7) col = WET[DW.clamp(Math.round(v * 0.5 + ed * 0.35 - 1), 0, 3)];
+        if (en === TER.water && ed <= 9) { const wv = lerpPal(WET, v * 0.5 + ed * 0.35 - 0.6), dry = SAND[DW.clamp(Math.round(v), 0, 5)], k = ed <= 5 ? 0 : (ed - 5) / 4; col = [wv[0] + (dry[0] - wv[0]) * k, wv[1] + (dry[1] - wv[1]) * k, wv[2] + (dry[2] - wv[2]) * k]; }   // sable mouillé qui sèche en s'éloignant de l'eau
         else col = SAND[DW.clamp(Math.round(v), 0, 5)];
       } else if (t === TER.lawn) {
         let v = 3 + (L12(px, py) - 0.5) * 2 + b * 0.6;
@@ -367,16 +367,21 @@
         col = Art.hex(s === 0 ? '#e0d0b0' : s === 3 ? '#7a6a50' : '#bca888');
         if (lx < 2 || lx > 13) col = CLIFF[lx < 2 ? 2 : 1];
       } else if (t === TER.bridge) {
+        // PONTON / PASSERELLE PEINTS : planches de longueurs et de tons variés, veines du bois, clous,
+        // interstices sombres où l'on devine l'eau, bords usés, pieux d'amarrage tous les 3 cases
         const vertical = !(tAt(tx - 1, ty) === TER.bridge || tAt(tx + 1, ty) === TER.bridge);
-        const a = vertical ? ly : lx, bb = vertical ? lx : ly;
-        const plank = Math.floor((vertical ? py : px) / 4);
-        const tone = ['#a8743c', '#b8844c', '#9a6a36'][Math.floor(hash(plank, 3, 22) * 3)];
-        let c = Art.hex(tone);
-        if (a % 4 === 3) c = Art.hex('#4a3018');
-        else if (a % 4 === 0) c = Art.mix(c, [255, 240, 200], 0.2);
-        c = Art.mix(c, [60, 30, 10], (noise(px * 0.6, py * 0.15, 23) - 0.5) * 0.3);
-        if (bb <= 1 || bb >= 14) c = Art.hex(bb === 0 || bb === 15 ? '#4a2c14' : '#6a4422');
-        if ((bb === 3 || bb === 12) && a % 4 === 1) c = Art.hex('#d8d0c0');
+        const a = vertical ? py : px, bb = vertical ? lx : ly, along = vertical ? px : py;
+        const plank = Math.floor(a / 5), pa = a - plank * 5, seg = Math.floor((along + Math.floor(hash(plank, 9, 22) * 16)) / 16);
+        const tone = 0.82 + hash(plank, seg, 22) * 0.36, base = [168 * tone, 116 * tone, 64 * tone];
+        let c = Art.mix(base, [70, 40, 20], (noise(along * 0.5, a * 0.9 + plank * 7, 23) - 0.5) * 0.55);   // veines
+        if (pa === 0) c = Art.mix([26, 34, 44], c, 0.25);                                                     // interstice (l'eau dessous)
+        else if (pa === 1) c = Art.mix(c, [255, 236, 196], 0.22);                                             // arête éclairée
+        else if (pa === 4) c = Art.mix(c, [40, 24, 12], 0.28);                                                // bord dans l'ombre
+        if ((along & 15) === 3 && (pa === 2 || pa === 3) && hash(plank, seg, 24) < 0.7) c = [70, 64, 60];      // clous
+        if (bb <= 1 || bb >= 14) c = Art.mix([74, 44, 22], c, bb === 0 || bb === 15 ? 0.1 : 0.4);            // poutres de rive
+        if (hash(px >> 1, py >> 1, 25) < 0.02) c = Art.mix(c, [200, 190, 170], 0.35);                         // sel, usure
+        const post = (vertical ? ty : tx) % 3 === 0 && (bb <= 2 || bb >= 13) && ((vertical ? ly : lx) >= 5 && (vertical ? ly : lx) <= 10);
+        if (post) { const r = Math.hypot((vertical ? ly : lx) - 7.5, bb <= 2 ? bb - 1 : bb - 14); c = r < 1.6 ? [126, 88, 52] : r < 2.6 ? [64, 40, 22] : c; }
         col = c;
       } else if (t === TER.wood && FLOOR) {
         col = floorPx(FLOOR, px, py, lx, ly, ed, en, SH[i], b);
@@ -697,18 +702,20 @@
         for (let k = 0; k < NW; k++) {
           if ((k & 2047) === 2047) yield;
           const i = WI[k], px = i % GW, py = (i / GW) | 0, ed = ED[i], en = EN[i];
+          // EAU PEINTE : profondeur en dégradé continu, réseau de reflets doux (caustiques), houle en longues lignes,
+          // écume du rivage fondue (plus de bandes nettes)
           let v = V0[k];
           if (ed > 4) {
-            const c1 = noise(px * 0.13 + ca * 1.4, py * 0.13 + sa * 1.4, 24), c2 = noise(px * 0.13 - ca * 1.4 + 40, py * 0.13 - sa * 1.4 + 20, 25);
-            if (Math.abs(c1 - c2) < 0.035) v -= 2;
-            if (ed > 5 && Math.sin(F26[k] + a) > 0.94) v -= 1.6;
+            const c1 = noise(px * 0.13 + ca * 1.4, py * 0.13 + sa * 1.4, 24), c2 = noise(px * 0.13 - ca * 1.4 + 40, py * 0.13 - sa * 1.4 + 20, 25), dc = Math.abs(c1 - c2);
+            if (dc < 0.05) v -= 1.7 * (1 - dc / 0.05);
+            if (ed > 5) { const sw = Math.sin(F26[k] + a); if (sw > 0.82) v -= (sw - 0.82) / 0.18 * 1.5; }
           }
-          let col = WATER[DW.clamp(Math.round(v), 0, 6)];
-          if (en === TER.bridge && ed <= 3) col = Art.mix(col, [10, 30, 60], 0.35);
+          let col = lerpPal(WATER, v);
+          if (en === TER.bridge && ed <= 4) col = Art.mix(col, [10, 30, 60], 0.4 * (1 - ed / 5));   // ombre sous le ponton
           if (en !== TER.bridge && en !== 255) {
             const fo = 1.6 + 1.3 * Math.sin(a + F27[k]);
-            if (ed <= fo) col = FOAM;
-            else if (ed <= fo + 1.4) col = FOAM2;
+            if (ed <= fo) col = Art.mix(FOAM, col, Math.max(0, (ed - fo + 1) * 0.35));
+            else if (ed <= fo + 2.2) col = Art.mix(FOAM2, col, (ed - fo) / 2.2);
           }
           if (ed > 3 && hash(px, py, 100 + f) < 0.0012) col = WHITE;
           put(W8, OUT[k], col);

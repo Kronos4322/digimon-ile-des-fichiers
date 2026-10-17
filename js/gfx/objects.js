@@ -496,10 +496,10 @@
     const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)
     return { w, h, W: Math.round(w * S), H: Math.round(h * S) }; };
   // dessin « au pinceau » (o.paint, ex. arbres peints : gfx/arbres.js) : canvas en haute définition, repère = boîte de l'objet
-  const paintRender = (o, v, z) => {
+  const paintRender = (o, v, z, f = 0) => {
     const k = Art.HD || 1, c = Art.canvas(Math.round((z.W + 2) * k), Math.round((z.H + 2) * k)), x = c.getContext('2d');
     x.scale(k * z.W / z.w, k * z.H / z.h); x.translate(1, 1);
-    o.paint(x, v);
+    o.paint(x, v, f);
     c._k = k;
     return { img: c, w: c.width / k, h: c.height / k, k };
   };
@@ -517,7 +517,8 @@
     const o = OBJ[kind], key = kind + v + '_' + f;
     if (objCache[key]) return objCache[key];
     const z = objSize(kind, v);
-    return (objCache[key] = Art.render(dd => o.draw(dd, v, f), z.W, z.H, { box: [z.w, z.h], silhouettes: false, noOutline: !!o.noOutline }));
+    return (objCache[key] = o.paint && (!o.painted || o.painted(v)) ? paintRender(o, v, z, f)
+      : Art.render(dd => o.draw(dd, v, f), z.W, z.H, { box: [z.w, z.h], silhouettes: false, noOutline: !!o.noOutline }));
   };
   World.objFrames = (kind, v = 0) => Array.from({ length: OBJ[kind].frames }, (_, f) => World.objFrame(kind, v, f));
   World.objReady = (kind, v = 0, f = 0) => !!objCache[kind + v + (OBJ[kind].frames ? '_' + f : '')];

@@ -276,6 +276,8 @@
       if (o.rim && !so.unlit && band <= 1 && ((x + 1 < W && id[i + 1] < 0) || (y + 1 < H && id[i + W] < 0)) && bay > -0.3) {
         col = Art.mix(Art.ramp(src.col).b[2], [170, 205, 255], 0.38);
       }
+      // liseré de soleil (haut-gauche, lumière chaude du décor) sur le bord éclairé
+      else if (o.rim && !so.unlit && band >= 2 && ((x > 0 && id[i - 1] < 0) || (y > 0 && id[i - W] < 0))) col = Art.mix(col, [255, 236, 186], 0.3);
       if (!s.o.noline && !ds) {
         let q;
         if ((x + 1 < W && (q = id[i + 1]) >= 0 && q < p) || (x > 0 && (q = id[i - 1]) >= 0 && q < p) ||

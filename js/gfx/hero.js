@@ -525,7 +525,7 @@
     } else {
       const draw = dir === 'right' ? d => side(d, ph, look) : dir === 'downright' ? d => threeQuarter(d, ph, false, look)
         : dir === 'upright' ? d => threeQuarter(d, ph, true, look) : d => front(d, ph, dir === 'up', look);
-      spr = Art.render(draw, HW, HH, { silhouettes: false, dither: 0.05 });
+      spr = Art.render(draw, HW, HH, { silhouettes: false, dither: 0.05, rim: true });
     }
     return (cache[key] = spr);
   };

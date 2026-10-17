@@ -69,6 +69,13 @@
     const occ = new Set();
     const mark = (o, set) => { for (let y = o.y; y < o.y + o.h; y++) for (let x = o.x; x < o.x + o.w; x++) set.add(x + ',' + y); };
     for (const o of m.objects) if (!o.walk && !o.top) mark(o, occ);
+    // cases couvertes À L'ÉCRAN par chaque dessin (largeur réelle × échelle, et sa hauteur au-dessus du pied) :
+    // deux éléments de décor ne se chevauchent jamais (un champignon ne pousse plus sur un rocher)
+    const vis = new Set();
+    const sizeOf = kind => { const D = W.OBJ[kind]; if (!D) return [16, 16]; const S = D.scale || (W.OBJ_SCALE && W.OBJ_SCALE[kind]) || 1; return [(typeof D.w === 'number' ? D.w : 32) * S, (typeof D.h === 'number' ? D.h : 32) * S]; };
+    const visCells = (kind, x, y, w) => { const [sw, sh] = sizeOf(kind), cw = Math.max(w, Math.ceil(sw / 16 - 0.25)), ch = Math.max(1, Math.ceil(sh / 16 - 0.35)), x0 = x + Math.floor((w - cw) / 2), out = []; for (let yy = y - ch + 1; yy <= y; yy++) for (let xx = x0; xx < x0 + cw; xx++) out.push(xx + ',' + yy); return out; };
+    for (const o of m.objects) if (!o.top) for (const k of visCells(o.kind, o.x, o.y + (o.h || 1) - 1, o.w || 1)) vis.add(k);
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) { const I = W.info(m.rows[y][x]); if (I && I.obj) for (const k of visCells(I.obj, x, y, 1)) vis.add(k); }
     // abords à laisser libres
     const keep = new Set(), near = (x, y, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) keep.add((x + dx) + ',' + (y + dy)); };
     for (const w of [...(m.warps || []), ...(m.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) near(x, y, 3);
@@ -117,7 +124,8 @@
         if (![...Array(fw).keys()].some(i => base.has((x + i) + ',' + (y + fh)))) fits = false;
         if (!fits) continue;
         const o = { kind: L[0], x, y, w: fw, h: fh, decor: true, landmark: true };
-        m.objects.push(o); mark(o, occ);
+        if (visCells(L[0], x, y + fh - 1, fw).some(k => vis.has(k))) continue;
+        m.objects.push(o); mark(o, occ); for (const k of visCells(L[0], x, y + fh - 1, fw)) vis.add(k);
         if (must.some(t => !ok(reach(), t))) { m.objects.pop(); for (let yy = y; yy < y + fh; yy++) for (let xx = x; xx < x + fw; xx++) occ.delete(xx + ',' + yy); continue; }
         m.landmark = L[1];
         m.signs = m.signs || {};
@@ -139,16 +147,18 @@
         const ox = j === 0 ? 0 : Math.round((A.hash(tries, 10 + j, seed) - 0.5) * 6), oy = j === 0 ? 0 : Math.round((A.hash(tries, 20 + j, seed) - 0.5) * 3);
         const x = cx + ox - Math.floor(fw / 2), y = cy + oy;
         for (let xx = x; xx < x + fw; xx++) if (!free(xx, y)) return;
+        const cells = visCells(kind, x, y, fw);
+        if (cells.some(k => vis.has(k))) return;
         const v = Math.floor(A.hash(tries, 30 + j, seed) * (W.OBJ[kind].n || 1));
         const o = { kind, v, x, y, w: fw, h: 1, decor: true, ...(tiny && SOFT.test(kind) ? { walk: true } : {}), ...(spr.h < 30 ? { small: true } : {}) };
-        m.objects.push(o); added.push(o);
+        m.objects.push(o); added.push(o); o._vis = cells; for (const k of cells) vis.add(k);
         if (!o.walk) mark(o, occ);
       });
       if (!added.length) continue;
       // un ensemble qui coupe un chemin est retiré
       const seen = reach();
       if (must.some(t => !ok(seen, t))) {
-        for (const o of added) { m.objects.splice(m.objects.indexOf(o), 1); for (let xx = o.x; xx < o.x + o.w; xx++) occ.delete(xx + ',' + o.y); }
+        for (const o of added) { m.objects.splice(m.objects.indexOf(o), 1); for (let xx = o.x; xx < o.x + o.w; xx++) occ.delete(xx + ',' + o.y); for (const k of o._vis) vis.delete(k); }
         continue;
       }
       // l'espace autour devient réservé : les ensembles restent espacés
