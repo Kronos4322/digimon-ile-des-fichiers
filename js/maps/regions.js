@@ -52,6 +52,33 @@
     }
   }
 
+  // ponts DROITS : un chemin qui traverse l'eau en biais laissait un pont en escalier ; chaque pont devient une bande
+  // de 3 cases dans le sens de la traversée, prolongée jusqu'à la terre ferme de chaque côté
+  function straightBridges(rows) {
+    const g = rows.map(r => [...r]), h = g.length, w = g[0].length, seen = new Uint8Array(w * h);
+    const wet = c => c === '~' || c === 'w' || c === '_';
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (g[y][x] !== '_' || seen[y * w + x]) continue;
+      const comp = [], st = [[x, y]]; seen[y * w + x] = 1;
+      while (st.length) { const [cx, cy] = st.pop(); comp.push([cx, cy]); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = cx + dx, ny = cy + dy; if (nx >= 0 && ny >= 0 && nx < w && ny < h && !seen[ny * w + nx] && g[ny][nx] === '_') { seen[ny * w + nx] = 1; st.push([nx, ny]); } } }
+      if (comp.length < 4) continue;
+      let mx = 1e9, Mx = -1, my = 1e9, My = -1, sx = 0, sy = 0;
+      for (const [cx, cy] of comp) { mx = Math.min(mx, cx); Mx = Math.max(Mx, cx); my = Math.min(my, cy); My = Math.max(My, cy); sx += cx; sy += cy; }
+      const hz = Mx - mx >= My - my, c0 = Math.round(hz ? sy / comp.length : sx / comp.length);
+      for (const [cx, cy] of comp) g[cy][cx] = '~';
+      const set = (a, b) => { const [cx, cy] = hz ? [a, b] : [b, a]; if (cx >= 0 && cy >= 0 && cx < w && cy < h && wet(g[cy][cx])) g[cy][cx] = '_'; };
+      const isWet = (a, b) => { const [cx, cy] = hz ? [a, b] : [b, a]; return cx >= 0 && cy >= 0 && cx < w && cy < h && wet(g[cy][cx]); };
+      const a0 = hz ? mx : my, a1 = hz ? Mx : My;
+      let s0 = a0, s1 = a1;
+      while (s0 > 0 && s0 > a0 - 8 && isWet(s0 - 1, c0)) s0--;   // jusqu'à la rive
+      while (s1 < (hz ? w : h) - 1 && s1 < a1 + 8 && isWet(s1 + 1, c0)) s1++;
+      // (un chemin qui LONGE l'eau sur une grande distance n'est pas un pont : c'est une digue de terre et de sable)
+      const dike = s1 - s0 > 11;
+      for (let a = s0; a <= s1; a++) for (const d of [-1, 0, 1]) { set(a, c0 + d); if (dike) { const [cx, cy] = hz ? [a, c0 + d] : [c0 + d, a]; if (g[cy] && g[cy][cx] === '_') g[cy][cx] = d ? 's' : '='; } }
+    }
+    return g.map(r => r.join(''));
+  }
+
   // ------------------------------------------------------------ génération des lignes d'une sous-zone
   function genRows(m) {
     const o = m.spec, { w, h } = m, ex = m.exits, hub = o.hub, seed = o.seed;
@@ -69,6 +96,7 @@
     const lm = (o.lm || []).map(([ch, n]) => [ch, Math.round(n * (o.lmMul || 1))]);
     let rows = forestGen({ w, h, seed, paths, free, clearings: [{ x: hub[0], y: hub[1], rx: o.hubR, ry: o.hubR * 0.75 }, ...(o.clearings || [])],
       lakes: o.lakes, rivers: o.rivers, autoTall: o.autoTall, deco: o.deco, landmarks: lm, bigtrees: o.bigtrees, tall: o.tall });
+    rows = straightBridges(rows);
     // bord de l'île : la mer, une plage ou une falaise sur les côtés sans passage (on garde la pièce maîtresse et ses abords)
     if (m.coast) {
       const P = m.piece, keep = P ? (x, y) => x >= P.x - 3 && x < P.x + P.w + 3 && y >= P.y - 1 && y < P.y + P.h + 4 : null;
@@ -91,6 +119,10 @@
           const [x, y] = { left: [d, pos + k], right: [w - 1 - d, pos + k], up: [pos + k, d], down: [pos + k, h - 1 - d] }[side];
           if (g.get(x, y) !== '_') g.set(x, y, '=');
         }
+      }
+      // langue de sable au lieu d'un pont : on élargit le passage sur l'eau
+      if (m.sandWalk) for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (g.get(x, y) === '_') {
+        for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0]]) { const c = g.get(x + dx, y + dy); if (c === '~' || c === 'w' || c === '_') g.set(x + dx, y + dy, Hh(x + dx, y + dy, 641) < 0.12 ? ';' : 's'); }
       }
       if (o.post) o.post(g, m);
       // activité de la sous-zone (tournoi, curling, trésor, pêche) : un panneau près du carrefour
@@ -122,15 +154,17 @@
 
   // ------------------------------------------------------------ construction d'une région
   // R : { name, theme, entry, lm, music, climate, ambient, dark, out:[[i, côté]], subs:[[nom, gabarit, options]] }
+  //     plan / links : plan propre (cases [x, y] déjà orientées, liaisons) au lieu du plan commun ;
+  //     lake : { cx, cy, r } grand lac partagé par plusieurs cartes, en coordonnées du plan (1 = une carte)
   // options : { theme, lm, noRegionLm, piece:{kind, w, h, v, door:{to, tx, ty, dw}}, pieceSign, objects, post, dark, indoor, plazas, mosaic, hazard, music, opts }
   const ENTRY = {}, LINKS = [];
   function region(rid, R) {
     const flipX = R.entry === 'right', flipY = R.entry === 'down';
-    const pos = PLAN.map(([x, y]) => [flipX ? 3 - x : x, flipY ? 2 - y : y]);
+    const pos = R.plan || PLAN.map(([x, y]) => [flipX ? 3 - x : x, flipY ? 2 - y : y]);
     const ids = R.subs.map((_, i) => rid + i);
     const sides = ids.map(() => ({}));
     const sideOf = (a, b) => { const dx = pos[b][0] - pos[a][0], dy = pos[b][1] - pos[a][1]; return dx > 0 ? 'right' : dx < 0 ? 'left' : dy > 0 ? 'down' : 'up'; };
-    for (const [a, b] of PLINKS) { const s = sideOf(a, b); sides[a][s] = ids[b]; sides[b][OPP[s]] = ids[a]; LINKS.push([ids[a], s, ids[b]]); }
+    for (const [a, b] of R.links || PLINKS) { const s = sideOf(a, b); sides[a][s] = ids[b]; sides[b][OPP[s]] = ids[a]; LINKS.push([ids[a], s, ids[b]]); }
     const ext = [[0, R.entry], ...(R.out || [])];
     for (const [i, s] of ext) { if (sides[i][s]) throw new Error(`région ${rid} : sortie ${s} déjà prise sur ${ids[i]}`); sides[i][s] = 'ext'; }
     ENTRY[rid] = ids[0];
@@ -158,7 +192,7 @@
       const m = MAPS[id] = { idx: i,
         name, regionName: R.name, music: x.music || DW.REGION_MUSIC[rid] || R.music || 'field', bg: 'foret', ambient: R.ambient || 'forest', theme, climate: R.climate || 'forest', region: rid,
         w, h, rate: 0, encounters: [], npcs: [], warps: [], exits, objects: [...(x.objects || [])], signs: { ...(x.signs || {}) }, doors: [],
-        indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard, coast: x.coast,
+        sandWalk: !!x.sandWalk, indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard, coast: x.coast,
         spec, build() { if (!this.rows) this.rows = genRows(this); },
       };
       // pièce maîtresse (grand décor) en haut à gauche, avec son parvis relié au carrefour
@@ -173,6 +207,18 @@
         if (x.pieceSign) m.signs[`${P.fx + P.dw},${P.y + P.h + 1}`] = x.pieceSign;
       }
       addRooms(m, kind, s + i * 7);
+      // grand lac partagé : chaque carte en reçoit sa part (l'eau du côté du centre), sans espaces ouverts sous l'eau
+      if (R.lake) {
+        const Lk = { x: (R.lake.cx - pos[i][0]) * w, y: (R.lake.cy - pos[i][1]) * h, rx: R.lake.r * w, ry: R.lake.r * h, bleed: true };   // (bleed : pas recopié chez les voisins, ils ont déjà le leur)
+        const inLake = (x, y, k = 1.12) => Math.hypot((x - Lk.x) / Lk.rx, (y - Lk.y) / Lk.ry) < k;
+        if (Math.hypot(Math.max(0, Math.abs(Lk.x - w / 2) - w / 2) / Lk.rx, Math.max(0, Math.abs(Lk.y - h / 2) - h / 2) / Lk.ry) < 1) {
+          // le carrefour s'écarte de l'eau (vers l'extérieur de l'anneau) tant qu'il est dans le lac
+          if (!x.sandWalk) for (let t = 0; t < 40 && inLake(spec.hub[0], spec.hub[1], 1.25); t++) { const dx = spec.hub[0] - Lk.x, dy = spec.hub[1] - Lk.y, d = Math.hypot(dx, dy) || 1; spec.hub = [Math.round(DW.clamp(spec.hub[0] + dx / d * 1.5, 8, w - 9)), Math.round(DW.clamp(spec.hub[1] + dy / d * 1.5, 7, h - 8))]; }
+          spec.lakes = [...(spec.lakes || []), Lk];
+          spec.rooms = (spec.rooms || []).filter(Rm => !inLake(Rm.x, Rm.y, 1.3));
+          spec.clearings = (spec.clearings || []).filter(c => !inLake(c.x, c.y));
+        }
+      }
     });
     linkWater(ids, sides);
     // le village de la région : première sous-zone dégagée (place, sentier, bosquet)
@@ -449,13 +495,23 @@
     ['Champs de Cristaux', 'grove', { lm: [['ç', 6]] }],
     ['Temple de Glace', 'set', { piece: { kind: 'icetemple', w: 6, h: 5 }, lm: [['è', 4]], pieceSign: "TEMPLE DE GLACE — Seuls les Digimon à l'âme pure (Vaccin) peuvent en franchir les portes." }],
   ] });
-  region('lac', { name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[7, 'left']], lm: [['Ð', 3]], subs: [
-    // (bord nord-ouest de l'île : plage à l'ouest de la Rive Sud et du Pont Numérique, falaise au nord du Phare)
-    ['Rive Sud', 'trail', { coast: { left: 'beach' } }], ['Roselière', 'islands', { lm: [['Ð', 6]] }],
-    ['Lac du Tramway', 'set', { piece: { kind: 'tram', w: 4, h: 1 }, opts: { lakes: [{ x: 26, y: 18, rx: 9, ry: 6 }] }, pieceSign: "Un vieux tramway échoué au bord du lac. Personne ne sait comment il est arrivé là." }],
-    ['Ponton des Pêcheurs', 'lake'], ['Pointe Coela', 'bridge'], ['Îlots aux Nénuphars', 'islands'],
-    ['Cascade du Dragon', 'lake'], ["Lac de l'Œil du Dragon", 'bigLake'], ['Pont Numérique', 'bridge', { lm: [['<', 2]], coast: { left: 'beach', up: 'beach' } }],
-    ['Phare du Lac', 'set', { piece: { kind: 'lighthouse', w: 3, h: 2 }, opts: { lakes: [{ x: 28, y: 18, rx: 8, ry: 6 }] }, coast: { up: 'cliff' } }],
+  // LE GRAND LAC (chapitre 2) : un seul lac qui s'étend sur neuf cartes. On en fait le tour par les rives
+  // (anneau de 8 cartes), et l'on n'atteint l'île du tramway, au centre, que par le ponton de la Cascade du Dragon, au nord.
+  //     7 — 6 — 5            (6 ↑ 9 : le Phare, sur un cap au bord de l'île)
+  //     |   |   |
+  //     8   2   4            (2 = Lac du Tramway : l'eau, l'île, le tramway — game/chapitre2.js)
+  //     |       |
+  //     1 — 0 — 3            (0 ↓ Clairière de l'Arrivée ; 1 ← Pays des Scarabées)
+  region('lac', { name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[1, 'left']], lm: [['Ð', 3]],
+    plan: [[1, 2], [0, 2], [1, 1], [2, 2], [2, 1], [2, 0], [1, 0], [0, 0], [0, 1], [1, -1]],
+    links: [[0, 1], [1, 8], [8, 7], [7, 6], [6, 5], [5, 4], [4, 3], [3, 0], [6, 2], [6, 9]],
+    lake: { cx: 1.5, cy: 1.5, r: 1.02 }, subs: [
+    // (bord nord-ouest de l'île : plages à l'ouest, côte rocheuse autour du Phare)
+    ['Rive Sud', 'trail'], ['Roselière', 'trail', { lm: [['Ð', 8]] }],
+    ['Lac du Tramway', 'trail', { sandWalk: true }],
+    ['Ponton des Pêcheurs', 'trail'], ['Pointe Coela', 'trail', { lm: [['Ð', 3]] }], ['Îlots aux Nénuphars', 'islands'],
+    ['Cascade du Dragon', 'trail', { sandWalk: true }], ["Lac de l'Œil du Dragon", 'lake', { coast: { left: 'beach', up: 'beach' } }], ['Pont Numérique', 'trail', { lm: [['<', 2]], coast: { left: 'beach' }, opts: { rivers: [{ pts: [[-1, 30], [30, 33], [58, 30], [89, 35]], r: 2.6 }] } }],   // (la rivière se jette dans le lac : le chemin la franchit sur le pont)
+    ['Phare du Lac', 'set', { piece: { kind: 'lighthouse', w: 3, h: 2 }, coast: { up: 'cliff', left: 'beach', right: 'cliff' } }],
   ] });
   region('scarabees', { name: 'Pays des Scarabées', theme: 'beetle', entry: 'right', lm: [['ý', 2], ['þ', 1]], subs: [
     ['Bois Ancien', 'trail'], ['Souches Géantes', 'grove', { lm: [['ý', 5]] }], ['Ruches Sauvages', 'grove', { lm: [['þ', 5]] }],
@@ -490,7 +546,7 @@
     ['savane1', 'up', R('usine')], ['savane4', 'right', R('decharge')], ['savane5', 'down', R('canyon')],
     ['canyon7', 'left', R('dino')], ['canyon8', 'down', R('jungle')], ['jungle5', 'down', R('overdell')],
     ['berceau', 'up', R('brumes')], ['brumes4', 'right', R('jouets')], ['brumes5', 'up', R('gel')],
-    ['clairiere', 'up', R('lac')], ['lac7', 'left', R('scarabees')], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
+    ['clairiere', 'up', R('lac')], ['lac1', 'left', R('scarabees')], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
   );
   // portes des régions (comme dans Digimon World 1 : les recrues ouvrent le monde, la ville qui grandit aussi)
   const T = () => DW.Town, LV = n => T().LEVELS[n];

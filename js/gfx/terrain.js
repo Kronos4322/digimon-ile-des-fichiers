@@ -70,12 +70,15 @@
   // par petites tranches pendant le jeu (cartes voisines préparées à l'avance).
   const NATURAL = new Set(['tree', 'bush', 'rock', 'boulder', 'mossrock', 'fern', 'stump', 'log', 'hollowlog', 'palm', 'bigtree', 'pine', 'flowers']);
   function* prep(map) {
+    if (World.fixBridges) World.fixBridges(map);   // ponts utiles redressés, ponts inutiles enlevés (gfx/ponts.js)
     if (!map.rows && map.build) map.build();
     const t0 = performance.now(), prof = {};
     let tp = t0; const lap = k => { const n = performance.now(); prof[k] = Math.round(n - tp); tp = n; };
     const GW = map.w * TS, GH = map.h * TS, N = GW * GH;
     const tt = map.rows.map(r => [...r].map(ch => TER[World.info(ch).t]));
     const tAt = (x, y) => tt[DW.clamp(y, 0, map.h - 1)][DW.clamp(x, 0, map.w - 1)];
+    // (ponts : pontons de bois au bord de la mer, ponts de pierre partout ailleurs)
+    const DOCK = map.region === 'plage' || map.dock;   // (seules les zones de plage gardent leurs pontons de bois)
     const HW = (GW >> 1) + 1;
     const half = fn => { const A = new Float32Array(HW * ((GH >> 1) + 1)).fill(NaN); return (px, py) => { const k = (py >> 1) * HW + (px >> 1); let v = A[k]; if (v !== v) v = A[k] = fn(px & ~1, py & ~1); return v; }; };
     const WX = half((x, y) => noise(x * 0.07, y * 0.07, 1)), WY = half((x, y) => noise(x * 0.07, y * 0.07, 2));
@@ -384,8 +387,36 @@
         if ((lx <= 3 || lx >= 12) && s === 3 && hash(px, py, 27) < 0.5) c = [74, 128, 64];                         // mousse
         if (lx < 2 || lx > 13) c = Art.mix(CLIFF[lx < 2 ? 3 : 1], [0, 0, 0], lx === 0 || lx === 15 ? 0.35 : 0);    // murets
         col = c;
+      } else if (t === TER.bridge && !DOCK) {
+        // PONT DE PIERRE (rivières, lacs) : tablier de dalles taillées posées en quinconce, chacune éclairée en haut
+        // à gauche, joints sombres, usure claire au milieu, mousse dans les joints ; PARAPETS sur les bords
+        // (chaperon clair, face extérieure dans l'ombre), et une borne tous les 3 ponts de case
+        const vertical = !(tAt(tx - 1, ty) === TER.bridge || tAt(tx + 1, ty) === TER.bridge);
+        const along = vertical ? py : px, across = vertical ? px : py, la = vertical ? ly : lx, lb = vertical ? lx : ly;
+        const edgeA = vertical ? tAt(tx - 1, ty) !== TER.bridge : tAt(tx, ty - 1) !== TER.bridge;   // bord gauche / haut
+        const edgeB = vertical ? tAt(tx + 1, ty) !== TER.bridge : tAt(tx, ty + 1) !== TER.bridge;   // bord droit / bas
+        const row = Math.floor(across / 5), off = (row & 1) * 4, sl = Math.floor((along + off) / 8), ia = (along + off) % 8, ib = across % 5;
+        const tone = 0.86 + hash(sl, row, 28) * 0.24;
+        let c = [178 * tone, 168 * tone, 150 * tone];
+        if (ia === 0 || ib === 0) c = hash(sl, row, 29) < 0.18 ? [70, 112, 56] : [86, 80, 74];                // joints (un peu de mousse)
+        else if (ia === 1 || ib === 1) c = Art.mix(c, [255, 246, 222], 0.28);                                     // arête éclairée
+        else if (ia === 7 || ib === 4) c = Art.mix(c, [40, 44, 56], 0.22);                                        // arête dans l'ombre
+        if (lb >= 5 && lb <= 10 && ia > 1 && ib > 1) c = Art.mix(c, [236, 228, 210], 0.12);                      // usure au milieu
+        c = Art.mix(c, [0, 0, 0], (noise(px * 0.3, py * 0.3, 30) - 0.5) * 0.18);
+        // parapets : muret de 3 px, chaperon clair, joint, puis face extérieure sombre
+        const par = edgeA && lb <= 3 ? lb : edgeB && lb >= 12 ? 15 - lb : -1;
+        if (par >= 0) {
+          const k2 = Math.floor((along + (edgeA ? 0 : 3)) / 10), stoneT = 0.9 + hash(k2, edgeA ? 1 : 2, 31) * 0.2;
+          c = par === 0 ? [74, 70, 72] : par === 1 ? [212 * stoneT, 204 * stoneT, 186 * stoneT] : par === 2 ? [176 * stoneT, 166 * stoneT, 148 * stoneT] : [92, 86, 82];
+          if ((along + (edgeA ? 0 : 3)) % 10 === 0 && par > 0 && par < 3) c = [96, 90, 84];                    // joints du chaperon
+          if (!edgeA && par === 1) c = Art.mix(c, [40, 44, 60], 0.18);                                          // muret du bas : moins de lumière
+        }
+        // bornes de pierre tous les 3 ponts de case, sur les parapets
+        const pier = (vertical ? ty : tx) % 3 === 0 && par >= 0 && la >= 4 && la <= 11;
+        if (pier) { const r = Math.hypot(la - 7.5, par - 1.5); c = r < 1.8 ? [226, 218, 200] : r < 3 ? [150, 142, 128] : r < 3.8 ? [70, 66, 66] : c; }
+        col = c;
       } else if (t === TER.bridge) {
-        // PONTON / PASSERELLE PEINTS : planches de longueurs et de tons variés, veines du bois, clous,
+        // PONTON / PASSERELLE PEINTS (bord de mer) : planches de longueurs et de tons variés, veines du bois, clous,
         // interstices sombres où l'on devine l'eau, bords usés, pieux d'amarrage tous les 3 cases
         const vertical = !(tAt(tx - 1, ty) === TER.bridge || tAt(tx + 1, ty) === TER.bridge);
         const a = vertical ? py : px, bb = vertical ? lx : ly, along = vertical ? px : py;
@@ -697,7 +728,9 @@
         if (ok) for (const [x, y, k] of cells) { solid.add(k); if (inside(x, y)) BLK[y * MW + x] = 1; }
       }
     }
-    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers };
+    const bridges = !DOCK && World.paintBridges ? World.paintBridges(map) : null;   // ponts de pierre peints (gfx/ponts.js)
+    if (bridges) for (const k of bridges.walls) solid.add(k);   // (les murets bloquent le passage)
+    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers, bridges };
     lap('sol');
     if (!water) { map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }
     else {

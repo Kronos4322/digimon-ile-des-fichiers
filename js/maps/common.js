@@ -123,7 +123,9 @@
     }
     // chemins de terre et ponts
     paths.forEach((p, k) => { for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      if (PD[k][y * w + x] < (o.dirtW || 0.62)) { if (g[y][x] === '~') g[y][x] = '_'; else if (p.dirt !== false) g[y][x] = '='; }
+      const pd = PD[k][y * w + x];
+      if ((g[y][x] === '~' || g[y][x] === 'w') && pd < (o.bridgeW || 1.5)) g[y][x] = '_';   // ponts de 3 cases de large
+      else if (pd < (o.dirtW || 0.62) && g[y][x] !== '_' && p.dirt !== false) g[y][x] = '=';
     } });
     // herbes hautes
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {

@@ -17,7 +17,7 @@
   const NODES = {
     // (chapitres 1-2, d'après les passages : le lac AU NORD de la Clairière, au bord nord-ouest de l'île ;
     //  la Plage des Cabines, les Dunes et la Crique sur la côte sud-ouest)
-    clairiere: { x: 60, y: 52, b: 'forest', desc: 'La clairière où tu as atterri. Une source de données y soigne les Digimon.' },
+    clairiere: { x: 70, y: 57, b: 'forest', desc: 'La clairière où tu as atterri. Une source de données y soigne les Digimon.' },
     sentier: { x: 84, y: 64, b: 'forest', desc: 'Un sentier sinueux traversé par une rivière. On y entend des murmures...' },
     prairie: { x: 114, y: 58, b: 'meadow', desc: "Une prairie d'herbes hautes où de nombreux Digimon viennent jouer. Idéal pour s'aguerrir au combat !" },
     geants: { x: 72, y: 90, b: 'forest', desc: 'Des arbres immenses entourent un lac paisible.' },
@@ -39,7 +39,7 @@
     brumes: { x: 150, y: 22, b: 'fog', name: 'Bois Brumeux', desc: "Un brouillard épais où l'on se perd. Les lanternes de pierre montrent le chemin." },
     jouets: { x: 190, y: 18, b: 'toy', name: 'Ville des Jouets', desc: 'Manège, petit train, nounours et boîtes à surprise, autour du château de Monzaemon.' },
     gel: { x: 106, y: 20, b: 'snow', name: 'Terre Gelée', desc: 'Neige éternelle, lacs gelés, igloos et le Temple de Glace.' },
-    lac: { x: 70, y: 40, b: 'lake', name: 'Lac du Tramway', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
+    lac: { x: 70, y: 41, b: 'lake', name: 'Lac du Tramway', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
     scarabees: { x: 38, y: 62, b: 'beetle', name: 'Pays des Scarabées', desc: "Une forêt ancienne de souches géantes, l'Arbre-Monde et le Colisée des Scarabées." },
     marais: { x: 146, y: 160, b: 'swamp', name: 'Marais des Geko', desc: 'Tourbières, roseaux chantants, cabanes sur pilotis et le Palais Geko.' },
     tunnel: { x: 196, y: 166, b: 'cave', name: 'Tunnel Foreur', desc: "Galeries de foreuses, rails abandonnés, cristaux... jusqu'à la Grotte de Lave." },

@@ -44,10 +44,9 @@
     L.objects = L.objects.filter(o => o.kind !== 'tram');
     for (const k in L.signs) if (/tramway/i.test(String(L.signs[k]))) delete L.signs[k];
     // (espaces ouverts du gabarit : seulement ceux du nord, hors du lac — sinon des ponts menaient dans le vide)
-    L.spec.rooms = (L.spec.rooms || []).filter(R => R.y + R.ry * 0.5 < LY - 12);
-    const north = L.spec.rooms;
-    Object.assign(L.spec, { hub: [50, 19], lakes: [{ x: LX, y: LY, rx: 24, ry: 12 }], tall: (L.spec.tall || []).filter(t => t.y < LY - 12),
-      clearings: [{ x: 50, y: 25, rx: 13, ry: 6 }, ...north.map(R => ({ x: R.x, y: R.y, rx: R.rx, ry: R.ry }))] });
+    // (au centre du grand lac : de l'eau jusqu'aux bords, comme sur les cartes voisines ; on arrive par le nord)
+    L.spec.rooms = [];
+    Object.assign(L.spec, { hub: [IX, IY], lakes: [{ x: LX, y: LY, rx: 80, ry: 60 }], tall: [], clearings: [], lm: [] });
     L.objects.push(
       { kind: 'tram', x: 44, y: 45, w: 4, h: 1 },
       { kind: 'campfire', x: 47, y: 48, w: 1, h: 1, small: true },
@@ -59,7 +58,9 @@
         const d = Math.hypot((x - IX) / 8, (y - IY) / 3.6);
         if (d < 0.8) g.set(x, y, '.'); else if (d < 1.1) g.set(x, y, 's');
       }
-      for (let y = LY - 16; y < IY - 2; y++) for (const x of [IX - 1, IX]) { const c = g.get(x, y); if (c === '~' || c === 'w' || c === '_') g.set(x, y, 's'); }
+      // langue de sable depuis le ponton du nord (alignée sur le passage)
+      { const ux = L.exits.up[0] + (L.exits.up[1] >> 1);
+        for (let y = 0; y < IY - 2; y++) { const x0 = Math.round(ux + (IX - ux) * Math.max(0, (y - 6) / (IY - 8))); for (const x of [x0 - 1, x0, x0 + 1]) { const c = g.get(x, y); if (c === '~' || c === 'w' || c === '_' || DW.SOLID.has(c)) g.set(x, y, y < 3 ? '=' : 's'); } } }
       // roseaux sur les berges
       for (let y = 30; y < 62; y++) for (let x = 20; x < 75; x++) {
         if (!'.,'.includes(g.get(x, y)) || DW.Art.hash(x, y, 77) > 0.3) continue;
@@ -101,8 +102,7 @@
       );
     };
     // le chemin du lac (vers la Roselière) est gardé tant que Monochromon n'est pas vaincu
-    const w = R0.warps.find(w0 => w0.to === 'lac1');
-    if (w) { w.cond = s => !ch2() || !!s.flags.monoCh2; w.lock = "Monochromon te barre la route en grattant le sol de ses pattes. Impossible de passer tant qu'il garde le chemin !"; }
+    for (const w of R0.warps.filter(w0 => w0.to === 'lac1' || w0.to === 'lac3')) { w.cond = s => !ch2() || !!s.flags.monoCh2; w.lock = "Monochromon te barre la route en grattant le sol de ses pattes. Impossible de passer tant qu'il garde les rives du lac !"; }
     R0.onEnter = async ow => {
       const s = st();
       if (!ch2() || s.flags.monoSeen) return;

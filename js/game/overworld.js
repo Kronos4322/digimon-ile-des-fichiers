@@ -472,6 +472,7 @@
       // sol fixe + calque d'eau animé (seulement la partie visible)
       c.drawImage(DW.Meteo.ground(this), 0, 0);   // (herbe jaunie pendant la canicule / sécheresse)
       if (g.water && g.water.frames.length) { const w = g.water, fr = w.frames[Math.floor(this.t * g.fps) % w.frames.length]; c.drawImage(fr, w.x, w.y); }
+      if (g.bridges) c.drawImage(g.bridges.cv, g.bridges.x, g.bridges.y);   // ponts de pierre, posés sur l'eau (gfx/ponts.js)
       const vx0 = cx - 48, vx1 = cx + W + 48, vy0 = cy - 16, vy1 = cy + H + 64;
       if (this.wet > 0.02 && g.puddles) this.drawPuddles(c, g.puddles, vx0, vx1, vy0, vy1);
       DW.Vivant.drawGround(this, c, vx0, vx1, vy0, vy1);
@@ -527,11 +528,12 @@
           if (o.flip) img = DW.Rendu.mirror(img);
           const X = Math.round(o.x - s.w / 2), Y = Math.round(o.y - s.h + 1);
           // le feuillage (haut du sprite) ondule doucement au vent ; sans décalage, un seul dessin suffit
-          const sway = o.big && !o.flat && SWAY[o.kind] ? Math.round(Math.sin(this.t * 1.3 + o.x * 0.07) * 0.8 + Math.sin(this.t * 0.37 + o.y * 0.05) * 0.5) : 0;
-          if (sway) {
-            const cut = Math.round(s.h * 0.62);
-            c.drawImage(img, 0, 0, s.w, cut, X + sway, Y, s.w, cut);
-            c.drawImage(img, 0, cut, s.w, s.h - cut, X, Y + cut, s.w, s.h - cut);
+          // (l'arbre entier s'incline doucement, le pied reste fixe : plus de coupure horizontale dans le feuillage)
+          const sway = o.big && !o.flat && SWAY[o.kind] ? Math.sin(this.t * 1.3 + o.x * 0.07) * 0.8 + Math.sin(this.t * 0.37 + o.y * 0.05) * 0.5 : 0;
+          if (Math.abs(sway) > 0.05) {
+            c.save(); c.translate(o.x, o.y + 1); c.transform(1, 0, -sway / s.h, 1, 0, 0);
+            c.drawImage(img, Math.round(-s.w / 2), Math.round(-s.h));
+            c.restore();
           } else c.drawImage(img, X, Y);
           return;
         }
