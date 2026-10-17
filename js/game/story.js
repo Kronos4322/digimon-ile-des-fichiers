@@ -154,7 +154,7 @@
   const lvOf = rid => (DW.Wild.TABLES[rid] || [10])[0];
   // niveau des boss possédés, réglé au simulateur : ~65 % de victoire (médiane sur 7 lignées de partenaires)
   // pour un partenaire entraîné arrivé au bout de la région (niveau de la région + 4)
-  const BOSS_LV = { montagne: 10, lac: 12, brumes: 12, marais: 12, savane: 14, volcan: 21, usine: 23, decharge: 22, tunnel: 24,
+  const BOSS_LV = { montagne: 10, lac: 26, brumes: 12, marais: 12, savane: 14, volcan: 21, usine: 23, decharge: 22, tunnel: 24,
     jouets: 23, canyon: 28, scarabees: 26, dino: 28, jungle: 29, gel: 32, overdell: 35 };
   async function bossFight(rid, ow) {
     const R = REG[rid], name = DW.SPECIES[R.boss].name, s = st();

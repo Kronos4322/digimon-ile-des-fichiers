@@ -125,7 +125,7 @@
     await say('GRRROOOH ! (Monochromon gratte le sol, tête baissée. Il ne laissera passer personne !)', 'Monochromon');
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Soigne-le d'abord."); return; }
     if ((await DW.ask('Affronter Monochromon ? (un Champion à la carapace très dure)')) !== 0) return;
-    const res = await ow.battle({ enemy: new DW.Digimon('monochromon', 17), boss: true, canLose: true, music: 'boss', intro: 'Monochromon charge, la corne en avant !' });
+    const res = await ow.battle({ enemy: new DW.Digimon('monochromon', 21), boss: true, canLose: true, music: 'boss', intro: 'Monochromon charge, la corne en avant !' });
     if (res !== 'win') {
       await say('Monochromon est trop solide... Entraîne-toi et reviens !');
       await ow.bossDefeat("Hohoho... Tu as foncé tête baissée contre un Monochromon ? Sa carapace est dure, mais le feu et l'électricité lui font mal. Prépare-toi, et emporte des RAM !");
@@ -181,7 +181,7 @@
     await say(`${s.name} ! Gabumon est trop faible pour lui... Aide-nous !`, 'Matt');
     ow.flyers = null; ow.cine = false;
     const res = await ow.battle({
-      enemy: new DW.Digimon('seadramon', 20), boss: true, canLose: true, music: 'seadramon', intro: 'Seadramon dresse sa tête au-dessus des vagues !',
+      enemy: new DW.Digimon('seadramon', 26), boss: true, canLose: true, music: 'seadramon', intro: 'Seadramon dresse sa tête au-dessus des vagues !',
       ally: { at: 0.4, from: 'gabumon', sp: 'garurumon', lvl: 19, hero: 'matt', name: 'Matt', move: 'flamme_bleue',
         join: "« GABUMOOON ! » Le Digivice de Matt s'illumine... GABUMON DIGIVOLUE EN... GARURUMON !" },
     });
