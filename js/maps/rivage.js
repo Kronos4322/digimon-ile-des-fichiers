@@ -20,16 +20,18 @@
     // chapitre 1 (comme au début de l'animé) : sur l'île, les partenaires des enfants ne sont encore que des bébés.
     // Pas d'Agumon, de Gabumon, de Tentomon ou de Patamon sauvages : seulement les Digimon qui vivent ici
     // (formes Entraînement, Kunemon, Mushroomon, Elecmon, Betamon, Gotsumon...) — les recrues restent à leur place.
-    plage: [E('bukamon', 5, 6, 25), E('tanemon', 5, 6, 15), E('yokomon', 5, 6, 15), E('betamon', 6, 8, 20), E('gotsumon', 6, 8, 15)],
-    crique: [E('betamon', 7, 9, 30), E('bukamon', 6, 7, 20), E('gotsumon', 7, 9, 15)],
-    lisiere: [E('kunemon', 7, 9, 30), E('yokomon', 7, 9, 20), E('mushroomon', 8, 9, 20, { night: 45 }), E('tanemon', 7, 9, 15)],
-    geants: [E('kunemon', 8, 10, 25), E('betamon', 8, 10, 20), E('tokomon', 8, 10, 15), E('mushroomon', 8, 10, 15, { night: 40 }), E('gotsumon', 9, 10, 10)],
-    sentier: [E('kunemon', 9, 11, 25), E('elecmon', 9, 11, 20), E('motimon', 9, 11, 15), E('tsunomon', 9, 11, 12), E('mushroomon', 9, 11, 15, { night: 45 })],
-    prairie: [E('kunemon', 9, 11, 20), E('yokomon', 9, 11, 20), E('elecmon', 9, 11, 15), E('tanemon', 9, 11, 15), E('motimon', 10, 11, 10), E('mushroomon', 10, 11, 15, { night: 40 })],
+    plage: [E('bukamon', 5, 6, 25), E('tanemon', 5, 6, 15), E('yokomon', 5, 6, 15), E('betamon', 6, 8, 20), E('gotsumon', 6, 8, 15), E('monochromon', 12, 14, 10, { ch: 2 })],
+    crique: [E('betamon', 7, 9, 30), E('bukamon', 6, 7, 20), E('gotsumon', 7, 9, 15), E('monochromon', 12, 14, 10, { ch: 2 })],
+    lisiere: [E('kunemon', 7, 9, 30), E('yokomon', 7, 9, 20), E('mushroomon', 8, 9, 20, { night: 45 }), E('tanemon', 7, 9, 15), E('kuwagamon', 12, 13, 10, { ch: 2 })],
+    geants: [E('kunemon', 8, 10, 25), E('betamon', 8, 10, 20), E('tokomon', 8, 10, 15), E('mushroomon', 8, 10, 15, { night: 40 }), E('gotsumon', 9, 10, 10), E('kuwagamon', 12, 14, 12, { ch: 2 })],
+    sentier: [E('kunemon', 9, 11, 25), E('elecmon', 9, 11, 20), E('motimon', 9, 11, 15), E('tsunomon', 9, 11, 12), E('mushroomon', 9, 11, 15, { night: 45 }), E('kuwagamon', 12, 14, 12, { ch: 2 })],
+    prairie: [E('kunemon', 9, 11, 20), E('yokomon', 9, 11, 20), E('elecmon', 9, 11, 15), E('tanemon', 9, 11, 15), E('motimon', 10, 11, 10), E('mushroomon', 10, 11, 15, { night: 40 }), E('monochromon', 12, 14, 12, { ch: 2 }), E('kuwagamon', 12, 14, 8, { ch: 2 })],
     // la forêt de Kuwagamon : de jeunes Kuwagamon y rôdent (des CHAMPIONS : rares, agressifs, beaucoup d'expérience) ;
     // plus nombreux une fois le grand Kuwagamon du Grand Arbre vaincu (ils reviennent s'installer dans la clairière)
     clairiere: [E('kunemon', 10, 12, 25), E('elecmon', 10, 12, 15), E('koromon', 10, 12, 15), E('tokomon', 10, 12, 12), E('mushroomon', 10, 12, 15, { night: 40 }),
-      E('kuwagamon', 9, 10, 5, { flag: 'kuwagamon', wFlag: 10 })],   // (N.9-10 : un Agumon entraîné gagne, mais y laisse ses RAM PV)
+      E('kuwagamon', 9, 10, 5, { flag: 'kuwagamon', wFlag: 10 }),
+      // chapitre 2 : on monte en niveau, des Kuwagamon plus forts envahissent toute la forêt, des Monochromon descendent du lac
+      E('kuwagamon', 13, 15, 14, { ch: 2 })],   // (N.9-10 : un Agumon entraîné gagne, mais y laisse ses RAM PV)
   };
 
   // ------------------------------------------------------------ DUNES DES BÉBÉS (40×30, agrandie ×2)

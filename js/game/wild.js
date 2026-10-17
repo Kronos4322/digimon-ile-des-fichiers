@@ -17,7 +17,7 @@
   const TABLES = {
     montagne: [8, 'gotsumon:30 biyomon:20 elecmon:15 gabumon:15 monochromon:8@6 leomon:5@8h5-8'],
     // (chapitre 2 : après la Clairière, le lac est l'étape suivante — niveau 15 et plus ; Monochromon rôde sur la Rive Sud)
-    lac: [15, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 monochromon:4 seadramon:6@7h5-9'],
+    lac: [15, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 monochromon:14 kuwagamon:10 seadramon:6@7h5-9'],
     brumes: [10, 'mushroomon:30n50 kunemon:20 patamon:15 palmon:15 bakemon:0n25@3 unimon:5@7h4-7'],
     marais: [10, 'betamon:25 mushroomon:25n40 palmon:20 gekomon:12@3 numemon:8@4n12 sukamon:6@5h22-4'],
     savane: [12, 'elecmon:30 agumon:20 biyomon:20 leomon:10@4 monochromon:8@5 centarumon:6@7h16-19'],
@@ -66,6 +66,7 @@
     // poids d'une espèce à l'heure actuelle : Ténèbres surtout la nuit ; Lumière, Air et Plante surtout le jour ;
     // une rareté à créneau (hours) n'apparaît que dans son créneau, et y est alors bien plus fréquente
     weight(x, night, hour) {
+      if (x.ch && ((DW.state.flags.chapter || 1) < x.ch)) return 0;   // (n'apparaît qu'à partir de ce chapitre)
       if (x.flag && DW.state.flags[x.flag] && x.wFlag != null) x = { ...x, w: x.wFlag };   // (plus ou moins fréquent selon l'histoire)
       if (x.hours) { const [a, b] = x.hours, inside = a <= b ? hour >= a && hour < b : hour >= a || hour < b; return inside ? x.w * 4 : 0; }
       if (night && x.night != null) return x.night;
