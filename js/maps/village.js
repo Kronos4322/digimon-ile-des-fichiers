@@ -183,7 +183,9 @@
       else if (lvl < 3) { deco('j', 26, 3); deco('f', 20, 7); deco('b', 10, 4); deco('k', 1, 8); }
       else { deco('f', 34, 7); deco('b', 10, 4); }
       // bosquets dans les coins (arbres, buissons)
-      for (const [x, y] of [[5, 7], [4, 9], [35, 6], [34, 4], [8, 25], [4, 21], [35, 20], [34, 24], [14, 3], [5, 17], [12, 17], [16, 26], [4, 11]]) g.set(x, y, 'T');
+      // (jamais à côté d'une enseigne suspendue : l'arbre la cachait)
+      const nearSign = (x, y) => Object.values(LOTS).some(L => Math.abs(L.sign[1] - x) <= 1 && Math.abs(L.sign[2] - y) <= 1);
+      for (const [x, y] of [[5, 7], [4, 9], [35, 6], [34, 4], [8, 25], [4, 21], [35, 20], [34, 24], [14, 3], [5, 17], [12, 17], [16, 26], [4, 11]]) if (!nearSign(x, y)) g.set(x, y, 'T');
       // près de la maison de Jijimon : puits, toilettes
       g.set(13, 5, 'e'); g.set(15, 24, 'y');
       // décor numérique discret (comme dans Digimon World) : antenne, tuyau, panneau de circuit
