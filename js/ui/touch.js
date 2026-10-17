@@ -136,9 +136,16 @@
     hold(root.querySelector('.menu'), 'menu'); toggleRun(root.querySelector('.run'));
     // toucher l'écran de jeu = OK (dialogues, menus)
     DW.canvas.addEventListener('pointerdown', e => {
+      // saisie du nom : on touche un prénom proposé, VALIDER, EFFACER ou le cadre du nom (qui ouvre le clavier)
+      if (Input.textMode) {
+        e.preventDefault(); if (e.pointerType !== 'mouse') buzz();
+        const r = DW.canvas.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * DW.W, y = (e.clientY - r.top) / r.height * DW.H;
+        const F = DW.NameScene && DW.NameScene.FIELD;
+        if (F && field && x >= F[0] && x <= F[0] + F[2] && y >= F[1] && y <= F[1] + F[3]) { field.focus(); return; }
+        if (field) field.blur();
+        Input.typed.push('Tap:' + x + ',' + y); return;
+      }
       if (e.pointerType === 'mouse') return; e.preventDefault(); buzz();
-      // pendant la saisie du nom, toucher l'écran valide aussi (avant, rien ne se passait : on croyait le jeu bloqué)
-      if (Input.textMode) { Input.typed.push('Enter'); if (field) field.blur(); return; }
       Input.press('touch:screen', 'ok');
     });
     for (const ev of ['pointerup', 'pointercancel']) DW.canvas.addEventListener(ev, () => Input.release('touch:screen', 'ok'));

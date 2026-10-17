@@ -92,7 +92,7 @@
     DW.Audio.init();
     if (Input.textMode) {
       if (e.target && e.target.dataset && e.target.dataset.saisie) return; // champ de saisie tactile (ui/touch.js)
-      if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Enter') { Input.typed.push(e.key); e.preventDefault(); }
+      if (e.key.length === 1 || ['Backspace', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'].includes(e.key)) { Input.typed.push(e.key); e.preventDefault(); }
       return;
     }
     const a = KEYMAP[e.code];
