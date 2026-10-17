@@ -8,16 +8,9 @@
   const MAPS = DW.MAPS;
 
   // pièce : w × (2 rangées de mur + h rangées de parquet), porte en bas au centre
-  function room(w, h) {
-    const door = Math.floor(w / 2) - 1, line = (a, b) => '0' + a.repeat(w - 2) + '0';
-    return {
-      door,
-      rows: ['0'.repeat(w), line('2'), line('2'), ...Array.from({ length: h }, () => line('1')), '0'.repeat(door) + '11' + '0'.repeat(w - door - 2)],
-    };
-  }
   // ajoute un commerce : o.lot = emplacement extérieur (pour la sortie), o.service = script du commerçant
   function shop(id, o) {
-    const R = room(o.w, o.h), m = {
+    const R = DW.MapKit.doorRoom(o.w, o.h), m = {
       name: o.name, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       rows: R.rows, objects: o.objects, npcs: o.npcs || [], signs: o.signs || {}, floor: o.floor, wall: o.wall,
       warps: [{ x: R.door, y: R.rows.length - 1, w: 2, h: 1, dir: 'down', to: 'village', tx: o.lot.x + 2, ty: o.lot.y + o.lot.h }],

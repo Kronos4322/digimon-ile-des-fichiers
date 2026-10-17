@@ -51,8 +51,7 @@
   // ------------------------------------------------------------ intérieurs des maisons (générés)
   // pièce 14 × (2 rangées de mur + 7 de sol), porte en bas au centre (colonnes 6-7)
   const ROOM_W = 14, ROOM_H = 7, DOOR_X = 6;
-  const roomRows = () => ['0'.repeat(ROOM_W), '0' + '2'.repeat(ROOM_W - 2) + '0', '0' + '2'.repeat(ROOM_W - 2) + '0',
-    ...Array.from({ length: ROOM_H }, () => '0' + '1'.repeat(ROOM_W - 2) + '0'), '0'.repeat(DOOR_X) + '11' + '0'.repeat(ROOM_W - DOOR_X - 2)];
+  const roomRows = () => DW.MapKit.doorRoom(ROOM_W, ROOM_H).rows;   // (porte en colonnes 6-7 = DOOR_X)
   const FLOORS = [null, { type: 'tile', cols: ['#f4ece0', '#c8b8a8', '#a89888'] }, { type: 'herring', cols: ['#c8925a', '#9a6a3a', '#6a4422'] },
     { type: 'carpet', cols: ['#8aa8d8', '#7898c8', '#e8d8a0'] }, { type: 'tatami', cols: ['#d8cc8a', '#c4b878', '#4a6a3a'] },
     { type: 'carpet', cols: ['#d89aa8', '#c88898', '#fff0d8'] }, { type: 'tile', cols: ['#e8f0f4', '#9ab8c8', '#7a98a8'] }, { type: 'stone', cols: ['#d8d0c4', '#b8b0a4', '#8a8478'] }];

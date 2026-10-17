@@ -344,5 +344,15 @@
     };
   }
 
-  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify };
+  // ------------------------------------------------------------ pièces d'intérieur
+  // '0' mur, '2' face du mur (2 rangées), '1' sol.
+  // roomRows(w, h) : pièce fermée de h rangées au total (les sorties se percent ensuite : portes, escaliers, ouvertures)
+  const roomRows = (w, h) => ['0'.repeat(w), '0' + '2'.repeat(w - 2) + '0', '0' + '2'.repeat(w - 2) + '0', ...Array.from({ length: h - 4 }, () => '0' + '1'.repeat(w - 2) + '0'), '0'.repeat(w)];
+  // doorRoom(w, floorH) : 2 rangées de mur, floorH rangées de sol, porte de 2 cases au milieu du bas → { door, rows }
+  const doorRoom = (w, floorH) => {
+    const door = Math.floor(w / 2) - 1, line = a => '0' + a.repeat(w - 2) + '0';
+    return { door, rows: ['0'.repeat(w), line('2'), line('2'), ...Array.from({ length: floorH }, () => line('1')), '0'.repeat(door) + '11' + '0'.repeat(w - door - 2)] };
+  };
+
+  DW.MapKit = { say, st, rle, paint, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom };
 })();

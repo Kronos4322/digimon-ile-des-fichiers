@@ -10,10 +10,6 @@
   const { say } = DW.MapKit;
   const MAPS = DW.MAPS;
   const st = () => DW.state;
-  const roomRows = (w, h) => {
-    const door = Math.floor(w / 2) - 1, line = a => '0' + a.repeat(w - 2) + '0';
-    return { door, rows: ['0'.repeat(w), line('2'), line('2'), ...Array.from({ length: h }, () => line('1')), '0'.repeat(door) + '11' + '0'.repeat(w - door - 2)] };
-  };
 
   const Grow = DW.Grow = {
     set(id, forms) {
@@ -27,7 +23,7 @@
           this.formKey = key;
           if (!F) Object.assign(this, { name: base.name, rows: base.rows, objects: base.objects.map(o => ({ ...o })), npcs: base.npcs, signs: { ...base.signs } });
           else {
-            const R = roomRows(F.w, F.h);
+            const R = DW.MapKit.doorRoom(F.w, F.h);
             Object.assign(this, { name: F.name, rows: R.rows, objects: F.objects.map(o => ({ ...o })), npcs: [], signs: {} });
             this.warps = [{ ...exit, x: R.door, y: R.rows.length - 1 }];
             this.entry = { x: R.door, y: R.rows.length - 2 };
@@ -150,13 +146,12 @@
   const J = MAPS.maison;
   if (J) {
     const lv = () => (DW.Town ? DW.Town.level() : 0);
-    const room = (w, h) => ['0'.repeat(w), '0' + '2'.repeat(w - 2) + '0', '0' + '2'.repeat(w - 2) + '0', ...Array.from({ length: h - 4 }, () => '0' + '1'.repeat(w - 2) + '0'), '0'.repeat(w)];
     const residents = (spots, skip) => DW.Town.RECRUITS.filter(r => DW.Town.has(r.id) && DW.SPECIES[r.id] && !skip.includes(r.id)).slice(0, spots.length).map((r, i) => ({ sp: r.id, x: spots[i][0], y: spots[i][1], face: i % 2 ? 'left' : 'right', wander: 1,
       talk: () => say(DW.pick(['Jijimon nous loge le temps que nos maisons soient reconstruites. Il est si gentil !', 'Hohoho, c\'est ce que dit toujours Jijimon. Je commence à le dire aussi !', 'La ville grandit à vue d\'œil. Bientôt, chacun aura sa maison !']), DW.SPECIES[r.id].name) }));
     MAPS.maison_haut = {
       name: 'Maison de Jijimon — Dortoir des habitants', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#f0e0c8', alt: '#e0ccac', pattern: 'stripes', wood: '#6a4a2a' },
-      rows: room(18, 12), npcs: [], signs: {}, warps: [], doors: [], secretEntry: true,   // (l'escalier n'apparaît chez Jijimon qu'à partir du niveau 4)
+      rows: DW.MapKit.roomRows(18, 12), npcs: [], signs: {}, warps: [], doors: [], secretEntry: true,   // (l'escalier n'apparaît chez Jijimon qu'à partir du niveau 4)
       objects: [{ kind: 'stairsdown', x: 3, y: 1, w: 2, h: 2, back: true },
         ...[7, 10, 13].map(x => ({ kind: 'bed', x, y: 3, w: 2, h: 2 })), ...[7, 10, 13].map(x => ({ kind: 'bed', x, y: 7, w: 2, h: 2 })),
         { kind: 'rug', x: 1, y: 7, w: 4, h: 3, walk: true }, { kind: 'plant', v: 0, x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'window', v: 0, x: 8, y: 1, w: 2, h: 2, back: true, oy: -6 }],
@@ -174,7 +169,7 @@
     MAPS.maison_haut2 = {
       name: 'Maison de Jijimon — Grande bibliothèque', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: { type: 'carpet', cols: ['#8a3a3a', '#6a2a2a', '#4a1a1a'] }, wall: { base: '#e8dcc0', alt: '#d8c8a4', pattern: 'plain', wood: '#4a3020' },
-      rows: room(18, 12), npcs: [], signs: {}, warps: [], secretEntry: true, doors: [{ x: 3, y: 2, w: 2, dir: 'up', to: 'maison_haut', tx: 15, ty: 3 }],
+      rows: DW.MapKit.roomRows(18, 12), npcs: [], signs: {}, warps: [], secretEntry: true, doors: [{ x: 3, y: 2, w: 2, dir: 'up', to: 'maison_haut', tx: 15, ty: 3 }],
       objects: [{ kind: 'stairsdown', x: 3, y: 1, w: 2, h: 2, back: true },
         ...[6, 8, 10, 12, 14].map((x, i) => ({ kind: 'bookshelf', v: i % 2, x, y: 3, w: 2, h: 1 })), ...[2, 4, 12, 14].map((x, i) => ({ kind: 'bookshelf', v: i % 2, x, y: 6, w: 2, h: 1 })),
         { kind: 'desk', x: 7, y: 8, w: 2, h: 1 }, { kind: 'telescope', x: 16, y: 8, w: 1, h: 1, small: true }, { kind: 'armchair', v: 1, x: 10, y: 8, w: 1, h: 1, small: true }, { kind: 'plant', v: 1, x: 1, y: 9, w: 1, h: 1, small: true }],
@@ -210,11 +205,10 @@
     const svc = () => DW.Story.services.elecmon();
     const once = key => { const f = st().flags; f.dojoDay = f.dojoDay || {}; if (f.dojoDay[key] === DW.Time.day()) return false; f.dojoDay[key] = DW.Time.day(); return true; };
     const open = (m, x, y) => { m.rows[y] = m.rows[y].slice(0, x) + '1' + m.rows[y].slice(x + 1); };
-    const room = (w, h) => ['0'.repeat(w), '0' + '2'.repeat(w - 2) + '0', '0' + '2'.repeat(w - 2) + '0', ...Array.from({ length: h - 4 }, () => '0' + '1'.repeat(w - 2) + '0'), '0'.repeat(w)];
     const TATAMI = { type: 'tatami', cols: ['#dccf8e', '#c8ba78', '#6a8a4a'] }, WALL = { base: '#f4eedc', alt: '#e4dcc4', pattern: 'plain', wood: '#4a3020' };
     // salle de méditation (à gauche du dojo)
     MAPS.dojo_zen = { name: "Dojo d'Elecmon — Salle de méditation", music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true, secretEntry: true,   // (ouverte seulement quand le dojo a grandi)
-      floor: TATAMI, wall: WALL, rows: room(14, 10), npcs: [], signs: {}, doors: [],
+      floor: TATAMI, wall: WALL, rows: DW.MapKit.roomRows(14, 10), npcs: [], signs: {}, doors: [],
       objects: [...[3, 6, 9].map(x => ({ kind: 'scroll', v: x % 2, x, y: 1, w: 1, h: 2, back: true, oy: -4 })), ...[[3, 5], [6, 5], [9, 5], [4, 7], [8, 7]].map(([x, y], i) => ({ kind: 'cushion', v: i % 3, x, y, w: 1, h: 1, small: true })),
         { kind: 'plant', v: 0, x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'plant', v: 1, x: 11, y: 8, w: 1, h: 1, small: true }],
       warps: [{ x: 13, y: 5, w: 1, h: 2, dir: 'right', to: 'dojo_in', tx: 1, ty: 5 }] };
@@ -229,7 +223,7 @@
     } });
     // salle des combats (à droite du dojo complet) : un adversaire d'entraînement par jour, à ton niveau, sans K.O.
     MAPS.dojo_combat = { name: "Dojo d'Elecmon — Salle des combats", music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true, secretEntry: true,
-      floor: { type: 'tatami', cols: ['#e8d8a0', '#d4c288', '#8a4a3a'] }, wall: WALL, rows: room(16, 11), npcs: [], signs: {}, doors: [],
+      floor: { type: 'tatami', cols: ['#e8d8a0', '#d4c288', '#8a4a3a'] }, wall: WALL, rows: DW.MapKit.roomRows(16, 11), npcs: [], signs: {}, doors: [],
       objects: [{ kind: 'bigrug', v: 2, x: 5, y: 5, w: 5, h: 3, walk: true }, ...[2, 13].map(x => ({ kind: 'dummy', x, y: 3, w: 1, h: 1, small: true })), { kind: 'scroll', v: 1, x: 7, y: 1, w: 1, h: 2, back: true, oy: -4 }],
       warps: [{ x: 0, y: 5, w: 1, h: 2, dir: 'left', to: 'dojo_in', tx: 24, ty: 5 }] };
     for (const y of [5, 6]) open(MAPS.dojo_combat, 0, y);

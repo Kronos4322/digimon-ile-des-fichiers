@@ -249,7 +249,6 @@
   };
 
   // ------------------------------------------------------------ l'étage (chambre) et le grenier
-  const roomRows = (w, h) => ['0'.repeat(w), '0' + '2'.repeat(w - 2) + '0', '0' + '2'.repeat(w - 2) + '0', ...Array.from({ length: h - 4 }, () => '0' + '1'.repeat(w - 2) + '0'), '0'.repeat(w)];
   // l'étage est un COULOIR : l'escalier à gauche, le grenier à droite, et une porte par chambre le long du mur
   // (places réservées pour les enfants qui viendront habiter chez toi)
   const SLOTS = ['chambre', 'digi', 'tai', 'matt', 'sora', 'izzy', 'mimi', 'joe', 'tk'], CW = 34;
@@ -276,7 +275,7 @@
   MAPS.maison_joueur_etage = {
     name: 'Ma maison — Couloir de l’étage', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
     floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#f8eef4', alt: '#ecdce8', pattern: 'stripes', wood: '#8a5a7a' },
-    rows: roomRows(CW, 7), objects: [], npcs: [], signs: {}, warps: [], doors: [],
+    rows: DW.MapKit.roomRows(CW, 7), objects: [], npcs: [], signs: {}, warps: [], doors: [],
     build() {
       const version = ORDER.filter(owned).join(',') + '|' + Object.keys(ROOMS).filter(roomOpen).join(',');
       if (this.version === version && this.objects.length) return;
@@ -286,7 +285,7 @@
       this.signs = {};
       furnish(this, 'etage');
       this.doors = [{ x: 1, y: 2, w: 2, dir: 'up', to: 'maison_joueur', tx: 9, ty: 3 }, { x: CW - 3, y: 2, w: 2, dir: 'up', to: 'maison_joueur_grenier', tx: 5, ty: 3 }];
-      this.rows = roomRows(CW, 7); this.warps = [];
+      this.rows = DW.MapKit.roomRows(CW, 7); this.warps = [];
       for (const r in ROOMS) if (roomOpen(r) && ROOMS[r].from === 'etage') {
         const R = ROOMS[r], x = slotX(r);
         this.objects.push({ kind: 'walldoor', v: DOOR_V[r] || 0, x, y: 1, w: 2, h: 2, back: true });
@@ -298,7 +297,7 @@
   MAPS.maison_joueur_grenier = {
     name: 'Ma maison — Grenier', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
     floor: { type: 'herring', cols: ['#a8845a', '#7a5a3a', '#4a3424'] }, wall: { base: '#c8a880', alt: '#b89870', pattern: 'plain', wood: '#6a4a2a' }, dark: { d: 0.3, col: '#3a2a20' },
-    rows: roomRows(12, 8), npcs: [], signs: {}, warps: [],
+    rows: DW.MapKit.roomRows(12, 8), npcs: [], signs: {}, warps: [],
     objects: [{ kind: 'stairsdown', x: 5, y: 1, w: 2, h: 2, back: true }, { kind: 'crates', x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'crates', v: 1, x: 2, y: 3, w: 1, h: 1, small: true },
       { kind: 'sacks', x: 9, y: 3, w: 2, h: 1 }, { kind: 'teddy', x: 1, y: 6, w: 1, h: 1 }],
     doors: [{ x: 5, y: 2, w: 2, dir: 'up', to: 'maison_joueur_etage', tx: CW - 3, ty: 3 }],
