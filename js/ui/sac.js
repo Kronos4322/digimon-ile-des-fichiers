@@ -34,7 +34,7 @@
       }
       if (it.use === 'evo') {
         if (this.o.battle) { await DW.say("Ce n'est pas le moment !"); return; }
-        const t = await Game.push(new PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
+        const t = await Game.push(new DW.PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
         if (t == null || t < 0) return;
         const mon = st.party[t];
         if (!DW.canUse(id, mon)) { await DW.say(`Ça ne marche que sur un Digimon de stade ${it.from}.`); return; }
@@ -66,7 +66,7 @@
         if (!this.o.battle) { await DW.say('Cet objet ne sert que pendant un combat.'); return; }
         this.close({ item: id, target: 0 }); return;
       }
-      const t = await Game.push(new PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
+      const t = await Game.push(new DW.PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
       if (t == null || t < 0) return;
       const mon = st.party[t];
       if (!DW.canUse(id, mon, this.o.battle)) { await DW.say("Ça n'aura aucun effet."); return; }

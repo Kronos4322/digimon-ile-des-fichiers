@@ -91,7 +91,7 @@
         else if (r === 2) await this.act('options');
         else if (r === 3) await deleteSave();
         else if (r === 4) await this.act('titre');
-      } else if (k === 'sac') await Game.push(new BagScene({}));
+      } else if (k === 'sac') await Game.push(new DW.BagScene({}));
       else if (k === 'dex') await Game.push(new DexScene());
       else if (k === 'cartes') await Game.push(new DW.AlbumScene());
       else if (k === 'carte') await Game.push(new DW.WorldMapScene());

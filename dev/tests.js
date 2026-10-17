@@ -89,6 +89,16 @@ test('fins de ligne Unix (LF) partout : jamais de CRLF (règle du projet)', () =
   yes(!bad.length, 'fichiers en CRLF (à normaliser) : ' + bad.join(', '));
 });
 
+// ------------------------------------------------------------ écrans appelés par un nom inconnu (oubli après un découpage de fichier)
+test('chaque écran « new XxxScene(...) » est déclaré dans son fichier (sinon : DW.XxxScene)', () => {
+  const bad = [];
+  for (const f of srcFiles(path.join(ROOT, 'js'))) {
+    const s = fs.readFileSync(f, 'utf8'), declared = new Set([...s.matchAll(/\b(?:class|const|let|function)\s+([A-Z]\w*Scene)\b/g)].map(m => m[1]));
+    for (const m of s.matchAll(/(?<![.\w])new\s+([A-Z]\w*Scene)\s*\(/g)) if (!declared.has(m[1])) bad.push(path.basename(f) + ' : ' + m[1]);
+  }
+  yes(!bad.length, 'écrans inconnus : ' + bad.join(', '));
+});
+
 // ------------------------------------------------------------ drapeaux
 test('tous les drapeaux utilisés sont déclarés dans js/data/flags.js', () => {
   const unknown = new Set();

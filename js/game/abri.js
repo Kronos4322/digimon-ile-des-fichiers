@@ -32,7 +32,7 @@
           A.said = false;
           A.outside += min;
           A.fear = (A.fear || 0) + min;
-          if (A.fear >= 20) { A.fear -= 20; m.addHappy(-1); DW.Companion.emote(ow, 'sweat', 2); }
+          if (A.fear >= 20) { A.fear -= 20; m.addHappy(-1); DW.Companion.emote(ow, '!', 2); }   // (la peur : un « ! » ; la goutte, c'est la fatigue)
         }
       } else if (A.id && !A.over) {
         // l'orage vient de passer
