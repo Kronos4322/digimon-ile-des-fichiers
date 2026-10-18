@@ -99,9 +99,11 @@
     { name: 'Coupe Ultime', stages: ['Ultime'], lv: [34, 38, 42], prize: 2500 },
   ];
   const ORDER = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
-  async function tournament() {
+  // 1re victoire dans une coupe : un équipement en prime (data/equipements.js)
+  const CUP_GEAR = { 'Coupe Junior': 'bandeau', 'Coupe Disciple': 'crocs_acier', 'Coupe Champion': 'armure_digitale', 'Coupe Ultime': 'pendentif' };
+  async function tournament(place = 'au Colisée des Scarabées') {
     const st = DW.state, m = st.party[0];
-    await say("Bienvenue au Colisée des Scarabées ! Ici se tiennent les grands tournois de l'île. Trois combats d'affilée, sans fuite possible !");
+    await say(`Bienvenue ${typeof place === 'string' ? place : 'au Colisée des Scarabées'} ! Ici se tiennent les grands tournois de l'île. Trois combats d'affilée, sans fuite possible !`);
     if (!m) { await say("Il te faut un partenaire Digimon pour t'inscrire !"); return; }
     const maxStage = Math.max(...st.party.map(p => ORDER.indexOf(p.d.stage)));
     const names = CUPS.map(cu => `${cu.name}${(st.flags.cups || {})[cu.name] ? ' ★' : ''}`).concat(['Annuler']);
@@ -122,6 +124,7 @@
     st.flags.cups = st.flags.cups || {}; const first = !st.flags.cups[cup.name]; st.flags.cups[cup.name] = true;
     st.bits += cup.prize;
     await say(`Tu remportes la ${cup.name} ! ${first ? 'Un trophée rejoint ta collection ! ' : ''}Prix : ${cup.prize} Bits et ${reward('cartes', first ? 3 : 1)} !`);
+    if (first && CUP_GEAR[cup.name] && DW.ITEMS[CUP_GEAR[cup.name]]) await say(`Pour ta première victoire, l'organisateur t'offre aussi : ${reward(CUP_GEAR[cup.name])} ! (un équipement : donne-le à un Digimon depuis le sac)`);
     st.party.forEach(p => p.addHappy(5));
   }
 
@@ -253,6 +256,7 @@
   }
 
   // ------------------------------------------------------------ installation dans les sous-zones
+  DW.Tournament = tournament;   // (aussi au Dojo de la ville : maps/interieurs.js)
   const ACT = { scarabees9: { run: tournament, name: 'tournoi' }, gel3: { run: curling, name: 'curling' }, tunnel2: { run: treasure, name: 'trésor' }, lac3: { run: fishing, name: 'pêche' } };
   for (const id in ACT) if (DW.MAPS[id]) DW.MAPS[id].activity = ACT[id];
   DW.Activities = { tournament, curling, treasure, fishing, scenes: { PackScene, CurlingScene, DigScene, FishScene } };

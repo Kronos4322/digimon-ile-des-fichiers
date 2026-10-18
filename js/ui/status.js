@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  FICHE DIGIMON (style Digimon World) : onglets Statut / Techniques / Digivolution / Résistances
+//  FICHE DIGIMON (style Digimon World) : onglets Statut / Techniques / Digivolution / Résistances / Équipement
 //  Gauche/Droite : onglet   Haut/Bas : Digimon (Statut) ou attaque (Techniques)
 // =====================================================================
 (function () {
@@ -21,8 +21,17 @@
     get mon() { return DW.state.party[this.i]; }
     update() {
       const n = DW.state.party.length;
-      if (Input.hit('left')) { this.tab = (this.tab + 3) % 4; Audio.sfx('move'); }
-      if (Input.hit('right')) { this.tab = (this.tab + 1) % 4; Audio.sfx('move'); }
+      if (this.busy) return;
+      if (Input.hit('left')) { this.tab = (this.tab + 4) % 5; Audio.sfx('move'); }
+      if (Input.hit('right')) { this.tab = (this.tab + 1) % 5; Audio.sfx('move'); }
+      if (this.tab === 4) {
+        this.slot = this.slot || 0;
+        if (Input.hit('up')) { this.slot = (this.slot + 2) % 3; Audio.sfx('move'); }
+        if (Input.hit('down')) { this.slot = (this.slot + 1) % 3; Audio.sfx('move'); }
+        if (Input.hit('ok')) { Audio.sfx('select'); this.busy = true; this.equipMenu().finally(() => { this.busy = false; }); return; }
+        if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
+        return;
+      }
       if (this.tab === 2 && Input.hit('ok')) { Audio.sfx('select'); DW.Game.push(new DW.EvoTableScene(this.i)); return; }
       if (this.tab === 0) {
         if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
@@ -38,10 +47,38 @@
       const m = this.mon, d = m.d;
       UI.menuBg(c, this.t);
       // onglets
-      UI.tabs(c, ['Statut', 'Techniques', 'Digivolution', 'Résistances'], this.tab);
+      UI.tabs(c, ['Statut', 'Techniques', 'Évolution', 'Résist.', 'Équipement'], this.tab, 7, 62);
       if (DW.state.party.length > 1) UI.text(c, `${this.i + 1} / ${DW.state.party.length}`, W - 10, H - 7, { size: 7, align: 'right', color: '#7ac8dc' });   // (en bas : il recouvrait le 4e onglet)
       UI.box(c, 4, 22, W - 8, H - 26);
-      if (this.tab === 0) this.drawStatus(c, m, d); else if (this.tab === 1) this.drawTech(c, m); else if (this.tab === 2) this.drawEvo(c, m, d); else this.drawRes(c, m, d);
+      if (this.tab === 0) this.drawStatus(c, m, d); else if (this.tab === 1) this.drawTech(c, m); else if (this.tab === 2) this.drawEvo(c, m, d); else if (this.tab === 3) this.drawRes(c, m, d); else this.drawEquip(c, m);
+    }
+    // onglet Équipement (comme Digimon World 2003) : arme, armure, accessoire ; ESPACE pour changer ou retirer
+    drawEquip(c, m) {
+      UI.label(c, 'ÉQUIPEMENT', 12, 28);
+      const spr = DW.Sprites.battle(m.sp);
+      DW.Sprites.draw(c, spr, 60, 150, { frame: Math.floor(this.t * 4), scale: Math.min(1, 70 / spr.h, 80 / spr.w) });
+      UI.text(c, m.name, 60, 168, { size: 9, align: 'center', color: '#ffe070' });
+      DW.EQUIP_SLOTS.forEach(([slot, lab], j) => {
+        const y = 44 + j * 44, sel = j === (this.slot || 0), id = (m.equip || {})[slot], it = id && DW.ITEMS[id];
+        UI.box(c, 112, y, W - 124, 38, sel ? 'dwsel' : 'dw');
+        UI.text(c, lab.toUpperCase(), 120, y + 11, { size: 7, color: '#5ad8ff' });
+        if (it) { c.drawImage(DW.Icons.item(id), 120, y + 16); UI.text(c, it.name, 140, y + 27, { size: 9, color: '#ffffff' }); UI.text(c, DW.equipText(it.st), W - 18, y + 11, { size: 7, align: 'right', color: '#7aff8a' }); }
+        else UI.text(c, '— rien —', 140, y + 27, { size: 9, color: '#6a8aa0' });
+      });
+      UI.text(c, `Att ${m.stat('atk')} · Déf ${m.stat('def')} · Vit ${m.stat('spd')} · Int ${m.stat('int')}`, W / 2, 196, { size: 8, align: 'center', color: '#c8f0ff' });
+      UI.text(c, 'ESPACE : changer / retirer   ·   Le Bazar en vend quand la ville grandit', W / 2, H - 14, { size: 7, align: 'center', color: '#ffe070' });
+    }
+    async equipMenu() {
+      const m = this.mon, [slot, lab] = DW.EQUIP_SLOTS[this.slot || 0], st = DW.state;
+      const own = Object.keys(st.bag).filter(id => st.bag[id] > 0 && DW.ITEMS[id] && DW.ITEMS[id].use === 'equip' && DW.ITEMS[id].slot === slot);
+      const cur = (m.equip || {})[slot];
+      const opts = [...own.map(id => `${DW.ITEMS[id].name} (${DW.equipText(DW.ITEMS[id].st)})`), ...(cur ? ['Retirer'] : []), 'Retour'];
+      if (!own.length && !cur) { await DW.say(`Aucun objet « ${lab} » dans ton sac. Le Bazar en vend !`); return; }
+      const i = await DW.choose(opts, { y: 20 });
+      if (i < 0 || opts[i] === 'Retour') return;
+      if (opts[i] === 'Retirer') { const t = DW.unequip(m, slot); if (t) await DW.say(t); return; }
+      Audio.sfx('buff');
+      await DW.say(DW.useItem(own[i], m));
     }
     // onglet Résistances : ce que le Gymnase a endurci, et les dégâts reçus de chaque élément (élément du Digimon compris)
     drawRes(c, m, d) {

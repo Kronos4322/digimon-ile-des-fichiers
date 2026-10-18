@@ -65,7 +65,7 @@
     name: 'Bosquet des Pousses', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'plage', rate: 0.14, wildN: 10,
     rows: forestGen(zoomGen({ w: 40, h: 30, seed: 42, autoTall: 0.48, deco: 1, landmarks: [['}', 3], ['>', 2]],
       clearings: [{ x: 20, y: 15, rx: 13, ry: 9 }, { x: 31, y: 8, rx: 5, ry: 4 }, { x: 9, y: 22, rx: 5, ry: 4 }],
-      paths: [{ pts: [[20, 31], [20, 22], [16, 15], [22, 9], [31, 8], [41, 8.5]], r: 1.5 }, { pts: [[16, 15], [9, 22]], r: 1.3, dirt: false }],
+      paths: [{ pts: [[20, 31], [20, 22], [16, 15], [22, 9], [31, 8], [41, 8.5]], r: 1.5 }, { pts: [[20.5, -1], [20.5, 4], [22, 9]], r: 1.8 }, { pts: [[16, 15], [9, 22]], r: 1.3, dirt: false }],
       tall: [{ x: 27, y: 18, r: 4 }, { x: 10, y: 11, r: 3.5 }],
       bigtrees: [[30, 22]],
       free: [[20, 27, 3]],

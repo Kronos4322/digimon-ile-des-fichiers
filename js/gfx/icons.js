@@ -100,6 +100,10 @@
     cake: (d, c) => { d.rect(3, 8, 10, 5.6, '#f4e0c8', { round: 0.2, shiny: true }); d.rect(3, 6, 10, 2.8, c, { round: 0.3 }); d.circ(8, 5, 1.4, '#e03a4a', { shiny: true }); },
     jar: (d, c) => { d.rect(4, 5, 8, 9, c, { round: 0.3, shiny: true }); d.rect(3.4, 3, 9.2, 2.6, '#c8a060', { round: 0.3 }); d.deco.rect(5, 8, 6, 3, '#ffffff'); },
     bowl: (d, c) => { d.ell(8, 8, 6.4, 2.6, c, 0, { shiny: true }); d.poly([[1.6, 8], [14.4, 8], [12, 13.4], [4, 13.4]], '#f4f0e8', { shiny: true }); d.deco.rect(4, 11, 8, 1, '#4a8ad0'); d.deco.ell(6, 7, 1.6, 0.8, '#ffffff', 0, { unlit: true }); },
+    // équipements (data/equipements.js) : griffes, armure, anneau
+    claw: (d, c) => { for (let k = 0; k < 3; k++) d.poly([[3 + k * 3.6, 13], [5 + k * 3.6, 3 + k * 0.6], [7 + k * 3.6, 13]], c, { shiny: true }); d.rect(2, 11.4, 12, 3.2, '#6a4a2a', { round: 0.3 }); },
+    armor: (d, c) => { d.poly([[3, 3], [6, 2], [8, 4], [10, 2], [13, 3], [14, 7], [12, 8], [12, 14], [4, 14], [4, 8], [2, 7]], c, { shiny: true }); d.deco.line(8, 5, 8, 13, 0.6, '#ffffff'); },
+    ring: (d, c) => { d.ell(8, 10, 5, 4, '#e0c060', 0, { shiny: true }); d.deco.ell(8, 10.4, 3, 2.2, '#2a2230', 0, { unlit: true }); d.circ(8, 5, 2.6, c, { shiny: true }); d.deco.circ(7.2, 4.3, 0.8, '#ffffff', { unlit: true }); },
     evo: (d, c) => { d.poly([[8, 1], [10.4, 6], [15, 8], [10.4, 10], [8, 15], [5.6, 10], [1, 8], [5.6, 6]], c, { shiny: true }); d.deco.circ(8, 8, 2.2, '#ffffff', { unlit: true }); },
   };
   const make = (set, id) => {

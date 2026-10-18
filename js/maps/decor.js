@@ -81,6 +81,8 @@
     for (const w of [...(m.warps || []), ...(m.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) near(x, y, 3);
     for (const k in m.signs || {}) { const [x, y] = k.split(',').map(Number); near(x, y, 2); }
     for (const [x0, y0, x1, y1] of m.dressKeep || []) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) keep.add(x + ',' + y);   // zones à garder nues (ex. les cabines)
+    // aux deux bouts des ponts : rien (les parapets bloquent les côtés, un décor au débouché fermerait le passage)
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.rows[y][x] === '_') near(x, y, 2);
     // devant les lieux clés (le Grand Arbre de Kuwagamon) : rien ne doit cacher l'entrée ni le héros
     for (const o of m.objects) if (o.kind === 'grandarbre') {
       const rows = m.rows.map(r => [...r]); let cut = false;

@@ -40,13 +40,14 @@
     jouets: { x: 190, y: 18, b: 'toy', name: 'Ville des Jouets', desc: 'Manège, petit train, nounours et boîtes à surprise, autour du château de Monzaemon.' },
     gel: { x: 106, y: 20, b: 'snow', name: 'Terre Gelée', desc: 'Neige éternelle, lacs gelés, igloos et le Temple de Glace.' },
     lac: { x: 70, y: 41, b: 'lake', name: 'Lac du Tramway', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
-    scarabees: { x: 38, y: 62, b: 'beetle', name: 'Pays des Scarabées', desc: "Une forêt ancienne de souches géantes, l'Arbre-Monde et le Colisée des Scarabées." },
+    miharashi: { x: 44, y: 60, b: 'desert', name: 'Pays de Meramon', desc: "Des déserts hérissés de poteaux télégraphiques, le Village des Yokomon et sa vieille épave, et le Mont Miharashi où veille Meramon." },
+    scarabees: { x: 30, y: 90, b: 'beetle', name: 'Pays des Scarabées', desc: "Une forêt ancienne de souches géantes, l'Arbre-Monde et le Colisée des Scarabées." },
     marais: { x: 146, y: 160, b: 'swamp', name: 'Marais des Geko', desc: 'Tourbières, roseaux chantants, cabanes sur pilotis et le Palais Geko.' },
     tunnel: { x: 196, y: 166, b: 'cave', name: 'Tunnel Foreur', desc: "Galeries de foreuses, rails abandonnés, cristaux... jusqu'à la Grotte de Lave." },
   };
   const EDGES = [['clairiere', 'sentier'], ['sentier', 'prairie'], ['prairie', 'berceau'], ['sentier', 'geants'], ['geants', 'lisiere'], ['lisiere', 'plage'], ['plage', 'village'], ['village', 'gym'], ['village', 'champs'],
     ['village', 'montagne'], ['montagne', 'volcan'], ['montagne', 'savane'], ['savane', 'usine'], ['savane', 'decharge'], ['savane', 'canyon'], ['canyon', 'dino'], ['canyon', 'jungle'], ['jungle', 'overdell'],
-    ['berceau', 'brumes'], ['brumes', 'jouets'], ['brumes', 'gel'], ['clairiere', 'lac'], ['lac', 'scarabees'], ['champs', 'marais'], ['champs', 'tunnel']];
+    ['berceau', 'brumes'], ['brumes', 'jouets'], ['brumes', 'gel'], ['clairiere', 'lac'], ['clairiere', 'miharashi'], ['sentier', 'miharashi'], ['lac', 'miharashi'], ['miharashi', 'scarabees'], ['champs', 'marais'], ['champs', 'tunnel']];
   // couleurs des biomes sur la carte [ombre, base, lumière]
   const BIOME = {
     forest: ['#1e5a2a', '#2e7234', '#46903e'], meadow: ['#4a8a34', '#64a83e', '#88c454'], autumn: ['#7a4a1e', '#a8642a', '#d08a3a'], beach: ['#c8a868', '#e2c88a', '#f4e2b0'],
@@ -54,7 +55,7 @@
     mountain: ['#5a5a62', '#7a7a82', '#a8a8b0'], volcano: ['#4a2a22', '#6a3a2a', '#c8502a'], savanna: ['#a88a36', '#c8a848', '#e4c868'], factory: ['#4a4e56', '#626670', '#848892'],
     trash: ['#5a4a36', '#76624a', '#96806a'], canyon: ['#9a4a28', '#c06a38', '#de9058'], dino: ['#2e5a22', '#447a30', '#6a9a3e'], jungle: ['#145a24', '#1e7a32', '#34a048'],
     cemetery: ['#2e2a3e', '#463e5a', '#625a7a'], fog: ['#4a6a64', '#6a8a84', '#9ab8b0'], toy: ['#c86aa0', '#e890c0', '#ffb8dc'], snow: ['#9aaac4', '#c4d2e6', '#f0f6ff'],
-    lake: ['#3a8a4a', '#4aa058', '#6ac070'], beetle: ['#3a6a24', '#4e822e', '#6a9e3e'], swamp: ['#3a4a24', '#4e5e2e', '#6a7a3e'], cave: ['#3a3236', '#524850', '#706670'],
+    lake: ['#3a8a4a', '#4aa058', '#6ac070'], desert: ['#9a8a5a', '#c0ae7a', '#e0d2a0'], beetle: ['#3a6a24', '#4e822e', '#6a9e3e'], swamp: ['#3a4a24', '#4e5e2e', '#6a7a3e'], cave: ['#3a3236', '#524850', '#706670'],
   };
   // lieu de la carte d'une carte du jeu : sa région, sinon celle de la carte voisine la plus proche
   // (intérieurs, caves, salles de donjon...) en suivant les passages

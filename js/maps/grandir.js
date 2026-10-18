@@ -246,7 +246,7 @@
         objects: [...[4, 9, 14].map(x => ({ kind: 'scroll', v: x % 2, x, y: 1, w: 1, h: 2, back: true, oy: -4 })), ...tables([[4, 4], [15, 4], [4, 9], [15, 9]]),
           { kind: 'weights', x: 17, y: 6, w: 1, h: 1, small: true }, { kind: 'plant', v: 0, x: 18, y: 10, w: 1, h: 1, small: true }],
         decor: m => { for (const y of [5, 6]) open(m, 0, y); m.warps.push({ x: 0, y: 5, w: 1, h: 2, dir: 'left', to: 'dojo_zen', tx: 12, ty: 5 }); m.signs['9,2'] = '« Le corps se forge au combat. L\'esprit, à l\'entraînement. » — À gauche : la salle de méditation.'; },
-        npcs: () => [{ sp: 'elecmon', x: 9, y: 4, face: 'down', talk: svc }] },
+        npcs: () => [{ sp: 'elecmon', x: 9, y: 4, face: 'down', talk: svc }, DW.arenaNPC(13, 6)] },
       { min: 8, name: "Dojo d'Elecmon — Grand hall", w: 26, h: 11,
         objects: [...[5, 12, 19].map(x => ({ kind: 'scroll', v: x % 2, x, y: 1, w: 1, h: 2, back: true, oy: -4 })), ...tables([[4, 4], [21, 4], [4, 11], [21, 11], [9, 8], [16, 8]]),
           { kind: 'weights', x: 12, y: 11, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 1, y: 3, w: 1, h: 1, small: true }, { kind: 'bigplant', x: 24, y: 3, w: 1, h: 1, small: true }],
@@ -255,7 +255,7 @@
           m.warps.push({ x: 0, y: 5, w: 1, h: 2, dir: 'left', to: 'dojo_zen', tx: 12, ty: 5 }, { x: 25, y: 5, w: 1, h: 2, dir: 'right', to: 'dojo_combat', tx: 1, ty: 5 });
           m.signs['12,2'] = '« Le corps se forge au combat. L\'esprit, à l\'entraînement. » — À gauche : méditation. À droite : combats.';
         },
-        npcs: () => [{ sp: 'elecmon', x: 12, y: 4, face: 'down', talk: svc }, { sp: DW.SPECIES.gotsumon ? 'gotsumon' : 'elecmon', x: 8, y: 7, face: 'right', wander: 1, talk: () => say('Hop ! Hop ! Je m\'entraîne pour devenir aussi fort que Golemon !', 'Gotsumon') }] },
+        npcs: () => [{ sp: 'elecmon', x: 12, y: 4, face: 'down', talk: svc }, DW.arenaNPC(16, 6), { sp: DW.SPECIES.gotsumon ? 'gotsumon' : 'elecmon', x: 8, y: 7, face: 'right', wander: 1, talk: () => say('Hop ! Hop ! Je m\'entraîne pour devenir aussi fort que Golemon !', 'Gotsumon') }] },
     ]);
   }
 

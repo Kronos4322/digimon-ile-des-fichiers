@@ -377,8 +377,9 @@
     ], 'BILAN DU CHAPITRE 2'));
     await say("Hohoho ! Matt est un garçon bien taciturne... mais il a bon cœur. Il est monté direct dans sa chambre.", 'Jijimon');
     await say("Son petit frère, TK... Je n'en ai pas entendu parler. Mais l'île est grande. Garde l'œil ouvert, et demande à Biyomon : elle a des nouvelles de partout.", 'Jijimon');
-    await say("Hm ? Un grand panache de fumée s'élève au loin, du côté du Mont Panorama... Ça ne me dit rien qui vaille.", 'Jijimon');
-    await Game.push(new DW.ChapterScene('CHAPITRE 3', 'La Montagne de Feu', 'Un brasier vivant dévale les pentes... et une fille au chapeau bleu a été vue tout près.'));
+    await say("Hm ? Un grand panache de fumée s'élève à l'ouest, par-delà la forêt... Du côté du Mont Miharashi. Ça ne me dit rien qui vaille.", 'Jijimon');
+    await say("Le voile de données s'est levé à l'ouest de la Clairière de l'Arrivée et du Sentier des Murmures. Un désert, puis un village... Va voir !", 'Jijimon');
+    await Game.push(new DW.ChapterScene('CHAPITRE 3', 'La Montagne de Feu', 'Un brasier vivant dévale les pentes du Mont Miharashi... et une fille au chapeau bleu a été vue tout près.'));
     DW.autosave();
   }
 
@@ -390,7 +391,7 @@
     if (!f.monoCh2) return "Le chemin du grand lac est ouvert, au nord de la Clairière de l'Arrivée. Mais un Monochromon furieux garde la Rive Sud : il faudra le vaincre pour passer.";
     if (!kidMatt()) return "Au Lac du Tramway, une île porte un vieux tramway. La nuit (20 h - 5 h), on y entend un harmonica... Va voir qui campe là-bas.";
     if ((f.chapter || 1) < 3) return "Matt et Gabumon vivent chez toi.";
-    return "Matt et Gabumon vivent chez toi. Matt cherche son petit frère, TK... Et une fumée inquiétante s'élève du Mont Panorama.";
+    return "Matt et Gabumon vivent chez toi. Matt cherche son petit frère, TK... Et une fumée inquiétante s'élève à l'ouest de la forêt, du côté du Mont Miharashi.";
   };
   Object.assign(DW.Chapter, { end2, monoFight, mattScene });
 })();

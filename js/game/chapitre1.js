@@ -160,8 +160,8 @@
   // ouvre après Kuwagamon. Renvoie le message de blocage, ou null si la carte est accessible.
   const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set();   // (la Crique du Radeau est ouverte dès le début : Whamon n'y apparaît qu'après Shellmon)
   // les régions de l'île s'ouvrent chapitre après chapitre, dans l'ordre de l'anime :
-  // chapitre 2 (Garurumon) : le lac ; chapitre 3 (Birdramon) : le volcan ; les autres attendent leur chapitre
-  const OPENS = { lac: 2, volcan: 3 };
+  // chapitre 2 (Garurumon) : le lac ; chapitre 3 (Birdramon) : le pays de Meramon (déserts, Village des Yokomon, Mont Miharashi) ; les autres attendent leur chapitre
+  const OPENS = { lac: 2, miharashi: 3, volcan: 3 };
   function lock(to) {
     const ch = st().flags.chapter || 1, m = DW.MAPS[to];
     if (!m) return null;
@@ -169,7 +169,7 @@
       const rid = m.region;
       if (!rid || CH1.has(rid) || !(DW.REGION_ENTRY && rid in DW.REGION_ENTRY)) return null;
       if (OPENS[rid] && ch >= OPENS[rid]) return null;
-      return `Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.${ch === 2 ? " Pour l'instant, c'est vers le grand lac, au nord de la Clairière de l'Arrivée, qu'il faut aller." : ''}`;
+      return `Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.${ch === 2 ? " Pour l'instant, c'est vers le grand lac, au nord de la Clairière de l'Arrivée, qu'il faut aller." : ch === 3 ? " Pour l'instant, c'est à l'ouest de la forêt, vers le désert et le Mont Miharashi, qu'il faut aller." : ''}`;
     }
     if (CH1.has(m.region) && !CH1_CLOSED.has(to)) return null;
     return "Un étrange voile de données bloque le passage... Il est apparu en même temps que les monstres de la forêt et de la plage. Il faut d'abord rétablir le calme sur cette partie de l'île.";

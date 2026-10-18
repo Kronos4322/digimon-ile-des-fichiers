@@ -22,6 +22,8 @@
     brumes: [10, 'mushroomon:30n50 kunemon:20 patamon:15 palmon:15 bakemon:0n25@3 unimon:5@7h4-7'],
     marais: [10, 'betamon:25 mushroomon:25n40 palmon:20 gekomon:12@3 numemon:8@4n12 sukamon:6@5h22-4'],
     savane: [12, 'elecmon:30 agumon:20 biyomon:20 leomon:10@4 monochromon:8@5 centarumon:6@7h16-19'],
+    // (chapitre 3 : après Seadramon N.26 — le désert 26-28, la route et le Mont Miharashi jusqu'à 29-31)
+    miharashi: [26, 'gotsumon:25 agumon:20 elecmon:15 kunemon:10 monochromon:10 biyomon:8 leomon:6@3 meramon:6@4 birdramon:4@3h6-9'],
     volcan: [16, 'agumon:30 gotsumon:20 meramon:20@2 monochromon:12 birdramon:8@5 skullmeramon:3@9h18-22'],
     usine: [18, 'kunemon:25 tentomon:25 elecmon:20 numemon:15 kabuterimon:10@4 andromon:3@8h14-17'],
     decharge: [18, 'numemon:30 sukamon:30 kunemon:15 mushroomon:15 ogremon:8@4 etemon:2@9h19-23'],

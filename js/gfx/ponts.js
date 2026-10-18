@@ -245,7 +245,11 @@
     for (const c of comps) {
       const seed = c.x0 * 31 + c.y0 * 17;
       const rect = c.n === (c.x1 - c.x0 + 1) * (c.y1 - c.y0 + 1);
-      const hz = c.x1 - c.x0 >= c.y1 - c.y0;
+      // sens du pont : il relie les deux rives où se trouve la terre ferme (un pont court et large, comme à l'entrée
+      // de la ville, garde ainsi ses parapets le long de l'eau et pas en travers du passage) ; sinon, le plus long côté
+      const landAt = (tx, ty) => !isB(tx, ty) && !isWater(tx, ty), mx = Math.round((c.x0 + c.x1) / 2), my = Math.round((c.y0 + c.y1) / 2);
+      const lLR = landAt(c.x0 - 1, my) || landAt(c.x1 + 1, my), lTB = landAt(mx, c.y0 - 1) || landAt(mx, c.y1 + 1);
+      const hz = lLR !== lTB ? lLR : c.x1 - c.x0 >= c.y1 - c.y0;
       if (!rect) {   // pont de forme irrégulière (rare) : dalles case par case, parapets sur les bords qui donnent sur l'eau
         for (const [tx, ty] of c.cells) deck(x, tx * TS, ty * TS, tx * TS + TS, ty * TS + TS, hz, seed + tx * 3 + ty);
         for (const [tx, ty] of c.cells) {

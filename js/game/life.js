@@ -78,12 +78,11 @@
       if (idx < 0) return;
       await DW.say(`${m.name} a été mis K.O. trop souvent... Ses données s'effacent doucement.`);
       await DW.say(`${m.name} : Merci... pour tout... On se reverra...`);
-      await DW.say('Ses données se rassemblent... et forment un DigiŒuf.');
       const nm = Life.reborn(m);
       // il oublie une ou deux techniques (il en garde toujours au moins une)
       const lost = [];
       for (let n = 1 + (Math.random() < 0.5 ? 1 : 0); n > 0 && nm.moves.length > 1; n--) { const i = Math.floor(Math.random() * nm.moves.length); lost.push(DW.MOVES[nm.moves[i].id].name); nm.moves.splice(i, 1); }
-      await DW.fade(1, 0.5, '#ffffff'); await DW.wait(0.3); DW.fade(0, 0.4);
+      await DW.Game.push(new DW.RebirthScene(m, nm.sp));   // (ses données s'envolent et forment l'œuf : ui/renaissance.js)
       await DW.Game.push(new DW.HatchScene(nm.sp));
       st.party[idx] = nm; st.seen[nm.sp] = st.owned[nm.sp] = true;
       await DW.say(`${m.name} renaît en ${DW.SPECIES[nm.sp].name}...${lost.length ? ` Il a oublié ${lost.join(' et ')}.` : ''}`);
@@ -186,6 +185,7 @@
       const tr = {}; for (const k in m.tr) tr[k] = Math.floor(m.tr[k] / 2);
       // même lignée : il garde ses techniques et son surnom ; nouvelle lignée : un nouveau Digimon qui hérite d'une partie de la force
       const nm = new DW.Digimon(sp, 4, same ? { iv, tr, happy: Math.max(50, m.happy), wins: m.wins, moves: m.moves.slice(0, DW.MAX_MOVES), nick: m.nick, uid: m.uid } : { iv, tr, happy: 60 });
+      nm.equip = Object.assign({}, m.equip || {});   // (il garde son équipement)
       nm.lives = m.lives + 1; nm.lifespan = LIFESPAN + 2 * nm.lives; nm.disc = Math.round(m.disc / 2); nm.mistakes = 0; nm.fat = 0;
       return nm;
     },
@@ -198,7 +198,7 @@
       let i = -1;
       while (i < 0) i = await DW.choose(eggs.map((e, k) => DW.SPECIES[e].name + (k ? '' : ' (même lignée)')), { y: 20 });
       const nm = Life.reborn(m, eggs[i]);
-      await DW.fade(1, 0.5, '#ffffff'); await DW.wait(0.3); DW.fade(0, 0.4);
+      await DW.Game.push(new DW.RebirthScene(m, nm.sp));
       await DW.Game.push(new DW.HatchScene(nm.sp));
       st.party[idx] = nm; st.seen[nm.sp] = st.owned[nm.sp] = true;
       await DW.say(i === 0 ? `${m.name} renaît en ${DW.SPECIES[nm.sp].name} ! (vie n°${nm.lives + 1}) Il garde ses techniques et une partie de sa force.`

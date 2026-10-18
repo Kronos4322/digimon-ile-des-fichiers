@@ -14,26 +14,26 @@
     // interface de base : widgets et dialogues
     'ui/widgets.js', 'ui/dialog.js',
     // données du jeu
-    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/techniques_classe.js', 'data/techniques_elements.js', 'data/items.js',
+    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/techniques_classe.js', 'data/techniques_elements.js', 'data/items.js', 'data/equipements.js',
     'data/music.js', 'data/musiques_regions.js', 'data/flags.js',
     // graphismes
     'gfx/sprites.js',
     'gfx/digimon/entrainement.js', 'gfx/digimon/disciples.js', 'gfx/digimon/champions.js', 'gfx/digimon/ultimes.js',
     'gfx/digimon/ultimes2.js', 'gfx/digimon/ile.js', 'gfx/digimon/agumon.js', 'gfx/digimon/bebes.js', 'gfx/digimon/lignees.js', 'gfx/digimon/gabumon.js', 'gfx/digimon/vues.js',
     'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/arbres.js', 'gfx/town.js', 'gfx/district.js', 'gfx/littoral.js', 'gfx/ecussons.js', 'gfx/chapitre1.js', 'gfx/temple.js', 'gfx/classe.js', 'gfx/themes.js',
-    'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/peints.js', 'gfx/maisons.js', 'gfx/hiver.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/ponts.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js', 'gfx/rendu.js', 'gfx/regionfx.js',
+    'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/peints.js', 'gfx/desert.js', 'gfx/maisons.js', 'gfx/hiver.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/ponts.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js', 'gfx/rendu.js', 'gfx/regionfx.js',
     'gfx/battlebg.js', 'gfx/grandir.js', 'engine/time.js', 'gfx/ciel.js', 'gfx/meteo.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/objets.js', 'game/sauvegarde.js', 'game/fichier.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js', 'game/abri.js', 'game/paysage.js',
     'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/fxelem.js', 'game/battle.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus
-    'ui/menus.js', 'ui/sac.js', 'ui/boutique.js', 'ui/nom.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/hatch.js', 'ui/farm.js', 'ui/worldmap.js',
+    'ui/menus.js', 'ui/sac.js', 'ui/boutique.js', 'ui/nom.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/hatch.js', 'ui/renaissance.js', 'ui/farm.js', 'ui/worldmap.js',
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/decor.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/rivage.js', 'maps/village.js', 'maps/joueur.js', 'maps/maison.js', 'maps/interieurs.js', 'maps/grandir.js',
     'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/enigmes.js', 'maps/donjons.js', 'maps/kuwagamon.js', 'maps/classe.js', 'maps/gymnase.js', 'maps/regions.js', 'maps/antre.js', 'maps/yokomon.js', 'maps/souterrain.js', 'maps/distrib.js',
-    'game/activities.js', 'game/peche.js', 'game/services.js', 'game/story.js', 'game/requests.js', 'game/cuisine.js', 'game/guide.js', 'game/chapitre1.js', 'game/cine_shellmon.js', 'game/debut.js', 'game/trophees.js', 'game/chapitre2.js',
+    'game/activities.js', 'game/peche.js', 'game/services.js', 'game/story.js', 'game/requests.js', 'game/cuisine.js', 'game/guide.js', 'game/chapitre1.js', 'game/cine_shellmon.js', 'game/debut.js', 'game/trophees.js', 'game/chapitre2.js', 'game/chapitre3.js',
     // démarrage
     'main.js',
   ];

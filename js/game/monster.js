@@ -18,6 +18,7 @@
       this.wins = o.wins || 0;
       this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
       this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
+      this.equip = Object.assign({}, o.equip || {});                                 // équipement porté { arme, armure, acc } (data/equipements.js)
       this.raw = Object.assign({}, o.raw || {});                                    // entraînement « Statistique »
       this.res = Object.assign({}, o.res || {});                                    // résistances aux éléments (Gymnase, maps/gymnase.js)
       this.abi = o.abi || 0;                                                         // ABI : repousse les plafonds d'entraînement
@@ -47,7 +48,7 @@
     // (le calcul « brut » reste celui d'origine, puis il est multiplié par DW.SCALE)
     // bonus d'entraînement non arrondi : multiplié par DW.SCALE, chaque point se voit sur la stat (+6 PV, +1 Attaque...)
     // entraînement (tr : compte pour les Digivolutions), entraînement « Statistique » (raw : stat directe), puces
-    bonus(k) { const t = (this.tr && this.tr[k]) || 0, r = (this.raw && this.raw[k]) || 0; return t * this.level / 100 + t / 3 + r * 0.8 + ((this.chips && this.chips[k]) || 0); }
+    bonus(k) { const t = (this.tr && this.tr[k]) || 0, r = (this.raw && this.raw[k]) || 0; return t * this.level / 100 + t / 3 + r * 0.8 + ((this.chips && this.chips[k]) || 0) + (DW.equipBonus ? DW.equipBonus(this, k) : 0); }
     // STADE : un vrai fossé entre les stades (un Champion écrase un Disciple du même niveau), comme dans Digimon World
     get stageMult() { return DW.STAGE_MULT[this.d.stage] || 1; }
     stat(k) {
@@ -111,7 +112,7 @@
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {} };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {} };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);

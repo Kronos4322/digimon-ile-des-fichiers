@@ -44,6 +44,9 @@
   bazar.signs['1,3'] = bazar.signs['2,3'] = 'Des catalogues de remèdes et de vieux plans de la ville.';
 
   // ------------------------------------------------------------ Dojo d'Elecmon
+  // l'arbitre des tournois de la ville (Coupes Junior, Disciple, Champion, Ultime : game/activities.js)
+  const arena = (x, y) => ({ sp: 'agumon', x, y, face: 'down', talk: async () => { await DW.say("Moi, j'organise les tournois de la ville ! Une coupe par jour, trois combats d'affilée.", 'Agumon'); await DW.Tournament('au tournoi du Dojo'); } });
+  DW.arenaNPC = arena;
   const dojo = shop('dojo_in', {
     name: "Dojo d'Elecmon", w: 14, h: 7, lot: { x: 29, y: 7, w: 5, h: 3 },
     floor: { type: 'tatami', cols: ['#dccf8e', '#c8ba78', '#6a8a4a'] }, wall: { base: '#f4eedc', alt: '#e4dcc4', pattern: 'plain', wood: '#4a3020' },
@@ -52,7 +55,7 @@
       { kind: 'dummy', x: 1, y: 4, w: 1, h: 1, small: true }, { kind: 'dummy', x: 12, y: 4, w: 1, h: 1, small: true },
       { kind: 'weights', x: 1, y: 7, w: 1, h: 1, small: true }, { kind: 'plant', v: 0, x: 12, y: 8, w: 1, h: 1, small: true },
     ],
-    npcs: [{ sp: 'elecmon', x: 7, y: 4, face: 'left', talk: svc('elecmon') }],
+    npcs: [{ sp: 'elecmon', x: 7, y: 4, face: 'left', talk: svc('elecmon') }, arena(10, 5)],
   });
   dojo.signs['6,2'] = '« Le corps se forge au combat. L\'esprit, à l\'entraînement. »';
 

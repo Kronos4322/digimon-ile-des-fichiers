@@ -25,8 +25,17 @@
       case 'manual': return !battle && !!DW.nextMove(m);
       case 'buff': case 'protect': return !!battle && m.hp > 0;
       case 'evo': return !battle && m.hp > 0 && m.d.stage === it.from;
+      case 'equip': return !battle;   // (équipement : remplace celui du même emplacement, qui revient dans le sac)
       default: return false;
     }
+  };
+  // retire un équipement (il revient dans le sac s'il y a de la place) ; renvoie le message
+  DW.unequip = (m, slot) => {
+    const id = m.equip && m.equip[slot]; if (!id) return '';
+    if (!DW.bagRoom(id)) return 'Ton sac est plein : impossible de le retirer.';
+    const hp0 = m.maxHp, mp0 = m.maxMp; delete m.equip[slot]; DW.giveItem(id);
+    m.hp = DW.clamp(m.hp + m.maxHp - hp0, m.hp > 0 ? 1 : 0, m.maxHp); m.mp = DW.clamp(m.mp + m.maxMp - mp0, 0, m.maxMp);
+    return `${DW.ITEMS[id].name} retourne dans le sac.`;
   };
   // applique les bonus permanents d'un objet (puces, fruits) ; renvoie le texte des gains
   function applyChips(m, chip) {
@@ -66,6 +75,14 @@
     if (it.use === 'sick') { const was = m.sick || m.hurt; m.sick = 0; m.hurt = 0; m.germs = 0; m.addHappy(2); return was ? `${m.name} est guéri !` : `${m.name} reprend des couleurs. Il ne tombera pas malade !`; }
     if (it.use === 'hurt') { m.hurt = 0; return `La blessure de ${m.name} est soignée !`; }
     if (it.use === 'chip') return `${m.name} absorbe la puce : ${applyChips(m, it.chip)} !`;
+    if (it.use === 'equip') {
+      m.equip = m.equip || {};
+      const old = m.equip[it.slot], hp0 = m.maxHp, mp0 = m.maxMp;
+      m.equip[it.slot] = id;
+      if (old) st.bag[old] = (st.bag[old] || 0) + 1;   // (la place vient d'être libérée dans le sac)
+      m.hp = DW.clamp(m.hp + m.maxHp - hp0, m.hp > 0 ? 1 : 0, m.maxHp); m.mp = DW.clamp(m.mp + m.maxMp - mp0, 0, m.maxMp);
+      return `${m.name} s'équipe : ${it.name} (${DW.equipText(it.st)})${old ? ` — ${DW.ITEMS[old].name} retourne dans le sac` : ''} !`;
+    }
     return '';
   };
   // prochaine technique de l'espèce que le Digimon ne connaît pas encore (Manuel de technique)

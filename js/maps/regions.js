@@ -156,7 +156,7 @@
   // R : { name, theme, entry, lm, music, climate, ambient, dark, out:[[i, côté]], subs:[[nom, gabarit, options]] }
   //     plan / links : plan propre (cases [x, y] déjà orientées, liaisons) au lieu du plan commun ;
   //     lake : { cx, cy, r } grand lac partagé par plusieurs cartes, en coordonnées du plan (1 = une carte)
-  // options : { theme, lm, noRegionLm, piece:{kind, w, h, v, door:{to, tx, ty, dw}}, pieceSign, objects, post, dark, indoor, plazas, mosaic, hazard, music, opts }
+  // options : { w, h, theme, lm, noRegionLm, piece:{kind, w, h, v, door:{to, tx, ty, dw}}, pieceSign, objects, post, dark, indoor, plazas, mosaic, hazard, music, opts }
   const ENTRY = {}, LINKS = [];
   function region(rid, R) {
     const flipX = R.entry === 'right', flipY = R.entry === 'down';
@@ -174,7 +174,7 @@
       if (dj && !x.piece) x = { ...x, ...dj };
       const id = ids[i], s = Hh(i, rid.length * 13 + rid.charCodeAt(0), 501) * 1000 | 0;
       // cartes larges (comme Digimon World) : de la place pour explorer et contourner les Digimon sauvages
-      const w = 88 + Math.floor(Hh(i, 1, s) * 3) * 6, h = 64 + Math.floor(Hh(i, 2, s) * 3) * 4;
+      const w = x.w || 88 + Math.floor(Hh(i, 1, s) * 3) * 6, h = x.h || 64 + Math.floor(Hh(i, 2, s) * 3) * 4;   // (x.w / x.h : grande carte)
       const exits = {};
       for (const side in sides[i]) {
         const span = side === 'left' || side === 'right' ? h : w, off = Math.round((Hh(i, side.length, s) - 0.5) * (span > 32 ? 8 : 6));
@@ -245,6 +245,7 @@
     jungle: ['Village de la Jungle', 'palmon', 'bogshack', ['orange_bana', 'noix_douce', 'figue']],
     gel: ['Hameau des Neiges', 'penguinmon', 'chalet', ['champi_glace', 'digitruite']],
     overdell: ['Hameau des Ombres', 'bakemon', 'cottage', ['reveil', 'viande_moisie']],
+    miharashi: ['Village des Yokomon', 'yokomon', 'yokohut', ['digichampi', 'super_viande']],
   };
   function placeHamlet(g, m, hub, occ) {
     const H = HAMLET[m.region]; if (!H) return;
@@ -516,6 +517,81 @@
     ['Prairie des Falaises', 'plaza', { theme: 'meadow', coast: { up: 'cliff', left: 'cliff' } }],
     ['Falaises du Couchant', 'plaza', { theme: 'meadow', coast: { left: 'cliff', up: 'cliff', down: 'cliff' } }],
   ] });
+  // ------------------------------------------------------------ CHAPITRE 3 : le pays de Meramon (épisode 4 de la saison 1)
+  // À la sortie ouest de la forêt, des déserts hérissés de poteaux télégraphiques et de panneaux routiers ;
+  // au centre, le Village des Yokomon (huttes de chaume, fontaine, petit lac où dort une épave) ;
+  // puis la route du Mont Miharashi, montagne verte en terrasses où vit Meramon. Bords : plage et falaises.
+  //        4 Mont — 3 Route — 1 Village — 0 Désert des Poteaux | Clairière de l'Arrivée
+  //                                       |
+  //                                       2 Plaine des Panneaux | Sentier des Murmures
+  //                                       (au sud : le Bosquet des Pousses)
+  const poles = (g, m, n) => {   // poteaux le long de la « ligne » (la route) et semés dans le désert, panneaux à la sortie de la forêt
+    const ground = c => c === '.' || c === ',' || c === ';' || c === 'f';
+    const [hx, hy] = m.spec.hub;
+    for (let x = 4; x < g.w - 4; x += 6) { const y = hy - 4 + Math.round(Math.sin(x * 0.11) * 2); if (ground(g.get(x, y))) g.set(x, y, 'Ţ'); }
+    for (let y = 4; y < g.h - 4; y++) for (let x = 4; x < g.w - 4; x++) if (ground(g.get(x, y)) && Hh(x, y, 851 + n) < 0.014 && Math.abs(y - hy) > 2) g.set(x, y, 'Ţ');
+    const ex = m.exits.right;
+    if (ex) {
+      const ys = [ex[0] - 3, ex[0] - 2, ex[0] + ex[1] + 1, ex[0] + ex[1] + 2];
+      [[g.w - 8, ys[0]], [g.w - 12, ys[1]], [g.w - 9, ys[2]], [g.w - 14, ys[3]]].forEach(([x, y]) => { if (ground(g.get(x, y)) || g.get(x, y) === 'Ţ') g.set(x, y, 'Ŝ'); });
+      const sx = g.w - 3, sy = ex[0] - 1;   // (juste au bord du passage : on le lit en sortant de la forêt)
+      g.set(sx, sy, 'S'); m.signs[sx + ',' + sy] = n === 0
+        ? "↑ Rosière · ← Village des Yokomon · → Clairière de l'Arrivée. Les poteaux du désert suivent l'ancienne ligne... jusqu'au village."
+        : "↑ Désert des Poteaux · ↓ Bosquet des Pousses · → Sentier des Murmures. Qui a planté tous ces panneaux ? Mystère...";
+    }
+  };
+  region('miharashi', { name: 'Pays de Meramon', theme: 'desert', entry: 'right', music: 'field', climate: 'beach', ambient: 'beach',
+    out: [[0, 'up'], [2, 'right'], [2, 'down'], [3, 'down']],
+    plan: [[3, 0], [2, 0], [3, 1], [1, 0], [0, 0]], links: [[0, 1], [0, 2], [1, 3], [3, 4]],
+    subs: [
+      ['Désert des Poteaux', 'trail', { noRegionLm: true, post: (g, m) => poles(g, m, 0) }],
+      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', w: 112, h: 80, noRegionLm: true, coast: { up: 'beach', down: 'cliff' },
+        opts: { hub: [56, 40], lakes: [{ x: 28, y: 60, rx: 13, ry: 7.5 }], autoTall: 0.2 },
+        objects: [
+          { kind: 'stonefountain', v: 0, x: 54, y: 31, w: 5, h: 3 },
+          { kind: 'shipwreck', v: 0, x: 25, y: 58, w: 7, h: 4 },
+          ...[[40, 18], [50, 15], [62, 15], [72, 18], [30, 26], [82, 26], [30, 44], [44, 50], [66, 50], [78, 44]].map(([x, y], i) => ({ kind: 'yokohut', v: 0, x, y, w: 4, h: 3, hut: i })),
+        ],
+        signs: { '56,35': "La fontaine du village. Les Yokomon y puisent l'eau qui arrose leurs fleurs." },
+        post: (g, m) => {
+          // place de terre battue autour de la fontaine
+          for (let y = 27; y <= 38; y++) for (let x = 44; x <= 68; x++) if (Math.hypot((x - 56) / 12, (y - 32.5) / 6) < 1 && g.get(x, y) === '.') g.set(x, y, '=');
+          // banc de sable sous l'épave, au milieu du petit lac
+          for (let y = 56; y <= 64; y++) for (let x = 21; x <= 35; x++) { const d = Math.hypot((x - 28) / 7.5, (y - 60.5) / 4); if (d < 1) g.set(x, y, d < 0.75 ? 's' : ';'); }
+          g.set(56, 35, 'S');
+        } }],
+      ['Plaine des Panneaux', 'trail', { noRegionLm: true, coast: { left: 'cliff' }, post: (g, m) => poles(g, m, 2) }],
+      ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', coast: { up: 'cliff' }, lm: [['Ó', 3]], noRegionLm: true }],
+      ['Mont Miharashi', 'plaza', { theme: 'miharashi', w: 96, h: 96, noRegionLm: true, coast: { up: 'cliff', left: 'cliff', down: 'cliff' },
+        opts: { hub: [48, 72], autoTall: 0.3 },
+        objects: [{ kind: 'smallvolcano', v: 0, x: 47, y: 19, w: 3, h: 2 }],
+        post: (g, m) => {
+          // une montagne verte en terrasses (comme dans l'anime) : un cône entouré de jungle, 4 gradins de falaise
+          // (2 cases d'épaisseur), un escalier par gradin, et un chemin qui monte en lacets jusqu'au cratère
+          const top = 18, bot = 76, cx = 48, half = y => 5 + (y - top) / (bot - top) * 30;
+          const LINES = { 66: 60, 54: 35, 42: 58, 30: 47 };
+          for (let y = top - 3; y <= bot + 3; y++) for (let x = 2; x < g.w - 2; x++) {
+            const d = Math.abs(x - cx) - (y < top ? 4 : y > bot ? half(bot) : half(y));
+            if (d > 0 && !'~wsr3R'.includes(g.get(x, y))) { g.set(x, y, d < 2.5 && Hh(x, y, 864) < 0.5 ? 'T' : '#'); continue; }   // jungle tout autour des pentes
+            if (d > 0 || y < top || y > bot) continue;
+            if (m.objects.some(o => x >= o.x && x < o.x + o.w && y >= o.y && y < o.y + o.h)) continue;
+            const L = LINES[y] != null ? y : LINES[y - 1] != null ? y - 1 : LINES[y - 2] != null ? y - 2 : null;   // (gradins de 3 cases)
+            if (L != null) g.set(x, y, Math.abs(x - LINES[L]) <= 1 ? '^' : 'C');
+            else g.set(x, y, Hh(x, y, 861) < 0.16 && y > top + 4 && Math.abs(x - cx) > 3 ? ',' : Hh(x, y, 862) < 0.025 ? 'Ó' : Hh(x, y, 865) < 0.03 ? 'f' : '.');
+          }
+          // le sentier qui arrive de la route (à l'est), sur le premier gradin
+          const [p, l] = m.exits.right;
+          for (let y = p; y < p + l; y++) for (let x = Math.floor(cx + half(y)) - 1; x < g.w; x++) g.set(x, y, '=');
+          // chemin de terre qui monte en lacets d'un escalier à l'autre
+          const way = [[g.w - 4, p + 2], [60, 70], [60, 68], [60, 65], [35, 60], [35, 56], [35, 53], [58, 48], [58, 44], [58, 41], [47, 36], [47, 32], [47, 29], [48, 23]];
+          for (let i = 0; i + 1 < way.length; i++) { const [x0, y0] = way[i], [x1, y1] = way[i + 1], n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+            for (let k = 0; k <= n; k++) { const x = Math.round(x0 + (x1 - x0) * k / n), y = Math.round(y0 + (y1 - y0) * k / n); const c = g.get(x, y); if (c !== '^' && c !== 'C') g.set(x, y, '='); } }
+        } }],
+    ] });
+  // (le Mont : on arrive de la route par l'est, au pied de la montagne)
+  MAPS.miharashi4.exits.right = [68, 6];
+  MAPS.miharashi1.calm = true;   // pas de Digimon sauvages dans le village
+
   region('scarabees', { name: 'Pays des Scarabées', theme: 'beetle', entry: 'up', lm: [['ý', 2], ['þ', 1]], subs: [
     ['Bois Ancien', 'trail'], ['Souches Géantes', 'grove', { lm: [['ý', 5]] }], ['Ruches Sauvages', 'grove', { lm: [['þ', 5]] }],
     ['Sentier des Lucanes', 'maze'], ['Clairière Dorée', 'plaza'], ['Mare aux Libellules', 'lake'],
@@ -549,7 +625,7 @@
     ['savane1', 'up', R('usine')], ['savane4', 'right', R('decharge')], ['savane5', 'down', R('canyon')],
     ['canyon7', 'left', R('dino')], ['canyon8', 'down', R('jungle')], ['jungle5', 'down', R('overdell')],
     ['berceau', 'up', R('brumes')], ['brumes4', 'right', R('jouets')], ['brumes5', 'up', R('gel')],
-    ['clairiere', 'up', R('lac')], ['lac1', 'down', R('scarabees')], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
+    ['clairiere', 'up', R('lac')], ['clairiere', 'left', 'miharashi0'], ['lac1', 'down', 'miharashi0'], ['sentier', 'left', 'miharashi2'], ['bosquet', 'up', 'miharashi2'], ['miharashi3', 'down', R('scarabees')], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
   );
   // portes des régions (comme dans Digimon World 1 : les recrues ouvrent le monde, la ville qui grandit aussi)
   const T = () => DW.Town, LV = n => T().LEVELS[n];
@@ -568,7 +644,7 @@
 
   // sorties ajoutées aux cartes existantes (cases ouvertes dans leurs fichiers)
   // (plan d'origine des cartes agrandies ×2 : voir MapKit.ZOOM)
-  const EXTRA0 = { village: { right: [13, 3] }, berceau: { up: [23, 3] }, clairiere: { up: [16, 3] }, champs: { left: [19, 3], down: [20, 3] } };
+  const EXTRA0 = { village: { right: [13, 3] }, berceau: { up: [23, 3] }, clairiere: { up: [16, 3], left: [14, 3] }, sentier: { left: [11, 3] }, bosquet: { up: [19, 3] }, champs: { left: [19, 3], down: [20, 3] } };
   const EXTRA = {}, DIM = {};
   for (const id in EXTRA0) { const [Z] = DW.MapKit.ZOOM[id]; EXTRA[id] = {}; for (const k in EXTRA0[id]) { const [p, l] = EXTRA0[id][k]; EXTRA[id][k] = [p * Z, l * Z]; } }
   for (const id of ['village', 'champs']) { const [Z, w, h] = DW.MapKit.ZOOM[id]; DIM[id] = [w * Z, h * Z]; }

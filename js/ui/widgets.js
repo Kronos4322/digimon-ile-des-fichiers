@@ -135,7 +135,8 @@
     names.forEach((s, k) => {
       const xx = x + k * w, on = k === sel;
       UI.box(c, xx, on ? 3 : 6, w - 4, on ? 20 : 17, on ? 'dwsel' : 'dw');
-      UI.text(c, s, xx + (w - 4) / 2, on ? 17 : 18, { size: 10, align: 'center', color: on ? '#ffffff' : '#7ac8dc' });
+      const size = s.length * 5.4 > w - 8 ? 8 : 10;   // (onglets étroits : le texte rétrécit pour tenir)
+      UI.text(c, s, xx + (w - 4) / 2, on ? 17 : 18, { size, align: 'center', color: on ? '#ffffff' : '#7ac8dc' });
     });
   };
   // étiquette jaune façon Digimon World (PROFIL, CONDITION...)
