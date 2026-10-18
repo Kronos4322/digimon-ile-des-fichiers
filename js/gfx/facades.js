@@ -5,12 +5,13 @@
 //    caisses et tonneau ; enseigne à la viande.
 //  - Restaurant de Mushroomon (v 0) : une maison-champignon, chapeau violet à pois, pied crème,
 //    porte en arche, hublots éclairés, cheminée de pierre, ardoise du menu, petits champignons.
+//  - Dojo d'Elecmon (v 0) : plancher surélevé, murs de papier, toit de tuiles bleues relevé, bannières à l'éclair.
 //  Les versions agrandies (v 1, v 2) restent celles de gfx/grandir.js. Repère : boîte 150 × 128 (grandir.js),
 //  l'ancien dessin occupait x 25-125 ; la porte reste au centre.
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ, P = DW.World.Paint, B = DW.World.Brush, hash = DW.Art.hash;
-  if (!B || !OBJ.bazar || !OBJ.restaurant) return;
+  if (!B || !OBJ.bazar || !OBJ.restaurant || !OBJ.dojo) return;
   const { rgb, mix, COOL, WARM, INK } = P;
   const { rr, plank, stone, tufts, roof } = B;
   const shadow = (x, cx, cy, rx, ry) => { const g = x.createRadialGradient(cx, cy, 1, cx, cy, rx); g.addColorStop(0, 'rgba(20,24,16,0.5)'); g.addColorStop(1, 'rgba(20,24,16,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill(); };
@@ -157,6 +158,73 @@
     tufts(x, 20, 132, 124.5, s + 41, 14);
   }
 
+  // ------------------------------------------------------------ DOJO (v 0) : le petit dojo d'Elecmon
+  // plancher surélevé (engawa), murs de papier (shoji) entre des poteaux sombres, porte coulissante entrouverte,
+  // toit de tuiles bleues aux bords relevés, plaque à l'éclair, bannières rouges, lanternes de papier
+  const bolt = (x, cx, cy, k, col) => { x.fillStyle = col; x.beginPath(); x.moveTo(cx + 1.4 * k, cy - 4 * k); x.lineTo(cx - 2 * k, cy + 0.6 * k); x.lineTo(cx + 0.2 * k, cy + 0.6 * k); x.lineTo(cx - 1.4 * k, cy + 4 * k); x.lineTo(cx + 2.2 * k, cy - 0.8 * k); x.lineTo(cx, cy - 0.8 * k); x.closePath(); x.fill(); };
+  function dojoHouse(x) {
+    const s = 23, L = 28, R = 122;
+    shadow(x, 75, 124, 60, 6);
+    // soubassement de pierres et plancher surélevé
+    for (let i = 0, sx = L - 2; sx < R + 2; i++) { const rx = 2.6 + hash(s, i, 721) * 1.6; stone(x, sx + rx, 121, rx, 2.4, '#9a948a', s * 3 + i); sx += rx * 1.8; }
+    board(x, L - 4, 106, R - L + 8, 6, '#9a6a3a', s + 1);
+    board(x, L - 4, 112, R - L + 8, 6, '#7a5230', s + 2);
+    // marches devant la porte
+    board(x, 63, 117, 24, 4, '#a87a48', s + 3); board(x, 61, 121, 28, 4, '#8a6038', s + 4);
+    // murs : poteaux sombres et panneaux de papier
+    const shoji = (x0, x1, y0, y1) => {
+      const g = x.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#e0d8c4');
+      x.fillStyle = g; x.fillRect(x0, y0, x1 - x0, y1 - y0);
+      x.strokeStyle = '#6a4a2a'; x.lineWidth = 0.7;
+      for (let gx = x0 + (x1 - x0) / 3; gx < x1 - 1; gx += (x1 - x0) / 3) { x.beginPath(); x.moveTo(gx, y0); x.lineTo(gx, y1); x.stroke(); }
+      for (let gy = y0 + 6; gy < y1 - 1; gy += 6) { x.beginPath(); x.moveTo(x0, gy); x.lineTo(x1, gy); x.stroke(); }
+      x.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    };
+    shoji(L + 4, 60, 72, 106); shoji(90, R - 4, 72, 106);
+    // porte coulissante entrouverte : l'intérieur sombre, un tatami
+    x.fillStyle = '#2a1e16'; x.fillRect(62, 72, 26, 34);
+    x.fillStyle = '#9a8a4a'; x.fillRect(64, 98, 22, 8);
+    shoji(62, 74, 72, 106); shoji(81, 88, 72, 106);
+    for (const px of [L, 60, 88, R - 4]) plank(x, px, 68, 4, 39, '#4a3020', s + px);
+    // poutre sous le toit
+    board(x, L - 2, 66, R - L + 4, 4, '#5a3a22', s + 5);
+    // lanternes de papier rouges sous l'avant-toit
+    for (const lx of [44, 106]) {
+      x.strokeStyle = '#2a2a2e'; x.lineWidth = 0.5; x.beginPath(); x.moveTo(lx, 66); x.lineTo(lx, 70); x.stroke();
+      const lg = x.createRadialGradient(lx - 1, 73, 0.5, lx, 74, 5); lg.addColorStop(0, '#ff9a6a'); lg.addColorStop(1, '#c02a1a');
+      x.save(); x.shadowColor = '#ff8040'; x.shadowBlur = 3; x.fillStyle = lg; x.beginPath(); x.ellipse(lx, 74, 3.6, 4.4, 0, 0, 7); x.fill(); x.restore();
+      x.fillStyle = '#2a2a2e'; x.fillRect(lx - 2, 69.4, 4, 1); x.fillRect(lx - 2, 78.2, 4, 1);
+    }
+    // toit de tuiles bleues aux bords relevés
+    const roofPath = () => { x.beginPath(); x.moveTo(L - 14, 64); x.quadraticCurveTo(L - 6, 66, L + 4, 58); x.lineTo(L + 18, 38); x.lineTo(R - 18, 38); x.lineTo(R - 4, 58); x.quadraticCurveTo(R + 6, 66, R + 14, 64); x.quadraticCurveTo(75, 70, L - 14, 64); x.closePath(); };
+    const rg = x.createLinearGradient(0, 38, 0, 68); rg.addColorStop(0, '#5a6a9a'); rg.addColorStop(0.6, '#3a4a7a'); rg.addColorStop(1, '#26305a');
+    roofPath(); x.fillStyle = rg; x.fill();
+    x.save(); roofPath(); x.clip();
+    for (let tx = L - 14; tx < R + 16; tx += 3.6) {   // rangées de tuiles rondes
+      x.strokeStyle = 'rgba(160,180,230,0.35)'; x.lineWidth = 0.8; x.beginPath(); x.moveTo(tx + (75 - tx) * 0.22, 38); x.lineTo(tx, 68); x.stroke();
+      x.strokeStyle = 'rgba(10,14,30,0.35)'; x.lineWidth = 0.5; x.beginPath(); x.moveTo(tx + 1.4 + (75 - tx) * 0.22, 38); x.lineTo(tx + 1.4, 68); x.stroke();
+    }
+    const lgt = x.createLinearGradient(L - 14, 38, R + 14, 68); lgt.addColorStop(0, 'rgba(255,240,200,0.22)'); lgt.addColorStop(0.5, 'rgba(255,240,200,0)'); lgt.addColorStop(1, 'rgba(10,16,40,0.3)');
+    x.fillStyle = lgt; x.fillRect(L - 16, 36, R - L + 32, 34);
+    x.restore();
+    roofPath(); x.strokeStyle = '#141a34'; x.lineWidth = 0.9; x.stroke();
+    // faîtage et ornements
+    x.fillStyle = '#2a3460'; rr(x, L + 14, 34, R - L - 28, 5, 1.5); x.fill();
+    for (const ox of [L + 14, R - 14]) { x.fillStyle = '#d8b040'; x.beginPath(); x.moveTo(ox - 2, 35); x.quadraticCurveTo(ox, 27, ox + (ox < 75 ? -3 : 3), 29); x.quadraticCurveTo(ox + (ox < 75 ? 1 : -1), 31, ox + 2, 35); x.closePath(); x.fill(); }
+    // plaque à l'éclair d'Elecmon
+    board(x, 63, 44, 24, 13, '#6a4424', s + 6); x.strokeStyle = '#d8b040'; x.lineWidth = 0.8; rr(x, 63, 44, 24, 13, 1.2); x.stroke();
+    bolt(x, 75, 50.5, 1.3, '#ffe040');
+    // bannières rouges (nobori) à l'éclair
+    for (const [bx, dir] of [[20, 1], [130, -1]]) {
+      x.fillStyle = '#4a3020'; x.fillRect(bx - 0.8, 60, 1.6, 64);
+      x.fillStyle = '#4a3020'; x.fillRect(bx, 62, 9 * dir, 1.2);
+      const bl = Math.min(bx, bx + 9 * dir), bg = x.createLinearGradient(bl, 0, bl + 9, 0); bg.addColorStop(0, '#e8402a'); bg.addColorStop(1, '#a82018');
+      x.fillStyle = bg; x.beginPath(); x.moveTo(bl, 63); x.lineTo(bl + 9, 63); x.lineTo(bl + 9, 94); x.lineTo(bl + 4.5, 90); x.lineTo(bl, 94); x.closePath(); x.fill();
+      bolt(x, bl + 4.5, 76, 1, '#ffe040');
+    }
+    tufts(x, 12, 140, 124.5, s + 9, 14);
+  }
+  OBJ.dojo.paint = x => dojoHouse(x); OBJ.dojo.painted = v => v === 0;
   OBJ.bazar.paint = x => stall(x); OBJ.bazar.painted = v => v === 0;
   OBJ.restaurant.paint = x => mushroomHouse(x); OBJ.restaurant.painted = v => v === 0;
 })();
