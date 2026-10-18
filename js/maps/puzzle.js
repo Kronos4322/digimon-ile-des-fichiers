@@ -109,6 +109,8 @@
       if (A.spec) A.exits[side] = [p, len]; if (B.spec) B.exits[OPP[side]] = [p, len];
     }
     P.applied = true;
+    // (une carte déjà préparée avant le puzzle garde ses nouvelles sorties comme base de ses retouches : maps/retouches.js)
+    for (const id in P.pieces) { const m = MAPS[id]; if (m && m._baseWarps) m._baseWarps = (m.warps || []).filter(w => !w.ed); }
     // les cartes générées prennent la taille d'une pièce
     for (const id in P.pieces) { const m = MAPS[id]; if (m && m.spec) { m.w = CW; m.h = CHH; } }
   };
@@ -117,11 +119,12 @@
   P.reposer = function (m, id) {
     if (!P.isPiece(id) || !P.applied) return;
     const mine = P.passages.filter(q => (q[0] === id || q[2] === id) && q[3] != null);
-    if (mine.every(q => (m.warps || []).some(w => w.puzzle && w.to === (q[0] === id ? q[2] : q[0])))) return;
+    const along = (w, s2) => (s2 === 'left' || s2 === 'right' ? w.y : w.x);
+    if (mine.every(q => (m.warps || []).some(w => w.puzzle && w.to === (q[0] === id ? q[2] : q[0]) && along(w, w.dir) === q[3]))) return;
     m.warps = (m.warps || []).filter(w => !(w.dir && P.isPiece(w.to)) || w.puzzle);
     for (const [a, side, b, p, len = 6] of mine) {
       const s2 = a === id ? side : OPP[side], to = a === id ? b : a;
-      if (!m.warps.some(w => w.puzzle && w.to === to)) m.warps.push(P.regle(warpOn(s2, p, len, to), (P.passages.find(q => q[0] === a && q[2] === b) || [])[5]));
+      if (!m.warps.some(w => w.puzzle && w.to === to && along(w, w.dir) === p)) m.warps.push(P.regle(warpOn(s2, p, len, to), (P.passages.find(q => q[0] === a && q[2] === b && q[3] === p) || [])[5]));
     }
     m._racFor = null;
   };
@@ -136,10 +139,11 @@
     return w;
   };
   // (début du passage commun entre deux pièces : pour aligner un décor sur le passage, ex. la côte de la ville)
+  // (plusieurs passages possibles entre deux pièces : celui-ci renvoie le premier)
   P.passage = (a, b) => { const q = P.passages.find(t => (t[0] === a && t[2] === b) || (t[0] === b && t[2] === a)); return q ? q[3] : null; };
   // ------------------------------------------------------------ raccord : chaque passage rejoint le réseau de chemins de la carte
   P.raccorder = function (m, id) {
-    if (!P.isPiece(id) || m._racFor === m.rows || !m.rows) return;
+    if (!P.applied || !P.isPiece(id) || m._racFor === m.rows || !m.rows) return;   // (pas avant que les passages soient posés)
     const W = m.w, H = m.h, g = m.rows.map(r => [...r]);
     const walk = (x, y) => x >= 0 && y >= 0 && x < W && y < H && !DW.SOLID.has(g[y][x]);
     // grande zone praticable de la carte (la plus vaste)
@@ -157,7 +161,7 @@
       const inward = { left: [1, 0], right: [-1, 0], up: [0, 1], down: [0, -1] }[w.dir];
       // couloir de 4 cases depuis le bord, puis plus court chemin vers la grande zone (à travers forêt et décor, ponts sur l'eau)
       let x = cx, y = cy;
-      for (let k = 0; k < 4; k++) { for (let d = 0; d < Math.max(w.w, w.h); d++) { const px = w.dir === 'up' || w.dir === 'down' ? w.x + d : x, py = w.dir === 'up' || w.dir === 'down' ? y : w.y + d; if (g[py] && g[py][px] !== undefined && DW.SOLID.has(g[py][px])) g[py][px] = DW.World.info(g[py][px]).t === 'water' ? '_' : '='; } x += inward[0]; y += inward[1]; }
+      for (let k = 0; k < 4; k++) { for (let d = 0; d < Math.max(w.w, w.h); d++) { const px = w.dir === 'up' || w.dir === 'down' ? w.x + d : x, py = w.dir === 'up' || w.dir === 'down' ? y : w.y + d; if (g[py] && g[py][px] !== undefined && DW.SOLID.has(g[py][px])) g[py][px] = DW.World.info(g[py][px]).t === 'water' ? '_' : Math.max(w.w, w.h) > 12 ? '.' : '='; } x += inward[0]; y += inward[1]; }
       if (comp[y * W + x] === main) continue;
       const prev = new Int32Array(W * H).fill(-2), q = [[x, y]]; prev[y * W + x] = -1; let end = -1;
       for (let h = 0; h < q.length && end < 0; h++) {

@@ -156,10 +156,9 @@
   // 2) un pont UTILE est redressé : bande droite de 3 cases dans le sens de la traversée, prolongée jusqu'aux rives,
   //    à condition qu'elle relie bien les mêmes terres ; sinon on garde son tracé.
   DW.World.fixBridges = map => {
-    if (map._pontsOk || map.region === 'plage' || map.dock || map.indoor || !map.rows) return;
-    map._pontsOk = true;
+    if (map._pontsFor === map.rows || map.region === 'plage' || map.dock || map.indoor || !map.rows) return;
     const W = map.w, H = map.h, g = map.rows.map(r => [...r]), N = W * H;
-    const wet = c => c === '~' || c === 'w' || c === '_';
+    const wet = c => c === '_' || (DW.World.CH[c] && DW.World.CH[c].t === 'water' && DW.SOLID.has(c));   // (toutes les eaux, pas les pierres de gué)
     // (un pont qui porte un passage, un panneau ou un personnage reste toujours)
     const special = new Set([...(map.warps || []).flatMap(w => { const a = []; for (let yy = w.y; yy < w.y + (w.h || 1); yy++) for (let xx = w.x; xx < w.x + (w.w || 1); xx++) a.push(xx + ',' + yy); return a; }), ...Object.keys(map.signs || {}), ...(map.npcs || []).map(n => n.x + ',' + n.y)]);
     const land = (x, y) => x >= 0 && y >= 0 && x < W && y < H && g[y][x] !== '_' && !wet(g[y][x]) && !DW.SOLID.has(g[y][x]);
@@ -216,7 +215,39 @@
       for (const [cx, cy] of comp) g[cy][cx] = '~';
       for (const [cx, cy] of best) g[cy][cx] = '_';
     }
-    map.rows = g.map(r => r.join(''));
+    DW.World.prolongerPonts(g);
+    map.rows = map._pontsFor = g.map(r => r.join(''));
+  };
+  // UN PONT MÈNE TOUJOURS QUELQUE PART : un pont qui s'arrête à 1-3 cases de la rive est prolongé jusqu'à la terre,
+  // et ses deux bouts sont dégagés sur 2 cases (pas d'arbre, de bûche ni de lisière en travers de la sortie).
+  // g : lignes de la carte en tableaux de caractères (modifiées sur place). Aussi appelé après les retouches de l'éditeur.
+  DW.World.prolongerPonts = g => {
+    const H = g.length, W = g[0].length, info = DW.World.info, seen = new Uint8Array(W * H);
+    const wet = c => DW.World.CH[c] && DW.World.CH[c].t === 'water' && DW.SOLID.has(c), dur = c => { const t = info(c).t; return t === 'rock' || t === 'cliff' || t === 'water' || t === 'bridge' || t === 'stairs' || t === 'wall' || t === 'void'; };
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (g[y][x] !== '_' || seen[y * W + x]) continue;
+      let mx = x, Mx = x, my = y, My = y; const st = [[x, y]]; seen[y * W + x] = 1;
+      while (st.length) { const [cx, cy] = st.pop(); mx = Math.min(mx, cx); Mx = Math.max(Mx, cx); my = Math.min(my, cy); My = Math.max(My, cy); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = cx + dx, ny = cy + dy; if (nx >= 0 && ny >= 0 && nx < W && ny < H && !seen[ny * W + nx] && g[ny][nx] === '_') { seen[ny * W + nx] = 1; st.push([nx, ny]); } } }
+      const vert = My - my >= Mx - mx;   // (sens de la traversée : la plus grande longueur)
+      const across = vert ? [mx, Mx] : [my, My], at = (a, b) => (vert ? [a, b] : [b, a]);   // a : en travers, b : le long (renvoie [x, y])
+      const cell = (a, b) => { const [cx, cy] = at(a, b); return cx >= 0 && cy >= 0 && cx < W && cy < H ? g[cy][cx] : undefined; };
+      const set = (a, b, c) => { const [cx, cy] = at(a, b); g[cy][cx] = c; };
+      for (const [b0, d] of vert ? [[my, -1], [My, 1]] : [[mx, -1], [Mx, 1]]) {
+        let k = 1;
+        const rangee = b => { const r = []; for (let a = across[0]; a <= across[1]; a++) r.push(cell(a, b)); return r; };
+        while (k <= 3 && rangee(b0 + d * k).every(c => c !== undefined && wet(c))) k++;
+        const rive = rangee(b0 + d * k), mid = rive[(rive.length - 1) >> 1];
+        if (mid === undefined) continue;   // (le pont touche le bord de la carte : un passage)
+        if (k > 1 && k <= 3 && !wet(mid) && !dur(mid)) for (let j = 1; j < k; j++) for (let a = across[0]; a <= across[1]; a++) set(a, b0 + d * j, '_');
+        else if (k > 1) continue;   // (trop loin de la rive : on laisse tel quel)
+        // abords dégagés : les 2 rangées de terre au bout du pont, un peu plus larges que lui
+        for (let j = k; j < k + 2; j++) for (let a = across[0] - 1; a <= across[1] + 1; a++) {   // (une case de plus de chaque côté : une bûche ou un arbre déborde)
+          const c = cell(a, b0 + d * j); if (c === undefined || wet(c) || dur(c) && c !== '#') continue;
+          const I = info(c); if (I.obj === 'sign' || I.train || I.toilet) continue; if (DW.SOLID.has(c) || c === '#') set(a, b0 + d * j, I.t === 'sand' ? 's' : '=');
+        }
+      }
+    }
+    return g;
   };
 
   DW.World.paintBridges = map => {
@@ -241,7 +272,7 @@
     x0 = Math.max(0, x0 - 2); y0 = Math.max(0, y0 - 2); x1 = Math.min(W - 1, x1 + 2); y1 = Math.min(H - 1, y1 + 2);
     const cv = Art.canvas((x1 - x0 + 1) * TS * K, (y1 - y0 + 1) * TS * K), x = cv.getContext('2d');
     x.scale(K, K); x.translate(-x0 * TS, -y0 * TS);
-    const walls = [];   // cases des parapets : bloquantes (on marche au milieu du pont, pas sur les murets)
+    const walls = [];   // cases des parapets : bloquantes seulement sur un pont de 4 cases ou plus (un pont de 3 se traverse sur toute sa largeur : le muret est fin, l'eau arrête de chaque côté)
     for (const c of comps) {
       const seed = c.x0 * 31 + c.y0 * 17;
       const rect = c.n === (c.x1 - c.x0 + 1) * (c.y1 - c.y0 + 1);
@@ -271,8 +302,8 @@
       for (const e of ends) apron(x, e[0], e[1], e[2], e[3], e[4], seed + e[5], map.dirtCol);
       const film = () => { for (const e of ends) apron(x, e[0], e[1], e[2], e[3], e[4], seed + e[5], map.dirtCol, true); };
       // parapets bloquants quand le pont fait au moins 3 cases de large
-      if (hz && c.y1 - c.y0 >= 2) for (let tx = c.x0; tx <= c.x1; tx++) walls.push(tx + ',' + c.y0, tx + ',' + c.y1);
-      if (!hz && c.x1 - c.x0 >= 2) for (let ty = c.y0; ty <= c.y1; ty++) walls.push(c.x0 + ',' + ty, c.x1 + ',' + ty);
+      if (hz && c.y1 - c.y0 >= 3) for (let tx = c.x0; tx <= c.x1; tx++) walls.push(tx + ',' + c.y0, tx + ',' + c.y1);
+      if (!hz && c.x1 - c.x0 >= 3) for (let ty = c.y0; ty <= c.y1; ty++) walls.push(c.x0 + ',' + ty, c.x1 + ',' + ty);
       if (hz) {
         const southWater = c.cells.some(([tx, ty]) => ty === c.y1 && isWater(tx, ty + 1));
         if (southWater) facade(x, X0, X1, Y1, seed);

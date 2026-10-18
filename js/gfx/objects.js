@@ -13,7 +13,9 @@
     '.': { t: 'grass' }, ',': { t: 'grass', tall: 'grass' }, '=': { t: 'dirt' }, 's': { t: 'sand' }, ';': { t: 'sand', tall: 'dune' },
     '~': { t: 'water', solid: true }, '_': { t: 'bridge' }, 'v': { t: 'lawn' }, ':': { t: 'lawn', tall: 'pastel' }, 'o': { t: 'stone' },
     'f': { t: 'grass', deco: 'flowers' }, 'q': { t: 'lawn', deco: 'flowers2' }, 'm': { t: 'grass', deco: 'mushrooms' },
-    'Ŵ': { t: 'rock', solid: true },   // paroi rocheuse haute (montagnes en terrasses façon Digimon World 2003 : gfx/terrain.js)
+    'Ŵ': { t: 'rock', solid: true },
+    // EAUX (peintes dans l'éditeur, case par case ; « ~ » garde l'eau de l'ambiance de la carte) : gfx/terrain.js, World.EAUX
+    '≈': { t: 'water', solid: true, eau: 1 }, '∼': { t: 'water', solid: true, eau: 2 }, '≋': { t: 'water', solid: true, eau: 3 }, '≃': { t: 'water', solid: true, eau: 4 },   // paroi rocheuse haute (montagnes en terrasses façon Digimon World 2003 : gfx/terrain.js)
     'C': { t: 'cliff', solid: true }, '%': { t: 'pastel', solid: true }, '^': { t: 'stairs' }, '#': { t: 'canopy', solid: true },
     'T': { t: 'grass', obj: 'tree', solid: true }, 'b': { t: 'grass', obj: 'bush', solid: true },
     'r': { t: 'grass', obj: 'rock', solid: true }, 'R': { t: 'sand', obj: 'searock', solid: true },
@@ -34,7 +36,7 @@
     // intérieurs : 0 vide (hors de la pièce)  1 parquet  2 mur
     '0': { t: 'void', solid: true }, '1': { t: 'wood' }, '2': { t: 'wall', solid: true },
     // ville : K haie  d jardinière  e puits  D caisses  l pot de fleurs  t étal
-    'K': { t: 'grass', obj: 'hedge', solid: true }, 'd': { t: 'grass', obj: 'flowerbed', solid: true }, 'e': { t: 'grass', obj: 'well', solid: true },
+    'K': { t: 'grass', obj: 'hedge', solid: true }, 'd': { t: 'grass', obj: 'flowerbed', solid: true }, 'e': { t: 'grass', obj: 'well', solid: true, v: 0, nom: 'Puits plein (on y boit)' }, 'ȩ': { t: 'grass', obj: 'well', solid: true, v: 1, nom: 'Puits vide (à sec)' },
     // quartiers : 5 rondins / pierres de gué sur l'eau (on marche dessus)  7 botte de foin
     // repères de zones : < monolithe de données  > lanterne de pierre  { fleur géante  } champignon géant  | arbre mort
     '<': { t: 'grass', obj: 'monolith', solid: true }, '>': { t: 'grass', obj: 'stonelantern', solid: true }, '{': { t: 'grass', obj: 'giantflower', solid: true },

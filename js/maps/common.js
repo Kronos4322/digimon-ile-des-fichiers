@@ -48,7 +48,9 @@
     if (DW.PUZZLE) { DW.PUZZLE.reposer(m, id); DW.PUZZLE.gabarit(m, id); if (!m.spec) DW.PUZZLE.raccorder(m, id); }   // pièce du puzzle : taille commune, passages raccordés aux chemins
     clearPassages(m);
     densify(m);
-    if (DW.Retouches) DW.Retouches.appliquer(m, id);   // retouches de l'éditeur de cartes, toujours en dernier (maps/retouches.js)
+    // ponts redressés et raccordés à la terre AVANT les retouches : l'éditeur et le jeu voient la même carte (gfx/ponts.js)
+    if (DW.World.fixBridges && m._pontsFor !== m.rows) { const r0 = m.rows; DW.World.fixBridges(m); if (m.rows !== r0) for (const k of ['_passFor', '_denseFor', '_racFor']) if (m[k] === r0) m[k] = m.rows; }
+    if (DW.Retouches && (!DW.PUZZLE || DW.PUZZLE.applied)) DW.Retouches.appliquer(m, id);   // (après la pose des passages du puzzle)   // retouches de l'éditeur de cartes, toujours en dernier (maps/retouches.js)
     if (DW.Monde && !m.indoor && !m.voisines) DW.Monde.annoter(id);   // place dans la grille du monde, voisines (maps/monde.js)
     return m;
   };
@@ -72,7 +74,7 @@
         const [x, y] = { left: [d, p0 + k], right: [m.w - 1 - d, p0 + k], up: [p0 + k, d], down: [p0 + k, m.h - 1 - d] }[w.dir];
         const ch = g[y] && g[y][x], I = ch && (CH[ch] || {});
         if (!ch || !DW.SOLID.has(ch) || I.t === 'water' || I.t === 'cliff' || I.t === 'rock' || I.t === 'wall' || I.t === 'void') continue;
-        g[y][x] = I.t === 'sand' ? 's' : '=';
+        g[y][x] = I.t === 'sand' ? 's' : along > 12 ? '.' : '=';   // (un très large passage s'ouvre sur de l'herbe, pas sur une route)
       }
     }
     m.rows = g.map(r => r.join('')); m._passFor = m.rows;

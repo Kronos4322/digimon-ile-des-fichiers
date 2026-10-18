@@ -18,7 +18,7 @@
     appliquer(m, id, force) {
       const T = R.de(id);
       if (!m.rows || (!T && !m._baseRows) || (!force && m._retFor === m.rows)) return;
-      if (m._retFor !== m.rows) { m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed); m._baseAlt = m.alt; m._baseTheme = m.theme; m._baseWarps = (m.warps || []).filter(w => !w.ed); m._baseDoors = (m.doors || []).filter(d => !d.ed); }
+      if (m._retFor !== m.rows) { m._baseSigns = { ...(m.signs || {}) }; m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed); m._baseAlt = m.alt; m._baseTheme = m.theme; m._baseWarps = (m.warps || []).filter(w => !w.ed); m._baseDoors = (m.doors || []).filter(d => !d.ed); }
       const B = R.base(m);
       m.theme = T && T.theme ? T.theme : B.theme;
       if (T && T.ambient) m.ambient = T.ambient;
@@ -39,12 +39,27 @@
       m.warps = B.warps.filter(w => !parti.has(R.cleSortie(w))).concat(S.filter(o => o.type === 'bord' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, dir: o.dir, to: o.to, tx: o.tx, ty: o.ty, ed: true, enclos: true }, o)));
       m.doors = B.doors.filter(d => !parti.has(R.cleSortie(d, true))).concat(S.filter(o => o.type === 'porte' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: 1, dir: o.dir || 'up', to: o.to, tx: o.tx, ty: o.ty, ed: true }, o)));
       m.portails = S.filter(o => o.type === 'portail' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, to: o.to, tx: o.tx, ty: o.ty, ed: true }, o));
+      // PANNEAUX : texte écrit dans l'éditeur (une case = un texte ; « null » retire le texte d'origine)
+      m.signs = { ...(m._baseSigns || m.signs || {}) };
+      if (T) for (const k in T.panneaux || {}) { if (T.panneaux[k] == null) delete m.signs[k]; else m.signs[k] = T.panneaux[k]; }
       // COLLISIONS CHOISIES À LA MAIN : cases forcées bloquantes (1) ou praticables (0), quel que soit le décor
       m.forceBloque = new Set(); m.forceLibre = new Set();
       if (T) for (const k in T.bloque || {}) (T.bloque[k] ? m.forceBloque : m.forceLibre).add(k);
+      // (de l'eau peinte en travers d'un passage vers une carte voisine : le passage reste franchissable, par un pont
+      //  sur ses 4 premières cases — l'eau peinte reste autour ; le diagnostic de l'éditeur le signale aussi)
+      for (const w of m.warps || []) {
+        if (!w.dir) continue;
+        const along = w.dir === 'left' || w.dir === 'right' ? w.h || 1 : w.w || 1, p0 = w.dir === 'left' || w.dir === 'right' ? w.y : w.x;
+        for (let k = 0; k < along; k++) for (let d = 0; d < 4; d++) {
+          const [x, y] = { left: [d, p0 + k], right: [W - 1 - d, p0 + k], up: [p0 + k, d], down: [p0 + k, H - 1 - d] }[w.dir];
+          const c = g[y] && g[y][x], I = c && DW.World.CH[c];
+          if (I && I.t === 'water' && DW.SOLID.has(c)) g[y][x] = '_';
+        }
+      }
+      if (DW.World.prolongerPonts) DW.World.prolongerPonts(g);   // (un pont peint à la main rejoint aussi la terre)
       m.rows = g.map(r => r.join(''));
-      // la génération ne repasse pas sur une carte retouchée (décor dense, passages dégagés, raccords du puzzle)
-      m._retFor = m._denseFor = m._passFor = m._racFor = m.rows;
+      // la génération ne repasse pas sur une carte retouchée (décor dense, passages dégagés, raccords du puzzle, ponts)
+      m._retFor = m._denseFor = m._passFor = m._racFor = m._pontsFor = m.rows;
     },
   };
   // altitude finale = niveaux peints, sinon le relief généré ; parois recalculées seulement près des cases peintes

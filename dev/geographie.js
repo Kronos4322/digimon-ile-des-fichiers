@@ -62,7 +62,7 @@
     // vérification d'une liaison A —side→ B
     liaison(a, side, b, w) {
       const A = DW.getMap(a), B = DW.getMap(b), out = [], sB = OPP[side];
-      const back = (B.warps || []).find(v => v.to === a && sideOf(B, v) === sB);
+      const back = (B.warps || []).find(v => v.to === a && sideOf(B, v) === sB && (side === 'left' || side === 'right' ? v.y === w.y : v.x === w.x)) || (B.warps || []).find(v => v.to === a && sideOf(B, v) === sB);   // (plusieurs passages possibles)
       if (!back) { out.push(['ERREUR', `pas de passage retour sur le bord ${sB} de ${b}`]); return out; }
       const [pa, la] = span(w, side), [pb, lb] = span(back, sB);
       if (la !== lb) out.push(['attention', `largeur du passage différente (${la} / ${lb})`]);

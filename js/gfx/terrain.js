@@ -640,7 +640,7 @@
       if (!inf.obj) continue;
       const kind = (TH && TH.objMap && TH.objMap[inf.obj]) || inf.obj;
       const o = OBJ[kind];
-      let v = Math.floor(hash(tx, ty, 60) * o.n);
+      let v = inf.v != null ? inf.v : Math.floor(hash(tx, ty, 60) * o.n);   // (variante imposée par la case : puits plein / vide)
       if (inf.obj === 'tree' && kind !== 'tree') {
         const h = hash(tx, ty, 60);
         if (TH.trees2) { const tot = TH.trees2.reduce((a, t) => a + t[1], 0); let r = h * tot; v = TH.trees2[0][0]; for (const [tv, w] of TH.trees2) { if (r < w) { v = tv; break; } r -= w; } }
@@ -812,10 +812,24 @@
       const NW = WI.length, BW = wx1 - wx0 + 1, BH = wy1 - wy0 + 1;
       // parties indépendantes du temps, calculées une seule fois par pixel d'eau
       const V0 = new Float32Array(NW), F26 = new Float32Array(NW), F27 = new Float32Array(NW), OUT = new Int32Array(NW);
+      // sorte d'eau de chaque pixel : 0 = celle de l'ambiance ; entre deux sortes, un mélange sur une case (K1, K2, KW)
+      const eauDe = (tx, ty) => { const r = map.rows[DW.clamp(ty, 0, map.h - 1)]; const c = r && r[DW.clamp(tx, 0, map.w - 1)], I = World.CH[c]; return I && I.t === 'water' ? I.eau || 0 : -1; };
+      let EAUX = false; for (let y = 0; y < map.h && !EAUX; y++) for (const c of map.rows[y]) if (World.CH[c] && World.CH[c].eau) { EAUX = true; break; }
+      const K1 = EAUX ? new Uint8Array(NW) : null, K2 = EAUX ? new Uint8Array(NW) : null, KW = EAUX ? new Float32Array(NW) : null;
       for (let k = 0; k < NW; k++) {
         if ((k & 2047) === 2047) yield;
         const i = WI[k], px = i % GW, py = (i / GW) | 0;
-        V0[k] = Math.min(6, ED[i] / (TH && TH.waterDepth || 3.2)) + Art.bayer(px, py) * 0.6;   // waterDepth : eau claire plus loin du bord (lagon)
+        let prof = TH && TH.waterDepth || 3.2;   // waterDepth : eau claire plus loin du bord (lagon)
+        if (EAUX) {
+          const fx = (px - 8) / TS, fy = (py - 8) / TS, x0 = Math.floor(fx), y0 = Math.floor(fy), ax = fx - x0, ay = fy - y0, own = eauDe(px >> 4, py >> 4);
+          const wsum = [0, 0, 0, 0, 0];
+          for (const [cx, cy, wt] of [[x0, y0, (1 - ax) * (1 - ay)], [x0 + 1, y0, ax * (1 - ay)], [x0, y0 + 1, (1 - ax) * ay], [x0 + 1, y0 + 1, ax * ay]]) { const e = eauDe(cx, cy); wsum[e < 0 ? Math.max(0, own) : e] += wt; }
+          let a1 = 0, a2 = -1; for (let e = 1; e < 5; e++) if (wsum[e] > wsum[a1]) a1 = e;
+          for (let e = 0; e < 5; e++) if (e !== a1 && wsum[e] > 0 && (a2 < 0 || wsum[e] > wsum[a2])) a2 = e;
+          K1[k] = a1; K2[k] = a2 < 0 ? a1 : a2; KW[k] = a2 < 0 ? 0 : wsum[a2] / (wsum[a1] + wsum[a2]);
+          if (a1) prof = World.EAUX[a1].prof;
+        }
+        V0[k] = Math.min(6, ED[i] / prof) + Art.bayer(px, py) * 0.6;
         F26[k] = px * 0.06 + py * 0.4 + fbm(px * 0.03, py * 0.03, 26) * 6;
         F27[k] = px * 0.07 + py * 0.05 + fbm(px * 0.05, py * 0.05, 27) * 5;
         OUT[k] = ((py - wy0) * BW + (px - wx0)) * 4;
@@ -837,11 +851,18 @@
             if (ed > 5) { const sw = Math.sin(F26[k] + a); if (sw > 0.82) v -= (sw - 0.82) / 0.18 * 1.5; }
           }
           let col = lerpPal(WATER, v);
+          let fo0 = 1.6, F1 = FOAM, F2 = FOAM2;
+          if (EAUX && (K1[k] || KW[k] > 0)) {   // eau peinte : sa palette (et un mélange avec la voisine)
+            const E1 = World.EAUX[K1[k]], E2 = World.EAUX[K2[k]];
+            const c1 = E1 ? lerpPal(E1.P, v).slice() : col.slice(), w2 = KW[k];
+            col = w2 > 0 ? Art.mix(c1, E2 ? lerpPal(E2.P, v) : lerpPal(WATER, v), w2) : c1;
+            if (E1) { fo0 = 1.6 * E1.fo; F1 = E1.F[0]; F2 = E1.F[1]; }
+          }
           if (en === TER.bridge && ed <= 4) col = Art.mix(col, [10, 30, 60], 0.4 * (1 - ed / 5));   // ombre sous le ponton
           if (en !== TER.bridge && en !== 255) {
-            const fo = 1.6 + 1.3 * Math.sin(a + F27[k]);
-            if (ed <= fo) col = Art.mix(FOAM, col, Math.max(0, (ed - fo + 1) * 0.35));
-            else if (ed <= fo + 2.2) col = Art.mix(FOAM2, col, (ed - fo) / 2.2);
+            const fo = fo0 + 1.3 * (fo0 / 1.6) * Math.sin(a + F27[k]);
+            if (ed <= fo) col = Art.mix(F1, col, Math.max(0, (ed - fo + 1) * 0.35));
+            else if (ed <= fo + 2.2) col = Art.mix(F2, col, (ed - fo) / 2.2);
           }
           if (ed > 3 && hash(px, py, 100 + f) < 0.0012) col = WHITE;
           put(W8, OUT[k], col);
@@ -932,6 +953,14 @@
 
   World.tallKind = (map, kind) => { const k = World.themeKey ? World.themeKey(map) : map.theme; return kind === 'grass' && k && World.THEMES[k] && World.THEMES[k].tall ? kind + '@' + k : kind; };
   World.PAL = PAL;
+  // EAUX (7 tons, du bord clair au fond sombre) : 1 mer, 2 eau claire (lagon), 3 eau douce (rivière, étang), 4 eau trouble (marais)
+  // prof : distance au bord (en pixels / 1) pour atteindre le fond ; ecume : [écume du rivage, frange], force de l'écume
+  World.EAUX = [null,
+    { nom: 'mer', pal: ['#a8f0ee', '#5ccfe0', '#2ea4d2', '#1d7cc0', '#1a5ea8', '#173f86', '#12285e'], prof: 2.3, ecume: ['#ffffff', '#cfeff8'], fo: 1.35 },
+    { nom: 'claire', pal: ['#e2fff8', '#b0f6ec', '#7ae8e2', '#48d4de', '#2cbad6', '#2098c6', '#1c78b0'], prof: 8, ecume: ['#ffffff', '#d8fbf6'], fo: 1 },
+    { nom: 'douce', pal: ['#bcecdc', '#8cd8cc', '#5ec0c2', '#3ea4b6', '#2e86a4', '#266a8a', '#1e5070'], prof: 3.4, ecume: ['#eefcf6', '#bfe8de'], fo: 0.7 },
+    { nom: 'trouble', pal: ['#a6b47a', '#8a9c60', '#71864c', '#5c703e', '#4a5c32', '#3a4a28', '#2c381e'], prof: 2.2, ecume: ['#c8d098', '#aab47c'], fo: 0.45 },
+  ].map(e => e && { ...e, P: e.pal.map(Art.hex), F: e.ecume.map(Art.hex) });
   // STYLES DE FALAISE (8 tons, du plus sombre au plus clair) : choisis par carte dans l'éditeur (map.falaise)
   World.FALAISES = {
     ocre: ['#3a2a20', '#4e3828', '#664a32', '#7e5e3e', '#98744c', '#b28c5e', '#cca674', '#e2c28e'],

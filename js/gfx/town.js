@@ -287,15 +287,21 @@
       const cols = [['#ff5a7a', '#ffd84a', '#ffffff'], ['#b48aff', '#ff9ac8', '#fff2a0'], ['#ff9a4a', '#ffe060', '#ff5a5a'], ['#7a4ad8', '#ffd84a', '#f4f0ff'], ['#e8902a', '#c84a3a', '#f0c040']][v];
       for (let i = 0; i < 6; i++) { const x = 3 + i * 2.8, y = 5 + (i % 2) * 2; d.tube([[x, 9], [x, y + 1]], 1, 1, '#3a8a30'); d.circ(x, y, 1.8, cols[i % 3], { noshadow: true }); }
     } },
-    well: { w: 30, h: 40, n: 1, draw(d) {
+    // PUITS : v 0 = plein (eau sombre qui brille, seau au bout de la corde), v 1 = vide (fond de terre sèche, cailloux,
+    // corde effilochée sans seau, toit abîmé, mousse sèche)
+    well: { w: 30, h: 40, n: 2, draw(d, v) {
       d.ell(15, 37, 13, 3, '#3a2a18', 0, { flat: true });
-      d.ell(15, 30, 12, 7, '#a8a296', 0, { tex: 0.35 });
-      d.deco.ell(15, 28.6, 9, 4, '#1a2a3a'); d.deco.ell(13, 28, 4, 1.4, '#3a6a9a');
+      d.ell(15, 30, 12, 7, v ? '#9a9488' : '#a8a296', 0, { tex: 0.35 });
+      if (v) { d.deco.ell(15, 28.6, 9, 4, '#3a2c1e'); d.deco.ell(12, 29, 2, 0.9, '#6a5a44'); d.deco.ell(17.5, 28.2, 1.5, 0.7, '#7a6a52'); d.deco.line(9, 27.5, 13, 29.5, 0.5, '#2a1e12'); }
+      else { d.deco.ell(15, 28.6, 9, 4, '#1a2a3a'); d.deco.ell(13, 28, 4, 1.4, '#3a6a9a'); d.deco.ell(17.5, 29.2, 1.6, 0.6, '#8ac0e8'); }
       for (let i = 0; i < 9; i++) d.deco.line(4 + i * 2.8, 31, 4 + i * 2.8, 36, 0.6, '#7a746a');
+      if (v) { d.deco.line(5, 33, 9, 35, 0.6, '#5a544a'); d.deco.ell(23, 34, 2.2, 1, '#8a9a5a'); }   // fissure, mousse sèche
       d.tube([[4, 31], [4, 10]], 2.4, 2.2, WOOD); d.tube([[26, 31], [26, 10]], 2.4, 2.2, WOOD);
-      d.tube([[4, 16], [26, 16]], 1.6, 1.6, WOOD_D); d.deco.line(15, 16, 15, 22, 0.6, '#c8c0b0');
-      d.rect(12.5, 21, 5, 5, '#8a6a44', { round: 0.3 });
-      d.poly([[0, 12], [15, 2], [30, 12]], '#b8583a', { shiny: true }); d.deco.line(1, 11.5, 29, 11.5, 0.9, '#7a2a18');
+      d.tube([[4, 16], [26, 16]], 1.6, 1.6, WOOD_D);
+      if (v) { d.deco.line(15, 16, 15, 19.5, 0.6, '#b8b0a0'); d.deco.line(15, 19.5, 14, 21, 0.4, '#b8b0a0'); d.deco.line(15, 19.5, 16.2, 20.8, 0.4, '#b8b0a0'); }
+      else { d.deco.line(15, 16, 15, 22, 0.6, '#c8c0b0'); d.rect(12.5, 21, 5, 5, '#8a6a44', { round: 0.3 }); d.deco.rect(12.5, 21, 5, 0.9, '#a8845a'); }
+      d.poly([[0, 12], [15, 2], [30, 12]], v ? '#9a5a42' : '#b8583a', { shiny: !v }); d.deco.line(1, 11.5, 29, 11.5, 0.9, '#7a2a18');
+      if (v) { d.deco.line(19, 5, 22, 8.5, 0.7, '#5a2a18'); d.deco.line(8, 8, 10.5, 6.6, 0.6, '#5a2a18'); }   // tuiles fendues
     } },
     crates: { w: 18, h: 24, n: 2, draw(d, v) {
       const box = (x, y, s, c) => { d.rect(x, y, s, s, c, { round: 0.1, tex: 0.3 }); d.deco.line(x, y, x + s, y + s, 0.8, '#6a4424'); d.deco.line(x + s, y, x, y + s, 0.8, '#6a4424'); d.deco.rect(x, y, s, 1.2, '#d8a870'); };

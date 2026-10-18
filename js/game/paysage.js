@@ -98,8 +98,21 @@
       if (once(ow, x, y)) { m.addHappy(2); emote(ow, 'heart'); await say(`${m.name} plonge le nez dans les fleurs... Atchoum ! Il a l'air ravi. (bonheur +2)`); }
       else await say(`${m.name} regarde les fleurs, rêveur.`);
     },
-    async wish(ow, x, y) {
-      if ((await DW.ask('Un vieux puits. Jeter 1 Bit et faire un vœu ?', ['Oui', 'Non'])) !== 0) return;
+    // PUITS : plein (v 0) on y boit, ou l'on fait un vœu ; vide (v 1) à sec, seulement le vœu
+    async well(ow, x, y, v) {
+      const m = pt();
+      if (v === 1) { await say('Le puits est à sec... On voit la terre craquelée tout au fond.'); return ACTS.wish(ow, x, y, true); }
+      const ch = [...(m ? ['Boire'] : []), 'Faire un vœu (1 Bit)', 'Rien'];
+      const pick = ch[await DW.ask('Un puits plein d\'eau fraîche.', ch)];
+      if (pick === 'Boire') {
+        DW.Audio.sfx('water');
+        const thirsty = DW.Care.drink(m, 70); m.tired = Math.max(0, m.tired - 3);
+        await say(thirsty ? `Tu remontes le seau. ${m.name} boit l'eau glacée du puits... Ça fait du bien ! (soif étanchée)` : `Tu remontes le seau. ${m.name} trempe les lèvres... Il n'avait pas vraiment soif.`);
+      } else if (pick === 'Faire un vœu (1 Bit)') await ACTS.wish(ow, x, y, true);
+    },
+    async wish(ow, x, y, deja) {
+      if (!deja && (await DW.ask('Un vieux puits. Jeter 1 Bit et faire un vœu ?', ['Oui', 'Non'])) !== 0) return;
+      if (deja && (await DW.ask('Jeter 1 Bit et faire un vœu ?', ['Oui', 'Non'])) !== 0) return;
       if (st().bits < 1) { await say('Tu n\'as pas un seul Bit...'); return; }
       st().bits--; DW.Audio.sfx('water');
       await say('Plouf... Tu fais un vœu en silence.');
@@ -111,14 +124,17 @@
   const BY_OBJ = { tree: ['shake', 'tree'], bigtree: ['shake', 'bigtree'], palm: ['shake', 'palm'], candytree: ['shake', 'candytree'],
     rock: ['search', 'sous le rocher'], mossrock: ['search', 'sous le rocher moussu'], searock: ['search', 'autour du rocher'], tidepool: ['search', 'la cuvette'],
     stump: ['search', 'la souche'], hollowlog: ['search', 'le rondin creux'], barrel: ['search', 'le tonneau'], crates: ['search', 'les caisses'], haybale: ['search', 'la botte de foin'], driftwood: ['search', 'le bois flotté'],
-    glowshroom: ['pick'], giantshroom: ['pick'], bench: ['sit'], log: ['sit'], spring: ['water', true], well: ['wish'] };
+    glowshroom: ['pick'], giantshroom: ['pick'], bench: ['sit'], log: ['sit'], spring: ['water', true], well: ['well'] };
 
   const Paysage = DW.Paysage = {
     // action pour la case visée (ou null)
     act(ow, x, y) {
       const ch = ow.tileAt(x, y), I = DW.World.info(ch);
       const b = I.obj && BY_OBJ[I.obj];
-      if (b) return () => ACTS[b[0]](ow, x, y, b[1]);
+      if (b) return () => ACTS[b[0]](ow, x, y, b[0] === 'well' ? I.v || 0 : b[1]);
+      // objet posé (cartes faites main, éditeur de cartes) : on agit sur toute son emprise
+      const o = (ow.map.objects || []).find(q => BY_OBJ[q.kind] && x >= q.x && x < q.x + (q.w || 1) && y >= q.y && y < q.y + (q.h || 1));
+      if (o) { const b2 = BY_OBJ[o.kind]; return () => ACTS[b2[0]](ow, x, y, b2[0] === 'well' ? o.v || 0 : b2[1]); }
       if (ch === '~' || ch === 'w') return () => ACTS.water(ow, x, y, false);
       if (I.deco === 'flowers' || I.deco === 'flowers2') return () => ACTS.flowers(ow, x, y);
       return null;
