@@ -36,11 +36,20 @@
   // Digimon prêté ; rien n'est sauvegardé (les vraies sauvegardes ne sont jamais touchées)
   const essai = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).get('essai');
   if (essai) {
-    const [id, x, y] = essai.split(','), st = DW.state;
+    const [id, x, y] = essai.split(','), st = DW.state, chap = +(new URLSearchParams(location.search).get('chap') || 0);
     DW.save = () => true; DW.autosave = () => {};
+    // chapitre de l'essai : 0 = tout ouvert (aucun passage fermé), sinon les règles de ce chapitre
+    if (chap > 0) st.flags.chapter = chap; else DW.essaiLibre = true;
     if (!st.party.length) { st.flags.starter = 'agumon'; DW.addDigimon(new DW.Digimon('agumon', 12)); }
-    const M = DW.getMap(id), [x0, y0] = x != null ? [+x, +y] : [M.w >> 1, M.h >> 1];
-    const go = () => { Game.replaceAll(new DW.Overworld(id, x0, y0, 'down')); DW.start(); };
+    // (si l'essai échoue, on l'écrit à l'écran au lieu d'un écran noir)
+    const oups = e => {
+      const p = document.createElement('pre');
+      p.style.cssText = 'position:fixed;left:12px;top:12px;right:12px;z-index:99;padding:10px;background:#120a14;color:#ff9a9a;font:13px monospace;white-space:pre-wrap';
+      p.textContent = `Essai impossible sur « ${id} » : ${e && e.message}\n(enregistre dans l'atelier, puis relance l'essai)\n\n${String(e && e.stack || '').split('\n').slice(0, 6).join('\n')}`;
+      document.body.appendChild(p); console.error(e);
+    };
+    const go = () => { try { const M = DW.getMap(id), [x0, y0] = x != null ? [+x, +y] : [M.w >> 1, M.h >> 1]; Game.replaceAll(new DW.Overworld(id, x0, y0, 'down')); DW.start(); } catch (e) { oups(e); } };
+    if (!DW.MAPS[id]) { oups(new Error('carte inconnue')); return; }
     if (document.fonts && document.fonts.load) document.fonts.load('10px "DotGothic16"').then(go, go); else go();
     return;
   }

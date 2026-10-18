@@ -223,8 +223,8 @@
       const [dx, dy] = DIRS[d], nx = P.x + dx, ny = P.y + dy;
       if (nx < 0 || ny < 0 || nx >= this.map.w || ny >= this.map.h) {
         const w = (this.map.warps || []).find(w => w.dir === d && P.x >= w.x && P.x < w.x + (w.w || 1) && P.y >= w.y && P.y < w.y + (w.h || 1));
-        const chLock = w && !w.ignoreChapitre && DW.Chapter && DW.Chapter.lock(w.to);   // (règle choisie dans l'éditeur : ignoreChapitre)   // zones fermées pendant le chapitre 1 (game/chapitre1.js)
-        if (w && (chLock || (w.cond && !w.cond(DW.state)))) {
+        const chLock = w && !w.ignoreChapitre && !DW.essaiLibre && DW.Chapter && DW.Chapter.lock(w.to);   // (essai « tout ouvert » depuis l'éditeur : main.js)   // (règle choisie dans l'éditeur : ignoreChapitre)   // zones fermées pendant le chapitre 1 (game/chapitre1.js)
+        if (w && (chLock || (w.cond && !DW.essaiLibre && !w.cond(DW.state)))) {
           if (!this.bumpT || this.t - this.bumpT > 0.4) { Audio.sfx('bump'); this.bumpT = this.t; this.runScript(async () => { await DW.say(chLock || (typeof w.lock === 'function' ? w.lock() : w.lock)); }); }
           return false;
         }
@@ -236,7 +236,7 @@
       // portail posé dans l'éditeur : on y entre de n'importe quel côté
       const portail = (this.map.portails || []).find(o => nx >= o.x && nx < o.x + (o.w || 1) && ny >= o.y && ny < o.y + (o.h || 1));
       if (portail && DW.MAPS[portail.to]) {
-        if (portail.cond && !portail.cond(DW.state)) { if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; this.runScript(async () => { await DW.say(portail.lock); }); } return false; }
+        if (portail.cond && !DW.essaiLibre && !portail.cond(DW.state)) { if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; this.runScript(async () => { await DW.say(portail.lock); }); } return false; }
         this.runScript(() => this.enterPortail(portail)); return false;
       }
       // le héros fonce sur un Digimon sauvage : combat volontaire
