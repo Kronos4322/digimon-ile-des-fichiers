@@ -132,7 +132,8 @@
   const BY_OBJ = { tree: ['shake', 'tree'], bigtree: ['shake', 'bigtree'], palm: ['shake', 'palm'], candytree: ['shake', 'candytree'],
     rock: ['search', 'sous le rocher'], mossrock: ['search', 'sous le rocher moussu'], searock: ['search', 'autour du rocher'], tidepool: ['search', 'la cuvette'],
     stump: ['search', 'la souche'], hollowlog: ['search', 'le rondin creux'], barrel: ['search', 'le tonneau'], crates: ['search', 'les caisses'], haybale: ['search', 'la botte de foin'], driftwood: ['search', 'le bois flotté'],
-    glowshroom: ['pick'], giantshroom: ['pick'], bench: ['sit'], log: ['sit'], spring: ['water', true], well: ['well'] };
+    glowshroom: ['pick'], giantshroom: ['pick'], bench: ['sit'], log: ['sit'], spring: ['water', true], well: ['well'],
+    troncouche: ['sit'], champignons: ['pick'], rochersmousse: ['search', 'sous les rochers moussus'], blocs: ['search', 'entre les blocs'], rochercotier: ['search', 'autour du rocher'] };
 
   // EAU SALÉE ? On ne boit qu'aux puits, aux sources et à l'eau douce de l'intérieur (rivières, étangs, lacs).
   //  « ≈ » mer peinte : salée ; « ≋ » eau douce peinte : douce ; « ≃ » eau trouble : imbuvable ('trouble') ;
