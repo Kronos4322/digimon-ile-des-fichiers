@@ -45,6 +45,7 @@
       m.rows = m.rows.map(r => r.padEnd(m.w, '#'));
       m.h = m.rows.length;
     }
+    if (DW.PUZZLE) { DW.PUZZLE.reposer(m, id); DW.PUZZLE.gabarit(m, id); if (!m.spec) DW.PUZZLE.raccorder(m, id); }   // pièce du puzzle : taille commune, passages raccordés aux chemins
     clearPassages(m);
     densify(m);
     if (DW.Monde && !m.indoor && !m.voisines) DW.Monde.annoter(id);   // place dans la grille du monde, voisines (maps/monde.js)

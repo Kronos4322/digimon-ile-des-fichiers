@@ -16,6 +16,7 @@
   const outdoor = id => !!MAPS[id] && !MAPS[id].indoor;
   // dimensions sans construire la carte (régions : connues d'avance ; cartes faites main : lignes ou plan agrandi)
   function dims(id) {
+    if (DW.PUZZLE && DW.PUZZLE.isPiece(id)) return DW.PUZZLE.case;   // (une pièce du puzzle a toujours la taille commune)
     const m = MAPS[id];
     if (m.w && m.h) return [m.w, m.h];
     if (m.rows) return [Math.max(...m.rows.map(r => r.length)), m.rows.length];
@@ -25,12 +26,14 @@
   // LE CŒUR DU MONDE : les cartes des chapitres déjà construits (1 à 3) sont posées EN PREMIER et font foi ; une carte
   // d'un chapitre futur qui les contredit (boucle, chevauchement) est marquée « hors grille » en attendant d'être refaite
   const CORE = new Set(['foret', 'plage', 'lac', 'village', 'miharashi']), DISTRICTS = new Set(['residentiel', 'numerique', 'marche']);
-  const core = id => CORE.has(MAPS[id].region) && !DISTRICTS.has(id);
+  const core = id => (DW.PUZZLE ? DW.PUZZLE.isPiece(id) : CORE.has(MAPS[id].region) && !DISTRICTS.has(id));
   let POS = null, CONF = [], BAD = new Set();
   function build(root = 'clairiere') {
     POS = {}; CONF = []; BAD = new Set();
-    const [w0, h0] = dims(root); POS[root] = { x: 0, y: 0, w: w0, h: h0 };
-    const queue = [root];
+    const queue = [];
+    // les pièces du puzzle (maps/puzzle.js) sont posées d'office ; les autres cartes s'y accrochent par leurs passages
+    if (DW.PUZZLE) for (const id in DW.PUZZLE.pieces) if (MAPS[id]) { POS[id] = DW.PUZZLE.pos(id); queue.push(id); }
+    if (!queue.length) { const [w0, h0] = dims(root); POS[root] = { x: 0, y: 0, w: w0, h: h0 }; queue.push(root); }
     while (queue.length) {
       queue.sort((a, b) => (core(b) - core(a)) || (a < b ? -1 : 1));   // (parcours déterministe ; le cœur d'abord)
       const id = queue.shift(), A = MAPS[id], P = POS[id];

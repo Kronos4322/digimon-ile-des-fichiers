@@ -103,7 +103,7 @@
       clearings: [{ x: 20, y: 15, rx: 17, ry: 11 }],
       paths: [{ pts: [[-1, 14], [8, 14], [16, 17], [26, 12], [33, 15], [41, 13]], r: 1.6 }, { pts: [[16, 17], [14, 21], [13, 25]], r: 1.2 }],   // (un petit pont franchit la rivière vers le sud de la prairie)
       lakes: [{ x: 28, y: 21, rx: 4, ry: 2.6 }],
-      rivers: [{ pts: [[-1, 18.5], [8, 19], [16, 21.5], [25, 21]], r: 1.4 }],   // (la rivière du Sentier des Murmures continue jusqu'à la mare)
+      rivers: [{ pts: [[-1, 16], [8, 18], [16, 21.5], [25, 21]], r: 1.4 }],   // (la rivière du Sentier des Murmures continue jusqu'à la mare)
       tall: [{ x: 12, y: 9, r: 4 }, { x: 22, y: 24, r: 3.5 }, { x: 32, y: 8, r: 3.5 }],
       bigtrees: [[34, 22]],
       free: [[5, 12, 2.5], [33, 15, 2.5], [38, 13, 2.2]],

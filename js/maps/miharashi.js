@@ -51,7 +51,7 @@
 
   // ------------------------------------------------------------ 3) LES ROUTES (polylignes du monde)
   const exitCenter = (m, side) => { const [p, l] = m.exits[side]; const c = p + (l - 1) / 2; return { left: [0, c], right: [m.w - 1, c], up: [c, 0], down: [c, m.h - 1] }[side]; };
-  const HUB = { miharashi0: [50, 30], miharashi2: [52, 36], miharashi3: [52, 40] };
+  const HUB = { miharashi0: [48, 36], miharashi2: [50, 36], miharashi3: [48, 42] };
   let ROADS = null;
   function roads() {
     if (ROADS) return ROADS;
@@ -72,19 +72,19 @@
 
   // ------------------------------------------------------------ 4) LE RELIEF
   // le massif du Mont Miharashi (cône en terrasses + contrefort vers l'est sur la route), en repère du mont
-  const MONT = { crater: [51, 40], meramon: [56, 48], summit: [56, 45, 14, 9] };
+  const MONT = { crater: [43, 23], meramon: [48, 30], summit: [48, 27, 12, 6.5] };
   function massif(xm, ym) {
     const [sx, sy, srx, sry] = MONT.summit;
     if (Math.hypot((xm - sx) / srx, (ym - sy) / sry) < 1) return 4;   // plateau du sommet (le cratère)
-    const cone = 1 - Math.hypot((xm - 56) / 44, (ym - 50) / 33);
-    const ridgeY = 62 + Math.sin(xm * 0.05) * 4, spur = (0.5 - Math.abs(ym - ridgeY) / 15) * DW.clamp((196 - xm) / 34, 0, 1) * DW.clamp((xm - 60) / 20, 0, 1);
+    const cone = 1 - Math.hypot((xm - 48) / 40, (ym - 38) / 30);
+    const ridgeY = 50 + Math.sin(xm * 0.05) * 3, spur = (0.5 - Math.abs(ym - ridgeY) / 13) * DW.clamp((180 - xm) / 30, 0, 1) * DW.clamp((xm - 54) / 18, 0, 1);
     const f = Math.max(cone, spur) + (fbm(xm * 0.06, ym * 0.06, 991) - 0.5) * 0.16;
     return f > 0.62 ? 3 : f > 0.42 ? 2 : f > 0.2 ? 1 : 0;
   }
   // mesas du désert (repère de chaque carte) : [cx, cy, rx, ry, niveau max]
   const MESAS = {
-    miharashi0: [[22, 14, 12, 5.5, 2], [80, 15, 10, 5, 1], [24, 45, 10, 4.5, 1], [77, 44, 13, 5.5, 2]],
-    miharashi2: [[40, 18, 18, 4.5, 1], [48, 52, 16, 4.5, 1], [78, 17, 7, 4, 1], [76, 58, 6, 3.5, 1]],
+    miharashi0: [[22, 16, 11, 5.5, 2], [76, 16, 10, 5, 1], [24, 54, 10, 5, 1], [74, 52, 12, 5.5, 2]],
+    miharashi2: [[40, 18, 18, 4.5, 1], [50, 52, 16, 4.5, 1], [80, 17, 7, 4, 1], [80, 58, 6, 3.5, 1]],
   };
   function levelOf(id, x, y) {
     const [ox, oy] = offsets()[id], X = x + ox, Y = y + oy;
@@ -202,7 +202,7 @@
     sow(g, 6, 6, W - 7, H - 7, 'Ó', 0.005, 926 + n, c => c === '.' || c === 's', off);
     sow(g, 6, 6, W - 7, H - 7, 'õ', 0.003, 928 + n, c => c === 's', off);
     // une oasis au Désert des Poteaux (palmiers, roseaux)
-    if (n === 0) { const [px, py] = [40, 22]; if (!high(px, py) && !nearRoad(id, px, py, 6)) { pond(g, px, py, 4.2, 2.4, 'Ð', 929); for (const [dx, dy] of [[-6, -1], [5, -2], [-4, 3], [7, 2]]) put(g, px + dx, py + dy, 'p'); } }
+    if (n === 0) { const [px, py] = [40, 26]; if (!high(px, py) && !nearRoad(id, px, py, 6)) { pond(g, px, py, 4.2, 2.4, 'Ð', 929); for (const [dx, dy] of [[-6, -1], [5, -2], [-4, 3], [7, 2]]) put(g, px + dx, py + dy, 'p'); } }
     // panneaux d'orientation à la sortie de la forêt
     const fx = m.exits.right ? exitCenter(m, 'right') : null;
     if (fx) {
@@ -222,27 +222,27 @@
     base(g, m, id, (x, y, X, Y) => (Hh(X, Y, 1261) < DW.clamp((x - (W - 22)) / 20, 0, 0.92) ? (Hh(X, Y, 1262) < 0.12 ? ';' : 's') : N(X, Y, 934, 0.1) > 0.7 ? ',' : '.'));
     const free = (x, y) => !occ.has(x + ',' + y) && !ex.has(x + ',' + y) && WALK(g.get(x, y));
     // le petit lac et l'épave (banc de sable)
-    pond(g, 28, 56, 13, 6.5, null);
-    for (let y = 52; y <= 60; y++) for (let x = 21; x <= 35; x++) { const d = Math.hypot((x - 28) / 7.5, (y - 56.5) / 3.6); if (d < 1) g.set(x, y, d < 0.75 ? 's' : ';'); }
-    for (let y = 46; y < 66; y++) for (let x = 12; x < 46; x++) if (free(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g.get(x + dx, y + dy) === '~') && Hh(x, y, 937) < 0.4) g.set(x, y, 'Ð');
+    pond(g, 24, 49, 11, 5.5, null);
+    for (let y = 45; y <= 53; y++) for (let x = 17; x <= 31; x++) { const d = Math.hypot((x - 24) / 7, (y - 49.5) / 3.4); if (d < 1) g.set(x, y, d < 0.75 ? 's' : ';'); }
+    for (let y = 40; y < 60; y++) for (let x = 8; x < 40; x++) if (free(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g.get(x + dx, y + dy) === '~') && Hh(x, y, 937) < 0.4) g.set(x, y, 'Ð');
     // la place autour de la fontaine, les allées vers chaque hutte et vers les sorties
-    for (let y = 26; y <= 40; y++) for (let x = 42; x <= 70; x++) if (Math.hypot((x - 56) / 14, (y - 33) / 7) < 1 && free(x, y)) g.set(x, y, '=');
+    for (let y = 22; y <= 36; y++) for (let x = 34; x <= 62; x++) if (Math.hypot((x - 48) / 13, (y - 29.5) / 6.5) < 1 && free(x, y)) g.set(x, y, '=');
     const road = (pts, r, keep) => { for (let i = 0; i + 1 < pts.length; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2);
       for (let k = 0; k <= n; k++) { const x = x0 + (x1 - x0) * k / n, y = y0 + (y1 - y0) * k / n;
         for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { if (dx * dx + dy * dy > r * r) continue; const X = Math.round(x + dx), Y = Math.round(y + dy); if (keep(X, Y) || g.get(X, Y) === undefined || g.get(X, Y) === '~') continue; g.set(X, Y, '='); } } } };
-    for (const o of m.objects.filter(o => o.kind === 'yokohut')) road([[o.x + 2, o.y + o.h], [56, 33]], 0.8, (x, y) => occ.has(x + ',' + y) && y !== o.y + o.h);
-    for (const s in m.exits) { const e = exitCenter(m, s); road([e, [{ left: e[0] + 6, right: e[0] - 6 }[s] || e[0], e[1]], [(e[0] + 56) / 2, (e[1] + 34) / 2 + 3], [56, 36]], 1.6, (x, y) => occ.has(x + ',' + y)); }
+    for (const o of m.objects.filter(o => o.kind === 'yokohut')) road([[o.x + 2, o.y + o.h], [48, 30]], 0.8, (x, y) => occ.has(x + ',' + y) && y !== o.y + o.h);
+    for (const s in m.exits) { const e = exitCenter(m, s); road([e, [{ left: e[0] + 6, right: e[0] - 6 }[s] || e[0], e[1]], [(e[0] + 48) / 2, (e[1] + 31) / 2 + 3], [48, 33]], 1.6, (x, y) => occ.has(x + ',' + y)); }
     // champs de fleurs des Yokomon (fleurs bleues) bordés de haies, et un potager
     const field = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (!free(x, y) || g.get(x, y) === '=') continue; const edge = x === x0 || x === x1 || y === y0 || y === y1; g.set(x, y, edge ? (y === y1 && Math.abs(x - (x0 + x1) / 2) < 1.5 ? '.' : 'K') : (x + y) % 2 ? 'd' : 'f'); } };
-    field(84, 34, 98, 42); field(14, 34, 26, 41);
-    for (let y = 56; y <= 63; y++) for (let x = 64; x <= 80; x++) if (free(x, y) && g.get(x, y) !== '=') g.set(x, y, (y % 3 === 0) ? '=' : 'f');
+    field(72, 30, 84, 37); field(10, 30, 21, 37);
+    for (let y = 50; y <= 56; y++) for (let x = 55; x <= 69; x++) if (free(x, y) && g.get(x, y) !== '=') g.set(x, y, (y % 3 === 0) ? '=' : 'f');
     // vie du village : puits, bancs, lanternes, caisses, tonneaux, drapeaux
-    for (const [x, y, ch] of [[48, 28, 'e'], [64, 29, 'J'], [47, 38, 'J'], [44, 32, 'i'], [68, 32, 'i'], [56, 24, 'i'], [38, 22, 'D'], [76, 22, 'a'], [77, 22, 'D'], [36, 46, 'a'], [70, 54, 'D'], [62, 44, 'i'], [50, 44, 'i'],
-      [27, 30, 'V'], [86, 30, 'V'], [91, 46, 'J'], [20, 46, 'J']]) put(g, x, y, ch);
+    for (const [x, y, ch] of [[41, 25, 'e'], [55, 26, 'J'], [40, 34, 'J'], [37, 29, 'i'], [59, 29, 'i'], [48, 21, 'i'], [32, 20, 'D'], [65, 20, 'a'], [66, 20, 'D'], [31, 41, 'a'], [60, 48, 'D'], [53, 39, 'i'], [43, 39, 'i'],
+      [23, 27, 'V'], [74, 27, 'V'], [78, 41, 'J'], [17, 41, 'J']]) put(g, x, y, ch);
     // grands arbres d'ombre, palmiers le long de la plage du nord
-    for (const [x, y] of [[34, 20], [79, 21], [18, 26], [96, 26], [12, 50], [100, 54], [40, 64], [88, 62]]) put(g, x, y, Hh(x, y, 935) < 0.5 ? 'Y' : 'T');
+    for (const [x, y] of [[29, 18], [68, 19], [15, 23], [86, 23], [9, 45], [88, 48], [34, 58], [76, 56]]) put(g, x, y, Hh(x, y, 935) < 0.5 ? 'Y' : 'T');
     for (let y = 0; y < H / 2; y++) for (let x = 0; x < W; x++) if (free(x, y) && g.get(x, y) !== '=' && [1, 2, 3].some(k => g.get(x, y - k) === 's') && Hh(x, y, 936) < 0.06) g.set(x, y, 'p');
-    g.set(56, 35, 'S');
+    g.set(48, 31, 'S');
   }
 
   // ------------------------------------------------------------ ROUTE DU MONT MIHARASHI (sous-zone 3)
@@ -276,12 +276,12 @@
   // Un seul escalier par terrasse, toujours à l'autre bout de celle-ci : la montée est longue et se mérite.
   function mont(g, m) {
     const id = 'miharashi4', W = g.w;
-    const foot = (x, y) => Math.hypot((x - 56) / 54, (y - 52) / 40) < 1;
+    const foot = (x, y) => Math.hypot((x - 48) / 50, (y - 40) / 36) < 1;
     const ex10 = exitCells(m, 10);
     const prot = base(g, m, id, (x, y, X, Y) => (foot(x, y) || ex10.has(x + ',' + y) ? (N(X, Y, 961, 0.12) > 0.68 ? ',' : Hh(X, Y, 962) < 0.025 ? 'Ô' : '.') : Hh(X, Y, 964) < 0.75 ? '#' : 'T'));
     const [cx, cy] = MONT.meramon, crater = m.objects.find(o => o.kind === 'cratere');
     const R = DW.Relief.build(g, m, { id, keep: (x, y) => prot.has(x + ',' + y), corridor: (x, y) => ex10.has(x + ',' + y), levelAt: (x, y) => levelOf(id, x, y),
-      foot: [W - 4, Math.round(m.exits.right[0] + 2)],
+      foot: [W - 4, Math.round(m.exits.right[0] + 2)],   // (on arrive de la route, à l'est)
       firstStair: a => -Math.abs(a[0] + 1 - cx),   // l'escalier du sommet est au bout du plateau, loin de Meramon
       surface: (x, y, L) => {
         if (L === 0) return g.get(x, y);

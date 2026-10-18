@@ -109,7 +109,7 @@
       const [sx, sy] = pick, drop = C.L - lvl(sx, sy + 1), len = WALL * drop;
       for (let d = 0; d < 3; d++) for (let k = 1; k <= len; k++) if (sy + k < H) { isRock[(sy + k) * W + sx + d] = 0; g.set(sx + d, sy + k, STAIR); alt[(sy + k) * W + sx + d] = PASS; }
       // les rebords qui toucheraient l'escalier sur le plateau sont ouverts
-      for (let d = -1; d <= 3; d++) if (isRock[sy * W + sx + d] && lvl(sx + d, sy) === C.L) isRock[sy * W + sx + d] = 0;
+      for (let d = 0; d < 3; d++) if (isRock[sy * W + sx + d] && lvl(sx + d, sy) === C.L) isRock[sy * W + sx + d] = 0;   // (seulement au-dessus des marches : les rebords voisins restent)
       for (let d = 0; d < 3; d++) { g.set(sx + d, sy, o.pathCh || '='); for (const fy of [sy + len + 1, sy + len + 2]) if (fy < H && lvl(sx + d, fy) === lvl(sx, sy + len + 1)) g.set(sx + d, fy, o.pathCh || '='); }   // (abords dégagés)
       const footComp = comp[(sy + len + 1) * W + sx + 1];
       if (footComp >= 0) arrivals[footComp].push([sx + 1, sy + len + 1]);

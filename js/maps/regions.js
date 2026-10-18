@@ -205,8 +205,9 @@
       }
       return Object.values(out);
     });
-    const dimW = i => (R.subs[i][2] || {}).w || 88 + Math.floor(Hh(pos[i][0], 1, rs + 700) * 3) * 6;
-    const dimH = i => (R.subs[i][2] || {}).h || 64 + Math.floor(Hh(pos[i][1], 2, rs + 700) * 3) * 4;
+    // (régions du puzzle du monde : toutes les cartes ont la taille d'une pièce, maps/puzzle.js)
+    const dimW = i => (R.taille ? R.taille[0] : (R.subs[i][2] || {}).w || 88 + Math.floor(Hh(pos[i][0], 1, rs + 700) * 3) * 6);
+    const dimH = i => (R.taille ? R.taille[1] : (R.subs[i][2] || {}).h || 64 + Math.floor(Hh(pos[i][1], 2, rs + 700) * 3) * 4);
     R.subs.forEach(([name, kind, x = {}], i) => {
       // portail d'un donjon secret des écussons (maps/donjons.js)
       const dj = DW.Donjons && DW.Donjons.pieceFor(rid, i);
@@ -550,7 +551,7 @@
   //     |       |
   //     1 — 0 — 3            (0 ↓ Clairière de l'Arrivée ; 1 ↓ Pays des Scarabées, en attendant le futur village au sud de la Rosière)
   //  10 au nord et 11 à l'ouest du Lac de l'Œil du Dragon (7) : prairies au bord des falaises, la mer en contrebas
-  region('lac', { name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[1, 'down']], lm: [['Ð', 3]],
+  region('lac', { taille: DW.PUZZLE.case, name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[1, 'down']], lm: [['Ð', 3]],
     plan: [[1, 2], [0, 2], [1, 1], [2, 2], [2, 1], [2, 0], [1, 0], [0, 0], [0, 1], [1, -1], [0, -1], [-1, 0]],
     links: [[0, 1], [1, 8], [8, 7], [7, 6], [6, 5], [5, 4], [4, 3], [3, 0], [6, 2], [6, 9], [7, 10], [7, 11], [9, 10]],
     lake: { cx: 1.5, cy: 1.5, r: 1.02 }, subs: [
@@ -575,38 +576,26 @@
   const MT = () => DW.Mih.MONT;
   // (géographie du pays et peinture de chaque carte : maps/miharashi.js — une seule terre en coordonnées du monde,
   //  les cartes en sont des fenêtres ; la côte, les routes et le relief se raccordent d'elles-mêmes)
-  region('miharashi', { name: 'Pays de Meramon', theme: 'desert', entry: 'right', music: 'field', climate: 'beach', ambient: 'beach',
+  region('miharashi', { taille: DW.PUZZLE.case, name: 'Pays de Meramon', theme: 'desert', entry: 'right', music: 'field', climate: 'beach', ambient: 'beach',
     out: [[0, 'up'], [2, 'right'], [2, 'down']],
     plan: [[3, 0], [2, 0], [3, 1], [1, 0], [0, 0]], links: [[0, 1], [0, 2], [1, 3], [3, 4]],
     subs: [
-      ['Désert des Poteaux', 'trail', { w: 100, h: 60, noRegionLm: true, opts: { hub: [50, 30], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 0) }],
-      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', w: 112, h: 80, noRegionLm: true, opts: { hub: [56, 40], autoTall: 0.2 },
+      ['Désert des Poteaux', 'trail', { noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 0) }],
+      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 },
         objects: [
-          { kind: 'stonefountain', v: 0, x: 54, y: 31, w: 5, h: 3 },
-          { kind: 'shipwreck', v: 0, x: 25, y: 53, w: 7, h: 4 },
-          ...[[40, 18], [50, 17], [62, 17], [72, 19], [30, 26], [82, 26], [30, 44], [44, 50], [66, 50], [78, 44], [90, 50], [22, 20], [92, 19]].map(([x, y], i) => ({ kind: 'yokohut', v: i % 3 === 2 ? 1 : 0, x, y, w: 4, h: 3, hut: i })),
+          { kind: 'stonefountain', v: 0, x: 46, y: 27, w: 5, h: 3 },
+          { kind: 'shipwreck', v: 0, x: 21, y: 46, w: 7, h: 4 },
+          ...[[34, 15], [43, 14], [53, 14], [62, 16], [26, 22], [70, 22], [26, 39], [38, 44], [57, 44], [67, 39], [77, 44], [18, 17], [79, 16]].map(([x, y], i) => ({ kind: 'yokohut', v: i % 3 === 2 ? 1 : 0, x, y, w: 4, h: 3, hut: i })),
         ],
-        signs: { '56,35': "La fontaine du village. Les Yokomon y puisent l'eau qui arrose leurs fleurs." },
+        signs: { '48,31': "La fontaine du village. Les Yokomon y puisent l'eau qui arrose leurs fleurs." },
         post: (g, m) => DW.Mih.village(g, m) }],
-      ['Plaine des Panneaux', 'trail', { w: 90, h: 72, noRegionLm: true, opts: { hub: [52, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
-      ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', w: 104, h: 72, noRegionLm: true, opts: { hub: [52, 40], autoTall: 0.3 }, post: (g, m) => DW.Mih.route(g, m) }],
-      ['Mont Miharashi', 'plaza', { theme: 'miharashi', w: 104, h: 100, noRegionLm: true, opts: { hub: [92, 79], autoTall: 0.2 },
+      ['Plaine des Panneaux', 'trail', { noRegionLm: true, opts: { hub: [50, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
+      ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', noRegionLm: true, opts: { hub: [48, 42], autoTall: 0.3 }, post: (g, m) => DW.Mih.route(g, m) }],
+      ['Mont Miharashi', 'plaza', { theme: 'miharashi', noRegionLm: true, opts: { hub: [88, 36], autoTall: 0.2 },
         objects: [{ kind: 'cratere', v: 0, x: DW.Mih.MONT.crater[0], y: DW.Mih.MONT.crater[1], w: 11, h: 6 }],
         post: (g, m) => DW.Mih.mont(g, m) }],
     ] });
-  // LE PAYS DE MERAMON DANS LA GRILLE DU MONDE : le Désert des Poteaux a la hauteur de la Clairière (60 cases) et la
-  // Plaine des Panneaux celle du Sentier (72) ; leurs passages sont alignés sur ceux de la forêt, de la Rosière et entre
-  // eux : les boucles Clairière–Sentier–Plaine–Désert et Rive Sud–Rosière–Désert–Clairière se referment exactement.
-  { const D = MAPS.miharashi0, P = MAPS.miharashi2, L0 = MAPS.lac0, L1 = MAPS.lac1;
-    D.exits.right = [28, 6];                        // = passage ouest de la Clairière (plan agrandi : 14 × 2)
-    P.exits.right = [22, 6];                        // = passage ouest du Sentier (11 × 2)
-    D.exits.down = [46, 6]; P.exits.up = [46, 6];   // (même abscisse : la Plaine est 10 cases moins large, comme le Sentier est décalé de 10)
-    P.exits.down = [48, 6];                         // = passage nord du Bosquet des Pousses (19 × 2, le Bosquet étant 10 cases plus à l'est)
-    // la Rosière au-dessus du désert : sa place se déduit de la Rive Sud, elle-même au-dessus de la Clairière (passage à 16 × 2)
-    const l1x = (32 - L0.exits.down[0]) - L1.w;
-    D.exits.up = [DW.clamp(l1x + L1.exits.down[0] + D.w, 8, D.w - 14), 6]; }
-  // (le Mont : on arrive de la route par l'est, au pied de la montagne, devant le premier escalier)
-  MAPS.miharashi4.exits.right = [77, 6];
+  // (les passages du pays de Meramon, comme tous ceux du monde, viennent du puzzle : maps/puzzle.js)
   MAPS.miharashi1.calm = true;   // pas de Digimon sauvages dans le village
 
   region('scarabees', { name: 'Pays des Scarabées', theme: 'beetle', entry: 'up', lm: [['ý', 2], ['þ', 1]], subs: [
@@ -683,5 +672,6 @@
     MAPS[b].warps.push(mk(sb, pb, wb, hb, a, pa, wa, ha));
   }
   DW.REGION_ENTRY = ENTRY;
+  if (DW.PUZZLE) DW.PUZZLE.apply();   // LE PUZZLE DU MONDE : pièces de même taille, passages posés au même endroit des deux côtés
   if (DW.Monde) DW.Monde.pret = true;   // tous les passages sont posés : la grille du monde peut être calculée (maps/monde.js)
 })();

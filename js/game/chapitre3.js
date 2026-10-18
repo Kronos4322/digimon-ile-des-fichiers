@@ -32,15 +32,15 @@
       const at = (x, y) => DW.MapKit.freeNear(this, x, y);   // (la place prévue peut être prise par une hutte de l'auberge)
       const folk = (X, Y, lines) => { const [x, y] = at(X, Y); return { sp: 'yokomon', x, y, face: 'down', wander: 2, talk: async () => { await say(pick(lines()), 'Yokomon'); } }; };
       this.npcs.push(
-        { sp: 'yokomon', x: at(59, 36)[0], y: at(59, 36)[1], face: 'left', talk: () => chief() },
-        folk(50, 40, () => freed() ? ["L'eau ! L'eau est revenue ! Mes fleurs vont refleurir !", "Meramon est venu s'excuser. Il avait l'air tout gêné, hihi."] : ["Il fait si chaud... Mes pétales se dessèchent.", "La nuit, on voit des flammes au sommet du Mont Miharashi."]),
-        folk(63, 41, () => freed() ? ['On va faire une grande fête autour de la fontaine !'] : ["Le lac a presque séché. On voit même la vieille épave, au milieu !", "On dit que ce bateau est là depuis toujours. Personne ne sait d'où il vient."]),
-        folk(53, 45, () => freed() ? ['Merci, merci, merci !'] : ["Meramon était gentil, avant... Il veillait sur la montagne.", "Une drôle de chose noire est tombée du ciel sur le Mont Miharashi. Depuis, Meramon a changé."]),
-        folk(61, 46, () => ["Les poteaux du désert ? Ils étaient là avant nous. Ils ne mènent nulle part...", "Bienvenue au Village des Yokomon !"]),
+        { sp: 'yokomon', x: at(51, 32)[0], y: at(51, 32)[1], face: 'left', talk: () => chief() },
+        folk(43, 36, () => freed() ? ["L'eau ! L'eau est revenue ! Mes fleurs vont refleurir !", "Meramon est venu s'excuser. Il avait l'air tout gêné, hihi."] : ["Il fait si chaud... Mes pétales se dessèchent.", "La nuit, on voit des flammes au sommet du Mont Miharashi."]),
+        folk(54, 37, () => freed() ? ['On va faire une grande fête autour de la fontaine !'] : ["Le lac a presque séché. On voit même la vieille épave, au milieu !", "On dit que ce bateau est là depuis toujours. Personne ne sait d'où il vient."]),
+        folk(45, 40, () => freed() ? ['Merci, merci, merci !'] : ["Meramon était gentil, avant... Il veillait sur la montagne.", "Une drôle de chose noire est tombée du ciel sur le Mont Miharashi. Depuis, Meramon a changé."]),
+        folk(52, 41, () => ["Les poteaux du désert ? Ils étaient là avant nous. Ils ne mènent nulle part...", "Bienvenue au Village des Yokomon !"]),
         // la jardinière : une fois l'eau revenue, le mini-jeu d'arrosage (game/minijeux.js)
-        { sp: 'yokomon', x: at(47, 41)[0], y: at(47, 41)[1], face: 'right', cond: () => freed(), talk: () => DW.MiniJeux.arrosage('Yokomon jardinière') },
-        { hero: 'sora', x: at(50, 36)[0], y: at(50, 36)[1], face: 'right', cond: soraHere, talk: ow => soraTalk(ow) },
-        { sp: 'biyomon', x: at(51, 37)[0], y: at(51, 37)[1], face: 'left', cond: soraHere, talk: async () => { await say(st().flags.soraMet ? "Je protégerai Sora ! Même contre Meramon !" : "Cui ! Tu viens de la forêt ? Va parler à Sora, elle cherche de l'aide !", 'Biyomon'); } },
+        { sp: 'yokomon', x: at(40, 37)[0], y: at(40, 37)[1], face: 'right', cond: () => freed(), talk: () => DW.MiniJeux.arrosage('Yokomon jardinière') },
+        { hero: 'sora', x: at(43, 32)[0], y: at(43, 32)[1], face: 'right', cond: soraHere, talk: ow => soraTalk(ow) },
+        { sp: 'biyomon', x: at(44, 33)[0], y: at(44, 33)[1], face: 'left', cond: soraHere, talk: async () => { await say(st().flags.soraMet ? "Je protégerai Sora ! Même contre Meramon !" : "Cui ! Tu viens de la forêt ? Va parler à Sora, elle cherche de l'aide !", 'Biyomon'); } },
       );
     };
     V.onEnter = async ow => {
@@ -139,7 +139,7 @@
     s.party.forEach(m => m.heal());
     // retour au village : l'eau jaillit de nouveau
     await DW.fade(1, 0.8);
-    ow.load('miharashi1', 56, 38, 'up');
+    ow.load('miharashi1', 48, 34, 'up');
     await DW.wait(0.2);
     await DW.fade(0, 0.8);
     Audio.play('victory');

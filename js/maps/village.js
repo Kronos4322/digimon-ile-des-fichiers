@@ -295,10 +295,10 @@
     // RACCORD AVEC LA PLAGE DES CABINES (à l'ouest) : la route d'entrée longe le haut d'une falaise et, en dessous,
     // c'est la mer, comme de l'autre côté de la frontière. La côte se prolonge donc ici : falaise sous la route,
     // puis plage et mer à l'ouest de la rivière (qui se jette dans la mer). La ville elle-même ne change pas.
-    { const g = m.rows.map(r => [...r]), road = m.warps.find(w => w.to === 'plage'), y0 = road ? road.y + road.h : 32;
+    { const g = m.rows.map(r => [...r]), pp = DW.PUZZLE && DW.PUZZLE.passage('plage', 'village'), road = m.warps.find(w => w.to === 'plage'), y0 = pp != null ? pp + 6 : DW.PUZZLE ? 8 : road ? road.y + road.h : 32;   // (sous le passage du puzzle, comme la falaise de la plage)
       for (let y = y0; y < g.length; y++) {
-        const k = y - y0, sea = Math.min(3, 1 + Math.floor(k / 3) + (DW.Art.hash(y, 1, 771) < 0.4 ? 1 : 0));
-        for (let x = 0; x < 4; x++) {
+        const k = y - y0, sea = Math.min(4, 3 + (DW.Art.hash(y, 1, 771) < 0.4 ? 1 : 0));
+        for (let x = 0; x < 6; x++) {
           if (g[y][x] === '~' || g[y][x] === '_') continue;
           g[y][x] = k < 2 ? 'C' : x < sea ? '~' : (DW.Art.hash(x, y, 772) < 0.15 ? 'R' : 's');
         }
