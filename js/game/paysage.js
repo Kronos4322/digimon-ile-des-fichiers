@@ -72,9 +72,17 @@
       else await say('Tu te reposes un peu.');
     },
     async water(ow, x, y, spring) {
-      const m = pt();
-      // la mer (régions de plage, sauf les mares) : salée, elle ne désaltère pas
-      if (!spring && ow.map.climate === 'beach' && ow.tileAt(x, y) === '~') {
+      const m = pt(), sel = !spring && Paysage.salee(ow.map, x, y);
+      // eau trouble (marais) : on ne la boit pas
+      if (sel === 'trouble') {
+        const rod = DW.Peche && DW.Peche.has();
+        const r = await DW.ask('Une eau trouble, verdâtre, qui sent la vase.', [...(rod ? ['Pêcher'] : []), 'Rien']);
+        if (rod && r === 0) { await DW.Peche.cast(ow, 'lac'); return; }
+        if (m) await say(`${m.name} renifle l'eau et recule : « Pouah ! » Mieux vaut ne pas boire ça.`);
+        return;
+      }
+      // la mer (plage, crique, dunes, côte de la ville, mer du Pays de Meramon, eau « mer » peinte) : salée, elle ne désaltère pas
+      if (sel) {
         const rod = DW.Peche && DW.Peche.has();
         const r = await DW.ask('Les vagues viennent mourir sur le sable.', ['Goûter l\'eau', 'Jouer dans les vagues', ...(rod ? ['Pêcher'] : []), 'Rien']);
         if (rod && r === 2) { await DW.Peche.cast(ow, 'mer'); return; }
@@ -126,7 +134,34 @@
     stump: ['search', 'la souche'], hollowlog: ['search', 'le rondin creux'], barrel: ['search', 'le tonneau'], crates: ['search', 'les caisses'], haybale: ['search', 'la botte de foin'], driftwood: ['search', 'le bois flotté'],
     glowshroom: ['pick'], giantshroom: ['pick'], bench: ['sit'], log: ['sit'], spring: ['water', true], well: ['well'] };
 
+  // EAU SALÉE ? On ne boit qu'aux puits, aux sources et à l'eau douce de l'intérieur (rivières, étangs, lacs).
+  //  « ≈ » mer peinte : salée ; « ≋ » eau douce peinte : douce ; « ≃ » eau trouble : imbuvable ('trouble') ;
+  //  la région de la plage (plage, crique, dunes) : salée ; une carte peut dire elle-même où est sa mer (map.sel, ex. la côte
+  //  de la ville) ; les cartes bordées par la mer (map.mer, ex. le Pays de Meramon) : l'eau qui touche le bord de la carte.
+  function salee(map, x, y) {
+    const c = map.rows[y] && map.rows[y][x];
+    if (c === '≈') return true;
+    if (c === '≋' || c === '5') return false;
+    if (c === '≃') return 'trouble';
+    if (map.region === 'plage') return true;
+    if (typeof map.sel === 'function') return !!map.sel(x, y);
+    if (map.mer) return mer(map).has(y * map.w + x);
+    return false;
+  }
+  // (cases d'eau reliées au bord de la carte : la mer qui entoure l'île ; calculé une fois par état de la carte)
+  function mer(map) {
+    if (map._merFor === map.rows) return map._mer;
+    const W = map.w, H = map.h, out = new Set(), q = [];
+    const eau = (x, y) => { const I = DW.World.CH[map.rows[y][x]]; return I && I.t === 'water' && map.rows[y][x] !== '≋'; };
+    for (let x = 0; x < W; x++) for (const y of [0, H - 1]) if (eau(x, y)) { out.add(y * W + x); q.push([x, y]); }
+    for (let y = 0; y < H; y++) for (const x of [0, W - 1]) if (eau(x, y) && !out.has(y * W + x)) { out.add(y * W + x); q.push([x, y]); }
+    while (q.length) { const [x, y] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H || out.has(ny * W + nx) || !eau(nx, ny)) continue; out.add(ny * W + nx); q.push([nx, ny]); } }
+    map._mer = out; map._merFor = map.rows;
+    return out;
+  }
+
   const Paysage = DW.Paysage = {
+    salee,
     // action pour la case visée (ou null)
     act(ow, x, y) {
       const ch = ow.tileAt(x, y), I = DW.World.info(ch);
@@ -135,7 +170,7 @@
       // objet posé (cartes faites main, éditeur de cartes) : on agit sur toute son emprise
       const o = (ow.map.objects || []).find(q => BY_OBJ[q.kind] && x >= q.x && x < q.x + (q.w || 1) && y >= q.y && y < q.y + (q.h || 1));
       if (o) { const b2 = BY_OBJ[o.kind]; return () => ACTS[b2[0]](ow, x, y, b2[0] === 'well' ? o.v || 0 : b2[1]); }
-      if (ch === '~' || ch === 'w') return () => ACTS.water(ow, x, y, false);
+      if (I.t === 'water' && DW.SOLID.has(ch)) return () => ACTS.water(ow, x, y, false);   // (toutes les eaux ; pas les pierres de gué)
       if (I.deco === 'flowers' || I.deco === 'flowers2') return () => ACTS.flowers(ow, x, y);
       return null;
     },

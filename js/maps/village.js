@@ -303,6 +303,7 @@
           g[y][x] = k < 2 ? 'C' : x < sea ? '~' : (DW.Art.hash(x, y, 772) < 0.15 ? 'R' : 's');
         }
       }
+      m.sel = (x, y) => x < 4 && y >= y0 + 2;   // (l'eau salée de la ville : la mer de la côte ouest, sous la falaise ; la rivière, à partir de x 4, reste douce : game/paysage.js)
       m.rows = g.map(r => r.join('')); }
     m.paintGround = c => paintTown(c, m, lvl);   // sol peint par-dessus les cases : place, bords des chemins, pelouses
     // grand panneau d'affichage de la ville, à droite de la maison de Jijimon : une note épinglée par habitant revenu

@@ -20,7 +20,11 @@
 
   const Peche = DW.Peche = {
     has: () => (st().bag || {}).canne > 0,
-    kindAt(ow) { const m = ow.map; return m.climate === 'beach' ? 'mer' : LAKES.has(m.region) ? 'lac' : 'riviere'; },
+    kindAt(ow) {
+      const m = ow.map, P = ow.p, [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[P.dir] || [0, 0];
+      const sel = DW.Paysage && DW.Paysage.salee(m, P.x + dx, P.y + dy);   // (la mer : là où l'eau est salée)
+      return sel === true ? 'mer' : LAKES.has(m.region) || sel === 'trouble' ? 'lac' : 'riviere';
+    },
     async cast(ow, kind) {
       const s = st(), last = s.flags.rod;
       if (last != null && s.clock - last < COOL && s.clock >= last) { await say(`Les poissons se méfient... Attends encore ${Math.ceil(COOL - (s.clock - last))} minutes avant de relancer.`); return; }

@@ -320,6 +320,18 @@ test('écussons : un Ultime exige l\'écusson de sa famille, la Méga les sept ;
 
 // ------------------------------------------------------------ lancement
 // ------------------------------------------------------------ chapitre 1 : cabines, antre de Shellmon, Tai, poids
+test("eau salée : la mer (plage, crique, côte de la ville, Pays de Meramon) ne se boit pas, l'eau douce de l'intérieur se boit", () => {
+  const S = DW.Paysage.salee;
+  const eauDe = (id, f) => { const m = DW.getMap(id); for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) { const c = m.rows[y][x]; if (DW.World.info(c).t === 'water' && DW.SOLID.has(c) && f(x, y, m)) return [m, x, y]; } return null; };
+  for (const id of ['plage', 'crique']) { const r = eauDe(id, () => true); yes(r && S(...r) === true, id + ' : la mer est salée'); }
+  const cote = eauDe('village', (x, y, m) => x < 3 && y > 20 && m.rows[y][x] !== '≋'); yes(cote && S(...cote) === true, 'côte de la ville : salée');
+  const riv = eauDe('village', (x, y, m) => x >= 4 && x <= 7 && y < 25 && m.rows[y][x] === '~'); yes(!riv || S(...riv) === false, 'rivière de la ville : douce');   // (si elle n'a pas été repeinte dans l'éditeur)
+  const lac = eauDe('lac0', () => true); yes(lac && S(...lac) === false, 'grand lac : doux');
+  const sen = eauDe('sentier', () => true); yes(sen && S(...sen) === false, 'rivière du Sentier : douce');
+  const yoko = eauDe('miharashi1', (x, y) => Math.hypot(x - 24, y - 49) < 5); yes(yoko && S(...yoko) === false, 'lac du Village des Yokomon : doux');
+  const mer = eauDe('miharashi1', (x, y, m) => x === 0 || y === 0 || x === m.w - 1 || y === m.h - 1); yes(!mer || S(...mer) === true, 'mer du Pays de Meramon : salée');
+  const m = DW.getMap('sentier'); yes(S({ ...m, rows: m.rows.map((r, y) => y === 0 ? '≈' + r.slice(1) : r) }, 0, 0) === true, 'eau « mer » peinte : salée');
+});
 test("cabines de la plage : les mots dans le bon ordre ouvrent l'antre, un mauvais mot remet à zéro", async () => {
   fresh();
   DW.state.hero = 'perso'; DW.state.flags.kuwagamon = true;
