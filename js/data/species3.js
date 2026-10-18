@@ -25,9 +25,12 @@
     learn: [[0, 'morsure_ardente'], [1, 'poing_lave'], [1, 'souffle_ardent'], [1, 'grondement'], [24, 'mega_flamme'], [28, 'coup_queue'], [32, 'poing_ardent']], rate: 45, xp: 152,
     desc: 'Un lézard guerrier aux écailles brûlantes. Sa crête et son dos sont en feu. Il garde les pentes des volcans.' });
   DW.DEX_ORDER.push('guilmon', 'candlemon', 'flarizamon');
-  // évolutions (fusionnées dans data/evolutions.js) : Guilmon → Flarizamon (force), Candlemon → Meramon (intelligence)
-  Object.assign(DW.EVO_EXTRA = DW.EVO_EXTRA || {}, {
-    guilmon: [{ to: 'flarizamon', lvl: 15, req: { atk: 28, wins: 10 } }],
-    candlemon: [{ to: 'meramon', lvl: 15, req: { int: 28, wins: 10 } }],
-  });
+  // évolutions (fusionnées dans data/evolutions.js) : tout se rejoint depuis un œuf et chaque lignée va jusqu'à l'Ultime
+  //  Koromon → Guilmon (attaque et vitesse) → Flarizamon (force) → SkullMeramon ; Yokomon → Candlemon (PV) → Meramon (intelligence)
+  const X = DW.EVO_EXTRA = DW.EVO_EXTRA || {}, ajoute = (sp, o) => { X[sp] = (X[sp] || []).concat([o]); };
+  ajoute('koromon', { to: 'guilmon', lvl: 7, req: { atk: 8, spd: 8, wins: 3 } });
+  ajoute('yokomon', { to: 'candlemon', lvl: 8, req: { hp: 12, wins: 3 } });
+  ajoute('guilmon', { to: 'flarizamon', lvl: 15, req: { atk: 28, wins: 10 } });
+  ajoute('candlemon', { to: 'meramon', lvl: 15, req: { int: 28, wins: 10 } });
+  ajoute('flarizamon', { to: 'skullmeramon', lvl: 32, req: { atk: 50, hp: 30, wins: 40 } });
 })();

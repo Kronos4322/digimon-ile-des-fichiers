@@ -135,7 +135,7 @@
     learn: [[0, 'force_gaia'], [1, 'tornade_courage'], [1, 'giga_destruction'], [1, 'mega_flamme'], [50, 'bras_trident'], [55, 'coup_corne']], rate: 8, xp: 300,
     desc: "L'ultime guerrier dragon, vêtu d'une armure de Chrome Digizoïde. Il concentre l'énergie de l'atmosphère dans sa Force de Gaïa." });
 
-  def('metalgarurumon', { name: 'MetalGarurumon', stage: 'Méga', types: ['Glace', 'Métal'], attr: 'Données', base: { hp: 112, atk: 128, def: 116, spd: 132, int: 106 }, kg: 90,
+  def('metalgarurumon', { name: 'MetalGarurumon', stage: 'Méga', types: ['Glace'], attr: 'Données', base: { hp: 112, atk: 128, def: 116, spd: 132, int: 106 }, kg: 90,
     learn: [[0, 'souffle_cocyte'], [1, 'griffe_garuru'], [1, 'flamme_bleue'], [1, 'tempete_neige'], [50, 'poing_zero'], [55, 'vive_attaque']], rate: 8, xp: 300,
     desc: "Le loup d'acier, cuirassé de Chrome Digizoïde. Son Souffle de Cocyte gèle tout, jusqu'au temps lui-même." });
 
