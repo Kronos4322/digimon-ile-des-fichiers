@@ -6,6 +6,7 @@
 //  - Restaurant de Mushroomon (v 0) : une maison-champignon, chapeau violet à pois, pied crème,
 //    porte en arche, hublots éclairés, cheminée de pierre, ardoise du menu, petits champignons.
 //  - Dojo d'Elecmon (v 0) : plancher surélevé, murs de papier, toit de tuiles bleues relevé, bannières à l'éclair.
+//  - Poste de Biyomon : maison crème au toit bleu en écailles, tourelle-nichoir, enseigne à la lettre, boîte aux lettres.
 //  Les versions agrandies (v 1, v 2) restent celles de gfx/grandir.js. Repère : boîte 150 × 128 (grandir.js),
 //  l'ancien dessin occupait x 25-125 ; la porte reste au centre.
 // =====================================================================
@@ -225,6 +226,66 @@
     tufts(x, 12, 140, 124.5, s + 9, 14);
   }
   OBJ.dojo.paint = x => dojoHouse(x); OBJ.dojo.painted = v => v === 0;
+  // ------------------------------------------------------------ POSTE de Biyomon (boîte 100 × 98, porte au centre)
+  // maison crème au toit bleu arrondi, tourelle-nichoir au toit rouge, enseigne à la lettre, boîte aux lettres rouge
+  function postOffice(x) {
+    const s = 31, L = 10, R = 90, T = 50, Bt = 94;
+    shadow(x, 50, 95, 46, 4.6);
+    // murs crème (enduit), soubassement de pierres
+    const wg = x.createLinearGradient(L, 0, R, 0); wg.addColorStop(0, '#fff8e6'); wg.addColorStop(0.4, '#f2e6cc'); wg.addColorStop(1, '#c8b896');
+    x.fillStyle = wg; x.fillRect(L, T, R - L, Bt - T);
+    for (let i = 0; i < 40; i++) { x.fillStyle = hash(i, 1, 731) < 0.5 ? 'rgba(255,255,255,0.35)' : 'rgba(150,120,80,0.18)'; x.fillRect(L + hash(i, 2, 731) * (R - L), T + hash(i, 3, 731) * (Bt - T), 0.8, 0.8); }
+    x.fillStyle = 'rgba(10,20,40,0.35)'; x.fillRect(L, T, R - L, 5);
+    for (let i = 0, sx = L - 1; sx < R + 1; i++) { const rx = 2.2 + hash(s, i, 732) * 1.4; stone(x, sx + rx, Bt - 1.6, rx, 2.4, '#b0a898', s * 3 + i); sx += rx * 1.8; }
+    // fenêtres éclairées à volets bleus
+    for (const wx of [22, 66]) {
+      x.fillStyle = '#2a3a6a'; x.fillRect(wx - 3.4, 62, 3, 13); x.fillRect(wx + 12.4, 62, 3, 13);
+      x.fillStyle = '#4a3220'; x.fillRect(wx - 0.8, 61.2, 13.6, 14.6);
+      const lg = x.createLinearGradient(0, 62, 0, 75); lg.addColorStop(0, '#fff0b0'); lg.addColorStop(1, '#f0a850');
+      x.save(); x.shadowColor = '#ffc860'; x.shadowBlur = 3; x.fillStyle = lg; x.fillRect(wx, 62, 12, 13); x.restore();
+      x.fillStyle = '#4a3220'; x.fillRect(wx + 5.5, 62, 1, 13); x.fillRect(wx, 68, 12, 1);
+      x.fillStyle = 'rgba(255,255,255,0.45)'; x.beginPath(); x.moveTo(wx, 70); x.lineTo(wx + 5, 62); x.lineTo(wx + 7, 62); x.lineTo(wx, 73); x.fill();
+      board(x, wx - 2, 75.4, 16, 2, '#8a6440', s + wx);
+      for (let k = 0; k < 5; k++) { x.fillStyle = '#3a8a3a'; x.beginPath(); x.arc(wx + 1 + k * 2.6, 74.6, 1.3, 0, 7); x.fill(); x.fillStyle = ['#ff6a8a', '#ffe060', '#ffffff'][k % 3]; x.beginPath(); x.arc(wx + 1 + k * 2.6, 73.8, 0.8, 0, 7); x.fill(); }
+    }
+    // porte bleue en arche
+    x.fillStyle = '#1a2448'; x.beginPath(); x.moveTo(40, Bt - 2); x.lineTo(40, 72); x.quadraticCurveTo(50, 61, 60, 72); x.lineTo(60, Bt - 2); x.closePath(); x.fill();
+    const dg = x.createLinearGradient(41, 0, 59, 0); dg.addColorStop(0, '#6a8ad8'); dg.addColorStop(1, '#2a4a98');
+    x.fillStyle = dg; x.beginPath(); x.moveTo(41.4, Bt - 2); x.lineTo(41.4, 72.4); x.quadraticCurveTo(50, 63, 58.6, 72.4); x.lineTo(58.6, Bt - 2); x.closePath(); x.fill();
+    x.strokeStyle = '#1a2a5a'; x.lineWidth = 0.6; x.beginPath(); x.moveTo(50, 65); x.lineTo(50, Bt - 2); x.stroke();
+    x.fillStyle = '#f0c040'; x.beginPath(); x.arc(54.6, 82, 1, 0, 7); x.fill();
+    // toit bleu arrondi en écailles
+    const roofP = () => { x.beginPath(); x.moveTo(0, 53); x.quadraticCurveTo(6, 36, 50, 20); x.quadraticCurveTo(94, 36, 100, 53); x.quadraticCurveTo(50, 47, 0, 53); x.closePath(); };
+    const rg = x.createLinearGradient(0, 20, 0, 53); rg.addColorStop(0, '#6a9ae8'); rg.addColorStop(1, '#2a4a98');
+    roofP(); x.fillStyle = rg; x.fill();
+    x.save(); roofP(); x.clip();
+    for (let r = 0; r < 8; r++) for (let i = -1; i < 22; i++) {
+      const cx = i * 5 + (r % 2) * 2.5, cy = 22 + r * 4.4;
+      x.fillStyle = `rgba(20,40,110,${0.25 + (r / 20)})`; x.beginPath(); x.arc(cx, cy + 2.2, 2.8, 0, Math.PI); x.fill();
+      x.strokeStyle = 'rgba(180,210,255,0.35)'; x.lineWidth = 0.4; x.beginPath(); x.arc(cx, cy + 2.2, 2.6, Math.PI * 0.1, Math.PI * 0.9); x.stroke();
+    }
+    const lgt = x.createLinearGradient(0, 20, 100, 53); lgt.addColorStop(0, 'rgba(255,245,210,0.25)'); lgt.addColorStop(0.5, 'rgba(255,245,210,0)'); lgt.addColorStop(1, 'rgba(10,20,50,0.3)');
+    x.fillStyle = lgt; x.fillRect(0, 18, 100, 38);
+    x.restore();
+    roofP(); x.strokeStyle = '#14285a'; x.lineWidth = 0.9; x.stroke();
+    // tourelle-nichoir (Biyomon y dort) au toit rouge
+    const tg = x.createLinearGradient(62, 0, 80, 0); tg.addColorStop(0, '#fff8e6'); tg.addColorStop(1, '#c8b896');
+    x.fillStyle = tg; rr(x, 62, 6, 18, 30, 3); x.fill(); x.strokeStyle = "rgba(90,70,50,0.6)"; x.lineWidth = 0.6; rr(x, 62, 6, 18, 30, 3); x.stroke();
+    x.fillStyle = '#2a1a10'; x.beginPath(); x.arc(71, 16, 4, 0, 7); x.fill();
+    board(x, 66, 21, 10, 1.6, '#8a6440', s + 41);
+    x.fillStyle = '#d8402a'; x.beginPath(); x.moveTo(57, 7); x.lineTo(71, -1); x.lineTo(85, 7); x.closePath(); x.fill();
+    x.fillStyle = 'rgba(255,200,180,0.35)'; x.beginPath(); x.moveTo(57, 7); x.lineTo(71, -1); x.lineTo(70, 2); x.lineTo(60, 7); x.closePath(); x.fill();
+    // enseigne : une lettre sur fond rouge
+    x.fillStyle = '#d8402a'; rr(x, 30, 36, 26, 14, 2.5); x.fill(); x.strokeStyle = '#8a1a10'; x.lineWidth = 0.7; rr(x, 30, 36, 26, 14, 2.5); x.stroke();
+    x.fillStyle = '#f8f0e0'; x.fillRect(35, 39, 16, 9); x.strokeStyle = '#a89878'; x.lineWidth = 0.6; x.beginPath(); x.moveTo(35, 39); x.lineTo(43, 44.4); x.lineTo(51, 39); x.stroke();
+    x.fillStyle = '#e8403a'; x.beginPath(); x.arc(43, 45.6, 1.1, 0, 7); x.fill();
+    // boîte aux lettres rouge sur son pied
+    x.fillStyle = '#5a3a20'; x.fillRect(93, 80, 2, 15);
+    const mg = x.createLinearGradient(89, 0, 99, 0); mg.addColorStop(0, '#ff7a6a'); mg.addColorStop(1, '#a82a1a');
+    x.fillStyle = mg; rr(x, 89, 68, 10, 13, 3); x.fill(); x.fillStyle = '#3a1a10'; x.fillRect(91.4, 72, 5, 1.1);
+    tufts(x, 6, 96, 96.5, s + 51, 10);
+  }
+  if (OBJ.poste) { OBJ.poste.paint = x => postOffice(x); }
   OBJ.bazar.paint = x => stall(x); OBJ.bazar.painted = v => v === 0;
   OBJ.restaurant.paint = x => mushroomHouse(x); OBJ.restaurant.painted = v => v === 0;
 })();
