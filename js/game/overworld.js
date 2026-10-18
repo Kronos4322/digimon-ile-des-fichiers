@@ -93,6 +93,12 @@
       if (x < 0 || y < 0 || x >= this.map.w || y >= this.map.h) return true;
       return DW.SOLID.has(this.tileAt(x, y)) || this.gfx.solid.has(x + ',' + y) || this.npcBlocks(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y);
     }
+    // relief retouché dans l'éditeur (maps/retouches.js) : on ne change de niveau que par un escalier
+    falaise(ax, ay, bx, by) {
+      const m = this.map; if (!m.altBord || !m.alt) return false;
+      const a = m.alt[ay * m.w + ax], b = m.alt[by * m.w + bx], PASS = DW.Relief.PASS;
+      return a !== undefined && b !== undefined && a !== PASS && b !== PASS && a !== b;
+    }
     get partner() { return DW.state.party.find(m => m.hp > 0) || null; }
 
     // ---------------------------------------------------------- logique
@@ -139,7 +145,7 @@
     canDiag(dx, dy) {
       const P = this.p, nx = P.x + dx, ny = P.y + dy;
       if (nx < 0 || ny < 0 || nx >= this.map.w || ny >= this.map.h) return false;
-      if (this.solid(nx, ny) || this.solid(P.x + dx, P.y) || this.solid(P.x, P.y + dy)) return false;
+      if (this.solid(nx, ny) || this.solid(P.x + dx, P.y) || this.solid(P.x, P.y + dy) || this.falaise(P.x, P.y, nx, ny) || this.falaise(P.x, P.y, P.x + dx, P.y) || this.falaise(P.x, P.y, P.x, P.y + dy)) return false;
       const door = (x, y) => (this.map.doors || []).some(o => y === o.y && x >= o.x && x < o.x + (o.w || 1));
       return !door(nx, ny) && !door(P.x + dx, P.y) && !door(P.x, P.y + dy);
     }
@@ -227,7 +233,7 @@
       // le héros fonce sur un Digimon sauvage : combat volontaire
       const wild = this.partner && DW.Wild.at(this, nx, ny);
       if (wild && !quiet) { this.runScript(DW.Wild.bump(this, wild)); return false; }
-      if (this.solid(nx, ny)) {
+      if (this.solid(nx, ny) || this.falaise(P.x, P.y, nx, ny)) {
         if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; Input.rumble(0.15, 60); }
         return false;
       }

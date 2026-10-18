@@ -32,6 +32,18 @@
   };
 
   // ------------------------------------------------------------ démarrage
+  // ESSAI DEPUIS L'ÉDITEUR DE CARTES (seulement en local) : ?essai=carte,x,y ouvre directement la carte, avec un
+  // Digimon prêté ; rien n'est sauvegardé (les vraies sauvegardes ne sont jamais touchées)
+  const essai = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).get('essai');
+  if (essai) {
+    const [id, x, y] = essai.split(','), st = DW.state;
+    DW.save = () => true; DW.autosave = () => {};
+    if (!st.party.length) { st.flags.starter = 'agumon'; DW.addDigimon(new DW.Digimon('agumon', 12)); }
+    const M = DW.getMap(id), [x0, y0] = x != null ? [+x, +y] : [M.w >> 1, M.h >> 1];
+    const go = () => { Game.replaceAll(new DW.Overworld(id, x0, y0, 'down')); DW.start(); };
+    if (document.fonts && document.fonts.load) document.fonts.load('10px "DotGothic16"').then(go, go); else go();
+    return;
+  }
   const boot = () => { Game.push(new DW.TitleScene()); DW.start(); };
   if (document.fonts && document.fonts.load) {
     Promise.race([

@@ -127,7 +127,7 @@
     const FLOOR = map.floor ? { ...map.floor, c: (map.floor.cols || []).map(Art.hex) } : null;
     const WALL = map.wall ? { ...map.wall, base: Art.hex(map.wall.base || '#ead8b4'), alt: Art.hex(map.wall.alt || map.wall.base || '#ead8b4'), wood: map.wall.wood ? Art.hex(map.wall.wood) : null } : null;
     // PAROIS ROCHEUSES (TER.rock) : strates ocre, fissures, rebord herbeux en haut, pied sombre ; hauteur de la paroi
-    const ROCK = (TH && TH.rock ? TH.rock : ['#3a2a20', '#4e3828', '#664a32', '#7e5e3e', '#98744c', '#b28c5e', '#cca674', '#e2c28e']).map(Art.hex);
+    const ROCK = (map.falaise && World.FALAISES[map.falaise] ? World.FALAISES[map.falaise] : TH && TH.rock ? TH.rock : ['#3a2a20', '#4e3828', '#664a32', '#7e5e3e', '#98744c', '#b28c5e', '#cca674', '#e2c28e']).map(Art.hex);
     const rockRun = (tx, ty, dy) => { let n = 0; for (let y = ty + dy; n < 12 && tAt(tx, y) === TER.rock && y >= 0 && y < map.h; y += dy) n++; return n; };
     const HARD = new Set([TER.rock, TER.cliff, TER.bridge, TER.stairs, TER.stone, TER.cobble, TER.wood, TER.wall, TER.void, TER.metal]);
     // terrain au pixel (frontières organiques)
@@ -368,25 +368,45 @@
         if (d2 - d1 < 1.2) v -= 1.4;
         col = pal[DW.clamp(Math.round(v), 0, 4)];
       } else if (t === TER.rock) {
+        // FALAISE EN COLONNES DE ROCHE (façon RPG 2D peint) : la paroi est faite de piliers arrondis empilés en blocs,
+        // éclairés en haut à gauche (face claire, flanc droit dans l'ombre), joints sombres entre les blocs, mousse et
+        // lierre qui pendent du rebord, liseré d'herbe qui déborde en haut, pied dans l'ombre avec des éboulis
         const topRow = tAt(tx, ty - 1) !== TER.rock, botRow = tAt(tx, ty + 1) !== TER.rock;
         const leftE = tAt(tx - 1, ty) !== TER.rock, rightE = tAt(tx + 1, ty) !== TER.rock;
-        const lipH = 4 + Math.round((noise(px * 0.2, 7, 55) - 0.5) * 3);
+        const up = rockRun(tx, ty, -1), dn = rockRun(tx, ty, 1), Hpx = (up + dn + 1) * 16, wy = up * 16 + ly, depth = wy / Hpx;
+        // colonnes de largeur inégale (9 à 15 px), légèrement ondulées
+        const wx = px + (noise(px * 0.04, py * 0.025, 61) - 0.5) * 7;
+        const k0 = Math.floor(wx / 20), cw = 15 + hash(k0, 0, 62) * 4, cx0 = k0 * 20 + (20 - cw) / 2 + (hash(k0, 1, 63) - 0.5) * 2;
+        let u = (wx - cx0) / cw, col0 = k0;
+        if (u < 0 || u > 1) col0 = k0 + 0.5;   // (creux entre deux colonnes)
+        const gap = u < 0 || u > 1 || col0 !== k0;
+        // blocs empilés dans chaque colonne : hauteur 11 à 22 px, décalés d'une colonne à l'autre
+        const sh = 18 + hash(k0, 2, 64) * 16, sw = wy + hash(k0, 3, 65) * sh + Math.pow((wx - cx0) / cw - 0.5, 2) * 10, seg = Math.floor(sw / sh), fy = sw / sh - seg;   // (joints bombés : dessus de bloc arrondi)
+        const lipH = 3 + Math.round(noise(px * 0.18, ty, 66) * 4);
+        const drip = hash(k0, seg, 67) < 0.22 ? Math.floor(hash(k0, 4, 68) * 14) + 4 : 0;   // mousse / lierre qui pend
         if (topRow && ly < lipH) {
-          // rebord herbeux du plateau, ourlet sombre juste au-dessus de la paroi
-          col = ly >= lipH - 1 ? lerpPal(GRASS, 0.2) : lerpPal(GRASS, 3.2 - ly * 0.35 + b * 0.6);
+          col = lerpPal(GRASS, 3.4 - ly * 0.5 + b * 0.6);                                   // herbe du plateau qui déborde
+        } else if (topRow && ly === lipH) {
+          col = lerpPal(GRASS, 0.4);                                                        // ourlet sombre sous l'herbe
+        } else if (wy < lipH + drip && !gap && Math.abs(u - 0.35 - hash(k0, 5, 69) * 0.3) < 0.14) {
+          col = lerpPal(GRASS, 1.2 + (1 - (wy - lipH) / Math.max(1, drip)) * 1.6 + b * 0.5);   // lierre
+        } else if (gap) {
+          col = lerpPal(ROCK, 0.6 + (1 - depth) * 0.8);                                     // creux sombre entre deux piliers
         } else {
-          const up = rockRun(tx, ty, -1), dn = rockRun(tx, ty, 1), Ht = (up + dn + 1) * 16, depth = (up * 16 + ly) / Ht;
-          const sy = py + (noise(px * 0.06, py * 0.02, 51) - 0.5) * 9, band = Math.floor(sy / 7), fb = sy / 7 - band;
-          let v = 4.2 + (hash(band, px >> 4, 52) - 0.5) * 1.4 + (fb < 0.16 ? 1.3 : fb > 0.84 ? -1.2 : 0) + (noise(px * 0.35, py * 0.12, 53) - 0.5) * 1.3 + b * 0.5;
-          if (noise(px * 0.55, py * 0.035, 54) > 0.76) v -= 1.8;                              // fissures verticales
-          v -= depth * 1.6;                                                                    // le pied de la paroi est dans l'ombre
-          if (topRow && ly < lipH + 4) v += 1.2;                                              // arête éclairée sous le rebord
-          if (botRow && ly >= 11) v -= (ly - 10) * 0.55;                                      // pied sombre
-          if (leftE && lx < 3) v += 1.4 - lx * 0.45; if (rightE && lx > 12) v -= (lx - 12) * 0.6;   // arêtes latérales
+          const rx = (u - 0.5) * 2, ry = (fy - 0.5) * 2;
+          let v = 5.0 - rx * 1.7 - Math.pow(Math.abs(rx), 4) * 2.2;                         // pilier arrondi : clair à gauche, sombre à droite
+          v += (0.5 - fy) * 1.6;                                                            // haut du bloc éclairé, bas dans l'ombre
+          if (fy < 0.06) v = 1.0;                                                           // joint entre deux blocs
+          else if (fy < 0.16) v += 1.1;                                                      // arête éclairée du dessus du bloc
+          if (Math.abs(rx) > 0.8 && Math.abs(ry) > 0.75) v -= 1.6;                          // coins arrondis des blocs
+          v += (noise(px * 0.3, py * 0.3, 70) - 0.5) * 1.1 + b * 0.45;                      // grain de la pierre
+          if (noise(px * 0.6, py * 0.08, 71) > 0.8 && Math.abs(rx) < 0.6) v -= 1.3;          // fissure
+          v -= depth * 1.5;                                                                 // le bas de la paroi est dans l'ombre
+          if (leftE && lx < 3) v += 0.8; if (rightE && lx > 12) v -= (lx - 12) * 0.7;
           col = lerpPal(ROCK, v);
-          if (fb < 0.16 && hash(px >> 1, band, 56) < 0.08) col = lerpPal(GRASS, 2 + b);       // touffes de mousse sur les corniches
-          else if (botRow && ly >= 13 && hash(px, py, 57) < 0.25) col = lerpPal(ROCK, 1.2);    // éboulis au pied
+          if (fy > 0.06 && fy < 0.14 && hash(px >> 1, seg * 7 + k0, 72) < 0.3) col = lerpPal(GRASS, 1.8 + b);   // mousse sur les corniches
         }
+        if (botRow && ly >= 12) { const r = hash(px, py, 73); col = r < 0.3 ? lerpPal(ROCK, 2.6 + r * 3) : lerpPal(ROCK, 0.8 + (ly - 12) * 0.1); }   // pied : ombre et éboulis
       } else if (t === TER.cliff) {
         const face = tAt(tx, ty + 1) !== TER.cliff;
         const above = tAt(tx, ty - 1) !== TER.cliff;
@@ -409,7 +429,8 @@
         if ((px + (Math.floor(py / 4) & 1) * 5) % 9 === 0 && s !== 3) c = Art.mix(c, [90, 80, 70], 0.55);           // joints
         if (lx >= 5 && lx <= 10 && s === 0) c = Art.mix(c, [255, 246, 220], 0.25);                                  // usure (plus clair au milieu)
         if ((lx <= 3 || lx >= 12) && s === 3 && hash(px, py, 27) < 0.5) c = [74, 128, 64];                         // mousse
-        if (lx < 2 || lx > 13) c = Art.mix(CLIFF[lx < 2 ? 3 : 1], [0, 0, 0], lx === 0 || lx === 15 ? 0.35 : 0);    // murets
+        { const R0 = ROCK[2], R1 = ROCK[6]; c = s === 3 ? Art.mix(ROCK[1], [0, 0, 0], 0.1) : Art.mix(R1, R0, (s === 2 ? 0.35 : 0.1) + (1 - tone) * 2); if ((px + (Math.floor(py / 4) & 1) * 5) % 9 === 0 && s !== 3) c = ROCK[2]; }
+        if (lx < 2 || lx > 13) c = Art.mix(ROCK[lx < 2 ? 5 : 2], [0, 0, 0], lx === 0 || lx === 15 ? 0.35 : 0);    // murets (même roche que la paroi)
         col = c;
       } else if (t === TER.bridge && !DOCK) {
         // PONT DE PIERRE (rivières, lacs) : tablier de dalles taillées posées en quinconce, chacune éclairée en haut
@@ -911,4 +932,15 @@
 
   World.tallKind = (map, kind) => { const k = World.themeKey ? World.themeKey(map) : map.theme; return kind === 'grass' && k && World.THEMES[k] && World.THEMES[k].tall ? kind + '@' + k : kind; };
   World.PAL = PAL;
+  // STYLES DE FALAISE (8 tons, du plus sombre au plus clair) : choisis par carte dans l'éditeur (map.falaise)
+  World.FALAISES = {
+    ocre: ['#3a2a20', '#4e3828', '#664a32', '#7e5e3e', '#98744c', '#b28c5e', '#cca674', '#e2c28e'],
+    grise: ['#22262c', '#34393f', '#4a5057', '#626870', '#7c838a', '#979ea4', '#b4bac0', '#d2d6da'],
+    calcaire: ['#4a4438', '#635b4c', '#7e7562', '#9a917b', '#b5ad96', '#cdc6b0', '#e2dcc8', '#f4f0e2'],
+    rouge: ['#3a1a14', '#55241a', '#723220', '#8e4428', '#a85a34', '#c27444', '#d89060', '#eab07e'],
+    vegetale: ['#1c2a1c', '#2a3a26', '#3c4e32', '#50603e', '#66744c', '#7e8a5e', '#9aa476', '#b8c094'],
+    cotiere: ['#1e2630', '#2c3642', '#3e4a56', '#53606c', '#6b7884', '#86929c', '#a4aeb6', '#c4ccd2'],
+    neige: ['#3a4250', '#525c6c', '#6c7888', '#8896a6', '#a6b2c0', '#c4ceda', '#dee6ee', '#f6f9fc'],
+    volcanique: ['#120e10', '#1e181a', '#2c2426', '#3c3234', '#4e4244', '#625456', '#7a6a6a', '#94847e'],
+  };
 })();

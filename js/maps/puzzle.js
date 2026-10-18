@@ -86,6 +86,8 @@
     return { ...o, dir: side, to, _zt: true, puzzle: true };
   };
   // appelé une fois tous les passages des anciennes cartes posés (fin de maps/regions.js)
+  // le puzzle refait dans l'éditeur de cartes remplace celui-ci (maps/retouches_donnees.js)
+  if (DW.RETOUCHES && DW.RETOUCHES.puzzle) { P.pieces = DW.RETOUCHES.puzzle.pieces; P.passages = DW.RETOUCHES.puzzle.passages; }
   P.apply = function () {
     const MAPS = DW.MAPS, keep = {};
     // les anciennes liaisons entre pièces sont retirées (on garde leurs conditions : portes de région, verrous)

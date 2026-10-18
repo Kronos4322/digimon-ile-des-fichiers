@@ -7,3 +7,9 @@ desktop.ini
 __pycache__/
 node_modules/
 guides/
+
+# Éditeur de cartes : seulement sur le PC du créateur (jamais publié)
+editeur/
+# Fichiers personnels posés dans le dossier du projet
+archives/
+*.exe
