@@ -191,6 +191,8 @@
     tufts(x, xl - 2, xr + 2, wy + 2.4, s + 61, Math.round(10 + 14 * k));
   }
 
+  // pinceaux partagés avec les autres façades peintes (gfx/facades.js)
+  DW.World.Brush = { rr, plank, stone, tufts, window_, roof };
   OBJ.shack.paint = x => cabin(x, 80, 70, 40, { seed: 3 });
   OBJ.jhouse.paint = (x, v) => cabin(x, 184, 118, 92, { seed: 9, big: true, chimney: 0.8, wood: '#8e7656', roof: '#7e6244' });
   OBJ.jhouse.painted = v => v === 0;   // (rénovée et cossue : dessins de gfx/town.js)

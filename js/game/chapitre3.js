@@ -143,6 +143,11 @@
     Audio.play('victory');
     await say("Au village, la fontaine se met à gargouiller... puis l'eau jaillit en deux grands arcs ! Les Yokomon dansent autour, en criant de joie.");
     await say("Meramon est descendu de la montagne pour s'excuser. Il a promis de veiller de nouveau sur la source.");
+    if (perso() && !withSora && !(s.kids || {}).sora) {   // (vaincu sans elle : Sora et Biyomon accourent quand même)
+      await say("Une fille au chapeau bleu accourt avec un oiseau rose : « Tu as calmé Meramon tout seul ?! Je m'appelle Sora, et voici Biyomon. On aidait les Yokomon... »", 'Sora');
+      DW.Crests.freeKid('sora');
+      withSora = true;
+    }
     if (withSora) {
       await say(`${s.name}... Merci. Sans toi, je n'aurais jamais osé monter là-haut.`, 'Sora');
       await say("Tu habites à la Ville des Fichiers ? D'accord, on vient ! Il y a sûrement des gens qui ont besoin d'un coup de main, là-bas aussi.", 'Sora');
