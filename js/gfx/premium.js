@@ -428,7 +428,7 @@
     def('bouchelave', { w: 336, h: 144, n: 1, frames: 6, fps: 5, paint(x, v, f = 0) {
       const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
       const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
-      const TX = DW.Textures, LAV = TX && ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => TX.pixels('volcan/' + n, 64, 64)).filter(Boolean);   // (images dessinées)
+      const TX = DW.Textures, LAV = TX && ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => TX.pixels('volcan/' + n)).filter(Boolean);   // (images dessinées)
       if (LAV && LAV.length) {   // la lave dessinée, animée (plusieurs images) ou qui dérive doucement (une seule)
         const P = LAV[f % LAV.length], dx = LAV.length === 1 ? ox : 0, dy = LAV.length === 1 ? oy : 0;
         for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
@@ -452,7 +452,7 @@
       paint(x, v, f = 0) {
         const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
         const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
-        const TX = DW.Textures, PAR = TX && TX.pixels('volcan/paroi_cratere', 64, 64), LAV = TX && TX.pixels('volcan/lave', 64, 64);   // (images dessinées : gfx/textures.js)
+        const TX = DW.Textures, PAR = TX && (TX.pixels('volcan/paroi_cratere') || TX.pixels('volcan/falaise_basalte')), LAV = TX && TX.pixels('volcan/lave');   // (images dessinées : gfx/textures.js)
         const cy2 = F.cy + F.ry * 0.42, rx2 = F.rx * 0.86, ry2 = F.ry * 0.58, LIP = 0.085;
         for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
           const px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, a = Math.atan2(dy, dx), s = Math.hypot(dx, dy) / bord(a);
@@ -481,7 +481,7 @@
             let k = sh * joint * cote * (0.85 + (nz - 0.5) * 0.3) * (1 - u * 0.25);
             if (u < 0.07) k *= 1.25;   // arête claire en haut de la paroi
             r = 70 * k; gg = 54 * k; b = 48 * k;
-            if (PAR) { const e = TX.lit(PAR, (a / TAU + 0.5) * 900, u * 64), sh2 = 0.75 + 0.25 * cote; r = e[0] * sh2; gg = e[1] * sh2; b = e[2] * sh2; }
+            if (PAR) { const e = TX.lit(PAR, (a / TAU + 0.5) * 900, u * PAR.h), sh2 = 0.75 + 0.25 * cote; r = e[0] * sh2; gg = e[1] * sh2; b = e[2] * sh2; }
             const lueur = Math.pow(u, 2.2) * fl * (dy < 0.4 ? 1 : 0.6); r += 255 * lueur * 0.85; gg += 100 * lueur * 0.85; b += 30 * lueur * 0.85;   // lumière de la lave
             if (u > 0.9) { const g2 = lisse(0.9, 1, u); r = r * (1 - g2) + 120 * g2; gg = gg * (1 - g2) + 30 * g2; b = b * (1 - g2) + 14 * g2; }   // pied de paroi : croûte qui rougeoie
           }

@@ -453,7 +453,7 @@
         if (g.get(x, y) === 'ȴ' || m.alt[y * W + x] !== 5) continue;
         let bord = false; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (g.get(x + dx, y + dy) === 'ȴ') bord = true;
         if (!bord) continue;
-        g.set(x, y, Hh(x, y, 1292) < 0.18 && Math.hypot(x - cx, (y - cy) * 1.4) > 5 ? 'ë' : 'ţ');
+        g.set(x, y, Hh(x, y, 1292) < 0.07 && Math.hypot(x - cx, (y - cy) * 1.4) > 5 ? 'ë' : 'ţ');
       }
     }
     if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 5 && g.get(x, y) !== ROCK && g.get(x, y) !== 'ȴ') g.set(x, y, 'ţ');
@@ -470,6 +470,25 @@
     }
     decorEtages(g, m, 1, (x, y) => Math.hypot(x - cx, (y - cy) * 1.4) < 6);   // (jamais devant Meramon)
     dangers(g, m, cx, cy, crater);
+    // ESPACEMENT : rochers magmatiques et fumerolles à 2 cases au moins les uns des autres, et jamais collés à un objet
+    const pres = (x, y, r) => m.objects.some(o => x >= o.x - r && x < o.x + (o.w || 1) + r && y >= o.y - r && y < o.y + (o.h || 1) + r);
+    const gardes = [];
+    for (let y = 2; y < g.h - 2; y++) for (let x = 2; x < W - 2; x++) {
+      const c = g.get(x, y); if (c !== 'ë' && c !== 'ì') continue;
+      if (gardes.some(([a, b]) => Math.abs(a - x) <= 2 && Math.abs(b - y) <= 2) || pres(x, y, 1)) g.set(x, y, m.alt[y * W + x] >= 4 ? 'ţ' : 'ǥ'); else gardes.push([x, y]);
+    }
+    // PLANTES DE FEU (images dessinées, gfx/textures.js) : sur les terrasses, loin des sentiers, des escaliers, des bords,
+    // des rochers et des autres objets
+    const OBJ = DW.World.OBJ, CH = m.chemins || new Set();
+    if (OBJ.tex_volcan_plante_feu_1) for (let y = 3; y < g.h - 3; y++) for (let x = 3; x < W - 3; x++) {
+      const L = m.alt[y * W + x], c = g.get(x, y);
+      if (L < 2 || L === DW.Relief.PASS || (c !== 'ǥ' && c !== 'ţ') || CH.has(y * W + x) || Hh(x, y, 1401) > 0.05 || Math.hypot(x - cx, (y - cy) * 1.4) < 6) continue;
+      let ok = true;
+      for (let dy = -2; dy <= 2 && ok; dy++) for (let dx = -2; dx <= 2; dx++) { const c2 = g.get(x + dx, y + dy), a2 = m.alt[(y + dy) * W + x + dx]; if (c2 === ROCK || c2 === '^' || c2 === 'ë' || c2 === 'ì' || c2 === 'ȴ' || (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && a2 !== L)) { ok = false; break; } }
+      if (!ok || pres(x, y, 2)) continue;
+      const n = 1 + Math.floor(Hh(x, y, 1402) * 3);
+      if (OBJ['tex_volcan_plante_feu_' + n]) m.objects.push({ kind: 'tex_volcan_plante_feu_' + n, v: 0, x, y, w: 1, h: 1, walk: true });
+    }
     return R;
   }
 

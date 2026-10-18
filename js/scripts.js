@@ -14,12 +14,12 @@
     // interface de base : widgets et dialogues
     'ui/widgets.js', 'ui/dialog.js',
     // données du jeu
-    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/techniques_classe.js', 'data/techniques_elements.js', 'data/items.js', 'data/equipements.js',
+    'data/types.js', 'data/moves.js', 'data/species.js', 'data/species2.js', 'data/species3.js', 'data/lignees.js', 'data/evolutions.js', 'data/ecussons.js', 'data/techniques_classe.js', 'data/techniques_elements.js', 'data/items.js', 'data/equipements.js',
     'data/music.js', 'data/musiques_regions.js', 'data/flags.js',
     // graphismes
     'gfx/sprites.js',
     'gfx/digimon/entrainement.js', 'gfx/digimon/disciples.js', 'gfx/digimon/champions.js', 'gfx/digimon/ultimes.js',
-    'gfx/digimon/ultimes2.js', 'gfx/digimon/ile.js', 'gfx/digimon/agumon.js', 'gfx/digimon/bebes.js', 'gfx/digimon/lignees.js', 'gfx/digimon/gabumon.js', 'gfx/digimon/vues.js',
+    'gfx/digimon/ultimes2.js', 'gfx/digimon/ile.js', 'gfx/digimon/chapitre3.js', 'gfx/digimon/agumon.js', 'gfx/digimon/bebes.js', 'gfx/digimon/lignees.js', 'gfx/digimon/gabumon.js', 'gfx/digimon/vues.js',
     'gfx/hero.js', 'gfx/icons.js', 'gfx/objects.js', 'gfx/textures.js', 'gfx/arbres.js', 'gfx/premium.js', 'gfx/town.js', 'gfx/district.js', 'gfx/littoral.js', 'gfx/ecussons.js', 'gfx/chapitre1.js', 'gfx/temple.js', 'gfx/classe.js', 'gfx/themes.js',
     'gfx/interior.js', 'gfx/interior2.js', 'gfx/farm.js', 'gfx/nursery.js', 'gfx/biomes.js', 'gfx/peints.js', 'gfx/desert.js', 'gfx/maisons.js', 'gfx/hiver.js', 'gfx/sites.js', 'gfx/buildings2.js', 'gfx/city.js', 'gfx/ponts.js', 'gfx/terrain.js', 'gfx/ambient.js', 'gfx/vivant.js', 'gfx/rendu.js', 'gfx/regionfx.js',
     'gfx/battlebg.js', 'gfx/grandir.js', 'gfx/facades.js', 'engine/time.js', 'gfx/ciel.js', 'gfx/meteo.js',

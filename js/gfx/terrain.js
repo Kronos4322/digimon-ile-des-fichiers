@@ -79,9 +79,9 @@
     // sols spéciaux de la terre (rocaille, cendres) : une valeur par case, 0 = terre ordinaire
     let SOLK = null; for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) { const I = World.CH[map.rows[ty][tx]]; if (I && I.sol) { if (!SOLK) SOLK = new Uint8Array(map.w * map.h); SOLK[ty * map.w + tx] = I.sol; } }
     // TEXTURES DESSINÉES (gfx/textures.js) : sol, dessus des terrasses, falaises, escaliers, lave (null = dessin par code)
-    const TX = DW.Textures && map.textures ? DW.Textures : null, txp = (n, w, h) => (TX ? TX.pixels(map.textures + '/' + n, w, h) : null);
-    const TX_CENDRES = txp('sol_cendres', 64, 64), TX_DESSUS = txp('dessus_falaise', 64, 64), TX_FALAISE = txp('falaise_basalte', 64, 64), TX_ESC = txp('escalier', 48, 64);
-    const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n, 64, 64)).filter(Boolean);
+    const TX = DW.Textures && map.textures ? DW.Textures : null, txp = n => (TX ? TX.pixels(map.textures + '/' + n) : null);
+    const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
+    const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n)).filter(Boolean);
     const solVar = (c, k, px, py) => {
       if (k === 2 && TX_CENDRES) return TX.lit(TX_CENDRES, px, py);
       if (k === 1 && TX_DESSUS) return TX.lit(TX_DESSUS, px, py);
@@ -264,11 +264,43 @@
       return v;
     });
     const EDGE = {}; for (const v of map.voisines || []) EDGE[v.side] = true;   // côtés qui touchent une autre carte (maps/monde.js)
+    // ESCALIER DESSINÉ (image « escalier ») : posé contre la falaise sur TOUTE sa hauteur, du bord du plateau jusqu'au
+    // pied (la bande de paroi des colonnes voisines), sans trou autour ; le haut transparent de l'image = le plateau
+    let ESCV = null;
+    const escalierVu = (tx, ty) => {
+      if (!ESCV) {
+        ESCV = new Map(); const vu = new Set(), Wm = map.w;
+        for (let y = 0; y < map.h; y++) for (let x = 0; x < Wm; x++) {
+          if (tAt(x, y) !== TER.stairs || vu.has(y * Wm + x)) continue;
+          let x0 = x, x1 = x, y0 = y, y1 = y; const q = [[x, y]]; vu.add(y * Wm + x);
+          while (q.length) { const [a, c] = q.pop(); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, c); y1 = Math.max(y1, c);
+            for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = a + dx, ny = c + dy; if (nx < 0 || ny < 0 || nx >= Wm || ny >= map.h || vu.has(ny * Wm + nx) || tAt(nx, ny) !== TER.stairs) continue; vu.add(ny * Wm + nx); q.push([nx, ny]); } }
+          let top = y0, bot = y1;
+          for (const cx of [x0 - 1, x1 + 1]) for (let yy = y0; yy <= y1 + 1; yy++) if (tAt(cx, yy) === TER.rock) {
+            let a = yy; while (a > 0 && tAt(cx, a - 1) === TER.rock) a--; let c = yy; while (c < map.h - 1 && tAt(cx, c + 1) === TER.rock) c++;
+            top = Math.min(top, a); bot = Math.max(bot, c); break;
+          }
+          const ch = map.rows[Math.max(0, top - 1)][Math.min(Wm - 1, x0 + 1)], I = World.CH[ch];
+          const R = { x0, x1, y0: top, y1: bot, fond: (I && I.sol === 2 ? TX_CENDRES : TX_DESSUS) || TX_CENDRES || TX_DESSUS };
+          for (let yy = top; yy <= bot; yy++) for (let xx = x0; xx <= x1; xx++) ESCV.set(yy * Wm + xx, R);
+        }
+      }
+      return ESCV.get(ty * map.w + tx) || null;
+    };
+    const peindreEsc = (R, tx, ty, lx, ly, px, py) => {
+      const Wd = (R.x1 - R.x0 + 1) * 16, Hs = (R.y1 - R.y0 + 1) * 16, xs = (tx - R.x0) * 16 + lx, ys = (ty - R.y0) * 16 + ly, EH = TX_ESC.h;
+      const yt = Hs <= EH * 1.4 ? ys / Hs * EH : ys < 24 ? ys : ys >= Hs - 24 ? EH - (Hs - ys) : 24 + ((ys - 24) % (EH - 48));   // (très haut : le milieu se répète)
+      const e = TX.lit(TX_ESC, xs / Wd * TX_ESC.w, yt);
+      let col = R.fond ? TX.lit(R.fond, px, py) : [60, 50, 46];
+      if (e[3] > 40) col = e[3] > 230 ? e : Art.mix(col, e, e[3] / 255);
+      return col;
+    };
     for (let py = 0; py < GH; py++) { if (py & 1) yield; for (let px = 0; px < GW; px++) {
       const i = py * GW + px, j = i * 4, t = T[i], ed = ED[i], en = EN[i];
       const tx = px >> 4, ty = py >> 4, lx = px & 15, ly = py & 15;
       const b = Art.bayer(px, py);
       let col;
+      if (TX_ESC) { const RE = escalierVu(tx, ty); if (RE) { put(D, j, peindreEsc(RE, tx, ty, lx, ly, px, py)); continue; } }
       if (t === TER.grass && LUSH) {
         // près d'un chemin : l'herbe s'éclaircit en touffes mêlées de terre (fondu tramé, sans contour)
         {
@@ -288,6 +320,7 @@
         }
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
         if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
+        else if (TX_CENDRES) col = Art.mix(TX.lit(TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier : dalles de cendre (image dessinée)
       } else if (t === TER.lawn && LUSH) {
         // pelouse (Village des Bébés) : mêmes brins fins, palette pastel, fleurs semées
         if (en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2 && hash(px, py, 315) < (3 - ed) / 4) col = lerpPal(SAND, 3.4 + (hash(px, py, 316) - 0.5));
@@ -309,6 +342,7 @@
         col = DIRT[DW.clamp(Math.round(v), 0, 5)];
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.06) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);
         if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
+        else if (TX_CENDRES) col = Art.mix(TX.lit(TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier : dalles de cendre (image dessinée)
       } else if (t === TER.sand) {
         const r = Math.sin(px * 0.2 + S8(px, py) * 9 + py * 0.55);
         let v = 3.2 + (S9(px, py) - 0.5) * 1.6 + b * 0.7 + (r > 0.9 ? -1 : r < -0.96 ? 1 : 0);
@@ -396,7 +430,7 @@
         const leftE = tAt(tx - 1, ty) !== TER.rock, rightE = tAt(tx + 1, ty) !== TER.rock;
         const up = rockRun(tx, ty, -1), dn = rockRun(tx, ty, 1), Hpx = (up + dn + 1) * 16, wy = up * 16 + ly, depth = wy / Hpx;
         if (TX_FALAISE) {
-          const yt = Hpx === 64 ? wy : wy < 16 ? wy : wy >= Hpx - 16 ? 64 - (Hpx - wy) : 16 + ((wy - 16) % 32);
+          const FH = TX_FALAISE.h, yt = Hpx === FH ? wy : wy < 16 ? wy : wy >= Hpx - 16 ? FH - (Hpx - wy) : 16 + ((wy - 16) % (FH - 32));
           col = TX.lit(TX_FALAISE, px, yt);
           if (leftE && lx < 2) col = Art.mix(col, [0, 0, 0], 0.25); else if (rightE && lx > 13) col = Art.mix(col, [0, 0, 0], 0.35);
         } else {
@@ -463,8 +497,10 @@
           let x0 = tx, y0 = ty, x1 = tx, y1 = ty;
           while (x0 > 0 && tAt(x0 - 1, ty) === TER.stairs) x0--; while (x1 < map.w - 1 && tAt(x1 + 1, ty) === TER.stairs) x1++;
           while (y0 > 0 && tAt(tx, y0 - 1) === TER.stairs) y0--; while (y1 < map.h - 1 && tAt(tx, y1 + 1) === TER.stairs) y1++;
-          const e = TX.lit(TX_ESC, ((tx - x0) * 16 + lx) / ((x1 - x0 + 1) * 16) * 48, ((ty - y0) * 16 + ly) / ((y1 - y0 + 1) * 16) * 64);
-          if (e[3] > 40) col = e[3] > 230 ? e : Art.mix(e, col, 1 - e[3] / 255);
+          const EH = TX_ESC.h, Hs = (y1 - y0 + 1) * 16, ys = (ty - y0) * 16 + ly, yt = Hs <= EH ? ys / Hs * EH : ys < 16 ? ys : ys >= Hs - 16 ? EH - (Hs - ys) : 16 + ((ys - 16) % (EH - 32));
+          const e = TX.lit(TX_ESC, ((tx - x0) * 16 + lx) / ((x1 - x0 + 1) * 16) * TX_ESC.w, yt), fond = TX_DESSUS || TX_CENDRES;
+          if (fond) col = TX.lit(fond, px, py);
+          if (e[3] > 40) col = e[3] > 230 ? e : Art.mix(col, e, e[3] / 255);
         }
       } else if (t === TER.bridge && !DOCK) {
         // PONT DE PIERRE (rivières, lacs) : tablier de dalles taillées posées en quinconce, chacune éclairée en haut
@@ -615,7 +651,7 @@
           continue;
         }
         if (kind === 'gravier') {
-          if (k > 3) continue;
+          if (k > 3 || TX_DESSUS) continue;   // (la texture dessinée a déjà ses cailloux)
           const s = 1 + Math.floor(hash(tx, ty, 70 + k) * 2);
           for (let yy = 0; yy <= s; yy++) for (let xx = 0; xx <= s + 1; xx++) set(x + xx, y + yy, yy === 0 || xx === 0 ? '#c8bea8' : yy === s || xx === s + 1 ? '#5e564c' : '#968c7c');
           set(x + s + 2, y + s + 1, '#3a342e');   // (ombre)
