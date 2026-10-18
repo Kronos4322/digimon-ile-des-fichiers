@@ -9,22 +9,11 @@
   const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
   const A = window.ASSEMBLAGE = {
     // décalages du monde (en cases) de chaque carte, depuis la première ; conflits = cartes qui se chevauchent
+    // positions : la grille du monde du jeu (maps/monde.js) ; conflits = boucles qui ne se referment pas, chevauchements
     places(ids) {
-      const set = new Set(ids), off = { [ids[0]]: [0, 0] }, q = [ids[0]], conflits = [];
-      while (q.length) {
-        const id = q.shift(), M = DW.getMap(id), [ax, ay] = off[id];
-        for (const w of M.warps || []) {
-          if (!w.dir || w.enclos || !set.has(w.to)) continue;
-          const B = DW.getMap(w.to), b = (B.warps || []).find(v => v.to === id && v.dir === OPP[w.dir]); if (!b) continue;
-          const p = w.dir === 'left' ? [ax - B.w, ay + w.y - b.y] : w.dir === 'right' ? [ax + M.w, ay + w.y - b.y] : w.dir === 'up' ? [ax + w.x - b.x, ay - B.h] : [ax + w.x - b.x, ay + M.h];
-          if (off[w.to]) { if (off[w.to][0] !== p[0] || off[w.to][1] !== p[1]) conflits.push(`${id}→${w.to} : ${p} au lieu de ${off[w.to]}`); continue; }
-          off[w.to] = p; q.push(w.to);
-        }
-      }
-      // chevauchements
-      const r = id => { const m = DW.getMap(id), [x, y] = off[id]; return [x, y, x + m.w, y + m.h]; };
-      const keys = Object.keys(off);
-      for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) { const a = r(keys[i]), b = r(keys[j]); if (a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]) conflits.push(`chevauchement ${keys[i]} / ${keys[j]}`); }
+      const set = new Set(ids), off = {};
+      for (const id of ids) { const p = DW.Monde.pos(id); if (p) off[id] = [p.x, p.y]; }
+      const conflits = DW.Monde.conflits().filter(c => ids.some(id => c.includes(id)));
       A.last = { off, conflits };
       return A.last;
     },

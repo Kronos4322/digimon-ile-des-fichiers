@@ -78,8 +78,10 @@ test('monde des chapitres 1 à 3 : cartes raccordées en un seul territoire, san
     seen.add(w.to); ids.push(w.to);
   }
   yes(ids.length >= 29, 'cartes trouvées : ' + ids.length);
-  const P = sandbox.ASSEMBLAGE.places(ids);
-  eq(P.conflits.length, 0, P.conflits.join(' ; '));
+  DW.Monde.build();
+  const horsCoeur = DW.Monde.horsGrille().filter(id => DW.Monde.coeur(id));
+  eq(horsCoeur.length, 0, 'cartes des chapitres 1-3 hors grille : ' + horsCoeur.join(', ') + ' — ' + DW.Monde.conflits().filter(c => horsCoeur.some(id => c.includes(id))).join(' ; '));
+  for (const id of ids) yes(DW.Monde.pos(id), 'pas de place dans la grille du monde : ' + id);
   const errs = sandbox.GEO.verifier(ids).ruptures.flatMap(r => r.problemes.filter(p => p[0] === 'ERREUR').map(p => r.liaison + ' : ' + p[1]));
   eq(errs.length, 0, errs.slice(0, 6).join(' ; '));
 });

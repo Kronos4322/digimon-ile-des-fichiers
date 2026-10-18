@@ -244,6 +244,7 @@
       if (s2 - s1 < 0.9) v -= 0.35;                           // et entre les petites
       return v;
     });
+    const EDGE = {}; for (const v of map.voisines || []) EDGE[v.side] = true;   // côtés qui touchent une autre carte (maps/monde.js)
     for (let py = 0; py < GH; py++) { if (py & 1) yield; for (let px = 0; px < GW; px++) {
       const i = py * GW + px, j = i * 4, t = T[i], ed = ED[i], en = EN[i];
       const tx = px >> 4, ty = py >> 4, lx = px & 15, ly = py & 15;
@@ -507,12 +508,42 @@
       }
       // ombre douce de la forêt sur les bords de la carte (façon Digimon World 1)
       if (LUSH) {
-        const de = Math.min(px, py, GW - 1 - px, GH - 1 - py);
+        // (seulement sur les bords SANS carte voisine : sinon une bande sombre marquerait chaque frontière)
+        const de = Math.min(EDGE.left ? 999 : px, EDGE.up ? 999 : py, EDGE.right ? 999 : GW - 1 - px, EDGE.down ? 999 : GH - 1 - py);
         if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; put(D, j, col); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; }
       }
       put(D, j, col);
     } }
     lap('couleur');
+    // FONDUS ENTRE CARTES (grille du monde : maps/monde.js) : le long d'un bord partagé avec une voisine d'un autre
+    // biome, les couleurs de l'herbe, de la terre, du sable et du feuillage glissent vers celles d'en face et se
+    // rejoignent exactement à mi-chemin sur la frontière (les deux cartes font le même calcul) : aucune couture.
+    if (map.voisines && map.voisines.length && !map.indoor) {
+      const mean = P => { const a = [0, 0, 0]; for (const c of P) { a[0] += c[0]; a[1] += c[1]; a[2] += c[2]; } return [a[0] / P.length, a[1] / P.length, a[2] / P.length]; };
+      const palOf = m2 => {
+        const T2 = m2.theme && World.THEMES[m2.theme], H = c => c.map(Art.hex);
+        return { [TER.grass]: T2 && T2.grass ? H(T2.grass) : m2.ambient === 'forest' ? PAL.forest : PAL.grass, [TER.dirt]: T2 && T2.dirt ? H(T2.dirt) : PAL.dirt,
+          [TER.sand]: T2 && T2.sand ? H(T2.sand) : PAL.sand, [TER.canopy]: T2 && T2.canopy ? H(T2.canopy) : PAL.canopy };
+      };
+      const mine = { [TER.grass]: GRASS, [TER.dirt]: DIRT, [TER.sand]: SAND, [TER.canopy]: CANOPY }, BAND = 12 * TS, END = 4 * TS;
+      for (const v of map.voisines) {
+        const M2 = DW.MAPS[v.id]; if (!M2) continue;
+        const other = palOf(M2), delta = {}; let any = false;
+        for (const k in mine) { const a = mean(mine[k]), b = mean(other[k]); delta[k] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]]; if (Math.abs(delta[k][0]) + Math.abs(delta[k][1]) + Math.abs(delta[k][2]) > 6) any = true; }
+        if (!any) continue;
+        const vert = v.side === 'left' || v.side === 'right', from = v.from * TS, to = v.to * TS;
+        for (let py = 0; py < GH; py++) { if ((py & 31) === 31) yield; for (let px = 0; px < GW; px++) {
+          const d = v.side === 'left' ? px : v.side === 'right' ? GW - 1 - px : v.side === 'up' ? py : GH - 1 - py;
+          if (d >= BAND) continue;
+          const along = vert ? py : px; if (along < from - END || along > to + END) continue;
+          const i = py * GW + px, dl = delta[T[i]]; if (!dl) continue;
+          const endFade = DW.clamp(Math.min(along - (from - END), to + END - along) / END, 0, 1);
+          const w = 0.5 * Math.pow(1 - d / BAND, 1.4) * endFade, j = i * 4;
+          D[j] += dl[0] * w; D[j + 1] += dl[1] * w; D[j + 2] += dl[2] * w;
+        } }
+      }
+      lap('fondus');
+    }
     // décor peint (fleurs, champignons)
     const flowers = [];
     const decorate = (tx, ty, kind) => {

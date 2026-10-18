@@ -21,24 +21,12 @@
 
   // ------------------------------------------------------------ 1) PLACEMENT DES CARTES DANS LE MONDE
   // origine : le Désert des Poteaux ; chaque voisine est posée contre le bord commun, passages alignés
+  // (lus dans la grille du monde, maps/monde.js : une seule vérité pour tout le jeu ; ici, origine = le Désert des Poteaux)
   let OFF = null;
-  const dims = id => (ZONE.includes(id) ? DW.MAPS[id] : DW.getMap(id));
   function offsets() {
     if (OFF) return OFF;
-    OFF = { miharashi0: [0, 0] };
-    const q = ['miharashi0'];
-    while (q.length) {
-      const id = q.shift(), A = DW.MAPS[id], [ax, ay] = OFF[id];
-      for (const w of A.warps || []) {
-        if (!w.dir || OFF[w.to] || !DW.MAPS[w.to]) continue;
-        const B = dims(w.to), back = (B.warps || []).find(b => b.to === id && b.dir === OPP[w.dir]); if (!back) continue;
-        if (w.dir === 'left') OFF[w.to] = [ax - B.w, ay + w.y - back.y];
-        else if (w.dir === 'right') OFF[w.to] = [ax + A.w, ay + w.y - back.y];
-        else if (w.dir === 'up') OFF[w.to] = [ax + w.x - back.x, ay - B.h];
-        else OFF[w.to] = [ax + w.x - back.x, ay + A.h];
-        if (ZONE.includes(w.to)) q.push(w.to);
-      }
-    }
+    const o = DW.Monde.pos('miharashi0'); OFF = {};
+    for (const id of [...ZONE, 'clairiere', 'sentier', 'lac1', 'bosquet']) { const p = DW.Monde.pos(id); if (p) OFF[id] = [p.x - o.x, p.y - o.y]; }
     return OFF;
   }
 

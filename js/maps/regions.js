@@ -683,4 +683,5 @@
     MAPS[b].warps.push(mk(sb, pb, wb, hb, a, pa, wa, ha));
   }
   DW.REGION_ENTRY = ENTRY;
+  if (DW.Monde) DW.Monde.pret = true;   // tous les passages sont posés : la grille du monde peut être calculée (maps/monde.js)
 })();

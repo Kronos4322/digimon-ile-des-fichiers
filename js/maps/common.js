@@ -47,6 +47,7 @@
     }
     clearPassages(m);
     densify(m);
+    if (DW.Monde && !m.indoor && !m.voisines) DW.Monde.annoter(id);   // place dans la grille du monde, voisines (maps/monde.js)
     return m;
   };
   // case praticable la plus proche (PNJ posés sur une carte générée, dont le décor peut occuper la place prévue)
