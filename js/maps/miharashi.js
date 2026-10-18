@@ -37,7 +37,7 @@
     miharashi2: m => [13, -80, m.w + 80, m.h + 80],    // la plaine : mer à l'ouest
     miharashi1: m => [-80, 15, m.w + 80, m.h - 13],    // le village : plage au nord, mer au sud
     miharashi3: m => [-80, 15, m.w + 80, m.h - 13],    // la route : idem
-    miharashi4: m => [14, 15, m.w + 80, m.h - 15],     // le mont : mer au nord, à l'ouest et au sud
+    miharashi4: m => [6, 6, m.w + 80, m.h - 6],        // le mont : il remplit la carte, une fine plage au nord, à l'ouest et au sud
   };
   let BOXES = null;
   const boxes = () => BOXES || (BOXES = ZONE.map(id => { const [ox, oy] = offsets()[id], [a, b, c, d] = LAND[id](DW.MAPS[id]); return [a + ox, b + oy, c + ox, d + oy]; }));
@@ -75,11 +75,12 @@
   const MONT = { crater: [43, 23], meramon: [48, 30], summit: [48, 27, 12, 6.5] };
   function massif(xm, ym) {
     const [sx, sy, srx, sry] = MONT.summit;
-    if (Math.hypot((xm - sx) / srx, (ym - sy) / sry) < 1) return 4;   // plateau du sommet (le cratère)
-    const cone = 1 - Math.hypot((xm - 48) / 40, (ym - 38) / 30);
+    if (Math.hypot((xm - sx) / srx, (ym - sy) / sry) < 1) return 5;   // plateau du sommet (le cratère)
+    // un grand cône en terrasses qui remplit l'île (5 niveaux), et le contrefort vers l'est sur la route
+    const cone = 1 - Math.hypot((xm - 48) / 52, (ym - 36) / 38);
     const ridgeY = 50 + Math.sin(xm * 0.05) * 3, spur = (0.5 - Math.abs(ym - ridgeY) / 13) * DW.clamp((180 - xm) / 30, 0, 1) * DW.clamp((xm - 54) / 18, 0, 1);
     const f = Math.max(cone, spur) + (fbm(xm * 0.06, ym * 0.06, 991) - 0.5) * 0.16;
-    return f > 0.62 ? 3 : f > 0.42 ? 2 : f > 0.2 ? 1 : 0;
+    return f > 0.74 ? 4 : f > 0.56 ? 3 : f > 0.38 ? 2 : f > 0.18 ? 1 : 0;
   }
   // mesas du désert (repère de chaque carte) : [cx, cy, rx, ry, niveau max]
   const MESAS = {
@@ -253,6 +254,7 @@
     [['feuillage', 1, 3], ['fougeres', 0, 3], ['pousse', 2, 2], ['rochersmousse', 1, 1.5], ['buissonfleuri', 2, 1], ['feuillesmortes', 2, 1]],
     [['pintordu', 0, 0.6], ['blocs', 0, 1.2], ['buissonfleuri', 2, 1.6], ['eboulis', 1, 1.6], ['pousse', 2, 1.6], ['rochersmousse', 1, 1.3], ['feuillage', 1, 0.8], ['fougeres', 2, 0.8]],
     [['aiguille', 0, 1.4], ['aiguille', 1, 0.9], ['eboulis', 0, 2.5], ['blocs', 0, 1.2], ['pintordu', 0, 0.5], ['cristaux', 2, 0.3]],
+    [['aiguille', 2, 1.2], ['eboulis', 0, 2.5], ['blocs', 0, 1.2], ['aiguille', 0, 0.8], ['cristaux', 0, 0.3]],
     [['eboulis', 0, 3], ['aiguille', 2, 1.6], ['blocs', 0, 0.8], ['cristaux', 1, 0.4]]];
   function decorEtages(g, m, d = 1, skip) {
     const W = g.w, H = g.h, A = m.alt; if (!A) return;
@@ -260,13 +262,24 @@
     const CH = m.chemins || new Set();
     const pres = (x, y) => { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const c = g.get(x + dx, y + dy); if (c === '^' || c === undefined || CH.has((y + dy) * W + x + dx) || (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && (c === ROCK || (c === '=' && A[(y + dy) * W + x + dx] < 3)))) return true; } return false; };
     const occ = new Set(); for (const o of m.objects || []) for (let yy = o.y - 1; yy <= o.y + (o.h || 1); yy++) for (let xx = o.x - 1; xx <= o.x + (o.w || 1); xx++) occ.add(xx + ',' + yy);
+    // (une case posée sépare-t-elle ses voisines ? petite recherche autour d'elle, au même niveau)
+    const bloc = new Set(), D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const coupe = (x, y) => {
+      const L = A[y * W + x], ok = (a, b) => a >= 0 && b >= 0 && a < W && b < H && (a !== x || b !== y) && A[b * W + a] === L && !DW.SOLID.has(g.get(a, b)) && !bloc.has(a + ',' + b);
+      const V = D4.map(([dx, dy]) => [x + dx, y + dy]).filter(([a, b]) => ok(a, b)); if (V.length < 2) return false;
+      const vu = new Set([V[0].join()]), q = [V[0]];
+      while (q.length) { const [a, b] = q.pop(); for (const [dx, dy] of D4) { const na = a + dx, nb = b + dy, k = na + ',' + nb; if (vu.has(k) || Math.abs(na - x) > 12 || Math.abs(nb - y) > 12 || !ok(na, nb)) continue; vu.add(k); q.push([na, nb]); } }
+      return V.some(v => !vu.has(v.join()));
+    };
     for (let y = 3; y < H - 3; y++) for (let x = 3; x < W - 3; x++) {
-      const L = A[y * W + x]; if (!(L >= 1 && L <= 4) || !libre(x, y) || pres(x, y) || occ.has(x + ',' + y) || (skip && skip(x, y))) continue;
-      const nb = N(x, y, 990 + L, 0.12), dens = [0, 0.07, 0.055, 0.05, 0.05][L] * d * (nb > 0.56 ? 2.4 : nb > 0.45 ? 1 : 0.35);   // (en bosquets, pas en semis régulier)
+      const L = A[y * W + x]; if (!(L >= 1 && L <= 5) || !ETAGES[L] || !libre(x, y) || pres(x, y) || occ.has(x + ',' + y) || (skip && skip(x, y))) continue;
+      const nb = N(x, y, 990 + L, 0.12), dens = [0, 0.07, 0.055, 0.05, 0.05, 0.05][L] * d * (nb > 0.56 ? 2.4 : nb > 0.45 ? 1 : 0.35);   // (en bosquets, pas en semis régulier)
       if (Hh(x, y, 991 + L) > dens) continue;
       const T = ETAGES[L], tot = T.reduce((a, t) => a + t[2], 0); let r = Hh(x, y, 993) * tot, pick = T[0];
       for (const t of T) { if (r < t[2]) { pick = t; break; } r -= t[2]; }
       const plat = DW.World.PLATS && DW.World.PLATS.has(pick[0]);
+      if (!plat && coupe(x, y)) continue;
+      if (!plat) bloc.add(x + ',' + y);
       m.objects.push({ kind: pick[0], v: pick[1], x, y, w: 1, h: 1, ...(plat ? { walk: true } : {}) });
       for (let yy = y - 1; yy <= y + 1; yy++) for (let xx = x - 1; xx <= x + 1; xx++) occ.add(xx + ',' + yy);
     }
@@ -316,7 +329,8 @@
       surface: (x, y, L) => {
         if (L === 0) return g.get(x, y);
         const away = Math.hypot(x - cx, y - cy + 3) > 8;
-        if (L === 4) return away && Hh(x, y, 965) < 0.04 ? 'ë' : away && Hh(x, y, 966) < 0.025 ? 'ì' : 'ţ';   // cendres du volcan
+        if (L === 5) return away && Hh(x, y, 965) < 0.04 ? 'ë' : away && Hh(x, y, 966) < 0.025 ? 'ì' : 'ţ';   // cendres du volcan
+        if (L === 4) { const n4 = N(x, y, 977, 0.14); return n4 > 0.62 ? 'ţ' : Hh(x, y, 978) < 0.02 ? 'ë' : 'ǥ'; }   // rocaille et coulées de cendres
         // le sol change avec l'altitude : prairie (1), herbe et terre (2), terre et rocaille (3)
         const n = N(x, y, 973 + L, 0.13);
         if (L === 1) return Hh(x, y, 970 + L) < 0.02 ? 'T' : n > 0.72 ? ',' : n < 0.3 ? 'j' : '.';
@@ -324,7 +338,7 @@
         return n > 0.28 ? 'ǥ' : '.';   // (haut de la montagne : rocaille, quelques plaques d'herbe ; les sentiers en terre battue ressortent)
       } });
     // devant le cratère : un replat dégagé où se dresse Meramon
-    if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 4 && g.get(x, y) !== ROCK) g.set(x, y, 'ţ');
+    if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 5 && g.get(x, y) !== ROCK) g.set(x, y, 'ţ');
     // cocotiers penchés au bord de la plage, au pied du mont (côté est, l'arrivée)
     for (let y = 4; y < g.h - 4; y++) for (let x = 4; x < W - 4; x++) {
       if (m.alt[y * W + x] !== 0 || g.get(x, y) !== '.' || Hh(x, y, 1281) > 0.06) continue;

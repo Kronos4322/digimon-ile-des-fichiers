@@ -132,10 +132,21 @@
       if (!o.foot) for (let y = 0; y < H; y++) for (const x of [0, W - 1]) if (lvl(x, y) === 0) pousse(x, y);
       etendre();
       m._acces = { rampes: 0 };
-      for (let tour = 0; tour < 12; tour++) {
+      // morceaux RÉELS de chaque niveau, une fois les parois posées (une haute paroi peut couper une terrasse étroite en deux)
+      const morceaux = () => {
+        const id = new Int32Array(W * H).fill(-1), out = [];
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+          const L = lvl(x, y); if (L <= 0 || L === PASS || id[y * W + x] >= 0 || !pas(x, y)) continue;
+          const C = { L, cells: [] }, q = [[x, y]]; id[y * W + x] = out.length;
+          while (q.length) { const [cx, cy] = q.pop(); C.cells.push([cx, cy]); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = cx + dx, ny = cy + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H || id[ny * W + nx] >= 0 || lvl(nx, ny) !== L || !pas(nx, ny)) continue; id[ny * W + nx] = out.length; q.push([nx, ny]); } }
+          out.push(C);
+        }
+        return out;
+      };
+      for (let tour = 0; tour < 40; tour++) {
         let best = null;
-        for (const C of comps) {
-          if (C.cells.some(([x, y]) => vu[y * W + x] && alt[y * W + x] === C.L)) continue;   // (déjà atteint : une vraie case du plateau, pas une marche taillée dans sa bordure)
+        for (const C of morceaux()) {
+          if (C.cells.length < 6 || C.cells.some(([x, y]) => vu[y * W + x])) continue;   // (déjà atteint, ou recoin minuscule)
           for (const [x, y] of C.cells) {
             if (!pas(x, y) || lvl(x, y) !== C.L) continue;
             for (const [dx, dy] of [[0, -1], [1, 0], [-1, 0]]) {   // bord nord, est, ouest (au sud : la paroi)
@@ -143,9 +154,20 @@
               // trois cases de front le long du bord, toutes du plateau et toutes au-dessus d'une zone atteinte
               const [ax, ay] = dy ? [1, 0] : [0, 1], trio = [-1, 0, 1].map(k => [x + ax * k, y + ay * k]);
               if (!trio.every(([tx, ty]) => lvl(tx, ty) === C.L && pas(tx, ty) && vu[(ty + dy) * W + tx + dx] && lvl(tx + dx, ty + dy) === C.L - 1)) continue;
-              const score = Hh(x, y, 997) + (o.foot ? Math.hypot(x - o.foot[0], y - o.foot[1]) / 400 : 0);
+              const score = Hh(x, y, 997) * 0.3 - (o.foot ? Math.hypot(x - o.foot[0], y - o.foot[1]) / 40 : 0);   // (UNE MONTÉE DIFFICILE : la marche la plus loin de l'arrivée)
               if (!best || score < best.score) best = { trio, score };
             }
+          }
+        }
+        // sinon : un escalier taillé À TRAVERS la paroi sud, jusqu'à une zone atteinte en contrebas
+        if (!best) for (const C of morceaux()) {
+          if (C.cells.length < 6 || C.cells.some(([x, y]) => vu[y * W + x])) continue;
+          const at = new Set(C.cells.map(([x, y]) => x + ',' + y));
+          for (const [x, y] of C.cells) {
+            const descente = xx => { let k = 1; while (y + k < H && g.get(xx, y + k) === ROCK) k++; return k > 1 && y + k < H && vu[(y + k) * W + xx] && pas(xx, y + k) ? k : 0; };
+            const k = descente(x); if (!k || !at.has((x - 1) + ',' + y) || !at.has((x + 1) + ',' + y) || descente(x - 1) !== k || descente(x + 1) !== k) continue;
+            const score = k * 0.2 + Hh(x, y, 998) * 0.3 - (o.foot ? Math.hypot(x - o.foot[0], y - o.foot[1]) / 40 : 0);   // (loin de l'arrivée, paroi plutôt basse)
+            if (!best || score < best.score) best = { score, trio: [-1, 0, 1].flatMap(d => { const out = []; for (let j = 1; j < k; j++) out.push([x + d, y + j]); return out; }) };
           }
         }
         if (!best) break;
