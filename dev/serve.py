@@ -1,9 +1,9 @@
 # Serveur de développement local sans cache (python dev/serve.py [port])
-# POST /dev/save?name=xxx.png  : enregistre le corps (image PNG ou fichier texte) dans le dossier captures/
+# POST /dev/save?name=xxx.png  : enregistre le corps (image PNG ou fichier texte) dans le dossier dev/captures/
 #                                (utilisé par dev/captures.js pour la galerie de captures d'écran)
-# ÉDITEUR DE CARTES (dossier editeur/, seulement sur ce PC : le serveur n'écoute que 127.0.0.1)
+# ÉDITEUR DE CARTES (dossier dev/editeur/, seulement sur ce PC : le serveur n'écoute que 127.0.0.1)
 # POST /dev/retouches          : réécrit js/maps/retouches_donnees.js (les cartes retouchées) ; copie de sûreté
-#                                de l'ancienne version dans editeur/sauvegardes/
+#                                de l'ancienne version dans dev/editeur/sauvegardes/
 # POST /dev/publier            : commit de ce seul fichier et envoi sur GitHub (le jeu en ligne est mis à jour)
 import http.server, os, sys, re, urllib.parse, shutil, subprocess, time
 
@@ -32,7 +32,7 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
             if not txt.lstrip().startswith("'use strict';") or 'DW.RETOUCHES = ' not in txt:
                 return self.reply(400, 'contenu inattendu')
             if os.path.exists(RET):
-                out = os.path.join(ROOT, 'editeur', 'sauvegardes')
+                out = os.path.join(ROOT, 'dev', 'editeur', 'sauvegardes')
                 os.makedirs(out, exist_ok=True)
                 old = sorted(f for f in os.listdir(out) if f.startswith('retouches_'))
                 # (une copie au plus toutes les 5 minutes : la sauvegarde automatique ne noie pas les anciennes versions)
@@ -58,11 +58,11 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
             c, out2 = git('push')
             return self.reply(200 if c == 0 else 500, (out + '\n' + out2).strip())
         name = urllib.parse.parse_qs(url.query).get('name', [''])[0]
-        # nom de fichier simple uniquement, dans captures/
+        # nom de fichier simple uniquement, dans dev/captures/
         if url.path != '/dev/save' or not re.fullmatch(r'[a-zA-Z0-9_\-]+\.(png|html)', name):
             self.send_error(400, 'requete invalide')
             return
-        out = os.path.join(ROOT, 'captures')
+        out = os.path.join(ROOT, 'dev', 'captures')
         os.makedirs(out, exist_ok=True)
         with open(os.path.join(out, name), 'wb') as f:
             f.write(data)

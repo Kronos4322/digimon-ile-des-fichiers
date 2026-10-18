@@ -2,7 +2,8 @@
 // =====================================================================
 //  RETOUCHES : ce que le créateur a peint à la main dans l'éditeur de cartes (données : maps/retouches_donnees.js).
 //  Appliquées par DW.getMap APRÈS toute la génération (forêts, relief, puzzle, décor dense) : les outils automatiques
-//  ne peuvent donc jamais écraser une retouche. Ordre : thème → relief (niveaux) → cases → objets retirés → objets ajoutés.
+//  ne peuvent donc jamais écraser une retouche. Ordre : thème → relief (niveaux) → cases → objets retirés → objets ajoutés
+//  → entrées et sorties → collisions choisies à la main.
 //  RELIEF : une altitude par case ; une baisse vers le SUD devient une paroi rocheuse de 3 cases par niveau (vue de 3/4),
 //  vers le nord, l'est ou l'ouest un rebord d'une case (même règle que maps/relief.js) ; « ^ » = escalier (passage).
 // =====================================================================
@@ -12,11 +13,12 @@
     de: id => (DW.RETOUCHES && DW.RETOUCHES.cartes && DW.RETOUCHES.cartes[id]) || null,
     cle: o => o.kind + '@' + o.x + ',' + o.y,
     // la carte avant retouches (l'éditeur repart de là à chaque modification)
-    base(m) { return { rows: m._baseRows || m.rows, objects: m._baseObjects || m.objects || [], alt: m._baseAlt !== undefined ? m._baseAlt : m.alt, theme: m._baseTheme !== undefined ? m._baseTheme : m.theme }; },
+    base(m) { return { rows: m._baseRows || m.rows, objects: m._baseObjects || m.objects || [], alt: m._baseAlt !== undefined ? m._baseAlt : m.alt, theme: m._baseTheme !== undefined ? m._baseTheme : m.theme, warps: m._baseWarps || m.warps || [], doors: m._baseDoors || m.doors || [] }; },
+    cleSortie: (w, porte) => (porte ? 'd:' : 'w:') + w.to + '@' + w.x + ',' + w.y,
     appliquer(m, id, force) {
       const T = R.de(id);
       if (!m.rows || (!T && !m._baseRows) || (!force && m._retFor === m.rows)) return;
-      if (m._retFor !== m.rows) { m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed); m._baseAlt = m.alt; m._baseTheme = m.theme; }
+      if (m._retFor !== m.rows) { m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed); m._baseAlt = m.alt; m._baseTheme = m.theme; m._baseWarps = (m.warps || []).filter(w => !w.ed); m._baseDoors = (m.doors || []).filter(d => !d.ed); }
       const B = R.base(m);
       m.theme = T && T.theme ? T.theme : B.theme;
       if (T && T.ambient) m.ambient = T.ambient;
@@ -29,6 +31,17 @@
       if (m.alt && T && T.cases) for (const k in T.cases) if (T.cases[k] === STAIR) { const [x, y] = k.split(',').map(Number); m.alt[y * W + x] = DW.Relief.PASS; }
       const gone = new Set(T ? T.retraits || [] : []);
       m.objects = B.objects.filter(o => !gone.has(R.cle(o))).concat(T ? (T.ajouts || []).map(o => ({ ...o, ed: true })) : []);
+      // ENTRÉES ET SORTIES : retirées, déplacées ou ajoutées dans l'éditeur. bord = sortie au bord de la carte (on la passe
+      // en marchant vers l'extérieur) ; porte = on y entre en marchant dans sa direction ; portail = on y entre de tous côtés.
+      // (les sorties ajoutées ne changent pas la géographie du monde : enclos)
+      const parti = new Set(T ? T.sortiesRetirees || [] : []), S = T ? T.sorties || [] : [];
+      const ok = o => o.to && DW.MAPS[o.to], regle = (w, o) => (DW.PUZZLE ? DW.PUZZLE.regle(w, o.regle) : w);   // (règle de chapitre : maps/puzzle.js)
+      m.warps = B.warps.filter(w => !parti.has(R.cleSortie(w))).concat(S.filter(o => o.type === 'bord' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, dir: o.dir, to: o.to, tx: o.tx, ty: o.ty, ed: true, enclos: true }, o)));
+      m.doors = B.doors.filter(d => !parti.has(R.cleSortie(d, true))).concat(S.filter(o => o.type === 'porte' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: 1, dir: o.dir || 'up', to: o.to, tx: o.tx, ty: o.ty, ed: true }, o)));
+      m.portails = S.filter(o => o.type === 'portail' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, to: o.to, tx: o.tx, ty: o.ty, ed: true }, o));
+      // COLLISIONS CHOISIES À LA MAIN : cases forcées bloquantes (1) ou praticables (0), quel que soit le décor
+      m.forceBloque = new Set(); m.forceLibre = new Set();
+      if (T) for (const k in T.bloque || {}) (T.bloque[k] ? m.forceBloque : m.forceLibre).add(k);
       m.rows = g.map(r => r.join(''));
       // la génération ne repasse pas sur une carte retouchée (décor dense, passages dégagés, raccords du puzzle)
       m._retFor = m._denseFor = m._passFor = m._racFor = m.rows;

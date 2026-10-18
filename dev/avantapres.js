@@ -1,5 +1,5 @@
 'use strict';
-// Captures « avant / après » (dev) : mêmes vues du jeu, enregistrées dans captures/<prefixe>_<vue>.png
+// Captures « avant / après » (dev) : mêmes vues du jeu, enregistrées dans dev/captures/<prefixe>_<vue>.png
 //   await DEV.views('avant')  — ville, forêt, intérieur, combat, gros plan des personnages
 (function () {
   const wait = ms => new Promise(r => setTimeout(r, ms));

@@ -7,7 +7,7 @@ Tout est dessiné par le code : aucune image officielle n'est utilisée.
 ## Lancer le jeu
 - **En ligne / téléphone** : la version publiée sur GitHub Pages s'installe comme une application
   (« Installer le jeu » sur PC, « Ajouter à l'écran d'accueil » sur téléphone) et marche ensuite **hors ligne**.
-- **En local** : `python dev/serve.py 8766` puis ouvrir `http://localhost:8766` (les polices sont incluses dans `fonts/`).
+- **En local** : `python dev/serve.py 8766` puis ouvrir `http://localhost:8766` (les polices sont incluses dans `assets/fonts/`).
 
 ## Commandes
 | Action | Clavier | Manette | Écran tactile |

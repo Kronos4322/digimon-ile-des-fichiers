@@ -4,7 +4,7 @@
 //  case de la grille (colonne, rangée). Deux pièces côte à côte peuvent être reliées par un PASSAGE sur leur bord
 //  commun ; c'est la seule façon de passer d'une carte à l'autre (les deux côtés du passage sont au même endroit).
 //  Axes : colonne vers l'EST, rangée vers le SUD ; origine (0, 0) = la Clairière de l'Arrivée.
-//  Ce fichier est la vérité du monde : l'éditeur de cartes (sur le PC du créateur, dossier editeur/) le réécrit
+//  Ce fichier est la vérité du monde : l'éditeur de cartes (sur le PC du créateur, dossier dev/editeur/) le réécrit
 //  quand on déplace une pièce ou qu'on ouvre / ferme un passage.
 //  Hors du puzzle (reliés par des portails, comme des portes) : le terrain d'entraînement, le Quartier des Champs,
 //  le Village des Poyomon, les quartiers de la ville, et les régions des chapitres futurs (en attendant leur chapitre).
@@ -104,7 +104,7 @@
       const p = p0 != null ? p0 : defaultPos(a, side, b, keep);
       pass[3] = p;
       const wa = warpOn(side, p, len, b), wb = warpOn(OPP[side], p, len, a);
-      for (const [w, from, to] of [[wa, a, b], [wb, b, a]]) { const old = keep[from][to]; if (old) for (const k of ['cond', 'lock', 'enclos']) if (old[k] !== undefined) w[k] = old[k]; }
+      for (const [w, from, to] of [[wa, a, b], [wb, b, a]]) { const old = keep[from][to]; if (old) for (const k of ['cond', 'lock', 'enclos']) if (old[k] !== undefined) w[k] = old[k]; P.regle(w, pass[5]); }
       A.warps.push(wa); B.warps.push(wb);
       if (A.spec) A.exits[side] = [p, len]; if (B.spec) B.exits[OPP[side]] = [p, len];
     }
@@ -121,9 +121,19 @@
     m.warps = (m.warps || []).filter(w => !(w.dir && P.isPiece(w.to)) || w.puzzle);
     for (const [a, side, b, p, len = 6] of mine) {
       const s2 = a === id ? side : OPP[side], to = a === id ? b : a;
-      if (!m.warps.some(w => w.puzzle && w.to === to)) m.warps.push(warpOn(s2, p, len, to));
+      if (!m.warps.some(w => w.puzzle && w.to === to)) m.warps.push(P.regle(warpOn(s2, p, len, to), (P.passages.find(q => q[0] === a && q[2] === b) || [])[5]));
     }
     m._racFor = null;
+  };
+  // RÈGLE DE CHAPITRE (choisie dans l'éditeur) : { des : ouvert à partir de ce chapitre, jusqua : fermé après ce chapitre,
+  // msg : ce qu'on lit quand c'est fermé }. Elle remplace la règle des régions (game/chapitre1.js : lock).
+  P.regle = (w, o) => {
+    if (!o || (o.des == null && o.jusqua == null)) return w;
+    const ch = s => (s && s.flags && s.flags.chapter) || 1;
+    w.cond = s => (o.des == null || ch(s) >= o.des) && (o.jusqua == null || ch(s) <= o.jusqua);
+    w.lock = o.msg || 'Un voile de données bloque le passage... Il s\'ouvrira plus tard dans l\'aventure.';
+    w.ignoreChapitre = true; w.regle = o;
+    return w;
   };
   // (début du passage commun entre deux pièces : pour aligner un décor sur le passage, ex. la côte de la ville)
   P.passage = (a, b) => { const q = P.passages.find(t => (t[0] === a && t[2] === b) || (t[0] === b && t[2] === a)); return q ? q[3] : null; };

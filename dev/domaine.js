@@ -3,7 +3,7 @@
 //  VUE D'UN DOMAINE (outil de développement) : les vraies cartes d'une région
 //  posées côte à côte selon leurs passages, à l'échelle, pour juger la cohérence.
 //  Nécessite dev/shots.js. Dans la console :
-//    await DOMAINE.build(['plage', 'crique', ...], 'domaine_ch1')   (enregistre captures/<nom>.png)
+//    await DOMAINE.build(['plage', 'crique', ...], 'domaine_ch1')   (enregistre dev/captures/<nom>.png)
 // =====================================================================
 (function () {
   const DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };

@@ -1,7 +1,7 @@
 'use strict';
 // Guide du joueur (dev) : capture complète d'une carte avec des repères numérotés sur chaque Digimon / enfant,
 // et la liste de ce qu'on y trouve (PNJ, Digimon sauvages). À charger dans la page du jeu après dev/shots.js :
-//   const g = await DEV.guide('plage');   → enregistre captures/guide_plage.png, renvoie { name, npcs, wild }
+//   const g = await DEV.guide('plage');   → enregistre dev/captures/guide_plage.png, renvoie { name, npcs, wild }
 (function () {
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const nameOf = n => (n.hero ? (DW.HEROES[n.hero] ? DW.HEROES[n.hero].name : n.hero) : DW.SPECIES[n.sp] ? DW.SPECIES[n.sp].name : n.sp);

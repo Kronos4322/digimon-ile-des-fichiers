@@ -3,7 +3,7 @@
 //  CARTE DE L'ÎLE (outil de développement) : assemble les vraies cartes du jeu
 //  selon leurs passages (warps), avec les intérieurs, les liaisons, les zones
 //  futures dans le brouillard et un récapitulatif de l'avancement.
-//  Nécessite dev/shots.js. Dans la console :  await ISLAND.build()   (enregistre captures/carte_ile.png)
+//  Nécessite dev/shots.js. Dans la console :  await ISLAND.build()   (enregistre dev/captures/carte_ile.png)
 // =====================================================================
 (function () {
   const wait = ms => new Promise(r => setTimeout(r, ms));

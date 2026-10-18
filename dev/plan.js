@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
 //  PLAN DE L'ÎLE (outil de développement) : schéma de toutes les zones et sous-zones,
-//  avec leurs liaisons. Dans la console du jeu :  await PLAN.build()  → captures/plan_ile.png
+//  avec leurs liaisons. Dans la console du jeu :  await PLAN.build()  → dev/captures/plan_ile.png
 // =====================================================================
 (function () {
   const CW = 176, CH = 64, GX = 14, GY = 22; // taille d'une case + espacements

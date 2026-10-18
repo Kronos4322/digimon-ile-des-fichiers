@@ -1,15 +1,14 @@
 # Captures générées automatiquement (dev/captures.js, dev/islandmap.js) : régénérables
-captures/
+dev/captures/
 # Fichiers système
 Thumbs.db
 desktop.ini
 .DS_Store
 __pycache__/
 node_modules/
-guides/
 
 # Éditeur de cartes : seulement sur le PC du créateur (jamais publié)
-editeur/
+dev/editeur/
 # Fichiers personnels posés dans le dossier du projet
-archives/
+_perso/
 *.exe

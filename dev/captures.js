@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  GALERIE DE CAPTURES — toutes les images du jeu dans captures/index.html
+//  GALERIE DE CAPTURES — toutes les images du jeu dans dev/captures/index.html
 //  Lancer : python dev/serve.py 8766, ouvrir index.html, puis dans la console :
 //    const s = document.createElement('script'); s.src = 'dev/shots.js'; document.head.appendChild(s);
 //    (puis) const t = document.createElement('script'); t.src = 'dev/captures.js'; document.head.appendChild(t);

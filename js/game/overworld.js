@@ -91,6 +91,9 @@
     npcAt(x, y) { return (this.map.npcs || []).find(n => n.x === x && n.y === y && this.npcVisible(n)); }
     solid(x, y) {
       if (x < 0 || y < 0 || x >= this.map.w || y >= this.map.h) return true;
+      const m = this.map, k = x + ',' + y;   // (collisions choisies dans l'éditeur de cartes : maps/retouches.js)
+      if (m.forceBloque && m.forceBloque.has(k)) return true;
+      if (m.forceLibre && m.forceLibre.has(k)) return this.npcBlocks(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y);
       return DW.SOLID.has(this.tileAt(x, y)) || this.gfx.solid.has(x + ',' + y) || this.npcBlocks(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y);
     }
     // relief retouché dans l'éditeur (maps/retouches.js) : on ne change de niveau que par un escalier
@@ -220,7 +223,7 @@
       const [dx, dy] = DIRS[d], nx = P.x + dx, ny = P.y + dy;
       if (nx < 0 || ny < 0 || nx >= this.map.w || ny >= this.map.h) {
         const w = (this.map.warps || []).find(w => w.dir === d && P.x >= w.x && P.x < w.x + (w.w || 1) && P.y >= w.y && P.y < w.y + (w.h || 1));
-        const chLock = w && DW.Chapter && DW.Chapter.lock(w.to);   // zones fermées pendant le chapitre 1 (game/chapitre1.js)
+        const chLock = w && !w.ignoreChapitre && DW.Chapter && DW.Chapter.lock(w.to);   // (règle choisie dans l'éditeur : ignoreChapitre)   // zones fermées pendant le chapitre 1 (game/chapitre1.js)
         if (w && (chLock || (w.cond && !w.cond(DW.state)))) {
           if (!this.bumpT || this.t - this.bumpT > 0.4) { Audio.sfx('bump'); this.bumpT = this.t; this.runScript(async () => { await DW.say(chLock || (typeof w.lock === 'function' ? w.lock() : w.lock)); }); }
           return false;
@@ -230,6 +233,12 @@
       }
       const door = (this.map.doors || []).find(o => o.dir === d && nx >= o.x && nx < o.x + (o.w || 1) && ny === o.y && (!o.cond || o.cond(DW.state)));
       if (door) { this.runScript(() => this.enterDoor(door, nx)); return false; }
+      // portail posé dans l'éditeur : on y entre de n'importe quel côté
+      const portail = (this.map.portails || []).find(o => nx >= o.x && nx < o.x + (o.w || 1) && ny >= o.y && ny < o.y + (o.h || 1));
+      if (portail && DW.MAPS[portail.to]) {
+        if (portail.cond && !portail.cond(DW.state)) { if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; this.runScript(async () => { await DW.say(portail.lock); }); } return false; }
+        this.runScript(() => this.enterPortail(portail)); return false;
+      }
       // le héros fonce sur un Digimon sauvage : combat volontaire
       const wild = this.partner && DW.Wild.at(this, nx, ny);
       if (wild && !quiet) { this.runScript(DW.Wild.bump(this, wild)); return false; }
@@ -306,6 +315,12 @@
       this.load(w.to, nx, ny, P.dir);
       DW.autosave();
       await DW.fade(0, 0.38, null, 'digi');
+    }
+    async enterPortail(o) {
+      await DW.fade(1, 0.3, null, 'digi');
+      this.load(o.to, o.tx, o.ty, this.p.dir);
+      DW.autosave();
+      await DW.fade(0, 0.3, null, 'digi');
     }
     async enterDoor(o, nx) {
       Audio.sfx('door');
