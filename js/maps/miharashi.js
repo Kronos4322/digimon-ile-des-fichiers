@@ -245,13 +245,42 @@
     g.set(48, 31, 'S');
   }
 
+  // ------------------------------------------------------------ DÉCOR DE MONTAGNE PAR ÉTAGE (décors peints : gfx/premium.js)
+  // L 1 : sous-bois de montagne (grandes feuilles, fougères, jeunes sapins, rochers moussus) ; L 2 : pins tordus, blocs,
+  // genêts, éboulis ; L 3 : aiguilles rocheuses, éboulis, blocs ; L 4 (cendres du cratère) : éboulis, cristaux de feu.
+  // Jamais sur un chemin, un escalier ni à côté : la montée reste lisible ; densité d (0..1) pour la route, plus clairsemée.
+  const ETAGES = [null,
+    [['feuillage', 1, 3], ['fougeres', 0, 3], ['pousse', 2, 2], ['rochersmousse', 1, 1.5], ['buissonfleuri', 2, 1], ['feuillesmortes', 2, 1]],
+    [['pintordu', 0, 1.6], ['blocs', 0, 1.4], ['buissonfleuri', 2, 1.5], ['eboulis', 1, 2], ['pousse', 2, 1.5], ['rochersmousse', 1, 1]],
+    [['aiguille', 0, 1.6], ['aiguille', 1, 1], ['eboulis', 0, 2.5], ['blocs', 0, 1.2], ['pintordu', 0, 0.6]],
+    [['eboulis', 0, 3], ['cristaux', 1, 0.6], ['aiguille', 2, 0.8]]];
+  function decorEtages(g, m, d = 1, skip) {
+    const W = g.w, H = g.h, A = m.alt; if (!A) return;
+    const libre = (x, y) => { const c = g.get(x, y); return c === '.' || c === ',' || c === 'j' || c === 'n' || (c === '=' && m.alt[y * g.w + x] >= 3); };
+    const CH = m.chemins || new Set();
+    const pres = (x, y) => { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const c = g.get(x + dx, y + dy); if (c === '^' || c === undefined || CH.has((y + dy) * W + x + dx) || (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && (c === ROCK || (c === '=' && A[(y + dy) * W + x + dx] < 3)))) return true; } return false; };
+    const occ = new Set(); for (const o of m.objects || []) for (let yy = o.y - 1; yy <= o.y + (o.h || 1); yy++) for (let xx = o.x - 1; xx <= o.x + (o.w || 1); xx++) occ.add(xx + ',' + yy);
+    for (let y = 3; y < H - 3; y++) for (let x = 3; x < W - 3; x++) {
+      const L = A[y * W + x]; if (!(L >= 1 && L <= 4) || !libre(x, y) || pres(x, y) || occ.has(x + ',' + y) || (skip && skip(x, y))) continue;
+      const dens = [0, 0.055, 0.05, 0.045, 0.035][L] * d * (0.5 + N(x, y, 990 + L, 0.12));
+      if (Hh(x, y, 991 + L) > dens) continue;
+      const T = ETAGES[L], tot = T.reduce((a, t) => a + t[2], 0); let r = Hh(x, y, 993) * tot, pick = T[0];
+      for (const t of T) { if (r < t[2]) { pick = t; break; } r -= t[2]; }
+      const plat = DW.World.PLATS && DW.World.PLATS.has(pick[0]);
+      m.objects.push({ kind: pick[0], v: pick[1], x, y, w: 1, h: 1, ...(plat ? { walk: true } : {}) });
+      for (let yy = y - 1; yy <= y + 1; yy++) for (let xx = x - 1; xx <= x + 1; xx++) occ.add(xx + ',' + yy);
+    }
+  }
+
   // ------------------------------------------------------------ ROUTE DU MONT MIHARASHI (sous-zone 3)
   function route(g, m) {
     const id = 'miharashi3', W = g.w, H = g.h;
     const prot = base(g, m, id, (x, y, X, Y) => (N(X, Y, 944, 0.12) > 0.66 ? ',' : N(X, Y, 945, 0.2) > 0.8 ? 'n' : '.'));
     const R = DW.Relief.build(g, m, { id, keep: (x, y) => prot.has(x + ',' + y), corridor: (x, y) => nearRoad(id, x, y, 4.5), levelAt: (x, y) => levelOf(id, x, y),
-      surface: (x, y, L) => (L === 0 ? g.get(x, y) : Hh(x, y, 946 + L) < 0.05 ? 'T' : Hh(x, y, 948 + L) < 0.03 ? 'Ó' : N(x, y, 950 + L, 0.15) > 0.7 ? ',' : '.') });
+      foot: m.exits && m.exits.right ? [W - 4, Math.round(m.exits.right[0] + 2)] : undefined,   // (on arrive du Village des Yokomon, à l'est)
+      surface: (x, y, L) => (L === 0 ? g.get(x, y) : Hh(x, y, 946 + L) < 0.025 ? 'T' : N(x, y, 950 + L, 0.15) > 0.72 ? ',' : L >= 2 && N(x, y, 952 + L, 0.1) > 0.62 ? '=' : '.') });
     drawRoads(g, m, id);
+    decorEtages(g, m, 0.7);
     // bosquets de la jungle du pied du mont, plus denses vers l'ouest
     const high = (x, y) => m.alt && m.alt[y * W + x] > 0;
     sow(g, 3, 3, W - 4, H - 4, 'T', 0.03, 1271, c => c === '.' || c === ',', (x, y) => high(x, y) || nearRoad(id, x, y, 3) || Hh(x, y, 1272) > 1 - (1 - x / W) * 0.7);
@@ -286,12 +315,16 @@
       surface: (x, y, L) => {
         if (L === 0) return g.get(x, y);
         const away = Math.hypot(x - cx, y - cy + 3) > 8;
-        if (L === 4) return away && Hh(x, y, 965) < 0.06 ? 'ë' : away && Hh(x, y, 966) < 0.03 ? 'ì' : '=';
-        // terrasses : herbe rase, rochers et arbustes qui obligent à zigzaguer
-        return Hh(x, y, 967 + L) < 0.045 ? 'Ó' : Hh(x, y, 970 + L) < 0.03 ? 'T' : Hh(x, y, 975 + L) < 0.02 ? 'ë' : N(x, y, 973 + L, 0.15) > 0.7 ? ',' : '.';
+        if (L === 4) return away && Hh(x, y, 965) < 0.04 ? 'ë' : away && Hh(x, y, 966) < 0.025 ? 'ì' : '=';
+        // le sol change avec l'altitude : prairie (1), herbe et terre (2), terre et rocaille (3)
+        const n = N(x, y, 973 + L, 0.13);
+        if (L === 1) return Hh(x, y, 970 + L) < 0.02 ? 'T' : n > 0.72 ? ',' : n < 0.3 ? 'j' : '.';
+        if (L === 2) return n > 0.6 ? '=' : n < 0.25 ? 'j' : '.';
+        return n > 0.3 ? '=' : '.';   // (haut de la montagne : surtout de la terre et de la rocaille, quelques plaques d'herbe)
       } });
     // devant le cratère : un replat dégagé où se dresse Meramon
     if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 4 && g.get(x, y) !== ROCK) g.set(x, y, '=');
+    decorEtages(g, m, 1, (x, y) => Math.hypot(x - cx, y - cy) < 9);   // (jamais devant Meramon)
     return R;
   }
 

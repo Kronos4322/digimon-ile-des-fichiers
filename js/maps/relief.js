@@ -70,7 +70,7 @@
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const L = lvl(x, y); if (L <= 0) continue;
       const n = lvl(x, y - 1), e = lvl(x + 1, y), w = lvl(x - 1, y), s = lvl(x, y + 1);
-      if ((n >= 0 && n < L) || (e >= 0 && e < L) || (w >= 0 && w < L)) isRock[y * W + x] = 1;
+      // (au nord, à l'est et à l'ouest : pas de muret de roche, un rebord dessiné — le dénivelé arrête le héros, voir altBord)
       if (s >= 0 && s < L) {
         let k = 1;
         for (; k <= WALL * (L - s) && y + k < H; k++) { if (lvl(x, y + k) >= L || (o.corridor && o.corridor(x, y + k)) || (o.keep && o.keep(x, y + k, g.get(x, y + k)))) break; isRock[(y + k) * W + x] = 1; }
@@ -118,6 +118,43 @@
     // murets de chaque côté des escaliers : on ne quitte une volée de marches que par le haut ou par le bas
     for (const st of stairs) for (let y = st.top + 1; y < st.foot; y++) for (const x of [st.x - 1, st.x + 3]) if (x >= 0 && x < W && g.get(x, y) !== STAIR) isRock[y * W + x] = 1;
     for (let i = 0; i < W * H; i++) if (isRock[i]) g.set(i % W, Math.floor(i / W), ROCK);
+    // 3 bis) ACCÈS GARANTI : chaque plateau doit pouvoir se gravir depuis l'arrivée (o.foot) ou les bords de la carte.
+    // Un plateau qu'aucun escalier ne relie (pas de place sur sa paroi sud) reçoit une volée de marches sur le bord
+    // (nord, est ou ouest) le plus proche d'une zone déjà atteinte, un niveau plus bas.
+    {
+      const pas = (x, y) => { const c = g.get(x, y); return c !== undefined && c !== ROCK && !DW.SOLID.has(c); };   // (comme dans le jeu : arbres et rochers bloquent)
+      const ok = (ax, ay, bx, by) => { const a = alt[ay * W + ax], b = alt[by * W + bx]; return a === PASS || b === PASS || a === b; };
+      const vu = new Uint8Array(W * H), file = [];
+      const pousse = (x, y) => { if (x < 0 || y < 0 || x >= W || y >= H || vu[y * W + x] || !pas(x, y)) return; vu[y * W + x] = 1; file.push([x, y]); };
+      const etendre = () => { while (file.length) { const [x, y] = file.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H || vu[ny * W + nx] || !pas(nx, ny) || !ok(x, y, nx, ny)) continue; vu[ny * W + nx] = 1; file.push([nx, ny]); } } };
+      if (o.foot) pousse(o.foot[0], o.foot[1]);
+      else for (let x = 0; x < W; x++) for (const y of [0, H - 1]) if (lvl(x, y) === 0) pousse(x, y);
+      if (!o.foot) for (let y = 0; y < H; y++) for (const x of [0, W - 1]) if (lvl(x, y) === 0) pousse(x, y);
+      etendre();
+      m._acces = { rampes: 0 };
+      for (let tour = 0; tour < 12; tour++) {
+        let best = null;
+        for (const C of comps) {
+          if (C.cells.some(([x, y]) => vu[y * W + x] && alt[y * W + x] === C.L)) continue;   // (déjà atteint : une vraie case du plateau, pas une marche taillée dans sa bordure)
+          for (const [x, y] of C.cells) {
+            if (!pas(x, y) || lvl(x, y) !== C.L) continue;
+            for (const [dx, dy] of [[0, -1], [1, 0], [-1, 0]]) {   // bord nord, est, ouest (au sud : la paroi)
+              const ex = x + dx, ey = y + dy; if (ex < 1 || ey < 1 || ex >= W - 1 || ey >= H - 1 || !vu[ey * W + ex] || lvl(ex, ey) !== C.L - 1) continue;
+              // trois cases de front le long du bord, toutes du plateau et toutes au-dessus d'une zone atteinte
+              const [ax, ay] = dy ? [1, 0] : [0, 1], trio = [-1, 0, 1].map(k => [x + ax * k, y + ay * k]);
+              if (!trio.every(([tx, ty]) => lvl(tx, ty) === C.L && pas(tx, ty) && vu[(ty + dy) * W + tx + dx] && lvl(tx + dx, ty + dy) === C.L - 1)) continue;
+              const score = Hh(x, y, 997) + (o.foot ? Math.hypot(x - o.foot[0], y - o.foot[1]) / 400 : 0);
+              if (!best || score < best.score) best = { trio, score };
+            }
+          }
+        }
+        if (!best) break;
+        m._acces.rampes++;
+        for (const [tx, ty] of best.trio) { g.set(tx, ty, STAIR); alt[ty * W + tx] = PASS; vu[ty * W + tx] = 1; file.push([tx, ty]); }
+        etendre();
+      }
+    }
+    const chemins = new Set();   // (cases des sentiers de montagne : le décor les évite)
     // 4) chemins de montagne : sur chaque plateau, de l'escalier qui y monte (son haut) à ceux qui en partent (leur pied)
     const walk = (x, y) => { const c = g.get(x, y); return c !== undefined && c !== ROCK && !DW.SOLID.has(c); };
     const pathOn = (a, b, L) => {   // plus court chemin sur un même niveau (BFS), tracé en terre battue
@@ -125,7 +162,7 @@
       while (q.length) { const [x, y] = q.shift(); if (x === b[0] && y === b[1]) break;
         for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H || prev[key(nx, ny)] !== -2) continue; if (lvl(nx, ny) !== L || !walk(nx, ny)) continue; prev[key(nx, ny)] = key(x, y); q.push([nx, ny]); } }
       if (prev[key(...b)] === -2) return;
-      for (let k = key(...b); k >= 0; k = prev[k]) { const x = k % W, y = Math.floor(k / W); if (g.get(x, y) !== STAIR) g.set(x, y, o.pathCh || '='); }
+      for (let k = key(...b); k >= 0; k = prev[k]) { const x = k % W, y = Math.floor(k / W); chemins.add(k); if (g.get(x, y) !== STAIR) g.set(x, y, o.pathCh || '='); }
     };
     // (le haut d'un escalier est sur un plateau ; le pied d'un autre escalier sur ce même plateau : on les relie)
     for (const up of stairs) for (const dn of stairs) {
@@ -134,8 +171,44 @@
       if (P >= 0 && comp[dn.foot * W + dn.x + 1] === P) pathOn([up.x + 1, up.top], [dn.x + 1, dn.foot], up.L);
     }
     if (o.foot) for (const s of stairs) if (lvl(s.x + 1, s.foot) === 0) pathOn(o.foot, [s.x + 1, s.foot], 0);
-    m.alt = alt; m.reliefStairs = stairs; m.massif = M;
+    // altitude des cases de paroi = celle du pied de la paroi ; collision par dénivelé ; rebords peints sur le sol
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (g.get(x, y) === ROCK && alt[y * W + x] !== PASS) { let k = y; while (k < H && g.get(x, k) === ROCK) k++; alt[y * W + x] = k < H && alt[k * W + x] !== PASS ? alt[k * W + x] : 0; }
+    m.alt = alt; m.reliefStairs = stairs; m.massif = M; m.altBord = true; m.chemins = chemins;
+    R.peindreRebords(m);
     return { alt, stairs, comps, lvl };
+  }
+  // REBORDS DES PLATEAUX (vue de 3/4) : au nord, un liseré d'herbe claire qui déborde et une ombre portée sur le bas ;
+  // à l'est et à l'ouest, un flanc de roche étroit et sombre ; le dessus d'un plateau est un peu plus lumineux que le bas.
+  // (lu au moment du rendu : m.alt peut changer après coup, par exemple avec les retouches de l'éditeur)
+  function rebords(c, m) {
+    const W = m.w, H = m.h, A = m.alt, TS = 16, Hh2 = DW.Art.hash; if (!A) return;
+    const at = (x, y) => { if (x < 0 || y < 0 || x >= W || y >= H) return -1; const a = A[y * W + x]; return a === PASS ? -1 : a; };
+    const rockAt = (x, y) => m.rows[y] && m.rows[y][x] === ROCK;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const L = at(x, y); if (L <= 0 || rockAt(x, y)) continue;
+      const X = x * TS, Y = y * TS;
+      c.fillStyle = `rgba(255,250,210,${0.035 * L})`; c.fillRect(X, Y, TS, TS);
+      const n = at(x, y - 1), e = at(x + 1, y), w = at(x - 1, y);
+      if (n >= 0 && n < L && !rockAt(x, y - 1)) {
+        c.fillStyle = 'rgba(16,40,20,0.42)'; c.fillRect(X, Y - 3, TS, 3);
+        c.fillStyle = 'rgba(70,52,34,0.95)'; c.fillRect(X, Y - 1, TS, 2);
+        for (let k = 0; k < TS; k += 2) { const h = 1 + Math.floor(Hh2(x * 16 + k, y, 501) * 3); c.fillStyle = Hh2(x * 16 + k, y, 502) < 0.5 ? '#b8e07a' : '#8cc860'; c.fillRect(X + k, Y + 1, 2, h); }
+      }
+      for (const [d, nb] of [[1, e], [-1, w]]) if (nb >= 0 && nb < L && !rockAt(x + d, y)) {
+        const fx = d > 0 ? X + TS - 4 : X;
+        const g = c.createLinearGradient(fx, 0, fx + 4, 0); g.addColorStop(d > 0 ? 0 : 1, '#9a7448'); g.addColorStop(d > 0 ? 1 : 0, '#4a3220');
+        c.fillStyle = g; c.fillRect(fx, Y, 4, TS);
+        c.fillStyle = 'rgba(16,40,20,0.35)'; c.fillRect(d > 0 ? X + TS : X - 3, Y, 3, TS);
+        c.fillStyle = '#a8d870'; c.fillRect(d > 0 ? X + TS - 5 : X + 4, Y, 1, TS);
+      }
+    }
+  }
+  // (une seule fois par carte, en plus du sol peint qu'elle aurait déjà)
+  function peindreRebords(m) {
+    if (m.paintGround && m.paintGround._rebords) return;
+    const base = m.paintGround || null;
+    m.paintGround = (c, GW, GH) => { if (base) base(c, GW, GH); rebords(c, m); };
+    m.paintGround._rebords = true;
   }
   // un niveau en îlot minuscule (bruit) est rabaissé : pas de pics d'une case
   function smallPatches(alt, W, H) {
@@ -158,7 +231,7 @@
   // ------------------------------------------------------------ vue de développement (frontières, passages, collisions, niveaux)
   const COL = ['rgba(60,140,255,0.0)', 'rgba(80,220,120,0.28)', 'rgba(240,220,60,0.32)', 'rgba(255,140,40,0.36)', 'rgba(255,60,60,0.4)'];
   const R = DW.Relief = {
-    MASSIFS, build, track, offset, PASS,
+    MASSIFS, build, track, offset, PASS, rebords, peindreRebords,
     debug: false,
     allowDebug: typeof location !== 'undefined' && /[?&]debug=geo\b/.test(location.search),
     drawDebug(ow, c, x0, x1, y0, y1) {

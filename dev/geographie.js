@@ -106,7 +106,7 @@
     },
     // ruptures internes de relief : deux cases praticables voisines d'altitudes différentes sans escalier
     relief(id) {
-      const m = DW.getMap(id); if (!m.alt) return [];
+      const m = DW.getMap(id); if (!m.alt || m.altBord) return [];   // (altBord : on ne change de niveau que par un escalier, game/overworld.js : falaise)
       const out = [];
       for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
         const k = kind(m, x, y); if (!walk(k)) continue;

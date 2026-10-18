@@ -133,34 +133,8 @@
     m.alt = out;
     // (sur les côtés nord, est et ouest, pas de mur : un rebord dessiné ; c'est le dénivelé qui arrête le héros)
     m.altBord = true;
-    const base = m._basePaint !== undefined ? m._basePaint : (m._basePaint = m.paintGround || null);
-    m.paintGround = (c, GW, GH) => { if (base) base(c, GW, GH); rebords(c, m); };
+    DW.Relief.peindreRebords(m);   // (rebords dessinés : maps/relief.js)
     // (une case de paroi a l'altitude du pied de la paroi)
     function pied(x, y) { let k = y; while (k < H && rock[k * W + x]) k++; return k < H ? alt[k * W + x] : 0; }
-  }
-  // REBORDS DES PLATEAUX (vue de 3/4) : au nord, un liseré d'herbe claire et une ombre portée sur le bas ; à l'est et
-  // à l'ouest, un flanc de roche étroit et sombre ; le dessus d'un plateau est un peu plus lumineux que le bas
-  function rebords(c, m) {
-    const W = m.w, H = m.h, A = m.alt, PASS = DW.Relief.PASS, TS = 16, Hh = DW.Art.hash;
-    const at = (x, y) => { if (x < 0 || y < 0 || x >= W || y >= H) return -1; const a = A[y * W + x]; return a === PASS ? -1 : a; };
-    const rockAt = (x, y) => m.rows[y] && m.rows[y][x] === ROCK;
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const L = at(x, y); if (L <= 0 || rockAt(x, y)) continue;
-      const X = x * TS, Y = y * TS;
-      c.fillStyle = `rgba(255,250,210,${0.035 * L})`; c.fillRect(X, Y, TS, TS);
-      const n = at(x, y - 1), e = at(x + 1, y), w = at(x - 1, y);
-      if (n >= 0 && n < L && !rockAt(x, y - 1)) {
-        c.fillStyle = 'rgba(16,40,20,0.42)'; c.fillRect(X, Y - 3, TS, 3);   // ombre sur le terrain plus bas
-        c.fillStyle = 'rgba(70,52,34,0.95)'; c.fillRect(X, Y - 1, TS, 2);   // tranche de terre
-        for (let k = 0; k < TS; k += 2) { const h = 1 + Math.floor(Hh(x * 16 + k, y, 501) * 3); c.fillStyle = Hh(x * 16 + k, y, 502) < 0.5 ? '#b8e07a' : '#8cc860'; c.fillRect(X + k, Y + 1, 2, h); }   // herbe qui déborde
-      }
-      for (const [d, nb] of [[1, e], [-1, w]]) if (nb >= 0 && nb < L && !rockAt(x + d, y)) {
-        const fx = d > 0 ? X + TS - 4 : X;
-        const g = c.createLinearGradient(fx, 0, fx + 4, 0); g.addColorStop(d > 0 ? 0 : 1, '#9a7448'); g.addColorStop(d > 0 ? 1 : 0, '#4a3220');
-        c.fillStyle = g; c.fillRect(fx, Y, 4, TS);
-        c.fillStyle = 'rgba(16,40,20,0.35)'; c.fillRect(d > 0 ? X + TS : X - 3, Y, 3, TS);
-        c.fillStyle = '#a8d870'; c.fillRect(d > 0 ? X + TS - 5 : X + 4, Y, 1, TS);
-      }
-    }
   }
 })();
