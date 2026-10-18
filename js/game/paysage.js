@@ -73,6 +73,7 @@
     },
     async water(ow, x, y, spring) {
       const m = pt(), sel = !spring && Paysage.salee(ow.map, x, y);
+      if (sel === 'lave') { await say(m ? `La lave bouillonne et crache des gerbes de feu... ${m.name} recule d'un bond !` : 'La lave bouillonne et crache des gerbes de feu...'); return; }
       // eau trouble (marais) : on ne la boit pas
       if (sel === 'trouble') {
         const rod = DW.Peche && DW.Peche.has();
@@ -144,6 +145,7 @@
     if (c === '≈') return true;
     if (c === '≋' || c === '5') return false;
     if (c === '≃') return 'trouble';
+    if (c === 'ȴ') return 'lave';
     if (map.region === 'plage') return true;
     if (typeof map.sel === 'function') return !!map.sel(x, y);
     if (map.mer) return mer(map).has(y * map.w + x);

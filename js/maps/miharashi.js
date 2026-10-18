@@ -315,21 +315,72 @@
       for (let yy = y - 2; yy <= y + 2; yy++) for (let xx = x - 2; xx <= x + 2; xx++) occ.add(xx + ',' + yy);
       n++;
     }
-    // COULÉES : du bord du cratère, la lave suit la pente (vers les cases du sommet les plus éloignées du cratère)
+    // COULÉES QUI DESCENDENT LE VOLCAN : elles partent du bord du lac de lave et suivent la pente, d'un niveau à l'autre :
+    //  - jamais vers le haut, et elle ne change de niveau QUE par une falaise qu'on voit (paroi sud) : sur la terrasse,
+    //    elle serpente vers le haut de falaise le plus proche (comme l'eau vers sa sortie), avec de l'élan et du hasard ;
+    //    les bords nord, est et ouest (sans paroi visible), elle les longe sans les franchir ;
+    //  - au-dessus de la falaise, elle DÉGOULINE tout droit le long de la roche jusqu'au pied, en cascade ;
+    //  - et ainsi de suite, terrasse après terrasse, jusqu'au pied du volcan où elle s'étale et s'arrête.
+    // Elle contourne les arbres et les rochers, ne passe jamais sur un escalier ni sur Meramon.
     m.coulees = [];
     if (!crater) return;
-    const ccx = crater.x + crater.w / 2, ccy = crater.y + crater.h / 2;
-    for (const [sx, sy] of [[crater.x - 1, crater.y + crater.h - 1], [crater.x + crater.w, crater.y + crater.h - 1], [crater.x + 2, crater.y + crater.h]]) {
-      const ch = [], vu = new Set(); let x = sx, y = sy;
-      for (let k = 0; k < 14; k++) {
-        if (x < 1 || y < 1 || x >= W - 1 || y >= H - 1 || A[y * W + x] !== 5 || g.get(x, y) === ROCK || vu.has(x + ',' + y)) break;
-        if (Math.hypot(x - cx, (y - cy) * 1.4) < 4) break;   // (jamais sur Meramon)
+    const lcx = crater.x + crater.w / 2, lcy = crater.y + crater.h / 2, lave = (x, y) => g.get(x, y) === 'ȴ', alt = (x, y) => A[y * W + x];
+    const libre = (x, y) => { const c = g.get(x, y); return c !== undefined && c !== '^' && alt(x, y) !== DW.Relief.PASS && !lave(x, y) && (c === ROCK || !DW.SOLID.has(c)); };
+    const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]];
+    // distance (en cases, sur la même terrasse) jusqu'au plus proche haut de falaise
+    const loinFalaise = new Int16Array(W * H).fill(9999), file = [];
+    for (let y = 1; y < H - 2; y++) for (let x = 1; x < W - 1; x++) if (libre(x, y) && g.get(x, y) !== ROCK && g.get(x, y + 1) === ROCK && alt(x, y + 1) < alt(x, y)) { loinFalaise[y * W + x] = 0; file.push(x, y); }
+    for (let q = 0; q < file.length; q += 2) {
+      const x = file[q], y = file[q + 1], d = loinFalaise[y * W + x];
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 1 || ny < 1 || nx >= W - 1 || ny >= H - 1 || loinFalaise[ny * W + nx] <= d + 1 || !libre(nx, ny) || g.get(nx, ny) === ROCK || alt(nx, ny) !== alt(x, y)) continue; loinFalaise[ny * W + nx] = d + 1; file.push(nx, ny); }
+    }
+    const couler = (sx, sy, seed, max, v0) => {
+      const ch = [], vu = new Set(); let x = sx, y = sy, vx = v0 ? v0[0] : sx - lcx, vy = v0 ? v0[1] : sy - lcy, pied = 0;
+      { const d = Math.hypot(vx, vy) || 1; vx /= d; vy /= d; }
+      const fin = 5 + Math.floor(Hh(seed, 1, 1324) * 7);
+      while (ch.length < max) {
         ch.push([x, y]); vu.add(x + ',' + y);
+        if (g.get(x, y) === ROCK) {   // sur la paroi : la lave tombe tout droit jusqu'au pied de la falaise
+          let yy = y + 1; while (g.get(x, yy) === ROCK && !vu.has(x + ',' + yy)) { ch.push([x, yy]); vu.add(x + ',' + yy); yy++; }
+          if (!libre(x, yy) || vu.has(x + ',' + yy)) break;
+          y = yy; continue;
+        }
+        const a = alt(x, y);
+        if (a <= 1 && ++pied > fin) break;   // au pied du volcan : elle s'étale et s'arrête
         let best = null;
-        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1]]) { const nx = x + dx, ny = y + dy; if (vu.has(nx + ',' + ny) || A[ny * W + nx] !== 5 || g.get(nx, ny) === ROCK) continue; const d = Math.hypot(nx - ccx, ny - ccy) + Hh(nx, ny, 1310 + k) * 1.2; if (!best || d > best[2]) best = [nx, ny, d]; }
-        if (!best) break; [x, y] = best;
+        for (const [dx, dy] of DIRS) {
+          const nx = x + dx, ny = y + dy;
+          if (nx < 2 || ny < 2 || nx >= W - 2 || ny >= H - 2 || vu.has(nx + ',' + ny) || !libre(nx, ny)) continue;
+          if (Math.hypot(nx - cx, (ny - cy) * 1.4) < 4.5) continue;   // (jamais sur Meramon)
+          const roc = g.get(nx, ny) === ROCK, na = alt(nx, ny);
+          if (na > a) continue;   // jamais vers le haut
+          if (roc && (dx || dy !== 1)) continue;   // (on n'entre dans une paroi que par le haut)
+          if (!roc && na < a) continue;   // (pas de chute par un bord sans paroi : nord, est, ouest)
+          if (dx && dy && (na !== a || alt(x + dx, y) !== a || alt(x, y + dy) !== a || g.get(x + dx, y) === ROCK || g.get(x, y + dy) === ROCK)) continue;   // (pas de diagonale par-dessus un rebord)
+          const l = Math.hypot(dx, dy), lf = loinFalaise[ny * W + nx], d0 = loinFalaise[y * W + x];
+          const sc = (dx * vx + dy * vy) / l * 0.6 + (roc ? 6 : 0) + (lf < 9999 && d0 < 9999 ? (d0 - lf) * 1.1 : 0) + (N(nx, ny, seed, 0.4) - 0.5) * 1.4 + dy * 0.1;
+          if (!best || sc > best[2]) best = [nx, ny, sc, dx / l, dy / l];
+        }
+        if (!best) break;
+        vx = vx * 0.72 + best[3] * 0.28; vy = vy * 0.72 + best[4] * 0.28; { const d = Math.hypot(vx, vy) || 1; vx /= d; vy /= d; }
+        x = best[0]; y = best[1];
       }
+      return ch;
+    };
+    const departs = [];
+    for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) if (libre(x, y) && alt(x, y) === 5 && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => lave(x + dx, y + dy)) && Math.hypot(x - cx, (y - cy) * 1.4) > 4.5) departs.push([x, y]);
+    departs.sort((a, b) => Math.atan2(a[1] - lcy, a[0] - lcx) - Math.atan2(b[1] - lcy, b[0] - lcx));
+    const nb = Math.min(10, departs.length);
+    for (let i = 0; i < nb; i++) {
+      const [sx, sy] = departs[Math.floor((i + Hh(i, 3, 1320) * 0.6) / nb * departs.length) % departs.length];
+      const ch = couler(sx, sy, 1330 + i, 26 + Math.floor(Hh(i, 4, 1321) * 34));
       if (ch.length >= 4) m.coulees.push(ch);
+      // bras secondaire : sur une terrasse, la coulée se divise et un bras part de côté
+      if (ch.length >= 12 && Hh(i, 5, 1322) < 0.5) {
+        const k = Math.floor(ch.length * (0.35 + Hh(i, 7, 1325) * 0.3)), [bx, by] = ch[k], [px, py] = ch[k - 1];
+        if (g.get(bx, by) !== ROCK) { const s1 = Hh(i, 6, 1323) < 0.5 ? 1 : -1, dx = bx - px, dy = by - py, ox = -dy * s1, oy = dx * s1;
+          if (libre(bx + ox, by + oy)) { const br = couler(bx + ox, by + oy, 1340 + i, 10 + Math.floor(Hh(i, 8, 1326) * 16), [dx + ox, dy + oy]); if (br.length >= 4) m.coulees.push(br); } }
+      }
     }
   }
 
@@ -369,7 +420,11 @@
     const foot = (x, y) => Math.hypot((x - 48) / 50, (y - 40) / 36) < 1;
     const ex10 = exitCells(m, 10);
     const prot = base(g, m, id, (x, y, X, Y) => (foot(x, y) || ex10.has(x + ',' + y) ? (N(X, Y, 961, 0.12) > 0.68 ? ',' : '.') : Hh(X, Y, 964) < 0.75 ? '#' : 'T'));
-    const [cx, cy] = MONT.meramon, crater = m.objects.find(o => o.kind === 'cratere');
+    const [cx, cy] = MONT.meramon;
+    // LE CRATÈRE : un lac de lave creusé dans le plateau du sommet, bordé de cendres (Meramon se tient juste devant)
+    // (la bouche peinte, gfx/premium.js « bouche », couvre 21 × 9 cases ; la lave remplit les cases dont le centre est dans le trou)
+    const BX = 38, BY = 21, BOUCHE = DW.World.OBJ.bouche, dansLac = (x, y) => BOUCHE.dedans((x - BX) * 16 + 8, (y - BY) * 16 + 9);
+    let crater = null;
     const R = DW.Relief.build(g, m, { id, keep: (x, y) => prot.has(x + ',' + y), corridor: (x, y) => ex10.has(x + ',' + y), levelAt: (x, y) => levelOf(id, x, y),
       foot: [W - 4, Math.round(m.exits.right[0] + 2)],   // (on arrive de la route, à l'est)
       wall: 4,   // (une vraie montagne : des falaises de 4 cases par niveau)
@@ -386,7 +441,25 @@
         return n > 0.28 ? 'ǥ' : '.';   // (haut de la montagne : rocaille, quelques plaques d'herbe ; les sentiers en terre battue ressortent)
       } });
     // devant le cratère : un replat dégagé où se dresse Meramon
-    if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 5 && g.get(x, y) !== ROCK) g.set(x, y, 'ţ');
+    { let x0 = 99, y0 = 99, x1 = 0, y1 = 0;
+      for (let y = 2; y < g.h - 2; y++) for (let x = 2; x < W - 2; x++) {
+        if (x < BX || y < BY || x >= BX + 21 || y >= BY + 9 || !dansLac(x, y) || m.alt[y * W + x] !== 5 || g.get(x, y) === ROCK) continue;
+        g.set(x, y, 'ȴ'); x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+      }
+      if (x1 >= x0) { crater = { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1, lac: true }; m.bouche = { x: BX, y: BY, w: 21, h: 9 }; }   // (peinte par game/lave.js : la lave y monte et redescend)
+      // bord du cratère : cendres, et quelques roches de lave figée (jamais devant Meramon)
+      for (let y = 2; y < g.h - 2; y++) for (let x = 2; x < W - 2; x++) {
+        if (g.get(x, y) === 'ȴ' || m.alt[y * W + x] !== 5) continue;
+        let bord = false; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (g.get(x + dx, y + dy) === 'ȴ') bord = true;
+        if (!bord) continue;
+        g.set(x, y, Hh(x, y, 1292) < 0.18 && Math.hypot(x - cx, (y - cy) * 1.4) > 5 ? 'ë' : 'ţ');
+      }
+    }
+    if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 5 && g.get(x, y) !== ROCK && g.get(x, y) !== 'ȴ') g.set(x, y, 'ţ');
+    for (let y = 2; y < g.h - 2; y++) for (let x = 2; x < W - 2; x++) {
+      const c = g.get(x, y); if (c !== 'ë' && c !== 'ì') continue;
+      if ([[-1, 0], [-1, -1], [0, -1], [1, -1]].some(([dx, dy]) => g.get(x + dx, y + dy) === 'ë' || g.get(x + dx, y + dy) === 'ì')) g.set(x, y, m.alt[y * W + x] >= 4 ? 'ţ' : 'ǥ');
+    }
     // cocotiers penchés au bord de la plage, au pied du mont (côté est, l'arrivée)
     for (let y = 4; y < g.h - 4; y++) for (let x = 4; x < W - 4; x++) {
       if (m.alt[y * W + x] !== 0 || g.get(x, y) !== '.' || Hh(x, y, 1281) > 0.06) continue;

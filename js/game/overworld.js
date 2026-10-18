@@ -246,6 +246,7 @@
       const wild = this.partner && DW.Wild.at(this, nx, ny);
       if (wild && !quiet) { this.runScript(DW.Wild.bump(this, wild)); return false; }
       if (this.solid(nx, ny) || this.falaise(P.x, P.y, nx, ny)) {
+        if (!quiet && DW.Lave && this.solid(nx, ny)) DW.Lave.touche(this, nx, ny);   // rocher magmatique, fumerolle : ça brûle (game/lave.js)
         if (!quiet && (!this.bumpT || this.t - this.bumpT > 0.4)) { Audio.sfx('bump'); this.bumpT = this.t; Input.rumble(0.15, 60); }
         return false;
       }

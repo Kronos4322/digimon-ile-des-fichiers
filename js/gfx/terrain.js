@@ -681,6 +681,8 @@
       const flip = !anim && NATURAL.has(inf.obj) && hash(tx, ty, 63) < 0.5;
       objs.push({ kind, v, flip, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
     }
+    // bouche du volcan (dessinée par game/lave.js) : ses images sont préparées avec la carte
+    if (map.bouche) for (const k of ['bouche', 'bouchelave']) for (let fr = 0; fr < OBJ[k].frames; fr++) if (!World.objReady(k, 0, fr)) { World.objFrame(k, 0, fr); yield; }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
     for (const o of map.objects || []) {
       const D = OBJ[o.kind], vv = o.v || 0;
@@ -844,10 +846,10 @@
         let prof = TH && TH.waterDepth || 3.2;   // waterDepth : eau claire plus loin du bord (lagon)
         if (EAUX) {
           const fx = (px - 8) / TS, fy = (py - 8) / TS, x0 = Math.floor(fx), y0 = Math.floor(fy), ax = fx - x0, ay = fy - y0, own = eauDe(px >> 4, py >> 4);
-          const wsum = [0, 0, 0, 0, 0];
+          const wsum = [0, 0, 0, 0, 0, 0];
           for (const [cx, cy, wt] of [[x0, y0, (1 - ax) * (1 - ay)], [x0 + 1, y0, ax * (1 - ay)], [x0, y0 + 1, (1 - ax) * ay], [x0 + 1, y0 + 1, ax * ay]]) { const e = eauDe(cx, cy); wsum[e < 0 ? Math.max(0, own) : e] += wt; }
-          let a1 = 0, a2 = -1; for (let e = 1; e < 5; e++) if (wsum[e] > wsum[a1]) a1 = e;
-          for (let e = 0; e < 5; e++) if (e !== a1 && wsum[e] > 0 && (a2 < 0 || wsum[e] > wsum[a2])) a2 = e;
+          let a1 = 0, a2 = -1; for (let e = 1; e < 6; e++) if (wsum[e] > wsum[a1]) a1 = e;
+          for (let e = 0; e < 6; e++) if (e !== a1 && wsum[e] > 0 && (a2 < 0 || wsum[e] > wsum[a2])) a2 = e;
           K1[k] = a1; K2[k] = a2 < 0 ? a1 : a2; KW[k] = a2 < 0 ? 0 : wsum[a2] / (wsum[a1] + wsum[a2]);
           if (a1) prof = World.EAUX[a1].prof;
         }
@@ -982,6 +984,8 @@
     { nom: 'claire', pal: ['#e2fff8', '#b0f6ec', '#7ae8e2', '#48d4de', '#2cbad6', '#2098c6', '#1c78b0'], prof: 8, ecume: ['#ffffff', '#d8fbf6'], fo: 1 },
     { nom: 'douce', pal: ['#bcecdc', '#8cd8cc', '#5ec0c2', '#3ea4b6', '#2e86a4', '#266a8a', '#1e5070'], prof: 3.4, ecume: ['#eefcf6', '#bfe8de'], fo: 0.7 },
     { nom: 'trouble', pal: ['#a6b47a', '#8a9c60', '#71864c', '#5c703e', '#4a5c32', '#3a4a28', '#2c381e'], prof: 2.2, ecume: ['#c8d098', '#aab47c'], fo: 0.45 },
+    // lave : croûte sombre au bord, de plus en plus brillante vers le cœur ; les « reflets » deviennent des veines de feu
+    { nom: 'lave', pal: ['#2a0e08', '#561410', '#922814', '#cc4618', '#ec7020', '#fca232', '#ffd65a'], prof: 3.2, ecume: ['#2a1612', '#5a2414'], fo: 0.8 },
   ].map(e => e && { ...e, P: e.pal.map(Art.hex), F: e.ecume.map(Art.hex) });
   // STYLES DE FALAISE (8 tons, du plus sombre au plus clair) : choisis par carte dans l'éditeur (map.falaise)
   World.FALAISES = {

@@ -386,6 +386,105 @@
     }
   } });
 
+  // BOUCHE DU VOLCAN (sommet du Mont Miharashi) : un VRAI TROU vu de 3/4 — lèvre de cendres tout autour, paroi intérieure
+  // en strates de basalte qui plonge jusqu'au lac de lave (on la voit au fond, côté nord, éclairée par en dessous), lac de
+  // lave tout en bas, en partie caché par la lèvre sud, avec plaques de croûte qui dérivent, veines de feu, bulles et
+  // vapeurs. Peint pixel par pixel (6 images qui bouclent). La carte met de la lave (case « ȴ », solide) partout où
+  // « dedans » est vrai : maps/miharashi.js, mont.
+  {
+    const F = { cx: 168, cy: 73, rx: 144, ry: 58 };
+    const bord = a => 1 + 0.045 * Math.sin(3 * a + 1.3) + 0.03 * Math.sin(5 * a + 0.4) + 0.018 * Math.sin(11 * a + 2);
+    // bruit de valeur lissé (rapide : peint des centaines de milliers de pixels)
+    const vn = (px, py, s) => {
+      const x0 = Math.floor(px), y0 = Math.floor(py), fx = px - x0, fy = py - y0, u = fx * fx * (3 - 2 * fx), w = fy * fy * (3 - 2 * fy);
+      const a = hash(x0, y0, s), b = hash(x0 + 1, y0, s), c = hash(x0, y0 + 1, s), d = hash(x0 + 1, y0 + 1, s);
+      return a + (b - a) * u + (c - a) * w + (a - b - c + d) * u * w;
+    };
+    const fb = (px, py, s) => vn(px, py, s) * 0.6 + vn(px * 2.1, py * 2.1, s + 7) * 0.28 + vn(px * 4.3, py * 4.3, s + 13) * 0.12;
+    const lisse = (a, b, t) => { const u = Math.max(0, Math.min(1, (t - a) / (b - a))); return u * u * (3 - 2 * u); };
+    // un pixel de lave : plaques de croûte qui dérivent, veines de feu entre elles, plus chaud au milieu (chaud), croûte
+    // tassée au bord (bordure) ; ox, oy : décalage de l'image (la croûte dérive en boucle), fl : la lave « respire »
+    const PL = [[42, 14, 8], [86, 20, 16], [146, 40, 20], [204, 70, 24], [236, 112, 32], [252, 162, 50], [255, 214, 90], [255, 244, 190]], T = [0, 0, 0];
+    const lavePix = (px, py, ox, oy, fl, chaud, bordure, out) => {
+      const n1 = fb(px * 0.05 + ox * 0.05, py * 0.1 + oy * 0.08, 1511), n2 = fb(px * 0.11 - ox * 0.04, py * 0.2 + oy * 0.05, 1512);
+      let t = 0.35 + chaud * 0.55 + (n2 - 0.5) * 0.35 - bordure * 0.45;
+      const veine = Math.abs(n1 - 0.5);
+      if (veine < 0.045) t = Math.max(t, 0.92 - veine * 4);   // veine de feu entre deux plaques
+      else if (n1 < 0.38) t = Math.min(t, 0.18 + (n1 - 0.2) * 0.5);   // plaque de croûte
+      t = Math.max(0, Math.min(1, t * fl + (1 - fl) * 0.2));
+      const q = t * (PL.length - 1), k = Math.min(PL.length - 2, Math.floor(q)), e = q - k;
+      out[0] = PL[k][0] + (PL[k + 1][0] - PL[k][0]) * e; out[1] = PL[k][1] + (PL[k + 1][1] - PL[k][1]) * e; out[2] = PL[k][2] + (PL[k + 1][2] - PL[k][2]) * e;
+    };
+    // bulles qui gonflent et éclatent (dans la zone « dedans »)
+    const bulles = (x, f, dedans, cx, cy, rx, ry) => {
+      for (let q = 0; q < 9; q++) {
+        const life = (f / 6 + hash(q, 1, 1531)) % 1, bx = cx + (hash(q, 2, 1531) - 0.5) * rx * 1.5, by = cy + (hash(q, 3, 1531) - 0.5) * ry * 1.4;
+        if (!dedans(bx, by)) continue;
+        if (life < 0.75) { const rr = 1 + life * 3.5; x.fillStyle = 'rgba(255,236,150,0.9)'; x.beginPath(); x.arc(bx, by, rr, 0, TAU); x.fill(); x.strokeStyle = 'rgba(180,50,16,0.8)'; x.lineWidth = 0.6; x.stroke(); }
+        else { x.fillStyle = 'rgba(255,200,80,0.9)'; for (let e = 0; e < 5; e++) { const an = e / 5 * TAU + q, d = (life - 0.75) * 30; x.beginPath(); x.arc(bx + Math.cos(an) * d, by + Math.sin(an) * d * 0.5 - (life - 0.75) * 20, 0.8, 0, TAU); x.fill(); } }
+      }
+    };
+    // TEXTURE DU LAC DE LAVE, sur tout le trou : game/lave.js la découpe à la hauteur du moment (la lave monte et redescend)
+    def('bouchelave', { w: 336, h: 144, n: 1, frames: 6, fps: 5, paint(x, v, f = 0) {
+      const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
+      const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
+      for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
+        const px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, s = Math.hypot(dx, dy) / bord(Math.atan2(dy, dx));
+        if (s >= 1.14) continue;
+        lavePix(px, py, ox, oy, fl, Math.max(0, 1 - Math.hypot(dx, (dy - 0.2) * 1.3)), 0, T);
+        const o = (j * Wd + i) * 4; D[o] = Math.min(255, T[0]); D[o + 1] = Math.min(255, T[1]); D[o + 2] = Math.min(255, T[2]); D[o + 3] = 255;
+      }
+      g.putImageData(img, 0, 0); x.imageSmoothingEnabled = true; x.drawImage(cv, 0, 0, this.w, this.h);
+      bulles(x, f, (px, py) => Math.hypot((px - F.cx) / F.rx, (py - F.cy) / F.ry) < 0.9, F.cx, F.cy + F.ry * 0.15, F.rx, F.ry);
+    } });
+    def('bouche', { w: 336, h: 144, n: 1, plat: true, frames: 6, fps: 5, forme: F, bord,
+      dedans(px, py) { const dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry; return Math.hypot(dx, dy) < bord(Math.atan2(dy, dx)); },
+      paint(x, v, f = 0) {
+        const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
+        const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
+        const cy2 = F.cy + F.ry * 0.42, rx2 = F.rx * 0.86, ry2 = F.ry * 0.58, LIP = 0.085;
+        for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
+          const px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, a = Math.atan2(dy, dx), s = Math.hypot(dx, dy) / bord(a);
+          if (s >= 1 + LIP) continue;
+          let r, gg, b, al = 255;
+          const dx2 = (px - F.cx) / rx2, dy2 = (py - cy2) / ry2, s2 = Math.hypot(dx2, dy2) / bord(Math.atan2(dy2, dx2));
+          if (s >= 1) {
+            // LÈVRE : bourrelet de cendres et de scories, clair au sommet du bourrelet, fondu vers le sol à l'extérieur
+            const u = (s - 1) / LIP, n = fb(px * 0.25, py * 0.4, 1501), haut = 1 - Math.abs(u - 0.3) * 1.6, sud = Math.max(0, dy) * 0.25;
+            const k = 0.62 + 0.3 * Math.max(0, haut) + sud + (n - 0.5) * 0.35;
+            r = 96 * k; gg = 84 * k; b = 78 * k;
+            if (hash(Math.floor(px), Math.floor(py), 1502) < 0.07) { r *= 0.6; gg *= 0.6; b *= 0.6; }   // scories noires
+            al = 255 * (1 - lisse(0.55, 1, u));
+            const lu = (1 - u) * 0.22 * (dy < 0 ? 0.5 : 1); r += 255 * lu * 0.6; gg += 120 * lu * 0.6; b += 40 * lu * 0.6;   // reflet de la lave sur l'arête
+          } else if (s2 < 1) {
+            lavePix(px, py, ox, oy, fl, 1 - s2, lisse(0.78, 1, s2), T); r = T[0]; gg = T[1]; b = T[2];
+            if (dy > 0 && s > 0.93) { const o = lisse(0.93, 1, s) * 0.7; r *= 1 - o; gg *= 1 - o; b *= 1 - o; }   // ombre portée de la lèvre sud
+          } else {
+            // PAROI INTÉRIEURE : u = 0 en haut (lèvre) → 1 en bas (lave) ; strates horizontales qui suivent la courbe
+            // du cratère, colonnes de basalte, éclairée en orange par la lave en bas, plus sombre sur les côtés
+            const h1 = 1 - s, h2 = Math.max(0, s2 - 1), u = h1 / (h1 + h2 + 1e-6), nz = fb(px * 0.08, py * 0.3, 1521);
+            const strate = Math.floor(u * 7 + (nz - 0.5) * 1.4), sh = [0.86, 0.66, 1, 0.74, 0.92, 0.6, 0.82, 0.7, 0.9][(strate % 9 + 9) % 9];
+            const col = (px * 0.2 + fb(px * 0.05, py * 0.05, 1522) * 3) % 1, joint = col < 0.12 ? 0.68 : col > 0.85 ? 1.12 : 1;
+            const cote = 0.62 + 0.38 * (1 - Math.min(1, Math.abs(dx) * 1.05)) ** 0.6;
+            let k = sh * joint * cote * (0.85 + (nz - 0.5) * 0.3) * (1 - u * 0.25);
+            if (u < 0.07) k *= 1.25;   // arête claire en haut de la paroi
+            r = 70 * k; gg = 54 * k; b = 48 * k;
+            const lueur = Math.pow(u, 2.2) * fl * (dy < 0.4 ? 1 : 0.6); r += 255 * lueur * 0.85; gg += 100 * lueur * 0.85; b += 30 * lueur * 0.85;   // lumière de la lave
+            if (u > 0.9) { const g2 = lisse(0.9, 1, u); r = r * (1 - g2) + 120 * g2; gg = gg * (1 - g2) + 30 * g2; b = b * (1 - g2) + 14 * g2; }   // pied de paroi : croûte qui rougeoie
+          }
+          const o = (j * Wd + i) * 4; D[o] = Math.min(255, r); D[o + 1] = Math.min(255, gg); D[o + 2] = Math.min(255, b); D[o + 3] = al;
+        }
+        g.putImageData(img, 0, 0);
+        x.imageSmoothingEnabled = true; x.drawImage(cv, 0, 0, this.w, this.h);
+        bulles(x, f, (px, py) => this.dedans(px, py), F.cx, cy2, rx2, ry2);
+        // vapeurs et chaleur qui montent du trou
+        for (let q = 0; q < 6; q++) {
+          const u = (f / 6 + q / 6) % 1, sx = F.cx + (hash(q, 4, 1532) - 0.5) * rx2 * 1.4, sy = cy2 - u * 50, rr = 6 + u * 14;
+          x.fillStyle = `rgba(232,214,200,${0.22 * Math.sin(u * Math.PI)})`; x.beginPath(); x.ellipse(sx + Math.sin(u * 5 + q) * 5, sy, rr * 1.4, rr * 0.8, 0, 0, TAU); x.fill();
+        }
+      } });
+  }
+
   // =================================================================== CÔTE
   // ROCHER CÔTIER : roche sombre et mouillée, balanes blanches, algues au pied, ourlet d'écume ; v 0 rond,
   // v 1 plat et long, v 2 double pointe

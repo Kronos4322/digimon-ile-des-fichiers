@@ -593,7 +593,7 @@
       ['Plaine des Panneaux', 'trail', { noRegionLm: true, opts: { hub: [50, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
       ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', noRegionLm: true, opts: { hub: [48, 42], autoTall: 0.3 }, post: (g, m) => DW.Mih.route(g, m) }],
       ['Mont Miharashi', 'plaza', { theme: 'miharashi', noRegionLm: true, opts: { hub: [88, 36], autoTall: 0.2 },
-        objects: [{ kind: 'cratere', v: 0, x: DW.Mih.MONT.crater[0], y: DW.Mih.MONT.crater[1], w: 11, h: 6 }],
+        objects: [],   // (le cratère est un lac de lave creusé dans le sommet : maps/miharashi.js, mont)
         post: (g, m) => DW.Mih.mont(g, m) }],
     ] });
   // (les passages du pays de Meramon, comme tous ceux du monde, viennent du puzzle : maps/puzzle.js)
