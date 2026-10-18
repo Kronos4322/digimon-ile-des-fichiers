@@ -78,7 +78,13 @@
     const tt = map.rows.map(r => [...r].map(ch => TER[World.info(ch).t]));
     // sols spéciaux de la terre (rocaille, cendres) : une valeur par case, 0 = terre ordinaire
     let SOLK = null; for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) { const I = World.CH[map.rows[ty][tx]]; if (I && I.sol) { if (!SOLK) SOLK = new Uint8Array(map.w * map.h); SOLK[ty * map.w + tx] = I.sol; } }
+    // TEXTURES DESSINÉES (gfx/textures.js) : sol, dessus des terrasses, falaises, escaliers, lave (null = dessin par code)
+    const TX = DW.Textures && map.textures ? DW.Textures : null, txp = (n, w, h) => (TX ? TX.pixels(map.textures + '/' + n, w, h) : null);
+    const TX_CENDRES = txp('sol_cendres', 64, 64), TX_DESSUS = txp('dessus_falaise', 64, 64), TX_FALAISE = txp('falaise_basalte', 64, 64), TX_ESC = txp('escalier', 48, 64);
+    const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n, 64, 64)).filter(Boolean);
     const solVar = (c, k, px, py) => {
+      if (k === 2 && TX_CENDRES) return TX.lit(TX_CENDRES, px, py);
+      if (k === 1 && TX_DESSUS) return TX.lit(TX_DESSUS, px, py);
       if (k === 1) {   // rocaille : terre grisée, taches de gravier plus sombres et plus claires
         let o = Art.mix(c, [140, 130, 114], 0.5); const h1 = hash(px >> 1, py >> 1, 601);
         if (h1 < 0.16) o = Art.mix(o, [92, 84, 74], 0.55); else if (h1 > 0.93) o = Art.mix(o, [204, 194, 176], 0.5);
@@ -389,6 +395,11 @@
         const topRow = tAt(tx, ty - 1) !== TER.rock, botRow = tAt(tx, ty + 1) !== TER.rock;
         const leftE = tAt(tx - 1, ty) !== TER.rock, rightE = tAt(tx + 1, ty) !== TER.rock;
         const up = rockRun(tx, ty, -1), dn = rockRun(tx, ty, 1), Hpx = (up + dn + 1) * 16, wy = up * 16 + ly, depth = wy / Hpx;
+        if (TX_FALAISE) {
+          const yt = Hpx === 64 ? wy : wy < 16 ? wy : wy >= Hpx - 16 ? 64 - (Hpx - wy) : 16 + ((wy - 16) % 32);
+          col = TX.lit(TX_FALAISE, px, yt);
+          if (leftE && lx < 2) col = Art.mix(col, [0, 0, 0], 0.25); else if (rightE && lx > 13) col = Art.mix(col, [0, 0, 0], 0.35);
+        } else {
         // colonnes de largeur inégale (9 à 15 px), légèrement ondulées
         const wx = px + (noise(px * 0.04, py * 0.025, 61) - 0.5) * 7;
         const k0 = Math.floor(wx / 20), cw = 15 + hash(k0, 0, 62) * 4, cx0 = k0 * 20 + (20 - cw) / 2 + (hash(k0, 1, 63) - 0.5) * 2;
@@ -422,6 +433,7 @@
           if (fy > 0.06 && fy < 0.14 && hash(px >> 1, seg * 7 + k0, 72) < 0.3) col = lerpPal(GRASS, 1.8 + b);   // mousse sur les corniches
         }
         if (botRow && ly >= 12) { const r = hash(px, py, 73); col = r < 0.3 ? lerpPal(ROCK, 2.6 + r * 3) : lerpPal(ROCK, 0.8 + (ly - 12) * 0.1); }   // pied : ombre et éboulis
+        }
       } else if (t === TER.cliff) {
         const face = tAt(tx, ty + 1) !== TER.cliff;
         const above = tAt(tx, ty - 1) !== TER.cliff;
@@ -447,6 +459,13 @@
         { const R0 = ROCK[2], R1 = ROCK[6]; c = s === 3 ? Art.mix(ROCK[1], [0, 0, 0], 0.1) : Art.mix(R1, R0, (s === 2 ? 0.35 : 0.1) + (1 - tone) * 2); if ((px + (Math.floor(py / 4) & 1) * 5) % 9 === 0 && s !== 3) c = ROCK[2]; }
         if (lx < 2 || lx > 13) c = Art.mix(ROCK[lx < 2 ? 5 : 2], [0, 0, 0], lx === 0 || lx === 15 ? 0.35 : 0);    // murets (même roche que la paroi)
         col = c;
+        if (TX_ESC) {
+          let x0 = tx, y0 = ty, x1 = tx, y1 = ty;
+          while (x0 > 0 && tAt(x0 - 1, ty) === TER.stairs) x0--; while (x1 < map.w - 1 && tAt(x1 + 1, ty) === TER.stairs) x1++;
+          while (y0 > 0 && tAt(tx, y0 - 1) === TER.stairs) y0--; while (y1 < map.h - 1 && tAt(tx, y1 + 1) === TER.stairs) y1++;
+          const e = TX.lit(TX_ESC, ((tx - x0) * 16 + lx) / ((x1 - x0 + 1) * 16) * 48, ((ty - y0) * 16 + ly) / ((y1 - y0 + 1) * 16) * 64);
+          if (e[3] > 40) col = e[3] > 230 ? e : Art.mix(e, col, 1 - e[3] / 255);
+        }
       } else if (t === TER.bridge && !DOCK) {
         // PONT DE PIERRE (rivières, lacs) : tablier de dalles taillées posées en quinconce, chacune éclairée en haut
         // à gauche, joints sombres, usure claire au milieu, mousse dans les joints ; PARAPETS sur les bords
@@ -660,8 +679,8 @@
     for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
       const inf = World.info(map.rows[ty][tx]);
       if (!inf.obj) continue;
-      const kind = (TH && TH.objMap && TH.objMap[inf.obj]) || inf.obj;
-      const o = OBJ[kind];
+      let kind = (TH && TH.objMap && TH.objMap[inf.obj]) || inf.obj;
+      let o = OBJ[kind];
       let v = inf.v != null ? inf.v : Math.floor(hash(tx, ty, 60) * o.n);   // (variante imposée par la case : puits plein / vide)
       if (inf.obj === 'tree' && kind !== 'tree') {
         const h = hash(tx, ty, 60);
@@ -671,6 +690,7 @@
         if (TH) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; v = TH.trees[0][0]; for (const [tv, w] of TH.trees) { if (r < w) { v = tv; break; } r -= w; } }
         else { v = h < 0.5 ? Math.floor(h * 6) : h < 0.82 ? 3 : h < 0.9 ? 4 : Math.floor(hash(tx, ty, 62) * 3); if (map.ambient !== 'forest') v = Math.floor(h * 3); }
       }
+      { const R = TX && TX.objet(map, kind, tx, ty); if (R) { kind = R; o = OBJ[R]; v = 0; } }   // (image dessinée : gfx/textures.js)
       const jx = inf.obj === 'tree' || inf.obj === 'fern' ? Math.round((hash(tx, ty, 61) - 0.5) * 4) : 0;
       if (!World.objReady(kind, v)) { if (o.frames) for (let fr = 0; fr < o.frames; fr++) { World.objFrame(kind, v, fr); yield; } else { World.obj(kind, v); yield; } }
       const anim = o.frames ? World.objFrames(kind, v) : null;
@@ -684,7 +704,8 @@
     // bouche du volcan (dessinée par game/lave.js) : ses images sont préparées avec la carte
     if (map.bouche) for (const k of ['bouche', 'bouchelave']) for (let fr = 0; fr < OBJ[k].frames; fr++) if (!World.objReady(k, 0, fr)) { World.objFrame(k, 0, fr); yield; }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
-    for (const o of map.objects || []) {
+    for (const o0 of map.objects || []) {
+      const R = TX && TX.objet(map, o0.kind, o0.x, o0.y), o = R ? { ...o0, kind: R, v: 0 } : o0;   // (image dessinée : gfx/textures.js)
       const D = OBJ[o.kind], vv = o.v || 0;
       if (!World.objReady(o.kind, vv)) { if (D.frames) for (let fr = 0; fr < D.frames; fr++) { World.objFrame(o.kind, vv, fr); yield; } else { World.obj(o.kind, vv); yield; } }
       const anim = OBJ[o.kind].frames ? World.objFrames(o.kind, o.v || 0) : null;
@@ -881,6 +902,11 @@
             const c1 = E1 ? lerpPal(E1.P, v).slice() : col.slice(), w2 = KW[k];
             col = w2 > 0 ? Art.mix(c1, E2 ? lerpPal(E2.P, v) : lerpPal(WATER, v), w2) : c1;
             if (E1) { fo0 = 1.6 * E1.fo; F1 = E1.F[0]; F2 = E1.F[1]; }
+          }
+          if (TX_LAVE.length && EAUX && K1[k] === 5 && !KW[k]) {
+            const L = TX_LAVE[f % TX_LAVE.length], dec = TX_LAVE.length === 1 ? f * 2 : 0;
+            col = TX.lit(L, px + dec, py + dec * 0.5); if (ed <= 2) col = Art.mix(col, [40, 14, 8], (3 - ed) * 0.22);
+            put(W8, OUT[k], col); continue;
           }
           if (en === TER.bridge && ed <= 4) col = Art.mix(col, [10, 30, 60], 0.4 * (1 - ed / 5));   // ombre sous le ponton
           if (en !== TER.bridge && en !== 255) {

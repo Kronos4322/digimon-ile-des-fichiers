@@ -50,14 +50,15 @@
     };
     const go = () => { try { const M = DW.getMap(id), [x0, y0] = x != null ? [+x, +y] : [M.w >> 1, M.h >> 1]; Game.replaceAll(new DW.Overworld(id, x0, y0, 'down')); DW.start(); } catch (e) { oups(e); } };
     if (!DW.MAPS[id]) { oups(new Error('carte inconnue')); return; }
-    if (document.fonts && document.fonts.load) document.fonts.load('10px "DotGothic16"').then(go, go); else go();
+    const tex = DW.Textures ? DW.Textures.charge : Promise.resolve();   // (images dessinées : gfx/textures.js)
+    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('10px "DotGothic16"'), tex]).then(go, go); else tex.then(go, go);
     return;
   }
   const boot = () => { Game.push(new DW.TitleScene()); DW.start(); };
   if (document.fonts && document.fonts.load) {
-    Promise.race([
-      Promise.all([document.fonts.load('10px "DotGothic16"'), document.fonts.load('28px "Press Start 2P"')]),
-      new Promise(r => setTimeout(r, 1500)),
+    Promise.all([
+      Promise.race([Promise.all([document.fonts.load('10px "DotGothic16"'), document.fonts.load('28px "Press Start 2P"')]), new Promise(r => setTimeout(r, 1500))]),
+      DW.Textures ? DW.Textures.charge : null,   // (images dessinées : gfx/textures.js)
     ]).then(boot, boot);
   } else boot();
 })();

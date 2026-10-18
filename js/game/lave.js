@@ -226,6 +226,13 @@
     ell(F.cx, cy2 - 6, rx2 * 1.04, ry2 * 1.08); c.fillStyle = `rgba(255,96,24,${0.16 + niv * 0.1})`; c.fill();
     c.globalCompositeOperation = 'source-over';
     ell(F.cx, cy2, rx2, ry2); c.save(); c.clip(); c.drawImage(lv[i].img, X, Y);
+    // petits cônes de lave qui fument, posés sur le lac (image dessinée « cone_lave »)
+    const cone = DW.Textures && DW.Textures.a('volcan/cone_lave');
+    if (cone && niv < 1) for (const [ux, uy, k] of [[-0.3, 0.15, 0], [0.32, 0.05, 1]]) {
+      const w = cone.naturalWidth / 4, h = cone.naturalHeight / 4, X2 = x0 + F.cx + ux * rx2, Y2 = y0 + cy2 + uy * ry2 + Math.sin(t * 1.3 + k * 2) * 0.8;
+      c.drawImage(cone, X2 - w / 2, Y2 - h, w, h);
+      const u = (t * 0.5 + k * 0.5) % 1; c.fillStyle = `rgba(226,214,204,${0.4 * (1 - u)})`; c.beginPath(); c.arc(X2 + Math.sin(t + k) * 3, Y2 - h - u * 24, 3 + u * 7, 0, 7); c.fill();
+    }
     // croûte tassée contre les parois
     ell(F.cx, cy2, rx2, ry2); c.lineWidth = 5; c.strokeStyle = 'rgba(70,18,10,0.55)'; c.stroke(); c.lineWidth = 1.6; c.strokeStyle = 'rgba(40,12,8,0.9)'; c.stroke();
     c.restore();
@@ -288,9 +295,10 @@
     if (froid < 0.6) couche(1.6, 3, `rgba(255,110,30,${0.12 * (1 - froid)})`);
     couche(1, 1.6, `rgba(${mx(96, 34, froid)},${mx(22, 26, froid)},${mx(14, 26, froid)},0.97)`, true);
     if (froid < 1) {
-      couche(0.86, 0, `rgba(${mx(222, 70, froid)},${mx(76, 40, froid)},${mx(24, 30, froid)},${1 - froid * 0.6})`);
+      const motif = froid < 0.5 && DW.Textures && map.textures ? DW.Textures.motif(c, map.textures + '/lave') : null;   // (image dessinée : gfx/textures.js)
+      couche(0.86, 0, motif || `rgba(${mx(222, 70, froid)},${mx(76, 40, froid)},${mx(24, 30, froid)},${1 - froid * 0.6})`);
       const fl = 0.85 + 0.15 * Math.sin(t * 6 + C.seed);
-      couche(0.42, 0, `rgba(255,${Math.round(200 * fl)},${Math.round(84 * fl)},${(1 - froid) * 0.95})`);
+      couche(0.42, 0, `rgba(255,${Math.round(200 * fl)},${Math.round(84 * fl)},${(1 - froid) * (motif ? 0.35 : 0.95)})`);
       // plaques de croûte noire qui dérivent avec le courant (et se cassent sur les falaises)
       c.fillStyle = `rgba(${mx(70, 30, froid)},${mx(22, 24, froid)},${mx(14, 22, froid)},${0.8 * (1 - froid * 0.5)})`;
       const pas = 9, dec = (t * C.v * 2.2) % pas;

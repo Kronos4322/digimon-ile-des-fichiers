@@ -1,0 +1,34 @@
+ASSETS DU VOLCAN (Mont Miharashi) — à fabriquer avec ChatGPT, puis à déposer ici
+==============================================================================
+
+Dès qu'un fichier ci-dessous est présent dans ce dossier, le jeu l'utilise à la place du dessin
+par code (js/gfx/textures.js). Un fichier absent = le dessin par code reste.
+Tu peux les donner au fur et à mesure, et en remplacer un quand tu veux (même nom de fichier).
+
+RÈGLES POUR TOUTES LES IMAGES
+- Format PNG.
+- Même style pixel art et même vue de 3/4 que l'image de référence (reference.png), lumière venant d'en haut à gauche.
+- Pas de personnage, pas de texte, pas de barre Faim / Soif, pas d'heure.
+- Échelle : 1 case du jeu = 64 px (Agumon fait environ 1,5 case de haut).
+
+1) TEXTURES QUI SE RÉPÈTENT : carrées, 256 x 256 px (= 4 x 4 cases)
+   Le bord droit doit raccorder avec le gauche et le haut avec le bas. Si ce n'est pas parfait, le jeu adoucit les raccords.
+   - sol_cendres.png       dalles de cendre volcanique craquelées, fines veines de lave lumineuses
+   - lave.png              surface de lave (plaques de croûte sombre, veines jaunes et orange)
+   - lave_2.png, lave_3.png, lave_4.png   (facultatif) la même lave légèrement décalée, pour l'animer
+   - dessus_falaise.png    dessus des terrasses : roche, mousse jaune-vert, herbes sèches
+
+2) PAROI DE FALAISE : 256 px de large x 256 px de haut (= 4 cases de haut), qui se répète de gauche à droite
+   - falaise_basalte.png   orgues de basalte sombres, fissures de lave, liseré de mousse en haut, pied sombre en bas
+   - paroi_cratere.png     (facultatif) paroi intérieure du cratère : blocs de basalte en rangées, lueur de lave en bas
+
+3) OBJETS DÉTOURÉS (fond transparent), posés au sol, pied en bas de l'image
+   - pic_1.png, pic_2.png, pic_3.png       pics de roche volcanique noirs veinés de feu (environ 1 x 2 cases)
+   - rocher_magma.png                      gros rocher noir fendu de lave (environ 1,5 x 1 case)
+   - fumerolle.png                         trou fumant qui rougeoie (environ 1 x 1 case)
+   - cone_lave.png                         petit cône de lave qui fume, posé sur le lac (environ 1,5 x 1 case)
+   - plante_feu_1.png, plante_feu_2.png, plante_feu_3.png   plantes rouges et orange (environ 1 x 1 case)
+   - escalier.png                          escalier de pierre sombre vu de face (3 cases de large x 4 de haut = 192 x 256 px)
+
+4) RÉFÉRENCE
+   - reference.png         ton image complète du volcan (pour que je regarde les détails de près)

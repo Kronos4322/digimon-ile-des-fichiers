@@ -428,6 +428,16 @@
     def('bouchelave', { w: 336, h: 144, n: 1, frames: 6, fps: 5, paint(x, v, f = 0) {
       const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
       const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
+      const TX = DW.Textures, LAV = TX && ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => TX.pixels('volcan/' + n, 64, 64)).filter(Boolean);   // (images dessinées)
+      if (LAV && LAV.length) {   // la lave dessinée, animée (plusieurs images) ou qui dérive doucement (une seule)
+        const P = LAV[f % LAV.length], dx = LAV.length === 1 ? ox : 0, dy = LAV.length === 1 ? oy : 0;
+        for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
+          const px = (i + 0.5) / R, py = (j + 0.5) / R, ex = (px - F.cx) / F.rx, ey = (py - F.cy) / F.ry; if (Math.hypot(ex, ey) / bord(Math.atan2(ey, ex)) >= 1.14) continue;
+          const e = TX.lit(P, px + dx, py + dy), o = (j * Wd + i) * 4; D[o] = e[0]; D[o + 1] = e[1]; D[o + 2] = e[2]; D[o + 3] = 255;
+        }
+        g.putImageData(img, 0, 0); x.imageSmoothingEnabled = true; x.drawImage(cv, 0, 0, this.w, this.h);
+        return;
+      }
       for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
         const px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, s = Math.hypot(dx, dy) / bord(Math.atan2(dy, dx));
         if (s >= 1.14) continue;
@@ -442,6 +452,7 @@
       paint(x, v, f = 0) {
         const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
         const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
+        const TX = DW.Textures, PAR = TX && TX.pixels('volcan/paroi_cratere', 64, 64), LAV = TX && TX.pixels('volcan/lave', 64, 64);   // (images dessinées : gfx/textures.js)
         const cy2 = F.cy + F.ry * 0.42, rx2 = F.rx * 0.86, ry2 = F.ry * 0.58, LIP = 0.085;
         for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
           const px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, a = Math.atan2(dy, dx), s = Math.hypot(dx, dy) / bord(a);
@@ -457,7 +468,8 @@
             al = 255 * (1 - lisse(0.55, 1, u));
             const lu = (1 - u) * 0.22 * (dy < 0 ? 0.5 : 1); r += 255 * lu * 0.6; gg += 120 * lu * 0.6; b += 40 * lu * 0.6;   // reflet de la lave sur l'arête
           } else if (s2 < 1) {
-            lavePix(px, py, ox, oy, fl, 1 - s2, lisse(0.78, 1, s2), T); r = T[0]; gg = T[1]; b = T[2];
+            if (LAV) { const e = TX.lit(LAV, px + ox, py + oy), o = lisse(0.8, 1, s2) * 0.5; r = e[0] * (1 - o); gg = e[1] * (1 - o); b = e[2] * (1 - o); }
+            else { lavePix(px, py, ox, oy, fl, 1 - s2, lisse(0.78, 1, s2), T); r = T[0]; gg = T[1]; b = T[2]; }
             if (dy > 0 && s > 0.93) { const o = lisse(0.93, 1, s) * 0.7; r *= 1 - o; gg *= 1 - o; b *= 1 - o; }   // ombre portée de la lèvre sud
           } else {
             // PAROI INTÉRIEURE : u = 0 en haut (lèvre) → 1 en bas (lave) ; strates horizontales qui suivent la courbe
@@ -469,6 +481,7 @@
             let k = sh * joint * cote * (0.85 + (nz - 0.5) * 0.3) * (1 - u * 0.25);
             if (u < 0.07) k *= 1.25;   // arête claire en haut de la paroi
             r = 70 * k; gg = 54 * k; b = 48 * k;
+            if (PAR) { const e = TX.lit(PAR, (a / TAU + 0.5) * 900, u * 64), sh2 = 0.75 + 0.25 * cote; r = e[0] * sh2; gg = e[1] * sh2; b = e[2] * sh2; }
             const lueur = Math.pow(u, 2.2) * fl * (dy < 0.4 ? 1 : 0.6); r += 255 * lueur * 0.85; gg += 100 * lueur * 0.85; b += 30 * lueur * 0.85;   // lumière de la lave
             if (u > 0.9) { const g2 = lisse(0.9, 1, u); r = r * (1 - g2) + 120 * g2; gg = gg * (1 - g2) + 30 * g2; b = b * (1 - g2) + 14 * g2; }   // pied de paroi : croûte qui rougeoie
           }

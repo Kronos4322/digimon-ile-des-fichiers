@@ -417,6 +417,7 @@
   // Un seul escalier par terrasse, toujours à l'autre bout de celle-ci : la montée est longue et se mérite.
   function mont(g, m) {
     const id = 'miharashi4', W = g.w;
+    m.textures = 'volcan';   // (images dessinées d'assets/volcan quand elles existent : gfx/textures.js)
     const foot = (x, y) => Math.hypot((x - 48) / 50, (y - 40) / 36) < 1;
     const ex10 = exitCells(m, 10);
     const prot = base(g, m, id, (x, y, X, Y) => (foot(x, y) || ex10.has(x + ',' + y) ? (N(X, Y, 961, 0.12) > 0.68 ? ',' : '.') : Hh(X, Y, 964) < 0.75 ? '#' : 'T'));
