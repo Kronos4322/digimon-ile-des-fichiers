@@ -356,6 +356,36 @@
     }
   } });
 
+  // BOULE DE LAVE (on peut marcher dessus, mais ça brûle : game/lave.js) : sol roussi, croûte sombre, cœur qui pulse,
+  // bulles qui éclatent, halo de chaleur ; 4 images
+  def('bouledelave', { w: 20, h: 14, n: 2, plat: true, frames: 4, fps: 5, paint(x, v, f = 0) {
+    const cx = 10, cy = 8, p = [0, 0.5, 1, 0.5][f];
+    const halo = x.createRadialGradient(cx, cy, 1, cx, cy, 10); halo.addColorStop(0, `rgba(255,140,40,${0.35 + p * 0.2})`); halo.addColorStop(1, 'rgba(255,90,20,0)'); x.fillStyle = halo; x.beginPath(); x.ellipse(cx, cy, 10, 6.5, 0, 0, TAU); x.fill();
+    x.fillStyle = 'rgba(30,22,20,0.75)'; x.beginPath(); x.ellipse(cx, cy + 0.5, 8, 4.8, 0, 0, TAU); x.fill();   // sol roussi
+    const pts = lump(cx, cy, 6.2 + v, 3.6, 300 + v, 10, 0.3, 0.9);
+    smooth(x, pts); x.fillStyle = '#3a1a10'; x.fill();   // croûte
+    const g = x.createRadialGradient(cx - 1, cy - 0.8, 0.3, cx, cy, 5.5); g.addColorStop(0, '#fff6c0'); g.addColorStop(0.35, `rgb(255,${Math.round(200 + p * 40)},80)`); g.addColorStop(0.75, '#f06a20'); g.addColorStop(1, '#a02a10');
+    x.save(); x.translate(cx, cy); x.scale(0.82, 0.8); x.translate(-cx, -cy); smooth(x, pts); x.fillStyle = g; x.fill(); x.restore();
+    x.strokeStyle = 'rgba(60,20,10,0.7)'; x.lineWidth = 0.5; x.beginPath(); x.moveTo(cx - 3, cy - 0.5); x.lineTo(cx - 0.5, cy + 0.8); x.lineTo(cx + 2.5, cy - 0.2); x.stroke();   // plaques de croûte
+    const b = [[cx - 2.2, cy - 0.6], [cx + 2, cy + 0.6], [cx + 0.4, cy - 1.4]][f % 3], r = [1.1, 0.8, 1.3, 0.6][f];
+    x.fillStyle = '#fff3b0'; x.beginPath(); x.arc(b[0], b[1], r, 0, TAU); x.fill(); x.strokeStyle = '#ffa040'; x.lineWidth = 0.4; x.stroke();   // bulle
+    if (f === 2) { x.fillStyle = 'rgba(255,200,80,0.9)'; for (const [dx, dy] of [[-1.6, -2.2], [1.2, -2.6], [0, -3.4]]) { x.beginPath(); x.arc(b[0] + dx, b[1] + dy, 0.45, 0, TAU); x.fill(); } }   // éclaboussure
+  } });
+  // FISSURE FUMANTE (ça brûle aussi : game/lave.js) : crevasse en zigzag au rougeoiement intérieur, bouffées de vapeur qui
+  // montent et se dissipent ; 4 images (la vapeur monte d'une image à l'autre)
+  def('fissure', { w: 26, h: 30, n: 2, plat: true, frames: 4, fps: 4, paint(x, v, f = 0) {
+    const y0 = 25, pts = v ? [[3, y0 - 1], [8, y0 + 1], [12, y0 - 1.5], [16, y0 + 1], [22, y0 - 0.5]] : [[4, y0 + 1], [9, y0 - 1], [13, y0 + 1.5], [18, y0 - 1], [23, y0 + 0.5]];
+    x.fillStyle = 'rgba(20,16,16,0.55)'; x.beginPath(); x.ellipse(13, y0, 12, 3.4, 0, 0, TAU); x.fill();   // sol noirci
+    x.lineCap = 'round'; x.lineJoin = 'round';
+    for (const [lw, col] of [[3.6, '#1a1210'], [2, `rgb(255,${110 + f * 15},40)`], [0.8, '#fff0a0']]) { x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); x.stroke(); }
+    x.strokeStyle = '#1a1210'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(9, y0 - 1); x.lineTo(7, y0 - 3.5); x.moveTo(16, y0 + 1); x.lineTo(18, y0 + 3.2); x.stroke();   // fêlures
+    for (let k = 0; k < 3; k++) {   // vapeur : trois bouffées à des hauteurs différentes selon l'image
+      const ph = ((f / 4) + k / 3) % 1, px = 8 + k * 5 + Math.sin(ph * 6 + k) * 2, py = y0 - 2 - ph * 20, r = 2.4 + ph * 4.5, a = 0.55 * (1 - ph);
+      x.fillStyle = `rgba(236,232,226,${a})`; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill();
+      x.fillStyle = `rgba(255,255,255,${a * 0.6})`; x.beginPath(); x.arc(px - r * 0.3, py - r * 0.3, r * 0.45, 0, TAU); x.fill();
+    }
+  } });
+
   // =================================================================== CÔTE
   // ROCHER CÔTIER : roche sombre et mouillée, balanes blanches, algues au pied, ourlet d'écume ; v 0 rond,
   // v 1 plat et long, v 2 double pointe
@@ -529,5 +559,5 @@
 
   // les décors plats se posent sous le héros (on marche dessus) : l'éditeur le sait grâce à « plat »
   DW.World.PLATS = new Set(Object.keys(OBJ).filter(k => OBJ[k].plat));
-  DW.World.PREMIUM = new Set(['troncouche', 'pousse', 'saule', 'fougeres', 'champignons', 'branchesmortes', 'feuillesmortes', 'rochersmousse', 'buissonfleuri', 'feuillage', 'eboulis', 'aiguille', 'cristaux', 'blocs', 'pintordu', 'rochercotier', 'coquillages', 'oyats', 'cocotier', 'corail', 'algues']);
+  DW.World.PREMIUM = new Set(['bouledelave', 'fissure', 'troncouche', 'pousse', 'saule', 'fougeres', 'champignons', 'branchesmortes', 'feuillesmortes', 'rochersmousse', 'buissonfleuri', 'feuillage', 'eboulis', 'aiguille', 'cristaux', 'blocs', 'pintordu', 'rochercotier', 'coquillages', 'oyats', 'cocotier', 'corail', 'algues']);
 })();

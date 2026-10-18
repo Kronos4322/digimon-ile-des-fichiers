@@ -252,10 +252,10 @@
   // Jamais sur un chemin, un escalier ni à côté : la montée reste lisible ; densité d (0..1) pour la route, plus clairsemée.
   const ETAGES = [null,
     [['feuillage', 1, 3], ['fougeres', 0, 3], ['pousse', 2, 2], ['rochersmousse', 1, 1.5], ['buissonfleuri', 2, 1], ['feuillesmortes', 2, 1]],
-    [['pintordu', 0, 0.6], ['blocs', 0, 1.2], ['buissonfleuri', 2, 1.6], ['eboulis', 1, 1.6], ['pousse', 2, 1.6], ['rochersmousse', 1, 1.3], ['feuillage', 1, 0.8], ['fougeres', 2, 0.8]],
-    [['aiguille', 0, 1.4], ['aiguille', 1, 0.9], ['eboulis', 0, 2.5], ['blocs', 0, 1.2], ['pintordu', 0, 0.5], ['cristaux', 2, 0.3]],
-    [['aiguille', 2, 1.2], ['eboulis', 0, 2.5], ['blocs', 0, 1.2], ['aiguille', 0, 0.8], ['cristaux', 0, 0.3]],
-    [['eboulis', 0, 3], ['aiguille', 2, 1.6], ['blocs', 0, 0.8], ['cristaux', 1, 0.4]]];
+    [['pintordu', 0, 0.35], ['blocs', 1, 0.5], ['buissonfleuri', 2, 1.8], ['eboulis', 1, 0.6], ['pousse', 2, 1.8], ['rochersmousse', 1, 0.5], ['feuillage', 1, 1.2], ['fougeres', 2, 1], ['oyats', 1, 0.8]],
+    [['aiguille', 0, 1.2], ['aiguille', 1, 1.2], ['eboulis', 0, 0.9], ['blocs', 1, 0.6], ['pintordu', 0, 0.3], ['pousse', 2, 1], ['buissonfleuri', 2, 0.8], ['cristaux', 2, 0.3]],
+    [['aiguille', 2, 1.4], ['eboulis', 0, 1], ['blocs', 1, 0.6], ['aiguille', 0, 0.8], ['cristaux', 0, 0.3]],
+    [['aiguille', 2, 2], ['eboulis', 0, 1.2], ['cristaux', 0, 0.6], ['blocs', 1, 0.4]]];
   function decorEtages(g, m, d = 1, skip) {
     const W = g.w, H = g.h, A = m.alt; if (!A) return;
     const libre = (x, y) => { const c = g.get(x, y); return c === '.' || c === ',' || c === 'j' || c === 'n' || c === 'ǥ' || c === 'ţ'; };
@@ -263,6 +263,18 @@
     const pres = (x, y) => { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const c = g.get(x + dx, y + dy); if (c === '^' || c === undefined || CH.has((y + dy) * W + x + dx) || (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && (c === ROCK || (c === '=' && A[(y + dy) * W + x + dx] < 3)))) return true; } return false; };
     const occ = new Set(); for (const o of m.objects || []) for (let yy = o.y - 1; yy <= o.y + (o.h || 1); yy++) for (let xx = o.x - 1; xx <= o.x + (o.w || 1); xx++) occ.add(xx + ',' + yy);
     // (une case posée sépare-t-elle ses voisines ? petite recherche autour d'elle, au même niveau)
+    // (place réelle d'un dessin : demi-largeur et hauteur en cases, d'après sa taille peinte)
+    const taille = k => { const o = DW.World.OBJ[k] || {}, s = o.scale || (DW.World.OBJ_SCALE && DW.World.OBJ_SCALE[k]) || 1, w = typeof o.w === 'number' ? o.w : 16, h = typeof o.h === 'number' ? o.h : 16; return [Math.ceil(w * s / 32), Math.max(1, Math.ceil(h * s / 16))]; };
+    const place = (x, y, k) => {
+      const [hw, hr] = taille(k), L0 = A[y * W + x];
+      for (let yy = y - hr + 1; yy <= y; yy++) for (let xx = x - hw; xx <= x + hw; xx++) {
+        const c = g.get(xx, yy), I = c && DW.World.CH[c];
+        if (c === undefined || c === ROCK || c === '^' || occ.has(xx + ',' + yy) || A[yy * W + xx] !== L0 || (I && I.obj)) return false;
+      }
+      for (let yy = y + 1; yy <= y + 3; yy++) for (let xx = x - hw - 1; xx <= x + hw + 1; xx++) { const I = DW.World.CH[g.get(xx, yy)]; if (I && (I.obj === 'tree' || I.obj === 'bigtree' || I.obj === 'palm')) return false; }   // (feuillage d'un arbre placé dessous)
+      return true;
+    };
+    const reserver = (x, y, k) => { const [hw, hr] = taille(k); for (let yy = y - hr; yy <= y + 1; yy++) for (let xx = x - hw - 1; xx <= x + hw + 1; xx++) occ.add(xx + ',' + yy); };
     const bloc = new Set(), D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
     const coupe = (x, y) => {
       const L = A[y * W + x], ok = (a, b) => a >= 0 && b >= 0 && a < W && b < H && (a !== x || b !== y) && A[b * W + a] === L && !DW.SOLID.has(g.get(a, b)) && !bloc.has(a + ',' + b);
@@ -273,15 +285,51 @@
     };
     for (let y = 3; y < H - 3; y++) for (let x = 3; x < W - 3; x++) {
       const L = A[y * W + x]; if (!(L >= 1 && L <= 5) || !ETAGES[L] || !libre(x, y) || pres(x, y) || occ.has(x + ',' + y) || (skip && skip(x, y))) continue;
-      const nb = N(x, y, 990 + L, 0.12), dens = [0, 0.07, 0.055, 0.05, 0.05, 0.05][L] * d * (nb > 0.56 ? 2.4 : nb > 0.45 ? 1 : 0.35);   // (en bosquets, pas en semis régulier)
+      const nb = N(x, y, 990 + L, 0.12), dens = [0, 0.1, 0.085, 0.08, 0.075, 0.07][L] * d * (nb > 0.56 ? 2.4 : nb > 0.45 ? 1 : 0.35);   // (en bosquets, pas en semis régulier)
       if (Hh(x, y, 991 + L) > dens) continue;
       const T = ETAGES[L], tot = T.reduce((a, t) => a + t[2], 0); let r = Hh(x, y, 993) * tot, pick = T[0];
       for (const t of T) { if (r < t[2]) { pick = t; break; } r -= t[2]; }
       const plat = DW.World.PLATS && DW.World.PLATS.has(pick[0]);
+      if (!place(x, y, pick[0])) continue;
       if (!plat && coupe(x, y)) continue;
       if (!plat) bloc.add(x + ',' + y);
       m.objects.push({ kind: pick[0], v: pick[1], x, y, w: 1, h: 1, ...(plat ? { walk: true } : {}) });
-      for (let yy = y - 1; yy <= y + 1; yy++) for (let xx = x - 1; xx <= x + 1; xx++) occ.add(xx + ',' + yy);
+      reserver(x, y, pick[0]);
+    }
+  }
+
+  // ------------------------------------------------------------ DANGERS DU VOLCAN (game/lave.js)
+  // boules de lave et fissures fumantes sur les étages hauts (jamais sur un sentier, un escalier, ni devant Meramon :
+  // on peut toujours les éviter) ; coulées de lave qui partent du bord du cratère et descendent sur le sommet
+  function dangers(g, m, cx, cy, crater) {
+    const W = g.w, H = g.h, A = m.alt, CH = m.chemins || new Set();
+    const loin = (x, y) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const c = g.get(x + dx, y + dy); if (c === '^' || c === ROCK || CH.has((y + dy) * W + x + dx)) return false; } return true; };
+    const occ = new Set(); for (const o of m.objects) for (let yy = o.y - 1; yy <= o.y + (o.h || 1); yy++) for (let xx = o.x - 1; xx <= o.x + (o.w || 1); xx++) occ.add(xx + ',' + yy);
+    let n = 0;
+    for (let y = 3; y < H - 3 && n < 26; y++) for (let x = 3; x < W - 3 && n < 26; x++) {
+      const L = A[y * W + x], c = g.get(x, y);
+      if (L < 4 || L === DW.Relief.PASS || (c !== 'ţ' && c !== 'ǥ') || occ.has(x + ',' + y) || !loin(x, y) || Math.hypot(x - cx, (y - cy) * 1.4) < 6) continue;
+      if (Hh(x, y, 1301) > (L === 5 ? 0.12 : 0.06)) continue;
+      const k = Hh(x, y, 1302) < 0.5 ? 'bouledelave' : 'fissure';
+      m.objects.push({ kind: k, v: Hh(x, y, 1303) < 0.5 ? 0 : 1, x, y, w: 1, h: 1, walk: true });
+      for (let yy = y - 2; yy <= y + 2; yy++) for (let xx = x - 2; xx <= x + 2; xx++) occ.add(xx + ',' + yy);
+      n++;
+    }
+    // COULÉES : du bord du cratère, la lave suit la pente (vers les cases du sommet les plus éloignées du cratère)
+    m.coulees = [];
+    if (!crater) return;
+    const ccx = crater.x + crater.w / 2, ccy = crater.y + crater.h / 2;
+    for (const [sx, sy] of [[crater.x - 1, crater.y + crater.h - 1], [crater.x + crater.w, crater.y + crater.h - 1], [crater.x + 2, crater.y + crater.h]]) {
+      const ch = [], vu = new Set(); let x = sx, y = sy;
+      for (let k = 0; k < 14; k++) {
+        if (x < 1 || y < 1 || x >= W - 1 || y >= H - 1 || A[y * W + x] !== 5 || g.get(x, y) === ROCK || vu.has(x + ',' + y)) break;
+        if (Math.hypot(x - cx, (y - cy) * 1.4) < 4) break;   // (jamais sur Meramon)
+        ch.push([x, y]); vu.add(x + ',' + y);
+        let best = null;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1]]) { const nx = x + dx, ny = y + dy; if (vu.has(nx + ',' + ny) || A[ny * W + nx] !== 5 || g.get(nx, ny) === ROCK) continue; const d = Math.hypot(nx - ccx, ny - ccy) + Hh(nx, ny, 1310 + k) * 1.2; if (!best || d > best[2]) best = [nx, ny, d]; }
+        if (!best) break; [x, y] = best;
+      }
+      if (ch.length >= 4) m.coulees.push(ch);
     }
   }
 
@@ -329,7 +377,7 @@
       surface: (x, y, L) => {
         if (L === 0) return g.get(x, y);
         const away = Math.hypot(x - cx, y - cy + 3) > 8;
-        if (L === 5) return away && Hh(x, y, 965) < 0.04 ? 'ë' : away && Hh(x, y, 966) < 0.025 ? 'ì' : 'ţ';   // cendres du volcan
+        if (L === 5) return away && Hh(x, y, 965) < 0.07 ? 'ë' : away && Hh(x, y, 966) < 0.045 ? 'ì' : 'ţ';   // cendres du volcan, roches de lave, fumerolles
         if (L === 4) { const n4 = N(x, y, 977, 0.14); return n4 > 0.62 ? 'ţ' : Hh(x, y, 978) < 0.02 ? 'ë' : 'ǥ'; }   // rocaille et coulées de cendres
         // le sol change avec l'altitude : prairie (1), herbe et terre (2), terre et rocaille (3)
         const n = N(x, y, 973 + L, 0.13);
@@ -343,9 +391,11 @@
     for (let y = 4; y < g.h - 4; y++) for (let x = 4; x < W - 4; x++) {
       if (m.alt[y * W + x] !== 0 || g.get(x, y) !== '.' || Hh(x, y, 1281) > 0.06) continue;
       let sable = false; for (let dy = -3; dy <= 3 && !sable; dy++) for (let dx = -3; dx <= 3; dx++) if (g.get(x + dx, y + dy) === 's') { sable = true; break; }
-      if (sable && !m.objects.some(o => Math.abs(o.x - x) < 4 && Math.abs(o.y - y) < 4)) m.objects.push({ kind: 'cocotier', v: Hh(x, y, 1282) < 0.5 ? 0 : 1, x, y, w: 1, h: 1, flip: Hh(x, y, 1283) < 0.5 });
+      let arbre = false; for (let dy = -3; dy <= 4 && !arbre; dy++) for (let dx = -3; dx <= 3; dx++) { const I = DW.World.CH[g.get(x + dx, y + dy)]; if (I && (I.obj === 'tree' || I.t === 'canopy')) { arbre = true; break; } }
+      if (sable && !arbre && !m.objects.some(o => Math.abs(o.x - x) < 4 && Math.abs(o.y - y) < 4)) m.objects.push({ kind: 'cocotier', v: Hh(x, y, 1282) < 0.5 ? 0 : 1, x, y, w: 1, h: 1, flip: Hh(x, y, 1283) < 0.5 });
     }
-    decorEtages(g, m, 1, (x, y) => Math.hypot(x - cx, y - cy) < 9);   // (jamais devant Meramon)
+    decorEtages(g, m, 1, (x, y) => Math.hypot(x - cx, (y - cy) * 1.4) < 6);   // (jamais devant Meramon)
+    dangers(g, m, cx, cy, crater);
     return R;
   }
 

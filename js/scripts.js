@@ -25,7 +25,7 @@
     'gfx/battlebg.js', 'gfx/grandir.js', 'gfx/facades.js', 'engine/time.js', 'gfx/ciel.js', 'gfx/meteo.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/objets.js', 'game/sauvegarde.js', 'game/fichier.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js', 'game/abri.js', 'game/paysage.js',
-    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/fxelem.js', 'game/battle.js', 'game/evolution.js',
+    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/lave.js', 'game/fxelem.js', 'game/battle.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus
     'ui/menus.js', 'ui/sac.js', 'ui/boutique.js', 'ui/nom.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/hatch.js', 'ui/renaissance.js', 'ui/farm.js', 'ui/worldmap.js',

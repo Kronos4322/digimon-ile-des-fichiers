@@ -143,6 +143,7 @@
         }
         return out;
       };
+      var rampes = [];
       for (let tour = 0; tour < 40; tour++) {
         let best = null;
         for (const C of morceaux()) {
@@ -173,6 +174,7 @@
         if (!best) break;
         m._acces.rampes++;
         for (const [tx, ty] of best.trio) { g.set(tx, ty, STAIR); alt[ty * W + tx] = PASS; vu[ty * W + tx] = 1; file.push([tx, ty]); }
+        rampes.push(best.trio);
         etendre();
       }
     }
@@ -193,6 +195,18 @@
       if (P >= 0 && comp[dn.foot * W + dn.x + 1] === P) pathOn([up.x + 1, up.top], [dn.x + 1, dn.foot], up.L);
     }
     if (o.foot) for (const s of stairs) if (lvl(s.x + 1, s.foot) === 0) pathOn(o.foot, [s.x + 1, s.foot], 0);
+    // chaque volée de marches ajoutée pour l'accès : un sentier la relie, des deux côtés, au sentier ou à l'escalier
+    // le plus proche du même niveau (sinon on ne la verrait pas)
+    for (const R of rampes || []) for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
+      const [cx, cy] = R[1], sx = cx + dx, sy = cy + dy, L = lvl(sx, sy); if (L < 0 || L === PASS || !walk(sx, sy)) continue;
+      const prev = new Map([[sy * W + sx, -1]]), q = [[sx, sy]]; let fin = -1;
+      for (let h = 0; h < q.length && fin < 0 && h < 4000; h++) {
+        const [x, y] = q[h];
+        if (h > 0 && (chemins.has(y * W + x) || [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([ex, ey]) => g.get(x + ex, y + ey) === STAIR && !R.some(([rx, ry]) => rx === x + ex && ry === y + ey)))) { fin = y * W + x; break; }
+        for (const [ex, ey] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + ex, ny = y + ey, k = ny * W + nx; if (nx < 0 || ny < 0 || nx >= W || ny >= H || prev.has(k) || lvl(nx, ny) !== L || !walk(nx, ny)) continue; prev.set(k, y * W + x); q.push([nx, ny]); }
+      }
+      if (fin >= 0) for (let k = fin; k >= 0; k = prev.get(k)) { const x = k % W, y = Math.floor(k / W); chemins.add(k); if (g.get(x, y) !== STAIR) g.set(x, y, o.pathCh || '='); }
+    }
     // altitude des cases de paroi = celle du pied de la paroi ; collision par dénivelé ; rebords peints sur le sol
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (g.get(x, y) === ROCK && alt[y * W + x] !== PASS) { let k = y; while (k < H && g.get(x, k) === ROCK) k++; alt[y * W + x] = k < H && alt[k * W + x] !== PASS ? alt[k * W + x] : 0; }
     m.alt = alt; m.reliefStairs = stairs; m.massif = M; m.altBord = true; m.chemins = chemins;

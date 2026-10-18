@@ -107,6 +107,7 @@
     // ---------------------------------------------------------- logique
     update(dt) {
       if (DW.Relief) DW.Relief.track(this);   // altitude logique du héros (maps/relief.js)
+      if (DW.Lave) DW.Lave.update(this, dt);   // coulées de lave du Mont Miharashi (game/lave.js)
       const P = this.p;
       if (P.moving) {
         P.t += dt / P.dur;
@@ -117,6 +118,8 @@
         if (P.forced) { P.forced = false; const r = P.forcedR; P.forcedR = null; r && r(); return; }
         const ev = this.checkStep();
         if (ev) { this.runScript(ev); return; }
+        const brule = DW.Lave && DW.Lave.pas(this);   // boule de lave, fissure fumante, coulée (game/lave.js)
+        if (brule) { this.runScript(brule); return; }
         // enchaînement fluide si la direction reste tenue
         if (!this.locked) { const v = Input.vec(); if (v.x || v.y) this.walk(v, over); }
         return;
@@ -498,6 +501,7 @@
       const vx0 = cx - 48, vx1 = cx + W + 48, vy0 = cy - 16, vy1 = cy + H + 64;
       if (this.wet > 0.02 && g.puddles) this.drawPuddles(c, g.puddles, vx0, vx1, vy0, vy1);
       DW.Vivant.drawGround(this, c, vx0, vx1, vy0, vy1);
+      if (DW.Lave) DW.Lave.draw(this, c);   // coulées de lave (sous les personnages)
       // herbes hautes (couche arrière)
       const tallFrame = (tx, ty) => this.rustle[tx + ',' + ty] ? Math.floor(this.t * 14) % 3 : [0, 1, 2, 1][Math.floor(this.t * 1.6 + tx * 0.4 + ty * 0.25) % 4];
       for (const tg of g.tall) {
@@ -615,6 +619,7 @@
         UI.text(c, label, X + w / 2, Y + 9, { size: 7, align: 'center', color: '#ffffff' });
       }
       if (DW.Relief && DW.Relief.debug) DW.Relief.drawDebug(this, c, vx0, vx1, vy0, vy1);   // vue de développement (?debug=geo puis G)
+      if (DW.Lave) DW.Lave.drawTop(this, c);   // PV perdus dans la lave
       // barrières de données sur les passages encore fermés
       for (const w of this.map.warps || []) if (w.cond && !w.cond(DW.state)) {
         for (let yy = w.y; yy < w.y + (w.h || 1); yy++) for (let xx = w.x; xx < w.x + (w.w || 1); xx++) {
