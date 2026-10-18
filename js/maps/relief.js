@@ -15,7 +15,7 @@
 // =====================================================================
 (function () {
   const Hh = DW.Art.hash, fbm = DW.Art.fbm;
-  const ROCK = 'Ŵ', STAIR = '^', WALL = 3, PASS = 255;
+  const ROCK = 'Ŵ', STAIR = '^', WALL0 = 3, PASS = 255;
 
   // ------------------------------------------------------------ massifs : fonctions d'altitude en coordonnées du monde
   // (chaque carte d'un massif a un décalage mondial [ox, oy], calculé en alignant les passages entre voisines)
@@ -52,7 +52,7 @@
     let M = null, off = [0, 0];
     if (!o.levelAt) { [M, off] = offset(o.id); if (!M) return null; }
     const levelAt = o.levelAt || ((x, y) => M.level(x + off[0], y + off[1]));
-    const W = g.w, H = g.h, alt = new Uint8Array(W * H);
+    const W = g.w, H = g.h, alt = new Uint8Array(W * H), WALL = o.wall || WALL0;   // (o.wall : parois plus hautes sur une vraie montagne)
     const lvl = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? -1 : alt[y * W + x]);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const ch = g.get(x, y);

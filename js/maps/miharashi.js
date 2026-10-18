@@ -119,8 +119,8 @@
     for (let y = 0; y < g.h; y++) for (let x = 0; x < g.w; x++) {
       const X = x + ox, Y = y + oy, d = shore(X, Y), k = x + ',' + y;
       if (ex.has(k)) { g.set(x, y, d > -2 ? 's' : '='); prot.add(k); continue; }
-      if (d > 0) { g.set(x, y, Hh(X, Y, 1231) < (d < 3 ? 0.04 : 0.006) ? 'R' : '~'); prot.add(k); continue; }
-      if (d > -3.5) { g.set(x, y, Hh(X, Y, 1232) < 0.05 ? 'R' : Hh(X, Y, 1233) < 0.08 ? ';' : 's'); prot.add(k); continue; }
+      if (d > 0) { g.set(x, y, Hh(X, Y, 1231) < (d < 3 ? 0.018 : 0.002) ? 'R' : '~'); prot.add(k); continue; }
+      if (d > -3.5) { g.set(x, y, Hh(X, Y, 1232) < 0.02 ? 'R' : Hh(X, Y, 1233) < 0.08 ? ';' : 's'); prot.add(k); continue; }
       g.set(x, y, ground(x, y, X, Y));
     }
     return prot;
@@ -251,18 +251,18 @@
   // Jamais sur un chemin, un escalier ni à côté : la montée reste lisible ; densité d (0..1) pour la route, plus clairsemée.
   const ETAGES = [null,
     [['feuillage', 1, 3], ['fougeres', 0, 3], ['pousse', 2, 2], ['rochersmousse', 1, 1.5], ['buissonfleuri', 2, 1], ['feuillesmortes', 2, 1]],
-    [['pintordu', 0, 1.6], ['blocs', 0, 1.4], ['buissonfleuri', 2, 1.5], ['eboulis', 1, 2], ['pousse', 2, 1.5], ['rochersmousse', 1, 1]],
-    [['aiguille', 0, 1.6], ['aiguille', 1, 1], ['eboulis', 0, 2.5], ['blocs', 0, 1.2], ['pintordu', 0, 0.6]],
-    [['eboulis', 0, 3], ['cristaux', 1, 0.6], ['aiguille', 2, 0.8]]];
+    [['pintordu', 0, 0.6], ['blocs', 0, 1.2], ['buissonfleuri', 2, 1.6], ['eboulis', 1, 1.6], ['pousse', 2, 1.6], ['rochersmousse', 1, 1.3], ['feuillage', 1, 0.8], ['fougeres', 2, 0.8]],
+    [['aiguille', 0, 1.4], ['aiguille', 1, 0.9], ['eboulis', 0, 2.5], ['blocs', 0, 1.2], ['pintordu', 0, 0.5], ['cristaux', 2, 0.3]],
+    [['eboulis', 0, 3], ['aiguille', 2, 1.6], ['blocs', 0, 0.8], ['cristaux', 1, 0.4]]];
   function decorEtages(g, m, d = 1, skip) {
     const W = g.w, H = g.h, A = m.alt; if (!A) return;
-    const libre = (x, y) => { const c = g.get(x, y); return c === '.' || c === ',' || c === 'j' || c === 'n' || (c === '=' && m.alt[y * g.w + x] >= 3); };
+    const libre = (x, y) => { const c = g.get(x, y); return c === '.' || c === ',' || c === 'j' || c === 'n' || c === 'ǥ' || c === 'ţ'; };
     const CH = m.chemins || new Set();
     const pres = (x, y) => { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const c = g.get(x + dx, y + dy); if (c === '^' || c === undefined || CH.has((y + dy) * W + x + dx) || (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && (c === ROCK || (c === '=' && A[(y + dy) * W + x + dx] < 3)))) return true; } return false; };
     const occ = new Set(); for (const o of m.objects || []) for (let yy = o.y - 1; yy <= o.y + (o.h || 1); yy++) for (let xx = o.x - 1; xx <= o.x + (o.w || 1); xx++) occ.add(xx + ',' + yy);
     for (let y = 3; y < H - 3; y++) for (let x = 3; x < W - 3; x++) {
       const L = A[y * W + x]; if (!(L >= 1 && L <= 4) || !libre(x, y) || pres(x, y) || occ.has(x + ',' + y) || (skip && skip(x, y))) continue;
-      const dens = [0, 0.055, 0.05, 0.045, 0.035][L] * d * (0.5 + N(x, y, 990 + L, 0.12));
+      const nb = N(x, y, 990 + L, 0.12), dens = [0, 0.07, 0.055, 0.05, 0.05][L] * d * (nb > 0.56 ? 2.4 : nb > 0.45 ? 1 : 0.35);   // (en bosquets, pas en semis régulier)
       if (Hh(x, y, 991 + L) > dens) continue;
       const T = ETAGES[L], tot = T.reduce((a, t) => a + t[2], 0); let r = Hh(x, y, 993) * tot, pick = T[0];
       for (const t of T) { if (r < t[2]) { pick = t; break; } r -= t[2]; }
@@ -307,23 +307,30 @@
     const id = 'miharashi4', W = g.w;
     const foot = (x, y) => Math.hypot((x - 48) / 50, (y - 40) / 36) < 1;
     const ex10 = exitCells(m, 10);
-    const prot = base(g, m, id, (x, y, X, Y) => (foot(x, y) || ex10.has(x + ',' + y) ? (N(X, Y, 961, 0.12) > 0.68 ? ',' : Hh(X, Y, 962) < 0.025 ? 'Ô' : '.') : Hh(X, Y, 964) < 0.75 ? '#' : 'T'));
+    const prot = base(g, m, id, (x, y, X, Y) => (foot(x, y) || ex10.has(x + ',' + y) ? (N(X, Y, 961, 0.12) > 0.68 ? ',' : '.') : Hh(X, Y, 964) < 0.75 ? '#' : 'T'));
     const [cx, cy] = MONT.meramon, crater = m.objects.find(o => o.kind === 'cratere');
     const R = DW.Relief.build(g, m, { id, keep: (x, y) => prot.has(x + ',' + y), corridor: (x, y) => ex10.has(x + ',' + y), levelAt: (x, y) => levelOf(id, x, y),
       foot: [W - 4, Math.round(m.exits.right[0] + 2)],   // (on arrive de la route, à l'est)
+      wall: 4,   // (une vraie montagne : des falaises de 4 cases par niveau)
       firstStair: a => -Math.abs(a[0] + 1 - cx),   // l'escalier du sommet est au bout du plateau, loin de Meramon
       surface: (x, y, L) => {
         if (L === 0) return g.get(x, y);
         const away = Math.hypot(x - cx, y - cy + 3) > 8;
-        if (L === 4) return away && Hh(x, y, 965) < 0.04 ? 'ë' : away && Hh(x, y, 966) < 0.025 ? 'ì' : '=';
+        if (L === 4) return away && Hh(x, y, 965) < 0.04 ? 'ë' : away && Hh(x, y, 966) < 0.025 ? 'ì' : 'ţ';   // cendres du volcan
         // le sol change avec l'altitude : prairie (1), herbe et terre (2), terre et rocaille (3)
         const n = N(x, y, 973 + L, 0.13);
         if (L === 1) return Hh(x, y, 970 + L) < 0.02 ? 'T' : n > 0.72 ? ',' : n < 0.3 ? 'j' : '.';
-        if (L === 2) return n > 0.6 ? '=' : n < 0.25 ? 'j' : '.';
-        return n > 0.3 ? '=' : '.';   // (haut de la montagne : surtout de la terre et de la rocaille, quelques plaques d'herbe)
+        if (L === 2) return n > 0.62 ? 'ǥ' : n < 0.25 ? 'j' : '.';
+        return n > 0.28 ? 'ǥ' : '.';   // (haut de la montagne : rocaille, quelques plaques d'herbe ; les sentiers en terre battue ressortent)
       } });
     // devant le cratère : un replat dégagé où se dresse Meramon
-    if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 4 && g.get(x, y) !== ROCK) g.set(x, y, '=');
+    if (crater) for (let y = crater.y + crater.h; y <= cy + 2; y++) for (let x = cx - 4; x <= cx + 4; x++) if (m.alt[y * W + x] === 4 && g.get(x, y) !== ROCK) g.set(x, y, 'ţ');
+    // cocotiers penchés au bord de la plage, au pied du mont (côté est, l'arrivée)
+    for (let y = 4; y < g.h - 4; y++) for (let x = 4; x < W - 4; x++) {
+      if (m.alt[y * W + x] !== 0 || g.get(x, y) !== '.' || Hh(x, y, 1281) > 0.06) continue;
+      let sable = false; for (let dy = -3; dy <= 3 && !sable; dy++) for (let dx = -3; dx <= 3; dx++) if (g.get(x + dx, y + dy) === 's') { sable = true; break; }
+      if (sable && !m.objects.some(o => Math.abs(o.x - x) < 4 && Math.abs(o.y - y) < 4)) m.objects.push({ kind: 'cocotier', v: Hh(x, y, 1282) < 0.5 ? 0 : 1, x, y, w: 1, h: 1, flip: Hh(x, y, 1283) < 0.5 });
+    }
     decorEtages(g, m, 1, (x, y) => Math.hypot(x - cx, y - cy) < 9);   // (jamais devant Meramon)
     return R;
   }

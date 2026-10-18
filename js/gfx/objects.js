@@ -15,6 +15,8 @@
     'f': { t: 'grass', deco: 'flowers' }, 'q': { t: 'lawn', deco: 'flowers2' }, 'm': { t: 'grass', deco: 'mushrooms' },
     'Ŵ': { t: 'rock', solid: true },
     // EAUX (peintes dans l'éditeur, case par case ; « ~ » garde l'eau de l'ambiance de la carte) : gfx/terrain.js, World.EAUX
+    // SOLS DE MONTAGNE : rocaille (terre semée de cailloux) et cendres volcaniques (sombres, quelques braises) : gfx/terrain.js
+    'ǥ': { t: 'dirt', sol: 1, deco: 'gravier', nom: 'Rocaille' }, 'ţ': { t: 'dirt', sol: 2, nom: 'Cendres volcaniques' },
     '≈': { t: 'water', solid: true, eau: 1 }, '∼': { t: 'water', solid: true, eau: 2 }, '≋': { t: 'water', solid: true, eau: 3 }, '≃': { t: 'water', solid: true, eau: 4 },   // paroi rocheuse haute (montagnes en terrasses façon Digimon World 2003 : gfx/terrain.js)
     'C': { t: 'cliff', solid: true }, '%': { t: 'pastel', solid: true }, '^': { t: 'stairs' }, '#': { t: 'canopy', solid: true },
     'T': { t: 'grass', obj: 'tree', solid: true }, 'b': { t: 'grass', obj: 'bush', solid: true },

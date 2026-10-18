@@ -76,6 +76,19 @@
     let tp = t0; const lap = k => { const n = performance.now(); prof[k] = Math.round(n - tp); tp = n; };
     const GW = map.w * TS, GH = map.h * TS, N = GW * GH;
     const tt = map.rows.map(r => [...r].map(ch => TER[World.info(ch).t]));
+    // sols spéciaux de la terre (rocaille, cendres) : une valeur par case, 0 = terre ordinaire
+    let SOLK = null; for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) { const I = World.CH[map.rows[ty][tx]]; if (I && I.sol) { if (!SOLK) SOLK = new Uint8Array(map.w * map.h); SOLK[ty * map.w + tx] = I.sol; } }
+    const solVar = (c, k, px, py) => {
+      if (k === 1) {   // rocaille : terre grisée, taches de gravier plus sombres et plus claires
+        let o = Art.mix(c, [140, 130, 114], 0.5); const h1 = hash(px >> 1, py >> 1, 601);
+        if (h1 < 0.16) o = Art.mix(o, [92, 84, 74], 0.55); else if (h1 > 0.93) o = Art.mix(o, [204, 194, 176], 0.5);
+        return o;
+      }
+      let o = Art.mix(c, [62, 56, 56], 0.72); const h2 = hash(px, py, 603);   // cendres : gris très sombre, grain clair, rares braises
+      if (h2 < 0.05) o = Art.mix(o, [118, 108, 104], 0.6); else if (h2 > 0.9975) o = [236, 118, 44];
+      if (noise(px * 0.05, py * 0.05, 604) > 0.72) o = Art.mix(o, [96, 40, 30], 0.25);   // reflets rougeâtres de la chaleur
+      return o;
+    };
     const tAt = (x, y) => tt[DW.clamp(y, 0, map.h - 1)][DW.clamp(x, 0, map.w - 1)];
     // (ponts : pontons de bois au bord de la mer, ponts de pierre partout ailleurs)
     const DOCK = map.region === 'plage' || map.dock;   // (seules les zones de plage gardent leurs pontons de bois)
@@ -268,6 +281,7 @@
           col = [col[0] + (gc[0] - col[0]) * k, col[1] + (gc[1] - col[1]) * k, col[2] + (gc[2] - col[2]) * k];
         }
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
+        if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
       } else if (t === TER.lawn && LUSH) {
         // pelouse (Village des Bébés) : mêmes brins fins, palette pastel, fleurs semées
         if (en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2 && hash(px, py, 315) < (3 - ed) / 4) col = lerpPal(SAND, 3.4 + (hash(px, py, 316) - 0.5));
@@ -288,6 +302,7 @@
         v -= SH[i] * 0.2;
         col = DIRT[DW.clamp(Math.round(v), 0, 5)];
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.06) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);
+        if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
       } else if (t === TER.sand) {
         const r = Math.sin(px * 0.2 + S8(px, py) * 9 + py * 0.55);
         let v = 3.2 + (S9(px, py) - 0.5) * 1.6 + b * 0.7 + (r > 0.9 ? -1 : r < -0.96 ? 1 : 0);
@@ -578,6 +593,13 @@
           if (r < 0.4) { const c = ['#ffe0e8', '#fff4e0', '#ffd0b8'][k]; set(x, y, c); set(x - 1, y + 1, c); set(x + 1, y + 1, c); set(x, y + 1, '#d8a8a8'); }
           else if (r < 0.7) { const c = k % 2 ? '#f07a3a' : '#e85a6a'; set(x, y - 1, c); set(x - 1, y, c); set(x, y, c); set(x + 1, y, c); set(x - 1, y + 1, c); set(x + 1, y + 1, c); }
           else { set(x, y, '#f8f4ec'); set(x + 1, y, '#e8dcc8'); }
+          continue;
+        }
+        if (kind === 'gravier') {
+          if (k > 3) continue;
+          const s = 1 + Math.floor(hash(tx, ty, 70 + k) * 2);
+          for (let yy = 0; yy <= s; yy++) for (let xx = 0; xx <= s + 1; xx++) set(x + xx, y + yy, yy === 0 || xx === 0 ? '#c8bea8' : yy === s || xx === s + 1 ? '#5e564c' : '#968c7c');
+          set(x + s + 2, y + s + 1, '#3a342e');   // (ombre)
           continue;
         }
         if (kind === 'weeds') {
