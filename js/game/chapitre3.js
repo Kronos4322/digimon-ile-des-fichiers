@@ -29,17 +29,18 @@
       if (f && f.v !== v) { f.v = v; if (this.gfx) DW.World.unprepare(this); }
       if (this.ch3Set) return;
       this.ch3Set = true;
-      const folk = (x, y, lines) => ({ sp: 'yokomon', x, y, face: 'down', wander: 2, talk: async () => { await say(pick(lines()), 'Yokomon'); } });
+      const at = (x, y) => DW.MapKit.freeNear(this, x, y);   // (la place prévue peut être prise par une hutte de l'auberge)
+      const folk = (X, Y, lines) => { const [x, y] = at(X, Y); return { sp: 'yokomon', x, y, face: 'down', wander: 2, talk: async () => { await say(pick(lines()), 'Yokomon'); } }; };
       this.npcs.push(
-        { sp: 'yokomon', x: 59, y: 36, face: 'left', talk: () => chief() },
+        { sp: 'yokomon', x: at(59, 36)[0], y: at(59, 36)[1], face: 'left', talk: () => chief() },
         folk(50, 40, () => freed() ? ["L'eau ! L'eau est revenue ! Mes fleurs vont refleurir !", "Meramon est venu s'excuser. Il avait l'air tout gêné, hihi."] : ["Il fait si chaud... Mes pétales se dessèchent.", "La nuit, on voit des flammes au sommet du Mont Miharashi."]),
         folk(63, 41, () => freed() ? ['On va faire une grande fête autour de la fontaine !'] : ["Le lac a presque séché. On voit même la vieille épave, au milieu !", "On dit que ce bateau est là depuis toujours. Personne ne sait d'où il vient."]),
         folk(53, 45, () => freed() ? ['Merci, merci, merci !'] : ["Meramon était gentil, avant... Il veillait sur la montagne.", "Une drôle de chose noire est tombée du ciel sur le Mont Miharashi. Depuis, Meramon a changé."]),
         folk(61, 46, () => ["Les poteaux du désert ? Ils étaient là avant nous. Ils ne mènent nulle part...", "Bienvenue au Village des Yokomon !"]),
         // la jardinière : une fois l'eau revenue, le mini-jeu d'arrosage (game/minijeux.js)
-        { sp: 'yokomon', x: 47, y: 41, face: 'right', cond: () => freed(), talk: () => DW.MiniJeux.arrosage('Yokomon jardinière') },
-        { hero: 'sora', x: 50, y: 36, face: 'right', cond: soraHere, talk: ow => soraTalk(ow) },
-        { sp: 'biyomon', x: 51, y: 37, face: 'left', cond: soraHere, talk: async () => { await say(st().flags.soraMet ? "Je protégerai Sora ! Même contre Meramon !" : "Cui ! Tu viens de la forêt ? Va parler à Sora, elle cherche de l'aide !", 'Biyomon'); } },
+        { sp: 'yokomon', x: at(47, 41)[0], y: at(47, 41)[1], face: 'right', cond: () => freed(), talk: () => DW.MiniJeux.arrosage('Yokomon jardinière') },
+        { hero: 'sora', x: at(50, 36)[0], y: at(50, 36)[1], face: 'right', cond: soraHere, talk: ow => soraTalk(ow) },
+        { sp: 'biyomon', x: at(51, 37)[0], y: at(51, 37)[1], face: 'left', cond: soraHere, talk: async () => { await say(st().flags.soraMet ? "Je protégerai Sora ! Même contre Meramon !" : "Cui ! Tu viens de la forêt ? Va parler à Sora, elle cherche de l'aide !", 'Biyomon'); } },
       );
     };
     V.onEnter = async ow => {
@@ -81,11 +82,12 @@
   const M = MAPS.miharashi4;
   if (M) {
     M.signs = M.signs || {};
-    M.signs['49,20'] = "Le cratère du Mont Miharashi. Une chaleur terrible en monte.";
+    const MT = DW.Mih.MONT;   // (positions de la carte dessinée : maps/miharashi.js)
+    M.signs[(MT.crater[0] + 5) + ',' + (MT.crater[1] + 5)] = "Le cratère du Mont Miharashi. Une chaleur terrible en monte.";
     M.populate = function () {
       if (this.ch3Set) return;
       this.ch3Set = true;
-      this.npcs.push({ sp: 'meramon', x: 48, y: 24, face: 'down', gear: true, cond: s => ch3() && !s.flags.meramon, talk: ow => meramonFight(ow) });
+      this.npcs.push({ sp: 'meramon', x: MT.meramon[0], y: MT.meramon[1], face: 'down', gear: true, cond: s => ch3() && !s.flags.meramon, talk: ow => meramonFight(ow) });
     };
     M.onEnter = async ow => {
       const s = st();

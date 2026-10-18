@@ -292,6 +292,18 @@
     for (let x = 18; x < 22; x++) for (const y of [13, 14]) m.signs[`${x},${y}`] = fountainUse;
     if (has('kunemon')) for (let x = BANK.x; x < BANK.x + BANK.w; x++) if (x < BANK.x + 2 || x > BANK.x + 3) m.signs[`${x},${BANK.y + BANK.h - 1}`] = 'LA BANQUE DE KUNEMON — entre par la porte : Kunemon garde tes objets en trop.';
     zoomMap(m, 'village');   // plan agrandi ×2 (maps/common.js)
+    // RACCORD AVEC LA PLAGE DES CABINES (à l'ouest) : la route d'entrée longe le haut d'une falaise et, en dessous,
+    // c'est la mer, comme de l'autre côté de la frontière. La côte se prolonge donc ici : falaise sous la route,
+    // puis plage et mer à l'ouest de la rivière (qui se jette dans la mer). La ville elle-même ne change pas.
+    { const g = m.rows.map(r => [...r]), road = m.warps.find(w => w.to === 'plage'), y0 = road ? road.y + road.h : 32;
+      for (let y = y0; y < g.length; y++) {
+        const k = y - y0, sea = Math.min(3, 1 + Math.floor(k / 3) + (DW.Art.hash(y, 1, 771) < 0.4 ? 1 : 0));
+        for (let x = 0; x < 4; x++) {
+          if (g[y][x] === '~' || g[y][x] === '_') continue;
+          g[y][x] = k < 2 ? 'C' : x < sea ? '~' : (DW.Art.hash(x, y, 772) < 0.15 ? 'R' : 's');
+        }
+      }
+      m.rows = g.map(r => r.join('')); }
     m.paintGround = c => paintTown(c, m, lvl);   // sol peint par-dessus les cases : place, bords des chemins, pelouses
     // grand panneau d'affichage de la ville, à droite de la maison de Jijimon : une note épinglée par habitant revenu
     { const J = m.objects.find(o => o.kind === 'jhouse'), bx = J.x + J.w + 1, by = J.y + J.h - 1;
@@ -600,7 +612,7 @@
     build,
     onEnter: () => DW.Town.reveal(),
     rows: null, objects: [], npcs: [],
-    warps: [{ x: 0, y: 13, w: 1, h: 3, dir: 'left', to: 'plage', tx: 39, ty: 1 }, { x: 11, y: 0, w: 2, h: 1, dir: 'up', to: 'residentiel', tx: 41, ty: 60 }, { x: 19, y: 29, w: 2, h: 1, dir: 'down', to: 'gym', tx: 15, ty: 0 },
+    warps: [{ x: 0, y: 13, w: 1, h: 3, dir: 'left', to: 'plage', tx: 39, ty: 1 }, { x: 11, y: 0, w: 2, h: 1, dir: 'up', to: 'residentiel', tx: 41, ty: 60 }, { x: 19, y: 29, w: 2, h: 1, dir: 'down', to: 'gym', tx: 15, ty: 0, enclos: true },   // (portail du terrain d'entraînement : une transition d'enclos, pas une frontière de carte)
       { x: 5, y: 29, w: 2, h: 1, dir: 'down', to: 'champs', tx: 5, ty: 0 }],
     doors: [],
     // la route de l'est (Montagne de l'Infini) est gardée par la porte de région (regions.js : GATE.montagne)

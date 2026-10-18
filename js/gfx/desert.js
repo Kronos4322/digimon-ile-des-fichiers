@@ -9,20 +9,25 @@
 (function () {
   const OBJ = DW.World.OBJ, TH = DW.World.THEMES, hash = DW.Art.hash;
 
+  // palettes COMMUNES au pays de Meramon : de part et d'autre d'une frontière, la même herbe, la même terre, le même
+  // sable et le même feuillage (sinon une ligne droite apparaît au raccord, même quand le terrain se poursuit)
+  const GREEN = ['#3e6a2e', '#4a7a36', '#588a40', '#68984a', '#7aa856', '#8eb866'];
+  const DIRT = ['#6e5638', '#82683f', '#977c4c', '#ac905c', '#c0a46e', '#d4b884'];
+  const SAND = ['#c8bc94', '#d4c8a2', '#ded4b0', '#e8debe', '#f0e8cc', '#f8f2dc'];
+  const LEAF = ['#1e3a1a', '#284a22', '#345c2a', '#426e34', '#52803e', '#64924a'];
   Object.assign(TH, {
     // désert des poteaux : terre pâle gris-vert, sable clair, lisières de roche basse
-    desert: { grass: ['#8e8c70', '#9e9c7e', '#b0ad8c', '#c0bc9a', '#cecaa8', '#dcd8ba'], canopy: ['#4a4434', '#5c5440', '#6e664c', '#82785a', '#968c6a', '#aca07c'], canopyStyle: 'rock',
-      dirt: ['#8a7a5a', '#9c8a66', '#ae9c74', '#c0ae84', '#d0c096', '#e0d2aa'], sand: ['#c8bc94', '#d4c8a2', '#ded4b0', '#e8debe', '#f0e8cc', '#f8f2dc'],
+    desert: { grass: ['#8e8c70', '#9e9c7e', '#b0ad8c', '#c0bc9a', '#cecaa8', '#dcd8ba'], canopy: LEAF, dirt: DIRT, sand: SAND,
       cliff: ['#5a4e3c', '#6c5e48', '#807056', '#948466', '#a89878', '#bcae8e'], tall: ['#7a7a5a', '#a4a27e', '#d0ceaa'], trees: [[0, 1]],
-      objMap: { tree: 'drybush', bush: 'drybush', mossrock: 'boulder', fern: 'drybush', glowshroom: 'drybush', hollowlog: 'boulder', stump: 'drybush' }, trees2: [[0, 1]],
+      rock: ['#4a2e1e', '#623c26', '#7c4e30', '#96623c', '#b07a4a', '#c8945c', '#dcae72', '#ecc890'],
+      objMap: { bush: 'drybush', mossrock: 'boulder', fern: 'drybush', glowshroom: 'drybush', hollowlog: 'boulder', stump: 'drybush' }, trees2: [[0, 1]],
       litter: ['#c8c0a0', '#8a8466'], particle: 'dust', leaves: ['#d8d0b0', '#b8b090'], noFlowers: true, noFlies: true, sky: ['#5aa8f0', '#f4f6ff'], marks: ['telpole', 'roadsign'], vignette: 'rgba(80,70,40,0.22)' },
     // village des Yokomon : terre battue claire, herbe rase verte (les Yokomon entretiennent leurs fleurs)
-    yokovillage: { grass: ['#5a8a3a', '#6a9a44', '#7cac50', '#90bc5e', '#a4ca70', '#b8d684'], canopy: ['#1a3a1a', '#244a22', '#30602c', '#3e7436', '#4e8842', '#62a050'], dirt: ['#9a8660', '#ac986e', '#bcaa7e', '#ccbc90', '#dacca2', '#e6dab4'],
-      sand: ['#c8bc94', '#d4c8a2', '#ded4b0', '#e8debe', '#f0e8cc', '#f8f2dc'], tall: ['#4a7a2a', '#7aaa4a', '#b4dc84'], trees: [[0, 1]], trees2: [[0, 1], [1, 1]],
+    yokovillage: { grass: GREEN, canopy: LEAF, dirt: DIRT, sand: SAND, tall: ['#4a7a2a', '#7aaa4a', '#b4dc84'], trees: [[0, 1]], trees2: [[0, 1], [1, 1]],
       litter: ['#e0d8b8', '#7a9a4a'], particle: 'petals', leaves: ['#5a8ae0', '#f0a0c8', '#ffe070'], sky: ['#5aa8f0', '#f4f6ff'], vignette: 'rgba(60,50,20,0.15)' },
     // Mont Miharashi : pentes vertes en terrasses (comme dans l'anime), roche brune, braises au sommet
-    miharashi: { grass: ['#3e6a2e', '#4a7a36', '#588a40', '#68984a', '#7aa856', '#8eb866'], canopy: ['#1e3a1a', '#284a22', '#345c2a', '#426e34', '#52803e', '#64924a'],
-      dirt: ['#6a5034', '#80643f', '#977a4c', '#ad905c', '#c2a670', '#d6bc86'], cliff: ['#3a4a2a', '#4a5a34', '#5a6c3e', '#6c7e4a', '#809258', '#94a66a'],
+    miharashi: { rock: ['#2e2a24', '#423a30', '#584c3c', '#6e5e4a', '#86725a', '#a08a6c', '#b8a282', '#d0bc9c'], grass: GREEN, canopy: LEAF, sand: SAND,
+      dirt: DIRT, cliff: ['#3a4a2a', '#4a5a34', '#5a6c3e', '#6c7e4a', '#809258', '#94a66a'],
       tall: ['#3a6a2a', '#5a9a3a', '#a4d474'], trees: [[0, 1]], trees2: [[0, 1], [1, 1]], litter: ['#8aa860', '#5a7a3a'], particle: 'ember', leaves: ['#ffb040', '#ff7020'], sky: ['#6ab0f0', '#fff0e0'], vignette: 'rgba(40,20,0,0.2)' },
   });
 
@@ -207,6 +212,57 @@
       x.restore();
     } };
 
+  // ------------------------------------------------------------ CRATÈRE DU MONT MIHARASHI : grand cratère au sommet
+  // lèvre de basalte noir (plus haute au fond, plus basse devant : on voit dedans), lac de lave qui bouillonne
+  // (croûte sombre craquelée, veines jaunes, bulles), braises, coulées figées sur les flancs. 4 images animées.
+  OBJ.cratere = { w: 176, h: 124, n: 1, frames: 4, smoke: [88, 30], lights: [[88, 70, 90, 'rgba(255,110,30,0.75)']], draw: draw0(176, 124, '#3a2a24'),
+    paint(x, v, f = 0) {
+      const cx = 88, cy = 74;
+      shadow(x, cx, 114, 86, 9, 0.45);
+      // cône extérieur : roche brun-noir, rayée de coulées figées
+      x.beginPath(); x.moveTo(2, 112); x.bezierCurveTo(10, 70, 40, 34, cx, 30); x.bezierCurveTo(136, 34, 166, 70, 174, 112); x.quadraticCurveTo(cx, 124, 2, 112); x.closePath();
+      const g = x.createLinearGradient(0, 30, 176, 112); g.addColorStop(0, '#6a5446'); g.addColorStop(0.45, '#3e302a'); g.addColorStop(1, '#1e1614');
+      x.fillStyle = g; x.fill();
+      x.save(); x.clip();
+      for (let i = 0; i < 70; i++) {   // blocs de basalte
+        const bx = hash(i, 1, 801) * 176, by = 34 + hash(i, 2, 801) * 84, r = 3 + hash(i, 3, 801) * 7;
+        x.fillStyle = hash(i, 4, 801) < 0.5 ? 'rgba(120,96,80,0.35)' : 'rgba(10,6,6,0.35)'; x.beginPath(); x.ellipse(bx, by, r, r * 0.6, hash(i, 5, 801), 0, 7); x.fill();
+      }
+      for (let i = 0; i < 9; i++) {   // coulées figées (rouge sombre) qui descendent les flancs
+        const sx = 30 + i * 14 + hash(i, 6, 802) * 8, w = 3 + hash(i, 7, 802) * 3;
+        x.strokeStyle = `rgba(${120 + i * 6},40,20,0.55)`; x.lineWidth = w; x.beginPath(); x.moveTo(sx, 52 + hash(i, 8, 802) * 6); x.bezierCurveTo(sx + (hash(i, 9, 802) - 0.5) * 20, 80, sx + (hash(i, 10, 802) - 0.5) * 24, 96, sx + (hash(i, 11, 802) - 0.5) * 30, 118); x.stroke();
+      }
+      const lg = x.createLinearGradient(0, 30, 176, 110); lg.addColorStop(0, 'rgba(255,220,180,0.18)'); lg.addColorStop(0.5, 'rgba(0,0,0,0)'); lg.addColorStop(1, 'rgba(0,0,20,0.35)');
+      x.fillStyle = lg; x.fillRect(0, 28, 176, 96);
+      x.restore();
+      // la bouche : lèvre arrière haute, intérieur sombre, lac de lave
+      const mouth = () => { x.beginPath(); x.ellipse(cx, 58, 52, 20, 0, 0, 7); };
+      mouth(); x.fillStyle = '#140c0a'; x.fill();
+      x.save(); mouth(); x.clip();
+      const lava = x.createRadialGradient(cx, 66, 4, cx, 66, 54);
+      lava.addColorStop(0, '#fff6b0'); lava.addColorStop(0.25, '#ffd040'); lava.addColorStop(0.6, '#ff7a18'); lava.addColorStop(1, '#a82a0c');
+      x.fillStyle = lava; x.beginPath(); x.ellipse(cx, 66, 50, 15, 0, 0, 7); x.fill();
+      // croûte sombre craquelée qui dérive (selon l'image)
+      for (let i = 0; i < 16; i++) {
+        const px = cx - 42 + ((hash(i, 1, 803) * 84 + f * 3) % 84), py = 58 + hash(i, 2, 803) * 14, r = 4 + hash(i, 3, 803) * 6;
+        x.fillStyle = 'rgba(40,14,8,0.75)'; x.beginPath(); x.ellipse(px, py, r, r * 0.4, hash(i, 4, 803), 0, 7); x.fill();
+        x.strokeStyle = 'rgba(255,220,90,0.8)'; x.lineWidth = 0.6; x.beginPath(); x.ellipse(px, py, r, r * 0.4, hash(i, 4, 803), 0, 7); x.stroke();
+      }
+      for (let i = 0; i < 5; i++) { const bx = cx - 30 + hash(i, f, 804) * 60, by = 62 + hash(i, f + 9, 804) * 8; x.fillStyle = 'rgba(255,250,200,0.9)'; x.beginPath(); x.arc(bx, by, 1.2 + hash(i, f, 805) * 1.8, 0, 7); x.fill(); }   // bulles
+      // paroi intérieure du fond (éclairée par la lave)
+      const wall = x.createLinearGradient(0, 38, 0, 60); wall.addColorStop(0, '#2a1a14'); wall.addColorStop(1, '#c0501a');
+      x.fillStyle = wall; x.beginPath(); x.ellipse(cx, 50, 52, 12, 0, Math.PI, 0); x.lineTo(cx + 52, 56); x.quadraticCurveTo(cx, 50, cx - 52, 56); x.closePath(); x.fill();
+      x.restore();
+      // lèvre de basalte : arrière épaisse et haute, avant basse ; blocs irréguliers
+      for (let i = 0; i < 40; i++) {
+        const a = i / 40 * Math.PI * 2, rx = cx + Math.cos(a) * 54, ry = 58 + Math.sin(a) * 21, back = Math.sin(a) < 0, r = (back ? 6 : 4.5) + hash(i, 1, 806) * 3;
+        const rg = x.createRadialGradient(rx - r * 0.3, ry - r * 0.4, 0.5, rx, ry, r * 1.2); rg.addColorStop(0, back ? '#8a7466' : '#6a5a50'); rg.addColorStop(1, '#1a1210');
+        x.fillStyle = rg; x.beginPath(); x.ellipse(rx, ry - (back ? 3 : 0), r * 1.3, r * 0.8, hash(i, 2, 806), 0, 7); x.fill();
+        if (!back) { x.fillStyle = 'rgba(255,140,40,0.35)'; x.beginPath(); x.ellipse(rx, ry - r * 0.6, r, r * 0.3, 0, Math.PI, 0); x.fill(); }   // reflet de la lave sur la lèvre avant
+      }
+      // braises qui s'élèvent
+      for (let i = 0; i < 10; i++) { const k = ((hash(i, 1, 807) + f * 0.25) % 1), ex = cx - 40 + hash(i, 2, 807) * 80, ey = 56 - k * 46; x.fillStyle = `rgba(255,${160 + Math.floor(hash(i, 3, 807) * 80)},60,${1 - k})`; x.fillRect(ex + Math.sin(k * 6 + i) * 4, ey, 1.6, 1.6); }
+    } };
   // ------------------------------------------------------------ légende des cartes
   const CH = DW.World.CH, add = (ch, o) => { CH[ch] = Object.assign({ t: 'grass', solid: true }, o); if (CH[ch].solid) DW.SOLID.add(ch); };
   add('Ţ', { obj: 'telpole', t: 'dirt' });     // poteau télégraphique

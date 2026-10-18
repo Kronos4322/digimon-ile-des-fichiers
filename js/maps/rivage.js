@@ -39,10 +39,10 @@
     name: 'Dunes des Bébés', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.14, wildN: 10, noLandmark: true,
     rows: forestGen(zoomGen({ w: 40, h: 30, seed: 41, autoTall: 0.5, deco: 0.8, landmarks: [['{', 3]],
       clearings: [{ x: 20, y: 16, rx: 15, ry: 10 }, { x: 8, y: 8, rx: 5, ry: 4 }],
-      paths: [{ pts: [[41, 13.5], [30, 14], [22, 17], [12, 15], [6, 9]], r: 1.6 }, { pts: [[20, 16], [20, 6], [20, -1]], r: 1.4 }, { pts: [[20, 17], [20, 24], [20, 31]], r: 1.6 }],
+      paths: [{ pts: [[41, 19.5], [30, 18], [22, 17], [12, 15], [6, 9]], r: 1.6 }, { pts: [[20, 16], [24, 8], [24, -1]], r: 1.4 }, { pts: [[20, 17], [20, 24], [20, 31]], r: 1.6 }],
       lakes: [{ x: 30, y: 22, rx: 4.5, ry: 2.6 }],
       tall: [{ x: 14, y: 21, r: 4 }, { x: 28, y: 9, r: 3.5 }],
-      free: [[36, 13, 3], [20, 3, 3], [20, 27, 3]],
+      free: [[36, 19, 3], [24, 3, 3], [20, 27, 3]],
       set: [[34, 12, 'S']],
     })).map((r, y) => [...r].map((ch, x) => {
       // des DUNES : le sable domine (herbe des dunes en touffes), plus de phares au milieu de l'herbe
@@ -53,8 +53,8 @@
       return ch;
     }).join('')),
     warps: [
-      { x: 39, y: 13, w: 1, h: 2, dir: 'right', to: 'lisiere', tx: 0, ty: 13 },   // à l'est, la Lisière du Ravin
-      { x: 19, y: 0, w: 3, h: 1, dir: 'up', to: 'bosquet', tx: 19, ty: 29 },
+      { x: 39, y: 19, w: 1, h: 2, dir: 'right', to: 'lisiere', tx: 0, ty: 13 },   // à l'est, la Lisière du Ravin
+      { x: 23, y: 0, w: 3, h: 1, dir: 'up', to: 'bosquet', tx: 19, ty: 29 },
       { x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'crique', tx: 19, ty: 0 },   // les dunes descendent jusqu'à la Crique du Radeau
     ],
     npcs: [], triggers: [],
@@ -65,14 +65,14 @@
     name: 'Bosquet des Pousses', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'plage', rate: 0.14, wildN: 10,
     rows: forestGen(zoomGen({ w: 40, h: 30, seed: 42, autoTall: 0.48, deco: 1, landmarks: [['}', 3], ['>', 2]],
       clearings: [{ x: 20, y: 15, rx: 13, ry: 9 }, { x: 31, y: 8, rx: 5, ry: 4 }, { x: 9, y: 22, rx: 5, ry: 4 }],
-      paths: [{ pts: [[20, 31], [20, 22], [16, 15], [22, 9], [31, 8], [41, 8.5]], r: 1.5 }, { pts: [[20.5, -1], [20.5, 4], [22, 9]], r: 1.8 }, { pts: [[16, 15], [9, 22]], r: 1.3, dirt: false }],
+      paths: [{ pts: [[20, 31], [20, 22], [16, 15], [22, 9], [31, 8], [36, 12], [41, 15]], r: 1.5 }, { pts: [[20.5, -1], [20.5, 4], [22, 9]], r: 1.8 }, { pts: [[16, 15], [9, 22]], r: 1.3, dirt: false }],
       tall: [{ x: 27, y: 18, r: 4 }, { x: 10, y: 11, r: 3.5 }],
       bigtrees: [[30, 22]],
       free: [[20, 27, 3]],
       set: [[21, 25, 'S']],
     })),
-    warps: [{ x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'dunes', tx: 19, ty: 0 },
-      { x: 39, y: 7, w: 1, h: 3, dir: 'right', to: 'geants', tx: 0, ty: 14 }],   // à l'est, un sentier vers le Bois des Géants
+    warps: [{ x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'dunes', tx: 23, ty: 0 },
+      { x: 39, y: 14, w: 1, h: 3, dir: 'right', to: 'geants', tx: 0, ty: 14 }],   // à l'est, un sentier vers le Bois des Géants
     npcs: [], triggers: [],
     signs: { '21,25': "Bosquet des Pousses. Les jeunes Digimon (stade Entraînement) s'y bagarrent toute la journée. Ici, on devient plus fort !" },
   };
@@ -98,6 +98,14 @@
     }); }
 
   // (la Plage des Cabines ne touche plus les dunes : elle est au sud de la Lisière ; à l'ouest, la Crique du Radeau)
+  // RACCORD AVEC LA CRIQUE : la Plage et la Crique bordent la même baie. En haut, la route de la falaise passe de l'une
+  // à l'autre ; en dessous, la mer de la Crique continue le long du bord ouest de la Plage (plage, puis mer).
+  { const g = MAPS.plage.rows.map(r => [...r]);
+    for (let y = 10; y < g.length; y++) for (let x = 0; x < 7; x++) {
+      const sea = 3 + Math.round(Math.sin(y * 0.35) * 1.2 + DW.Art.hash(y, 3, 781) * 1.2);
+      if (x < sea) g[y][x] = '~'; else if (x < sea + 2 && g[y][x] !== '~') g[y][x] = DW.Art.hash(x, y, 782) < 0.12 ? 'R' : 's';
+    }
+    MAPS.plage.rows = g.map(r => r.join('')); }
 
   // ------------------------------------------------------------ difficulté par stade
   for (const id in STAGES) if (MAPS[id]) MAPS[id].encounters = STAGES[id];

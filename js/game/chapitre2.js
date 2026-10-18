@@ -91,7 +91,7 @@
   // ------------------------------------------------------------ 1) Rive Sud : les deux Monochromon
   const R0 = MAPS.lac0;
   if (R0 && R0.spec) {
-    const spot = () => { const [p] = R0.exits.right; return [R0.w - 9, p + 2]; };
+    const spot = () => { const [p] = R0.exits.right; return DW.MapKit.freeNear(R0, R0.w - 9, p + 2); };   // (la case libre la plus proche du chemin)
     R0.populate = function () {
       if (this.monoSet) return;
       this.monoSet = true;

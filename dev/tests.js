@@ -67,6 +67,23 @@ const quiet = fn => { const r = DW.reportError; DW.reportError = () => {}; try {
 const withRandom = (v, fn) => { const r = Math.random; Math.random = () => v; try { return fn(); } finally { Math.random = r; } };
 
 // ------------------------------------------------------------ liste des scripts
+// GÉOGRAPHIE DU MONDE (chapitres 1 à 3) : posées à leur place (passages alignés), les cartes forment UN territoire :
+// toutes les boucles se referment, rien ne se chevauche, et aucune frontière n'a de rupture (côte d'un seul côté,
+// rivière qui disparaît, chemin qui finit dans l'eau, arrivée dans un obstacle, niveaux d'altitude différents)
+test('monde des chapitres 1 à 3 : cartes raccordées en un seul territoire, sans rupture géographique', () => {
+  for (const f of ['geographie.js', 'assemblage.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, 'dev', f), 'utf8'), sandbox, { filename: 'dev/' + f });
+  const REG = new Set(['plage', 'foret', 'lac', 'village', 'miharashi']), ids = ['clairiere'], seen = new Set(ids);
+  for (let i = 0; i < ids.length; i++) for (const w of DW.getMap(ids[i]).warps || []) {
+    const t = DW.MAPS[w.to]; if (!t || seen.has(w.to) || t.indoor || !w.dir || w.enclos || !REG.has(t.region) || ['residentiel', 'numerique', 'marche'].includes(w.to)) continue;
+    seen.add(w.to); ids.push(w.to);
+  }
+  yes(ids.length >= 29, 'cartes trouvées : ' + ids.length);
+  const P = sandbox.ASSEMBLAGE.places(ids);
+  eq(P.conflits.length, 0, P.conflits.join(' ; '));
+  const errs = sandbox.GEO.verifier(ids).ruptures.flatMap(r => r.problemes.filter(p => p[0] === 'ERREUR').map(p => r.liaison + ' : ' + p[1]));
+  eq(errs.length, 0, errs.slice(0, 6).join(' ; '));
+});
+
 test('js/scripts.js liste tous les fichiers du jeu, et seulement eux', () => {
   const js = path.join(ROOT, 'js');
   const onDisk = srcFiles(js).map(f => path.relative(js, f).split(path.sep).join('/')).filter(f => f !== 'scripts.js');

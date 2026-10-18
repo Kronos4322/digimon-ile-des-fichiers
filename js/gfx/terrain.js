@@ -126,7 +126,10 @@
     // intérieurs : style du sol (map.floor) et des murs (map.wall) ; sans style = parquet et enduit d'origine
     const FLOOR = map.floor ? { ...map.floor, c: (map.floor.cols || []).map(Art.hex) } : null;
     const WALL = map.wall ? { ...map.wall, base: Art.hex(map.wall.base || '#ead8b4'), alt: Art.hex(map.wall.alt || map.wall.base || '#ead8b4'), wood: map.wall.wood ? Art.hex(map.wall.wood) : null } : null;
-    const HARD = new Set([TER.cliff, TER.bridge, TER.stairs, TER.stone, TER.cobble, TER.wood, TER.wall, TER.void, TER.metal]);
+    // PAROIS ROCHEUSES (TER.rock) : strates ocre, fissures, rebord herbeux en haut, pied sombre ; hauteur de la paroi
+    const ROCK = (TH && TH.rock ? TH.rock : ['#3a2a20', '#4e3828', '#664a32', '#7e5e3e', '#98744c', '#b28c5e', '#cca674', '#e2c28e']).map(Art.hex);
+    const rockRun = (tx, ty, dy) => { let n = 0; for (let y = ty + dy; n < 12 && tAt(tx, y) === TER.rock && y >= 0 && y < map.h; y += dy) n++; return n; };
+    const HARD = new Set([TER.rock, TER.cliff, TER.bridge, TER.stairs, TER.stone, TER.cobble, TER.wood, TER.wall, TER.void, TER.metal]);
     // terrain au pixel (frontières organiques)
     const T = new Uint8Array(N);
     // vote bilinéaire entre les 4 cases voisines (coins arrondis) + légère déformation
@@ -205,7 +208,7 @@
       for (let py = 0; py < GH; py++) {
         const i = py * GW + px, t = T[i];
         const tx = px >> 4, ty = py >> 4;
-        const caster = t === TER.canopy || t === TER.pastel || (t === TER.cliff && tAt(tx, ty + 1) !== TER.cliff) || (t === TER.wall && tAt(tx, ty + 1) !== TER.wall);
+        const caster = t === TER.canopy || t === TER.pastel || (t === TER.rock && tAt(tx, ty + 1) !== TER.rock) || (t === TER.cliff && tAt(tx, ty + 1) !== TER.cliff) || (t === TER.wall && tAt(tx, ty + 1) !== TER.wall);
         if (caster) run = 0; else run++;
         if (!caster && run <= 10 && t !== TER.water) SH[i] = 11 - run;
       }
@@ -363,6 +366,26 @@
         let v = 3.2 - d1 * 0.38 - (ox + oy) * 0.11 + b * 0.6;
         if (d2 - d1 < 1.2) v -= 1.4;
         col = pal[DW.clamp(Math.round(v), 0, 4)];
+      } else if (t === TER.rock) {
+        const topRow = tAt(tx, ty - 1) !== TER.rock, botRow = tAt(tx, ty + 1) !== TER.rock;
+        const leftE = tAt(tx - 1, ty) !== TER.rock, rightE = tAt(tx + 1, ty) !== TER.rock;
+        const lipH = 4 + Math.round((noise(px * 0.2, 7, 55) - 0.5) * 3);
+        if (topRow && ly < lipH) {
+          // rebord herbeux du plateau, ourlet sombre juste au-dessus de la paroi
+          col = ly >= lipH - 1 ? lerpPal(GRASS, 0.2) : lerpPal(GRASS, 3.2 - ly * 0.35 + b * 0.6);
+        } else {
+          const up = rockRun(tx, ty, -1), dn = rockRun(tx, ty, 1), Ht = (up + dn + 1) * 16, depth = (up * 16 + ly) / Ht;
+          const sy = py + (noise(px * 0.06, py * 0.02, 51) - 0.5) * 9, band = Math.floor(sy / 7), fb = sy / 7 - band;
+          let v = 4.2 + (hash(band, px >> 4, 52) - 0.5) * 1.4 + (fb < 0.16 ? 1.3 : fb > 0.84 ? -1.2 : 0) + (noise(px * 0.35, py * 0.12, 53) - 0.5) * 1.3 + b * 0.5;
+          if (noise(px * 0.55, py * 0.035, 54) > 0.76) v -= 1.8;                              // fissures verticales
+          v -= depth * 1.6;                                                                    // le pied de la paroi est dans l'ombre
+          if (topRow && ly < lipH + 4) v += 1.2;                                              // arête éclairée sous le rebord
+          if (botRow && ly >= 11) v -= (ly - 10) * 0.55;                                      // pied sombre
+          if (leftE && lx < 3) v += 1.4 - lx * 0.45; if (rightE && lx > 12) v -= (lx - 12) * 0.6;   // arêtes latérales
+          col = lerpPal(ROCK, v);
+          if (fb < 0.16 && hash(px >> 1, band, 56) < 0.08) col = lerpPal(GRASS, 2 + b);       // touffes de mousse sur les corniches
+          else if (botRow && ly >= 13 && hash(px, py, 57) < 0.25) col = lerpPal(ROCK, 1.2);    // éboulis au pied
+        }
       } else if (t === TER.cliff) {
         const face = tAt(tx, ty + 1) !== TER.cliff;
         const above = tAt(tx, ty - 1) !== TER.cliff;

@@ -97,6 +97,7 @@
 
     // ---------------------------------------------------------- logique
     update(dt) {
+      if (DW.Relief) DW.Relief.track(this);   // altitude logique du héros (maps/relief.js)
       const P = this.p;
       if (P.moving) {
         P.t += dt / P.dur;
@@ -592,6 +593,7 @@
         c.fillStyle = '#ffe070'; c.fillRect(X, Y + 11, w, 1);
         UI.text(c, label, X + w / 2, Y + 9, { size: 7, align: 'center', color: '#ffffff' });
       }
+      if (DW.Relief && DW.Relief.debug) DW.Relief.drawDebug(this, c, vx0, vx1, vy0, vy1);   // vue de développement (?debug=geo puis G)
       // barrières de données sur les passages encore fermés
       for (const w of this.map.warps || []) if (w.cond && !w.cond(DW.state)) {
         for (let yy = w.y; yy < w.y + (w.h || 1); yy++) for (let xx = w.x; xx < w.x + (w.w || 1); xx++) {

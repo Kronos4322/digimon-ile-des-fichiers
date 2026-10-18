@@ -103,6 +103,25 @@
       for (const s in m.coast) if (ex[s]) throw new Error(`${m.name} : côte ${s} sur un passage`);
       rows = DW.MapKit.coast(rows, m.coast, { seed, keep });
     }
+    // (la profondeur de mer le long de chaque bord est celle de la côte de la voisine À LA FRONTIÈRE : même formule que
+    //  MapKit.coast, même graine ; le long du bord partagé avec la voisine de rangée : A cases, avec celle de colonne : B cases)
+    const coastDepth = (nb, cs, end) => {
+      const Nb = MAPS[nb], ns = Nb.spec.seed, along = cs === 'up' || cs === 'down' ? Nb.w : Nb.h, F = (t, k) => DW.Art.fbm(t, k, ns * 7 + 3);
+      const sea = Math.max(8, Math.round(Math.min(Nb.w, Nb.h) * 0.15)), t = end ? along - 1 : 0;
+      return Math.max(0, sea + (F(t * 0.03, cs.length) - 0.5) * 26 + (F(t * 0.11, 9 + cs.length) - 0.5) * 8);
+    };
+    for (const c of m.coastCorners || []) rows = edit(rows, g => {
+      const { hs, vs } = c;
+      const A = c.row ? coastDepth(c.row, vs, hs === 'left') : 2;   // eau le long du bord gauche/droit (vers le large : hauteur)
+      const B = c.col ? coastDepth(c.col, hs, vs === 'up') : 2;     // eau le long du bord haut/bas (vers le large : largeur)
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const dx = hs === 'left' ? x : w - 1 - x, dy = vs === 'up' ? y : h - 1 - y;
+        const e = (dx / (B + 0.01)) ** 2 + (dy / (A + 0.01)) ** 2 + (DW.Art.fbm(x * 0.2, y * 0.2, seed + 7) - 0.5) * 0.15;
+        const onExit = Object.entries(ex).some(([sd, [p, l]]) => (sd === 'left' || sd === 'right' ? y >= p - 2 && y < p + l + 2 && (sd === 'left' ? x < 8 : x > w - 9) : x >= p - 2 && x < p + l + 2 && (sd === 'up' ? y < 8 : y > h - 9)));
+        if (onExit) continue;
+        if (e < 1) g.set(x, y, '~'); else if (e < 1.35 && g.get(x, y) !== '~') g.set(x, y, Hh(x, y, 783) < 0.1 ? 'R' : 's');
+      }
+    });
     // emprise des objets posés (bloquants)
     const occ = new Set();
     for (const ob of m.objects) if (!ob.walk && !ob.top) for (let y = ob.y; y < ob.y + ob.h; y++) for (let x = ob.x; x < ob.x + ob.w; x++) occ.add(x + ',' + y);
@@ -168,17 +187,44 @@
     const ext = [[0, R.entry], ...(R.out || [])];
     for (const [i, s] of ext) { if (sides[i][s]) throw new Error(`région ${rid} : sortie ${s} déjà prise sur ${ids[i]}`); sides[i][s] = 'ext'; }
     ENTRY[rid] = ids[0];
+    const rs = rid.length * 13 + rid.charCodeAt(0);
+    // COINS DE CÔTE : si une voisine (même rangée) a la mer au nord ou au sud et pas cette carte (qui s'ouvre de ce côté
+    // vers une autre carte), la côte tourne dans le coin commun ; idem pour une voisine de colonne avec la mer à l'est/ouest
+    const coastOf = i => (R.subs[i][2] || {}).coast || {};
+    const corners = ids.map((_, i) => {
+      const out = {};
+      const add = (hs, vs) => (out[hs + vs] = out[hs + vs] || { hs, vs, row: null, col: null });
+      for (const hs of ['left', 'right']) { const nb = sides[i][hs]; if (!nb || nb === 'ext') continue; const j = ids.indexOf(nb);
+        for (const vs of ['up', 'down']) if (coastOf(j)[vs] && !coastOf(i)[vs]) add(hs, vs).row = nb; }
+      for (const vs of ['up', 'down']) { const nb = sides[i][vs]; if (!nb || nb === 'ext') continue; const j = ids.indexOf(nb);
+        for (const hs of ['left', 'right']) if (coastOf(j)[hs] && !coastOf(i)[hs]) add(hs, vs).col = nb; }
+      // (un coin dont une seule voisine a la mer : on regarde aussi l'autre voisine du coin, pour la largeur d'eau sur l'autre bord)
+      for (const c of Object.values(out)) {
+        if (!c.col) { const nb = sides[i][c.vs]; if (nb && nb !== 'ext' && coastOf(ids.indexOf(nb))[c.hs]) c.col = nb; }
+        if (!c.row) { const nb = sides[i][c.hs]; if (nb && nb !== 'ext' && coastOf(ids.indexOf(nb))[c.vs]) c.row = nb; }
+      }
+      return Object.values(out);
+    });
+    const dimW = i => (R.subs[i][2] || {}).w || 88 + Math.floor(Hh(pos[i][0], 1, rs + 700) * 3) * 6;
+    const dimH = i => (R.subs[i][2] || {}).h || 64 + Math.floor(Hh(pos[i][1], 2, rs + 700) * 3) * 4;
     R.subs.forEach(([name, kind, x = {}], i) => {
       // portail d'un donjon secret des écussons (maps/donjons.js)
       const dj = DW.Donjons && DW.Donjons.pieceFor(rid, i);
       if (dj && !x.piece) x = { ...x, ...dj };
       const id = ids[i], s = Hh(i, rid.length * 13 + rid.charCodeAt(0), 501) * 1000 | 0;
       // cartes larges (comme Digimon World) : de la place pour explorer et contourner les Digimon sauvages
-      const w = x.w || 88 + Math.floor(Hh(i, 1, s) * 3) * 6, h = x.h || 64 + Math.floor(Hh(i, 2, s) * 3) * 4;   // (x.w / x.h : grande carte)
+      // GRILLE DE LA RÉGION : toutes les cartes d'une même colonne ont la même largeur, celles d'une même rangée la
+      // même hauteur, et le passage entre deux voisines est calculé UNE fois pour les deux : la région forme un
+      // quadrillage exact (les boucles de cartes se referment, rien ne se chevauche ; voir dev/assemblage.js)
+      const w = dimW(i), h = dimH(i);   // (x.w / x.h : grande carte)
       const exits = {};
       for (const side in sides[i]) {
-        const span = side === 'left' || side === 'right' ? h : w, off = Math.round((Hh(i, side.length, s) - 0.5) * (span > 32 ? 8 : 6));
-        exits[side] = [Math.floor(span / 2) - 3 + off, 6];   // passages de 6 cases
+        const span = side === 'left' || side === 'right' ? h : w;
+        if (sides[i][side] === 'ext') { const off = Math.round((Hh(i, side.length, s) - 0.5) * (span > 32 ? 8 : 6)); exits[side] = [Math.floor(span / 2) - 3 + off, 6]; continue; }
+        const j = ids.indexOf(sides[i][side]), hz = side === 'left' || side === 'right';
+        const c0 = Math.min(pos[i][0], pos[j][0]), r0 = Math.min(pos[i][1], pos[j][1]), shared = hz ? Math.min(h, dimH(j)) : Math.min(w, dimW(j));
+        const off = Math.round((Hh(c0 * 7 + r0, hz ? 1 : 2, rs + 701) - 0.5) * 8);
+        exits[side] = [Math.floor(shared / 2) - 3 + off, 6];   // passages de 6 cases, alignés des deux côtés
       }
       const hub = [Math.floor(w / 2) + Math.round((Hh(i, 3, s) - 0.5) * 8), Math.floor(h / 2) + Math.round((Hh(i, 4, s) - 0.5) * 5)];
       const theme = x.theme || R.theme, k = kindOpts(kind, w, h, hub, s + i);
@@ -192,7 +238,7 @@
       const m = MAPS[id] = { idx: i,
         name, regionName: R.name, music: x.music || DW.REGION_MUSIC[rid] || R.music || 'field', bg: 'foret', ambient: R.ambient || 'forest', theme, climate: R.climate || 'forest', region: rid,
         w, h, rate: 0, encounters: [], npcs: [], warps: [], exits, objects: [...(x.objects || [])], signs: { ...(x.signs || {}) }, doors: [],
-        sandWalk: !!x.sandWalk, indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard, coast: x.coast,
+        sandWalk: !!x.sandWalk, coastCorners: corners[i], indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard, coast: x.coast,
         spec, build() { if (!this.rows) this.rows = genRows(this); },
       };
       // pièce maîtresse (grand décor) en haut à gauche, avec son parvis relié au carrefour
@@ -525,72 +571,42 @@
   //                                       |
   //                                       2 Plaine des Panneaux | Sentier des Murmures
   //                                       (au sud : le Bosquet des Pousses)
-  const poles = (g, m, n) => {   // poteaux le long de la « ligne » (la route) et semés dans le désert, panneaux à la sortie de la forêt
-    const ground = c => c === '.' || c === ',' || c === ';' || c === 'f';
-    const [hx, hy] = m.spec.hub;
-    for (let x = 4; x < g.w - 4; x += 6) { const y = hy - 4 + Math.round(Math.sin(x * 0.11) * 2); if (ground(g.get(x, y))) g.set(x, y, 'Ţ'); }
-    for (let y = 4; y < g.h - 4; y++) for (let x = 4; x < g.w - 4; x++) if (ground(g.get(x, y)) && Hh(x, y, 851 + n) < 0.014 && Math.abs(y - hy) > 2) g.set(x, y, 'Ţ');
-    const ex = m.exits.right;
-    if (ex) {
-      const ys = [ex[0] - 3, ex[0] - 2, ex[0] + ex[1] + 1, ex[0] + ex[1] + 2];
-      [[g.w - 8, ys[0]], [g.w - 12, ys[1]], [g.w - 9, ys[2]], [g.w - 14, ys[3]]].forEach(([x, y]) => { if (ground(g.get(x, y)) || g.get(x, y) === 'Ţ') g.set(x, y, 'Ŝ'); });
-      const sx = g.w - 3, sy = ex[0] - 1;   // (juste au bord du passage : on le lit en sortant de la forêt)
-      g.set(sx, sy, 'S'); m.signs[sx + ',' + sy] = n === 0
-        ? "↑ Rosière · ← Village des Yokomon · → Clairière de l'Arrivée. Les poteaux du désert suivent l'ancienne ligne... jusqu'au village."
-        : "↑ Désert des Poteaux · ↓ Bosquet des Pousses · → Sentier des Murmures. Qui a planté tous ces panneaux ? Mystère...";
-    }
-  };
+  // (cartes dessinées à la main : maps/miharashi.js ; relief en terrasses façon Digimon World 2003)
+  const MT = () => DW.Mih.MONT;
+  // (géographie du pays et peinture de chaque carte : maps/miharashi.js — une seule terre en coordonnées du monde,
+  //  les cartes en sont des fenêtres ; la côte, les routes et le relief se raccordent d'elles-mêmes)
   region('miharashi', { name: 'Pays de Meramon', theme: 'desert', entry: 'right', music: 'field', climate: 'beach', ambient: 'beach',
-    out: [[0, 'up'], [2, 'right'], [2, 'down'], [3, 'down']],
+    out: [[0, 'up'], [2, 'right'], [2, 'down']],
     plan: [[3, 0], [2, 0], [3, 1], [1, 0], [0, 0]], links: [[0, 1], [0, 2], [1, 3], [3, 4]],
     subs: [
-      // (déserts : grande étendue ouverte, la roche seulement sur les bords)
-      ['Désert des Poteaux', 'trail', { noRegionLm: true, opts: { autoTall: 0.35, clearings: [{ x: 48, y: 32, rx: 40, ry: 24 }] }, post: (g, m) => poles(g, m, 0) }],
-      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', w: 112, h: 80, noRegionLm: true, coast: { up: 'beach', down: 'cliff' },
-        opts: { hub: [56, 40], lakes: [{ x: 28, y: 60, rx: 13, ry: 7.5 }], autoTall: 0.2 },
+      ['Désert des Poteaux', 'trail', { w: 100, h: 60, noRegionLm: true, opts: { hub: [50, 30], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 0) }],
+      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', w: 112, h: 80, noRegionLm: true, opts: { hub: [56, 40], autoTall: 0.2 },
         objects: [
           { kind: 'stonefountain', v: 0, x: 54, y: 31, w: 5, h: 3 },
-          { kind: 'shipwreck', v: 0, x: 25, y: 58, w: 7, h: 4 },
-          ...[[40, 18], [50, 15], [62, 15], [72, 18], [30, 26], [82, 26], [30, 44], [44, 50], [66, 50], [78, 44]].map(([x, y], i) => ({ kind: 'yokohut', v: 0, x, y, w: 4, h: 3, hut: i })),
+          { kind: 'shipwreck', v: 0, x: 25, y: 53, w: 7, h: 4 },
+          ...[[40, 18], [50, 17], [62, 17], [72, 19], [30, 26], [82, 26], [30, 44], [44, 50], [66, 50], [78, 44], [90, 50], [22, 20], [92, 19]].map(([x, y], i) => ({ kind: 'yokohut', v: i % 3 === 2 ? 1 : 0, x, y, w: 4, h: 3, hut: i })),
         ],
         signs: { '56,35': "La fontaine du village. Les Yokomon y puisent l'eau qui arrose leurs fleurs." },
-        post: (g, m) => {
-          // place de terre battue autour de la fontaine
-          for (let y = 27; y <= 38; y++) for (let x = 44; x <= 68; x++) if (Math.hypot((x - 56) / 12, (y - 32.5) / 6) < 1 && g.get(x, y) === '.') g.set(x, y, '=');
-          // banc de sable sous l'épave, au milieu du petit lac
-          for (let y = 56; y <= 64; y++) for (let x = 21; x <= 35; x++) { const d = Math.hypot((x - 28) / 7.5, (y - 60.5) / 4); if (d < 1) g.set(x, y, d < 0.75 ? 's' : ';'); }
-          g.set(56, 35, 'S');
-        } }],
-      ['Plaine des Panneaux', 'trail', { noRegionLm: true, coast: { left: 'cliff' }, opts: { autoTall: 0.35, clearings: [{ x: 52, y: 34, rx: 38, ry: 24 }] }, post: (g, m) => poles(g, m, 2) }],
-      ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', coast: { up: 'cliff' }, lm: [['Ó', 3]], noRegionLm: true }],
-      ['Mont Miharashi', 'plaza', { theme: 'miharashi', w: 96, h: 96, noRegionLm: true, coast: { up: 'cliff', left: 'cliff', down: 'cliff' },
-        opts: { hub: [48, 72], autoTall: 0.3 },
-        objects: [{ kind: 'smallvolcano', v: 0, x: 47, y: 19, w: 3, h: 2 }],
-        post: (g, m) => {
-          // une montagne verte en terrasses (comme dans l'anime) : un cône entouré de jungle, 4 gradins de falaise
-          // (2 cases d'épaisseur), un escalier par gradin, et un chemin qui monte en lacets jusqu'au cratère
-          const top = 18, bot = 76, cx = 48, half = y => 5 + (y - top) / (bot - top) * 30;
-          const LINES = { 66: 60, 54: 35, 42: 58, 30: 47 };
-          for (let y = top - 3; y <= bot + 3; y++) for (let x = 2; x < g.w - 2; x++) {
-            const d = Math.abs(x - cx) - (y < top ? 4 : y > bot ? half(bot) : half(y));
-            if (d > 0 && !'~wsr3R'.includes(g.get(x, y))) { g.set(x, y, d < 2.5 && Hh(x, y, 864) < 0.5 ? 'T' : '#'); continue; }   // jungle tout autour des pentes
-            if (d > 0 || y < top || y > bot) continue;
-            if (m.objects.some(o => x >= o.x && x < o.x + o.w && y >= o.y && y < o.y + o.h)) continue;
-            const L = LINES[y] != null ? y : LINES[y - 1] != null ? y - 1 : LINES[y - 2] != null ? y - 2 : null;   // (gradins de 3 cases)
-            if (L != null) g.set(x, y, Math.abs(x - LINES[L]) <= 1 ? '^' : 'C');
-            else g.set(x, y, Hh(x, y, 861) < 0.16 && y > top + 4 && Math.abs(x - cx) > 3 ? ',' : Hh(x, y, 862) < 0.025 ? 'Ó' : Hh(x, y, 865) < 0.03 ? 'f' : '.');
-          }
-          // le sentier qui arrive de la route (à l'est), sur le premier gradin
-          const [p, l] = m.exits.right;
-          for (let y = p; y < p + l; y++) for (let x = Math.floor(cx + half(y)) - 1; x < g.w; x++) g.set(x, y, '=');
-          // chemin de terre qui monte en lacets d'un escalier à l'autre
-          const way = [[g.w - 4, p + 2], [60, 70], [60, 68], [60, 65], [35, 60], [35, 56], [35, 53], [58, 48], [58, 44], [58, 41], [47, 36], [47, 32], [47, 29], [48, 23]];
-          for (let i = 0; i + 1 < way.length; i++) { const [x0, y0] = way[i], [x1, y1] = way[i + 1], n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-            for (let k = 0; k <= n; k++) { const x = Math.round(x0 + (x1 - x0) * k / n), y = Math.round(y0 + (y1 - y0) * k / n); const c = g.get(x, y); if (c !== '^' && c !== 'C') g.set(x, y, '='); } }
-        } }],
+        post: (g, m) => DW.Mih.village(g, m) }],
+      ['Plaine des Panneaux', 'trail', { w: 90, h: 72, noRegionLm: true, opts: { hub: [52, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
+      ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', w: 104, h: 72, noRegionLm: true, opts: { hub: [52, 40], autoTall: 0.3 }, post: (g, m) => DW.Mih.route(g, m) }],
+      ['Mont Miharashi', 'plaza', { theme: 'miharashi', w: 104, h: 100, noRegionLm: true, opts: { hub: [92, 79], autoTall: 0.2 },
+        objects: [{ kind: 'cratere', v: 0, x: DW.Mih.MONT.crater[0], y: DW.Mih.MONT.crater[1], w: 11, h: 6 }],
+        post: (g, m) => DW.Mih.mont(g, m) }],
     ] });
-  // (le Mont : on arrive de la route par l'est, au pied de la montagne)
-  MAPS.miharashi4.exits.right = [68, 6];
+  // LE PAYS DE MERAMON DANS LA GRILLE DU MONDE : le Désert des Poteaux a la hauteur de la Clairière (60 cases) et la
+  // Plaine des Panneaux celle du Sentier (72) ; leurs passages sont alignés sur ceux de la forêt, de la Rosière et entre
+  // eux : les boucles Clairière–Sentier–Plaine–Désert et Rive Sud–Rosière–Désert–Clairière se referment exactement.
+  { const D = MAPS.miharashi0, P = MAPS.miharashi2, L0 = MAPS.lac0, L1 = MAPS.lac1;
+    D.exits.right = [28, 6];                        // = passage ouest de la Clairière (plan agrandi : 14 × 2)
+    P.exits.right = [22, 6];                        // = passage ouest du Sentier (11 × 2)
+    D.exits.down = [46, 6]; P.exits.up = [46, 6];   // (même abscisse : la Plaine est 10 cases moins large, comme le Sentier est décalé de 10)
+    P.exits.down = [48, 6];                         // = passage nord du Bosquet des Pousses (19 × 2, le Bosquet étant 10 cases plus à l'est)
+    // la Rosière au-dessus du désert : sa place se déduit de la Rive Sud, elle-même au-dessus de la Clairière (passage à 16 × 2)
+    const l1x = (32 - L0.exits.down[0]) - L1.w;
+    D.exits.up = [DW.clamp(l1x + L1.exits.down[0] + D.w, 8, D.w - 14), 6]; }
+  // (le Mont : on arrive de la route par l'est, au pied de la montagne, devant le premier escalier)
+  MAPS.miharashi4.exits.right = [77, 6];
   MAPS.miharashi1.calm = true;   // pas de Digimon sauvages dans le village
 
   region('scarabees', { name: 'Pays des Scarabées', theme: 'beetle', entry: 'up', lm: [['ý', 2], ['þ', 1]], subs: [
@@ -626,7 +642,7 @@
     ['savane1', 'up', R('usine')], ['savane4', 'right', R('decharge')], ['savane5', 'down', R('canyon')],
     ['canyon7', 'left', R('dino')], ['canyon8', 'down', R('jungle')], ['jungle5', 'down', R('overdell')],
     ['berceau', 'up', R('brumes')], ['brumes4', 'right', R('jouets')], ['brumes5', 'up', R('gel')],
-    ['clairiere', 'up', R('lac')], ['clairiere', 'left', 'miharashi0'], ['lac1', 'down', 'miharashi0'], ['sentier', 'left', 'miharashi2'], ['bosquet', 'up', 'miharashi2'], ['miharashi3', 'down', R('scarabees')], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
+    ['clairiere', 'up', R('lac')], ['clairiere', 'left', 'miharashi0'], ['lac1', 'down', 'miharashi0'], ['sentier', 'left', 'miharashi2'], ['bosquet', 'up', 'miharashi2'], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
   );
   // portes des régions (comme dans Digimon World 1 : les recrues ouvrent le monde, la ville qui grandit aussi)
   const T = () => DW.Town, LV = n => T().LEVELS[n];

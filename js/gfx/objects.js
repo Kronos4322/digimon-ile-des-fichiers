@@ -8,11 +8,12 @@
 
   // ------------------------------------------------------------ légende
   // t: terrain  solid: bloquant  obj: objet en volume  tall: herbes hautes (rencontres)  deco: décor peint au sol
-  const TER = { grass: 0, dirt: 1, sand: 2, water: 3, bridge: 4, lawn: 5, stone: 6, cliff: 7, canopy: 8, stairs: 9, pastel: 10, cobble: 11, wood: 12, wall: 13, void: 14, metal: 15 };
+  const TER = { grass: 0, dirt: 1, sand: 2, water: 3, bridge: 4, lawn: 5, stone: 6, cliff: 7, canopy: 8, stairs: 9, pastel: 10, cobble: 11, wood: 12, wall: 13, void: 14, metal: 15, rock: 16 };
   const CH = {
     '.': { t: 'grass' }, ',': { t: 'grass', tall: 'grass' }, '=': { t: 'dirt' }, 's': { t: 'sand' }, ';': { t: 'sand', tall: 'dune' },
     '~': { t: 'water', solid: true }, '_': { t: 'bridge' }, 'v': { t: 'lawn' }, ':': { t: 'lawn', tall: 'pastel' }, 'o': { t: 'stone' },
     'f': { t: 'grass', deco: 'flowers' }, 'q': { t: 'lawn', deco: 'flowers2' }, 'm': { t: 'grass', deco: 'mushrooms' },
+    'Ŵ': { t: 'rock', solid: true },   // paroi rocheuse haute (montagnes en terrasses façon Digimon World 2003 : gfx/terrain.js)
     'C': { t: 'cliff', solid: true }, '%': { t: 'pastel', solid: true }, '^': { t: 'stairs' }, '#': { t: 'canopy', solid: true },
     'T': { t: 'grass', obj: 'tree', solid: true }, 'b': { t: 'grass', obj: 'bush', solid: true },
     'r': { t: 'grass', obj: 'rock', solid: true }, 'R': { t: 'sand', obj: 'searock', solid: true },

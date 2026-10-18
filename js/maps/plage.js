@@ -166,7 +166,7 @@
     warps: [
       { x: 17, y: 0, w: 3, h: 1, dir: 'up', to: 'lisiere', tx: 17, ty: 31 },
       { x: 39, y: 1, w: 1, h: 3, dir: 'right', to: 'village', tx: 0, ty: 13 },
-      { x: 0, y: 23, w: 1, h: 5, dir: 'left', to: 'crique', tx: 39, ty: 8 },
+      { x: 0, y: 1, w: 1, h: 3, dir: 'left', to: 'crique', tx: 39, ty: 9 },   // (la route du haut de la falaise mène à la Crique, à l'ouest)
     ],
     npcs: [
       recruitNPC({ sp: 'gotsumon', x: 30, y: 9, lvl: 6, face: 'left',
@@ -229,7 +229,7 @@
       { kind: 'starfish', v: 0, x: 14, y: 23, w: 1, h: 1, small: true, walk: true }, { kind: 'starfish', v: 1, x: 25, y: 17, w: 1, h: 1, small: true, walk: true },
     ],
     encounters: ENCOUNTERS.filter(e => e.sp !== 'gotsumon').concat([{ sp: 'gomamon', min: 3, max: 4, w: 15 }]),
-    warps: [{ x: 39, y: 7, w: 1, h: 5, dir: 'right', to: 'plage', tx: 0, ty: 23 },
+    warps: [{ x: 39, y: 9, w: 1, h: 3, dir: 'right', to: 'plage', tx: 0, ty: 1 },   // (vers la route du haut de la Plage des Cabines)
       { x: 19, y: 0, w: 3, h: 1, dir: 'up', to: 'dunes', tx: 19, ty: 29 }],   // au nord : les Dunes des Bébés
     npcs: [],
     triggers: [],

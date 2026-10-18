@@ -45,9 +45,35 @@
       m.rows = m.rows.map(r => r.padEnd(m.w, '#'));
       m.h = m.rows.length;
     }
+    clearPassages(m);
     densify(m);
     return m;
   };
+  // case praticable la plus proche (PNJ posés sur une carte générée, dont le décor peut occuper la place prévue)
+  const freeNear = (m, x, y, R = 8) => {
+    const occ = new Set(); for (const o of m.objects || []) if (!o.walk && !o.top) for (let yy = o.y; yy < o.y + o.h; yy++) for (let xx = o.x; xx < o.x + o.w; xx++) occ.add(xx + ',' + yy);
+    const ok = (a, b) => m.rows[b] && m.rows[b][a] !== undefined && !DW.SOLID.has(m.rows[b][a]) && !occ.has(a + ',' + b) && !(m.npcs || []).some(n => n.x === a && n.y === b) && DW.World.info(m.rows[b][a]).t !== 'water';
+    for (let r = 0; r <= R; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dy)) === r && ok(x + dx, y + dy)) return [x + dx, y + dy];
+    return [x, y];
+  };
+  // PASSAGES DE BORD LIBRES : chaque sortie vers une carte voisine est praticable sur toute sa largeur et 4 cases
+  // de profondeur (contrat de raccordement : dev/geographie.js le vérifie). On retire le décor posé dedans
+  // (buissons, souches, tuyaux, arbres, lisière) ; l'eau et la roche restent (il faut alors un pont ou un escalier).
+  function clearPassages(m) {
+    if (m._passFor === m.rows || !m.rows) return;
+    const CH = DW.World.CH, g = m.rows.map(r => [...r]);
+    for (const w of m.warps || []) {
+      if (!w.dir) continue;
+      const along = w.dir === 'left' || w.dir === 'right' ? w.h || 1 : w.w || 1, p0 = w.dir === 'left' || w.dir === 'right' ? w.y : w.x;
+      for (let k = 0; k < along; k++) for (let d = 0; d < 4; d++) {
+        const [x, y] = { left: [d, p0 + k], right: [m.w - 1 - d, p0 + k], up: [p0 + k, d], down: [p0 + k, m.h - 1 - d] }[w.dir];
+        const ch = g[y] && g[y][x], I = ch && (CH[ch] || {});
+        if (!ch || !DW.SOLID.has(ch) || I.t === 'water' || I.t === 'cliff' || I.t === 'rock' || I.t === 'wall' || I.t === 'void') continue;
+        g[y][x] = I.t === 'sand' ? 's' : '=';
+      }
+    }
+    m.rows = g.map(r => r.join('')); m._passFor = m.rows;
+  }
   // décor dense façon Digimon World 2003 : des bouquets de fougères, herbes folles, fleurs, champignons
   // (sur l'herbe) et de coquillages (sur le sable). Tous praticables : rien ne change pour les déplacements.
   // On laisse libres les abords des passages, portes, panneaux et personnages. (m.dense = false : désactivé)
@@ -387,5 +413,5 @@
     return g.map(r => r.join(''));
   }
 
-  DW.MapKit = { say, st, rle, paint, coast, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom };
+  DW.MapKit = { say, st, rle, paint, coast, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom, freeNear };
 })();
