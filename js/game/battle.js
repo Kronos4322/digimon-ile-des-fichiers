@@ -390,6 +390,8 @@
           await this.applyDamage(uSide, Math.max(1, Math.floor(user.maxHp / 4)));
           await this.msg(`${who} se blesse en luttant !`);
         }
+        // boss qui grandit à chaque coup (Meramon, comme dans l'anime) : son Attaque monte, 3 fois au plus
+        if (tSide === 'e' && this.o.grows && tgt.hp > 0 && (this.grown || 0) < 3) { this.grown = (this.grown || 0) + 1; this.shake = 0.4; await this.msg(this.o.grows, 0.8); await this.statChange('e', 'atk', 1); }
         if (tgt.hp > 0 && mv.st && Math.random() < mv.st.ch) await this.inflict(tSide, mv.st.s, false);
         if (tgt.hp > 0 && mv.sc && Math.random() < (mv.sc.ch || 1)) await this.statChange(mv.sc.who === 'self' ? uSide : tSide, mv.sc.s, mv.sc.n);
       } else {

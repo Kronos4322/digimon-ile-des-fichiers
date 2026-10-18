@@ -271,7 +271,9 @@
     // (Kunemon tient la Banque à l'intérieur : maps/interieurs.js, banque_in)
     // passants : plus la ville se développe, plus elle s'anime (comme les villes de Digimon World 2003)
     const nPass = Math.min(PASSERS.length, Math.floor(T().progress() / 12));
-    for (let i = 0; i < nPass; i++) { const [sp, x, y] = PASSERS[i]; if (DW.SPECIES[sp] && (!DW.Citizens || DW.Citizens.known(sp))) m.npcs.push({ sp, x, y, face: i % 2 ? 'left' : 'right', wander: 3, talk: () => passerTalk(sp) }); }
+    // (rythme de la ville : la nuit, la plupart rentrent dormir ; il ne reste que les couche-tard, un sur trois)
+    const awake = i => () => { const h = DW.Time.hour(); return h >= 6 && h < 22 || i % 3 === 0; };
+    for (let i = 0; i < nPass; i++) { const [sp, x, y] = PASSERS[i]; if (DW.SPECIES[sp] && (!DW.Citizens || DW.Citizens.known(sp))) m.npcs.push({ sp, x, y, face: i % 2 ? 'left' : 'right', wander: 3, cond: awake(i), talk: () => passerTalk(sp) }); }
     // collaborations : le second habitant travaille sur place (game/collab.js)
     if (DW.Collab) DW.Collab.place(m, { gotsumon: [LOTS.gotsumon.x + LOTS.gotsumon.w, LOTS.gotsumon.y + LOTS.gotsumon.h], elecmon: [LOTS.elecmon.x - 1, LOTS.elecmon.y + LOTS.elecmon.h], fontaine: [23, 15] });
     m.npcs.forEach(n => { delete n.hx; delete n.hy; delete n.home; });
@@ -376,6 +378,15 @@
     const lines = lv < 4 ? ["La ville renaît peu à peu... C'est grâce à toi !", "Avant, il n'y avait que des ruines ici. Regarde maintenant !", "J'ai entendu dire que d'autres Digimon allaient revenir s'installer."]
       : lv < 8 ? ['Il y a de plus en plus de monde en ville ! On se croirait au marché.', T().has('mushroomon') ? 'Tu as goûté la cuisine du Restaurant ? Un régal !' : "J'ai entendu parler d'un Digimon champignon qui cuisine à merveille... Il vit dans la Prairie, paraît-il.", "Motimon dit qu'il va pleuvoir demain. Il se trompe rarement maintenant !"]
       : ["La Ville des Fichiers est devenue une vraie cité ! Qui l'aurait cru ?", 'Des Digimon viennent de toute l\'île pour voir notre ville.', "Le soir, avec les lanternes, la place est magnifique."];
+    // selon l'heure : le matin on s'étire, le soir on flâne, la nuit on bâille
+    const h = DW.Time.hour(), f = st().flags;
+    if (h >= 22 || h < 6) lines.push('Il est tard... Je ne devrais pas traîner dehors. *bâille*', 'Chut ! Tout le monde dort. Regarde les étoiles au-dessus de la place...');
+    else if (h < 9) lines.push("Bonjour ! Le matin, je fais trois tours de la fontaine pour me réveiller. Tu viens ?", 'Les boutiques ouvrent à 6 h. Les premiers arrivés ont les meilleures viandes !');
+    else if (h >= 18) lines.push("Le soir, tout le monde se retrouve sur la place pour raconter sa journée.", "Tu as vu le coucher de soleil sur la plage ? Magnifique !");
+    // les nouvelles de l'aventure font le tour de la ville
+    if (f.seadramon) lines.push("Il paraît que tu as calmé Seadramon, au grand lac ! Les Gomamon en parlent encore.");
+    if (f.meramon) lines.push('Meramon est en ville ! Ses grillades sont brûlantes... dans tous les sens du terme.', "Les Yokomon de l'ouest t'ont fait une statue en fleurs, il paraît !");
+    if (DW.Tournament && (f.cups || null)) lines.push('Tu as gagné une coupe au tournoi du Dojo ? Bravo, champion !');
     await say(DW.pick(lines), name);
   }
   const GUIDE = { sp: 'koromon', x: 21, y: 11, face: 'left', wander: 3, talk: ow => (st().flags.tour ? guideTalk() : DW.Chapter.tour(ow)) };

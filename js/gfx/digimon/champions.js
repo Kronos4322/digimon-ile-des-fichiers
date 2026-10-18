@@ -178,42 +178,81 @@
       d.deco.poly([[58, 31], [59, 33.4], [60, 31]], '#ffffff', { unlit: true });
     },
     meramon(d) {
-      const O = '#f2701e', R = '#d83a14', Y = '#ffd84a', K = '#2a0a06';
-      d.poly([[14, 24], [10, 6], [18, 14], [19, 0.5], [25, 11], [31, 0.2], [36, 11], [43, 1], [44, 14], [52, 6], [48, 24]], R, { far: true });
-      d.tube([[24, 44], [20, 62]], 7, 6, O, { far: true }); d.tube([[38, 44], [42, 62]], 7, 6, O);
-      d.tube([[18, 30], [8, 40], [6, 48]], 6, 5, O, { far: true }); d.circ(6, 49, 4, R, { far: true });
-      d.ell(31, 38, 13, 15, O);
-      d.deco.ell(31, 40, 8, 10, Y, 0, { unlit: true });
-      d.deco.ell(31, 42, 4, 6, '#fff4c0', 0, { unlit: true });
-      d.ell(31, 18, 12, 11, O);
-      d.poly([[19, 16], [17, 6], [23, 11], [25, 2], [29, 9], [32, 1], [35, 9], [39, 3], [40, 11], [45, 6], [43, 16]], O);
-      d.deco.poly([[22, 15], [24, 8], [27, 12], [31, 5], [34, 12], [38, 7], [40, 15]], Y, { unlit: true });
-      d.poly([[18, 30], [12, 22], [20, 26]], Y); d.poly([[44, 30], [50, 22], [42, 26]], Y);
-      d.deco.ell(31, 21, 8, 6, '#ffb040');
-      d.deco.ell(27, 18, 2.6, 3.6, K, 0.2, { unlit: true }); d.deco.ell(36, 18, 2.6, 3.6, K, -0.2, { unlit: true });
-      d.deco.ell(27.6, 17.4, 0.8, 1, '#ffffff', 0, { unlit: true }); d.deco.ell(36.6, 17.4, 0.8, 1, '#ffffff', 0, { unlit: true });
-      d.deco.poly([[25, 24], [37, 24], [35, 27.6], [33, 25.6], [31, 27.6], [29, 25.6], [27, 27.6]], K, { unlit: true });
-      d.deco.line(20, 30, 24, 46, 0.7, R); d.deco.line(42, 30, 38, 46, 0.7, R);
-      d.tube([[44, 30], [52, 36], [55, 42]], 6, 5, O); d.circ(56, 43, 4.4, R, { shiny: true });
+      // homme de feu (anime) : silhouette de flammes rouges, cœur jaune-blanc, coutures noires sur le corps,
+      // tête en boule de feu hérissée, orbites noires en colère, grande bouche noire cousue
+      const R = '#e23c16', Rd = '#a8220c', O = '#ff8a1e', Y = '#ffd640', Wh = '#fff6c8', K = '#2a0a06';
+      // bras lointain et jambes (flammes qui s'effilent)
+      d.tube([[22, 30], [14, 38], [11, 46]], 7, 5.5, R, { far: true }); d.circ(11, 47, 4.6, Rd, { far: true });
+      d.poly([[8, 46], [6, 40], [10, 43]], O, { far: true });
+      d.tube([[26, 46], [22, 55], [19, 61]], 8.5, 5, R, { far: true }); d.ell(18.5, 61.5, 4.6, 2, Rd, 0, { far: true });
+      d.tube([[37, 46], [40, 55], [43, 61]], 8.5, 5, O); d.ell(44, 61.5, 5, 2.2, R);
+      // corps : silhouette de flammes, puis cœur orange, jaune et presque blanc
+      d.poly([[17, 49], [15, 37], [12, 28], [19, 31], [20, 24], [26, 22], [38, 22], [44, 25], [45, 30], [52, 27], [48, 37], [46, 49], [39, 53], [25, 53]], R, { tex: 0.2 });
+      d.ell(31, 38, 12, 13, O, 0, { tex: 0.15 });
+      d.deco.ell(31, 40, 7.5, 9.5, Y, 0, { unlit: true });
+      d.deco.ell(31, 42, 3.8, 5.4, Wh, 0, { unlit: true });
+      // coutures noires (comme des brûlures recousues)
+      d.deco.line(23.5, 29, 26.5, 48, 0.8, K); d.deco.line(38.5, 29, 35.5, 48, 0.8, K);
+      for (let k = 0; k < 5; k++) { d.deco.line(22.6 + k * 0.6, 31 + k * 4, 26.4 + k * 0.6, 30.4 + k * 4, 0.55, K); d.deco.line(35.6 - k * 0.6, 30.4 + k * 4, 39.4 - k * 0.6, 31 + k * 4, 0.55, K); }
+      // tête : boule de feu aux flammes dressées
+      d.poly([[18, 25], [15, 11], [21, 15], [21, 3], [27, 10], [31, 0], [35, 9], [41, 2], [42, 14], [48, 9], [45, 25]], R);
+      d.ell(31, 18, 11.5, 10.5, O, 0, { shiny: true });
+      d.poly([[21, 14], [22, 6], [26, 11], [30, 3], [33, 10], [37, 4], [38, 12], [42, 8], [41, 15]], O);
+      d.deco.poly([[24, 12], [26, 7], [29, 10.5], [31, 5], [33, 10.5], [36, 7], [38, 12]], Y, { unlit: true });
+      d.deco.ell(31, 20.5, 8.6, 6.4, Y, 0, { unlit: true });
+      // orbites noires en colère (inclinées vers le centre), pupilles blanches
+      d.deco.poly([[23.5, 14.6], [29.4, 17.2], [28.8, 20.4], [24.2, 19.4]], K, { unlit: true });
+      d.deco.poly([[38.5, 14.6], [32.6, 17.2], [33.2, 20.4], [37.8, 19.4]], K, { unlit: true });
+      d.deco.circ(27, 18.2, 1, '#ffffff', { unlit: true }); d.deco.circ(35, 18.2, 1, '#ffffff', { unlit: true });
+      // bouche noire, cousue de points jaunes
+      d.deco.poly([[23.6, 22.4], [38.4, 22.4], [36.4, 27], [25.6, 27]], K, { unlit: true });
+      for (let x = 26; x <= 36; x += 2.5) d.deco.line(x, 22.8, x, 26.6, 0.55, Y);
+      d.deco.line(24.6, 24.7, 37.4, 24.7, 0.5, Y);
+      // bras proche, poing serré enflammé
+      d.tube([[42, 30], [50, 34], [55, 40]], 7, 5.5, O); d.circ(56, 41, 4.8, R, { shiny: true });
+      d.deco.line(46, 31, 47.6, 35.4, 0.6, K); d.deco.line(50.4, 33.6, 52.2, 37.8, 0.6, K);
+      d.poly([[53, 37], [57, 29], [59.5, 38]], Y); d.poly([[56, 38], [62, 33], [60, 41]], O);
     },
     birdramon(d) {
-      const O = '#f2702a', R = '#d03a1c', Y = '#ffd040', Wg = '#f8a03a';
-      d.poly([[30, 26], [6, 2], [2, 14], [12, 18], [0, 28], [14, 30], [4, 40], [24, 36]], R, { far: true });
-      d.deco.line(10, 8, 26, 28, 0.8, '#a02010'); d.deco.line(6, 24, 24, 32, 0.8, '#a02010');
-      d.tube([[22, 42], [10, 50], [2, 46]], 7, 2, O);
-      d.ell(4, 44, 4, 6, Y, 0.5);
-      d.tube([[30, 48], [28, 60]], 2.6, 2.2, '#5a3a2a', { far: true });
-      d.ell(32, 38, 13, 11, O, -0.2);
-      d.deco.ell(36, 42, 8, 6, '#ffc070');
-      d.tube([[38, 48], [40, 60]], 2.8, 2.4, '#5a3a2a');
-      d.poly([[36, 60], [44, 60], [40, 63]], '#3a2a1a');
-      d.tube([[40, 32], [46, 22]], 7, 6, O);
-      d.ell(48, 18, 8, 7, O);
-      d.blob([[42, 13], [36, 4], [44, 9], [44, 1], [50, 10]], Y);
-      d.poly([[54, 16], [64, 20], [54, 23]], Y, { shiny: true });
-      d.eye(50, 16, 2.6, 2.4, '#2a8a3a', { look: 0.4 });
-      d.poly([[34, 30], [56, 6], [62, 18], [52, 22], [60, 30], [46, 32], [52, 40], [36, 38]], Wg);
-      d.deco.line(40, 32, 56, 12, 0.8, '#d06a1a'); d.deco.line(42, 34, 54, 28, 0.8, '#d06a1a');
+      // oiseau de feu (anime) : grandes ailes de plumes-flammes, corps orange, ventre jaune, huppe de flammes,
+      // bec jaune crochu, œil vert, pattes sombres griffues, queue en trois flammes
+      const O = '#f47a22', R = '#d8401a', Rd = '#9a2410', Y = '#ffd040', Yl = '#fff0a0', G = '#4a3a3a';
+      const feathers = (x, y, a0, a1, n, len0, len1, w, col, line, far) => {
+        for (let k = 0; k < n; k++) {
+          const t = n > 1 ? k / (n - 1) : 0, a = a0 + (a1 - a0) * t, L = len0 + (len1 - len0) * t;
+          const mx = x + Math.cos(a) * L * 0.55 + Math.cos(a + 1.57) * 1.5, my = y + Math.sin(a) * L * 0.55 + Math.sin(a + 1.57) * 1.5;
+          d.tube([[x, y], [mx, my], [x + Math.cos(a) * L, y + Math.sin(a) * L]], w, 0.6, col, { far, shiny: !far });
+          if (!far) d.deco.line(x + Math.cos(a) * 3, y + Math.sin(a) * 3, x + Math.cos(a) * L * 0.85, y + Math.sin(a) * L * 0.85, 0.5, line);
+        }
+      };
+      // aile lointaine, dressée vers l'arrière
+      feathers(27, 31, -3.0, -2.05, 7, 30, 17, 6.2, R, Rd, true);
+      // queue : trois flammes
+      feathers(21, 41, 2.5, 2.9, 3, 18, 13, 4.6, R, Rd, false);
+      feathers(21, 41, 2.55, 2.85, 2, 11, 9, 2.6, Y, '#e09020', false);
+      // pattes sombres, griffes
+      d.tube([[29, 46], [27, 55], [26, 60]], 3.2, 2.2, G, { far: true });
+      for (const a of [2.6, 1.9, 1.3]) d.tube([[26, 60], [26 + Math.cos(a) * 3.6, 60 + Math.sin(a) * 1.8]], 1.2, 0.4, '#2a2020', { far: true });
+      d.tube([[37, 47], [39, 55], [40, 60]], 3.4, 2.4, G);
+      for (const a of [2.8, 0.6, 0.1]) d.tube([[40, 60], [40 + Math.cos(a) * 4, 60.6 + Math.sin(a) * 1.6]], 1.3, 0.4, '#2a2020');
+      // corps, ventre jaune
+      d.ell(32, 39, 13, 10, O, -0.25, { shiny: true });
+      d.deco.ell(35.5, 42.5, 8, 5, Y, -0.25);
+      d.deco.ell(36, 43, 4, 2.4, Yl, -0.25, { unlit: true });
+      // cou et tête
+      d.tube([[39, 33], [44, 26], [47, 21]], 8, 6.5, O);
+      d.ell(49.5, 18.5, 7.6, 6.6, O, 0, { shiny: true });
+      // huppe de flammes vers l'arrière
+      d.poly([[44, 14], [34, 6], [42, 10], [38, 1], [46, 8], [48, 0], [50, 11]], R);
+      d.poly([[45, 14], [39, 8], [44, 10], [43, 4], [48, 10]], Y);
+      // bec crochu
+      d.poly([[54.5, 16.5], [63.5, 19], [61.5, 22.6], [55, 22]], Y, { shiny: true });
+      d.poly([[61, 19], [63.5, 19], [62.4, 23.4]], '#c8901a');
+      d.deco.line(55, 19.6, 61.5, 20.6, 0.5, '#a07010');
+      d.eye(51, 16.6, 2.4, 2.2, '#2a9a3a', { look: 0.4 });
+      // aile proche, déployée vers le haut et l'avant : plumes jaunes au bout orange
+      feathers(33, 32, -2.3, -1.25, 8, 36, 20, 6.6, O, R, false);
+      feathers(33, 32, -2.15, -1.4, 6, 19, 12, 4.2, Y, '#e09020', false);
     },
   });
 })();

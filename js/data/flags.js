@@ -48,6 +48,7 @@
     seadramon: 'Seadramon vaincu, Matt délivré (fin du chapitre 2)',
     yokoVillage: 'arrivée au Village des Yokomon (chapitre 3)',
     soraMet: 'Sora rencontrée au Village des Yokomon (elle et Biyomon viennent au Mont Miharashi)',
+    arrosage: "jour de la dernière partie d'arrosage des fleurs au Village des Yokomon (game/minijeux.js)",
     mihaFire: 'grondement du Mont Miharashi entendu (Meramon au sommet)',
     meramon: 'Meramon calmé au sommet du Mont Miharashi, l’eau revient au village (fin du chapitre 3)',
     crestSeen: 'premier portail d\'écusson découvert (la page ÉCUSSONS du Journal apparaît)',

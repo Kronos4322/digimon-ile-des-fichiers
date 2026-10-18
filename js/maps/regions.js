@@ -544,7 +544,8 @@
     out: [[0, 'up'], [2, 'right'], [2, 'down'], [3, 'down']],
     plan: [[3, 0], [2, 0], [3, 1], [1, 0], [0, 0]], links: [[0, 1], [0, 2], [1, 3], [3, 4]],
     subs: [
-      ['Désert des Poteaux', 'trail', { noRegionLm: true, post: (g, m) => poles(g, m, 0) }],
+      // (déserts : grande étendue ouverte, la roche seulement sur les bords)
+      ['Désert des Poteaux', 'trail', { noRegionLm: true, opts: { autoTall: 0.35, clearings: [{ x: 48, y: 32, rx: 40, ry: 24 }] }, post: (g, m) => poles(g, m, 0) }],
       ['Village des Yokomon', 'plaza', { theme: 'yokovillage', w: 112, h: 80, noRegionLm: true, coast: { up: 'beach', down: 'cliff' },
         opts: { hub: [56, 40], lakes: [{ x: 28, y: 60, rx: 13, ry: 7.5 }], autoTall: 0.2 },
         objects: [
@@ -560,7 +561,7 @@
           for (let y = 56; y <= 64; y++) for (let x = 21; x <= 35; x++) { const d = Math.hypot((x - 28) / 7.5, (y - 60.5) / 4); if (d < 1) g.set(x, y, d < 0.75 ? 's' : ';'); }
           g.set(56, 35, 'S');
         } }],
-      ['Plaine des Panneaux', 'trail', { noRegionLm: true, coast: { left: 'cliff' }, post: (g, m) => poles(g, m, 2) }],
+      ['Plaine des Panneaux', 'trail', { noRegionLm: true, coast: { left: 'cliff' }, opts: { autoTall: 0.35, clearings: [{ x: 52, y: 34, rx: 38, ry: 24 }] }, post: (g, m) => poles(g, m, 2) }],
       ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', coast: { up: 'cliff' }, lm: [['Ó', 3]], noRegionLm: true }],
       ['Mont Miharashi', 'plaza', { theme: 'miharashi', w: 96, h: 96, noRegionLm: true, coast: { up: 'cliff', left: 'cliff', down: 'cliff' },
         opts: { hub: [48, 72], autoTall: 0.3 },

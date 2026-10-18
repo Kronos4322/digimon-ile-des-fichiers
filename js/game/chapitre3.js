@@ -36,6 +36,8 @@
         folk(63, 41, () => freed() ? ['On va faire une grande fête autour de la fontaine !'] : ["Le lac a presque séché. On voit même la vieille épave, au milieu !", "On dit que ce bateau est là depuis toujours. Personne ne sait d'où il vient."]),
         folk(53, 45, () => freed() ? ['Merci, merci, merci !'] : ["Meramon était gentil, avant... Il veillait sur la montagne.", "Une drôle de chose noire est tombée du ciel sur le Mont Miharashi. Depuis, Meramon a changé."]),
         folk(61, 46, () => ["Les poteaux du désert ? Ils étaient là avant nous. Ils ne mènent nulle part...", "Bienvenue au Village des Yokomon !"]),
+        // la jardinière : une fois l'eau revenue, le mini-jeu d'arrosage (game/minijeux.js)
+        { sp: 'yokomon', x: 47, y: 41, face: 'right', cond: () => freed(), talk: () => DW.MiniJeux.arrosage('Yokomon jardinière') },
         { hero: 'sora', x: 50, y: 36, face: 'right', cond: soraHere, talk: ow => soraTalk(ow) },
         { sp: 'biyomon', x: 51, y: 37, face: 'left', cond: soraHere, talk: async () => { await say(st().flags.soraMet ? "Je protégerai Sora ! Même contre Meramon !" : "Cui ! Tu viens de la forêt ? Va parler à Sora, elle cherche de l'aide !", 'Biyomon'); } },
       );
@@ -103,6 +105,7 @@
     if ((await DW.ask('Affronter Meramon ? (un Champion de feu qui grandit à chaque coup)')) !== 0) return;
     const res = await ow.battle({
       enemy: new DW.Digimon('meramon', 30), boss: true, canLose: true, music: 'boss', intro: 'Meramon déchaîne ses flammes !',
+      grows: 'Meramon absorbe le choc... et ses flammes grandissent encore !',
       ally: withSora ? { at: 0.4, from: 'biyomon', sp: 'birdramon', lvl: 24, hero: 'sora', name: 'Sora', move: 'meteore',
         join: "« BIYOMOOON ! » Le Digivice de Sora s'illumine... BIYOMON DIGIVOLUE EN... BIRDRAMON !" } : null,
     });
