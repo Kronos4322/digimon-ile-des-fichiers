@@ -250,6 +250,135 @@
     return g;
   };
 
+  // =================================================================== STYLES DE PONTS (bois, tronc, corde)
+  // style d'une carte : choisi dans l'atelier (map.pont), sinon selon la région : forêts → bois, Pays de Meramon
+  // (montagne) → corde, ailleurs → pierre. Chaque pont est peint en entier : (X0, Y0)-(X1, Y1) en pixels, hz = est-ouest.
+  const BOIS = [150, 104, 62], BOIS_C = [214, 168, 112], BOIS_S = [78, 50, 30], CORDE = [206, 180, 128];
+  DW.World.styleDePont = map => map.pont || (map.region === 'foret' ? 'bois' : map.region === 'miharashi' ? 'corde' : 'pierre');
+  // planche : dégradé le long, arête claire, joint sombre, deux clous, veinure ; usée (plus claire) au milieu du pont
+  function planche(x, x0, y0, w, h, hz, seed, usure) {
+    const t = 0.85 + hash(seed, 1, 801) * 0.3, C = mix(BOIS.map(v => v * t), BOIS_C, usure * 0.45);
+    const g = hz ? x.createLinearGradient(x0, 0, x0 + w, 0) : x.createLinearGradient(0, y0, 0, y0 + h);
+    g.addColorStop(0, rgb(mix(C, LITE, 0.25))); g.addColorStop(0.6, rgb(C)); g.addColorStop(1, rgb(mix(C, BOIS_S, 0.45)));
+    x.fillStyle = g; x.fillRect(x0, y0, w, h);
+    x.fillStyle = rgb(mix(C, BOIS_S, 0.8)); if (hz) x.fillRect(x0 + w - 0.6, y0, 0.6, h); else x.fillRect(x0, y0 + h - 0.6, w, 0.6);   // joint
+    x.strokeStyle = rgb(mix(C, BOIS_S, 0.5), 0.5); x.lineWidth = 0.3;   // veinure
+    for (let k = 0; k < 2; k++) { x.beginPath(); if (hz) { const vx = x0 + 1 + hash(seed, k, 802) * (w - 2); x.moveTo(vx, y0); x.bezierCurveTo(vx + 0.8, y0 + h * 0.3, vx - 0.8, y0 + h * 0.7, vx, y0 + h); } else { const vy = y0 + 1 + hash(seed, k, 802) * (h - 2); x.moveTo(x0, vy); x.bezierCurveTo(x0 + w * 0.3, vy + 0.8, x0 + w * 0.7, vy - 0.8, x0 + w, vy); } x.stroke(); }
+    x.fillStyle = 'rgba(40,30,24,0.8)'; if (hz) { x.fillRect(x0 + w / 2 - 0.4, y0 + 1.4, 0.8, 0.8); x.fillRect(x0 + w / 2 - 0.4, y0 + h - 2.2, 0.8, 0.8); } else { x.fillRect(x0 + 1.4, y0 + h / 2 - 0.4, 0.8, 0.8); x.fillRect(x0 + w - 2.2, y0 + h / 2 - 0.4, 0.8, 0.8); }
+  }
+  // poteau de bois vu d'en haut (tête claire, ombre), avec sa base
+  function poteau(x, px, py, r, seed) {
+    x.fillStyle = 'rgba(8,20,30,0.35)'; x.beginPath(); x.ellipse(px + 1.4, py + 1.6, r + 0.6, r * 0.6, 0, 0, 7); x.fill();
+    x.fillStyle = rgb(BOIS_S); x.beginPath(); x.arc(px + 0.3, py + 0.4, r + 0.5, 0, 7); x.fill();
+    const g = x.createRadialGradient(px - r * 0.4, py - r * 0.4, 0.2, px, py, r); g.addColorStop(0, rgb(BOIS_C)); g.addColorStop(1, rgb(mix(BOIS, BOIS_S, 0.3)));
+    x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, 7); x.fill();
+    x.strokeStyle = rgb(mix(BOIS, BOIS_S, 0.5), 0.6); x.lineWidth = 0.25; x.beginPath(); x.arc(px, py, r * 0.55, 0, 7); x.stroke();
+  }
+  // corde tendue entre deux points, qui pend un peu au milieu
+  function corde(x, ax, ay, bx, by, pend, ep = 0.9) {
+    const mx = (ax + bx) / 2, my = (ay + by) / 2 + pend;
+    x.strokeStyle = rgb(mix(CORDE, BOIS_S, 0.55)); x.lineWidth = ep + 0.6; x.beginPath(); x.moveTo(ax, ay + 0.4); x.quadraticCurveTo(mx, my + 0.4, bx, by + 0.4); x.stroke();
+    x.strokeStyle = rgb(CORDE); x.lineWidth = ep; x.beginPath(); x.moveTo(ax, ay); x.quadraticCurveTo(mx, my, bx, by); x.stroke();
+    x.strokeStyle = rgb(mix(CORDE, LITE, 0.5), 0.6); x.lineWidth = ep * 0.35; x.setLineDash([1, 1.2]); x.beginPath(); x.moveTo(ax, ay - ep * 0.2); x.quadraticCurveTo(mx, my - ep * 0.2, bx, by - ep * 0.2); x.stroke(); x.setLineDash([]);
+  }
+  // PONT DE BOIS : planches en travers, longerons sombres sur les bords, poteaux et rambardes de corde,
+  // pilotis visibles dans l'eau sur la face sud (pont est-ouest) et ombre portée
+  function pontBois(x, X0, Y0, X1, Y1, hz, seed) {
+    const L = hz ? X1 - X0 : Y1 - Y0, Wd = hz ? Y1 - Y0 : X1 - X0;
+    // ombre sur l'eau
+    x.fillStyle = 'rgba(6,22,38,0.38)'; if (hz) x.fillRect(X0 + 2, Y1, X1 - X0, 5); else x.fillRect(X1, Y0 + 2, 5, Y1 - Y0);
+    // pilotis (face sud / est)
+    for (let a = 6; a < L - 2; a += 22) { const px = hz ? X0 + a : X1 - 2, py = hz ? Y1 - 1 : Y0 + a; x.fillStyle = rgb(BOIS_S); if (hz) x.fillRect(px - 1.4, py, 2.8, 6); else x.fillRect(px, py - 1.4, 6, 2.8); x.fillStyle = 'rgba(200,240,255,0.5)'; if (hz) x.fillRect(px - 2.2, py + 5.4, 4.4, 0.6); else x.fillRect(px + 5.4, py - 2.2, 0.6, 4.4); }
+    // longerons
+    x.fillStyle = rgb(BOIS_S); if (hz) { x.fillRect(X0, Y0 + 1, L, Wd - 2); } else x.fillRect(X0 + 1, Y0, Wd - 2, L);
+    // planches (en travers du passage)
+    const ep = 4.2;
+    for (let a = 0, k = 0; a < L; a += ep, k++) {
+      const u = Math.abs((a + ep / 2) / L - 0.5) * 2, usure = 1 - u, jit = (hash(seed, k, 803) - 0.5) * 1.2;
+      if (hz) planche(x, X0 + a, Y0 + 1.5 + jit * 0.4, ep, Wd - 3, true, seed + k, usure * 0.6);
+      else planche(x, X0 + 1.5 + jit * 0.4, Y0 + a, Wd - 3, ep, false, seed + k, usure * 0.6);
+    }
+    // bord de chaque côté : une poutre claire et des poteaux reliés par une corde
+    const posts = []; for (let a = 2; a <= L - 2; a += Math.max(14, L / Math.max(1, Math.round(L / 20)))) posts.push(a); if (posts[posts.length - 1] < L - 4) posts.push(L - 2);
+    for (const side of [0, 1]) {
+      const pts = posts.map(a => (hz ? [X0 + a, side ? Y1 - 1.6 : Y0 + 1.6] : [side ? X1 - 1.6 : X0 + 1.6, Y0 + a]));
+      x.fillStyle = rgb(mix(BOIS, BOIS_S, 0.3)); if (hz) x.fillRect(X0, side ? Y1 - 2.6 : Y0 + 0.4, L, 2.2); else x.fillRect(side ? X1 - 2.6 : X0 + 0.4, Y0, 2.2, L);
+      for (let i = 0; i < pts.length - 1; i++) corde(x, pts[i][0], pts[i][1] - (hz ? 3 : 0), pts[i + 1][0], pts[i + 1][1] - (hz ? 3 : 0), hz ? 1.8 : 0.8);
+      for (const [px, py] of pts) poteau(x, px, py - (hz ? 1.2 : 0), 1.7, seed + px + py);
+    }
+  }
+  // PONT DE CORDE (montagne) : planches espacées (on voit l'eau entre elles), tablier qui s'affaisse au milieu,
+  // deux cordes porteuses et des suspentes, gros poteaux d'ancrage aux deux bouts
+  function pontCorde(x, X0, Y0, X1, Y1, hz, seed) {
+    const L = hz ? X1 - X0 : Y1 - Y0, Wd = hz ? Y1 - Y0 : X1 - X0, sag = Math.min(4, L / 18);
+    const off = a => Math.sin(Math.PI * a / L) * sag;   // affaissement (vers le sud ou l'est)
+    x.fillStyle = 'rgba(6,22,38,0.3)'; for (let a = 0; a < L; a += 4) { if (hz) x.fillRect(X0 + a, Y1 + off(a) + 1, 3.4, 3); else x.fillRect(X1 + off(a) + 1, Y0 + a, 3, 3.4); }
+    for (let a = 1, k = 0; a < L - 1; a += 4.6, k++) {
+      const jit = (hash(seed, k, 811) - 0.5) * 1.4, d = off(a);
+      if (hz) planche(x, X0 + a, Y0 + 2.5 + d + jit * 0.3, 3.4, Wd - 5, true, seed + k, 0.2);
+      else planche(x, X0 + 2.5 + d + jit * 0.3, Y0 + a, Wd - 5, 3.4, false, seed + k, 0.2);
+    }
+    for (const side of [0, 1]) {
+      const at = a => (hz ? [X0 + a, (side ? Y1 - 2 : Y0 + 2) + off(a)] : [(side ? X1 - 2 : X0 + 2) + off(a), Y0 + a]);
+      for (let a = 2; a < L - 2; a += 4.6) { const [px, py] = at(a); corde(x, px, py - (hz ? 4 : 0), px, py, 0, 0.45); }   // suspentes
+      x.strokeStyle = rgb(mix(CORDE, BOIS_S, 0.55)); x.lineWidth = 1.5; x.beginPath(); for (let a = 0; a <= L; a += 2) { const [px, py] = at(a); a ? x.lineTo(px, py + 0.4 - (hz ? 4 : 0)) : x.moveTo(px, py + 0.4 - (hz ? 4 : 0)); } x.stroke();
+      x.strokeStyle = rgb(CORDE); x.lineWidth = 1; x.beginPath(); for (let a = 0; a <= L; a += 2) { const [px, py] = at(a); a ? x.lineTo(px, py - (hz ? 4 : 0)) : x.moveTo(px, py - (hz ? 4 : 0)); } x.stroke();
+      for (const a of [0.5, L - 0.5]) { const [px, py] = at(a); poteau(x, px, py - (hz ? 2 : 0), 2.4, seed + a + side); }
+    }
+  }
+  // TRONC COUCHÉ (forêt profonde) : un arbre géant tombé en travers de l'eau ; écorce en cylindre (sombre sur les
+  // flancs), dessus aplati et usé par les pas, mousse, moignons de branches, souche et racines au bout ouest/nord
+  function pontTronc(x, X0, Y0, X1, Y1, hz, seed) {
+    // repère du tronc : a = le long (de -E à L+E, il déborde sur les berges), b = en travers (0..Wd)
+    const L = hz ? X1 - X0 : Y1 - Y0, Wd = hz ? Y1 - Y0 : X1 - X0, E = 7, B = [118, 74, 42], TOP = [196, 146, 96];
+    const P = (a, b) => (hz ? [X0 + a, Y0 + b] : [X0 + b, Y0 + a]);
+    const R = (a0, b0, la, lb) => (hz ? [X0 + a0, Y0 + b0, la, lb] : [X0 + b0, Y0 + a0, lb, la]);
+    const rect = (a0, b0, la, lb) => { const [rx, ry, rw, rh] = R(a0, b0, la, lb); x.fillRect(rx, ry, rw, rh); };
+    // ombre portée sur l'eau (sud / est)
+    x.fillStyle = 'rgba(6,22,38,0.45)'; rect(-E + 3, Wd - 1, L + 2 * E - 2, 6);
+    // RACINES arrachées au bout de départ (ouest / nord) : langues de bois qui s'écartent en éventail
+    for (let r = 0; r < 5; r++) {
+      const sp = (r - 2) / 2, [ax, ay] = P(-E + 2, Wd / 2 + sp * Wd * 0.3), [bx, by] = P(-E - 5 - hash(seed, r, 831) * 4, Wd / 2 + sp * Wd * 0.75);
+      x.strokeStyle = rgb(mix(B, INK, 0.55)); x.lineWidth = 3.4 - Math.abs(sp); x.lineCap = 'round'; x.beginPath(); x.moveTo(ax, ay); x.lineTo(bx, by); x.stroke();
+      x.strokeStyle = rgb(mix(B, TOP, 0.25)); x.lineWidth = 2 - Math.abs(sp) * 0.6; x.beginPath(); x.moveTo(ax, ay); x.lineTo(bx, by); x.stroke();
+    }
+    // FÛT : volume de cylindre (flancs très sombres, dessus clair usé), contour sombre
+    const g = hz ? x.createLinearGradient(0, Y0 - 1, 0, Y0 + Wd + 1) : x.createLinearGradient(X0 - 1, 0, X0 + Wd + 1, 0);
+    g.addColorStop(0, rgb(mix(B, INK, 0.65))); g.addColorStop(0.1, rgb(mix(B, INK, 0.25))); g.addColorStop(0.24, rgb(B)); g.addColorStop(0.36, rgb(mix(TOP, B, 0.25)));
+    g.addColorStop(0.5, rgb(TOP)); g.addColorStop(0.64, rgb(mix(TOP, B, 0.3))); g.addColorStop(0.78, rgb(mix(B, COOL, 0.2))); g.addColorStop(0.92, rgb(mix(B, INK, 0.4))); g.addColorStop(1, rgb(mix(B, INK, 0.7)));
+    x.fillStyle = rgb(mix(B, INK, 0.7)); rect(-E, -1.2, L + 2 * E, Wd + 2.4);
+    x.fillStyle = g; rect(-E, -0.5, L + 2 * E, Wd + 1);
+    // écorce en plaques sur les deux flancs (le dessus, usé, en est dépourvu)
+    for (const [b0, b1] of [[0, Wd * 0.3], [Wd * 0.7, Wd]]) for (let a = -E, k = 0; a < L + E; k++) {
+      const la = 3 + hash(seed, k + b0, 832) * 5, lb = (b1 - b0) * (0.5 + hash(seed, k + b0, 833) * 0.4), bb = b0 + (b1 - b0 - lb) * hash(seed, k, 834);
+      x.fillStyle = rgb(mix(B, INK, 0.5), 0.55); rect(a, bb, 0.5, lb); x.fillStyle = rgb(mix(B, TOP, 0.2), 0.35); rect(a + 0.6, bb, 0.4, lb * 0.7);
+      a += la;
+    }
+    // dessus : fines veines du bois lissé par les pas
+    x.strokeStyle = rgb(mix(TOP, B, 0.45), 0.45); x.lineWidth = 0.35;
+    for (let k = 0; k < 4; k++) { const b = Wd * (0.38 + k * 0.08); x.beginPath(); for (let a = -E + 2; a <= L + E - 2; a += 4) { const [px, py] = P(a, b + (hash(seed, k * 90 + a, 835) - 0.5) * 0.7); a > -E + 2 ? x.lineTo(px, py) : x.moveTo(px, py); } x.stroke(); }
+    // COUPE à cernes au bout d'arrivée (est / sud)
+    { const [cx, cy] = P(L + E, Wd / 2), rx = hz ? 2.6 : Wd / 2, ry = hz ? Wd / 2 : 2.6;
+      x.fillStyle = rgb([226, 184, 128]); x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill();
+      x.strokeStyle = rgb(mix(B, INK, 0.3), 0.6); x.lineWidth = 0.35; for (const f of [0.75, 0.5, 0.25]) { x.beginPath(); x.ellipse(cx, cy, rx * f, ry * f, 0, 0, 7); x.stroke(); }
+      x.strokeStyle = rgb(mix(B, INK, 0.6)); x.lineWidth = 0.8; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.stroke(); }
+    // mousse en coussins irréguliers (plus sur le flanc nord / ouest, à l'ombre) et petites fougères
+    for (let i = 0; i < Math.round(L / 12) + 1; i++) {   // (longues plaques le long des flancs, plus fournies au nord / à l'ouest, à l'ombre)
+      const a = hash(seed, i, 836) * (L + E) - E / 2, nord = hash(seed, i, 837) < 0.7, b = nord ? Wd * (0.04 + hash(seed, i, 838) * 0.12) : Wd * (0.86 + hash(seed, i, 838) * 0.08);
+      const [px, py] = P(a, b), r = 1.4 + hash(seed, i, 839) * 1.2, la = r * (2.6 + hash(seed, i, 840) * 2), lb = r * 0.9;
+      const E2 = (dx, dy, ra, rb) => { x.beginPath(); x.ellipse(px + dx, py + dy, hz ? ra : rb, hz ? rb : ra, 0, 0, 7); x.fill(); };
+      x.fillStyle = rgb(mix(MOSS, INK, 0.35), 0.9); E2(0.3, 0.4, la + 0.4, lb + 0.4);
+      x.fillStyle = rgb(MOSS); E2(0, 0, la, lb);
+      x.fillStyle = 'rgba(206,240,150,0.6)'; for (let k = 0; k < 4; k++) { const t = (k / 3 - 0.5) * la * 1.4; E2(hz ? t : -lb * 0.3, hz ? -lb * 0.3 : t, 0.8, 0.5); }
+    }
+    // moignons de branches cassées sur les flancs
+    for (let i = 0; i < Math.max(1, Math.round(L / 26)); i++) {
+      const a = (i + 0.5) / Math.max(1, Math.round(L / 26)) * L, out = i % 2 ? Wd + 2.2 : -2.2, [px, py] = P(a, out), [qx, qy] = P(a + 1.5, out + (i % 2 ? 3 : -3));
+      x.strokeStyle = rgb(mix(B, INK, 0.45)); x.lineWidth = 2.4; x.lineCap = 'round'; x.beginPath(); x.moveTo(px, py); x.lineTo(qx, qy); x.stroke();
+      x.fillStyle = rgb([226, 184, 128]); x.beginPath(); x.arc(qx, qy, 0.9, 0, 7); x.fill();
+    }
+  }
+
   DW.World.paintBridges = map => {
     const rows = map.rows, W = map.w, H = map.h, info = DW.World.info;
     const isB = (x, y) => x >= 0 && y >= 0 && x < W && y < H && info(rows[y][x]).t === 'bridge';
@@ -293,6 +422,14 @@
         continue;
       }
       const X0 = c.x0 * TS, Y0 = c.y0 * TS, X1 = (c.x1 + 1) * TS, Y1 = (c.y1 + 1) * TS;
+      const style = DW.World.styleDePont(map);
+      if (style !== 'pierre') {   // pont de bois, tronc couché ou pont de corde : on marche sur toute sa largeur
+        const land0 = (tx, ty) => !isB(tx, ty) && !isWater(tx, ty);
+        if (hz) { for (const [ex, dx] of [[X0, -1], [X1, 1]]) if (land0(dx < 0 ? c.x0 - 1 : c.x1 + 1, Math.round((c.y0 + c.y1) / 2))) apron(x, ex, (Y0 + Y1) / 2, dx, 0, (Y1 - Y0) / 2, seed + 400 + dx, map.dirtCol); }
+        else { for (const [ey, dy] of [[Y0, -1], [Y1, 1]]) if (land0(Math.round((c.x0 + c.x1) / 2), dy < 0 ? c.y0 - 1 : c.y1 + 1)) apron(x, (X0 + X1) / 2, ey, 0, dy, (X1 - X0) / 2, seed + 420 + dy, map.dirtCol); }
+        (style === 'bois' ? pontBois : style === 'tronc' ? pontTronc : pontCorde)(x, X0, Y0, X1, Y1, hz, seed);
+        continue;
+      }
       // les deux bouts sur la terre ferme : fondu de terre battue (dessiné d'abord, sous le pont)
       const land = (tx, ty) => !isB(tx, ty) && !isWater(tx, ty);
       const midY = (Y0 + Y1) / 2, midX = (X0 + X1) / 2;

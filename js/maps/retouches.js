@@ -24,6 +24,8 @@
       if (T && T.ambient) m.ambient = T.ambient;
       if (m._baseFalaise === undefined) m._baseFalaise = m.falaise || null;
       m.falaise = T && T.falaise ? T.falaise : m._baseFalaise || undefined;   // style des falaises (gfx/terrain.js : World.FALAISES)
+      if (m._basePont === undefined) m._basePont = m.pont || null;
+      m.pont = T && T.pont ? T.pont : m._basePont || undefined;   // style des ponts (gfx/ponts.js : pierre, bois, tronc, corde)
       const W = B.rows[0].length, H = B.rows.length, g = B.rows.map(r => [...r]);
       m.alt = B.alt;
       if (T && T.niveaux && Object.keys(T.niveaux).length) relief(g, m, W, H, T.niveaux, B.alt);
