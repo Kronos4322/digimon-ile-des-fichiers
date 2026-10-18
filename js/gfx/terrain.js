@@ -82,6 +82,12 @@
     const TX = DW.Textures && map.textures ? DW.Textures : null, txp = n => (TX ? TX.pixels(map.textures + '/' + n) : null);
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
     const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n)).filter(Boolean);
+    const TX_HERBE = txp('herbe'), TX_HSECHE = txp('herbe_seche'), TX_SABLE = txp('sable'), TX_CHEMIN = txp('chemin');
+    // herbe dessinée (l'herbe sèche sur les cases « j ») ; l'ombre des arbres et des falaises reste par-dessus
+    const herbeTx = (tx, ty, px, py, sh) => { const P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE; const c = TX.lit(P, px, py), k = Math.min(0.45, sh * 0.04); return k > 0 ? Art.mix(c, [24, 50, 60], k) : c; };
+    const altCase = (x, y) => { const a = map.alt ? map.alt[DW.clamp(y, 0, map.h - 1) * map.w + DW.clamp(x, 0, map.w - 1)] : 0; return a === 255 ? 9 : a; };
+    // lave refroidie : sur une falaise basse (loin du cratère), les fissures de lave de l'image deviennent sombres
+    const refroidie = (c, k) => { if (k <= 0) return c; const chaud = Math.max(0, Math.min(1, (c[0] - c[2] - 70) / 120)) * (c[0] > 150 ? 1 : 0.5); if (chaud <= 0) return c; const f = chaud * k, g = (c[0] + c[1] + c[2]) / 3 * 0.45; return [c[0] + (g + 18 - c[0]) * f, c[1] + (g + 8 - c[1]) * f, c[2] + (g - c[2]) * f, c[3]]; };
     const solVar = (c, k, px, py) => {
       if (k === 2 && TX_CENDRES) return TX.lit(TX_CENDRES, px, py);
       if (k === 1 && TX_DESSUS) return TX.lit(TX_DESSUS, px, py);
@@ -310,6 +316,7 @@
           const cool = Math.min(0.5, (p5 < 0.42 ? (0.42 - p5) * 1.2 : 0) + sh * 0.035);
           if (cool > 0) { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; }   // ombre bleutée
         }
+        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i]);   // (image dessinée : gfx/textures.js)
       } else if (t === TER.dirt && LUSH) {
         // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre
         col = lerpPal(DIRT, lushDirtV(px, py, i) - (en === TER.grass && ed <= 4 ? (5 - ed) * 0.14 : 0));
@@ -319,8 +326,9 @@
           col = [col[0] + (gc[0] - col[0]) * k, col[1] + (gc[1] - col[1]) * k, col[2] + (gc[2] - col[2]) * k];
         }
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
+        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) col = TX.lit(TX_CHEMIN, px, py);   // sentier du bas (image dessinée)
         if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
-        else if (TX_CENDRES) col = Art.mix(TX.lit(TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier : dalles de cendre (image dessinée)
+        else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.lawn && LUSH) {
         // pelouse (Village des Bébés) : mêmes brins fins, palette pastel, fleurs semées
         if (en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2 && hash(px, py, 315) < (3 - ed) / 4) col = lerpPal(SAND, 3.4 + (hash(px, py, 316) - 0.5));
@@ -332,6 +340,7 @@
         v -= SH[i] * 0.22;
         if (tallAt(tx, ty)) v -= 1.2;
         col = GRASS[DW.clamp(Math.round(v), 0, 5)];
+        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i]);   // (image dessinée : gfx/textures.js)
         if (map.ambient === 'forest' && SH[i] > 2 && hash(px >> 1, py >> 1, 90) < 0.02) col = Art.hex(['#c8a040', '#a8c050', '#d08a3a'][Math.floor(hash(px, py, 91) * 3)]);
       } else if (t === TER.dirt) {
         let v = 3 + (D7(px, py) - 0.5) * 2.4 + b * 0.8;
@@ -341,8 +350,9 @@
         v -= SH[i] * 0.2;
         col = DIRT[DW.clamp(Math.round(v), 0, 5)];
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.06) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);
+        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) col = TX.lit(TX_CHEMIN, px, py);   // sentier du bas (image dessinée)
         if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
-        else if (TX_CENDRES) col = Art.mix(TX.lit(TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier : dalles de cendre (image dessinée)
+        else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.sand) {
         const r = Math.sin(px * 0.2 + S8(px, py) * 9 + py * 0.55);
         let v = 3.2 + (S9(px, py) - 0.5) * 1.6 + b * 0.7 + (r > 0.9 ? -1 : r < -0.96 ? 1 : 0);
@@ -350,6 +360,7 @@
         v -= SH[i] * 0.2;
         if (en === TER.water && ed <= 9) { const wv = lerpPal(WET, v * 0.5 + ed * 0.35 - 0.6), dry = SAND[DW.clamp(Math.round(v), 0, 5)], k = ed <= 5 ? 0 : (ed - 5) / 4; col = [wv[0] + (dry[0] - wv[0]) * k, wv[1] + (dry[1] - wv[1]) * k, wv[2] + (dry[2] - wv[2]) * k]; }   // sable mouillé qui sèche en s'éloignant de l'eau
         else col = SAND[DW.clamp(Math.round(v), 0, 5)];
+        if (TX_SABLE && !(en === TER.water && ed <= 5)) { const s2 = TX.lit(TX_SABLE, px, py); col = en === TER.water && ed <= 9 ? Art.mix(col, s2, (ed - 5) / 4) : s2; }   // sable dessiné (le bord mouillé reste)
       } else if (t === TER.lawn) {
         let v = 3 + (L12(px, py) - 0.5) * 2 + b * 0.6;
         if (ed === 1 && en !== TER.lawn && en !== 255) v = 1;
@@ -432,6 +443,7 @@
         if (TX_FALAISE) {
           const FH = TX_FALAISE.h, yt = Hpx === FH ? wy : wy < 16 ? wy : wy >= Hpx - 16 ? FH - (Hpx - wy) : 16 + ((wy - 16) % (FH - 32));
           col = TX.lit(TX_FALAISE, px, yt);
+          { const Lh = altCase(tx, ty - up - 1); if (Lh <= 3) col = refroidie(col, Lh <= 2 ? 1 : 0.6); }   // (en bas de la montagne : lave refroidie)
           if (leftE && lx < 2) col = Art.mix(col, [0, 0, 0], 0.25); else if (rightE && lx > 13) col = Art.mix(col, [0, 0, 0], 0.35);
         } else {
         // colonnes de largeur inégale (9 à 15 px), légèrement ondulées

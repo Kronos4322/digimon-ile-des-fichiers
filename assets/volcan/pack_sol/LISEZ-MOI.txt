@@ -1,0 +1,28 @@
+PACK DU SOL — à améliorer avec ChatGPT
+======================================
+
+Les images « actuel_*.png » montrent le sol tel qu'il est AUJOURD'HUI dans le jeu (Mont Miharashi, bas de la
+montagne), agrandi 4 fois. Elles servent de modèle à ChatGPT. Les sols du haut (cendres, rocaille, lave, falaises)
+viennent déjà de tes images : sol_cendres.png, dessus_falaise.png, lave.png, falaise_basalte.png.
+
+À FABRIQUER (déposer dans assets/volcan/, PAS dans ce dossier) :
+  herbe.png          à partir de actuel_herbe.png         l'herbe de la jungle au pied du volcan
+  herbe_seche.png    à partir de actuel_herbe_seche.png   herbe plus sèche, touffes jaunies (terrasses basses)
+  sable.png          à partir de actuel_sable.png         le sable de la plage
+  chemin.png         à partir de actuel_chemin.png        les sentiers de terre battue du bas de la montagne
+
+Dès qu'une de ces images est dans assets/volcan/, le jeu l'utilise (un fichier absent = le dessin actuel reste).
+
+CONSIGNE À COLLER DANS CHATGPT (une image à la fois, en joignant l'image « actuel_… » et ta référence du volcan) :
+------------------------------------------------------------------------------------------------------------
+Voici une texture de sol de mon jeu vidéo en pixel art (vue de dessus 3/4, style Digimon World / RPG 16 bits).
+Refais-la en beaucoup plus belle, dans le même style et la même ambiance que l'image de référence du volcan.
+- Texture SEAMLESS / TILEABLE : le bord droit raccorde exactement avec le gauche, le haut avec le bas.
+- Carrée, 1024 x 1024 px. Vue de dessus, lumière douce venant d'en haut à gauche.
+- Aucun objet coupé par les bords, pas de grosse ombre portée, pas de personnage, pas de texte.
+- Détails petits et répartis régulièrement (elle sera répétée sur toute une carte).
+------------------------------------------------------------------------------------------------------------
+Pour l'herbe : « herbe verte de jungle tropicale, petites touffes, quelques fleurs minuscules ».
+Pour l'herbe sèche : « herbe sèche jaunie mêlée de terre brune, petits cailloux sombres ».
+Pour le sable : « sable de plage clair, ondulations légères, quelques coquillages minuscules ».
+Pour le chemin : « terre battue brune tassée, petits cailloux, bords irréguliers fondus ».

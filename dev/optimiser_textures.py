@@ -14,7 +14,7 @@ from PIL import Image
 RACINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
 # même table que TAILLE dans js/gfx/textures.js (pixels du jeu, 1 case = 16) ; copie = 4 fois plus grande
 TAILLE = {
-    'sol_cendres': (128, 128), 'dessus_falaise': (176, 176), 'lave': (128, 128),
+    'sol_cendres': (128, 128), 'dessus_falaise': (176, 176), 'lave': (128, 128), 'herbe': (128, 128), 'herbe_seche': (128, 128), 'sable': (128, 128), 'chemin': (128, 128),
     'falaise_basalte': (80, 64), 'paroi_cratere': (80, 64), 'escalier': (48, 64),
     'pic_1': {'h': 34}, 'pic_2': {'h': 30}, 'pic_3': {'h': 32}, 'rocher_magma': {'w': 24}, 'fumerolle': {'w': 18}, 'cone_lave': {'w': 26},
     'plante_feu_1': {'h': 16}, 'plante_feu_2': {'h': 14}, 'plante_feu_3': {'h': 16},
