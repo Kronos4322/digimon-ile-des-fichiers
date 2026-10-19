@@ -12,24 +12,29 @@
 // =====================================================================
 (function () {
   const SOLS = ['herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre',
-    'sable_dunes', 'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'rocaille', 'sable_desert', 'eau_mer', 'eau_douce'];
+    'sable_dunes', 'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'];
   const LISTE = {
     commun: [...SOLS, 'arbre_sapin', 'arbre_cerisier', 'arbre_chene_clair', 'arbre_saule', 'arbre_mauve', 'arbre_chene', 'arbre_vert', 'arbre_vert_vif', 'arbre_bouleau',
-      'arbre_fleurs', 'arbre_automne_brun', 'arbre_erable_orange', 'arbre_erable_rouge', 'arbre_mi_automne', 'arbre_erable_orange3', 'arbre_bouleau_automne', 'arbre_erable_vif',
-      'arbre_peuplier_automne', 'arbre_mi_automne', 'arbre_chene_automne', 'arbre_neige_tordu', 'arbre_neige_bouleau', 'arbre_neige_peuplier', 'arbre_neige_rond', 'arbre_neige_chene',
-      'arbre_neige_sapin', 'arbre_neige_sapin2', 'arbre_neige_sapin3', 'arbre_neige_nu',
-      'buisson', 'buisson_baies', 'buisson_baies2', 'buisson_fleuri', 'roncier', 'amanites', 'fougere_1', 'fougere_2', 'rocher_mousse', 'souche', 'tronc_couche', 'racines',
-      'panneau', 'monolithe', 'plante_lanternes', 'sanctuaire', 'totem', 'lianes', 'fleur_cristal', 'arche', 'cristaux', 'source',
-      'fleur_1', 'fleur_2', 'fleur_3', 'fleur_4', 'fleur_5', 'fleur_6', 'fleur_7', 'fleur_8', 'fleur_9', 'fleur_10'],
-    volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'herbe', 'herbe_seche', 'sable', 'chemin', 'falaise_basalte', 'paroi_cratere', 'escalier',
+      'arbre_fleurs', 'arbre_automne_brun', 'arbre_erable_orange', 'arbre_erable_rouge', 'arbre_mi_automne', 'arbre_bouleau_automne', 'arbre_mi_automne', 'arbre_chene_automne', 'arbre_neige_tordu', 'arbre_neige_bouleau', 'arbre_neige_rond', 'arbre_neige_chene',
+      'arbre_neige_sapin', 'arbre_neige_sapin3', 'arbre_neige_nu',
+      'buisson', 'buisson_baies', 'buisson_baies2', 'buisson_fleuri', 'amanites', 'fougere_1', 'fougere_2', 'rocher_mousse', 'souche', 'tronc_couche', 'racines',
+      'panneau', 'monolithe', 'sanctuaire', 'totem', 'fleur_cristal', 'cristaux', 'source',
+      'fleur_1', 'fleur_2', 'fleur_3', 'fleur_4', 'fleur_5', 'fleur_6', 'fleur_7', 'fleur_8', 'fleur_9', 'fleur_10',
+      'amanites2', 'champi_violet', 'champi_bleu', 'cepes', 'girolles', 'rond_sorcieres', 'souche_champignons', 'champi_blancs', 'champi_vert', 'tuyau', 'lampadaire', 'pierre_runique', 'cairn', 'eboulis', 'lanterne_pierre', 'borne_bleue', 'borne_rouge', 'dalle_runique',
+      'banc_simple', 'table_ronde', 'banc_courbe', 'banc_dossier', 'banc_rondin', 'table_souche', 'banc_mousse', 'table_rect', 'table_banquet', 'table_pique_nique'],
+    volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
   // taille dans le jeu : [largeur, hauteur] pour une texture, { h } ou { w } pour un objet (l'autre côté suit l'image)
   const TAILLE = {
     ...Object.fromEntries(SOLS.map(n => [n, [128, 128]])),
     // fleurs et champignons posés au sol (là où le jeu les peignait en quelques pixels) : de petits objets nets
-    ...Object.fromEntries(['fleur_1', 'fleur_2', 'fleur_3', 'fleur_4', 'fleur_5', 'fleur_6', 'fleur_7', 'fleur_8', 'fleur_9', 'fleur_10'].map(n => [n, { h: 10 }])), amanites: { h: 8 },
-    sol_cendres: [128, 128], dessus_falaise: [176, 176], lave: [128, 128], herbe: [128, 128], herbe_seche: [128, 128], sable: [128, 128], chemin: [128, 128],
+    ...Object.fromEntries(['fleur_1', 'fleur_2', 'fleur_3', 'fleur_4', 'fleur_5', 'fleur_6', 'fleur_7', 'fleur_8', 'fleur_9', 'fleur_10'].map(n => [n, { h: 10 }])),
+    ...Object.fromEntries(['amanites', 'amanites2', 'cepes', 'girolles', 'champi_blancs', 'champi_bleu', 'champi_violet', 'champi_vert'].map(n => [n, { h: 9 }])), rond_sorcieres: { w: 20 },
+    // mobilier d'extérieur (posé dans l'atelier des cartes : « Mobilier de village ») ; les bancs du jeu prennent ces images
+    banc_simple: { h: 14 }, banc_courbe: { h: 18 }, banc_dossier: { h: 20 }, banc_rondin: { h: 13 }, banc_mousse: { h: 20 },
+    table_ronde: { h: 20 }, table_souche: { h: 17 }, table_rect: { h: 21 }, table_banquet: { h: 22 }, table_pique_nique: { h: 22 },
+    sol_cendres: [128, 128], dessus_falaise: [176, 176], lave: [128, 128],
     falaise_basalte: [80, 64], paroi_cratere: [80, 64], escalier: [48, 64],
     pic_1: { h: 34 }, pic_2: { h: 30 }, pic_3: { h: 32 }, rocher_magma: { w: 24 }, fumerolle: { w: 18 }, cone_lave: { w: 26 },
     plante_feu_1: { h: 16 }, plante_feu_2: { h: 14 }, plante_feu_3: { h: 16 },
@@ -53,12 +58,24 @@
     // DÉCORS : buissons, fougères, rochers, souches, troncs, champignons lumineux, objets de forêt
     bush: ['buisson', 'buisson_baies', 'buisson_fleuri', 'buisson_baies2'], hedge: ['buisson'], junglebush: ['buisson', 'buisson_baies2'],
     buissonfleuri: ['buisson_fleuri'], rosebush: ['fleur_7'], fern: ['fougere_1', 'fougere_2'], bigfern: ['fougere_1', 'fougere_2'], fougeres: ['fougere_2', 'fougere_1'],
-    mossrock: ['rocher_mousse'], rock: ['rocher_mousse'], boulder: ['rocher_mousse'], rochersmousse: ['rocher_mousse'],
-    stump: ['souche'], giantstump: ['souche'], log: ['tronc_couche'], hollowlog: ['tronc_couche'], troncouche: ['tronc_couche'], treeroots: ['racines'],
-    glowshroom: ['plante_lanternes'], giantshroom: ['amanites'], champignons: ['amanites'], monolith: ['monolithe'], totem: ['totem'],
+    mossrock: ['rocher_mousse'], rock: ['rocher_mousse'], boulder: ['eboulis', 'rocher_mousse'], rochersmousse: ['rocher_mousse', 'eboulis'],
+    stump: ['souche'], giantstump: ['souche', 'souche_champignons'], log: ['tronc_couche'], hollowlog: ['tronc_couche'], troncouche: ['tronc_couche'], treeroots: ['racines'],
+    glowshroom: ['champi_violet', 'champi_bleu'], giantshroom: ['champi_bleu', 'champi_vert'], champignons: ['cepes', 'girolles', 'champi_blancs'],
+    monolith: ['monolithe', 'pierre_runique'], totem: ['totem'], pipe: ['tuyau', 'tuyau'], lamp: ['lampadaire'], antenna: ['borne_bleue', 'borne_rouge'],
+    datapanel: ['dalle_runique', 'dalle_runique'], bench: ['banc_dossier'], steplog: ['banc_rondin'], stonelantern: ['lanterne_pierre'], cairn: ['cairn'], rubble: ['eboulis'],
     crystal: ['cristaux'], datacrystal: ['cristaux'], sign: ['panneau'], roadsign: ['panneau'], flowerbed: ['fleur_2', 'fleur_6', 'fleur_9', 'fleur_3'],
     giantflower: ['fleur_cristal'], spring: ['source'], shrine: ['sanctuaire'],
     _grandarbre: ['arbre_chene'],   // (le Grand Arbre de la Clairière : voir objets(), son passage reste dessiné par-dessus)
+  };
+  // TAILLES : hauteur de chaque décor dessiné, en HAUTEURS DE HÉROS (le héros : 34 px du jeu) ; le joueur : « les arbres
+  // doivent être 3 fois plus grands que le personnage »
+  const HEROS = 34;
+  const HAUTEUR = {
+    tree: 3, oak: 3, birch: 3.1, pine: 3.3, saule: 3, pintordu: 3, bigtree: 4, jungletree: 3, cycad: 2.5, mangrove: 3, swamptree: 3, acacia: 2.8, baobab: 3.5, deadtree: 2.6, candytree: 2.6,
+    bush: 0.85, hedge: 0.85, junglebush: 0.9, buissonfleuri: 0.85, rosebush: 0.8, flowerbed: 0.55, fern: 0.75, bigfern: 0.9, fougeres: 0.8, giantflower: 1.4,
+    glowshroom: 0.9, giantshroom: 1.7, champignons: 0.5, mossrock: 0.8, rock: 0.6, boulder: 1, rochersmousse: 1, rubble: 0.8, cairn: 0.9,
+    stump: 0.6, giantstump: 1, log: 0.5, hollowlog: 0.55, troncouche: 0.6, treeroots: 1, monolith: 1.6, totem: 1.7, crystal: 1, datacrystal: 1.3,
+    sign: 1.1, roadsign: 1.2, spring: 1.1, shrine: 1.5, pipe: 0.9, lamp: 1.7, antenna: 1.3, stonelantern: 1.1, datapanel: 0.8, bench: 0.6, steplog: 0.4,
   };
   const nomArbre = (kind, v) => { const L = ARBRES[kind]; return L ? (v < L.length ? L[v] : L[v % L.length]) : null; };
   // SOLS PAR THÈME (rôle -> image) : herbe, chemin (terre), sable, eaux (herbe_seche : seulement un dossier de carte ; une
@@ -129,7 +146,12 @@
     const th = themeDe(map); if (!th) return null;
     // (le jeu peignait ces cases très serrées : on n'en garde qu'une partie, sinon le sol devient un champ de champignons)
     const h = DW.Art.hash(tx, ty, 779);
-    if (deco === 'mushrooms') return h < 0.22 && T.a('commun/amanites') ? 'tex_commun_amanites' : '';
+    if (deco === 'mushrooms') {
+      if (h >= 0.22) return '';
+      const C = th === 'deep' || th === 'misty' ? ['champi_bleu', 'champi_violet', 'champi_vert', 'champi_blancs'] : ['amanites', 'amanites2', 'cepes', 'girolles', 'champi_blancs', 'amanites'];
+      const n = DW.Art.hash(tx, ty, 780) < 0.06 ? 'rond_sorcieres' : C[Math.floor(DW.Art.hash(tx, ty, 781) * C.length) % C.length];
+      return T.a('commun/' + n) ? 'tex_commun_' + n : '';
+    }
     if (h > 0.5) return '';
     const L = FLEURS[th] || FLEURS.autre, n = 'fleur_' + L[Math.floor(DW.Art.hash(tx, ty, 778) * L.length) % L.length];
     return T.a('commun/' + n) ? 'tex_commun_' + n : null;
@@ -177,6 +199,12 @@
   // chaque image d'objet devient un objet du jeu « tex_<dossier>_<nom> », à sa taille de jeu (TAILLE)
   function objets() {
     const OBJ = DW.World && DW.World.OBJ; if (!OBJ) return;
+    // chaque décor dessiné prend sa hauteur de jeu (HAUTEUR) : on agrandit sa boîte (l'image y est posée en bas, centrée)
+    for (const kind in HAUTEUR) {
+      const O = OBJ[kind], n = nomArbre(kind, 0), im = n && T.a('commun/' + n); if (!O || !im) continue;
+      const bw = typeof O.w === 'function' ? O.w(0) : O.w, bh = typeof O.h === 'function' ? O.h(0) : O.h;
+      O.scale = HAUTEUR[kind] * HEROS / (im.naturalHeight * Math.min(bw / im.naturalWidth, bh / im.naturalHeight));
+    }
     const GA = OBJ.grandarbre;
     if (GA && GA.porte && T.aArbre('_grandarbre', 0) && !GA._image) {
       GA._image = true;

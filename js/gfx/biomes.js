@@ -116,9 +116,7 @@
     // rocher arrondi (montagne, grottes)
     boulder: { w: 22, h: 18, n: 3, draw: DW.World.secours.rocher(22, 18) },
     // cairn de pierres empilées
-    cairn: { w: 16, h: 26, n: 1, draw(d) {
-      [[8, 23, 6.6, 3], [8, 18.6, 5.4, 2.6], [8.6, 14.6, 4.4, 2.4], [8, 11, 3.4, 2], [8.4, 8, 2.4, 1.6]].forEach(([x, y, rx, ry], i) => d.ell(x, y, rx, ry, ['#8a8a90', '#7a7468', '#9a948a', '#86868c', '#a8a49a'][i], 0, { tex: 0.3 }));
-    } },
+    cairn: { w: 16, h: 26, n: 1, draw: DW.World.secours.rocher(16, 26) },
     // aiguille rocheuse (canyon, montagne)
     spire: { w: 24, h: 48, n: 3, draw(d, v) {
       const C = [['#a65c36', '#c27848', '#7c4026'], ['#b06a40', '#d08a5a', '#86482a'], ['#6a6a72', '#8a8a92', '#4a4a52']][v];

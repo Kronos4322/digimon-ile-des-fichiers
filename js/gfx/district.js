@@ -48,12 +48,7 @@
       for (let i = 0; i < 6; i++) d.circ(8 + i * 4 + ((f + i) % 2), 48 + ((f + i) % 3) * 0.6, 3.2 + ((f + i) % 2) * 0.8, '#f4fcff', { unlit: true, noline: true, noshadow: true });
     } },
     // rondins posés sur l'eau (on marche dessus)
-    steplog: { w: 16, h: 14, n: 2, draw(d, v) {
-      if (v) { d.ell(8, 8, 7, 4.4, '#9a968c', 0, { tex: 0.3 }); d.deco.ell(6, 6.6, 3, 1.4, '#c8c4bc'); return; }
-      d.ell(8, 9.6, 7, 3.6, '#6a4424');
-      d.ell(8, 7.6, 7, 3.6, '#c8945a');
-      d.deco.ell(8, 7.6, 4.4, 2.2, '#a87442'); d.deco.ell(8, 7.6, 2, 1, '#c8945a');
-    } },
+    steplog: { w: 16, h: 14, n: 2, draw: DW.World.secours.bois(16, 14) },
     // ---------------------------------------------------------- linge qui sèche (3 cases)
     laundry: { w: 50, h: 34, n: 1, frames: 4, fps: 3, draw(d, v, f) {
       d.tube([[3, 33], [3, 6]], 2, 2, WOOD_D); d.tube([[47, 33], [47, 6]], 2, 2, WOOD_D);
@@ -236,49 +231,15 @@
     } },
     // ---------------------------------------------------------- décor numérique dans la nature
     // tuyau rouillé en coude qui sort du sol (fumée : voir smoke)
-    pipe: { w: 34, h: 32, n: 2, smoke: [26, 4], draw(d, v) {
-      const M = v ? '#8a8e96' : '#9a7a5a', Md = v ? '#6a6e76' : '#7a5a3a';
-      d.ell(17, 30, 14, 2.6, '#1e2a1a', 0, { flat: true });
-      d.blob([[2, 30], [4, 24], [10, 22], [14, 25], [14, 30]], '#6a5a3a', { tex: 0.4 });
-      d.tube([[9, 29], [9, 14], [14, 8], [26, 8]], 9, 9, M, { tex: 0.25, shiny: true });
-      d.ell(27, 8, 3, 5, Md); d.deco.ell(27.4, 8, 1.8, 3.4, '#1a1a1a');
-      for (const [x, y] of [[9, 22], [12, 10], [20, 8]]) { d.deco.circ(x - 3, y, 0.9, '#d8d0c0'); d.deco.circ(x + 3, y, 0.9, '#d8d0c0'); }
-      d.deco.line(5, 18, 13, 18, 1, Md); d.deco.ell(7, 26, 2.4, 1.4, '#5aa040');
-      if (!v) d.deco.ell(16, 12, 3, 1.6, '#b0603a');
-    } },
+    pipe: { w: 34, h: 32, n: 2, smoke: [26, 4], draw: DW.World.secours.pierre(34, 32) },
     // antenne de données : mât métallique, voyant qui clignote la nuit
-    antenna: { w: 18, h: 46, n: 2, lights: [[9, 6, 22]], draw(d, v) {
-      d.ell(9, 44, 7, 2, '#1e2a1a', 0, { flat: true });
-      d.rect(4, 38, 10, 6, '#7a7e86', { round: 0.2, tex: 0.3 });
-      d.tube([[9, 40], [9, 10]], 2.6, 1.6, '#9aa0a8', { shiny: true });
-      d.tube([[9, 26], [3, 20]], 1, 1, '#9aa0a8'); d.tube([[9, 22], [15, 16]], 1, 1, '#9aa0a8');
-      d.circ(9, 6, 3.6, v ? '#5ae890' : '#ff5a5a', { shiny: true, unlit: true });
-      d.deco.circ(8, 5, 1.2, '#ffffff', { unlit: true });
-      d.deco.line(5, 41, 13, 41, 0.8, '#ffd040');
-    } },
+    antenna: { w: 18, h: 46, n: 2, lights: [[9, 6, 22]], draw: DW.World.secours.pierre(18, 46) },
     // panneau de circuit à moitié enterré, aux lignes lumineuses
-    datapanel: { w: 34, h: 22, n: 2, lights: [[17, 10, 18]], draw(d, v) {
-      d.ell(17, 20, 15, 2.4, '#1e2a1a', 0, { flat: true });
-      d.poly([[2, 18], [6, 6], [30, 3], [32, 16]], v ? '#2a4a3a' : '#2a3a5a', { tex: 0.1 });
-      const L = v ? '#7aff9a' : '#5ae8f0';
-      d.deco.line(8, 14, 14, 8, 1, L, { unlit: true }); d.deco.line(14, 8, 24, 7, 1, L, { unlit: true }); d.deco.line(24, 7, 28, 12, 1, L, { unlit: true });
-      d.deco.line(12, 15, 20, 12, 1, L, { unlit: true });
-      for (const [x, y] of [[14, 8], [24, 7], [20, 12]]) d.deco.circ(x, y, 1.4, '#e8ffff', { unlit: true });
-      d.deco.rect(8, 9, 3, 3, '#1a1a1a'); d.deco.rect(26, 9, 3, 3, '#1a1a1a');
-      d.ell(4, 17, 4, 2.4, '#5aa040', 0, { tex: 0.4 }); d.ell(30, 18, 3.4, 2, '#4a9036', 0, { tex: 0.4 });
-    } },
+    datapanel: { w: 34, h: 22, n: 2, lights: [[17, 10, 18]], draw: DW.World.secours.pierre(34, 22) },
     // monolithe de données (Clairière) : pierre ancienne parcourue de lignes numériques qui luisent
     monolith: { w: 22, h: 46, n: 2, lights: [[11, 20, 26]], draw: DW.World.secours.pierre(22, 46) },
     // lanterne de pierre moussue (Sentier)
-    stonelantern: { w: 18, h: 34, n: 1, lights: [[9, 14, 30]], draw(d) {
-      d.ell(9, 32, 7, 2, '#1a2a22', 0, { flat: true });
-      d.rect(3, 26, 12, 6, '#8a8e86', { round: 0.3, tex: 0.3 });
-      d.rect(6, 19, 6, 8, '#9a9e96', { round: 0.3, tex: 0.3 });
-      d.rect(2, 10, 14, 10, '#a4a8a0', { round: 0.2, tex: 0.3 });
-      d.deco.rect(6, 12.5, 6, 5, '#ffd88a', { unlit: true });
-      d.poly([[0, 11], [9, 3], [18, 11]], '#8a8e86', { tex: 0.3 }); d.circ(9, 3, 2, '#9a9e96');
-      d.deco.ell(5, 9, 3.4, 1.4, '#5aa040'); d.deco.ell(12, 29, 3, 1.4, '#5aa040'); d.deco.ell(4, 24, 1.4, 2, '#4a9036');
-    } },
+    stonelantern: { w: 18, h: 34, n: 1, lights: [[9, 14, 30]], draw: DW.World.secours.pierre(18, 34) },
     // fleur géante (Prairie) : v0 tournesol, v1 tulipe rose, v2 campanule bleue
     // (saisons, gfx/meteo.js : v3 perce-neige géant en hiver, v4 colchique mauve en automne — jamais tirées au hasard)
     giantflower: { w: 34, h: 52, n: 3, draw: DW.World.secours.plante(34, 52) },

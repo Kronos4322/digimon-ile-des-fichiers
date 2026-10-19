@@ -142,13 +142,7 @@
       d.blob([[2, 32], [8, 16], [29, 4], [50, 16], [56, 32], [29, 30]], '#5ab05a', { tex: 0.4, texSize: 1 });
       [[12, 22], [22, 14], [34, 12], [44, 22], [28, 24], [18, 28], [40, 28]].forEach(([x, y], i) => d.deco.circ(x, y, 2, ['#ff8ac0', '#fff070', '#ffffff', '#b48aff'][i % 4], { unlit: true }));
     } },
-    lamp: { w: 12, h: 32, n: 1, draw(d) {
-      d.ell(6, 31, 4, 1.4, '#2a2a2a', 0, { flat: true });
-      d.tube([[6, 31], [6, 9]], 2.4, 2, '#3a3040');
-      d.rect(2, 2, 8, 9, '#3a3040', { round: 0.3 });
-      d.deco.rect(3.4, 3.6, 5.2, 6, '#ffe08a', { unlit: true });
-      d.deco.rect(4.4, 4.6, 1.4, 2.4, '#ffffff', { unlit: true });
-    } },
+    lamp: { w: 12, h: 32, n: 1, draw: SECOURS.pierre(12, 32) },
     // distributeur (Digimon World 1) : 0 PV (vert), 1 PM (bleu), 2 nourriture (orange) ; grand, coloré, éclairé la nuit
     vending: { w: 26, h: 44, n: 3, lights: [[13, 16, 22]], draw(d, v) {
       const body = ['#2ec060', '#2a74e8', '#f07a1a'][v], dark = ['#147a38', '#163e96', '#9a4410'][v], item = ['#ff4a5a', '#7ad0ff', '#c8643c'][v];
@@ -236,11 +230,7 @@
       // lanterne
       d.tube([[30, 20], [30, 16]], 0.6, 0.6, '#3a3040'); d.rect(28.4, 17, 3.2, 4, '#ffe08a', { round: 0.3 });
     } },
-    bench: { w: 22, h: 14, n: 1, draw(d) {
-      d.rect(2, 3, 18, 4, '#a0703c', { round: 0.3 });
-      d.rect(2, 8, 18, 3, '#b8844c', { round: 0.3 });
-      d.rect(3, 10, 2, 4, '#5a3a22'); d.rect(17, 10, 2, 4, '#5a3a22');
-    } },
+    bench: { w: 22, h: 14, n: 1, draw: SECOURS.bois(22, 14) },
     flag: { w: 16, h: 34, n: 2, draw(d, v) {
       d.tube([[4, 33], [4, 2]], 1.8, 1.6, '#c8c0b0', { shiny: true });
       d.poly([[5, 3], [15, 6], [5, 12]], v ? '#3a8ae8' : '#f8a830', { shiny: true });
@@ -334,11 +324,7 @@
       d.poly([[0, 10], [3, 2], [33, 2], [36, 10]], '#f05a5a', { shiny: true });
       for (let x = 6; x < 33; x += 8) d.deco.poly([[x, 2], [x + 4, 2], [x + 5, 10], [x - 1, 10]], '#ffffff');
     } },
-    rubble: { w: 22, h: 20, n: 1, draw(d) {
-      d.blob([[1, 18], [3, 9], [9, 6], [12, 10], [12, 18]], '#9a8a7a', { tex: 0.3 });
-      d.blob([[9, 18], [11, 7], [16, 3], [21, 9], [21, 18]], '#8a7a6c', { tex: 0.3 });
-      d.blob([[5, 19], [7, 13], [13, 12], [16, 19]], '#a89a88', { tex: 0.3 });
-    } },
+    rubble: { w: 22, h: 20, n: 1, draw: SECOURS.rocher(22, 20) },
   };
   const objCache = {};
   // ------------------------------------------------------------ échelle du décor (proportions façon Digimon World)

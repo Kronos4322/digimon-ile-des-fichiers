@@ -228,7 +228,9 @@
       // sur un sol de roche ou de cendres (volcan : sol 1 et 2, ou carte à images dessinées) : un rebord de ROCHE,
       // pas un liseré d'herbe verte (il ressortait en traits clairs, presque cyan, sur la cendre sombre)
       const I = DW.World.CH[m.rows[y][x]], roc = !!((I && I.sol) || (m.textures && L >= 3));
+      const sable = !roc && I && (I.t === 'sand' || I.t === 'dirt');   // (sur le sable et la terre : liseré de sable, pas d'herbe vert clair)
       const C = roc ? { ombre: 'rgba(10,6,4,0.45)', levre: 'rgba(34,26,22,0.95)', brin: ['#7a6a5c', '#5e5046'], clair: '#9a8676', sombre: '#2a201c', trait: '#8a7868' }
+        : sable ? { ombre: 'rgba(70,46,16,0.3)', levre: 'rgba(150,118,72,0.9)', brin: ['#e6d4a4', '#d4bc88'], clair: '#d8bc88', sombre: '#8a6a40', trait: '#eedcb0' }
         : { ombre: 'rgba(16,40,20,0.42)', levre: 'rgba(70,52,34,0.95)', brin: ['#b8e07a', '#8cc860'], clair: '#9a7448', sombre: '#4a3220', trait: '#a8d870' };
       if (n >= 0 && n < L && !rockAt(x, y - 1)) {
         c.fillStyle = C.ombre; c.fillRect(X, Y - 3, TS, 3);

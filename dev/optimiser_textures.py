@@ -14,7 +14,7 @@ from PIL import Image
 RACINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
 # même table que TAILLE dans js/gfx/textures.js (pixels du jeu, 1 case = 16) ; copie = 4 fois plus grande
 TAILLE = {
-    'sol_cendres': (128, 128), 'dessus_falaise': (176, 176), 'lave': (128, 128), 'herbe': (128, 128), 'herbe_seche': (128, 128), 'sable': (128, 128), 'chemin': (128, 128),
+    'sol_cendres': (128, 128), 'dessus_falaise': (176, 176), 'lave': (128, 128),
     'falaise_basalte': (80, 64), 'paroi_cratere': (80, 64), 'escalier': (48, 64),
     'pic_1': {'h': 34}, 'pic_2': {'h': 30}, 'pic_3': {'h': 32}, 'rocher_magma': {'w': 24}, 'fumerolle': {'w': 18}, 'cone_lave': {'w': 26},
     'plante_feu_1': {'h': 16}, 'plante_feu_2': {'h': 14}, 'plante_feu_3': {'h': 16},
@@ -76,35 +76,44 @@ COMMUN = {
     'herbe_terre': H + 'ca78ae01-01ed-4a43-b31b-173f02e83bb3.png',
     'sable_dunes': S + 'photo_2026-10-19_07-14-33.jpg', 'terre_brune': S + 'photo_2026-10-19_07-14-34.jpg', 'terre_sombre': S + 'photo_2026-10-19_07-14-35.jpg',
     'sable_plage': S + 'photo_2026-10-19_07-14-36.jpg', 'terre_savane': S + 'photo_2026-10-19_07-14-38 (2).jpg', 'terre_cailloux': S + 'photo_2026-10-19_07-14-38 (3).jpg',
-    'terre_craquelee': S + 'photo_2026-10-19_07-14-38.jpg', 'rocaille': S + 'photo_2026-10-19_07-14-39 (2).jpg', 'sable_desert': S + 'photo_2026-10-19_07-14-39.jpg',
+    'terre_craquelee': S + 'photo_2026-10-19_07-14-38.jpg', 'sable_desert': S + 'photo_2026-10-19_07-14-39.jpg',
     'eau_mer': E + 'photo_2026-10-19_07-14-33 (2).jpg', 'eau_douce': E + 'photo_2026-10-19_07-14-33.jpg',
     # arbres (fond noir)
     'arbre_sapin': A + 'photo_2026-10-19_07-14-21.jpg', 'arbre_cerisier': A + 'photo_2026-10-19_07-14-24 (2).jpg', 'arbre_chene_clair': A + 'photo_2026-10-19_07-14-24.jpg',
     'arbre_saule': A + 'photo_2026-10-19_07-14-26.jpg', 'arbre_mauve': A + 'photo_2026-10-19_07-14-27 (2).jpg', 'arbre_chene': A + 'photo_2026-10-19_07-14-27 (3).jpg',
     'arbre_vert': A + 'photo_2026-10-19_07-14-27.jpg', 'arbre_vert_vif': A + 'photo_2026-10-19_07-14-31 (2).jpg', 'arbre_bouleau': A + 'photo_2026-10-19_07-14-31.jpg',
     'arbre_fleurs': A + 'photo_2026-10-19_07-14-32.jpg', 'arbre_automne_brun': A + 'photo_2026-10-19_07-17-30 (2).jpg', 'arbre_erable_orange': A + 'photo_2026-10-19_07-17-30.jpg',
-    'arbre_erable_rouge': A + 'photo_2026-10-19_07-17-31 (2).jpg', 'arbre_erable_orange2': A + 'photo_2026-10-19_07-17-31 (3).jpg', 'arbre_erable_orange3': A + 'photo_2026-10-19_07-17-31 (4).jpg',
-    'arbre_bouleau_automne': A + 'photo_2026-10-19_07-17-31 (5).jpg', 'arbre_erable_vif': A + 'photo_2026-10-19_07-17-31 (6).jpg', 'arbre_peuplier_automne': A + 'photo_2026-10-19_07-17-31 (7).jpg',
-    'arbre_mi_automne': A + 'photo_2026-10-19_07-17-31 (8).jpg', 'arbre_chene_automne': A + 'photo_2026-10-19_07-17-31.jpg',
+    'arbre_erable_rouge': A + 'photo_2026-10-19_07-17-31 (2).jpg', 'arbre_bouleau_automne': A + 'photo_2026-10-19_07-17-31 (5).jpg', 'arbre_mi_automne': A + 'photo_2026-10-19_07-17-31 (8).jpg', 'arbre_chene_automne': A + 'photo_2026-10-19_07-17-31.jpg',
     # arbres enneigés
-    'arbre_neige_tordu': A + 'photo_2026-10-19_07-26-51 (2).jpg', 'arbre_neige_bouleau': A + 'photo_2026-10-19_07-26-51.jpg', 'arbre_neige_peuplier': A + 'photo_2026-10-19_07-26-52 (2).jpg',
-    'arbre_neige_rond': A + 'photo_2026-10-19_07-26-52 (3).jpg', 'arbre_neige_chene': A + 'photo_2026-10-19_07-26-52 (4).jpg', 'arbre_neige_sapin': A + 'photo_2026-10-19_07-26-52.jpg',
-    'arbre_neige_sapin2': A + 'photo_2026-10-19_07-26-53 (2).jpg', 'arbre_neige_sapin3': A + 'photo_2026-10-19_07-26-53 (3).jpg', 'arbre_neige_nu': A + 'photo_2026-10-19_07-26-53.jpg',
+    'arbre_neige_tordu': A + 'photo_2026-10-19_07-26-51 (2).jpg', 'arbre_neige_bouleau': A + 'photo_2026-10-19_07-26-51.jpg', 'arbre_neige_rond': A + 'photo_2026-10-19_07-26-52 (3).jpg', 'arbre_neige_chene': A + 'photo_2026-10-19_07-26-52 (4).jpg', 'arbre_neige_sapin': A + 'photo_2026-10-19_07-26-52.jpg',
+    'arbre_neige_sapin3': A + 'photo_2026-10-19_07-26-53 (3).jpg', 'arbre_neige_nu': A + 'photo_2026-10-19_07-26-53.jpg',
     # décors (fond noir) : buissons, champignons, fleurs, fougères, rocher, objets de forêt
-    'buisson_fleuri': 'Buissons/1photo_2026-10-19_07-40-27.jpg', 'roncier': 'Buissons/photo_2026-10-19_07-30-07 (2).jpg', 'buisson_baies': 'Buissons/photo_2026-10-19_07-30-07.jpg',
+    'buisson_fleuri': 'Buissons/1photo_2026-10-19_07-40-27.jpg', 'buisson_baies': 'Buissons/photo_2026-10-19_07-30-07.jpg',
     'buisson_baies2': 'Buissons/photo_2026-10-19_07-40-26.jpg', 'buisson': 'Buissons/photo_2026-10-19_07-40-27.jpg', 'amanites': 'Champignons/photo_2026-10-19_07-30-08 (2).jpg',
     'fleur_1': 'Fleurs/photo_2026-10-19_07-30-06.jpg', 'fleur_2': 'Fleurs/photo_2026-10-19_07-30-09 (2).jpg', 'fleur_3': 'Fleurs/photo_2026-10-19_07-30-09 (3).jpg',
     'fleur_4': 'Fleurs/photo_2026-10-19_07-30-09.jpg', 'fleur_5': 'Fleurs/photo_2026-10-19_07-30-10 (2).jpg', 'fleur_6': 'Fleurs/photo_2026-10-19_07-30-10 (3).jpg',
     'fleur_7': 'Fleurs/photo_2026-10-19_07-30-10 (4).jpg', 'fleur_8': 'Fleurs/photo_2026-10-19_07-30-10 (5).jpg', 'fleur_9': 'Fleurs/photo_2026-10-19_07-30-10.jpg',
     'fleur_10': 'Fleurs/photo_2026-10-19_07-30-11.jpg', 'fougere_1': 'Fougère/photo_2026-10-19_07-30-07.jpg', 'fougere_2': 'Fougère/photo_2026-10-19_07-40-27 (2).jpg',
     'tronc_couche': 'Objet foret/arbre mort 1.jpg', 'panneau': 'Objet foret/panneau direction.jpg', 'racines': 'Objet foret/photo_2026-10-19_07-30-07 (2).jpg',
-    'monolithe': 'Objet foret/photo_2026-10-19_07-40-28.jpg', 'plante_lanternes': 'Objet foret/photo_2026-10-19_07-40-29 (2).jpg', 'sanctuaire': 'Objet foret/photo_2026-10-19_07-40-29.jpg',
-    'totem': 'Objet foret/photo_2026-10-19_07-40-30 (2).jpg', 'lianes': 'Objet foret/photo_2026-10-19_07-40-30.jpg', 'fleur_cristal': 'Objet foret/photo_2026-10-19_07-40-31 (2).jpg',
-    'arche': 'Objet foret/photo_2026-10-19_07-40-31 (3).jpg', 'cristaux': 'Objet foret/photo_2026-10-19_07-40-31 (4).jpg', 'souche': 'Objet foret/souche1.jpg',
+    'monolithe': 'Objet foret/photo_2026-10-19_07-40-28.jpg', 'sanctuaire': 'Objet foret/photo_2026-10-19_07-40-29.jpg',
+    'totem': 'Objet foret/photo_2026-10-19_07-40-30 (2).jpg', 'fleur_cristal': 'Objet foret/photo_2026-10-19_07-40-31 (2).jpg',
+    'cristaux': 'Objet foret/photo_2026-10-19_07-40-31 (4).jpg', 'souche': 'Objet foret/souche1.jpg',
     'source': 'Objet foret/source magique .jpg', 'rocher_mousse': 'Rocher/photo_2026-10-19_07-30-08.jpg',
+    # champignons et objets (2e envoi)
+    'amanites2': 'Champignons/photo_2026-10-19_07-40-31.jpg', 'champi_violet': 'Champignons/photo_2026-10-19_07-40-32 (2).jpg', 'champi_bleu': 'Champignons/photo_2026-10-19_07-40-32.jpg',
+    'cepes': 'Champignons/photo_2026-10-19_08-45-48 (2).jpg', 'girolles': 'Champignons/photo_2026-10-19_08-45-48 (4).jpg',
+    'rond_sorcieres': 'Champignons/photo_2026-10-19_08-45-48 (5).jpg', 'souche_champignons': 'Champignons/photo_2026-10-19_08-45-48.jpg', 'champi_blancs': 'Champignons/photo_2026-10-19_08-45-49 (2).jpg',
+    'champi_vert': 'Champignons/photo_2026-10-19_08-45-49.jpg',
+    'tuyau': 'Objet foret/photo_2026-10-19_11-07-26 (2).jpg', 'lampadaire': 'Objet foret/photo_2026-10-19_11-07-26 (3).jpg', 'pierre_runique': 'Objet foret/photo_2026-10-19_11-07-26 (4).jpg',
+    'cairn': 'Objet foret/photo_2026-10-19_11-07-27 (2).jpg', 'eboulis': 'Objet foret/photo_2026-10-19_11-07-27 (3).jpg',
+    'lanterne_pierre': 'Objet foret/photo_2026-10-19_11-07-27 (4).jpg', 'borne_bleue': 'Objet foret/photo_2026-10-19_11-07-27 (5).jpg', 'borne_rouge': 'Objet foret/photo_2026-10-19_11-07-27 (6).jpg',
+    'banc_simple': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (2).jpg', 'table_ronde': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (3).jpg', 'banc_courbe': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (4).jpg',
+    'banc_dossier': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (5).jpg', 'banc_rondin': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (6).jpg', 'table_souche': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (7).jpg', 'banc_mousse': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (8).jpg',
+    'table_rect': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18.jpg', 'table_banquet': 'Mobiliers exterieurs/photo_2026-10-19_11-19-19 (2).jpg', 'table_pique_nique': 'Mobiliers exterieurs/photo_2026-10-19_11-19-19.jpg',
+    'dalle_runique': 'Objet foret/photo_2026-10-19_11-07-27.jpg',
 }
 SOLS_COMMUN = {'herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre', 'sable_dunes',
-               'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'rocaille', 'sable_desert', 'eau_mer', 'eau_douce'}
+               'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'}
 
 
 def detourer(im):
@@ -152,6 +161,9 @@ def optimiser_commun():
         f = os.path.join(SOURCE_COMMUN, rel)
         if not os.path.exists(f):
             print('absent :', rel); continue
+        cible = os.path.join(dst, nom + '.png')
+        if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv:
+            continue
         im = Image.open(f)
         if nom not in SOLS_COMMUN:   # arbres et décors : fond noir enlevé, recadrés
             im = detourer(im)

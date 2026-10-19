@@ -15,7 +15,6 @@ RÈGLES POUR TOUTES LES IMAGES
    Le bord droit doit raccorder avec le gauche et le haut avec le bas. Si ce n'est pas parfait, le jeu adoucit les raccords.
    - sol_cendres.png       dalles de cendre volcanique craquelées, fines veines de lave lumineuses
    - lave.png              surface de lave (plaques de croûte sombre, veines jaunes et orange)
-   - lave_2.png, lave_3.png, lave_4.png   (facultatif) la même lave légèrement décalée, pour l'animer
    - dessus_falaise.png    dessus des terrasses : roche, mousse jaune-vert, herbes sèches
 
 2) PAROI DE FALAISE : 256 px de large x 256 px de haut (= 4 cases de haut), qui se répète de gauche à droite

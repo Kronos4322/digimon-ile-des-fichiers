@@ -54,7 +54,6 @@
     const erx = (x1 - x0) / 2 - 1.2, ery = (y1 - y0) / 2 - 1;
     if (erx > 1 && ery > 1) { x.beginPath(); x.ellipse((x0 + x1) / 2, (y0 + y1) / 2 + 0.6, erx, ery, 0, Math.PI * 1.08, Math.PI * 1.55); x.stroke(); }
   }
-  OBJ.cairn.paint = x => { [[8, 23, 6.6, 3], [8, 18.6, 5.4, 2.6], [8.6, 14.6, 4.4, 2.4], [8, 11, 3.4, 2], [8.4, 8, 2.4, 1.6]].forEach(([cx, cy, rx, ry], i) => stone(x, Array.from({ length: 8 }, (_, k) => { const a = k / 8 * Math.PI * 2; return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]; }), ['#8a8a90', '#7a7468', '#9a948a', '#86868c', '#a8a49a'][i], 31 + i)); };
   OBJ.pebbles.paint = (x, v) => { for (const [cx, cy, rx, ry] of [[4, 6, 2.6, 1.6], [9, 5.6, 2, 1.4], [11.6, 7, 1.4, 0.9]]) stone(x, Array.from({ length: 7 }, (_, k) => { const a = k / 7 * Math.PI * 2; return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]; }), v ? '#7a7068' : '#6a6660', 41); };
 
   // ------------------------------------------------------------ bois : souche et tronc creux
@@ -108,26 +107,7 @@
   // source : margelle de pierres rondes, eau claire et profonde, bouillons
   // monolithe de données : pierre ancienne, runes numériques qui luisent
   // dalle de circuit à moitié enterrée
-  OBJ.datapanel.paint = (x, v) => {
-    const Lc = v ? '#7aff9a' : '#5ae8f0';
-    stone(x, [[2, 18], [6, 6], [30, 3], [32, 16]], v ? '#2e4e40' : '#2e3e5e', 91 + v, { sharp: true });
-    x.save(); x.shadowColor = Lc; x.shadowBlur = 3; x.strokeStyle = Lc; x.lineWidth = 0.9; x.lineCap = 'round';
-    x.beginPath(); x.moveTo(8, 14); x.lineTo(14, 8); x.lineTo(24, 7); x.lineTo(28, 12); x.moveTo(12, 15); x.lineTo(20, 12); x.stroke();
-    x.fillStyle = '#e8ffff'; for (const [px, py] of [[14, 8], [24, 7], [20, 12]]) { x.beginPath(); x.arc(px, py, 1.3, 0, 7); x.fill(); }
-    x.restore();
-    moss(x, [[4, 17], [6, 18], [30, 18], [28, 18.6]], 93);
-  };
   // antenne de données : mât métallique, voyant
-  OBJ.antenna.paint = (x, v) => {
-    stone(x, [[4, 44], [4.5, 38.5], [13.5, 38.5], [14, 44]], '#7a7e86', 95, { sharp: true });
-    const g = x.createLinearGradient(7.5, 0, 10.5, 0); g.addColorStop(0, '#dfe4ea'); g.addColorStop(1, '#6a7078');
-    x.fillStyle = g; x.fillRect(7.7, 9, 2.6, 31);
-    x.strokeStyle = '#8a9098'; x.lineWidth = 1; x.beginPath(); x.moveTo(9, 26); x.lineTo(3, 20); x.moveTo(9, 22); x.lineTo(15, 16); x.stroke();
-    const C = v ? '#5ae890' : '#ff5a5a';
-    x.save(); x.shadowColor = C; x.shadowBlur = 4; x.fillStyle = C; x.beginPath(); x.arc(9, 6, 3.4, 0, 7); x.fill(); x.restore();
-    x.fillStyle = '#ffffff'; x.beginPath(); x.arc(8, 5, 1.1, 0, 7); x.fill();
-    x.fillStyle = '#f0c030'; x.fillRect(5, 40.6, 8, 0.8);
-  };
   // banc / ponton de bois
   OBJ.dock.paint = x => {
     for (const px of [3, 15, 28]) post(x, px, 12, 19.5, 2, '#5a3a1a');
@@ -166,22 +146,6 @@
     // lianes qui pendent
     x.strokeStyle = '#3a7a2a'; x.lineWidth = 1.1;
     for (const lx of [24, 48, 86, 108]) { x.beginPath(); x.moveTo(lx, 62); x.quadraticCurveTo(lx + 4, 80, lx - 1, 96); x.stroke(); x.fillStyle = '#5aa844'; for (let k = 0; k < 4; k++) { x.beginPath(); x.ellipse(lx + 1, 68 + k * 7, 1.6, 0.8, 0.5, 0, 7); x.fill(); } }
-  };
-  // tuyau rouillé ou métallique à moitié enterré (fumée : OBJ.pipe.smoke)
-  OBJ.pipe.paint = (x, v) => {
-    const M = hex(v ? '#8a8e96' : '#9a7a5a'), Ml = rgb(mix(M, '#ffffff', 0.4)), Md = rgb(mix(M, COOL, 0.5));
-    x.fillStyle = 'rgba(14,26,16,0.4)'; x.beginPath(); x.ellipse(17, 30, 14, 2.4, 0, 0, 7); x.fill();
-    stone(x, [[2, 30], [4, 24], [10, 22], [14, 25], [14, 30]], '#6a5a3a', 111, { moss: true });
-    // coude : tube épais avec reflet
-    x.lineCap = 'round'; x.lineJoin = 'round';
-    x.strokeStyle = rgb(mix(M, INK, 0.6)); x.lineWidth = 10; x.beginPath(); x.moveTo(9, 29); x.lineTo(9, 15); x.quadraticCurveTo(9, 8, 16, 8); x.lineTo(26, 8); x.stroke();
-    x.strokeStyle = rgb(M); x.lineWidth = 8.4; x.stroke();
-    x.strokeStyle = Ml; x.lineWidth = 2; x.beginPath(); x.moveTo(6.5, 28); x.lineTo(6.5, 15); x.quadraticCurveTo(7, 6.5, 16, 5.6); x.lineTo(25, 5.6); x.stroke();
-    x.strokeStyle = Md; x.lineWidth = 1.6; x.beginPath(); x.moveTo(11.6, 28); x.lineTo(11.6, 15.5); x.quadraticCurveTo(12, 10.5, 16, 10.4); x.lineTo(25, 10.4); x.stroke();
-    x.fillStyle = rgb(mix(M, INK, 0.3)); x.beginPath(); x.ellipse(27, 8, 3, 5, 0, 0, 7); x.fill(); x.fillStyle = '#141414'; x.beginPath(); x.ellipse(27.4, 8, 1.8, 3.4, 0, 0, 7); x.fill();
-    x.fillStyle = '#d8d0c0'; for (const [px, py] of [[6, 22], [12, 22], [20, 5.5], [20, 10.5]]) { x.beginPath(); x.arc(px, py, 0.7, 0, 7); x.fill(); }
-    if (!v) { x.fillStyle = 'rgba(176,96,58,0.75)'; x.beginPath(); x.ellipse(16, 12, 3, 1.6, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(8, 24, 1.6, 2.4, 0, 0, 7); x.fill(); }
-    moss(x, [[7, 26.6], [5, 27.4]], 113);
   };
 
   // ------------------------------------------------------------ BORD DE MER : palmiers, rochers marins, bois flotté, cuvettes
@@ -386,22 +350,7 @@
   // ------------------------------------------------------------ VILLAGE : haies, massifs, réverbères, bancs, drapeaux, tonneaux, caisses
   // massif de fleurs dans un bac de bois (v : couleurs ; 3 et 4 = fleurs d'hiver et d'automne, gfx/meteo.js)
   // réverbère en fer forgé, lanterne de verre (halo : lumières de la carte)
-  OBJ.lamp.paint = x => {
-    x.fillStyle = 'rgba(20,20,20,0.35)'; x.beginPath(); x.ellipse(6, 31, 4, 1.3, 0, 0, 7); x.fill();
-    const g = x.createLinearGradient(4.6, 0, 7.4, 0); g.addColorStop(0, '#6a6278'); g.addColorStop(1, '#241e2c');
-    x.fillStyle = g; x.fillRect(4.8, 10, 2.4, 21); x.fillStyle = '#2a2430'; x.fillRect(3.4, 28.6, 5.2, 2.4); x.fillRect(4.2, 26, 3.6, 1.2);
-    x.strokeStyle = '#2a2430'; x.lineWidth = 0.7; x.beginPath(); x.moveTo(6, 12); x.quadraticCurveTo(9, 11, 8.6, 8.6); x.moveTo(6, 12); x.quadraticCurveTo(3, 11, 3.4, 8.6); x.stroke();
-    x.save(); x.shadowColor = '#ffd870'; x.shadowBlur = 5; const lg = x.createLinearGradient(0, 3, 0, 10); lg.addColorStop(0, '#fff6c8'); lg.addColorStop(1, '#ffc850'); x.fillStyle = lg; x.beginPath(); x.moveTo(3, 3.4); x.lineTo(9, 3.4); x.lineTo(8.2, 10); x.lineTo(3.8, 10); x.closePath(); x.fill(); x.restore();
-    x.strokeStyle = '#2a2430'; x.lineWidth = 0.8; x.beginPath(); x.moveTo(3, 3.4); x.lineTo(9, 3.4); x.lineTo(8.2, 10); x.lineTo(3.8, 10); x.closePath(); x.moveTo(6, 3.4); x.lineTo(6, 10); x.stroke();
-    x.fillStyle = '#2a2430'; x.beginPath(); x.moveTo(2, 3.6); x.lineTo(6, 0.6); x.lineTo(10, 3.6); x.closePath(); x.fill(); x.fillRect(5.4, 10, 1.2, 1.4);
-  };
   // banc de parc : lattes de bois sur pieds de fonte
-  OBJ.bench.paint = x => {
-    x.fillStyle = 'rgba(20,20,20,0.3)'; x.beginPath(); x.ellipse(11, 13.4, 10, 1.4, 0, 0, 7); x.fill();
-    x.fillStyle = '#2e2a32'; for (const lx of [3, 17]) { x.fillRect(lx, 3, 1.6, 10.6); x.fillRect(lx - 0.6, 12.6, 2.8, 1); }
-    for (let k = 0; k < 2; k++) plank(x, 2, 2.6 + k * 2.2, 18, 1.8, '#a0703c', 221 + k);
-    for (let k = 0; k < 2; k++) plank(x, 2, 7.6 + k * 1.8, 18, 1.6, '#b8844c', 223 + k);
-  };
   // drapeau qui flotte
   OBJ.flag.paint = (x, v) => {
     const pg = x.createLinearGradient(3, 0, 5, 0); pg.addColorStop(0, '#f0ece4'); pg.addColorStop(1, '#8a8478'); x.fillStyle = pg; x.fillRect(3.2, 2, 1.6, 31);

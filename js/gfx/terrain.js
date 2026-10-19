@@ -797,8 +797,8 @@
       const pick = (tx, ty) => { const h = hash(tx, ty, 60); if (TH && TH.trees) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; for (const [tv, w] of TH.trees) { if (r < w) return tv; r -= w; } return TH.trees[0][0]; } return Math.floor(h * 3); };
       for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
         if (tAt(tx, ty) !== TER.canopy) continue;
-        const devant = tAt(tx, ty + 1) !== TER.canopy, quinconce = ty % 2 === 0 && (tx + (ty >> 1)) % 2 === 0;
-        if (!(quinconce || (devant && (tx + ty) % 2 === 0))) continue;
+        const devant = tAt(tx, ty + 1) !== TER.canopy, quinconce = ty % 3 === 0 && (tx + ((ty / 3) & 1) * 2) % 4 === 0;   // (arbres 3 fois plus grands que le héros)
+        if (!(quinconce || (devant && tx % 3 === 0))) continue;
         const v = pick(tx, ty);
         if (!World.objReady('tree', v)) { World.obj('tree', v); yield; }
         const jx = Math.round((hash(tx, ty, 64) - 0.5) * 6), jy = devant ? 0 : Math.round((hash(tx, ty, 65) - 0.5) * 4);

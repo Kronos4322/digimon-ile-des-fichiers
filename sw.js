@@ -4,10 +4,13 @@
 //  Réseau d'abord : chaque mise à jour publiée est prise dès qu'on est en ligne ;
 //  sans réseau, on joue avec la dernière version gardée en cache.
 // =====================================================================
-const CACHE = 'digimon-ile';
+const CACHE = 'digimon-ile-2026-10-19';   // (nouveau nom à chaque grand ménage : l'ancien cache est vidé)
 
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+self.addEventListener('activate', e => e.waitUntil((async () => {
+  for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);   // (images et scripts supprimés du jeu : plus gardés sur le téléphone)
+  await self.clients.claim();
+})()));
 
 self.addEventListener('fetch', e => {
   const req = e.request;
