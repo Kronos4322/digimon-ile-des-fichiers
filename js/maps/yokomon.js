@@ -110,10 +110,19 @@
       const H2 = m.rows.length, W2 = m.rows[0].length, solid = ch => DW.SOLID.has(ch);
       const occ = new Set(); for (const o of m.objects || []) if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
       const near = (x, y) => [...(m.warps || [])].some(w => Math.abs(w.x - x) < 8 && Math.abs(w.y - y) < 8);
+      // (seulement là où l'on peut aller : les cases reliées aux sorties de la carte ; sinon le tronc pouvait tomber
+      //  dans une clairière fermée par les arbres, impossible à atteindre)
+      const libre = (x, y) => m.rows[y] && m.rows[y][x] !== undefined && !solid(m.rows[y][x]) && !occ.has(x + ',' + y);
+      const vu = new Set(), file = [];
+      for (const w of m.warps || []) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) if (libre(x, y) && !vu.has(x + ',' + y)) { vu.add(x + ',' + y); file.push([x, y]); }
+      while (file.length) {
+        const [x, y] = file.pop();
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, k = nx + ',' + ny; if (!vu.has(k) && libre(nx, ny)) { vu.add(k); file.push([nx, ny]); } }
+      }
       let best = null, bs = 2;
       for (let y = 4; y < H2 - 4; y++) for (let x = 4; x < W2 - 4; x++) {
         if (!solid(m.rows[y - 1][x]) || solid(m.rows[y][x]) || occ.has(x + ',' + y) || near(x, y)) continue;
-        if (solid(m.rows[y + 1][x]) || solid(m.rows[y + 2][x]) || occ.has(x + ',' + (y + 1))) continue;
+        if (solid(m.rows[y + 1][x]) || solid(m.rows[y + 2][x]) || occ.has(x + ',' + (y + 1)) || !vu.has(x + ',' + (y + 1))) continue;
         const sc = Hh(x, y, 4242); if (sc < bs) { bs = sc; best = [x, y]; }
       }
       if (!best) return;

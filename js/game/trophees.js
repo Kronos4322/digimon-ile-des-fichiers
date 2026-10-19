@@ -12,6 +12,7 @@
     shellmon: { name: 'Trophée de Shellmon', v: 2, desc: "Shellmon, le gardien de l'antre sous les cabines de la plage. La victoire qui a délivré Tai et réveillé Greymon !" },
     monochromon: { name: 'Trophée de Monochromon', v: 3, desc: "Le Monochromon de la Rive Sud, qui bloquait la route du lac. Une carapace dure comme le diamant !" },
     seadramon: { name: 'Trophée de Seadramon', v: 4, desc: "Seadramon, le serpent de mer du Lac du Tramway. La nuit où Garurumon est apparu et où Matt a été délivré !" },
+    meramon: { name: 'Trophée de Meramon', v: 5, desc: "Meramon, le gardien de feu du Mont Miharashi, rendu fou par un Engrenage Noir. Le jour où Birdramon a pris son envol !" },
   };
   const SLOTS = 8;   // emplacements de la cave (les suivants attendent les prochains boss)
   const Trophies = DW.Trophies = {

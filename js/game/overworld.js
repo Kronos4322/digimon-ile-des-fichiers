@@ -22,8 +22,25 @@
     if (DW.Distrib) { DW.Distrib.signs(map); DW.Distrib.place(map, mapId); }   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
     if (DW.Antre) DW.Antre.hole(map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
     if (DW.YokoVillage) DW.YokoVillage.place(map, mapId);   // le tronc creux vers le village des Poyomon (maps/yokomon.js)
+    pnjHorsDecor(map);
     return map;
   };
+  // un personnage n'est jamais DANS le décor : un rocher ou un arbre posé dans l'éditeur de cartes peut avoir pris sa
+  // place ; il se décale alors sur la case libre la plus proche (vérifié une fois par état de la carte)
+  function pnjHorsDecor(map) {
+    const O = map.objects || [], N = map.npcs || [], cle = O.length + ':' + N.length;
+    if (map._pnjCle === cle && map._pnjObj === O && map._pnjRows === map.rows) return;
+    map._pnjCle = cle; map._pnjObj = O; map._pnjRows = map.rows;
+    const occ = new Set();
+    for (const o of O) if (!o.walk && !o.top) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
+    for (const n of N) {
+      if (n.shadow || n.gate || n.walk || n.x == null) continue;
+      const ch = (map.rows[n.y] || '')[n.x];
+      if (ch === undefined || !(DW.SOLID.has(ch) || occ.has(n.x + ',' + n.y))) continue;
+      const [x, y] = DW.MapKit.freeNear(map, n.x, n.y, 4);
+      if (x !== n.x || y !== n.y) { n.x = x; n.y = y; if (n.home) n.home = [x, y]; }
+    }
+  }
   class Overworld extends DW.Scene {
     constructor(mapId, x, y, dir) {
       super();
@@ -54,6 +71,9 @@
       for (const id in DW.MAPS) if (!near.has(id) && DW.MAPS[id].gfx) DW.World.unprepare(DW.MAPS[id]);
       this.amb = new DW.World.Ambient(this.map); DW.Vivant.init(this);
       this.rustle = {};
+      // jamais dans un obstacle : si la case d'arrivée est prise (arbre ou rocher posé au bord d'un passage, retouche
+      // de carte...), le héros arrive sur la case libre la plus proche
+      if (this.solid(x, y)) { const c = this.caseLibre(x, y); if (c) { x = c[0]; y = c[1]; } }
       const st = DW.state;
       st.map = mapId; st.x = x; st.y = y;
       this.p = { x, y, dir, moving: false, sx: x, sy: y, tx: x, ty: y, t: 0, step: 0, run: false, turnT: 0 };
@@ -107,6 +127,16 @@
     // un PNJ « walk » (dalle, marque au sol) se traverse ; les autres bloquent le passage
     npcBlocks(x, y) { const n = this.npcAt(x, y); return !!n && !n.walk; }
     npcAt(x, y) { return (this.map.npcs || []).find(n => n.x === x && n.y === y && this.npcVisible(n)); }
+    // case libre la plus proche (de proche en proche, d'abord les plus près en ligne droite) ; null si aucune à moins de R
+    caseLibre(x, y, R = 6) {
+      for (let r = 1; r <= R; r++) {
+        const ring = [];
+        for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dy)) === r) ring.push([dx, dy]);
+        ring.sort((a, b) => Math.abs(a[0]) + Math.abs(a[1]) - Math.abs(b[0]) - Math.abs(b[1]));
+        for (const [dx, dy] of ring) if (!this.solid(x + dx, y + dy)) return [x + dx, y + dy];
+      }
+      return null;
+    }
     solid(x, y) {
       if (x < 0 || y < 0 || x >= this.map.w || y >= this.map.h) return true;
       const m = this.map, k = x + ',' + y;   // (collisions choisies dans l'éditeur de cartes : maps/retouches.js)

@@ -18,14 +18,15 @@
   // (check.html?seul=village,montagne0 : seulement ces cartes, pour vérifier vite une retouche)
   const ONLY = (new URLSearchParams(location.search).get('seul') || '').split(',').filter(Boolean);
   for (const id of Object.keys(DW.MAPS).filter(k => !ONLY.length || ONLY.includes(k))) {
-    const m = DW.getMap(id); if (DW.MapKit.dress) DW.MapKit.dress(m, id);   // décors en kits, comme en jeu (maps/decor.js)
+    // la carte telle que le jeu la prépare (décors en kits, distributeurs, personnages hors du décor : game/overworld.js)
+    const m = DW.preparerCarte ? DW.preparerCarte(id) : DW.getMap(id); if (!DW.preparerCarte && DW.MapKit.dress) DW.MapKit.dress(m, id);
     const g = DW.World.prepare(m), p = [];
     // départ : le premier passage de bord, sinon la case devant le premier escalier (étages, greniers, caves)
     const d0 = (m.doors || [])[0], w0 = m.warps[0] || (d0 && { x: d0.x, y: d0.y + 1, w: d0.w || 1, h: 1, to: d0.to });
-    if (!w0) { lines.push(`<span class="ok">${id} OK</span> — pièce sans sortie (accès par script)`); continue; }
+    if (!w0) { lines.push(`<span class="ok">${id} OK</span> — pièce sans sortie (accès par script)`); DW.World.unprepare(m); continue; }
     let start = null;
     for (let y = w0.y; y < w0.y + w0.h && !start; y++) for (let x = w0.x; x < w0.x + w0.w; x++) if (!solidAt(m, g, x, y)) { start = [x, y]; break; }
-    if (!start) { lines.push(`<span class="ko">${id} : sortie ${w0.to} entièrement bloquée</span>`); continue; }
+    if (!start) { lines.push(`<span class="ko">${id} : sortie ${w0.to} entièrement bloquée</span>`); DW.World.unprepare(m); continue; }
     const seen = new Set([start.join()]), q = [start];
     while (q.length) {
       const [x, y] = q.shift();
@@ -61,6 +62,7 @@
     m.rows.forEach((r, y) => [...r].forEach((ch, x) => { const I = DW.World.info(ch); if ((I.train || I.toilet) && !adj(x, y)) p.push(`${I.train ? 'entraînement' : 'toilettes'} (${x},${y}) inaccessible`); }));
     const tall = m.rows.join('').split('').filter(ch => DW.World.isTall(ch)).length;
     lines.push(p.length ? `<span class="ko">${id} : ${p.join(' ; ')}</span>` : `<span class="ok">${id} OK</span> — ${m.w}x${m.h}, ${seen.size} cases, ${tall} herbes hautes, ${g.ms} ms`);
+    DW.World.unprepare(m);   // (dessin de la carte libéré : toutes les cartes à la fois ne tiennent pas en mémoire)
   }
   // ------------------------------------------------------------ arbre des Digivolutions et données des espèces
   {
