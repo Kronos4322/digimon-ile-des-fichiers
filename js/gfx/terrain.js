@@ -85,10 +85,15 @@
     const sol = r => (TX ? TX.sol(map, r) : null);
     const TX_HERBE = sol('herbe'), TX_HSECHE = sol('herbe_seche'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce');
     // herbe dessinée (l'herbe sèche sur les cases « j ») ; l'ombre des arbres et des falaises reste par-dessus
+    // (la couleur est écrite dans HC, réutilisé : à lire aussitôt ; mêmes calculs que TX.lit et Art.mix)
+    const texO = (P, x, y) => { const X = ((Math.floor(x) % P.w) + P.w) % P.w, Y = ((Math.floor(y) % P.h) + P.h) % P.h; return (Y * P.w + X) * 4; };
+    const HC = [0, 0, 0, 255];
     const herbeTx = (tx, ty, px, py, sh, en, ed) => {
-      const P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE; let c = TX.lit(P, px, py);
-      if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) c = Art.mix(c, TX.lit(TX_CHEMIN, px, py), 0.55);   // (bord de chemin)
-      const k = Math.min(0.45, sh * 0.04); return k > 0 ? Art.mix(c, [24, 50, 60], k) : c;
+      const P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE, q = texO(P, px, py), d = P.d;
+      let r = d[q], g = d[q + 1], b = d[q + 2];
+      if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) { const q2 = texO(TX_CHEMIN, px, py), d2 = TX_CHEMIN.d; r = r + (d2[q2] - r) * 0.55; g = g + (d2[q2 + 1] - g) * 0.55; b = b + (d2[q2 + 2] - b) * 0.55; }   // (bord de chemin)
+      const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (24 - r) * k; g = g + (50 - g) * k; b = b + (60 - b) * k; }
+      HC[0] = r; HC[1] = g; HC[2] = b; return HC;
     };
     const altCase = (x, y) => { const a = map.alt ? map.alt[DW.clamp(y, 0, map.h - 1) * map.w + DW.clamp(x, 0, map.w - 1)] : 0; return a === 255 ? 9 : a; };
     // lave refroidie : sur une falaise basse (loin du cratère), les fissures de lave de l'image deviennent sombres
@@ -160,7 +165,12 @@
     const WALL = map.wall ? { ...map.wall, base: Art.hex(map.wall.base || '#ead8b4'), alt: Art.hex(map.wall.alt || map.wall.base || '#ead8b4'), wood: map.wall.wood ? Art.hex(map.wall.wood) : null } : null;
     // PAROIS ROCHEUSES (TER.rock) : strates ocre, fissures, rebord herbeux en haut, pied sombre ; hauteur de la paroi
     const ROCK = (map.falaise && World.FALAISES[map.falaise] ? World.FALAISES[map.falaise] : TH && TH.rock ? TH.rock : ['#3a2a20', '#4e3828', '#664a32', '#7e5e3e', '#98744c', '#b28c5e', '#cca674', '#e2c28e']).map(Art.hex);
-    const rockRun = (tx, ty, dy) => { let n = 0; for (let y = ty + dy; n < 12 && tAt(tx, y) === TER.rock && y >= 0 && y < map.h; y += dy) n++; return n; };
+    const RUN = new Int8Array(map.w * map.h * 2).fill(-1);   // (mémorisé par case : demandé pour chaque pixel des parois)
+    const rockRun = (tx, ty, dy) => {
+      const c = (ty * map.w + tx) * 2 + (dy > 0 ? 1 : 0); if (tx >= 0 && tx < map.w && ty >= 0 && ty < map.h && RUN[c] >= 0) return RUN[c];
+      let n = 0; for (let y = ty + dy; n < 12 && tAt(tx, y) === TER.rock && y >= 0 && y < map.h; y += dy) n++;
+      if (tx >= 0 && tx < map.w && ty >= 0 && ty < map.h) RUN[c] = n; return n;
+    };
     const HARD = new Set([TER.rock, TER.cliff, TER.bridge, TER.stairs, TER.stone, TER.cobble, TER.wood, TER.wall, TER.void, TER.metal]);
     // terrain au pixel (frontières organiques)
     const T = new Uint8Array(N);
@@ -179,7 +189,9 @@
     for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) TT[ty * MW + tx] = tt[ty][tx];
     for (const h of HARD) isHard[h] = 1;
     const tF = (x, y) => TT[(y < 0 ? 0 : y >= MH ? MH - 1 : y) * MW + (x < 0 ? 0 : x >= MW ? MW - 1 : x)];
-    for (let py = 0; py < GH; py++) { if ((py & 3) === 3) yield; for (let px = 0; px < GW; px++) {
+    // (les grosses boucles au pixel sont de petites fonctions à part, appelées par bandes de lignes : le moteur JavaScript
+    //  les optimise à fond, ce qu'il refuse de faire pour la grande fonction prep entière)
+    const voteRows = (ya, yb) => { for (let py = ya; py < yb; py++) for (let px = 0; px < GW; px++) {
       const base = TT[(py >> 4) * MW + (px >> 4)];
       if (isHard[base] || uni[(py >> 4) * MW + (px >> 4)]) { T[py * GW + px] = base; continue; }
       // frontières organiques : petite ondulation + grande vague (les chemins ne sont plus des octogones)
@@ -196,7 +208,8 @@
       let best = base, bw = -1;
       for (let k = 0; k < 11; k++) if (wsum[k] > bw) { bw = wsum[k]; best = k; }
       T[py * GW + px] = best;
-    } }
+    } };
+    for (let py = 0; py < GH; py += 4) { voteRows(py, Math.min(GH, py + 4)); yield; }
     lap('vote');
     // places rondes (ex. la place de la ville, la piste du terrain) : cercle net au lieu des cases
     for (const pl of map.plazas || []) {
@@ -210,7 +223,7 @@
     const ED = new Uint8Array(N), EN = new Uint8Array(N).fill(255);
     const Q = new Int32Array(N);
     let qh = 0, qt = 0;
-    for (let py = 0; py < GH; py++) { if ((py & 31) === 31) yield; for (let px = 0; px < GW; px++) {
+    const bordRows = (ya, yb) => { for (let py = ya; py < yb; py++) for (let px = 0; px < GW; px++) {
       const i = py * GW + px, t = T[i];
       let n = -1;
       if (px > 0 && T[i - 1] !== t) n = i - 1;
@@ -218,24 +231,30 @@
       else if (py > 0 && T[i - GW] !== t) n = i - GW;
       else if (py < GH - 1 && T[i + GW] !== t) n = i + GW;
       if (n >= 0) { ED[i] = 1; EN[i] = T[n]; Q[qt++] = i; }
-    } }
-    while (qh < qt) {
-      if ((qh & 32767) === 32767) yield;
-      const i = Q[qh++], d = ED[i];
-      if (d >= 40) continue;
-      const px = i % GW, t = T[i], e = EN[i], d1 = d + 1;
-      let n;
-      if (px > 0 && !ED[n = i - 1] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
-      if (px < GW - 1 && !ED[n = i + 1] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
-      if (i >= GW && !ED[n = i - GW] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
-      if (i < N - GW && !ED[n = i + GW] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[qt++] = n; }
-    }
-    for (let i = 0; i < N; i++) if (!ED[i]) ED[i] = 60;
+    } };
+    for (let py = 0; py < GH; py += 32) { bordRows(py, Math.min(GH, py + 32)); yield; }
+    // (la file avance par paquets de 32768)
+    const bfsRun = () => {
+      let h = qh, q = qt; const lim = h + 32768;
+      while (h < q && h < lim) {
+        const i = Q[h++], d = ED[i];
+        if (d >= 40) continue;
+        const px = i % GW, t = T[i], e = EN[i], d1 = d + 1;
+        let n;
+        if (px > 0 && !ED[n = i - 1] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[q++] = n; }
+        if (px < GW - 1 && !ED[n = i + 1] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[q++] = n; }
+        if (i >= GW && !ED[n = i - GW] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[q++] = n; }
+        if (i < N - GW && !ED[n = i + GW] && T[n] === t) { ED[n] = d1; EN[n] = e; Q[q++] = n; }
+      }
+      qh = h; qt = q;
+    };
+    while (qh < qt) { bfsRun(); yield; }
+    const loin = () => { for (let i = 0; i < N; i++) if (!ED[i]) ED[i] = 60; };
+    loin();
     lap('bfs');
     // ombre portée sous la canopée et les falaises
     const SH = new Uint8Array(N);
-    for (let px = 0; px < GW; px++) {
-      if ((px & 63) === 63) yield;
+    const ombreCols = (xa, xb) => { for (let px = xa; px < xb; px++) {
       let run = 99;
       for (let py = 0; py < GH; py++) {
         const i = py * GW + px, t = T[i];
@@ -244,7 +263,8 @@
         if (caster) run = 0; else run++;
         if (!caster && run <= 10 && t !== TER.water) SH[i] = 11 - run;
       }
-    }
+    } };
+    for (let px = 0; px < GW; px += 64) { ombreCols(px, Math.min(GW, px + 64)); yield; }
     const tallGrid = map.rows.map(r => [...r].map(ch => World.isTall(ch)));
     const tallAt = (x, y) => tallGrid[y][x];
     // couleur de base
@@ -256,9 +276,9 @@
     const cell13 = (cx, cy) => { const k = ((cy + 1) * CW13 + cx + 1) * 2; if (CF13[k] !== CF13[k]) { CF13[k] = cx * 13 + 2 + hash(cx, cy, 26) * 9; CF13[k + 1] = cy * 13 + 2 + hash(cx, cy, 27) * 9; } return k; };
     const cell7 = (cx, cy) => { const k = ((cy + 1) * CW + cx + 1) * 2; if (CF[k] !== CF[k]) { CF[k] = cx * 7 + hash(cx, cy, 16) * 7; CF[k + 1] = cy * 7 + hash(cx, cy, 17) * 7; } return k; };
     // relief de la voûte de feuillage (deux tailles de grappes, Worley), calculé une fois par bloc de 2×2 pixels
-    // (moitié de résolution lissée : 4 fois moins de calculs, sans effet de mosaïque)
-    const halfL = fn => { const Hf = half(fn); return (px, py) => { const x0 = px & ~1, y0 = py & ~1, fx = (px - x0) / 2, fy = (py - y0) / 2, a = Hf(x0, y0), b = Hf(x0 + 2, y0), c = Hf(x0, y0 + 2), d = Hf(x0 + 2, y0 + 2); return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy; }; };
-    const CANV = halfL((px, py) => {
+    // (moitié de résolution lissée : 4 fois moins de calculs, sans effet de mosaïque) ; précalculé d'un coup (canvPrep)
+    // aux points de la demi-grille des cases où il y a du feuillage, puis lu en interpolant (canv)
+    const worleyV = (px, py) => {
       const cx = Math.floor(px / 13), cy = Math.floor(py / 13);
       let d1 = 99, d2 = 99, ox = 0, oy = 0;
       for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
@@ -275,14 +295,27 @@
       if (d2 - d1 < 1.4) v -= 0.6 * (1 - (d2 - d1) / 1.4);   // creux entre les grandes grappes
       if (s2 - s1 < 0.9) v -= 0.35;                           // et entre les petites
       return v;
-    });
+    };
+    const CVA = new Float32Array(HW * ((GH >> 1) + 1));
+    const canvPrep = (ya, yb) => {
+      for (let ty = ya; ty < yb; ty++) for (let tx = 0; tx < MW; tx++) {
+        let feuille = false;
+        for (let y = ty * TS; y < ty * TS + TS && !feuille; y++) for (let x = tx * TS, i = y * GW + x; x < tx * TS + TS; x++, i++) if (T[i] === TER.canopy) { feuille = true; break; }
+        if (!feuille) continue;
+        for (let y = ty * TS; y <= ty * TS + TS && y <= GH; y += 2) for (let x = tx * TS; x <= tx * TS + TS && x <= GW; x += 2) CVA[(y >> 1) * HW + (x >> 1)] = worleyV(x, y);
+      }
+    };
+    const canv = (px, py) => {
+      const k = (py >> 1) * HW + (px >> 1), fx = (px & 1) / 2, fy = (py & 1) / 2, a = CVA[k], b = CVA[k + 1], c = CVA[k + HW], d = CVA[k + HW + 1];
+      return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+    };
     const EDGE = {}; for (const v of map.voisines || []) EDGE[v.side] = true;   // côtés qui touchent une autre carte (maps/monde.js)
     // ESCALIER DESSINÉ (image « escalier ») : posé contre la falaise sur TOUTE sa hauteur, du bord du plateau jusqu'au
     // pied (la bande de paroi des colonnes voisines), sans trou autour ; le haut transparent de l'image = le plateau
     let ESCV = null;
     const escalierVu = (tx, ty) => {
       if (!ESCV) {
-        ESCV = new Map(); const vu = new Set(), Wm = map.w;
+        ESCV = new Array(map.w * map.h).fill(null); const vu = new Set(), Wm = map.w;
         for (let y = 0; y < map.h; y++) for (let x = 0; x < Wm; x++) {
           if (tAt(x, y) !== TER.stairs || vu.has(y * Wm + x)) continue;
           let x0 = x, x1 = x, y0 = y, y1 = y; const q = [[x, y]]; vu.add(y * Wm + x);
@@ -296,10 +329,10 @@
           if (mur === 999) mur = top;
           const ch = map.rows[Math.max(0, Math.min(top, mur) - 1)][Math.min(Wm - 1, x0 + 1)], I = World.CH[ch], Lh = altCase(x0 + 1, mur - 1);
           const R = { x0, x1, y0: top, y1: bot, mur, fond: (I && I.sol === 2 ? TX_CENDRES : TX_DESSUS) || TX_CENDRES || TX_DESSUS, froid: Lh <= 2 ? 1 : Lh <= 3 ? 0.6 : 0 };
-          for (let yy = top; yy <= bot; yy++) for (let xx = x0; xx <= x1; xx++) ESCV.set(yy * Wm + xx, R);
+          for (let yy = top; yy <= bot; yy++) for (let xx = x0; xx <= x1; xx++) ESCV[yy * Wm + xx] = R;
         }
       }
-      return ESCV.get(ty * map.w + tx) || null;
+      return ESCV[ty * map.w + tx] || null;
     };
     // L'escalier est POSÉ DEVANT la falaise : derrière lui, le plateau au-dessus du bord et la paroi en dessous (un peu
     // dans l'ombre) ; ses marches gardent leur proportion (environ 8 px) : une falaise plus haute = plus de marches, jamais
@@ -321,12 +354,14 @@
       if (Y >= bas - 3) col = Art.mix(col, [0, 0, 0], 0.1 * (Y - bas + 4));   // ombre au pied
       return col;
     };
-    for (let py = 0; py < GH; py++) { if (py & 1) yield; for (let px = 0; px < GW; px++) {
+    const ESCA = TX_ESC ? (escalierVu(0, 0), ESCV) : null;   // (escaliers dessinés, par case)
+    const putD = (j, c) => { D[j] = c[0]; D[j + 1] = c[1]; D[j + 2] = c[2]; D[j + 3] = 255; };
+    const couleurRows = (ya, yb) => { for (let py = ya; py < yb; py++) for (let px = 0; px < GW; px++) {
       const i = py * GW + px, j = i * 4, t = T[i], ed = ED[i], en = EN[i];
       const tx = px >> 4, ty = py >> 4, lx = px & 15, ly = py & 15;
       const b = Art.bayer(px, py);
       let col;
-      if (TX_ESC) { const RE = escalierVu(tx, ty); if (RE) { put(D, j, peindreEsc(RE, tx, ty, lx, ly, px, py)); continue; } }
+      if (ESCA) { const RE = ESCA[ty * MW + tx]; if (RE) { putD(j, peindreEsc(RE, tx, ty, lx, ly, px, py)); continue; } }
       // SOLS DESSINÉS (images du joueur) : chemin direct, sans calculer d'abord l'ancien dessin qu'on jetterait ensuite
       // (les bords mouillés du sable et les bords de pelouse gardent le chemin normal, plus bas)
       if (TX) {
@@ -340,8 +375,8 @@
           if (ed <= 4 && en === TER.grass) tc = Art.mix(tc, [30, 24, 14], 0.06 * (5 - ed));
         }
         if (tc) {
-          if (LUSH) { const de = Math.min(EDGE.left ? 999 : px, EDGE.up ? 999 : py, EDGE.right ? 999 : GW - 1 - px, EDGE.down ? 999 : GH - 1 - py); if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; put(D, j, tc); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; } }
-          put(D, j, tc); continue;
+          if (LUSH) { const de = Math.min(EDGE.left ? 999 : px, EDGE.up ? 999 : py, EDGE.right ? 999 : GW - 1 - px, EDGE.down ? 999 : GH - 1 - py); if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; putD(j, tc); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; } }
+          putD(j, tc); continue;
         }
       }
       if (t === TER.grass && LUSH) {
@@ -448,9 +483,9 @@
       } else if (t === TER.canopy && !ROCKY) {
         // VOÛTE DE FEUILLAGE PEINTE : grandes grappes (Worley 13 px), chacune éclairée en haut à gauche,
         // creux sombres et froids entre elles, tons continus (pas de paliers)
-        let v = CANV(px, py) + (hash(px >> 1, py >> 1, 18) - 0.5) * 0.4 - Math.min(ed, 40) * 0.03;
+        let v = canv(px, py) + (hash(px >> 1, py >> 1, 18) - 0.5) * 0.4 - Math.min(ed, 40) * 0.03;
         col = lerpPal(CANOPY, v);
-        if (FORET_ARBRES) { col = Art.mix(col, [10, 26, 16], 0.5); v -= 0.8; }   // (sous-bois sombre : les arbres dessinés sont posés dessus)
+        if (FORET_ARBRES) { col[0] = col[0] + (10 - col[0]) * 0.5; col[1] = col[1] + (26 - col[1]) * 0.5; col[2] = col[2] + (16 - col[2]) * 0.5; v -= 0.8; }   // (sous-bois sombre : les arbres dessinés sont posés dessus)
         if (v < 1.6) { const k = (1.6 - v) * 0.25; col[0] += (12 - col[0]) * k; col[1] += (40 - col[1]) * k * 0.6; col[2] += (60 - col[2]) * k; }   // ombre bleutée
         else if (v > 3.6) { const k = Math.min(0.4, (v - 3.6) * 0.3); col[0] += (230 - col[0]) * k; col[1] += (230 - col[1]) * k * 0.5; col[2] += (120 - col[2]) * k * 0.3; }   // éclat doré
       } else if (t === TER.canopy) {
@@ -662,10 +697,12 @@
       if (LUSH) {
         // (seulement sur les bords SANS carte voisine : sinon une bande sombre marquerait chaque frontière)
         const de = Math.min(EDGE.left ? 999 : px, EDGE.up ? 999 : py, EDGE.right ? 999 : GW - 1 - px, EDGE.down ? 999 : GH - 1 - py);
-        if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; put(D, j, col); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; }
+        if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; putD(j, col); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; }
       }
-      put(D, j, col);
-    } }
+      putD(j, col);
+    } };
+    if (!ROCKY) for (let ty = 0; ty < MH; ty += 4) { canvPrep(ty, Math.min(MH, ty + 4)); yield; }
+    for (let py = 0; py < GH; py += 2) { couleurRows(py, Math.min(GH, py + 2)); yield; }
     lap('couleur');
     // FONDUS ENTRE CARTES (grille du monde : maps/monde.js) : le long d'un bord partagé avec une voisine d'un autre
     // biome, les couleurs de l'herbe, de la terre, du sable et du feuillage glissent vers celles d'en face et se
@@ -684,13 +721,20 @@
         for (const k in mine) { const a = mean(mine[k]), b = mean(other[k]); delta[k] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]]; if (Math.abs(delta[k][0]) + Math.abs(delta[k][1]) + Math.abs(delta[k][2]) > 6) any = true; }
         if (!any) continue;
         const vert = v.side === 'left' || v.side === 'right', from = v.from * TS, to = v.to * TS;
-        for (let py = 0; py < GH; py++) { if ((py & 31) === 31) yield; for (let px = 0; px < GW; px++) {
+        // (seulement la bande le long du bord partagé)
+        const A0 = Math.max(0, from - END), A1 = Math.min(vert ? GH - 1 : GW - 1, to + END), B = Math.min(BAND, vert ? GW : GH);
+        const y0 = vert ? A0 : v.side === 'up' ? 0 : GH - B, y1 = vert ? A1 : v.side === 'up' ? B - 1 : GH - 1;
+        const x0 = vert ? (v.side === 'left' ? 0 : GW - B) : A0, x1 = vert ? (v.side === 'left' ? B - 1 : GW - 1) : A1;
+        // (tables : poids selon la distance au bord, fondu aux extrémités, écart de couleur par terrain)
+        const WD = new Float64Array(BAND); for (let d = 0; d < BAND; d++) WD[d] = 0.5 * Math.pow(1 - d / BAND, 1.4);
+        const DL = []; for (const k in delta) DL[k] = delta[k];
+        for (let py = y0; py <= y1; py++) { if ((py & 31) === 31) yield; for (let px = x0; px <= x1; px++) {
           const d = v.side === 'left' ? px : v.side === 'right' ? GW - 1 - px : v.side === 'up' ? py : GH - 1 - py;
           if (d >= BAND) continue;
           const along = vert ? py : px; if (along < from - END || along > to + END) continue;
-          const i = py * GW + px, dl = delta[T[i]]; if (!dl) continue;
+          const i = py * GW + px, dl = DL[T[i]]; if (!dl) continue;
           const endFade = DW.clamp(Math.min(along - (from - END), to + END - along) / END, 0, 1);
-          const w = 0.5 * Math.pow(1 - d / BAND, 1.4) * endFade, j = i * 4;
+          const w = WD[d] * endFade, j = i * 4;
           D[j] += dl[0] * w; D[j + 1] += dl[1] * w; D[j + 2] += dl[2] * w;
         } }
       }
@@ -802,7 +846,8 @@
       objs.push({ kind, v, flip, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
     }
     // bouche du volcan (dessinée par game/lave.js) : ses images sont préparées avec la carte
-    if (map.bouche) for (const k of ['bouche', 'bouchelave']) for (let fr = 0; fr < OBJ[k].frames; fr++) if (!World.objReady(k, 0, fr)) { World.objFrame(k, 0, fr); yield; }
+    // (cratère : la 1re image avant d'afficher la carte, les suivantes après, en tâche de fond : game/lave.js)
+    if (map.bouche) for (const k of ['bouche', 'bouchelave']) if (!World.objReady(k, 0, 0)) { World.objFrame(k, 0, 0); yield; }
     // FLEURS ET CHAMPIGNONS DU SOL (images du joueur) : une touffe par case, placée au hasard dans la case, plate (sous le héros)
     for (const [tx, ty, kind] of FLEURS_POSEES) {
       if (!OBJ[kind]) continue;
@@ -853,13 +898,17 @@
     }
     lap('objets');
     // eau animée : calque limité à la zone d'eau (transparent ailleurs), 8 images
-    const WI = [];
-    let wx0 = GW, wy0 = GH, wx1 = -1, wy1 = -1;
-    for (let i = 0; i < N; i++) if (T[i] === TER.water) {
-      WI.push(i);
-      const px = i % GW, py = (i / GW) | 0;
-      if (px < wx0) wx0 = px; if (px > wx1) wx1 = px; if (py < wy0) wy0 = py; if (py > wy1) wy1 = py;
-    }
+    const pixEau = () => {
+      const L = [], W = TER.water; let x0 = GW, y0 = GH, x1 = -1, y1 = -1;
+      for (let i = 0; i < N; i++) if (T[i] === W) {
+        L.push(i);
+        const px = i % GW, py = (i / GW) | 0;
+        if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py;
+      }
+      return [L, x0, y0, x1, y1];
+    };
+    const PE = pixEau(), WI = PE[0];
+    let wx0 = PE[1], wy0 = PE[2], wx1 = PE[3], wy1 = PE[4];
     const lilies = [];
     if (!(TH && TH.water === World.LAVA)) for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) if (World.info(map.rows[ty][tx]).lily) lilies.push([tx, ty]);   // pas de nénuphars sur la lave
     yield;
@@ -979,70 +1028,88 @@
       // parties indépendantes du temps, calculées une seule fois par pixel d'eau
       const V0 = new Float32Array(NW), F26 = new Float32Array(NW), F27 = new Float32Array(NW), OUT = new Int32Array(NW);
       // sorte d'eau de chaque pixel : 0 = celle de l'ambiance ; entre deux sortes, un mélange sur une case (K1, K2, KW)
-      const eauDe = (tx, ty) => { const r = map.rows[DW.clamp(ty, 0, map.h - 1)]; const c = r && r[DW.clamp(tx, 0, map.w - 1)], I = World.CH[c]; return I && I.t === 'water' ? I.eau || 0 : -1; };
+      // (sorte d'eau de chaque case, -1 hors de l'eau ; lue en bordant la carte)
+      const EK = new Int8Array(map.w * map.h);
+      for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) { const I = World.CH[map.rows[ty][tx]]; EK[ty * map.w + tx] = I && I.t === 'water' ? I.eau || 0 : -1; }
+      const eauDe = (tx, ty) => EK[(ty < 0 ? 0 : ty >= map.h ? map.h - 1 : ty) * map.w + (tx < 0 ? 0 : tx >= map.w ? map.w - 1 : tx)];
+      const wsum = new Float64Array(6);
       let EAUX = false; for (let y = 0; y < map.h && !EAUX; y++) for (const c of map.rows[y]) if (World.CH[c] && World.CH[c].eau) { EAUX = true; break; }
       const K1 = EAUX ? new Uint8Array(NW) : null, K2 = EAUX ? new Uint8Array(NW) : null, KW = EAUX ? new Float32Array(NW) : null;
-      for (let k = 0; k < NW; k++) {
-        if ((k & 2047) === 2047) yield;
+      const eauFixe = (ka, kb) => { for (let k = ka; k < kb; k++) {
         const i = WI[k], px = i % GW, py = (i / GW) | 0;
         let prof = TH && TH.waterDepth || 3.2;   // waterDepth : eau claire plus loin du bord (lagon)
         if (EAUX) {
           const fx = (px - 8) / TS, fy = (py - 8) / TS, x0 = Math.floor(fx), y0 = Math.floor(fy), ax = fx - x0, ay = fy - y0, own = eauDe(px >> 4, py >> 4);
-          const wsum = [0, 0, 0, 0, 0, 0];
-          for (const [cx, cy, wt] of [[x0, y0, (1 - ax) * (1 - ay)], [x0 + 1, y0, ax * (1 - ay)], [x0, y0 + 1, (1 - ax) * ay], [x0 + 1, y0 + 1, ax * ay]]) { const e = eauDe(cx, cy); wsum[e < 0 ? Math.max(0, own) : e] += wt; }
+          wsum.fill(0);
+          let e = eauDe(x0, y0); wsum[e < 0 ? Math.max(0, own) : e] += (1 - ax) * (1 - ay);
+          e = eauDe(x0 + 1, y0); wsum[e < 0 ? Math.max(0, own) : e] += ax * (1 - ay);
+          e = eauDe(x0, y0 + 1); wsum[e < 0 ? Math.max(0, own) : e] += (1 - ax) * ay;
+          e = eauDe(x0 + 1, y0 + 1); wsum[e < 0 ? Math.max(0, own) : e] += ax * ay;
           let a1 = 0, a2 = -1; for (let e = 1; e < 6; e++) if (wsum[e] > wsum[a1]) a1 = e;
           for (let e = 0; e < 6; e++) if (e !== a1 && wsum[e] > 0 && (a2 < 0 || wsum[e] > wsum[a2])) a2 = e;
           K1[k] = a1; K2[k] = a2 < 0 ? a1 : a2; KW[k] = a2 < 0 ? 0 : wsum[a2] / (wsum[a1] + wsum[a2]);
           if (a1) prof = World.EAUX[a1].prof;
         }
         V0[k] = Math.min(6, ED[i] / prof) + Art.bayer(px, py) * 0.6;
-        F26[k] = px * 0.06 + py * 0.4 + fbm(px * 0.03, py * 0.03, 26) * 6;
-        F27[k] = px * 0.07 + py * 0.05 + fbm(px * 0.05, py * 0.05, 27) * 5;
+        // houle (F26) : seulement loin du bord et hors des eaux dessinées ; écume (F27) : seulement près du bord
+        // (ailleurs, eauImage ne s'en sert pas)
+        const k1 = EAUX ? K1[k] : 0, txE = (TX_MER || TX_DOUCE) && !(EAUX && (k1 === 4 || k1 === 5)), ed = ED[i];
+        if (ed > 5 && !txE) F26[k] = px * 0.06 + py * 0.4 + fbm(px * 0.03, py * 0.03, 26) * 6;
+        let fo0 = 1.6; if (EAUX && (k1 || KW[k] > 0)) { const E1 = World.EAUX[k1]; if (E1) fo0 = 1.6 * E1.fo; }
+        if (ed <= Math.abs(fo0) * 2 + 2.3) F27[k] = px * 0.07 + py * 0.05 + fbm(px * 0.05, py * 0.05, 27) * 5;
         OUT[k] = ((py - wy0) * BW + (px - wx0)) * 4;
-      }
+      } };
+      for (let k = 0; k < NW; k += 4096) { eauFixe(k, Math.min(NW, k + 4096)); yield; }
       const NF = 8, frames = water.frames;
       const FOAM = Art.hex(TH && TH.foam ? TH.foam[0] : '#f4feff'), FOAM2 = Art.hex(TH && TH.foam ? TH.foam[1] : '#c4f2f8'), WHITE = Art.hex(TH && TH.foam ? TH.foam[0] : '#ffffff');
-      for (let f = 0; f < NF; f++) {
-        const id = new ImageData(BW, BH), W8 = id.data;
-        const ph = f / NF, a = ph * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
-        for (let k = 0; k < NW; k++) {
-          if ((k & 2047) === 2047) yield;
-          const i = WI[k], px = i % GW, py = (i / GW) | 0, ed = ED[i], en = EN[i];
+      // (couleurs en variables r, g, b et mélanges écrits en clair : mêmes calculs que Art.mix, sans tableau par pixel)
+      const texO = (P, x, y) => { const X = ((Math.floor(x) % P.w) + P.w) % P.w, Y = ((Math.floor(y) % P.h) + P.h) % P.h; return (Y * P.w + X) * 4; };
+      const MER = !!(map.mer || map.climate === 'beach');
+      const eauImage = (f, W8, ka, kb) => {
+        const ph = f / NF, a = ph * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a), EX = World.EAUX;
+        const LV = TX_LAVE.length ? TX_LAVE[f % TX_LAVE.length] : null, dec = TX_LAVE.length === 1 ? f * 2 : 0;
+        for (let k = ka; k < kb; k++) {
+          const i = WI[k], px = i % GW, py = (i / GW) | 0, ed = ED[i], en = EN[i], o = OUT[k], k1 = EAUX ? K1[k] : 0;
           // EAU PEINTE : profondeur en dégradé continu, réseau de reflets doux (caustiques), houle en longues lignes,
           // écume du rivage fondue (plus de bandes nettes)
           let v = V0[k];
-          const txE = (TX_MER || TX_DOUCE) && !(EAUX && (K1[k] === 4 || K1[k] === 5));   // (eau dessinée : ses vagues remplacent les reflets calculés)
+          const txE = (TX_MER || TX_DOUCE) && !(EAUX && (k1 === 4 || k1 === 5));   // (eau dessinée : ses vagues remplacent les reflets calculés)
           if (ed > 4 && !txE) {
             const c1 = noise(px * 0.13 + ca * 1.4, py * 0.13 + sa * 1.4, 24), c2 = noise(px * 0.13 - ca * 1.4 + 40, py * 0.13 - sa * 1.4 + 20, 25), dc = Math.abs(c1 - c2);
             if (dc < 0.05) v -= 1.7 * (1 - dc / 0.05);
             if (ed > 5) { const sw = Math.sin(F26[k] + a); if (sw > 0.82) v -= (sw - 0.82) / 0.18 * 1.5; }
           }
-          let col = lerpPal(WATER, v);
+          lerpPal(WATER, v); let r = TMP[0], g = TMP[1], b = TMP[2];
           let fo0 = 1.6, F1 = FOAM, F2 = FOAM2;
-          if (EAUX && (K1[k] || KW[k] > 0)) {   // eau peinte : sa palette (et un mélange avec la voisine)
-            const E1 = World.EAUX[K1[k]], E2 = World.EAUX[K2[k]];
-            const c1 = E1 ? lerpPal(E1.P, v).slice() : col.slice(), w2 = KW[k];
-            col = w2 > 0 ? Art.mix(c1, E2 ? lerpPal(E2.P, v) : lerpPal(WATER, v), w2) : c1;
+          if (EAUX && (k1 || KW[k] > 0)) {   // eau peinte : sa palette (et un mélange avec la voisine)
+            const E1 = EX[k1], E2 = EX[K2[k]], w2 = KW[k];
+            if (E1) { lerpPal(E1.P, v); r = TMP[0]; g = TMP[1]; b = TMP[2]; }
+            if (w2 > 0) { const r1 = r, g1 = g, b1 = b; lerpPal(E2 ? E2.P : WATER, v); r = r1 + (TMP[0] - r1) * w2; g = g1 + (TMP[1] - g1) * w2; b = b1 + (TMP[2] - b1) * w2; }
             if (E1) { fo0 = 1.6 * E1.fo; F1 = E1.F[0]; F2 = E1.F[1]; }
           }
-          if (TX_LAVE.length && EAUX && K1[k] === 5 && !KW[k]) {
-            const L = TX_LAVE[f % TX_LAVE.length], dec = TX_LAVE.length === 1 ? f * 2 : 0;
-            col = TX.lit(L, px + dec, py + dec * 0.5); if (ed <= 2) col = Art.mix(col, [40, 14, 8], (3 - ed) * 0.22);
-            put(W8, OUT[k], col); continue;
+          if (LV && EAUX && k1 === 5 && !KW[k]) {
+            const q = texO(LV, px + dec, py + dec * 0.5), d = LV.d; r = d[q]; g = d[q + 1]; b = d[q + 2];
+            if (ed <= 2) { const t = (3 - ed) * 0.22; r = r + (40 - r) * t; g = g + (14 - g) * t; b = b + (8 - b) * t; }
+            W8[o] = r; W8[o + 1] = g; W8[o + 2] = b; W8[o + 3] = 255; continue;
           }
           if (txE) {   // eaux dessinées (gfx/textures.js) ; marais et lave gardent leur dessin
-            const mer = EAUX && K1[k] ? K1[k] === 1 : !!(map.mer || map.climate === 'beach'), P = mer ? TX_MER || TX_DOUCE : TX_DOUCE || TX_MER;
-            col = Art.mix(TX.lit(P, px + ca * 3 + f * 0, py + sa * 2), col, 0.22);
+            const mer = EAUX && k1 ? k1 === 1 : MER, P = mer ? TX_MER || TX_DOUCE : TX_DOUCE || TX_MER;
+            const q = texO(P, px + ca * 3 + f * 0, py + sa * 2), d = P.d, tr = d[q], tg = d[q + 1], tb = d[q + 2];
+            r = tr + (r - tr) * 0.22; g = tg + (g - tg) * 0.22; b = tb + (b - tb) * 0.22;
           }
-          if (en === TER.bridge && ed <= 4) col = Art.mix(col, [10, 30, 60], 0.4 * (1 - ed / 5));   // ombre sous le ponton
+          if (en === TER.bridge && ed <= 4) { const t = 0.4 * (1 - ed / 5); r = r + (10 - r) * t; g = g + (30 - g) * t; b = b + (60 - b) * t; }   // ombre sous le ponton
           if (en !== TER.bridge && en !== 255) {
             const fo = fo0 + 1.3 * (fo0 / 1.6) * Math.sin(a + F27[k]);
-            if (ed <= fo) col = Art.mix(F1, col, Math.max(0, (ed - fo + 1) * 0.35));
-            else if (ed <= fo + 2.2) col = Art.mix(F2, col, (ed - fo) / 2.2);
+            if (ed <= fo) { const t = Math.max(0, (ed - fo + 1) * 0.35); r = F1[0] + (r - F1[0]) * t; g = F1[1] + (g - F1[1]) * t; b = F1[2] + (b - F1[2]) * t; }
+            else if (ed <= fo + 2.2) { const t = (ed - fo) / 2.2; r = F2[0] + (r - F2[0]) * t; g = F2[1] + (g - F2[1]) * t; b = F2[2] + (b - F2[2]) * t; }
           }
-          if (ed > 3 && hash(px, py, 100 + f) < 0.0012) col = WHITE;
-          put(W8, OUT[k], col);
+          if (ed > 3 && hash(px, py, 100 + f) < 0.0012) { r = WHITE[0]; g = WHITE[1]; b = WHITE[2]; }
+          W8[o] = r; W8[o + 1] = g; W8[o + 2] = b; W8[o + 3] = 255;
         }
+      };
+      for (let f = 0; f < NF; f++) {
+        const id = new ImageData(BW, BH), W8 = id.data;
+        for (let k = 0; k < NW; k += 4096) { eauImage(f, W8, k, Math.min(NW, k + 4096)); yield; }
         // nénuphars
         const putL = (X, Y, c2) => { if (X >= wx0 && Y >= wy0 && X <= wx1 && Y <= wy1) put(W8, ((Y - wy0) * BW + (X - wx0)) * 4, c2); };
         for (const [lx, ly] of lilies) {
@@ -1064,6 +1131,7 @@
         if (f === 0) { lap('eau'); map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }
       }
     }
+    if (map.bouche) for (const k of ['bouche', 'bouchelave']) for (let fr = 1; fr < OBJ[k].frames; fr++) if (!World.objReady(k, 0, fr)) { World.objFrame(k, 0, fr); yield; }
   }
   // préparation immédiate (jusqu'à ce que la carte soit affichable)
   // la saison a changé depuis la préparation : on refait la carte

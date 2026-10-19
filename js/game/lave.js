@@ -211,8 +211,10 @@
   // au-dessus, et l'ombre de la lèvre sud
   function bouche(c, map, S, t) {
     const B = map.bouche, O = DW.World.OBJ.bouche, F = O.forme, bord = O.bord, W = DW.World;
-    if (!W.objReady('bouche', 0, 5) || !W.objReady('bouchelave', 0, 5)) return;
-    const fr = W.objFrames('bouche', 0), lv = W.objFrames('bouchelave', 0), i = Math.floor(t * 5) % fr.length, s = fr[i];
+    if (!W.objReady('bouche', 0, 0) || !W.objReady('bouchelave', 0, 0)) return;
+    // (les images suivantes de l'animation arrivent peu après l'entrée sur la carte : en attendant, celles qui sont prêtes)
+    let n = 1; while (n < O.frames && W.objReady('bouche', 0, n) && W.objReady('bouchelave', 0, n)) n++;
+    const i = Math.floor(t * 5) % n, s = W.objFrame('bouche', 0, i), lv = W.objFrame('bouchelave', 0, i);
     const X = Math.round((B.x + B.w / 2) * TS - s.w / 2), Y = Math.round((B.y + B.h) * TS - 1 - s.h + 1);
     c.drawImage(s.img, X, Y);
     const niv = S.cr ? S.cr.niv : 0, x0 = X + 1, y0 = Y + 1;
@@ -225,7 +227,7 @@
     c.globalCompositeOperation = 'lighter';
     ell(F.cx, cy2 - 6, rx2 * 1.04, ry2 * 1.08); c.fillStyle = `rgba(255,96,24,${0.16 + niv * 0.1})`; c.fill();
     c.globalCompositeOperation = 'source-over';
-    ell(F.cx, cy2, rx2, ry2); c.save(); c.clip(); c.drawImage(lv[i].img, X, Y);
+    ell(F.cx, cy2, rx2, ry2); c.save(); c.clip(); c.drawImage(lv.img, X, Y);
     // petits cônes de lave qui fument, posés sur le lac (image dessinée « cone_lave »)
     const cone = DW.Textures && DW.Textures.a('volcan/cone_lave');
     if (cone && niv < 1) for (const [ux, uy, k] of [[-0.3, 0.15, 0], [0.32, 0.05, 1]]) {

@@ -140,6 +140,8 @@ window.DW = window.DW || {};
     ctx.fillRect(0, 0, W, H);
     let start = 0;
     for (let i = Game.stack.length - 1; i >= 0; i--) if (!Game.stack[i].overlay) { start = i; break; }
+    // écran noir de chargement : rien à dessiner sous le noir (tout le processeur va à la préparation de la carte)
+    if (Fade.a >= 1 && DW.chargement) start = Game.stack.length;
     for (let i = start; i < Game.stack.length; i++) {
       const s = Game.stack[i];
       ctx.save();

@@ -37,9 +37,10 @@
     async charger(mapId, x, y, dir = 'down') {
       const M = DW.preparerCarte(mapId);
       if (!DW.World.pret(M)) {
-        DW.chargement = { texte: 'Chargement...' };
-        try { while (!DW.World.prepareSome(M, 30) && !DW.World.pret(M)) await new Promise(r => setTimeout(r, 0)); }
-        finally { DW.chargement = null; }
+        // gros morceaux (~50 ms) : entre deux, seulement l'écran de chargement (core.js), et aucune préparation de fond
+        DW.chargement = { texte: 'Chargement...' }; this.enChargement = true;
+        try { while (!DW.World.prepareSome(M, 50) && !DW.World.pret(M)) await new Promise(r => setTimeout(r, 0)); }
+        finally { DW.chargement = null; this.enChargement = false; }
       }
       this.load(mapId, x, y, dir);
     }
@@ -228,6 +229,7 @@
     // position du héros : à l'ouest de la carte, on prépare la carte de l'ouest avant celle de l'est) ; en marchant,
     // seulement si l'on approche d'une sortie (moins de 12 cases), à petit budget (pas de saccade)
     background() {
+      if (this.enChargement) return;
       const marche = this.p.moving || Input.dir(), c = this.voisinePrioritaire();
       // tout près d'une sortie (moins de 8 cases) : sa carte passe AVANT la fin de l'eau animée de la carte actuelle
       const urgent = c && c.d < 8;

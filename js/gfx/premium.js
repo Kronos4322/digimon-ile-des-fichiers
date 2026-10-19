@@ -325,18 +325,34 @@
         else { x.fillStyle = 'rgba(255,200,80,0.9)'; for (let e = 0; e < 5; e++) { const an = e / 5 * TAU + q, d = (life - 0.75) * 30; x.beginPath(); x.arc(bx + Math.cos(an) * d, by + Math.sin(an) * d * 0.5 - (life - 0.75) * 20, 0.8, 0, TAU); x.fill(); } }
       }
     };
+    // FORME DU TROU au pixel (ne change pas d'une image de l'animation à l'autre) : calculée une fois pour les 6 images,
+    // oubliée après la dernière ; S : distance au bord (1 = bord), A : angle, S2 : même chose pour le fond du trou
+    let FORME = null;
+    const forme = (Wd, Hd, R) => {
+      if (FORME && FORME.Wd === Wd && FORME.Hd === Hd) return FORME;
+      const n = Wd * Hd, S = new Float64Array(n), A = new Float64Array(n), S2 = new Float64Array(n);
+      const cy2 = F.cy + F.ry * 0.42, rx2 = F.rx * 0.86, ry2 = F.ry * 0.58;
+      for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
+        const o = j * Wd + i, px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, a = Math.atan2(dy, dx);
+        A[o] = a; S[o] = Math.hypot(dx, dy) / bord(a);
+        const dx2 = (px - F.cx) / rx2, dy2 = (py - cy2) / ry2; S2[o] = Math.hypot(dx2, dy2) / bord(Math.atan2(dy2, dx2));
+      }
+      return (FORME = { Wd, Hd, S, A, S2 });
+    };
     // TEXTURE DU LAC DE LAVE, sur tout le trou : game/lave.js la découpe à la hauteur du moment (la lave monte et redescend)
     def('bouchelave', { w: 336, h: 144, n: 1, frames: 6, fps: 5, paint(x, v, f = 0) {
       const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
       const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
       const TX = DW.Textures, LAV = TX && ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => TX.pixels('volcan/' + n)).filter(Boolean);   // (images dessinées)
       if (LAV && LAV.length) {   // la lave dessinée, animée (plusieurs images) ou qui dérive doucement (une seule)
-        const P = LAV[f % LAV.length], dx = LAV.length === 1 ? ox : 0, dy = LAV.length === 1 ? oy : 0;
+        const P = LAV[f % LAV.length], dx = LAV.length === 1 ? ox : 0, dy = LAV.length === 1 ? oy : 0, S = forme(Wd, Hd, R).S;
         for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
-          const px = (i + 0.5) / R, py = (j + 0.5) / R, ex = (px - F.cx) / F.rx, ey = (py - F.cy) / F.ry; if (Math.hypot(ex, ey) / bord(Math.atan2(ey, ex)) >= 1.14) continue;
+          if (S[j * Wd + i] >= 1.14) continue;
+          const px = (i + 0.5) / R, py = (j + 0.5) / R;
           const e = TX.lit(P, px + dx, py + dy), o = (j * Wd + i) * 4; D[o] = e[0]; D[o + 1] = e[1]; D[o + 2] = e[2]; D[o + 3] = 255;
         }
         g.putImageData(img, 0, 0); x.imageSmoothingEnabled = true; x.drawImage(cv, 0, 0, this.w, this.h);
+        if (f === 5) FORME = null;
         return;
       }
       for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
@@ -355,12 +371,17 @@
         const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
         const TX = DW.Textures, PAR = TX && (TX.pixels('volcan/paroi_cratere') || TX.pixels('volcan/falaise_basalte')), LAV = TX && TX.pixels('volcan/lave');   // (images dessinées : gfx/textures.js)
         const cy2 = F.cy + F.ry * 0.42, rx2 = F.rx * 0.86, ry2 = F.ry * 0.58, LIP = 0.085;
+        // la lèvre et la paroi ne bougent pas : peintes à la première image, reprises aux suivantes (FIXE) ; seuls la lave
+        // et la lueur qu'elle jette sur la paroi changent
+        const G = forme(Wd, Hd, R), FX = G.fixe && G.fixe.PAR === PAR ? G.fixe : (G.fixe = { PAR, R: new Float64Array(Wd * Hd), G: new Float64Array(Wd * Hd), B: new Float64Array(Wd * Hd), U: new Float64Array(Wd * Hd), pret: false });
         for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
-          const px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, a = Math.atan2(dy, dx), s = Math.hypot(dx, dy) / bord(a);
+          const q = j * Wd + i, s = G.S[q];
           if (s >= 1 + LIP) continue;
+          const px = (i + 0.5) / R, py = (j + 0.5) / R, dx = (px - F.cx) / F.rx, dy = (py - F.cy) / F.ry, a = G.A[q];
           let r, gg, b, al = 255;
-          const dx2 = (px - F.cx) / rx2, dy2 = (py - cy2) / ry2, s2 = Math.hypot(dx2, dy2) / bord(Math.atan2(dy2, dx2));
-          if (s >= 1) {
+          const s2 = G.S2[q];
+          if (s >= 1 && FX.pret) { r = FX.R[q]; gg = FX.G[q]; b = FX.B[q]; al = FX.U[q]; }
+          else if (s >= 1) {
             // LÈVRE : bourrelet de cendres et de scories, clair au sommet du bourrelet, fondu vers le sol à l'extérieur
             const u = (s - 1) / LIP, n = fb(px * 0.25, py * 0.4, 1501), haut = 1 - Math.abs(u - 0.3) * 1.6, sud = Math.max(0, dy) * 0.25;
             const k = 0.62 + 0.3 * Math.max(0, haut) + sud + (n - 0.5) * 0.35;
@@ -368,10 +389,15 @@
             if (hash(Math.floor(px), Math.floor(py), 1502) < 0.07) { r *= 0.6; gg *= 0.6; b *= 0.6; }   // scories noires
             al = 255 * (1 - lisse(0.55, 1, u));
             const lu = (1 - u) * 0.22 * (dy < 0 ? 0.5 : 1); r += 255 * lu * 0.6; gg += 120 * lu * 0.6; b += 40 * lu * 0.6;   // reflet de la lave sur l'arête
+            FX.R[q] = r; FX.G[q] = gg; FX.B[q] = b; FX.U[q] = al;
           } else if (s2 < 1) {
             if (LAV) { const e = TX.lit(LAV, px + ox, py + oy), o = lisse(0.8, 1, s2) * 0.5; r = e[0] * (1 - o); gg = e[1] * (1 - o); b = e[2] * (1 - o); }
             else { lavePix(px, py, ox, oy, fl, 1 - s2, lisse(0.78, 1, s2), T); r = T[0]; gg = T[1]; b = T[2]; }
             if (dy > 0 && s > 0.93) { const o = lisse(0.93, 1, s) * 0.7; r *= 1 - o; gg *= 1 - o; b *= 1 - o; }   // ombre portée de la lèvre sud
+          } else if (FX.pret) {
+            const u = FX.U[q]; r = FX.R[q]; gg = FX.G[q]; b = FX.B[q];
+            const lueur = Math.pow(u, 2.2) * fl * (dy < 0.4 ? 1 : 0.6); r += 255 * lueur * 0.85; gg += 100 * lueur * 0.85; b += 30 * lueur * 0.85;   // lumière de la lave
+            if (u > 0.9) { const g2 = lisse(0.9, 1, u); r = r * (1 - g2) + 120 * g2; gg = gg * (1 - g2) + 30 * g2; b = b * (1 - g2) + 14 * g2; }   // pied de paroi : croûte qui rougeoie
           } else {
             // PAROI INTÉRIEURE : u = 0 en haut (lèvre) → 1 en bas (lave) ; strates horizontales qui suivent la courbe
             // du cratère, colonnes de basalte, éclairée en orange par la lave en bas, plus sombre sur les côtés
@@ -383,11 +409,13 @@
             if (u < 0.07) k *= 1.25;   // arête claire en haut de la paroi
             r = 70 * k; gg = 54 * k; b = 48 * k;
             if (PAR) { const e = TX.lit(PAR, (a / TAU + 0.5) * 900, u * PAR.h), sh2 = 0.75 + 0.25 * cote; r = e[0] * sh2; gg = e[1] * sh2; b = e[2] * sh2; }
+            FX.R[q] = r; FX.G[q] = gg; FX.B[q] = b; FX.U[q] = u;
             const lueur = Math.pow(u, 2.2) * fl * (dy < 0.4 ? 1 : 0.6); r += 255 * lueur * 0.85; gg += 100 * lueur * 0.85; b += 30 * lueur * 0.85;   // lumière de la lave
             if (u > 0.9) { const g2 = lisse(0.9, 1, u); r = r * (1 - g2) + 120 * g2; gg = gg * (1 - g2) + 30 * g2; b = b * (1 - g2) + 14 * g2; }   // pied de paroi : croûte qui rougeoie
           }
           const o = (j * Wd + i) * 4; D[o] = Math.min(255, r); D[o + 1] = Math.min(255, gg); D[o + 2] = Math.min(255, b); D[o + 3] = al;
         }
+        FX.pret = true; if (f === 5) G.fixe = null;
         g.putImageData(img, 0, 0);
         x.imageSmoothingEnabled = true; x.drawImage(cv, 0, 0, this.w, this.h);
         bulles(x, f, (px, py) => this.dedans(px, py), F.cx, cy2, rx2, ry2);

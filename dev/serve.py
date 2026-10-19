@@ -13,6 +13,7 @@ RET = os.path.join(ROOT, 'js', 'maps', 'retouches_donnees.js')
 class NoCache(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Cache-Control', 'no-store')
+        self.send_header('Document-Policy', 'js-profiling')   # (mesure des performances : new Profiler() dans la page)
         super().end_headers()
 
     def reply(self, code, text):
