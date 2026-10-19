@@ -21,7 +21,13 @@
       'panneau', 'monolithe', 'sanctuaire', 'totem', 'fleur_cristal', 'cristaux', 'source',
       'fleur_1', 'fleur_2', 'fleur_3', 'fleur_4', 'fleur_5', 'fleur_6', 'fleur_7', 'fleur_8', 'fleur_9', 'fleur_10',
       'amanites2', 'champi_violet', 'champi_bleu', 'cepes', 'girolles', 'rond_sorcieres', 'souche_champignons', 'champi_blancs', 'champi_vert', 'tuyau', 'lampadaire', 'pierre_runique', 'cairn', 'eboulis', 'lanterne_pierre', 'borne_bleue', 'borne_rouge', 'dalle_runique',
-      'banc_simple', 'table_ronde', 'banc_courbe', 'banc_dossier', 'banc_rondin', 'table_souche', 'banc_mousse', 'table_rect', 'table_banquet', 'table_pique_nique'],
+      'banc_simple', 'table_ronde', 'banc_courbe', 'banc_dossier', 'banc_rondin', 'table_souche', 'banc_mousse', 'table_rect', 'table_banquet', 'table_pique_nique',
+      // mobilier urbain et d'intérieur (planches sur fond vert, découpées par dev/optimiser_textures.py)
+      'ville_fontaine_vasque', 'ville_fontaine_octogone', 'ville_puits_toit', 'ville_puits_treuil', 'ville_fontaine_etages', 'ville_etal_fruits', 'ville_caisses', 'ville_tonneaux',
+      'ville_sacs', 'ville_charrette', 'ville_jardiniere', 'ville_pot_arbuste', 'ville_buis', 'ville_boite_lettres', 'ville_tour_horloge',
+      'maison_tableau', 'maison_vase_fleurs', 'maison_banquette', 'maison_caisse', 'maison_coffre', 'maison_lit', 'maison_chevet', 'maison_armoire', 'maison_tabouret',
+      'maison_coffre_jouets', 'maison_etagere_murale', 'maison_bureau', 'maison_bibliotheque', 'maison_canape', 'maison_fauteuil', 'maison_tv', 'maison_tapis', 'maison_bibliotheque_basse',
+      'maison_lampadaire', 'maison_plante', 'maison_cheminee', 'maison_coussins', 'maison_table', 'maison_frigo', 'maison_tonneau'],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
@@ -65,6 +71,16 @@
     datapanel: ['dalle_runique', 'dalle_runique'], bench: ['banc_dossier'], steplog: ['banc_rondin'], stonelantern: ['lanterne_pierre'], cairn: ['cairn'], rubble: ['eboulis'],
     crystal: ['cristaux'], datacrystal: ['cristaux'], sign: ['panneau'], roadsign: ['panneau'], flowerbed: ['fleur_2', 'fleur_6', 'fleur_9', 'fleur_3'],
     giantflower: ['fleur_cristal'], spring: ['source'], shrine: ['sanctuaire'],
+    // ville : fontaines, puits, marché, rue (la fontaine du Village des Yokomon, à sec puis qui coule, garde son dessin)
+    well: ['ville_puits_toit', 'ville_puits_treuil'], bigfountain: ['ville_fontaine_etages', 'ville_fontaine_vasque', 'ville_fontaine_octogone'],
+    crates: ['maison_caisse', 'ville_caisses'], barrel: ['maison_tonneau', 'ville_tonneaux'], sacks: ['ville_sacs'], producestand: ['ville_etal_fruits'],
+    mailbox: ['ville_boite_lettres'], wheelbarrow: ['ville_charrette'], clocktower: ['ville_tour_horloge'],
+    pottedtree: ['ville_pot_arbuste', 'ville_buis'], flowerpots: ['ville_jardiniere'],
+    // intérieurs
+    bed: ['maison_lit'], wardrobe: ['maison_armoire'], bookshelf: ['maison_bibliotheque', 'maison_bibliotheque_basse'], sofa: ['maison_canape', 'maison_banquette', 'maison_canape'],
+    armchair: ['maison_fauteuil'], floorlamp: ['maison_lampadaire'], frame: ['maison_tableau'], stool: ['maison_tabouret'], shelf: ['maison_etagere_murale'],
+    sidetable: ['maison_chevet'], table: ['maison_table'], plant: ['maison_plante', 'maison_vase_fleurs'], fridge: ['maison_frigo'], crttv: ['maison_tv'],
+    toybox: ['maison_coffre_jouets'], desk: ['maison_bureau'], fireplace: ['maison_cheminee'], chest: ['maison_coffre'], cushion: ['maison_coussins'], bigrug: ['maison_tapis'],
     _grandarbre: ['arbre_chene'],   // (le Grand Arbre de la Clairière : voir objets(), son passage reste dessiné par-dessus)
   };
   // TAILLES : hauteur de chaque décor dessiné, en HAUTEURS DE HÉROS (le héros : 34 px du jeu) ; le joueur : « les arbres
