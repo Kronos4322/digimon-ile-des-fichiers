@@ -116,30 +116,26 @@ COMMUN = {
     'table_rect': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18.jpg', 'table_banquet': 'Mobiliers exterieurs/photo_2026-10-19_11-19-19 (2).jpg', 'table_pique_nique': 'Mobiliers exterieurs/photo_2026-10-19_11-19-19.jpg',
     'dalle_runique': 'Objet foret/photo_2026-10-19_11-07-27.jpg',
 }
-# planches (fond vert) : MOBILIER URBAIN (ville_) et MOBILIER D'INTÉRIEUR (maison_)
+# planches (fond vert) : MOBILIER URBAIN (ville_) et MOBILIER D'INTÉRIEUR (maison_), seulement les objets vus de face
+# (règle du joueur : un objet vu de biais garde l'ancien dessin)
 _U = lambda n: 'Mobiliers urbains/photo_2026-10-19_18-08-' + n + '.jpg'
 _I = lambda n: 'Mobiliers intérieurs/photo_2026-10-19_' + n + '.jpg'
 COMMUN.update({
-    'ville_fontaine_vasque': (_U('51 (2)'), 0), 'ville_fontaine_octogone': (_U('51 (2)'), 2), 'ville_puits_toit': (_U('51 (2)'), 3),
+    'ville_fontaine_vasque': (_U('51 (2)'), 0), 'ville_fontaine_octogone': (_U('51 (2)'), 2),
     'ville_puits_treuil': (_U('51 (2)'), 4), 'ville_fontaine_etages': (_U('51 (2)'), 8),
-    'ville_etal_fruits': (_U('51'), 1), 'ville_caisses': (_U('51'), 4), 'ville_tonneaux': (_U('51'), 5), 'ville_sacs': (_U('51'), 6),
-    'ville_charrette': (_U('52 (2)'), 9),
-    'ville_jardiniere': (_U('52 (4)'), 1), 'ville_pot_arbuste': (_U('52 (4)'), 3), 'ville_buis': (_U('52 (4)'), 5),
-    'ville_boite_lettres': (_U('52'), 4),
-    'ville_tour_horloge': (_U('53 (3)'), 1),
+    'ville_tonneaux': (_U('51'), 5), 'ville_sacs': (_U('51'), 6),
+    'ville_pot_arbuste': (_U('52 (4)'), 3), 'ville_buis': (_U('52 (4)'), 5),
     'maison_tableau': (_I('18-08-58 (2)'), 0), 'maison_vase_fleurs': (_I('18-08-58 (2)'), 1),
-    'maison_banquette': (_I('18-08-58 (3)'), 1),
-    'maison_caisse': (_I('18-08-58 (4)'), 0), 'maison_coffre': (_I('18-08-58 (4)'), 1),
     'maison_lit': (_I('18-08-59 (2)'), 0), 'maison_chevet': (_I('18-08-59 (2)'), 2), 'maison_armoire': (_I('18-08-59 (2)'), 3),
     'maison_tabouret': (_I('18-08-59 (2)'), 6), 'maison_coffre_jouets': (_I('18-08-59 (2)'), 7), 'maison_etagere_murale': (_I('18-08-59 (2)'), 9),
     'maison_bureau': (_I('18-08-59 (3)'), 0), 'maison_bibliotheque': (_I('18-08-59 (3)'), 2),
-    'maison_canape': (_I('18-08-59'), 1), 'maison_fauteuil': (_I('18-08-59'), 2), 'maison_tv': (_I('18-08-59'), 4), 'maison_tapis': (_I('18-08-59'), 5),
+    'maison_tapis': (_I('18-08-59'), 5),
     'maison_bibliotheque_basse': (_I('18-08-59'), 6), 'maison_lampadaire': (_I('18-08-59'), 7), 'maison_plante': (_I('18-08-59'), 8),
-    'maison_cheminee': (_I('18-09-00 (2)'), 3), 'maison_coussins': (_I('18-09-00 (2)'), 5),
-    'maison_table': (_I('18-09-00'), 0), 'maison_frigo': (_I('18-09-00'), 4), 'maison_tonneau': (_I('18-09-00'), 8),
+    'maison_coussins': (_I('18-09-00 (2)'), 5),
+    'maison_frigo': (_I('18-09-00'), 4), 'maison_tonneau': (_I('18-09-00'), 8),
 })
 # taille maximale de la copie (plus grand côté) pour les grands objets des planches ; sinon 160 px
-GRAND = {'ville_tour_horloge': 320, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
+GRAND = {'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
 SOLS_COMMUN = {'herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre', 'sable_dunes',
                'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'}
 
