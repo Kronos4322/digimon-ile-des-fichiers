@@ -54,10 +54,6 @@
     const erx = (x1 - x0) / 2 - 1.2, ery = (y1 - y0) / 2 - 1;
     if (erx > 1 && ery > 1) { x.beginPath(); x.ellipse((x0 + x1) / 2, (y0 + y1) / 2 + 0.6, erx, ery, 0, Math.PI * 1.08, Math.PI * 1.55); x.stroke(); }
   }
-  const ROCK = [[2, 14], [3, 7], [8, 3], [14, 3], [18, 8], [18, 14]];
-  OBJ.rock.paint = (x, v) => stone(x, ROCK, v ? '#9a98a4' : '#a8a4a0', 3 + v);
-  OBJ.boulder.paint = (x, v) => stone(x, [[2, 16], [3, 8], [9, 3], [16, 4], [20, 10], [20, 16]], ['#76767e', '#6a645a', '#5a5668'][v], 11 + v);
-  OBJ.mossrock.paint = (x, v) => stone(x, [[2, 18], [3, 9], [9, 4], [16, 4], [22, 9], [22, 18]], v ? '#8e8e98' : '#9a968c', 21 + v, { moss: true });
   OBJ.cairn.paint = x => { [[8, 23, 6.6, 3], [8, 18.6, 5.4, 2.6], [8.6, 14.6, 4.4, 2.4], [8, 11, 3.4, 2], [8.4, 8, 2.4, 1.6]].forEach(([cx, cy, rx, ry], i) => stone(x, Array.from({ length: 8 }, (_, k) => { const a = k / 8 * Math.PI * 2; return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]; }), ['#8a8a90', '#7a7468', '#9a948a', '#86868c', '#a8a49a'][i], 31 + i)); };
   OBJ.pebbles.paint = (x, v) => { for (const [cx, cy, rx, ry] of [[4, 6, 2.6, 1.6], [9, 5.6, 2, 1.4], [11.6, 7, 1.4, 0.9]]) stone(x, Array.from({ length: 7 }, (_, k) => { const a = k / 7 * Math.PI * 2; return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]; }), v ? '#7a7068' : '#6a6660', 41); };
 
@@ -72,35 +68,9 @@
     x.strokeStyle = rgb(dk, 0.7); x.lineWidth = 0.6;
     for (let i = 1; i < 5; i++) { x.beginPath(); if (horiz) { x.moveTo(x0 + 2, y0 + i * h / 5); x.quadraticCurveTo(x0 + w / 2, y0 + i * h / 5 + 0.8, x0 + w - 3, y0 + i * h / 5); } else { x.moveTo(x0 + i * w / 5, y0 + 2); x.lineTo(x0 + i * w / 5 + 0.4, y0 + h - 1); } x.stroke(); }
   }
-  function rings(x, cx, cy, rx, ry) {
-    x.fillStyle = '#e2b47a'; x.strokeStyle = '#5a3a1e'; x.lineWidth = 0.8;
-    x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill(); x.stroke();
-    x.strokeStyle = 'rgba(150,96,50,0.8)'; x.lineWidth = 0.5;
-    for (const k of [0.68, 0.42, 0.18]) { x.beginPath(); x.ellipse(cx + 0.3, cy + 0.1, rx * k, ry * k, 0, 0, 7); x.stroke(); }
-    x.fillStyle = 'rgba(255,240,200,0.5)'; x.beginPath(); x.ellipse(cx - rx * 0.4, cy - ry * 0.35, rx * 0.35, ry * 0.25, 0, 0, 7); x.fill();
-  }
   function moss(x, pts, seed) { for (let i = 0; i < pts.length; i++) { const [px, py] = pts[i]; x.fillStyle = hash(seed, i, 951) < 0.5 ? '#5aa844' : '#88cc5c'; x.beginPath(); x.ellipse(px, py, 2.2, 1.1, 0, 0, 7); x.fill(); } }
-  OBJ.stump.paint = x => {
-    // racines, fût, cernes, mousse
-    x.fillStyle = rgb(mix(BARK, COOL, 0.5));
-    for (const s of [-1, 1]) { x.beginPath(); x.moveTo(9 + s * 4, 10); x.quadraticCurveTo(9 + s * 7, 13, 9 + s * 8.5, 14.6); x.lineTo(9 + s * 3, 14.6); x.fill(); }
-    bark(x, 3, 6, 12, 8.5, false);
-    rings(x, 9, 6, 6, 2.6);
-    moss(x, [[4.5, 12.5], [6, 13.2], [13, 12.8]], 5);
-  };
-  OBJ.hollowlog.paint = x => {
-    bark(x, 3, 5, 29, 12, true);
-    rings(x, 31.5, 11, 3.4, 6); x.fillStyle = '#1e1208'; x.beginPath(); x.ellipse(31.5, 11, 2.1, 4, 0, 0, 7); x.fill();
-    moss(x, [[11, 5.6], [14, 5.2], [17, 5.6], [22, 5.3], [25, 5.8]], 7);
-    x.fillStyle = '#e04848'; x.beginPath(); x.ellipse(8, 4.2, 2, 1.4, 0, Math.PI, 0); x.fill(); x.fillStyle = '#fff'; x.fillRect(7.5, 3.2, 0.8, 0.6);
-    x.fillStyle = '#f0e6d0'; x.fillRect(7.5, 4.2, 1, 1.4);
-  };
 
   // ------------------------------------------------------------ feuillage bas : buissons et fougères
-  OBJ.bush.paint = (x, v) => {
-    P.crown(x, { seed: 61 + v, cx: 11, cy: 10.5, rx: 9.8, ry: 7, P: v ? ['#4aa246', '#2c6e34', '#86d05e'] : ['#3f9a48', '#256238', '#74c464'], n: 10 });
-    if (v) for (const [bx, by] of [[7, 7], [14, 9.5], [11, 13], [5, 11.5], [16, 6]]) { x.fillStyle = '#d8283a'; x.beginPath(); x.arc(bx, by, 1.1, 0, 7); x.fill(); x.fillStyle = '#ffd0d0'; x.fillRect(bx - 0.6, by - 0.7, 0.5, 0.5); }
-  };
   // fronde : tige courbée + folioles alternées, claires au soleil
   function frond(x, x0, y0, ang, len, col, lite, dark) {
     const ex = x0 + Math.cos(ang) * len, ey = y0 + Math.sin(ang) * len, mx = x0 + Math.cos(ang) * len * 0.55, my = y0 + Math.sin(ang) * len * 0.55 - len * 0.18;
@@ -116,38 +86,7 @@
       }
     }
   }
-  function fernPaint(x, cx, by, fronds, len, base) {
-    const C = hex(base), lite = rgb(mix(C, WARM, 0.4)), dark = rgb(mix(C, COOL, 0.5)), col = rgb(C);
-    // ombre au cœur de la touffe
-    x.fillStyle = 'rgba(10,30,20,0.45)'; x.beginPath(); x.ellipse(cx, by - 1, len * 0.45, 2, 0, 0, 7); x.fill();
-    // frondes du fond (sombres) puis du devant (claires)
-    fronds.forEach(([a, k], i) => frond(x, cx, by - 1, a, len * k, i % 2 ? rgb(mix(C, COOL, 0.25)) : col, i % 2 ? col : lite, dark));
-  }
-  OBJ.fern.paint = (x, v) => fernPaint(x, 11, 15.5, [[-2.5, 0.8], [-0.5, 0.8], [-2.0, 1], [-1.0, 1], [-1.57, 1.05], [-2.9, 0.75], [-0.25, 0.75]], 10, v ? '#3e9a40' : '#4aa83c');
-  OBJ.bigfern.paint = (x, v) => fernPaint(x, 13, 19.5, [[-2.6, 0.85], [-0.55, 0.85], [-2.15, 1], [-1.0, 1], [-1.6, 1.05], [-1.3, 0.95], [-1.85, 0.95], [-2.95, 0.7], [-0.2, 0.7]], 12.5, v ? '#3a8a34' : '#4a9a3a');
 
-  // ------------------------------------------------------------ champignon lumineux (chapeau bleu ou violet)
-  function shroom(x, cx, by, h, rx, cap, capd, glow) {
-    const C = hex(cap), D = hex(capd);
-    // pied
-    const g = x.createLinearGradient(cx - rx * 0.3, 0, cx + rx * 0.3, 0); g.addColorStop(0, '#fbfcf4'); g.addColorStop(1, '#bcc8c0');
-    x.fillStyle = g; x.beginPath(); x.moveTo(cx - rx * 0.24, by); x.quadraticCurveTo(cx - rx * 0.32, by - h * 0.5, cx - rx * 0.2, by - h); x.lineTo(cx + rx * 0.2, by - h); x.quadraticCurveTo(cx + rx * 0.3, by - h * 0.5, cx + rx * 0.26, by); x.fill();
-    // halo
-    if (glow) { const hg = x.createRadialGradient(cx, by - h, 1, cx, by - h, rx * 1.6); hg.addColorStop(0, rgb(C, 0.45)); hg.addColorStop(1, rgb(C, 0)); x.fillStyle = hg; x.fillRect(cx - rx * 1.6, by - h - rx * 1.6, rx * 3.2, rx * 3.2); }
-    // lamelles puis chapeau en dôme, lumière en haut à gauche
-    x.fillStyle = rgb(mix(D, INK, 0.3)); x.beginPath(); x.ellipse(cx, by - h + 0.6, rx, rx * 0.32, 0, 0, 7); x.fill();
-    const gc = x.createRadialGradient(cx - rx * 0.4, by - h - rx * 0.6, 0.5, cx, by - h - rx * 0.2, rx * 1.2);
-    gc.addColorStop(0, rgb(mix(C, '#ffffff', 0.5))); gc.addColorStop(0.5, rgb(C)); gc.addColorStop(1, rgb(D));
-    x.fillStyle = gc; x.strokeStyle = rgb(mix(D, INK, 0.5)); x.lineWidth = 0.7;
-    x.beginPath(); x.ellipse(cx, by - h, rx, rx * 0.72, 0, Math.PI, 0); x.closePath(); x.fill(); x.stroke();
-    for (const [dx, dy, r] of [[-0.4, -0.45, 0.16], [0.2, -0.5, 0.12], [0.35, -0.2, 0.1], [-0.1, -0.2, 0.09]]) { x.fillStyle = 'rgba(255,255,255,0.9)'; x.beginPath(); x.arc(cx + dx * rx, by - h + dy * rx, r * rx, 0, 7); x.fill(); }
-  }
-  OBJ.glowshroom.paint = (x, v) => {
-    const cap = v ? '#5ae0f0' : '#b07aff', capd = v ? '#2a9ac0' : '#7040c8';
-    shroom(x, 17, 27, 9, 5, cap, capd, true);
-    shroom(x, 10, 27, 13.5, 8.5, cap, capd, true);
-    shroom(x, 20.5, 27, 2.6, 2.2, cap, capd, false); shroom(x, 4, 27, 2.2, 1.8, cap, capd, false);
-  };
 
   // ------------------------------------------------------------ petits décors de la Clairière
   // planche de bois peinte (veines, bord clair en haut, bord sombre en bas)
@@ -166,48 +105,8 @@
     x.fillStyle = rgb(mix(C, INK, 0.5)); x.fillRect(cx + w / 2 - 0.5, y0, 0.5, y1 - y0);
   }
   // panneau d'information : toit de bardeaux, cadre, affiche en papier
-  OBJ.sign.paint = x => {
-    post(x, 7, 10, 31, 3, '#6a4424'); post(x, 21, 10, 31, 3, '#5a3a20');
-    x.fillStyle = 'rgba(10,20,14,0.35)'; x.beginPath(); x.ellipse(14, 31, 11, 1.6, 0, 0, 7); x.fill();
-    plank(x, 1.5, 7, 25, 15.5, '#7a5230', 3);
-    // affiche (papier un peu jauni, coins punaisés)
-    const pg = x.createLinearGradient(3, 8.5, 25, 20.5); pg.addColorStop(0, '#fbf0d0'); pg.addColorStop(1, '#e2c890');
-    x.fillStyle = pg; x.fillRect(3.5, 9, 21, 11.5);
-    x.strokeStyle = 'rgba(110,80,40,0.8)'; x.lineWidth = 0.7;
-    for (const [y, w] of [[12, 16], [14.6, 13], [17.2, 10]]) { x.beginPath(); x.moveTo(6, y); x.lineTo(6 + w, y); x.stroke(); }
-    x.fillStyle = '#c84a3a'; for (const [px, py] of [[4.5, 10], [23.5, 10]]) { x.beginPath(); x.arc(px, py, 0.8, 0, 7); x.fill(); }
-    // toit à deux pans, bardeaux
-    x.fillStyle = '#7a3428'; x.beginPath(); x.moveTo(-0.5, 7.6); x.lineTo(14, 0.4); x.lineTo(28.5, 7.6); x.lineTo(26.5, 9); x.lineTo(1.5, 9); x.closePath(); x.fill();
-    x.fillStyle = '#a84a36'; x.beginPath(); x.moveTo(1.5, 7.2); x.lineTo(14, 1.2); x.lineTo(14, 3); x.lineTo(3.5, 8); x.closePath(); x.fill();
-    x.strokeStyle = 'rgba(40,14,10,0.6)'; x.lineWidth = 0.5; for (let i = 1; i < 4; i++) { x.beginPath(); x.moveTo(1 + i * 0.4, 7.6 - i * 1.6 + 1.6); x.lineTo(27 - i * 0.4, 7.6 - i * 1.6 + 1.6); x.stroke(); }
-    moss(x, [[3, 8.6], [24, 8.4]], 9);
-  };
   // source : margelle de pierres rondes, eau claire et profonde, bouillons
-  OBJ.spring.paint = x => {
-    x.fillStyle = 'rgba(10,26,20,0.3)'; x.beginPath(); x.ellipse(15, 15, 14, 7, 0, 0, 7); x.fill();
-    const wg = x.createRadialGradient(13, 12, 1, 15, 13, 11);
-    wg.addColorStop(0, '#b8fbff'); wg.addColorStop(0.45, '#4ed8f0'); wg.addColorStop(1, '#1a6a9a');
-    x.fillStyle = wg; x.beginPath(); x.ellipse(15, 13, 10.5, 5.6, 0, 0, 7); x.fill();
-    x.strokeStyle = 'rgba(255,255,255,0.75)'; x.lineWidth = 0.6;
-    for (const [rx, ry] of [[3, 1.2], [5.5, 2.4]]) { x.beginPath(); x.ellipse(14, 12.6, rx, ry, 0, 0, 7); x.stroke(); }
-    for (let i = 0; i < 12; i++) {   // margelle
-      const a = i / 12 * Math.PI * 2, px = 15 + Math.cos(a) * 11.6, py = 13 + Math.sin(a) * 6.6;
-      stone(x, Array.from({ length: 6 }, (_, k) => { const b = k / 6 * Math.PI * 2; return [px + Math.cos(b) * 2.8, py + Math.sin(b) * 2]; }), i % 2 ? '#9aa0ac' : '#b2b6c0', 70 + i, { moss: i % 4 === 0 });
-    }
-    x.fillStyle = '#ffffff'; x.beginPath(); x.ellipse(12, 11.6, 2.2, 0.7, -0.2, 0, 7); x.fill();
-    // petits jets d'eau qui jaillissent de la source
-    for (const [jx, jh] of [[23, 8], [6.5, 6]]) { const jg = x.createLinearGradient(0, 11 - jh, 0, 11); jg.addColorStop(0, 'rgba(230,255,255,0.95)'); jg.addColorStop(1, 'rgba(110,230,250,0.6)'); x.fillStyle = jg; x.beginPath(); x.moveTo(jx - 1, 11); x.quadraticCurveTo(jx - 0.6, 11 - jh * 0.6, jx, 11 - jh); x.quadraticCurveTo(jx + 0.6, 11 - jh * 0.6, jx + 1, 11); x.fill(); }
-  };
   // monolithe de données : pierre ancienne, runes numériques qui luisent
-  OBJ.monolith.paint = (x, v) => {
-    stone(x, [[3, 44], [4, 10], [8, 3], [15, 2], [19, 9], [19, 44]], v ? '#8a96a4' : '#9a9a94', 81 + v, { moss: true, sharp: true });
-    const L = '#5ae8f0';
-    x.save(); x.shadowColor = L; x.shadowBlur = 3; x.strokeStyle = L; x.lineWidth = 0.9; x.lineCap = 'round';
-    x.beginPath(); x.moveTo(7, 12); x.lineTo(7, 38); x.moveTo(7, 22); x.lineTo(12, 22); x.lineTo(12, 34); x.moveTo(15, 8); x.lineTo(15, 18); x.stroke();
-    x.fillStyle = '#d8ffff'; for (const [px, py] of [[12, 34], [7, 12], [15, 18]]) { x.beginPath(); x.arc(px, py, 1.2, 0, 7); x.fill(); }
-    x.restore();
-    stone(x, [[1, 45], [1.5, 40.5], [20.5, 40.5], [21, 45]], '#7a7a74', 89, { sharp: true });
-  };
   // dalle de circuit à moitié enterrée
   OBJ.datapanel.paint = (x, v) => {
     const Lc = v ? '#7aff9a' : '#5ae8f0';
@@ -485,19 +384,7 @@
   };
 
   // ------------------------------------------------------------ VILLAGE : haies, massifs, réverbères, bancs, drapeaux, tonneaux, caisses
-  OBJ.hedge.paint = (x, v) => {
-    x.fillStyle = 'rgba(14,40,16,0.4)'; x.beginPath(); x.ellipse(9, 18, 8.5, 2, 0, 0, 7); x.fill();
-    P.crown(x, { seed: 201 + v, cx: 9, cy: 11, rx: 8.4, ry: 7, P: v ? ['#3e9446', '#22602e', '#7ac860'] : ['#3a8c40', '#1e5a2c', '#6cb858'], n: 9, touches: 70 });
-    if (v) for (const [fx, fy, c] of [[5, 12, '#ffffff'], [12, 10, '#ffd0e0'], [9, 6, '#ffffff'], [14, 13, '#ffd0e0']]) { x.fillStyle = c; for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; x.beginPath(); x.arc(fx + Math.cos(a) * 0.8, fy + Math.sin(a) * 0.8, 0.6, 0, 7); x.fill(); } x.fillStyle = '#f0c040'; x.fillRect(fx - 0.3, fy - 0.3, 0.6, 0.6); }
-  };
   // massif de fleurs dans un bac de bois (v : couleurs ; 3 et 4 = fleurs d'hiver et d'automne, gfx/meteo.js)
-  OBJ.flowerbed.paint = (x, v) => {
-    const cols = [['#ff5a7a', '#ffd84a', '#ffffff'], ['#b48aff', '#ff9ac8', '#fff2a0'], ['#ff9a4a', '#ffe060', '#ff5a5a'], ['#7a4ad8', '#ffd84a', '#f4f0ff'], ['#e8902a', '#c84a3a', '#f0c040']][v] || ['#ff5a7a', '#ffd84a', '#ffffff'];
-    plank(x, 1, 8.5, 18, 6.5, '#9a5a2a', 211 + v);
-    x.fillStyle = '#3a2412'; x.fillRect(2, 8.5, 16, 1.6);
-    for (let i = 0; i < 9; i++) { const fx = 2.6 + i * 1.9 + hash(v, i, 212) * 0.8, fy = 5.2 + (i % 3) * 1.3; x.strokeStyle = '#3a8a30'; x.lineWidth = 0.6; x.beginPath(); x.moveTo(fx, 9); x.lineTo(fx, fy + 0.8); x.stroke(); x.fillStyle = '#4a9a3a'; x.beginPath(); x.ellipse(fx + 0.8, 8, 1, 0.5, -0.5, 0, 7); x.fill(); }
-    for (let i = 0; i < 9; i++) { const fx = 2.6 + i * 1.9 + hash(v, i, 212) * 0.8, fy = 5.2 + (i % 3) * 1.3, c = cols[i % 3]; x.fillStyle = c; for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 + i; x.beginPath(); x.arc(fx + Math.cos(a) * 0.9, fy + Math.sin(a) * 0.9, 0.7, 0, 7); x.fill(); } x.fillStyle = 'rgba(255,255,255,0.7)'; x.fillRect(fx - 0.6, fy - 0.8, 0.5, 0.5); x.fillStyle = '#f0c040'; x.fillRect(fx - 0.3, fy - 0.3, 0.6, 0.6); }
-  };
   // réverbère en fer forgé, lanterne de verre (halo : lumières de la carte)
   OBJ.lamp.paint = x => {
     x.fillStyle = 'rgba(20,20,20,0.35)'; x.beginPath(); x.ellipse(6, 31, 4, 1.3, 0, 0, 7); x.fill();
@@ -542,16 +429,4 @@
   };
 
   // ------------------------------------------------------------ rosier (Rosière) : buisson sombre et roses épanouies (v : rouge, blanc, rose)
-  OBJ.rosebush.paint = (x, v) => {
-    x.fillStyle = 'rgba(14,40,16,0.4)'; x.beginPath(); x.ellipse(13, 22, 11, 2, 0, 0, 7); x.fill();
-    P.crown(x, { seed: 301 + v, cx: 13, cy: 13.5, rx: 11, ry: 8.5, P: ['#2f7a3a', '#1a4a28', '#5aa04a'], n: 10, touches: 80 });
-    const C = [['#c8203a', '#f04a62', '#ff9aa8'], ['#e8e2dc', '#fffaf6', '#ffffff'], ['#e86a9a', '#ffa0c4', '#ffd8e8']][v];
-    for (let i = 0; i < 7; i++) {
-      const rx = 4 + hash(v, i, 311) * 18, ry = 7 + hash(v, i, 312) * 11, r = 1.6 + hash(v, i, 313) * 0.8;
-      x.fillStyle = C[0]; x.beginPath(); x.arc(rx, ry, r, 0, 7); x.fill();
-      x.fillStyle = C[1]; x.beginPath(); x.arc(rx - 0.3, ry - 0.3, r * 0.7, 0, 7); x.fill();
-      x.strokeStyle = C[0]; x.lineWidth = 0.4; x.beginPath(); x.arc(rx - 0.2, ry - 0.2, r * 0.35, 0.5, 5.2); x.stroke();
-      x.fillStyle = C[2]; x.fillRect(rx - r * 0.6, ry - r * 0.6, 0.6, 0.6);
-    }
-  };
 })();

@@ -39,11 +39,7 @@
       d.rect(9, 30, 6, 3, '#8a8a90');
     } },
     // ---------------------------------------------------------- savane
-    baobab: { w: 56, h: 60, n: 1, big: true, draw(d) {
-      d.tube([[28, 59], [28, 26]], 18, 12, '#9a7a5a', { tex: 0.4 });
-      for (let i = 0; i < 4; i++) d.deco.line(22 + i * 4, 56, 23 + i * 3.6, 30, 0.6, '#6a5038');
-      for (const [x, y] of [[14, 14], [28, 8], [42, 14], [20, 20], [36, 20]]) { d.tube([[28, 26], [x, y]], 3, 1.6, '#8a6a4a'); d.ell(x, y - 3, 9, 4.6, '#6a7a2a', 0, { tex: 0.35 }); }
-    } },
+    baobab: { w: 56, h: 60, n: 1, big: true, draw: DW.World.secours.arbre(56, 60) },
     gearmill: { w: 36, h: 64, n: 1, frames: 6, fps: 6, draw(d, v, f = 0) {
       d.poly([[14, 63], [16, 22], [20, 22], [22, 63]], '#8a8a90', { shiny: true });
       for (let y = 30; y < 62; y += 8) d.deco.line(15.4, y, 20.6, y + 6, 0.6, '#5a5a62');

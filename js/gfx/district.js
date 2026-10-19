@@ -268,14 +268,7 @@
       d.ell(4, 17, 4, 2.4, '#5aa040', 0, { tex: 0.4 }); d.ell(30, 18, 3.4, 2, '#4a9036', 0, { tex: 0.4 });
     } },
     // monolithe de données (Clairière) : pierre ancienne parcourue de lignes numériques qui luisent
-    monolith: { w: 22, h: 46, n: 2, lights: [[11, 20, 26]], draw(d, v) {
-      d.ell(11, 44, 9, 2.4, '#2a3a2a', 0, { flat: true });
-      d.poly([[3, 44], [4, 10], [8, 3], [15, 2], [19, 9], [19, 44]], v ? '#8a96a4' : '#9a9a94', { tex: 0.3 });
-      d.deco.line(7, 12, 7, 38, 1, '#5ae8f0', { unlit: true }); d.deco.line(7, 22, 12, 22, 1, '#5ae8f0', { unlit: true }); d.deco.line(12, 22, 12, 34, 1, '#5ae8f0', { unlit: true });
-      d.deco.line(15, 8, 15, 18, 1, '#5ae8f0', { unlit: true }); d.deco.circ(12, 34, 1.4, '#c8ffff', { unlit: true }); d.deco.circ(7, 12, 1.2, '#c8ffff', { unlit: true });
-      d.deco.ell(6, 40, 4, 2.6, '#5aa040'); d.deco.ell(16, 6, 3, 1.6, '#5aa040');
-      d.rect(1, 40, 20, 5, '#7a7a74', { round: 0.3, tex: 0.3 });
-    } },
+    monolith: { w: 22, h: 46, n: 2, lights: [[11, 20, 26]], draw: DW.World.secours.pierre(22, 46) },
     // lanterne de pierre moussue (Sentier)
     stonelantern: { w: 18, h: 34, n: 1, lights: [[9, 14, 30]], draw(d) {
       d.ell(9, 32, 7, 2, '#1a2a22', 0, { flat: true });
@@ -288,49 +281,11 @@
     } },
     // fleur géante (Prairie) : v0 tournesol, v1 tulipe rose, v2 campanule bleue
     // (saisons, gfx/meteo.js : v3 perce-neige géant en hiver, v4 colchique mauve en automne — jamais tirées au hasard)
-    giantflower: { w: 34, h: 52, n: 3, draw(d, v) {
-      d.ell(17, 50, 8, 2, '#2a4a1a', 0, { flat: true });
-      d.tube([[17, 51], [16, 32], [17, 16]], 3.2, 2.4, '#3e8a30');
-      d.ell(10, 36, 7, 3, '#4aa046', -0.6); d.ell(24, 30, 7, 3, '#4aa046', 0.6);
-      if (v === 0) {
-        for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; d.ell(17 + Math.cos(a) * 9, 14 + Math.sin(a) * 9, 4.6, 2.2, '#f8c830', a, { noshadow: true }); }
-        d.circ(17, 14, 6, '#7a4a1a', { tex: 0.5, texSize: 1 }); d.deco.circ(15, 12, 2, '#a86a2a');
-      } else if (v === 3) {   // perce-neige : la tête penchée, trois pétales blancs et un cœur vert
-        d.tube([[17, 16], [20, 11], [24, 14]], 2.2, 1.6, '#3e8a30');
-        d.ell(24, 17, 2.6, 2, '#5aa046');
-        for (const [x, a] of [[20, -0.35], [24, 0], [28, 0.35]]) d.ell(x, 23, 3, 6.5, '#f8f8ff', a, { shiny: true });
-        d.deco.ell(24, 27.5, 1.6, 1, '#7ac850');
-      } else if (v === 4) {   // colchique d'automne : grande coupe mauve sur une tige pâle
-        d.blob([[9, 18], [7, 7], [12, 10], [17, 3], [22, 10], [27, 7], [25, 18], [17, 23]], '#c87ae0', { shiny: true });
-        d.deco.line(13, 10, 15, 20, 0.7, '#9a4ab8'); d.deco.line(21, 10, 19, 20, 0.7, '#9a4ab8'); d.deco.circ(17, 13, 1.6, '#ffe060', { unlit: true });
-      } else if (v === 1) {
-        d.blob([[8, 20], [8, 8], [12, 3], [17, 8], [22, 3], [26, 8], [26, 20], [17, 24]], '#ff7aa8', { shiny: true });
-        d.deco.line(17, 9, 17, 22, 0.8, '#d84a80');
-      } else {
-        d.blob([[7, 10], [17, 4], [27, 10], [28, 22], [24, 19], [21, 23], [17, 19], [13, 23], [10, 19], [6, 22]], '#7a8aff', { shiny: true });
-        d.tube([[17, 18], [17, 26]], 1, 1, '#ffe060');
-      }
-    } },
+    giantflower: { w: 34, h: 52, n: 3, draw: DW.World.secours.plante(34, 52) },
     // champignon géant (Bois des Géants) : v0 rouge à pois, v1 bleu lumineux
-    giantshroom: { w: 42, h: 58, n: 2, lights: [[21, 20, 36]], draw(d, v) {
-      d.ell(21, 56, 14, 2.6, '#10241a', 0, { flat: true });
-      d.tube([[21, 57], [20, 40], [21, 26]], 12, 9, '#f0eadc', { tex: 0.15 });
-      d.deco.line(17, 52, 18, 30, 0.7, '#c8c0b0'); d.deco.ell(20, 46, 2, 3, '#3a2a1a');
-      d.ell(21, 26, 20, 5, v ? '#2a6aa8' : '#a83a2a');
-      d.ell(21, 20, 20, 13, v ? '#4ab0f0' : '#e04838', 0, { shiny: true });
-      for (const [x, y, r] of [[12, 16, 3], [24, 12, 3.4], [31, 20, 2.6], [18, 23, 2], [6, 22, 1.6]]) d.deco.circ(x, y, r, v ? '#c8f4ff' : '#fff4e8', { unlit: !!v });
-      d.ell(36, 54, 4, 2.6, v ? '#4ab0f0' : '#e04838'); d.ell(7, 55, 3, 2, v ? '#4ab0f0' : '#e04838');
-    } },
+    giantshroom: { w: 42, h: 58, n: 2, lights: [[21, 20, 36]], draw: DW.World.secours.champignon(42, 58) },
     // arbre mort tordu (Lisière du Ravin)
-    deadtree: { w: 36, h: 46, n: 2, draw(d, v) {
-      d.ell(18, 44, 9, 2.4, '#3a2a14', 0, { flat: true });
-      const B = v ? '#6a5a4a' : '#5a4a3a';
-      d.tube([[18, 45], [17, 30], [19, 18]], 8, 4, B, { tex: 0.35 });
-      d.tube([[18, 28], [8, 20], [4, 10]], 3, 1, B); d.tube([[19, 22], [28, 14], [31, 5]], 3, 1, B); d.tube([[19, 18], [17, 8], [20, 2]], 2.4, 0.8, B);
-      d.tube([[8, 20], [3, 21]], 1.4, 0.6, B); d.tube([[28, 14], [33, 16]], 1.4, 0.6, B);
-      d.deco.ell(17, 36, 1.6, 2.6, '#2a1a0c');
-      for (const [x, y, c] of [[4, 10, '#e0702a'], [31, 5, '#f0b030'], [33, 16, '#d84a2a']]) d.circ(x, y, 2, c, { noshadow: true });
-    } },
+    deadtree: { w: 36, h: 46, n: 2, draw: DW.World.secours.arbre(36, 46) },
     haybale: { w: 22, h: 18, n: 1, draw(d) {
       d.ell(11, 16, 10, 2, '#4a3a1a', 0, { flat: true });
       d.rect(1, 4, 20, 12, '#e8c860', { round: 0.6, tex: 0.5 });

@@ -57,118 +57,30 @@
   World.isTall = ch => !!(CH[ch] && CH[ch].tall);
   DW.SOLID = new Set(Object.keys(CH).filter(k => CH[k].solid));
 
-  // arbre en hiver : branches nues (couleur du tronc), avec la neige posée dessus si snow
-  const bare = (d, tr, snow) => {
-    const L = [[[18, 27], [11, 17], [6, 10]], [[18, 27], [25, 16], [31, 9]], [[18, 26], [18.5, 13], [17, 4]], [[17, 31], [9, 25], [3, 22]], [[19, 31], [27, 25], [33, 22]]];
-    for (const p of L) d.tube(p, 2.8, 1, tr, { tex: 0.3 });
-    const TW = [[11, 17, 7, 9], [11, 17, 13, 10], [25, 16, 22, 9], [25, 16, 31, 15], [18, 13, 14, 6], [18, 13, 22, 5], [9, 25, 5, 19], [27, 25, 31, 19], [6, 10, 4, 6], [31, 9, 33, 5], [17, 4, 15, 1], [17, 4, 20, 1]];
-    for (const [a, b, c, e] of TW) d.deco.line(a, b, c, e, 0.7, tr);
-    if (snow) {
-      for (const p of L) for (let i = 0; i < p.length - 1; i++) d.deco.line(p[i][0], p[i][1] - 1, p[i + 1][0], p[i + 1][1] - 1, 0.9, '#f4f8ff');
-      for (const [a, b, c, e] of TW.slice(0, 8)) d.deco.line(a, b - 0.6, c, e - 0.6, 0.5, '#ffffff');
-    }
+  // DESSINS DE SECOURS des décors remplacés par les images du joueur (gfx/textures.js) : ils ne servent que si une image
+  // ne se charge pas (réseau coupé...) ; volontairement simples. (w, h) = la boîte de l'objet
+  World.secours = {
+    arbre: (w, h) => d => { d.ell(w / 2, h - 2, w * 0.26, 2, '#3a2614', 0, { flat: true }); d.tube([[w / 2, h - 1], [w / 2, h * 0.5]], w * 0.16, w * 0.12, '#6e4a2a'); d.circ(w / 2, h * 0.36, Math.min(w * 0.42, h * 0.34), '#3e8a3c', { tex: 0.5, texSize: 1 }); },
+    buisson: (w, h) => d => d.circ(w / 2, h * 0.58, Math.min(w, h) * 0.42, '#3e8a3c', { tex: 0.5, texSize: 1 }),
+    plante: (w, h) => d => { for (let i = -2; i <= 2; i++) d.tube([[w / 2, h - 1], [w / 2 + i * w * 0.18, h * 0.25]], 2.4, 0.8, '#3e9a40'); },
+    champignon: (w, h) => d => { d.tube([[w / 2, h - 1], [w / 2, h * 0.45]], w * 0.18, w * 0.15, '#eee8dc'); d.ell(w / 2, h * 0.4, w * 0.4, h * 0.2, '#c8402a'); },
+    rocher: (w, h) => d => d.blob([[2, h - 2], [3, h * 0.45], [w * 0.4, h * 0.15], [w * 0.75, h * 0.25], [w - 2, h * 0.6], [w - 2, h - 2]], '#8e8a84', { tex: 0.3 }),
+    bois: (w, h) => d => d.tube([[3, h * 0.6], [w - 3, h * 0.6]], h * 0.5, h * 0.5, '#7a5030', { tex: 0.3 }),
+    pierre: (w, h) => d => d.blob([[w * 0.2, h - 1], [w * 0.15, h * 0.2], [w * 0.5, 2], [w * 0.85, h * 0.2], [w * 0.8, h - 1]], '#8a96a4', { tex: 0.3 }),
   };
+  const SECOURS = World.secours;
 
   // ------------------------------------------------------------ objets en volume
   const OBJ = {
-    tree: { w: 36, h: 46, n: 10, draw(d, v) {
-      if (v === 3) return OBJ.oak.draw(d);
-      if (v === 4) return OBJ.birch.draw(d);
-      // SAISONS (gfx/meteo.js) : 12 cerisier en fleurs (rose), 13 fleurs blanches, 14 nu (hiver), 15 nu et enneigé
-      // [feuillage, ombre, lumière] : 0-2 verts, 5 orange, 6 rouge, 7 doré, 8 vert profond, 9 moussu
-      const P = { 0: ['#45a03e', '#2f7a34', '#6cc458'], 1: ['#3c9444', '#2c7040', '#62bc62'], 2: ['#52a83a', '#3a8030', '#7ac850'],
-        5: ['#e07a2a', '#b0521c', '#f4a84a'], 6: ['#cc4a30', '#962a1e', '#ee7a52'], 7: ['#e2b232', '#b4861c', '#f6d868'],
-        8: ['#2a6e3a', '#1a4c2a', '#3e8c4a'], 9: ['#3a9474', '#26705a', '#64ba96'], 10: ['#2e6a48', '#1e4c36', '#4a8a62'], 11: ['#9ab8c0', '#6e8e9a', '#cfe2e8'],
-        12: ['#f0a0c4', '#c87094', '#ffd4e6'], 13: ['#f2ecf0', '#c4b8c8', '#ffffff'] }[v] || ['#45a03e', '#2f7a34', '#6cc458'];
-      const tr = v === 8 ? '#5a3a22' : v === 9 ? '#6a5a3a' : '#7a5230', lf = P[0], ld = P[1], lt = P[2];
-      d.ell(18, 44, 9, 2.4, '#5a3a20', 0, { flat: true });
-      d.tube([[11, 45], [15, 41]], 3, 2, tr, { far: true }); d.tube([[25, 45], [21, 41]], 3, 2, tr);
-      d.tube([[18, 45], [18.5, 30], [18, 24]], 8.5, 6, tr, { tex: 0.35 });
-      d.deco.line(16, 42, 16.5, 32, 0.8, '#5a3a1e'); d.deco.line(20.5, 44, 20, 35, 0.8, '#5a3a1e');
-      d.deco.ell(17, 38, 1.6, 2.2, '#3a2412');
-      if (v === 14 || v === 15) return bare(d, tr, v === 15);
-      d.circ(8, 21, 8, ld, { tex: 0.55, texSize: 1, far: true }); d.circ(28, 20, 8.5, ld, { tex: 0.55, texSize: 1, far: true });
-      d.circ(18, 12, 10.5, lf, { tex: 0.55, texSize: 1 });
-      d.circ(8, 26, 7.5, lf, { tex: 0.55, texSize: 1 }); d.circ(28, 26, 7.5, lf, { tex: 0.55, texSize: 1 });
-      d.circ(18, 27, 9, lf, { tex: 0.55, texSize: 1 });
-      d.circ(13, 9, 5.5, lt, { tex: 0.45, texSize: 1 });
-      if (v === 9) { d.deco.ell(17, 36, 2.6, 5, '#5aa040'); d.deco.ell(20, 41, 2, 3, '#4a9036'); d.deco.circ(10, 22, 1, '#d8f0a0', { unlit: true }); }
-      // 10-11 (hiver) : neige posée sur les cimes
-      if (v >= 10) for (const [x, y, rx] of [[18, 4, 8], [8, 15, 5.5], [28, 14, 5.5], [8, 21, 4.5], [28, 21, 4.5], [18, 19, 6]]) { d.ell(x, y, rx, rx * 0.42, '#f4f8ff', 0, { shiny: true }); d.deco.ell(x - rx * 0.3, y - 0.4, rx * 0.4, rx * 0.14, '#ffffff', 0, { unlit: true }); }
-      if (v >= 5 && v <= 7) { d.deco.circ(9, 30, 1.2, lt, { unlit: true }); d.deco.circ(27, 14, 1, lt, { unlit: true }); }
-      // fleurs : quelques jeunes feuilles vertes et des pétales plus clairs
-      if (v === 12 || v === 13) { for (const [x, y] of [[10, 28], [26, 24], [20, 17], [12, 18], [24, 30], [16, 6]]) d.deco.circ(x, y, 1.1, '#7ac850', { unlit: true }); for (const [x, y] of [[6, 22], [30, 20], [18, 25], [22, 9], [9, 13]]) d.deco.circ(x, y, 0.9, v === 12 ? '#fff0f6' : '#fff8d0', { unlit: true }); }
-    } },
-    // (saisons, gfx/meteo.js : v 1 automne, 2 nu, 3 nu et enneigé — n reste 1 : jamais tirées au hasard)
-    oak: { w: 36, h: 46, n: 1, draw(d, v) {
-      const tr = '#5e3e24', [lf, ld, lt] = v === 1 ? ['#c8682a', '#94461c', '#e8984a'] : ['#2f8040', '#205e30', '#4a9c4a'];
-      d.ell(18, 44, 10, 2.4, '#3a2614', 0, { flat: true });
-      d.tube([[9, 45], [14, 40]], 3.4, 2, tr, { far: true }); d.tube([[27, 45], [22, 40]], 3.4, 2, tr);
-      d.tube([[18, 45], [18, 32], [17, 26]], 10, 7, tr, { tex: 0.4 });
-      d.deco.ell(19, 36, 2, 3, '#2a1a0c');
-      if (v >= 2) return bare(d, tr, v === 3);
-      d.circ(7, 24, 8, ld, { tex: 0.6, texSize: 1, far: true }); d.circ(29, 23, 8, ld, { tex: 0.6, texSize: 1, far: true });
-      d.circ(18, 14, 12, lf, { tex: 0.6, texSize: 1 }); d.circ(9, 26, 7.5, lf, { tex: 0.6, texSize: 1 }); d.circ(27, 27, 7.5, lf, { tex: 0.6, texSize: 1 });
-      d.circ(18, 28, 8, lf, { tex: 0.6, texSize: 1 });
-      d.circ(14, 9, 5, lt, { tex: 0.5, texSize: 1 });
-    } },
-    birch: { w: 36, h: 46, n: 1, draw(d, v) {
-      const tr = '#ecebe2', [lf, ld, lt] = v === 1 ? ['#e8c83a', '#b89a22', '#f8e070'] : ['#8cc850', '#5ea43c', '#b8e070'];
-      d.ell(18, 44, 7, 2, '#5a4a30', 0, { flat: true });
-      d.tube([[18, 45], [17.5, 28], [18, 20]], 6, 4.4, tr);
-      for (const y of [41, 36, 31, 27]) d.deco.line(16 + (y % 3), y, 18.5 + (y % 2), y - 0.4, 0.9, '#3a3a3a');
-      if (v >= 2) return bare(d, '#d8d4c8', v === 3);
-      d.circ(10, 20, 7, ld, { tex: 0.5, texSize: 1, far: true }); d.circ(26, 18, 7, ld, { tex: 0.5, texSize: 1, far: true });
-      d.circ(18, 12, 9.5, lf, { tex: 0.5, texSize: 1 }); d.circ(11, 25, 6, lf, { tex: 0.5, texSize: 1 }); d.circ(25, 24, 6.5, lf, { tex: 0.5, texSize: 1 });
-      d.circ(14, 8, 4.5, lt, { tex: 0.4, texSize: 1 });
-    } },
-    bigtree: { w: 80, h: 98, n: 2, draw(d, v) {
-      const tr = v ? '#6a4a2c' : '#7a5634', lf = v ? '#2c8a46' : '#3e9a3c', ld = v ? '#1e6636' : '#2a7430', lt = v ? '#56b062' : '#6cc458';
-      d.ell(40, 95, 26, 4, '#3a2412', 0, { flat: true });
-      d.tube([[14, 96], [24, 86], [30, 78]], 6, 3, tr, { tex: 0.35, far: true });
-      d.tube([[66, 96], [56, 86], [50, 78]], 6, 3, tr, { tex: 0.35 });
-      d.tube([[34, 97], [36, 88]], 5, 3, tr, { tex: 0.35 });
-      d.tube([[40, 96], [40, 70], [38, 52], [40, 42]], 24, 16, tr, { tex: 0.45 });
-      d.deco.ell(41, 76, 5, 7, '#2a160a'); d.deco.ell(41, 76, 3, 5, '#160a04');
-      d.deco.curve([[33, 92], [32, 70], [34, 50]], 1, '#4a2e18'); d.deco.curve([[47, 92], [48, 72], [46, 52]], 1, '#4a2e18');
-      d.deco.ell(31, 62, 4, 6, '#5aa040'); d.deco.ell(48, 84, 3, 4, '#5aa040');
-      d.tube([[38, 50], [22, 40]], 7, 4, tr, { far: true }); d.tube([[42, 48], [60, 38]], 7, 4, tr, { far: true });
-      d.circ(14, 40, 14, ld, { tex: 0.6, texSize: 1, far: true }); d.circ(66, 38, 14, ld, { tex: 0.6, texSize: 1, far: true });
-      d.circ(40, 22, 20, lf, { tex: 0.6, texSize: 1 });
-      d.circ(18, 32, 14, lf, { tex: 0.6, texSize: 1 }); d.circ(62, 30, 14, lf, { tex: 0.6, texSize: 1 });
-      d.circ(28, 46, 12, lf, { tex: 0.6, texSize: 1 }); d.circ(54, 46, 12, lf, { tex: 0.6, texSize: 1 });
-      d.circ(32, 14, 10, lt, { tex: 0.5, texSize: 1 }); d.circ(16, 26, 6, lt, { tex: 0.5, texSize: 1 });
-    } },
-    fern: { w: 22, h: 16, n: 2, draw(d, v) {
-      const g = v ? '#3e9a40' : '#4aa83c', gd = v ? '#2a7a34' : '#36882e';
-      [[-9, -3], [-6, -8], [0, -10], [6, -8], [9, -3]].forEach(([fx, fy], i) => {
-        d.tube([[11, 15], [11 + fx * 0.5, 15 + fy * 0.7], [11 + fx, 15 + fy]], 3.2, 1, i % 2 ? gd : g, { far: i % 2 === 1 });
-      });
-      d.tube([[11, 15], [5, 12], [1, 13]], 3, 1, g); d.tube([[11, 15], [17, 12], [21, 13]], 3, 1, g);
-    } },
-    glowshroom: { w: 24, h: 28, n: 2, draw(d, v) {
-      const cap = v ? '#5ae0f0' : '#b07aff', capd = v ? '#2ab0d0' : '#8048d8';
-      d.tube([[15, 27], [16, 18]], 3, 2.4, '#e8f0f0', { far: true }); d.ell(17, 17, 5, 2.6, capd, 0, { far: true }); d.ell(17, 15.5, 5, 3, cap, 0, { far: true });
-      d.tube([[9, 27], [10, 14]], 5, 4, '#f0f4ec');
-      d.deco.line(9, 25, 10, 17, 0.7, '#c8d4c8');
-      d.ell(10, 13, 9, 3.2, capd);
-      d.ell(10, 10.5, 9, 6, cap, 0, { unlit: false });
-      d.deco.circ(7, 9, 1.4, '#ffffff', { unlit: true }); d.deco.circ(13, 8, 1.1, '#ffffff', { unlit: true }); d.deco.circ(11, 12, 0.9, '#ffffff', { unlit: true });
-      d.ell(20, 26, 2.4, 1.6, cap); d.ell(4, 26.4, 2, 1.4, cap);
-    } },
-    mossrock: { w: 24, h: 20, n: 2, draw(d, v) {
-      d.blob([[2, 18], [3, 9], [9, 4], [16, 4], [22, 9], [22, 18]], v ? '#8e8e98' : '#9a968c', { tex: 0.35, texSize: 1 });
-      d.ell(16, 13, 4, 3, v ? '#7e7e88' : '#8a867c', 0, { tex: 0.3 });
-      d.deco.ell(10, 6, 6, 2.6, '#5aa040'); d.deco.ell(17, 7, 4, 2, '#4a9036'); d.deco.ell(5, 12, 2, 3, '#5aa040');
-      d.deco.circ(9, 5, 0.8, '#9ad870', { unlit: true });
-    } },
-    hollowlog: { w: 36, h: 18, n: 1, draw(d) {
-      d.tube([[4, 11], [31, 11]], 12, 12, '#7a5030', { tex: 0.3 });
-      d.deco.line(9, 7, 26, 7, 0.7, '#5a3a1e'); d.deco.line(10, 14, 27, 14, 0.7, '#5a3a1e');
-      d.ell(31.5, 11, 3.4, 6, '#c8986a'); d.deco.ell(31.5, 11, 2.2, 4.2, '#2a1a0c');
-      d.deco.ell(14, 6.5, 6, 2, '#5aa040'); d.deco.ell(23, 6, 4, 1.6, '#4a9036');
-      d.ell(8, 4, 2, 1.4, '#e04848'); d.deco.circ(8, 3.4, 0.5, '#ffffff', { unlit: true });
-    } },
+    tree: { w: 36, h: 46, n: 10, draw: SECOURS.arbre(36, 46) },
+    // (saisons, gfx/meteo.js : v 1 automne, 2 nu, 3 nu et enneigé ; images : gfx/textures.js)
+    oak: { w: 36, h: 46, n: 1, draw: SECOURS.arbre(36, 46) },
+    birch: { w: 36, h: 46, n: 1, draw: SECOURS.arbre(36, 46) },
+    bigtree: { w: 80, h: 98, n: 2, draw: SECOURS.arbre(80, 98) },
+    fern: { w: 22, h: 16, n: 2, draw: SECOURS.plante(22, 16) },
+    glowshroom: { w: 24, h: 28, n: 2, draw: SECOURS.champignon(24, 28) },
+    mossrock: { w: 24, h: 20, n: 2, draw: SECOURS.rocher(24, 20) },
+    hollowlog: { w: 36, h: 18, n: 1, draw: SECOURS.bois(36, 18) },
     dummy: { w: 20, h: 30, n: 1, draw(d) {
       d.ell(10, 28, 8, 2, '#4a3018', 0, { flat: true });
       d.tube([[10, 29], [10, 8]], 3, 2.6, '#8a5a32', { tex: 0.3 });
@@ -274,22 +186,8 @@
       d.deco.rect(6, 4.6, 3, 2.8, '#ffffff'); d.deco.rect(13, 4.6, 3, 2.8, '#ffffff');
     } },
     // cristal de données (poste PM) : un grand cristal bleu qui flotte au-dessus d'un socle de pierre
-    datacrystal: { w: 30, h: 44, n: 1, lights: [[15, 16, 16]], draw(d) {
-      d.ell(15, 42, 12, 2.2, '#2a2a2a', 0, { flat: true });
-      d.rect(5, 34, 20, 8, '#9a968e', { round: 0.3, tex: 0.3 }); d.deco.rect(5, 34, 20, 2, '#bab6ae');
-      for (let i = 0; i < 3; i++) d.deco.circ(9 + i * 6, 38, 1.2, '#4ad0e8', { unlit: true });
-      d.poly([[15, 2], [24, 14], [15, 30], [6, 14]], '#3a9ae0', { shiny: true });
-      d.poly([[15, 2], [24, 14], [15, 16]], '#6ac8f8'); d.poly([[15, 2], [15, 16], [6, 14]], '#4ab0f0');
-      d.deco.line(15, 4, 15, 28, 0.6, '#c8f4ff', { unlit: true });
-      d.deco.circ(12, 10, 1.4, '#ffffff', { unlit: true });
-      for (const [x, y] of [[4, 6], [26, 9], [24, 26], [5, 24]]) d.deco.circ(x, y, 0.9, '#8ae8ff', { unlit: true });
-    } },
-    shrine: { w: 28, h: 26, n: 1, draw(d) {
-      for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; d.circ(14 + Math.cos(a) * 10, 18 + Math.sin(a) * 5, 2.6, '#a8a49c', { tex: 0.3 }); }
-      d.rect(11, 6, 6, 14, '#b8b4ac', { round: 0.5, tex: 0.25 });
-      d.deco.circ(14, 10, 2, '#5ad8f0', { unlit: true });
-      d.poly([[9, 6], [14, 1], [19, 6]], '#8a847a');
-    } },
+    datacrystal: { w: 30, h: 44, n: 1, lights: [[15, 16, 16]], draw: SECOURS.pierre(30, 44) },
+    shrine: { w: 28, h: 26, n: 1, draw: SECOURS.pierre(28, 26) },
     toiletroom: { w: 34, h: 40, n: 1, lights: [[17, 12, 14]], draw(d) {
       d.ell(17, 38, 15, 2.4, '#3a2a1a', 0, { flat: true });
       // dalle et mur du fond
@@ -354,17 +252,8 @@
       d.deco.line(2.4, 6, 13.6, 6, 0.9, '#5a5a62'); d.deco.line(2.4, 14, 13.6, 14, 0.9, '#5a5a62');
       d.ell(8, 4, 5, 1.8, '#c08a52');
     } },
-    bush: { w: 22, h: 18, n: 2, draw(d, v) {
-      const g = v ? '#4aa246' : '#3f9a48';
-      d.circ(6, 11, 5.5, g, { tex: 0.5, texSize: 1, far: true }); d.circ(16, 11, 5.5, g, { tex: 0.5, texSize: 1, far: true });
-      d.circ(11, 8, 6.5, g, { tex: 0.5, texSize: 1 }); d.circ(7, 13, 4.5, g, { tex: 0.5, texSize: 1 }); d.circ(15, 13, 4.5, g, { tex: 0.5, texSize: 1 });
-      if (v) { d.deco.circ(8, 7, 1, '#ff5a6a', { unlit: true }); d.deco.circ(14, 10, 1, '#ff5a6a', { unlit: true }); d.deco.circ(11, 13, 1, '#ff5a6a', { unlit: true }); }
-    } },
-    rock: { w: 20, h: 16, n: 2, draw(d, v) {
-      d.blob([[2, 14], [3, 7], [8, 3], [14, 3], [18, 8], [18, 14]], v ? '#9a98a4' : '#a8a4a0', { tex: 0.3, texSize: 1 });
-      d.ell(13, 11, 3.5, 2.6, v ? '#8a8894' : '#989490', 0, { tex: 0.3 });
-      d.deco.line(7, 6, 10, 10, 0.7, '#6a6874');
-    } },
+    bush: { w: 22, h: 18, n: 2, draw: SECOURS.buisson(22, 18) },
+    rock: { w: 20, h: 16, n: 2, draw: SECOURS.rocher(20, 16) },
     palm: { w: 44, h: 60, n: 2, draw(d, v) {
       const tr = '#a8784a', g = '#3fa640', gd = '#2e8a3a';
       const top = v ? [26, 15] : [17, 15];
@@ -400,38 +289,10 @@
       d.rect(13, 2, 4, 6, '#3f72cc', { round: 0.4 }); d.deco.circ(15, 3.4, 1.2, '#ffe060', { unlit: true });
     } },
     // panneau : grand, bien visible (planche claire bordée, petit toit, deux poteaux)
-    sign: { w: 28, h: 32, n: 1, draw(d) {
-      d.ell(14, 31, 11, 1.8, '#2a2a2a', 0, { flat: true });
-      d.tube([[7, 31], [7, 12]], 3, 2.8, '#6a4424'); d.tube([[21, 31], [21, 12]], 3, 2.8, '#6a4424', { far: true });
-      d.poly([[0, 6], [14, 0], [28, 6], [26, 8], [2, 8]], '#8a3a2a', { tex: 0.2 });
-      d.rect(1.5, 7, 25, 15, '#7a5230', { round: 0.2 });
-      d.rect(3, 8.5, 22, 12, '#e8c890', { round: 0.2, tex: 0.2 });
-      d.deco.line(6, 12, 22, 12, 1, '#6a4a28'); d.deco.line(6, 15, 20, 15, 1, '#6a4a28'); d.deco.line(6, 18, 17, 18, 1, '#6a4a28');
-    } },
-    spring: { w: 30, h: 22, n: 1, draw(d) {
-      for (let i = 0; i < 10; i++) {
-        const a = i / 10 * Math.PI * 2;
-        d.circ(15 + Math.cos(a) * 11.5, 13 + Math.sin(a) * 6.5, 3.2, i % 2 ? '#9aa0b0' : '#b0b4c0', { tex: 0.25 });
-      }
-      d.ell(15, 13, 10, 5.2, '#4ed8f0', 0, { unlit: true, flat: true });
-      d.deco.ell(15, 13, 7, 3.4, '#8af0ff', 0, { unlit: true });
-      d.deco.ell(13, 12, 3, 1.2, '#e8ffff', 0, { unlit: true });
-      d.poly([[22, 10], [24, 2], [26, 10]], '#7ae8ff', { shiny: true });
-      d.poly([[5, 11], [6.5, 5], [8, 11]], '#7ae8ff', { shiny: true });
-    } },
-    log: { w: 32, h: 16, n: 1, draw(d) {
-      d.tube([[4, 9], [27, 9]], 10, 10, '#8a5a32', { tex: 0.3 });
-      d.deco.line(8, 6, 22, 6, 0.7, '#6a4022'); d.deco.line(10, 11, 24, 11, 0.7, '#6a4022');
-      d.ell(27.5, 9, 3, 5, '#d0a068');
-      d.deco.ell(27.5, 9, 1.6, 3, '#a87848');
-      d.circ(14, 4, 2.2, '#4aa246', { tex: 0.4 });
-    } },
-    stump: { w: 18, h: 16, n: 1, draw(d) {
-      d.ell(9, 13, 8, 2.6, '#6a4424', 0, { flat: true });
-      d.rect(3, 6, 12, 8, '#8a5a32', { round: 0.4, tex: 0.3 });
-      d.ell(9, 6, 6, 2.6, '#d4a46a');
-      d.deco.ell(9, 6, 3.6, 1.4, '#b0804a'); d.deco.ell(9, 6, 1.4, 0.6, '#8a5a32');
-    } },
+    sign: { w: 28, h: 32, n: 1, draw: SECOURS.pierre(28, 32) },
+    spring: { w: 30, h: 22, n: 1, draw: SECOURS.pierre(30, 22) },
+    log: { w: 32, h: 16, n: 1, draw: SECOURS.bois(32, 16) },
+    stump: { w: 18, h: 16, n: 1, draw: SECOURS.bois(18, 16) },
     crib: { w: 22, h: 22, n: 2, draw(d, v) {
       const side = v ? '#a8d4ff' : '#ffb6d0';
       d.rect(3, 15, 2, 6, '#d8c0b0'); d.rect(17, 15, 2, 6, '#d8c0b0');
@@ -451,14 +312,7 @@
       d.deco.rect(4, 9.5, 3, 1, '#ffffff', { unlit: true }); d.deco.rect(5, 10.5, 1, 4, '#ffffff', { unlit: true });
       d.deco.circ(12.5, 12, 1.6, '#ffffff', { unlit: true });
     } },
-    candytree: { w: 30, h: 40, n: 3, draw(d, v) {
-      const lf = ['#ffb4d4', '#a8f0c8', '#cbb8ff'][v];
-      d.tube([[15, 39], [15, 20]], 5, 4, '#fff0f4');
-      for (let y = 22; y < 38; y += 4) d.deco.line(12, y + 2, 18, y, 1.4, '#ff86a8');
-      d.circ(8, 18, 6.5, lf, { far: true, tex: 0.25, texSize: 1 }); d.circ(22, 18, 6.5, lf, { far: true, tex: 0.25, texSize: 1 });
-      d.circ(15, 12, 9.5, lf, { tex: 0.25, texSize: 1 }); d.circ(15, 21, 7, lf, { tex: 0.25, texSize: 1 });
-      d.deco.circ(11, 9, 1.4, '#ffffff', { unlit: true }); d.deco.circ(19, 15, 1.2, '#ffffff', { unlit: true });
-    } },
+    candytree: { w: 30, h: 40, n: 3, draw: SECOURS.arbre(30, 40) },
     house: { w: 56, h: 62, n: 1, draw(d) {
       d.rect(6, 28, 44, 32, '#fff0d8', { round: 0.2 });
       d.deco.rect(6, 54, 44, 6, '#f0d0b0');

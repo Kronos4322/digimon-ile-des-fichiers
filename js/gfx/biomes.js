@@ -112,25 +112,9 @@
   Object.assign(OBJ, {
     // ---------------------------------------------------------- végétation des biomes
     // sapin : 0 vert  1 enneigé  2 mort
-    pine: { w: 26, h: 46, n: 3, big: true, draw(d, v) {
-      d.tube([[13, 45], [13, 30]], 3.6, 2.6, v === 2 ? '#6a5a4a' : '#5a3a22');
-      const G = v === 2 ? null : v === 1 ? ['#2a4e48', '#3a6660'] : ['#1e4a2a', '#2c6236'];
-      if (!G) { for (let i = 0; i < 4; i++) { const y = 18 + i * 6; d.tube([[13, y], [5 + i, y + 4]], 1.6, 0.6, '#6a5a4a'); d.tube([[13, y + 2], [21 - i, y + 6]], 1.6, 0.6, '#6a5a4a'); } d.tube([[13, 32], [13, 6]], 2.6, 1, '#7a6a58'); return; }
-      for (let i = 0; i < 4; i++) {
-        const y = 36 - i * 8, w = 12 - i * 2.4;
-        d.poly([[13 - w, y], [13, y - 13], [13 + w, y]], i % 2 ? G[1] : G[0], { tex: 0.2 });
-        if (v === 1) d.deco.poly([[13 - w * 0.7, y - 3], [13, y - 12], [13 + w * 0.5, y - 5]], '#f4f8ff');
-        else d.deco.line(13 - w * 0.6, y - 2, 13 - 1, y - 9, 0.8, '#4a8a4a');
-      }
-      if (v === 1) d.deco.ell(13, 38, 9, 1.6, '#ffffff');
-    } },
+    pine: { w: 26, h: 46, n: 3, big: true, draw: DW.World.secours.arbre(26, 46) },
     // rocher arrondi (montagne, grottes)
-    boulder: { w: 22, h: 18, n: 3, draw(d, v) {
-      const C = [['#6a6a70', '#8e8e94'], ['#5a544c', '#7e766a'], ['#4a4658', '#6a6478']][v];
-      d.blob([[2, 16], [3, 8], [9, 3], [16, 4], [20, 10], [20, 16]], C[0], { tex: 0.35 });
-      d.deco.blob([[6, 8], [10, 5], [14, 6], [11, 9]], C[1]);
-      d.deco.line(11, 10, 14, 15, 0.6, shade(C[0], -0.35));
-    } },
+    boulder: { w: 22, h: 18, n: 3, draw: DW.World.secours.rocher(22, 18) },
     // cairn de pierres empilées
     cairn: { w: 16, h: 26, n: 1, draw(d) {
       [[8, 23, 6.6, 3], [8, 18.6, 5.4, 2.6], [8.6, 14.6, 4.4, 2.4], [8, 11, 3.4, 2], [8.4, 8, 2.4, 1.6]].forEach(([x, y, rx, ry], i) => d.ell(x, y, rx, ry, ['#8a8a90', '#7a7468', '#9a948a', '#86868c', '#a8a49a'][i], 0, { tex: 0.3 }));
@@ -166,13 +150,7 @@
       d.ell(10, 13, 6, 3, shade(C, -0.15), 0, { tex: 0.4 });
     } },
     // acacia à couronne plate (savane)
-    acacia: { w: 46, h: 44, n: 2, big: true, draw(d, v) {
-      d.tube([[22, 43], [21, 30], [16, 20]], 4.4, 2.6, '#5a3a20', { tex: 0.3 });
-      d.tube([[21, 30], [28, 21]], 2.6, 1.6, '#5a3a20');
-      const L = v ? ['#6a7a2a', '#86963a'] : ['#5a6a24', '#748632'];
-      d.ell(22, 16, 21, 6, L[0], 0, { tex: 0.35 }); d.ell(14, 13, 10, 4.4, L[1], 0, { tex: 0.35 }); d.ell(30, 12.6, 10, 4.4, L[1], 0, { tex: 0.35 });
-      d.deco.ell(20, 11, 8, 1.6, shade(L[1], 0.25));
-    } },
+    acacia: { w: 46, h: 44, n: 2, big: true, draw: DW.World.secours.arbre(46, 44) },
     // termitière (savane)
     termite: { w: 20, h: 32, n: 1, draw(d) {
       d.poly([[2, 31], [5, 18], [8, 6], [11, 2], [13, 8], [16, 20], [18, 31]], '#b06a38', { tex: 0.45 });
@@ -254,14 +232,7 @@
       d.deco.line(7, 10 + v * 4, 6, 30, 0.8, C[1]);
       d.ell(9, 33, 8, 2, shade(C[0], -0.3), 0, { flat: true });
     } },
-    crystal: { w: 20, h: 26, n: 3, lights: [[10, 12, 26, 'rgba(170,140,255,0.6)']], draw(d, v) {
-      const C = ['#9a7ae8', '#5ac8e8', '#e87ac8'][v];
-      d.poly([[6, 25], [4, 12], [7, 3], [10, 12], [9, 25]], C, { shiny: true });
-      d.poly([[9, 25], [11, 9], [14, 5], [16, 14], [14, 25]], shade(C, -0.15), { shiny: true });
-      d.poly([[2, 25], [1, 18], [4, 15], [6, 25]], shade(C, 0.15), { shiny: true });
-      d.deco.line(6.4, 6, 6.4, 20, 0.6, '#ffffff'); d.deco.line(13, 8, 13.4, 20, 0.5, shade(C, 0.5));
-      d.ell(9, 25, 8, 2, '#2a2236', 0, { flat: true });
-    } },
+    crystal: { w: 20, h: 26, n: 3, lights: [[10, 12, 26, 'rgba(170,140,255,0.6)']], draw: DW.World.secours.pierre(20, 26) },
     pebbles: { w: 14, h: 8, n: 2, draw(d, v) {
       d.ell(4, 6, 2.6, 1.6, v ? '#6a6058' : '#5a5650'); d.ell(9, 5.6, 2, 1.4, v ? '#7a7066' : '#6a6660'); d.ell(11.6, 7, 1.4, 0.9, '#4a4640');
     } },
@@ -383,16 +354,8 @@
       d.tube([[3, 14], [3, 6]], 0.8, 0.8, '#3a2a1a');
     } },
     // ---------------------------------------------------------- région des dinosaures
-    cycad: { w: 40, h: 46, n: 2, big: true, draw(d, v) {
-      d.tube([[20, 45], [20, 24]], 7, 6, '#7a5a34', { tex: 0.5 });
-      for (let i = 0; i < 5; i++) d.deco.line(17, 42 - i * 4, 23, 40 - i * 4, 0.8, '#5a3a20');
-      const L = v ? '#3a7a2a' : '#4a8a30';
-      for (let i = 0; i < 9; i++) { const a = -Math.PI + (i / 8) * Math.PI, l = 17 + (i % 2) * 3; d.tube([[20, 22], [20 + Math.cos(a) * l * 0.6, 22 + Math.sin(a) * l * 0.5 - 4], [20 + Math.cos(a) * l, 22 + Math.sin(a) * l * 0.4 + 2]], 4, 1, i % 2 ? L : shade(L, 0.2)); }
-    } },
-    bigfern: { w: 26, h: 20, n: 2, draw(d, v) {
-      const L = v ? '#3a8a34' : '#4a9a3a';
-      for (let i = 0; i < 7; i++) { const a = -Math.PI * 0.95 + i * 0.32; d.tube([[13, 19], [13 + Math.cos(a) * 8, 19 + Math.sin(a) * 9 - 3], [13 + Math.cos(a) * 12, 19 + Math.sin(a) * 9 + 2]], 3, 0.6, i % 2 ? L : shade(L, 0.2)); }
-    } },
+    cycad: { w: 40, h: 46, n: 2, big: true, draw: DW.World.secours.arbre(40, 46) },
+    bigfern: { w: 26, h: 20, n: 2, draw: DW.World.secours.plante(26, 20) },
     bones: { w: 40, h: 26, n: 2, draw(d, v) {
       const B = '#e8dcc0';
       if (v === 0) {
@@ -411,33 +374,10 @@
       d.deco.ell(6, 6, 1.4, 2.6, '#fff0b0', -0.4);
     } },
     // ---------------------------------------------------------- jungle et mangrove
-    jungletree: { w: 46, h: 56, n: 3, big: true, draw(d, v) {
-      d.tube([[23, 55], [22, 36], [24, 20]], 5, 3.4, '#6a4a2a', { tex: 0.4 });
-      d.tube([[22, 50], [17, 55]], 2, 1, '#5a3a20'); d.tube([[24, 50], [29, 55]], 2, 1, '#5a3a20');
-      const L = ['#2a8a3a', '#3a9a3a', '#2a7a4a'][v];
-      for (let i = 0; i < 7; i++) { const a = -Math.PI * 0.95 + i * 0.32, l = 18 + (i % 3) * 2; d.tube([[24, 20], [24 + Math.cos(a) * l * 0.55, 20 + Math.sin(a) * 12 - 2], [24 + Math.cos(a) * l, 20 + Math.sin(a) * 9 + 6]], 7, 1.6, i % 2 ? L : shade(L, 0.18), { tex: 0.2 }); }
-      d.deco.curve([[16, 26], [14, 38], [16, 46]], 0.8, '#3a7a2a'); d.deco.curve([[32, 24], [33, 36]], 0.8, '#3a7a2a');
-    } },
-    junglebush: { w: 26, h: 22, n: 2, draw(d, v) {
-      const L = v ? '#2a8a3a' : '#3aa048';
-      for (let i = 0; i < 6; i++) { const a = -Math.PI * 0.9 + i * 0.38; d.ell(13 + Math.cos(a) * 6, 16 + Math.sin(a) * 7, 6, 2.6, i % 2 ? L : shade(L, 0.2), a, { tex: 0.2 }); }
-      if (v) { d.deco.circ(10, 9, 1.6, '#ff4a6a'); d.deco.circ(16, 11, 1.4, '#ffd040'); }
-    } },
-    totem: { w: 18, h: 44, n: 1, draw(d) {
-      d.rect(3, 4, 12, 39, '#8a5a30', { tex: 0.3 });
-      for (let i = 0; i < 3; i++) {
-        const y = 8 + i * 12, c = ['#d83a2a', '#3a8ad8', '#e0b030'][i];
-        d.deco.rect(3, y - 3, 12, 2, c); d.deco.ell(6.6, y + 2, 1.6, 1.6, '#ffffff', 0, { unlit: true }); d.deco.ell(11.4, y + 2, 1.6, 1.6, '#ffffff', 0, { unlit: true });
-        d.deco.ell(6.6, y + 2, 0.7, 0.7, '#1a1010', 0, { unlit: true }); d.deco.ell(11.4, y + 2, 0.7, 0.7, '#1a1010', 0, { unlit: true }); d.deco.rect(6, y + 5, 6, 1.4, '#2a1a10');
-      }
-      d.poly([[0, 6], [3, 4], [3, 10]], '#d83a2a'); d.poly([[18, 6], [15, 4], [15, 10]], '#d83a2a');
-    } },
-    mangrove: { w: 46, h: 52, n: 2, big: true, draw(d, v) {
-      for (let i = 0; i < 6; i++) { const x = 8 + i * 6; d.tube([[23, 30], [x, 42], [x + (i % 2 ? 2 : -2), 51]], 2.4, 1.6, '#6a5236'); }
-      d.tube([[23, 40], [23, 22]], 4.4, 3.4, '#6a5236', { tex: 0.3 });
-      const L = v ? ['#2a6a3a', '#3a7e44'] : ['#2e7036', '#428a42'];
-      d.ell(23, 16, 20, 11, L[0], 0, { tex: 0.35 }); d.ell(16, 12, 10, 7, L[1], 0, { tex: 0.35 }); d.ell(31, 13, 10, 7, L[1], 0, { tex: 0.35 });
-    } },
+    jungletree: { w: 46, h: 56, n: 3, big: true, draw: DW.World.secours.arbre(46, 56) },
+    junglebush: { w: 26, h: 22, n: 2, draw: DW.World.secours.buisson(26, 22) },
+    totem: { w: 18, h: 44, n: 1, draw: DW.World.secours.pierre(18, 44) },
+    mangrove: { w: 46, h: 52, n: 2, big: true, draw: DW.World.secours.arbre(46, 52) },
     reeds: { w: 18, h: 22, n: 2, draw(d, v) {
       for (let i = 0; i < 7; i++) { const x = 3 + i * 2, h = 12 + ((i * 5) % 7); d.tube([[x, 21], [x + (i % 2 ? 1 : -1), 21 - h]], 1, 0.4, i % 2 ? '#5a7a2a' : '#6a8a34'); if (v && i % 3 === 0) d.ell(x + (i % 2 ? 1 : -1), 21 - h + 2, 0.9, 2.4, '#6a4a2a'); }
     } },
@@ -451,13 +391,7 @@
       d.rect(20, 24, 8, 9, '#3a2410'); d.deco.rect(11, 23, 6, 5, '#f0d080'); d.deco.rect(31, 23, 6, 5, '#f0d080');
     } },
     // ---------------------------------------------------------- marais et palais Geko
-    swamptree: { w: 44, h: 52, n: 2, big: true, draw(d, v) {
-      d.tube([[22, 51], [21, 34], [23, 22]], 6, 4, '#4a4030', { tex: 0.4 });
-      d.tube([[21, 46], [13, 51]], 2.4, 1, '#3a3022'); d.tube([[23, 46], [31, 51]], 2.4, 1, '#3a3022');
-      const L = v ? '#3a5a2a' : '#46622e';
-      d.ell(22, 16, 19, 12, L, 0, { tex: 0.4 });
-      for (let i = 0; i < 9; i++) d.tube([[6 + i * 4, 20 + (i % 2) * 2], [6 + i * 4 + 1, 32 + (i % 3) * 4]], 1.4, 0.6, i % 2 ? '#5a7a3a' : '#7a8a4a');
-    } },
+    swamptree: { w: 44, h: 52, n: 2, big: true, draw: DW.World.secours.arbre(44, 52) },
     frogstatue: { w: 26, h: 30, n: 1, draw(d) {
       d.rect(3, 24, 20, 5, '#7a7a70', { tex: 0.3 });
       d.ell(13, 18, 9, 7, '#5a7a5a', 0, { tex: 0.3 }); d.ell(13, 10, 7, 5, '#5a7a5a', 0, { tex: 0.3 });
@@ -519,13 +453,7 @@
       d.deco.line(64, 66, 64, 102, 0.8, '#3a2a40'); d.deco.circ(60, 86, 1, '#e0c040', { unlit: true }); d.deco.circ(68, 86, 1, '#e0c040', { unlit: true });
     } },
     // ---------------------------------------------------------- Pays des Scarabées et lac
-    giantstump: { w: 46, h: 38, n: 2, draw(d, v) {
-      d.rect(5, 12, 36, 24, '#6a4a2a', { tex: 0.45, round: 0.2 });
-      d.ell(23, 12, 18, 6, '#c8a070', 0, { tex: 0.2 });
-      for (let r = 3; r < 16; r += 4) d.deco.ell(23, 12, r, r * 0.32, '#9a7448');
-      for (const x of [3, 14, 33, 44]) d.tube([[x < 23 ? x + 3 : x - 3, 30], [x, 37]], 4, 2, '#5a3a20');
-      if (v) { d.deco.ell(14, 26, 3, 4, '#2a1a10'); d.ell(34, 22, 4, 2.4, '#e8c050', 0, { shiny: true }); }
-    } },
+    giantstump: { w: 46, h: 38, n: 2, draw: DW.World.secours.bois(46, 38) },
     honeycomb: { w: 22, h: 26, n: 1, draw(d) {
       d.tube([[11, 2], [11, 6]], 1.4, 1.4, '#5a3a20');
       d.ell(11, 15, 9, 10, '#e8a828', { shiny: true });
@@ -573,7 +501,7 @@
   });
 
   // ------------------------------------------------------------ légende des cartes (objets des biomes)
-  DW.World.OBJ.rosebush = { w: 26, h: 24, n: 3, draw(d, v) { d.circ(13, 14, 9, '#3a8a40'); d.circ(9, 11, 2, ['#e03a5a', '#f8f0f0', '#f0a0c0'][v]); d.circ(16, 13, 2, ['#e03a5a', '#f8f0f0', '#f0a0c0'][v]); } };
+  DW.World.OBJ.rosebush = { w: 26, h: 24, n: 3, draw: DW.World.secours.buisson(26, 24) };   // (images du joueur : gfx/textures.js)
   const CH = DW.World.CH, add = (ch, o) => (CH[ch] = Object.assign({ t: 'grass', solid: true }, o));
   add('à', { obj: 'cairn' }); add('â', { obj: 'spire' }); add('ä', { obj: 'termite' }); add('ã', { obj: 'blackgear' });
   add('å', { obj: 'icerock' }); add('æ', { obj: 'snowman' }); add('ç', { obj: 'icecrystal' }); add('è', { obj: 'icepillar' });

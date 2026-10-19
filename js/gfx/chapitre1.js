@@ -38,10 +38,7 @@
       for (const x of [30, 52, 82, 104]) d.deco.curve([[x, 60], [x + 3, 80], [x - 1, 96]], 1, '#3a7a2a');
     } },
     // racines qui pendent du plafond, gouttes de sève lumineuse (décor mural du Cœur du Grand Arbre)
-    treeroots: { w: 40, h: 44, n: 2, draw(d, v) {
-      for (let k = 0; k < 6; k++) { const x = 4 + k * 6 + (v ? 3 : 0), l = 18 + ((k * 7 + v * 5) % 20); d.tube([[x, 0], [x + (k % 2 ? 2 : -2), l * 0.6], [x, l]], 2.6, 1, k % 2 ? '#6a4626' : '#5a3a20', { tex: 0.3 }); }
-      for (const [x, y] of [[10, 26], [28, 34], [20, 14]]) d.deco.circ(x + (v ? 3 : 0), y, 1.6, '#c8f040', { unlit: true });
-    } },
+    treeroots: { w: 40, h: 44, n: 2, draw: DW.World.secours.bois(40, 44) },
     // le nid de Kuwagamon : bois mâché, carapaces, une lueur rouge
     kuwanest: { w: 64, h: 30, n: 1, draw(d) {
       d.ell(32, 22, 30, 7, '#4a3220', 0, { tex: 0.4 });

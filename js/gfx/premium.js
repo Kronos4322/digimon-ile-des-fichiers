@@ -114,35 +114,7 @@
   const def = (k, o) => { OBJ[k] = { n: 1, noOutline: true, ...o }; OBJ[k].draw = d => d.rect(0, 0, 1, 1, '#000');   // (« draw » de secours : jamais utilisé, le dessin passe par « paint »)
   };
 
-  // =================================================================== FORÊT
-  // ARBRE COUCHÉ : grand tronc tombé, écorce en cylindre (clair dessus), bout cassé en échardes, bout scié aux cernes,
-  // mousse ; v 1 : couvert de champignons en console et de jeunes fougères
-  def('troncouche', { w: 56, h: 24, n: 2, scale: 1.25, paint(x, v) {
-    const y = 15, r = 6.2, x0 = 5, x1 = 50, B = hex('#6e4a2c'), lite = mix(B, '#ffd8a8', 0.4), dk = mix(B, COOL, 0.55);
-    contact(x, 28, 21.5, 25, 2.6);
-    const body = () => { x.beginPath(); x.moveTo(x0 + 2, y - r); x.lineTo(x1, y - r + 1); x.quadraticCurveTo(x1 + 3, y, x1, y + r - 0.5); x.lineTo(x0 + 2, y + r); for (let k = 0; k <= 6; k++) x.lineTo(x0 - (k % 2 ? 2.5 : 0) + hash(v, k, 61) * 1.5, y + r - k * (2 * r / 6)); x.closePath(); };
-    x.fillStyle = rgb(mix(dk, INK, 0.5)); x.save(); x.translate(0.6, 0.7); body(); x.fill(); x.restore();
-    const g = x.createLinearGradient(0, y - r, 0, y + r); g.addColorStop(0, rgb(lite)); g.addColorStop(0.35, rgb(B)); g.addColorStop(1, rgb(dk));
-    body(); x.fillStyle = g; x.fill();
-    x.save(); body(); x.clip();
-    for (let k = 0; k < 7; k++) { const yy = y - r + 1.5 + k * 1.7 + hash(v, k, 62) * 0.6; x.strokeStyle = rgb(mix(dk, INK, 0.3), 0.6); x.lineWidth = 0.5; x.beginPath(); for (let xx = x0; xx <= x1; xx += 3) x.lineTo(xx, yy + Math.sin(xx * 0.4 + k) * 0.4); x.stroke(); }
-    x.restore();
-    // bout scié : cernes
-    x.fillStyle = rgb(mix(B, '#e8c08a', 0.55)); x.beginPath(); x.ellipse(x1, y, 2.6, r - 0.6, 0, 0, TAU); x.fill();
-    x.strokeStyle = rgb(mix(B, INK, 0.2), 0.55); x.lineWidth = 0.4; for (const rr of [0.7, 0.45, 0.22]) { x.beginPath(); x.ellipse(x1, y, 2.6 * rr, (r - 0.6) * rr, 0, 0, TAU); x.stroke(); }
-    // échardes du bout cassé
-    x.fillStyle = rgb(mix(B, '#f0d0a0', 0.5)); for (let k = 0; k < 4; k++) { const yy = y - r + 2 + k * 3; x.beginPath(); x.moveTo(x0 + 1, yy); x.lineTo(x0 - 3 - hash(v, k, 63) * 2, yy + 0.8); x.lineTo(x0 + 1, yy + 1.6); x.fill(); }
-    moss(x, 22, y - r + 0.6, 9, 2.2, 5 + v, '#5a9436'); moss(x, 39, y - r + 1, 5, 1.6, 9 + v, '#4e8a30');
-    if (v === 1) {
-      for (const [cx, cy, s] of [[16, y + 1, 3], [27, y + 2.5, 2.4], [34, y + 0.5, 2.8]]) {   // champignons en console
-        x.fillStyle = rgb(hex('#5a3a1e')); x.beginPath(); x.ellipse(cx + 0.3, cy + 0.6, s * 1.1, s * 0.5, 0, 0, Math.PI); x.fill();
-        x.fillStyle = rgb(hex('#e8b060')); x.beginPath(); x.ellipse(cx, cy, s, s * 0.45, 0, Math.PI, TAU); x.fill();
-        x.fillStyle = rgb(hex('#c88a40')); x.beginPath(); x.ellipse(cx, cy, s, s * 0.3, 0, 0, Math.PI); x.fill();
-        x.fillStyle = 'rgba(255,240,200,0.8)'; x.fillRect(cx - s * 0.6, cy - s * 0.3, s * 0.6, 0.5);
-      }
-      frond(x, 44, y - r + 1, 7, -2.2, 0.8, '#5aa040', 3); frond(x, 45, y - r + 1, 6, -1.2, -0.6, '#4a9038', 4);
-    }
-  } });
+  OBJ.troncouche = { w: 56, h: 24, n: 2, scale: 1.25, noOutline: true, draw: DW.World.secours.bois(56, 24) };   // (images du joueur : gfx/textures.js)
 
   // JEUNES POUSSES : v 0 jeune chêne (couronne ronde), v 1 jeune bouleau (fût blanc, couronne claire), v 2 jeune sapin
   def('pousse', { w: 18, h: 30, n: 3, scale: 1.2, paint(x, v) {
@@ -163,51 +135,11 @@
     P.crown(x, { seed: 70 + v * 9, cx: 9, cy: 10, rx: 7, ry: 6.5, n: 10, touches: 50, leaf: 0.7, P: birch ? ['#5aa848', '#3e8a3a', '#a8dc6a'] : ['#3f8a38', '#2a6a2c', '#7cc054'] });
   } });
 
-  // SAULE PLEUREUR : couronne en dôme d'où tombent des rideaux de feuilles fines jusqu'au sol
-  def('saule', { w: 50, h: 56, n: 1, scale: 1.5, big: true, paint(x) {
-    contact(x, 25, 53, 18, 3, 0.25);
-    P.trunk(x, { cx: 25, top: 26, base: 53, w: 6, seed: 21, bark: '#5e4630', roots: 3 });
-    P.crown(x, { seed: 33, cx: 25, cy: 18, rx: 19, ry: 12, n: 16, touches: 120, P: ['#6aa84a', '#3e7a36', '#bfe27a'] });
-    for (let i = 0; i < 46; i++) {   // rideaux de feuilles
-      const a = i / 46, sx = 7 + a * 36 + (hash(1, i, 71) - 0.5) * 2, sy = 15 + Math.abs(a - 0.5) * 10 + hash(1, i, 72) * 4, len = 18 + hash(1, i, 73) * 16 - Math.abs(a - 0.5) * 12;
-      const L = 1 - a, col = mix(mix(hex('#3e7a36'), COOL, 0.25), mix(hex('#bfe27a'), WARM, 0.2), L * 0.8 + (hash(1, i, 74) - 0.5) * 0.3);
-      x.strokeStyle = rgb(mix(col, INK, 0.25), 0.9); x.lineWidth = 0.7;
-      x.beginPath(); x.moveTo(sx, sy); x.quadraticCurveTo(sx + (a - 0.5) * 3, sy + len * 0.6, sx + (a - 0.5) * 6 + 0.5, sy + len); x.stroke();
-      x.fillStyle = rgb(col); for (let k = 2; k < len; k += 2.2) { const t = k / len, px = sx + (a - 0.5) * 6 * t * t + 0.3, py = sy + k; x.beginPath(); x.ellipse(px + (k % 4 ? 0.6 : -0.6), py, 0.5, 1.1, (k % 4 ? 0.4 : -0.4), 0, TAU); x.fill(); }
-    }
-  } });
+  OBJ.saule = { w: 50, h: 56, n: 1, scale: 1.5, big: true, noOutline: true, draw: DW.World.secours.arbre(50, 56) };   // (images du joueur : gfx/textures.js)
 
-  // FOUGÈRES : bouquet de frondes qui jaillissent du sol ; v 0 fougère commune, v 1 fougère arquée (frondes longues
-  // et retombantes), v 2 fougère royale rousse (port dressé)
-  def('fougeres', { w: 30, h: 24, n: 3, scale: 1.2, paint(x, v) {
-    contact(x, 15, 22.5, 9, 1.8, 0.22);
-    const C = ['#4e9a3a', '#5aa846', '#b0782e'][v], n = [11, 9, 8][v], len = [15, 19, 17][v], curl = [0.9, 1.5, 0.35][v], spread = [2.6, 3, 1.7][v];
-    for (let i = 0; i < n; i++) {
-      const t = n === 1 ? 0.5 : i / (n - 1), ang = -Math.PI / 2 + (t - 0.5) * spread, s = t < 0.5 ? -1 : 1;
-      frond(x, 15 + (t - 0.5) * 3, 22, len * (0.75 + hash(v, i, 81) * 0.35) * (1 - Math.abs(t - 0.5) * 0.3), ang, s * curl * (0.5 + Math.abs(t - 0.5)), C, v * 10 + i);
-    }
-    if (v === 2) { x.fillStyle = rgb(hex('#e0b860')); for (let i = 0; i < 3; i++) { x.beginPath(); x.ellipse(13 + i * 2, 4 + i, 0.8, 2, 0, 0, TAU); x.fill(); } }   // épis fertiles
-  } });
+  OBJ.fougeres = { w: 30, h: 24, n: 3, scale: 1.2, noOutline: true, draw: DW.World.secours.plante(30, 24) };   // (images du joueur : gfx/textures.js)
 
-  // CHAMPIGNONS : v 0 amanites (chapeaux rouges à points blancs), v 1 cèpes (pied épais, chapeau brun luisant),
-  // v 2 champignons lumineux (chapeaux bleus translucides, halo)
-  def('champignons', { w: 24, h: 20, n: 3, paint(x, v) {
-    contact(x, 12, 18.6, 8, 1.6, 0.22);
-    const set = [[[7, 18, 4.2, 9], [14, 18.5, 3, 6], [18, 18.6, 2.2, 4]], [[9, 18.5, 4.6, 7], [16, 18.6, 3.4, 5]], [[6, 18.4, 3, 8], [11, 18.6, 3.6, 11], [17, 18.6, 2.6, 7]]][v];
-    for (const [cx, by, cr, hgt] of set) {
-      const top = by - hgt;
-      if (v === 2) { const g = x.createRadialGradient(cx, top, 0.5, cx, top, cr * 3); g.addColorStop(0, 'rgba(140,230,255,0.45)'); g.addColorStop(1, 'rgba(140,230,255,0)'); x.fillStyle = g; x.beginPath(); x.arc(cx, top, cr * 3, 0, TAU); x.fill(); }
-      const sw = v === 1 ? cr * 0.55 : cr * 0.32;   // pied
-      const gs = x.createLinearGradient(cx - sw, 0, cx + sw, 0); gs.addColorStop(0, '#fffaf0'); gs.addColorStop(1, v === 1 ? '#c8b088' : '#d8d0c0');
-      x.fillStyle = gs; x.beginPath(); x.moveTo(cx - sw * 0.8, top + 1); x.quadraticCurveTo(cx - sw * 1.3, by - 1, cx - sw, by); x.lineTo(cx + sw, by); x.quadraticCurveTo(cx + sw * 1.2, by - 1, cx + sw * 0.8, top + 1); x.fill();
-      const capC = hex(['#d8342a', '#8a5226', '#4ab8e8'][v]);
-      x.fillStyle = rgb(mix(capC, INK, 0.45)); x.beginPath(); x.ellipse(cx + 0.3, top + 0.4, cr + 0.4, cr * 0.72, 0, Math.PI, TAU); x.fill();
-      const gc = x.createRadialGradient(cx - cr * 0.4, top - cr * 0.5, 0.3, cx, top, cr * 1.2); gc.addColorStop(0, rgb(mix(capC, WARM, 0.45))); gc.addColorStop(0.6, rgb(capC)); gc.addColorStop(1, rgb(mix(capC, COOL, 0.4)));
-      x.fillStyle = gc; x.beginPath(); x.ellipse(cx, top, cr, cr * 0.7, 0, Math.PI, TAU); x.lineTo(cx + cr, top + 0.6); x.quadraticCurveTo(cx, top + 1.6, cx - cr, top + 0.6); x.fill();
-      if (v === 0) { x.fillStyle = '#fff8ee'; for (let k = 0; k < 5; k++) { x.beginPath(); x.arc(cx - cr * 0.6 + hash(cx, k, 91) * cr * 1.2, top - cr * 0.15 - hash(cx, k, 92) * cr * 0.45, 0.35 + hash(cx, k, 93) * 0.35, 0, TAU); x.fill(); } }
-      x.fillStyle = v === 2 ? 'rgba(230,255,255,0.9)' : 'rgba(255,245,220,0.7)'; x.beginPath(); x.ellipse(cx - cr * 0.4, top - cr * 0.4, cr * 0.3, cr * 0.12, -0.4, 0, TAU); x.fill();
-    }
-  } });
+  OBJ.champignons = { w: 24, h: 20, n: 3, noOutline: true, draw: DW.World.secours.champignon(24, 20) };   // (images du joueur : gfx/textures.js)
 
   // BRANCHES MORTES (au sol, on marche dessus) : rameaux secs croisés et quelques feuilles
   def('branchesmortes', { w: 30, h: 12, n: 2, plat: true, paint(x, v) {
@@ -235,27 +167,9 @@
     }
   } });
 
-  // ROCHERS MOUSSUS : trois rochers serrés, coussins de mousse, fougères au pied ; v 1 : rochers plus plats, lichen
-  def('rochersmousse', { w: 42, h: 30, n: 2, scale: 1.2, paint(x, v) {
-    contact(x, 21, 27.5, 18, 2.6);
-    const pal = ['#4a5048', '#7a8276', '#b4bcae'];
-    if (v === 0) { rock(x, 13, 21, 10, 7, pal, 3, { moss: '#4e8a30' }); rock(x, 28, 18, 12, 10, pal, 5, { moss: '#5a9436' }); rock(x, 21, 25, 6, 3.5, pal, 8); }
-    else { rock(x, 15, 23, 13, 5.5, pal, 12, { moss: '#5a9436' }); rock(x, 31, 22, 9, 6, pal, 14); for (let i = 0; i < 6; i++) { x.fillStyle = ['#d8d890', '#b8c870', '#e8e0b0'][i % 3]; x.beginPath(); x.arc(27 + hash(i, 1, 121) * 8, 18 + hash(i, 2, 121) * 4, 0.8, 0, TAU); x.fill(); } }
-    frond(x, 4, 27, 7, -1.9, 0.7, '#4e9a3a', 1); frond(x, 38, 27, 6, -1.2, -0.6, '#5aa846', 2);
-  } });
+  OBJ.rochersmousse = { w: 42, h: 30, n: 2, scale: 1.2, noOutline: true, draw: DW.World.secours.rocher(42, 30) };   // (images du joueur : gfx/textures.js)
 
-  // BUISSONS FLEURIS : v 0 églantier blanc, v 1 rosier sauvage rose, v 2 genêt jaune (port plus haut, en épis)
-  def('buissonfleuri', { w: 28, h: 22, n: 3, scale: 1.25, paint(x, v) {
-    contact(x, 14, 20.5, 11, 2);
-    if (v === 2) {   // genêt : tiges dressées couvertes de fleurs jaunes
-      for (let i = 0; i < 12; i++) { const a = -Math.PI / 2 + (i / 11 - 0.5) * 1.6, len = 12 + hash(i, 3, 131) * 6; x.strokeStyle = rgb(hex('#3e7a2a')); x.lineWidth = 0.8; x.beginPath(); x.moveTo(14, 20); x.quadraticCurveTo(14 + Math.cos(a) * len * 0.4, 20 + Math.sin(a) * len * 0.6, 14 + Math.cos(a) * len, 20 + Math.sin(a) * len); x.stroke();
-        for (let k = 4; k < len; k += 1.6) { const px = 14 + Math.cos(a) * k + 0.4, py = 20 + Math.sin(a) * k; x.fillStyle = k > len * 0.6 ? '#ffe060' : '#f0c020'; x.beginPath(); x.ellipse(px, py, 1, 0.7, a, 0, TAU); x.fill(); } }
-      return;
-    }
-    P.crown(x, { seed: 140 + v, cx: 14, cy: 13, rx: 12, ry: 7.5, n: 12, touches: 70, leaf: 0.8, P: ['#3e8a3a', '#2a6a2c', '#7cc054'] });
-    const petal = v === 0 ? ['#f4efe4', '#ffffff'] : ['#f08ab0', '#ffc0d8'], heart = v === 0 ? '#f0c040' : '#c04060';
-    for (let i = 0; i < 26; i++) { const a = hash(v, i, 132) * TAU, d = Math.sqrt(hash(v, i, 133)) * 0.9, px = 14 + Math.cos(a) * 11 * d, py = 13 + Math.sin(a) * 6.5 * d; flower(x, px, py, 0.9 + hash(v, i, 134) * 0.4, petal[py < 12 ? 1 : 0], heart); }
-  } });
+  OBJ.buissonfleuri = { w: 28, h: 22, n: 3, scale: 1.25, noOutline: true, draw: DW.World.secours.buisson(28, 22) };   // (images du joueur : gfx/textures.js)
 
   // MASSIF À GRANDES FEUILLES : touffe de larges feuilles pointues en étoile, chacune avec sa nervure et ses deux
   // tons, contour sombre ; v 0 vert tropical lumineux, v 1 sous-bois sombre (feuilles plus longues), v 2 houx à baies rouges
@@ -341,20 +255,7 @@
     for (let i = 0; i < 6; i++) rock(x, 4 + hash(v, i, 161) * 38, 32 + hash(v, i, 162) * 2, 1.2 + hash(v, i, 163), 0.9, pal, 60 + i);
   } });
 
-  // PIN TORDU SUR SON ROCHER (montagne) : tronc noueux couché par le vent, plateaux d'aiguilles en nuages
-  def('pintordu', { w: 38, h: 44, n: 1, scale: 1.4, big: true, paint(x) {
-    contact(x, 19, 41.5, 15, 2.4, 0.3);
-    rock(x, 18, 37, 14, 5.5, ['#3e4246', '#70767c', '#b8bec2'], 71, { moss: '#5a9436' });
-    const B = hex('#5a3c26'), path = [[16, 34], [14, 27], [17, 21], [23, 16], [27, 12]];
-    x.lineCap = 'round'; x.lineJoin = 'round';
-    for (const [lw, c] of [[4.4, mix(B, INK, 0.55)], [3.4, B], [1.2, mix(B, '#e0b888', 0.4)]]) { x.strokeStyle = rgb(c); x.lineWidth = lw; x.beginPath(); path.forEach((p, i) => (i ? x.lineTo(p[0] - (lw === 1.2 ? 0.8 : 0), p[1]) : x.moveTo(p[0] - (lw === 1.2 ? 0.8 : 0), p[1]))); x.stroke(); }
-    x.strokeStyle = rgb(B); x.lineWidth = 1.6; x.beginPath(); x.moveTo(17, 21); x.quadraticCurveTo(11, 18, 7, 19); x.stroke();
-    for (const [cx, cy, rx, ry, s] of [[29, 11, 9, 3.4, 1], [8, 17, 7, 2.8, 2], [20, 16, 6, 2.4, 3]]) {   // plateaux d'aiguilles
-      const C = hex('#2e5e34');
-      x.fillStyle = rgb(mix(C, INK, 0.5)); x.beginPath(); x.ellipse(cx + 0.4, cy + 0.6, rx + 0.5, ry + 0.4, 0, 0, TAU); x.fill();
-      for (let i = 0; i < 26; i++) { const a = hash(s, i, 171) * TAU, d = Math.sqrt(hash(s, i, 172)), px = cx + Math.cos(a) * rx * d, py = cy + Math.sin(a) * ry * d, L = (px - cx) / rx * LX + (py - cy) / ry * LY; x.fillStyle = rgb(mix(mix(C, COOL, 0.3), mix(hex('#6aa850'), WARM, 0.25), Math.max(0, Math.min(1, 0.5 + L * 0.6)))); x.beginPath(); x.ellipse(px, py, 1.6, 0.8, -0.2, 0, TAU); x.fill(); }
-    }
-  } });
+  OBJ.pintordu = { w: 38, h: 44, n: 1, scale: 1.4, big: true, noOutline: true, draw: DW.World.secours.arbre(38, 44) };   // (images du joueur : gfx/textures.js)
 
   // BOULE DE LAVE (on peut marcher dessus, mais ça brûle : game/lave.js) : sol roussi, croûte sombre, cœur qui pulse,
   // bulles qui éclatent, halo de chaleur ; 4 images

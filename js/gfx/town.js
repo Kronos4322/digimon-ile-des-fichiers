@@ -274,19 +274,8 @@
       for (let x = 3; x < W; x += 16) { d.rect(x - 2, 4, 4, 17, '#a87442', { round: 0.3, tex: 0.25 }); d.poly([[x - 2, 4.5], [x, 2], [x + 2, 4.5]], '#a87442'); }
       d.rect(W - 4, 4, 4, 17, '#a87442', { round: 0.3, tex: 0.25 });
     } },
-    hedge: { w: 18, h: 20, n: 2, draw(d, v) {
-      d.ell(9, 18, 8, 2, '#1e4a1e', 0, { flat: true });
-      d.rect(1, 4, 16, 14, v ? '#3e9446' : '#3a8c40', { round: 0.55, tex: 0.6, texSize: 1 });
-      d.deco.ell(6, 7, 3, 1.4, '#6ac060'); d.deco.ell(12, 6.4, 2.4, 1.2, '#6ac060');
-      if (v) { d.deco.circ(5, 12, 1, '#ffffff', { unlit: true }); d.deco.circ(12, 10, 1, '#ffd0e0', { unlit: true }); }
-    } },
-    flowerbed: { w: 20, h: 16, n: 3, draw(d, v) {
-      d.rect(1, 7, 18, 8, '#9a5a2a', { round: 0.25, tex: 0.3 });
-      d.deco.rect(2, 8, 16, 2, '#4a2a14');
-      // (saisons, gfx/meteo.js : v3 pensées d'hiver, v4 chrysanthèmes d'automne)
-      const cols = [['#ff5a7a', '#ffd84a', '#ffffff'], ['#b48aff', '#ff9ac8', '#fff2a0'], ['#ff9a4a', '#ffe060', '#ff5a5a'], ['#7a4ad8', '#ffd84a', '#f4f0ff'], ['#e8902a', '#c84a3a', '#f0c040']][v];
-      for (let i = 0; i < 6; i++) { const x = 3 + i * 2.8, y = 5 + (i % 2) * 2; d.tube([[x, 9], [x, y + 1]], 1, 1, '#3a8a30'); d.circ(x, y, 1.8, cols[i % 3], { noshadow: true }); }
-    } },
+    hedge: { w: 18, h: 20, n: 2, draw: DW.World.secours.buisson(18, 20) },
+    flowerbed: { w: 20, h: 16, n: 3, draw: DW.World.secours.buisson(20, 16) },
     // PUITS : v 0 = plein (eau sombre qui brille, seau au bout de la corde), v 1 = vide (fond de terre sèche, cailloux,
     // corde effilochée sans seau, toit abîmé, mousse sèche)
     well: { w: 30, h: 40, n: 2, draw(d, v) {
