@@ -327,6 +327,23 @@
       const b = Art.bayer(px, py);
       let col;
       if (TX_ESC) { const RE = escalierVu(tx, ty); if (RE) { put(D, j, peindreEsc(RE, tx, ty, lx, ly, px, py)); continue; } }
+      // SOLS DESSINÉS (images du joueur) : chemin direct, sans calculer d'abord l'ancien dessin qu'on jetterait ensuite
+      // (les bords mouillés du sable et les bords de pelouse gardent le chemin normal, plus bas)
+      if (TX) {
+        let tc = null;
+        if (t === TER.grass && (TX_HERBE || TX_HSECHE)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
+        else if (t === TER.lawn && TX_HERBE && !(LUSH && en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
+        else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) tc = TX.lit(TX_SABLE, px, py);
+        else if (t === TER.dirt && TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) {
+          tc = TX.lit(TX_CHEMIN, px, py);
+          if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) tc = Art.mix(tc, TX.lit(TX_HERBE, px, py), 0.8);
+          if (ed <= 4 && en === TER.grass) tc = Art.mix(tc, [30, 24, 14], 0.06 * (5 - ed));
+        }
+        if (tc) {
+          if (LUSH) { const de = Math.min(EDGE.left ? 999 : px, EDGE.up ? 999 : py, EDGE.right ? 999 : GW - 1 - px, EDGE.down ? 999 : GH - 1 - py); if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; put(D, j, tc); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; } }
+          put(D, j, tc); continue;
+        }
+      }
       if (t === TER.grass && LUSH) {
         // près d'un chemin : l'herbe s'éclaircit en touffes mêlées de terre (fondu tramé, sans contour)
         {
@@ -358,6 +375,7 @@
         if (en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2 && hash(px, py, 315) < (3 - ed) / 4) col = lerpPal(SAND, 3.4 + (hash(px, py, 316) - 0.5));
         else col = lerpPal(PAL.lawn, lushGrassV(px, py, i, tx, ty) + 0.2);
         if (hash(px, py, 13) < 0.005) col = Art.hex(['#ffb6d6', '#fff0a0', '#d8c0ff', '#ffffff'][Math.floor(hash(px, py, 14) * 4)]);
+        if (TX_HERBE && !(en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2)) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // pelouse : l'herbe dessinée (gfx/textures.js)
       } else if (t === TER.grass) {
         let v = 2.4 + (G5(px, py) - 0.5) * 3 + (noise(px * 0.3, py * 0.3, 6) - 0.5) * 1.4 + b * 0.8;
         if (en !== TER.grass && en !== TER.canopy && en !== 255) { if (ed === 1) v = 0.2; else if (ed === 2) v -= 1; }
@@ -397,6 +415,7 @@
         col = PAL.lawn[DW.clamp(Math.round(v), 0, 5)];
         const h = hash(px, py, 13);
         if (h < 0.006) col = Art.hex(['#ffb6d6', '#fff0a0', '#d8c0ff', '#ffffff'][Math.floor(hash(px, py, 14) * 4)]);
+        if (TX_HERBE) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // pelouse : l'herbe dessinée (gfx/textures.js)
       } else if (t === TER.stone) {
         const row = Math.floor(py / 6), bx = Math.floor((px + (row % 2) * 4) / 8);
         const ix = (px + (row % 2) * 4) % 8, iy = py % 6;
@@ -992,7 +1011,8 @@
           // EAU PEINTE : profondeur en dégradé continu, réseau de reflets doux (caustiques), houle en longues lignes,
           // écume du rivage fondue (plus de bandes nettes)
           let v = V0[k];
-          if (ed > 4) {
+          const txE = (TX_MER || TX_DOUCE) && !(EAUX && (K1[k] === 4 || K1[k] === 5));   // (eau dessinée : ses vagues remplacent les reflets calculés)
+          if (ed > 4 && !txE) {
             const c1 = noise(px * 0.13 + ca * 1.4, py * 0.13 + sa * 1.4, 24), c2 = noise(px * 0.13 - ca * 1.4 + 40, py * 0.13 - sa * 1.4 + 20, 25), dc = Math.abs(c1 - c2);
             if (dc < 0.05) v -= 1.7 * (1 - dc / 0.05);
             if (ed > 5) { const sw = Math.sin(F26[k] + a); if (sw > 0.82) v -= (sw - 0.82) / 0.18 * 1.5; }
@@ -1010,7 +1030,7 @@
             col = TX.lit(L, px + dec, py + dec * 0.5); if (ed <= 2) col = Art.mix(col, [40, 14, 8], (3 - ed) * 0.22);
             put(W8, OUT[k], col); continue;
           }
-          if ((TX_MER || TX_DOUCE) && !(EAUX && (K1[k] === 4 || K1[k] === 5))) {   // eaux dessinées (gfx/textures.js) ; marais et lave gardent leur dessin
+          if (txE) {   // eaux dessinées (gfx/textures.js) ; marais et lave gardent leur dessin
             const mer = EAUX && K1[k] ? K1[k] === 1 : !!(map.mer || map.climate === 'beach'), P = mer ? TX_MER || TX_DOUCE : TX_DOUCE || TX_MER;
             col = Art.mix(TX.lit(P, px + ca * 3 + f * 0, py + sa * 2), col, 0.22);
           }
