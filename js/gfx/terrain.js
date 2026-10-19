@@ -88,8 +88,14 @@
     // (la couleur est écrite dans HC, réutilisé : à lire aussitôt ; mêmes calculs que TX.lit et Art.mix)
     const texO = (P, x, y) => { const X = ((Math.floor(x) % P.w) + P.w) % P.w, Y = ((Math.floor(y) % P.h) + P.h) % P.h; return (Y * P.w + X) * 4; };
     const HC = [0, 0, 0, 255];
+    // SOLS SELON L'ALTITUDE (map.solsNiveau, ex. le volcan : herbe de montagne puis terre sèche en montant ; rocaille en
+    // gravier puis en roche craquelée) : une image commune par niveau de relief, null = celle de la carte
+    const parNiveau = L => (TX && L ? L.map(n => (n ? TX.pixels('commun/' + n) : null)) : null);
+    const HERBE_NIV = parNiveau(map.solsNiveau && map.solsNiveau.herbe), ROC_NIV = parNiveau(map.solsNiveau && map.solsNiveau.rocaille);
     const herbeTx = (tx, ty, px, py, sh, en, ed) => {
-      const P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE, q = texO(P, px, py), d = P.d;
+      let P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE;
+      if (HERBE_NIV) { const Q = HERBE_NIV[altCase(tx, ty)]; if (Q) P = Q; }
+      const q = texO(P, px, py), d = P.d;
       let r = d[q], g = d[q + 1], b = d[q + 2];
       if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) { const q2 = texO(TX_CHEMIN, px, py), d2 = TX_CHEMIN.d; r = r + (d2[q2] - r) * 0.55; g = g + (d2[q2 + 1] - g) * 0.55; b = b + (d2[q2 + 2] - b) * 0.55; }   // (bord de chemin)
       const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (24 - r) * k; g = g + (50 - g) * k; b = b + (60 - b) * k; }
@@ -99,6 +105,7 @@
     // lave refroidie : sur une falaise basse (loin du cratère), les fissures de lave de l'image deviennent sombres
     const refroidie = (c, k) => { if (k <= 0) return c; const chaud = Math.max(0, Math.min(1, (c[0] - c[2] - 70) / 120)) * (c[0] > 150 ? 1 : 0.5); if (chaud <= 0) return c; const f = chaud * k, g = (c[0] + c[1] + c[2]) / 3 * 0.45; return [c[0] + (g + 18 - c[0]) * f, c[1] + (g + 8 - c[1]) * f, c[2] + (g - c[2]) * f, c[3]]; };
     const solVar = (c, k, px, py) => {
+      if (k === 1 && ROC_NIV) { const Q = ROC_NIV[altCase(px >> 4, py >> 4)]; if (Q) return TX.lit(Q, px, py); }
       if (k === 2 && TX_CENDRES) return TX.lit(TX_CENDRES, px, py);
       if (k === 1 && TX_DESSUS) return TX.lit(TX_DESSUS, px, py);
       if (k === 1) {   // rocaille : terre grisée, taches de gravier plus sombres et plus claires
@@ -823,12 +830,12 @@
     for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
       const inf = World.info(map.rows[ty][tx]);
       if (!inf.obj) continue;
-      let kind = (TH && TH.objMap && TH.objMap[inf.obj]) || inf.obj;
+      let kind = (map.objMap && map.objMap[inf.obj]) || (TH && TH.objMap && TH.objMap[inf.obj]) || inf.obj;   // (map.objMap : la carte remplace un décor, ex. des pins sur le volcan)
       let o = OBJ[kind];
       let v = inf.v != null ? inf.v : Math.floor(hash(tx, ty, 60) * o.n);   // (variante imposée par la case : puits plein / vide)
       if (inf.obj === 'tree' && kind !== 'tree') {
         const h = hash(tx, ty, 60);
-        if (TH.trees2) { const tot = TH.trees2.reduce((a, t) => a + t[1], 0); let r = h * tot; v = TH.trees2[0][0]; for (const [tv, w] of TH.trees2) { if (r < w) { v = tv; break; } r -= w; } }
+        if (TH && TH.trees2) { const tot = TH.trees2.reduce((a, t) => a + t[1], 0); let r = h * tot; v = TH.trees2[0][0]; for (const [tv, w] of TH.trees2) { if (r < w) { v = tv; break; } r -= w; } }
       } else if (inf.obj === 'tree') {
         const h = hash(tx, ty, 60);
         if (TH) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; v = TH.trees[0][0]; for (const [tv, w] of TH.trees) { if (r < w) { v = tv; break; } r -= w; } }
@@ -858,15 +865,16 @@
     // FORÊTS EN VRAIS ARBRES : là où le jeu peignait une voûte de feuillage (cases « # »), des arbres dessinés serrés en
     // quinconce (une case sur quatre, et chaque case du premier rang, celui qu'on voit de face) ; variantes du thème
     if (FORET_ARBRES) {
-      const pick = (tx, ty) => { const h = hash(tx, ty, 60); if (TH && TH.trees) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; for (const [tv, w] of TH.trees) { if (r < w) return tv; r -= w; } return TH.trees[0][0]; } return Math.floor(h * 3); };
+      const KF = (map.objMap && map.objMap.tree) || 'tree';   // (forêt de pins, etc. : map.objMap)
+      const pick = (tx, ty) => { const h = hash(tx, ty, 60); if (KF !== 'tree') return h < 0.5 ? 0 : 1; if (TH && TH.trees) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; for (const [tv, w] of TH.trees) { if (r < w) return tv; r -= w; } return TH.trees[0][0]; } return Math.floor(h * 3); };
       for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
         if (tAt(tx, ty) !== TER.canopy) continue;
         const devant = tAt(tx, ty + 1) !== TER.canopy, quinconce = ty % 3 === 0 && (tx + ((ty / 3) & 1) * 2) % 4 === 0;   // (arbres 3 fois plus grands que le héros)
         if (!(quinconce || (devant && tx % 3 === 0))) continue;
         const v = pick(tx, ty);
-        if (!World.objReady('tree', v)) { World.obj('tree', v); yield; }
+        if (!World.objReady(KF, v)) { World.obj(KF, v); yield; }
         const jx = Math.round((hash(tx, ty, 64) - 0.5) * 6), jy = devant ? 0 : Math.round((hash(tx, ty, 65) - 0.5) * 4);
-        objs.push({ kind: 'tree', v, flip: hash(tx, ty, 63) < 0.5, spr: World.obj('tree', v), sprs: null, fps: 4, x: tx * TS + 8 + jx, y: ty * TS + 16 + jy, sort: ty + 0.5 + jy / 16, big: true, tx, ty, flat: false });
+        objs.push({ kind: KF, v, flip: hash(tx, ty, 63) < 0.5, spr: World.obj(KF, v), sprs: null, fps: 4, x: tx * TS + 8 + jx, y: ty * TS + 16 + jy, sort: ty + 0.5 + jy / 16, big: true, tx, ty, flat: false });
       }
     }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)

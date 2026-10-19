@@ -134,8 +134,20 @@ COMMUN.update({
     'maison_coussins': (_I('18-09-00 (2)'), 5),
     'maison_frigo': (_I('18-09-00'), 4), 'maison_tonneau': (_I('18-09-00'), 8),
 })
+# planche MONTAGNES (mont_) : plantes, rochers, entrée de grotte ; sols (carreaux rendus raccordables : SOLS_PLANCHE)
+_M = lambda n: 'Montagnes/photo_2026-10-19_18-08-' + n + '.jpg'
+COMMUN.update({
+    'mont_sapin': (_M('57 (2)'), 1), 'mont_buisson': (_M('57 (2)'), 2), 'mont_arbuste_sec': (_M('57 (2)'), 3), 'mont_herbes_hautes': (_M('57 (2)'), 4),
+    'mont_herbes_seches': (_M('57 (2)'), 5), 'mont_herbe_rousse': (_M('57 (2)'), 6), 'mont_edelweiss': (_M('57 (2)'), 7), 'mont_fleurs_violettes': (_M('57 (2)'), 8),
+    'mont_buisson_baies': (_M('57 (2)'), 9),
+    'mont_grotte': (_M('57 (3)'), 5),
+    'mont_petit_rocher': (_M('57'), 0), 'mont_rocher': (_M('57'), 1), 'mont_gros_rocher': (_M('57'), 2), 'mont_aiguille': (_M('57'), 4),
+    'mont_eboulis_gros': (_M('57'), 5), 'mont_rocher_mousse': (_M('57'), 6), 'mont_eboulis': (_M('57'), 7), 'mont_cairn': (_M('57'), 8),
+    'mont_gravier': (_M('55 (2)'), 2), 'mont_roche_craquelee': (_M('55 (2)'), 4), 'mont_herbe_alpine': (_M('55 (2)'), 6), 'mont_terre_seche': (_M('55 (2)'), 7),
+})
+SOLS_PLANCHE = {'mont_gravier', 'mont_roche_craquelee', 'mont_herbe_alpine', 'mont_terre_seche'}
 # taille maximale de la copie (plus grand côté) pour les grands objets des planches ; sinon 160 px
-GRAND = {'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
+GRAND = {'mont_sapin': 220, 'mont_grotte': 200, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
 SOLS_COMMUN = {'herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre', 'sable_dunes',
                'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'}
 
@@ -230,6 +242,18 @@ def planche(f):
     return _PLANCHES[f]
 
 
+def raccordable(im, n=256):
+    """Carreau de sol d'une planche -> texture qui se répète sans couture : le bord irrégulier est rogné, puis le carreau
+    est fondu avec lui-même décalé d'une demi-taille (au bord, c'est le milieu du carreau qui se raccorde)."""
+    import numpy as np
+    w, h = im.size; m = int(min(w, h) * 0.09)
+    a = np.array(im.convert('RGB').crop((m, m, w - m, h - m)).resize((n, n), Image.LANCZOS)).astype(float)
+    b = np.roll(np.roll(a, n // 2, 0), n // 2, 1)
+    t = np.minimum(np.arange(n), n - 1 - np.arange(n)) / (n / 2)
+    k = np.clip(np.minimum.outer(t, t) * 2.2, 0, 1)[..., None]
+    return Image.fromarray((a * k + b * (1 - k)).astype('uint8'), 'RGB')
+
+
 def morceau(f, k):
     im, ordre = planche(f)
     ks = k if isinstance(k, list) else [k]
@@ -251,6 +275,10 @@ def optimiser_commun():
             print('absent :', rel); continue
         cible = os.path.join(dst, nom + '.png')
         if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv:
+            continue
+        if part is not None and nom in SOLS_PLANCHE:   # sol d'une planche : texture raccordable
+            out = raccordable(morceau(f, part)); out.save(cible, optimize=True)
+            print('%-24s -> %4dx%-4d  %4d Ko (sol)' % (nom, out.width, out.height, os.path.getsize(cible) // 1024))
             continue
         if part is not None:   # objet d'une planche (fond vert)
             im = morceau(f, part); w, h = im.size; k = min(1.0, GRAND.get(nom, 160) / max(w, h))

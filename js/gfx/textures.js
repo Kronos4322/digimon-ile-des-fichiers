@@ -27,7 +27,11 @@
       'ville_sacs', 'ville_pot_arbuste', 'ville_buis',
       'maison_tableau', 'maison_vase_fleurs', 'maison_lit', 'maison_chevet', 'maison_armoire', 'maison_tabouret',
       'maison_coffre_jouets', 'maison_etagere_murale', 'maison_bureau', 'maison_bibliotheque', 'maison_tapis', 'maison_bibliotheque_basse',
-      'maison_lampadaire', 'maison_plante', 'maison_coussins', 'maison_frigo', 'maison_tonneau'],
+      'maison_lampadaire', 'maison_plante', 'maison_coussins', 'maison_frigo', 'maison_tonneau',
+      // montagne : plantes, rochers, entrée de grotte, sols (carreaux rendus raccordables)
+      'mont_sapin', 'mont_buisson', 'mont_arbuste_sec', 'mont_herbes_hautes', 'mont_herbes_seches', 'mont_herbe_rousse', 'mont_edelweiss', 'mont_fleurs_violettes', 'mont_buisson_baies',
+      'mont_grotte', 'mont_petit_rocher', 'mont_rocher', 'mont_gros_rocher', 'mont_aiguille', 'mont_eboulis_gros', 'mont_rocher_mousse', 'mont_eboulis', 'mont_cairn',
+      'mont_gravier', 'mont_roche_craquelee', 'mont_herbe_alpine', 'mont_terre_seche'],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
@@ -44,6 +48,12 @@
     falaise_basalte: [80, 64], paroi_cratere: [80, 64], escalier: [48, 64],
     pic_1: { h: 34 }, pic_2: { h: 30 }, pic_3: { h: 32 }, rocher_magma: { w: 24 }, fumerolle: { w: 18 }, cone_lave: { w: 26 },
     plante_feu_1: { h: 16 }, plante_feu_2: { h: 14 }, plante_feu_3: { h: 16 },
+    // montagne (le héros : 34 px) : posés par étage sur le Mont Miharashi (maps/miharashi.js)
+    mont_buisson: { h: 26 }, mont_arbuste_sec: { h: 32 }, mont_herbes_hautes: { h: 24 }, mont_herbes_seches: { h: 22 }, mont_herbe_rousse: { h: 22 },
+    mont_edelweiss: { h: 13 }, mont_fleurs_violettes: { h: 14 }, mont_buisson_baies: { h: 24 }, mont_grotte: { h: 58 },
+    mont_petit_rocher: { h: 12 }, mont_rocher: { h: 20 }, mont_gros_rocher: { h: 32 }, mont_aiguille: { h: 46 }, mont_eboulis_gros: { h: 26 },
+    mont_rocher_mousse: { h: 24 }, mont_eboulis: { h: 18 }, mont_cairn: { h: 28 },
+    mont_gravier: [128, 128], mont_roche_craquelee: [128, 128], mont_herbe_alpine: [128, 128], mont_terre_seche: [128, 128],
   };
   // objets du jeu remplacés par une image (par dossier) : un nom, ou plusieurs (variante choisie selon la case)
   // ARBRES DU JEU dessinés avec les images du dossier commun : [type][variante] -> image (variantes de OBJ.tree : 0-2 verts,
@@ -54,7 +64,7 @@
       'arbre_chene', 'arbre_chene_clair', 'arbre_neige_rond', 'arbre_neige_sapin3', 'arbre_cerisier', 'arbre_fleurs', 'arbre_automne_brun', 'arbre_neige_nu'],
     oak: ['arbre_chene', 'arbre_chene_automne', 'arbre_automne_brun', 'arbre_neige_chene'],
     birch: ['arbre_bouleau', 'arbre_bouleau_automne', 'arbre_automne_brun', 'arbre_neige_bouleau'],
-    pine: ['arbre_sapin', 'arbre_sapin', 'arbre_sapin', 'arbre_neige_sapin'],
+    pine: ['mont_sapin', 'arbre_sapin', 'mont_sapin', 'arbre_neige_sapin'],
     // (le joueur veut SES arbres partout : toutes les autres espèces d'arbres du jeu prennent l'image la plus proche ;
     //  seuls les palmiers et cocotiers restent, faute d'image)
     saule: ['arbre_saule'], pintordu: ['arbre_sapin'], bigtree: ['arbre_chene', 'arbre_chene_clair'],

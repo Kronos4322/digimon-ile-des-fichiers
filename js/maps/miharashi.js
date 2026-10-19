@@ -256,7 +256,23 @@
     [['aiguille', 0, 1.2], ['aiguille', 1, 1.2], ['eboulis', 0, 0.9], ['blocs', 1, 0.6], ['pintordu', 0, 0.3], ['pousse', 2, 1], ['buissonfleuri', 2, 0.8], ['cristaux', 2, 0.3]],
     [['aiguille', 2, 1.4], ['eboulis', 0, 1], ['blocs', 1, 0.6], ['aiguille', 0, 0.8], ['cristaux', 0, 0.3]],
     [['aiguille', 2, 2], ['eboulis', 0, 1.2], ['cristaux', 0, 0.6], ['blocs', 1, 0.4]]];
-  function decorEtages(g, m, d = 1, skip) {
+  // LA MONTAGNE DU JOUEUR (images de sa planche « Montagnes », gfx/textures.js) : au pied, buissons, herbes hautes et
+  // fleurs ; plus haut, herbes sèches, edelweiss, arbustes secs et rochers ; puis herbes rousses, gros blocs, éboulis et
+  // aiguilles ; près du cratère, aiguilles et éboulis. [décor, variante, poids, praticable]
+  const ETAGES_MONT = [null,
+    [['tex_commun_mont_buisson', 0, 2], ['tex_commun_mont_herbes_hautes', 0, 2.5, true], ['tex_commun_mont_fleurs_violettes', 0, 1.2, true], ['tex_commun_mont_buisson_baies', 0, 1],
+     ['tex_commun_mont_rocher_mousse', 0, 1], ['fougeres', 0, 1.2], ['rochersmousse', 1, 0.6]],
+    [['tex_commun_mont_herbes_seches', 0, 2, true], ['tex_commun_mont_edelweiss', 0, 1, true], ['tex_commun_mont_arbuste_sec', 0, 1.2], ['tex_commun_mont_rocher', 0, 1],
+     ['tex_commun_mont_petit_rocher', 0, 1], ['tex_commun_mont_eboulis', 0, 0.7], ['pintordu', 0, 0.35], ['tex_commun_mont_cairn', 0, 0.2]],
+    [['tex_commun_mont_herbe_rousse', 0, 1.6, true], ['tex_commun_mont_herbes_seches', 0, 1, true], ['tex_commun_mont_gros_rocher', 0, 0.8], ['tex_commun_mont_eboulis_gros', 0, 0.8],
+     ['tex_commun_mont_aiguille', 0, 1], ['aiguille', 1, 0.8], ['tex_commun_mont_arbuste_sec', 0, 0.6], ['tex_commun_mont_petit_rocher', 0, 0.6]],
+    [['tex_commun_mont_aiguille', 0, 1.2], ['aiguille', 2, 1.2], ['tex_commun_mont_eboulis', 0, 1], ['tex_commun_mont_herbe_rousse', 0, 0.8, true], ['tex_commun_mont_eboulis_gros', 0, 0.6]],
+    [['aiguille', 2, 1.6], ['tex_commun_mont_eboulis', 0, 1], ['tex_commun_mont_aiguille', 0, 0.8]]];
+  // sols selon l'altitude (gfx/terrain.js, map.solsNiveau) : herbe de montagne puis terre sèche ; rocaille en terre, gravier,
+  // puis roche craquelée près du sommet (les cendres du cratère gardent leur image)
+  const SOLS_MONT = { herbe: [null, null, 'mont_herbe_alpine', 'mont_herbe_alpine', 'mont_terre_seche', 'mont_terre_seche'],
+    rocaille: [null, 'mont_terre_seche', 'mont_terre_seche', 'mont_gravier', 'mont_roche_craquelee', 'mont_roche_craquelee'] };
+  function decorEtages(g, m, d = 1, skip, TAB = ETAGES) {
     const W = g.w, H = g.h, A = m.alt; if (!A) return;
     const libre = (x, y) => { const c = g.get(x, y); return c === '.' || c === ',' || c === 'j' || c === 'n' || c === 'ǥ' || c === 'ţ'; };
     const CH = m.chemins || new Set();
@@ -284,12 +300,13 @@
       return V.some(v => !vu.has(v.join()));
     };
     for (let y = 3; y < H - 3; y++) for (let x = 3; x < W - 3; x++) {
-      const L = A[y * W + x]; if (!(L >= 1 && L <= 5) || !ETAGES[L] || !libre(x, y) || pres(x, y) || occ.has(x + ',' + y) || (skip && skip(x, y))) continue;
+      const L = A[y * W + x]; if (!(L >= 1 && L <= 5) || !TAB[L] || !libre(x, y) || pres(x, y) || occ.has(x + ',' + y) || (skip && skip(x, y))) continue;
       const nb = N(x, y, 990 + L, 0.12), dens = [0, 0.1, 0.085, 0.08, 0.075, 0.07][L] * d * (nb > 0.56 ? 2.4 : nb > 0.45 ? 1 : 0.35);   // (en bosquets, pas en semis régulier)
       if (Hh(x, y, 991 + L) > dens) continue;
-      const T = ETAGES[L], tot = T.reduce((a, t) => a + t[2], 0); let r = Hh(x, y, 993) * tot, pick = T[0];
+      const T = TAB[L], tot = T.reduce((a, t) => a + t[2], 0); let r = Hh(x, y, 993) * tot, pick = T[0];
       for (const t of T) { if (r < t[2]) { pick = t; break; } r -= t[2]; }
-      const plat = DW.World.PLATS && DW.World.PLATS.has(pick[0]);
+      if (!DW.World.OBJ[pick[0]]) continue;   // (image du joueur absente : rien)
+      const plat = (DW.World.PLATS && DW.World.PLATS.has(pick[0])) || pick[3] === true;
       if (!place(x, y, pick[0])) continue;
       if (!plat && coupe(x, y)) continue;
       if (!plat) bloc.add(x + ',' + y);
@@ -392,7 +409,8 @@
       foot: m.exits && m.exits.right ? [W - 4, Math.round(m.exits.right[0] + 2)] : undefined,   // (on arrive du Village des Yokomon, à l'est)
       surface: (x, y, L) => (L === 0 ? g.get(x, y) : Hh(x, y, 946 + L) < 0.025 ? 'T' : N(x, y, 950 + L, 0.15) > 0.72 ? ',' : L >= 2 && N(x, y, 952 + L, 0.1) > 0.62 ? '=' : '.') });
     drawRoads(g, m, id);
-    decorEtages(g, m, 0.7);
+    m.solsNiveau = { herbe: SOLS_MONT.herbe };
+    decorEtages(g, m, 0.7, null, ETAGES_MONT);
     // bosquets de la jungle du pied du mont, plus denses vers l'ouest
     const high = (x, y) => m.alt && m.alt[y * W + x] > 0;
     sow(g, 3, 3, W - 4, H - 4, 'T', 0.03, 1271, c => c === '.' || c === ',', (x, y) => high(x, y) || nearRoad(id, x, y, 3) || Hh(x, y, 1272) > 1 - (1 - x / W) * 0.7);
@@ -418,6 +436,8 @@
   function mont(g, m) {
     const id = 'miharashi4', W = g.w;
     m.textures = 'volcan';   // (images dessinées d'assets/volcan quand elles existent : gfx/textures.js)
+    m.objMap = { tree: 'pine' };   // (des pins sur le volcan, pas les arbres de saison : cerisiers en fleur...)
+    m.solsNiveau = SOLS_MONT;
     const foot = (x, y) => Math.hypot((x - 48) / 50, (y - 40) / 36) < 1;
     const ex10 = exitCells(m, 10);
     const prot = base(g, m, id, (x, y, X, Y) => (foot(x, y) || ex10.has(x + ',' + y) ? (N(X, Y, 961, 0.12) > 0.68 ? ',' : '.') : Hh(X, Y, 964) < 0.75 ? '#' : 'T'));
@@ -468,7 +488,8 @@
       let arbre = false; for (let dy = -3; dy <= 4 && !arbre; dy++) for (let dx = -3; dx <= 3; dx++) { const I = DW.World.CH[g.get(x + dx, y + dy)]; if (I && (I.obj === 'tree' || I.t === 'canopy')) { arbre = true; break; } }
       if (sable && !arbre && !m.objects.some(o => Math.abs(o.x - x) < 4 && Math.abs(o.y - y) < 4)) m.objects.push({ kind: 'cocotier', v: Hh(x, y, 1282) < 0.5 ? 0 : 1, x, y, w: 1, h: 1, flip: Hh(x, y, 1283) < 0.5 });
     }
-    decorEtages(g, m, 1, (x, y) => Math.hypot(x - cx, (y - cy) * 1.4) < 6);   // (jamais devant Meramon)
+    grotte(g, m);
+    decorEtages(g, m, 1, (x, y) => Math.hypot(x - cx, (y - cy) * 1.4) < 6, ETAGES_MONT);   // (jamais devant Meramon)
     dangers(g, m, cx, cy, crater);
     // ESPACEMENT : rochers magmatiques et fumerolles à 2 cases au moins les uns des autres, et jamais collés à un objet
     const pres = (x, y, r) => m.objects.some(o => x >= o.x - r && x < o.x + (o.w || 1) + r && y >= o.y - r && y < o.y + (o.h || 1) + r);
@@ -490,6 +511,34 @@
       if (OBJ['tex_volcan_plante_feu_' + n]) m.objects.push({ kind: 'tex_volcan_plante_feu_' + n, v: 0, x, y, w: 1, h: 1, walk: true });
     }
     return R;
+  }
+
+  // L'ENTRÉE DES SOUTERRAINS (image « mont_grotte ») : une grotte au pied d'une haute paroi du premier étage, la plus
+  // proche de l'arrivée (à l'est), loin des escaliers et des sentiers ; on lit ce qu'on y trouve en lui parlant
+  function grotte(g, m) {
+    if (!DW.World.OBJ.tex_commun_mont_grotte) return;
+    const W = g.w, H = g.h, A = m.alt, CH = m.chemins || new Set(), ax = W - 4, ay = Math.round(m.exits.right[0] + 2);
+    let best = null, bd = 1e9;
+    for (let y = 6; y < H - 6; y++) for (let x = 6; x < W - 7; x++) {
+      if (A[y * W + x] !== 1 || A[y * W + x + 1] !== 1) continue;
+      if (![g.get(x, y), g.get(x + 1, y), g.get(x, y + 1), g.get(x + 1, y + 1)].every(WALK) || CH.has(y * W + x) || CH.has(y * W + x + 1)) continue;
+      let paroi = true;   // (une vraie paroi au-dessus : 3 cases de roche, un peu plus large que la grotte)
+      for (let k = 1; k <= 3 && paroi; k++) for (const xx of [x - 1, x, x + 1, x + 2]) if (g.get(xx, y - k) !== ROCK) { paroi = false; break; }
+      if (!paroi) continue;
+      let pris = false;
+      for (let dy = -5; dy <= 5 && !pris; dy++) for (let dx = -5; dx <= 6; dx++) if (g.get(x + dx, y + dy) === '^') { pris = true; break; }
+      if (pris || m.objects.some(o => Math.abs(o.x - x) < 4 && Math.abs(o.y - y) < 4)) continue;
+      const dd = Math.hypot(x - ax, y - ay); if (dd < bd) { bd = dd; best = [x, y]; }
+    }
+    if (!best) return;
+    const [x, y] = best;
+    // (les arbres devant l'entrée sont abattus : on doit la voir de loin)
+    for (let yy = y - 1; yy <= y + 4; yy++) for (let xx = x - 3; xx <= x + 4; xx++) { const I = DW.World.CH[g.get(xx, yy)]; if (I && (I.obj === 'tree' || I.t === 'canopy') && A[yy * W + xx] === 1) g.set(xx, yy, '.'); }
+    m.objects.push({ kind: 'tex_commun_mont_grotte', x, y, w: 2, h: 1 });
+    m.signs = m.signs || {};
+    const msg = "Une grotte s'ouvre au pied de la paroi... Un souffle chaud et humide monte des profondeurs : ce sont les souterrains de l'île. Il fait bien trop noir pour s'y aventurer, pour l'instant.";
+    m.signs[x + ',' + y] = msg; m.signs[(x + 1) + ',' + y] = msg;
+    m.grotte = [x, y];
   }
 
   DW.Mih = { desert, village, route, mont, MONT, offsets, shore, levelOf, roads, ZONE };
