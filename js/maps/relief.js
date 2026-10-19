@@ -225,17 +225,22 @@
       const X = x * TS, Y = y * TS;
       c.fillStyle = `rgba(255,250,210,${0.035 * L})`; c.fillRect(X, Y, TS, TS);
       const n = at(x, y - 1), e = at(x + 1, y), w = at(x - 1, y);
+      // sur un sol de roche ou de cendres (volcan : sol 1 et 2, ou carte à images dessinées) : un rebord de ROCHE,
+      // pas un liseré d'herbe verte (il ressortait en traits clairs, presque cyan, sur la cendre sombre)
+      const I = DW.World.CH[m.rows[y][x]], roc = !!((I && I.sol) || (m.textures && L >= 3));
+      const C = roc ? { ombre: 'rgba(10,6,4,0.45)', levre: 'rgba(34,26,22,0.95)', brin: ['#7a6a5c', '#5e5046'], clair: '#9a8676', sombre: '#2a201c', trait: '#8a7868' }
+        : { ombre: 'rgba(16,40,20,0.42)', levre: 'rgba(70,52,34,0.95)', brin: ['#b8e07a', '#8cc860'], clair: '#9a7448', sombre: '#4a3220', trait: '#a8d870' };
       if (n >= 0 && n < L && !rockAt(x, y - 1)) {
-        c.fillStyle = 'rgba(16,40,20,0.42)'; c.fillRect(X, Y - 3, TS, 3);
-        c.fillStyle = 'rgba(70,52,34,0.95)'; c.fillRect(X, Y - 1, TS, 2);
-        for (let k = 0; k < TS; k += 2) { const h = 1 + Math.floor(Hh2(x * 16 + k, y, 501) * 3); c.fillStyle = Hh2(x * 16 + k, y, 502) < 0.5 ? '#b8e07a' : '#8cc860'; c.fillRect(X + k, Y + 1, 2, h); }
+        c.fillStyle = C.ombre; c.fillRect(X, Y - 3, TS, 3);
+        c.fillStyle = C.levre; c.fillRect(X, Y - 1, TS, 2);
+        for (let k = 0; k < TS; k += 2) { const h = 1 + Math.floor(Hh2(x * 16 + k, y, 501) * (roc ? 2 : 3)); c.fillStyle = C.brin[Hh2(x * 16 + k, y, 502) < 0.5 ? 0 : 1]; c.fillRect(X + k, Y + 1, 2, h); }
       }
       for (const [d, nb] of [[1, e], [-1, w]]) if (nb >= 0 && nb < L && !rockAt(x + d, y)) {
         const fx = d > 0 ? X + TS - 4 : X;
-        const g = c.createLinearGradient(fx, 0, fx + 4, 0); g.addColorStop(d > 0 ? 0 : 1, '#9a7448'); g.addColorStop(d > 0 ? 1 : 0, '#4a3220');
+        const g = c.createLinearGradient(fx, 0, fx + 4, 0); g.addColorStop(d > 0 ? 0 : 1, C.clair); g.addColorStop(d > 0 ? 1 : 0, C.sombre);
         c.fillStyle = g; c.fillRect(fx, Y, 4, TS);
-        c.fillStyle = 'rgba(16,40,20,0.35)'; c.fillRect(d > 0 ? X + TS : X - 3, Y, 3, TS);
-        c.fillStyle = '#a8d870'; c.fillRect(d > 0 ? X + TS - 5 : X + 4, Y, 1, TS);
+        c.fillStyle = roc ? 'rgba(10,6,4,0.4)' : 'rgba(16,40,20,0.35)'; c.fillRect(d > 0 ? X + TS : X - 3, Y, 3, TS);
+        c.fillStyle = C.trait; c.fillRect(d > 0 ? X + TS - 5 : X + 4, Y, 1, TS);
       }
     }
   }

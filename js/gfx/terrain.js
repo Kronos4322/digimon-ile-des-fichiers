@@ -281,24 +281,37 @@
           let x0 = x, x1 = x, y0 = y, y1 = y; const q = [[x, y]]; vu.add(y * Wm + x);
           while (q.length) { const [a, c] = q.pop(); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, c); y1 = Math.max(y1, c);
             for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = a + dx, ny = c + dy; if (nx < 0 || ny < 0 || nx >= Wm || ny >= map.h || vu.has(ny * Wm + nx) || tAt(nx, ny) !== TER.stairs) continue; vu.add(ny * Wm + nx); q.push([nx, ny]); } }
-          let top = y0, bot = y1;
+          let top = y0, bot = y1, mur = 999;
           for (const cx of [x0 - 1, x1 + 1]) for (let yy = y0; yy <= y1 + 1; yy++) if (tAt(cx, yy) === TER.rock) {
             let a = yy; while (a > 0 && tAt(cx, a - 1) === TER.rock) a--; let c = yy; while (c < map.h - 1 && tAt(cx, c + 1) === TER.rock) c++;
-            top = Math.min(top, a); bot = Math.max(bot, c); break;
+            top = Math.min(top, a); bot = Math.max(bot, c); mur = Math.min(mur, a); break;
           }
-          const ch = map.rows[Math.max(0, top - 1)][Math.min(Wm - 1, x0 + 1)], I = World.CH[ch];
-          const R = { x0, x1, y0: top, y1: bot, fond: (I && I.sol === 2 ? TX_CENDRES : TX_DESSUS) || TX_CENDRES || TX_DESSUS };
+          if (mur === 999) mur = top;
+          const ch = map.rows[Math.max(0, Math.min(top, mur) - 1)][Math.min(Wm - 1, x0 + 1)], I = World.CH[ch], Lh = altCase(x0 + 1, mur - 1);
+          const R = { x0, x1, y0: top, y1: bot, mur, fond: (I && I.sol === 2 ? TX_CENDRES : TX_DESSUS) || TX_CENDRES || TX_DESSUS, froid: Lh <= 2 ? 1 : Lh <= 3 ? 0.6 : 0 };
           for (let yy = top; yy <= bot; yy++) for (let xx = x0; xx <= x1; xx++) ESCV.set(yy * Wm + xx, R);
         }
       }
       return ESCV.get(ty * map.w + tx) || null;
     };
+    // L'escalier est POSÉ DEVANT la falaise : derrière lui, le plateau au-dessus du bord et la paroi en dessous (un peu
+    // dans l'ombre) ; ses marches gardent leur proportion (environ 8 px) : une falaise plus haute = plus de marches, jamais
+    // des marches étirées (la 1re et la dernière marche de l'image restent aux extrémités, celles du milieu se répètent) ;
+    // les chapeaux des piliers dépassent un peu au-dessus du bord ; ombre au pied ; lave refroidie en bas de la montagne
+    const ESC_S0 = 18.5, ESC_FIN = 58, ESC_P = (ESC_FIN - ESC_S0) / 5;   // (image « escalier » : 5 marches de 18,5 à 58 px sur 64)
     const peindreEsc = (R, tx, ty, lx, ly, px, py) => {
-      const Wd = (R.x1 - R.x0 + 1) * 16, Hs = (R.y1 - R.y0 + 1) * 16, xs = (tx - R.x0) * 16 + lx, ys = (ty - R.y0) * 16 + ly, EH = TX_ESC.h;
-      const yt = Hs <= EH * 1.4 ? ys / Hs * EH : ys < 24 ? ys : ys >= Hs - 24 ? EH - (Hs - ys) : 24 + ((ys - 24) % (EH - 48));   // (très haut : le milieu se répète)
-      const e = TX.lit(TX_ESC, xs / Wd * TX_ESC.w, yt);
-      let col = R.fond ? TX.lit(R.fond, px, py) : [60, 50, 46];
-      if (e[3] > 40) col = e[3] > 230 ? e : Art.mix(col, e, e[3] / 255);
+      const EH = TX_ESC.h, k = EH / 64, xs = (tx - R.x0) * 16 + lx, Y = ty * 16 + ly;
+      const haut = R.mur * 16 - 5, bas = (R.y1 + 1) * 16, L = bas - haut, n = Math.max(2, Math.round(L / 8.5)), pas = L / n;
+      let yi;
+      if (Y < haut) yi = ESC_S0 - (haut - Y);
+      else if (Y >= bas) yi = ESC_FIN + (Y - bas);
+      else { const u = (Y - haut) / pas, kk = Math.min(n - 1, Math.floor(u)), j = kk === 0 ? 0 : kk === n - 1 ? 4 : 1 + (kk - 1) % 3; yi = ESC_S0 + (j + (u - kk)) * ESC_P; }
+      let col;
+      if (Y < R.mur * 16 || !TX_FALAISE) col = R.fond ? TX.lit(R.fond, px, py) : [60, 50, 46];
+      else { const wy = Y - R.mur * 16, Hw = (R.y1 + 1 - R.mur) * 16, FH = TX_FALAISE.h, yt = Hw === FH ? wy : wy < 16 ? wy : wy >= Hw - 16 ? FH - (Hw - wy) : 16 + ((wy - 16) % (FH - 32)); col = Art.mix(TX.lit(TX_FALAISE, px, yt), [0, 0, 0], 0.3); }
+      if (yi >= 0 && yi < 64) { const e = TX.lit(TX_ESC, xs / ((R.x1 - R.x0 + 1) * 16) * TX_ESC.w, yi * k); if (e[3] > 40) col = e[3] > 230 ? e : Art.mix(col, e, e[3] / 255); }
+      if (R.froid) col = refroidie(col, R.froid);
+      if (Y >= bas - 3) col = Art.mix(col, [0, 0, 0], 0.1 * (Y - bas + 4));   // ombre au pied
       return col;
     };
     for (let py = 0; py < GH; py++) { if (py & 1) yield; for (let px = 0; px < GW; px++) {
@@ -444,6 +457,7 @@
           const FH = TX_FALAISE.h, yt = Hpx === FH ? wy : wy < 16 ? wy : wy >= Hpx - 16 ? FH - (Hpx - wy) : 16 + ((wy - 16) % (FH - 32));
           col = TX.lit(TX_FALAISE, px, yt);
           { const Lh = altCase(tx, ty - up - 1); if (Lh <= 3) col = refroidie(col, Lh <= 2 ? 1 : 0.6); }   // (en bas de la montagne : lave refroidie)
+          if (TX_ESC && lx < 7) { const RL = escalierVu(tx - 1, ty); if (RL && RL.x1 === tx - 1) col = Art.mix(col, [8, 4, 6], 0.42 * (1 - lx / 7)); }   // ombre de l'escalier sur la paroi
           if (leftE && lx < 2) col = Art.mix(col, [0, 0, 0], 0.25); else if (rightE && lx > 13) col = Art.mix(col, [0, 0, 0], 0.35);
         } else {
         // colonnes de largeur inégale (9 à 15 px), légèrement ondulées
