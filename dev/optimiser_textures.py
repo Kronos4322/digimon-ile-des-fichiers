@@ -151,6 +151,16 @@ COMMUN.update({
 })
 # (pavés : un motif régulier ; rendu raccordable en miroir, sans fondu qui doublerait les joints)
 SOLS_MIROIR = {'ville_paves'}
+# planche à PANNEAUX (Mobiliers exterieurs, 10 catégories en 5 x 2, bandeau de titre) : ('panneau', catégorie, n°)
+_E = 'Mobiliers exterieurs/photo_2026-10-19_23-15-35.jpg'
+COMMUN.update({
+    'ext_caisse': (_E, ('panneau', 2, 0)), 'ext_caisse2': (_E, ('panneau', 2, 1)),
+    'ext_distrib_rouge': (_E, ('panneau', 4, 0)), 'ext_distrib_bleu': (_E, ('panneau', 4, 1)), 'ext_distrib_blanc': (_E, ('panneau', 4, 2)),
+    'ext_boite_lettres': (_E, ('panneau', 1, 6)), 'ext_toilettes': (_E, ('panneau', 5, 1)),
+    'ext_jardiniere_verte': (_E, ('panneau', 3, 0)), 'ext_jardiniere_blanche': (_E, ('panneau', 3, 1)), 'ext_jardiniere_rose': (_E, ('panneau', 3, 2)),
+    'ext_etal_fruits': (_E, ('panneau', 8, 1)), 'ext_etal_legumes': (_E, ('panneau', 8, 2)), 'ext_etal_pain': (_E, ('panneau', 8, 3)),
+    'ext_puits': (_E, ('panneau', 9, 3)),
+})
 SOLS_PLANCHE = {'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche'}
 # taille maximale de la copie (plus grand côté) pour les grands objets des planches ; sinon 160 px
 GRAND = {'mont_sapin': 220, 'mont_grotte': 200, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
@@ -269,7 +279,35 @@ def miroir(im, n=256):
     return out
 
 
+_PANNEAUX = {}
+def panneau(f, p, cols=5, rows=2, titre=0.075):
+    """Objets d'un panneau (catégorie) d'une planche à panneaux, en RGBA recadrés, dans l'ordre de lecture du panneau."""
+    if (f, p) in _PANNEAUX: return _PANNEAUX[(f, p)]
+    import numpy as np
+    from scipy import ndimage
+    im = Image.open(f).convert('RGB'); W, H = im.size; pw, ph = W / cols, H / rows
+    x0, y0 = int((p % cols) * pw), int((p // cols) * ph)
+    a = np.array(im.crop((x0, y0, int(x0 + pw), int(y0 + ph)))).astype(int); r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    obj = ~((g > 140) & (g - np.maximum(r, b) > 60))
+    obj[:int(ph * titre) + 4] = False; obj[:, :6] = False; obj[:, -6:] = False; obj[-6:] = False   # (bandeau de titre, cadre)
+    obj = ndimage.binary_opening(obj, iterations=2)
+    lab, n = ndimage.label(ndimage.binary_dilation(obj, iterations=3))
+    bx = [(sl[0].start, sl[1].start, sl[0].stop, sl[1].stop) for i, sl in enumerate(ndimage.find_objects(lab)) if int((obj[sl] & (lab[sl] == i + 1)).sum()) >= 150]
+    bx.sort(key=lambda q: (q[0] + q[2]) / 2); rg, cur = [], []
+    for q in bx:
+        if cur and (q[0] + q[2]) / 2 - (cur[-1][0] + cur[-1][2]) / 2 > (cur[-1][2] - cur[-1][0]) * 0.5: rg.append(cur); cur = []
+        cur.append(q)
+    if cur: rg.append(cur)
+    ordre = [q for R in rg for q in sorted(R, key=lambda q: q[1])]
+    bord = ndimage.binary_dilation(~obj, iterations=2) & obj
+    gmax = np.maximum(r, b) + 8; g2 = np.where(bord & (g > gmax), gmax, g)
+    rgba = Image.fromarray(np.dstack([r, g2, b, np.where(obj, 255, 0)]).clip(0, 255).astype('uint8'), 'RGBA')
+    _PANNEAUX[(f, p)] = [rgba.crop((q[1], q[0], q[3], q[2])) for q in ordre]
+    return _PANNEAUX[(f, p)]
+
+
 def morceau(f, k):
+    if isinstance(k, tuple) and k[0] == 'panneau': return panneau(f, k[1])[k[2]]
     im, ordre = planche(f)
     ks = k if isinstance(k, list) else [k]
     y0 = min(ordre[i][0] for i in ks); x0 = min(ordre[i][1] for i in ks); y1 = max(ordre[i][2] for i in ks); x1 = max(ordre[i][3] for i in ks)

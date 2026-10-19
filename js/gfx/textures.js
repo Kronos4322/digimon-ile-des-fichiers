@@ -32,7 +32,10 @@
       'mont_sapin', 'mont_buisson', 'mont_arbuste_sec', 'mont_herbes_hautes', 'mont_herbes_seches', 'mont_herbe_rousse', 'mont_edelweiss', 'mont_fleurs_violettes', 'mont_buisson_baies',
       'mont_grotte', 'mont_petit_rocher', 'mont_rocher', 'mont_gros_rocher', 'mont_aiguille', 'mont_eboulis_gros', 'mont_rocher_mousse', 'mont_eboulis', 'mont_cairn',
       'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche',
-      'maison_aquarium', 'maison_ordinateur', 'maison_cuisiniere', 'ville_lampadaire_noir', 'ville_paves'],
+      'maison_aquarium', 'maison_ordinateur', 'maison_cuisiniere', 'ville_lampadaire_noir', 'ville_paves',
+      // mobilier extérieur (planche à 10 catégories) : caisses, distributeurs, boîte aux lettres, toilettes, jardinières, étals, puits
+      'ext_caisse', 'ext_caisse2', 'ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc', 'ext_boite_lettres', 'ext_toilettes',
+      'ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose', 'ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain', 'ext_puits'],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
@@ -85,12 +88,17 @@
     giantflower: ['fleur_cristal'], spring: ['source'], shrine: ['sanctuaire'],
     // ville : fontaines, puits, sacs, tonneaux, pots (seulement les images vues de face ; celles vues de biais gardent
     // l'ancien dessin — règle du joueur ; la fontaine du Village des Yokomon, à sec puis qui coule, garde aussi le sien)
-    well: ['ville_puits_treuil'], bigfountain: ['ville_fontaine_etages', 'ville_fontaine_vasque', 'ville_fontaine_octogone'],
+    well: ['ville_puits_treuil', 'ext_puits'], bigfountain: ['ville_fontaine_etages', 'ville_fontaine_vasque', 'ville_fontaine_octogone'],
     barrel: ['maison_tonneau', 'ville_tonneaux'], sacks: ['ville_sacs'], pottedtree: ['ville_pot_arbuste', 'ville_buis'],
     // intérieurs (vus de face)
     bed: ['maison_lit'], wardrobe: ['maison_armoire'], bookshelf: ['maison_bibliotheque', 'maison_bibliotheque_basse'],
     floorlamp: ['maison_lampadaire'], frame: ['maison_tableau'], stool: ['maison_tabouret'], shelf: ['maison_etagere_murale'],
     sidetable: ['maison_chevet'], plant: ['maison_plante', 'maison_vase_fleurs'], fridge: ['maison_frigo'],
+    // mobilier extérieur : les distributeurs gardent leur couleur selon leur rôle (0 soins PV : rouge, 1 PM : bleu, 2 nourriture :
+    // blanc) ; le panneau d'affichage de la ville et les stands des recrues gardent leur dessin (leurs variantes ont un sens)
+    crates: ['ext_caisse', 'ext_caisse2'], vending: ['ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc'], mailbox: ['ext_boite_lettres'], toilet: ['ext_toilettes'],
+    planter: ['ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose'], marketstall: ['ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain'],
+    stall: ['ext_etal_pain'], producestand: ['ext_etal_fruits'],
     toybox: ['maison_coffre_jouets'], desk: ['maison_bureau'], cushion: ['maison_coussins'], bigrug: ['maison_tapis'], rug: ['maison_tapis'],
     bigplant: ['maison_plante'], barrels: ['ville_tonneaux'], aquarium: ['maison_aquarium'], computer: ['maison_ordinateur'], oven: ['maison_cuisiniere'],
     _grandarbre: ['arbre_chene'],   // (le Grand Arbre de la Clairière : voir objets(), son passage reste dessiné par-dessus)
