@@ -250,7 +250,7 @@
   // une lèvre sombre et des brins qui débordent, une ombre portée sur le niveau bas ; à l'est et à l'ouest, un flanc
   // étroit (clair vers sombre) et son ombre ; un plateau plus haut est un peu plus lumineux. Rien sur la roche des parois
   // (rock(i) : pixel de paroi), dessinée à part.
-  function rebordsPixels(m, D, VL, rock) {
+  function rebordsPixels(m, D, VL, rock, ZE) {
     const W = m.w, H = m.h, TS = 16, GW = W * TS, GH = H * TS, Hh2 = DW.Art.hash;
     const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
     const STY = [
@@ -267,9 +267,10 @@
     const vl = (px, py) => (px < 0 || py < 0 || px >= GW || py >= GH ? 255 : VL[py * GW + px]);
     const roche = (px, py) => px < 0 || py < 0 || px >= GW || py >= GH || rock(py * GW + px);
     for (let py = 0; py < GH; py++) { const ty = py >> 4; for (let px = 0; px < GW; px++) {
-      const i = py * GW + px, L = VL[i];
-      if (rock(i)) continue;
+      const i = py * GW + px, L = VL[i], ze = ZE ? ZE[ty * W + (px >> 4)] : 0;
+      if (rock(i) || ze === 2) continue;   // (paroi, escalier : dessinés à part)
       if (L > 0) mel(i, 255, 250, 210, 0.035 * L);   // (un plateau plus haut est un peu plus lumineux)
+      if (ze) continue;   // (juste autour d'un escalier : pas de rebord)
       // (un bord : un niveau différent à moins de 4 pixels ; sinon rien d'autre à peindre)
       const n4 = vl(px, py - 4), s3 = vl(px, py + 3), e4 = vl(px + 4, py), w4 = vl(px - 4, py);
       if (n4 === L && s3 === L && e4 === L && w4 === L && vl(px, py - 1) === L && vl(px + 1, py) === L && vl(px - 1, py) === L && vl(px, py + 1) === L) continue;

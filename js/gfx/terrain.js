@@ -98,7 +98,7 @@
     // second sol vient en grandes taches irrégulières, et la lumière varie doucement par endroits ; écrit dans NAT
     const NAT = [0, 0, 0];
     const solNaturel = (Pa, Pb, px, py) => {
-      const ox = (WLX(px, py) - 0.5) * 36, oy = (WLY(px, py) - 0.5) * 36, q = texO(Pa, px + ox, py + oy), d = Pa.d;
+      const ox = (DXS(px, py) - 0.5) * 14, oy = (DYS(px, py) - 0.5) * 14, q = texO(Pa, px + ox, py + oy), d = Pa.d;   // (déformation lente et douce : pas d'étirement)
       let r = d[q], g = d[q + 1], b = d[q + 2];
       if (Pb) {
         let w = (S8(px, py) - 0.42) / 0.16; w = w < 0 ? 0 : w > 1 ? 1 : w; w = w * w * (3 - 2 * w) * 0.9;
@@ -142,6 +142,7 @@
     const WLX = half((x, y) => noise(x * 0.022, y * 0.022, 3)), WLY = half((x, y) => noise(x * 0.022, y * 0.022, 4));
     const G5 = half((x, y) => fbm(x * 0.035, y * 0.035, 5)), D7 = half((x, y) => fbm(x * 0.06, y * 0.06, 7));
     const S8 = half((x, y) => fbm(x * 0.04, y * 0.04, 8)), S9 = half((x, y) => fbm(x * 0.05, y * 0.05, 9));
+    const DXS = half((x, y) => noise(x * 0.007, y * 0.007, 41)), DYS = half((x, y) => noise(x * 0.007, y * 0.007, 42));   // (sols d'altitude : déformation du motif)
     const TUFT = half((x, y) => noise(x * 0.18, y * 0.18, 313)), MID6 = half((x, y) => noise(x * 0.09, y * 0.09, 6));   // (herbe peinte : nappes et touffes)
     const L12 = half((x, y) => fbm(x * 0.04, y * 0.04, 12)), C21 = half((x, y) => fbm(x * 0.08, y * 0.08, 21));
     // thème de la zone (couleurs propres à chaque zone)
@@ -239,11 +240,12 @@
     // escaliers et des ponts ; les déplacements, eux, suivent toujours les cases.
     if (!map.indoor) {
       const RK = TER.rock, R1 = new Uint8Array(MW * MH), BORD = new Uint8Array(MW * MH);
-      for (let k = 0; k < MW * MH; k++) R1[k] = TT[k] === RK ? 1 : 0;
+      // (un escalier taillé dans la paroi compte comme de la paroi : le contour lissé passe derrière lui sans coupure)
+      for (let k = 0; k < MW * MH; k++) R1[k] = TT[k] === RK || TT[k] === TER.stairs ? 1 : 0;
       for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) {
         let r = 0, n = 0, bad = false;
-        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const t = tF(tx + dx, ty + dy); if (t === RK) r++; else n++; if (t === TER.stairs || t === TER.bridge) bad = true; }
-        if (r && n && !bad) BORD[ty * MW + tx] = 1;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const t = tF(tx + dx, ty + dy); if (t === RK || t === TER.stairs) r++; else n++; if (t === TER.bridge) bad = true; }
+        if (r && n && !bad && TT[ty * MW + tx] !== TER.stairs) BORD[ty * MW + tx] = 1;
       }
       const mk = (x, y) => R1[(y < 0 ? 0 : y >= MH ? MH - 1 : y) * MW + (x < 0 ? 0 : x >= MW ? MW - 1 : x)];
       // (terrain qui remplace un coin de roche rogné : la case voisine du bord le plus proche)
@@ -840,7 +842,15 @@
       }
       lap('fondus');
     }
-    if (ALTP && DW.Relief.rebordsPixels) { DW.Relief.rebordsPixels(map, D, ALTP, i => T[i] === RK); map._rebordsPix = map.alt; yield; }   // (maps/relief.js)
+    if (ALTP && DW.Relief.rebordsPixels) {   // (maps/relief.js)
+      // zone des escaliers : 2 = l'escalier et son image (rien n'y est peint), 1 = juste autour (pas de rebord)
+      const ZE = new Uint8Array(MW * MH), esc = (x, y) => tF(x, y) === TER.stairs || (ESCA && x >= 0 && y >= 0 && x < MW && y < MH && ESCA[y * MW + x]);
+      for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) {
+        if (esc(tx, ty)) { ZE[ty * MW + tx] = 2; continue; }
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (esc(tx + dx, ty + dy)) ZE[ty * MW + tx] = 1;
+      }
+      DW.Relief.rebordsPixels(map, D, ALTP, i => T[i] === RK, ZE); map._rebordsPix = map.alt; yield;
+    }
     // décor peint (fleurs, champignons)
     const flowers = [];
     const decorate = (tx, ty, kind) => {
