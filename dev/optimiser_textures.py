@@ -108,7 +108,7 @@ COMMUN = {
     'cepes': 'Champignons/photo_2026-10-19_08-45-48 (2).jpg', 'girolles': 'Champignons/photo_2026-10-19_08-45-48 (4).jpg',
     'rond_sorcieres': 'Champignons/photo_2026-10-19_08-45-48 (5).jpg', 'souche_champignons': 'Champignons/photo_2026-10-19_08-45-48.jpg', 'champi_blancs': 'Champignons/photo_2026-10-19_08-45-49 (2).jpg',
     'champi_vert': 'Champignons/photo_2026-10-19_08-45-49.jpg',
-    'tuyau': 'Objet foret/photo_2026-10-19_11-07-26 (2).jpg', 'lampadaire': 'Objet foret/photo_2026-10-19_11-07-26 (3).jpg', 'pierre_runique': 'Objet foret/photo_2026-10-19_11-07-26 (4).jpg',
+    'tuyau': 'Objet foret/photo_2026-10-19_11-07-26 (2).jpg', 'pierre_runique': 'Objet foret/photo_2026-10-19_11-07-26 (4).jpg',
     'cairn': 'Objet foret/photo_2026-10-19_11-07-27 (2).jpg', 'eboulis': 'Objet foret/photo_2026-10-19_11-07-27 (3).jpg',
     'lanterne_pierre': 'Objet foret/photo_2026-10-19_11-07-27 (4).jpg', 'borne_bleue': 'Objet foret/photo_2026-10-19_11-07-27 (5).jpg', 'borne_rouge': 'Objet foret/photo_2026-10-19_11-07-27 (6).jpg',
     'banc_simple': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (2).jpg', 'table_ronde': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (3).jpg', 'banc_courbe': 'Mobiliers exterieurs/photo_2026-10-19_11-19-18 (4).jpg',
@@ -145,6 +145,12 @@ COMMUN.update({
     'mont_eboulis_gros': (_M('57'), 5), 'mont_rocher_mousse': (_M('57'), 6), 'mont_eboulis': (_M('57'), 7), 'mont_cairn': (_M('57'), 8),
     'mont_gravier': (_M('55 (2)'), 2), 'mont_herbe_alpine': (_M('55 (2)'), 6), 'mont_terre_seche': (_M('55 (2)'), 7),
 })
+COMMUN.update({
+    'maison_aquarium': (_I('18-08-58 (2)'), 5), 'maison_ordinateur': (_I('18-08-59 (3)'), 3), 'maison_cuisiniere': (_I('18-09-00'), 3),
+    'ville_lampadaire_noir': (_U('53 (4)'), 0), 'ville_paves': (_U('52 (3)'), 0),
+})
+# (pavés : un motif régulier ; rendu raccordable en miroir, sans fondu qui doublerait les joints)
+SOLS_MIROIR = {'ville_paves'}
 SOLS_PLANCHE = {'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche'}
 # taille maximale de la copie (plus grand côté) pour les grands objets des planches ; sinon 160 px
 GRAND = {'mont_sapin': 220, 'mont_grotte': 200, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
@@ -254,6 +260,15 @@ def raccordable(im, n=256):
     return Image.fromarray((a * k + b * (1 - k)).astype('uint8'), 'RGB')
 
 
+def miroir(im, n=256):
+    """Carreau à motif régulier (pavés) -> texture raccordable : bord irrégulier rogné, puis 2 x 2 copies en miroir."""
+    w, h = im.size; m = int(min(w, h) * 0.09); half = n // 2
+    a = im.convert('RGB').crop((m, m, w - m, h - m)).resize((half, half), Image.LANCZOS)
+    out = Image.new('RGB', (n, n)); fx = a.transpose(Image.FLIP_LEFT_RIGHT)
+    out.paste(a, (0, 0)); out.paste(fx, (half, 0)); out.paste(a.transpose(Image.FLIP_TOP_BOTTOM), (0, half)); out.paste(fx.transpose(Image.FLIP_TOP_BOTTOM), (half, half))
+    return out
+
+
 def morceau(f, k):
     im, ordre = planche(f)
     ks = k if isinstance(k, list) else [k]
@@ -276,8 +291,8 @@ def optimiser_commun():
         cible = os.path.join(dst, nom + '.png')
         if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv:
             continue
-        if part is not None and nom in SOLS_PLANCHE:   # sol d'une planche : texture raccordable
-            out = raccordable(morceau(f, part)); out.save(cible, optimize=True)
+        if part is not None and (nom in SOLS_PLANCHE or nom in SOLS_MIROIR):   # sol d'une planche : texture raccordable
+            out = (miroir if nom in SOLS_MIROIR else raccordable)(morceau(f, part)); out.save(cible, optimize=True)
             print('%-24s -> %4dx%-4d  %4d Ko (sol)' % (nom, out.width, out.height, os.path.getsize(cible) // 1024))
             continue
         if part is not None:   # objet d'une planche (fond vert)

@@ -83,7 +83,7 @@
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
     const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n)).filter(Boolean);
     const sol = r => (TX ? TX.sol(map, r) : null);
-    const TX_HERBE = sol('herbe'), TX_HSECHE = sol('herbe_seche'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce');
+    const TX_HERBE = sol('herbe'), TX_HSECHE = sol('herbe_seche'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves');
     // herbe dessinée (l'herbe sèche sur les cases « j ») ; l'ombre des arbres et des falaises reste par-dessus
     // (la couleur est écrite dans HC, réutilisé : à lire aussitôt ; mêmes calculs que TX.lit et Art.mix)
     const texO = (P, x, y) => { const X = ((Math.floor(x) % P.w) + P.w) % P.w, Y = ((Math.floor(y) % P.h) + P.h) % P.h; return (Y * P.w + X) * 4; };
@@ -568,6 +568,12 @@
           }
         }
         col = c;
+      } else if (t === TER.cobble && TX_PAVES) {
+        // PAVÉS DESSINÉS (image du joueur) : bordure plus sombre contre l'herbe, mousse si la ville est à l'abandon, ombres
+        let c = TX.lit(TX_PAVES, px, py); const decay = map.decay || 0;
+        if (decay > 0 && hash(px >> 2, py >> 2, 160) < decay * 0.35) c = Art.mix(c, [70, 120, 50], 0.45);
+        if (ed <= 3 && en !== TER.cobble) c = Art.mix(c, [40, 36, 30], 0.12 * (4 - ed));
+        col = Art.mix(c, [0, 0, 0], SH[i] * 0.03);
       } else if (t === TER.cobble) {
         const row = Math.floor(py / 5), bx = Math.floor((px + (row % 2) * 3) / 7);
         const ix = (px + (row % 2) * 3) % 7, iy = py % 5, decay = map.decay || 0, hb = hash(bx, row, 160);

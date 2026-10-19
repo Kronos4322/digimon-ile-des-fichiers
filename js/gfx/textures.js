@@ -20,7 +20,7 @@
       'buisson', 'buisson_baies', 'buisson_baies2', 'buisson_fleuri', 'amanites', 'fougere_1', 'fougere_2', 'rocher_mousse', 'souche', 'tronc_couche', 'racines',
       'panneau', 'monolithe', 'sanctuaire', 'totem', 'fleur_cristal', 'cristaux', 'source',
       'fleur_1', 'fleur_2', 'fleur_3', 'fleur_4', 'fleur_5', 'fleur_6', 'fleur_7', 'fleur_8', 'fleur_9', 'fleur_10',
-      'amanites2', 'champi_violet', 'champi_bleu', 'cepes', 'girolles', 'rond_sorcieres', 'souche_champignons', 'champi_blancs', 'champi_vert', 'tuyau', 'lampadaire', 'pierre_runique', 'cairn', 'eboulis', 'lanterne_pierre', 'borne_bleue', 'borne_rouge', 'dalle_runique',
+      'amanites2', 'champi_violet', 'champi_bleu', 'cepes', 'girolles', 'rond_sorcieres', 'souche_champignons', 'champi_blancs', 'champi_vert', 'tuyau', 'pierre_runique', 'cairn', 'eboulis', 'lanterne_pierre', 'borne_bleue', 'borne_rouge', 'dalle_runique',
       'banc_simple', 'table_ronde', 'banc_courbe', 'banc_dossier', 'banc_rondin', 'table_souche', 'banc_mousse', 'table_rect', 'table_banquet', 'table_pique_nique',
       // mobilier urbain et d'intérieur (planches sur fond vert, découpées par dev/optimiser_textures.py)
       'ville_fontaine_vasque', 'ville_fontaine_octogone', 'ville_puits_treuil', 'ville_fontaine_etages', 'ville_tonneaux',
@@ -31,7 +31,8 @@
       // montagne : plantes, rochers, entrée de grotte, sols (carreaux rendus raccordables)
       'mont_sapin', 'mont_buisson', 'mont_arbuste_sec', 'mont_herbes_hautes', 'mont_herbes_seches', 'mont_herbe_rousse', 'mont_edelweiss', 'mont_fleurs_violettes', 'mont_buisson_baies',
       'mont_grotte', 'mont_petit_rocher', 'mont_rocher', 'mont_gros_rocher', 'mont_aiguille', 'mont_eboulis_gros', 'mont_rocher_mousse', 'mont_eboulis', 'mont_cairn',
-      'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche'],
+      'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche',
+      'maison_aquarium', 'maison_ordinateur', 'maison_cuisiniere', 'ville_lampadaire_noir', 'ville_paves'],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
@@ -53,6 +54,7 @@
     mont_edelweiss: { h: 13 }, mont_fleurs_violettes: { h: 14 }, mont_buisson_baies: { h: 24 }, mont_grotte: { h: 58 },
     mont_petit_rocher: { h: 12 }, mont_rocher: { h: 20 }, mont_gros_rocher: { h: 32 }, mont_aiguille: { h: 46 }, mont_eboulis_gros: { h: 26 },
     mont_rocher_mousse: { h: 24 }, mont_eboulis: { h: 18 }, mont_cairn: { h: 28 },
+    ville_paves: [96, 96],   // (pavés de la ville : une pierre fait environ 12 px du jeu)
     mont_gravier: [128, 128], mont_herbe_alpine: [128, 128], mont_terre_seche: [128, 128],
   };
   // objets du jeu remplacés par une image (par dossier) : un nom, ou plusieurs (variante choisie selon la case)
@@ -74,11 +76,11 @@
     // DÉCORS : buissons, fougères, rochers, souches, troncs, champignons lumineux, objets de forêt
     bush: ['buisson', 'buisson_baies', 'buisson_fleuri', 'buisson_baies2'], hedge: ['buisson'], junglebush: ['buisson', 'buisson_baies2'],
     buissonfleuri: ['buisson_fleuri'], rosebush: ['fleur_7'], fern: ['fougere_1', 'fougere_2'], bigfern: ['fougere_1', 'fougere_2'], fougeres: ['fougere_2', 'fougere_1'],
-    mossrock: ['rocher_mousse'], rock: ['rocher_mousse'], boulder: ['eboulis', 'rocher_mousse'], rochersmousse: ['rocher_mousse', 'eboulis'],
+    mossrock: ['rocher_mousse', 'mont_rocher_mousse'], rock: ['mont_rocher', 'mont_petit_rocher', 'mont_rocher_mousse'], boulder: ['mont_gros_rocher', 'mont_eboulis_gros'], rochersmousse: ['rocher_mousse', 'eboulis'],
     stump: ['souche'], giantstump: ['souche', 'souche_champignons'], log: ['tronc_couche'], hollowlog: ['tronc_couche'], troncouche: ['tronc_couche'], treeroots: ['racines'],
     glowshroom: ['champi_violet', 'champi_bleu'], giantshroom: ['champi_bleu', 'champi_vert'], champignons: ['cepes', 'girolles', 'champi_blancs'],
-    monolith: ['monolithe', 'pierre_runique'], totem: ['totem'], pipe: ['tuyau', 'tuyau'], lamp: ['lampadaire'], antenna: ['borne_bleue', 'borne_rouge'],
-    datapanel: ['dalle_runique', 'dalle_runique'], bench: ['banc_dossier'], steplog: ['banc_rondin'], stonelantern: ['lanterne_pierre'], cairn: ['cairn'], rubble: ['eboulis'],
+    monolith: ['monolithe', 'pierre_runique'], totem: ['totem'], pipe: ['tuyau', 'tuyau'], lamp: ['ville_lampadaire_noir'], antenna: ['borne_bleue', 'borne_rouge'],
+    datapanel: ['dalle_runique', 'dalle_runique'], bench: ['banc_dossier'], steplog: ['banc_rondin'], stonelantern: ['lanterne_pierre'], cairn: ['cairn'], rubble: ['mont_eboulis'],
     crystal: ['cristaux'], datacrystal: ['cristaux'], sign: ['panneau'], roadsign: ['panneau'], flowerbed: ['fleur_2', 'fleur_6', 'fleur_9', 'fleur_3'],
     giantflower: ['fleur_cristal'], spring: ['source'], shrine: ['sanctuaire'],
     // ville : fontaines, puits, sacs, tonneaux, pots (seulement les images vues de face ; celles vues de biais gardent
@@ -89,7 +91,8 @@
     bed: ['maison_lit'], wardrobe: ['maison_armoire'], bookshelf: ['maison_bibliotheque', 'maison_bibliotheque_basse'],
     floorlamp: ['maison_lampadaire'], frame: ['maison_tableau'], stool: ['maison_tabouret'], shelf: ['maison_etagere_murale'],
     sidetable: ['maison_chevet'], plant: ['maison_plante', 'maison_vase_fleurs'], fridge: ['maison_frigo'],
-    toybox: ['maison_coffre_jouets'], desk: ['maison_bureau'], cushion: ['maison_coussins'], bigrug: ['maison_tapis'],
+    toybox: ['maison_coffre_jouets'], desk: ['maison_bureau'], cushion: ['maison_coussins'], bigrug: ['maison_tapis'], rug: ['maison_tapis'],
+    bigplant: ['maison_plante'], barrels: ['ville_tonneaux'], aquarium: ['maison_aquarium'], computer: ['maison_ordinateur'], oven: ['maison_cuisiniere'],
     _grandarbre: ['arbre_chene'],   // (le Grand Arbre de la Clairière : voir objets(), son passage reste dessiné par-dessus)
   };
   // TAILLES : hauteur de chaque décor dessiné, en HAUTEURS DE HÉROS (le héros : 34 px du jeu) ; le joueur : « les arbres
@@ -105,7 +108,7 @@
   const nomArbre = (kind, v) => { const L = ARBRES[kind]; return L ? (v < L.length ? L[v] : L[v % L.length]) : null; };
   // SOLS PAR THÈME (rôle -> image) : herbe, chemin (terre), sable, eaux (herbe_seche : seulement un dossier de carte ; une
   // texture différente case par case dessinait des carrés)
-  const DEFAUT = { herbe: 'herbe_verte', herbe_seche: null, chemin: 'terre_claire', sable: 'sable_plage', eau_mer: 'eau_mer', eau_douce: 'eau_douce' };
+  const DEFAUT = { herbe: 'herbe_verte', herbe_seche: null, chemin: 'terre_claire', sable: 'sable_plage', eau_mer: 'eau_mer', eau_douce: 'eau_douce', paves: 'ville_paves' };
   const CHOIX = {
     foret: { herbe: 'herbe_verte', chemin: 'terre_brune' }, spring: {}, meadow: { herbe: 'herbe_claire' },
     misty: { herbe: 'herbe_dense', chemin: 'terre_sombre' }, deep: { herbe: 'herbe_dense', chemin: 'terre_sombre' }, autumn: { herbe: 'herbe_seche', chemin: 'terre_brune' },
