@@ -90,13 +90,28 @@
     const HC = [0, 0, 0, 255];
     // SOLS SELON L'ALTITUDE (map.solsNiveau, ex. le volcan : herbe de montagne puis terre sèche en montant ; rocaille en
     // gravier puis en roche craquelée) : une image commune par niveau de relief, null = celle de la carte
-    const parNiveau = L => (TX && L ? L.map(n => (n ? TX.pixels('commun/' + n) : null)) : null);
-    const HERBE_NIV = parNiveau(map.solsNiveau && map.solsNiveau.herbe), ROC_NIV = parNiveau(map.solsNiveau && map.solsNiveau.rocaille);
-    const herbeTx = (tx, ty, px, py, sh, en, ed) => {
-      let P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE;
-      if (HERBE_NIV) { const Q = HERBE_NIV[altCase(tx, ty)]; if (Q) P = Q; }
-      const q = texO(P, px, py), d = P.d;
+    // (un niveau : un nom, ou [sol, sol des taches] ; « volcan:nom » = image du dossier du volcan, sinon dossier commun)
+    const pix = n => (n ? TX.pixels(n.includes(':') ? n.replace(':', '/') : 'commun/' + n) : null);
+    const parNiveau = L => (TX && L ? L.map(n => (!n ? null : Array.isArray(n) ? [pix(n[0]), pix(n[1])] : [pix(n), null])) : null);
+    const SN = map.solsNiveau, HERBE_NIV = parNiveau(SN && SN.herbe), ROC_NIV = parNiveau(SN && SN.rocaille), CENDRES_TACHES = SN && SN.cendres && TX ? pix(SN.cendres) : null;
+    // SOL NATUREL (sols d'altitude) : le motif est légèrement déformé (la répétition des carreaux ne se voit plus), un
+    // second sol vient en grandes taches irrégulières, et la lumière varie doucement par endroits ; écrit dans NAT
+    const NAT = [0, 0, 0];
+    const solNaturel = (Pa, Pb, px, py) => {
+      const ox = (WLX(px, py) - 0.5) * 36, oy = (WLY(px, py) - 0.5) * 36, q = texO(Pa, px + ox, py + oy), d = Pa.d;
       let r = d[q], g = d[q + 1], b = d[q + 2];
+      if (Pb) {
+        let w = (S8(px, py) - 0.42) / 0.16; w = w < 0 ? 0 : w > 1 ? 1 : w; w = w * w * (3 - 2 * w) * 0.9;
+        if (w > 0) { const q2 = texO(Pb, px - oy * 0.7 + 57, py + ox * 0.7 + 31), d2 = Pb.d; r += (d2[q2] - r) * w; g += (d2[q2 + 1] - g) * w; b += (d2[q2 + 2] - b) * w; }
+      }
+      const k = 0.86 + G5(px, py) * 0.26;
+      NAT[0] = r * k; NAT[1] = g * k; NAT[2] = b * k; return NAT;
+    };
+    const herbeTx = (tx, ty, px, py, sh, en, ed) => {
+      let P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE, r, g, b;
+      const Q = HERBE_NIV && HERBE_NIV[ALTP ? ALTP[py * GW + px] : altCase(tx, ty)];
+      if (Q) { solNaturel(Q[0], Q[1], px, py); r = NAT[0]; g = NAT[1]; b = NAT[2]; }
+      else { const q = texO(P, px, py), d = P.d; r = d[q]; g = d[q + 1]; b = d[q + 2]; }
       if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) { const q2 = texO(TX_CHEMIN, px, py), d2 = TX_CHEMIN.d; r = r + (d2[q2] - r) * 0.55; g = g + (d2[q2 + 1] - g) * 0.55; b = b + (d2[q2 + 2] - b) * 0.55; }   // (bord de chemin)
       const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (24 - r) * k; g = g + (50 - g) * k; b = b + (60 - b) * k; }
       HC[0] = r; HC[1] = g; HC[2] = b; return HC;
@@ -105,8 +120,8 @@
     // lave refroidie : sur une falaise basse (loin du cratère), les fissures de lave de l'image deviennent sombres
     const refroidie = (c, k) => { if (k <= 0) return c; const chaud = Math.max(0, Math.min(1, (c[0] - c[2] - 70) / 120)) * (c[0] > 150 ? 1 : 0.5); if (chaud <= 0) return c; const f = chaud * k, g = (c[0] + c[1] + c[2]) / 3 * 0.45; return [c[0] + (g + 18 - c[0]) * f, c[1] + (g + 8 - c[1]) * f, c[2] + (g - c[2]) * f, c[3]]; };
     const solVar = (c, k, px, py) => {
-      if (k === 1 && ROC_NIV) { const Q = ROC_NIV[altCase(px >> 4, py >> 4)]; if (Q) return TX.lit(Q, px, py); }
-      if (k === 2 && TX_CENDRES) return TX.lit(TX_CENDRES, px, py);
+      if (k === 1 && ROC_NIV) { const Q = ROC_NIV[ALTP ? ALTP[py * GW + px] : altCase(px >> 4, py >> 4)]; if (Q && Q[0]) return solNaturel(Q[0], Q[1], px, py).slice(); }
+      if (k === 2 && TX_CENDRES) return SN ? solNaturel(TX_CENDRES, CENDRES_TACHES, px, py).slice() : TX.lit(TX_CENDRES, px, py);
       if (k === 1 && TX_DESSUS) return TX.lit(TX_DESSUS, px, py);
       if (k === 1) {   // rocaille : terre grisée, taches de gravier plus sombres et plus claires
         let o = Art.mix(c, [140, 130, 114], 0.5); const h1 = hash(px >> 1, py >> 1, 601);
@@ -217,6 +232,48 @@
       T[py * GW + px] = best;
     } };
     for (let py = 0; py < GH; py += 4) { voteRows(py, Math.min(GH, py + 4)); yield; }
+    // FALAISES ARRONDIES : le contour des parois (roche) suit une courbe lisse au lieu des marches des cases. Le masque des
+    // cases de roche est lissé (B-spline sur 4 × 4 cases, légère ondulation) puis coupé à mi-hauteur : les angles des
+    // marches deviennent des courbes, une diagonale en escalier devient une pente régulière ; un bord droit reste à sa
+    // place. Le cœur d'une case de roche reste de la roche (une paroi ne disparaît jamais) ; rien ne bouge près des
+    // escaliers et des ponts ; les déplacements, eux, suivent toujours les cases.
+    if (!map.indoor) {
+      const RK = TER.rock, R1 = new Uint8Array(MW * MH), BORD = new Uint8Array(MW * MH);
+      for (let k = 0; k < MW * MH; k++) R1[k] = TT[k] === RK ? 1 : 0;
+      for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) {
+        let r = 0, n = 0, bad = false;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const t = tF(tx + dx, ty + dy); if (t === RK) r++; else n++; if (t === TER.stairs || t === TER.bridge) bad = true; }
+        if (r && n && !bad) BORD[ty * MW + tx] = 1;
+      }
+      const mk = (x, y) => R1[(y < 0 ? 0 : y >= MH ? MH - 1 : y) * MW + (x < 0 ? 0 : x >= MW ? MW - 1 : x)];
+      // (terrain qui remplace un coin de roche rogné : la case voisine du bord le plus proche)
+      const voisin = (tx, ty, lx, ly) => {
+        const sx = lx < 8 ? -1 : 1, sy = ly < 8 ? -1 : 1, dH = lx < 8 ? lx : 15 - lx, dV = ly < 8 ? ly : 15 - ly;
+        const h = tF(tx + sx, ty), v = tF(tx, ty + sy), d = tF(tx + sx, ty + sy);
+        if (v !== RK && (dV <= dH || h === RK)) return v;
+        if (h !== RK) return h;
+        return d !== RK ? d : -1;
+      };
+      const arrondirRows = (ya, yb) => { for (let py = ya; py < yb; py++) { const ty = py >> 4; for (let px = 0; px < GW; px++) {
+        const tx = px >> 4; if (!BORD[ty * MW + tx]) continue;
+        const u = (px + 0.5 + (WX(px, py) - 0.5) * 5) / TS - 0.5, v = (py + 0.5 + (WY(px, py) - 0.5) * 5) / TS - 0.5;
+        const i0 = Math.floor(u), j0 = Math.floor(v), fu = u - i0, fv = v - j0;
+        // poids de la B-spline cubique (4 cases de chaque côté)
+        const u2 = fu * fu, u3 = u2 * fu, v2 = fv * fv, v3 = v2 * fv;
+        const a0 = (1 - fu) * (1 - fu) * (1 - fu) / 6, a1 = (3 * u3 - 6 * u2 + 4) / 6, a2 = (-3 * u3 + 3 * u2 + 3 * fu + 1) / 6, a3 = u3 / 6;
+        const b0 = (1 - fv) * (1 - fv) * (1 - fv) / 6, b1 = (3 * v3 - 6 * v2 + 4) / 6, b2 = (-3 * v3 + 3 * v2 + 3 * fv + 1) / 6, b3 = v3 / 6;
+        let sm = 0;
+        for (let j = 0; j < 4; j++) {
+          const y = j0 - 1 + j, r = a0 * mk(i0 - 1, y) + a1 * mk(i0, y) + a2 * mk(i0 + 1, y) + a3 * mk(i0 + 2, y);
+          sm += (j === 0 ? b0 : j === 1 ? b1 : j === 2 ? b2 : b3) * r;
+        }
+        const i = py * GW + px, base = TT[ty * MW + tx], lx = px & 15, ly = py & 15;
+        if (base === RK) {
+          if (sm < 0.5 && Math.min(lx, 15 - lx, ly, 15 - ly) < 6) { const nt = voisin(tx, ty, lx, ly); if (nt >= 0 && !isHard[nt]) T[i] = nt; }
+        } else if (sm > 0.5 && !isHard[base]) T[i] = RK;
+      } } };
+      for (let py = 0; py < GH; py += 8) { arrondirRows(py, Math.min(GH, py + 8)); yield; }
+    }
     lap('vote');
     // places rondes (ex. la place de la ville, la piste du terrain) : cercle net au lieu des cases
     for (const pl of map.plazas || []) {
@@ -260,13 +317,45 @@
     loin();
     lap('bfs');
     // ombre portée sous la canopée et les falaises
+    // ALTITUDE AU PIXEL (contours arrondis des plateaux : maps/relief.js) et PAROIS AU PIXEL : pour chaque pixel de roche,
+    // sa distance au haut (RU) et au bas (RD) de la paroi, sur la silhouette arrondie (le liseré du haut et le pied
+    // suivent la courbe, plus les marches des cases)
+    const ALTP = map.alt && DW.Relief && DW.Relief.altPixels ? DW.Relief.altPixels(map) : null;
+    yield;
+    const RU = new Uint16Array(N), RD = new Uint16Array(N), RK = TER.rock;
+    const paroiCols = (xa, xb) => { for (let px = xa; px < xb; px++) {
+      let k = 0; for (let py = 0, i = px; py < GH; py++, i += GW) { if (T[i] === RK) RU[i] = k++; else k = 0; }
+      k = 0; for (let py = GH - 1, i = py * GW + px; py >= 0; py--, i -= GW) { if (T[i] === RK) RD[i] = k++; else k = 0; }
+    } };
+    for (let px = 0; px < GW; px += 128) { paroiCols(px, Math.min(GW, px + 128)); yield; }
+    // SOLS SPÉCIAUX AUX CONTOURS NATURELS (rocaille, cendres, terre ordinaire) : la limite ondule (vote entre les cases
+    // voisines, comme entre deux terrains) au lieu de suivre les cases
+    let SOLKP = null;
+    if (SOLK) {
+      SOLKP = new Uint8Array(N);
+      const sk = (x, y) => SOLK[(y < 0 ? 0 : y >= MH ? MH - 1 : y) * MW + (x < 0 ? 0 : x >= MW ? MW - 1 : x)];
+      const UNIS = new Uint8Array(MW * MH);
+      for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) { const k = sk(tx, ty); let u = 1; for (let dy = -1; dy <= 1 && u; dy++) for (let dx = -1; dx <= 1; dx++) if (sk(tx + dx, ty + dy) !== k) { u = 0; break; } UNIS[ty * MW + tx] = u; }
+      const ws = new Float32Array(16);
+      const solkRows = (ya, yb) => { for (let py = ya; py < yb; py++) for (let px = 0; px < GW; px++) {
+        const tx = px >> 4, ty = py >> 4, k0 = SOLK[ty * MW + tx], i = py * GW + px;
+        if (UNIS[ty * MW + tx]) { SOLKP[i] = k0; continue; }
+        const wx = px + 0.5 + (WX(px, py) - 0.5) * 12 + (WLX(px, py) - 0.5) * 16, wy = py + 0.5 + (WY(px, py) - 0.5) * 12 + (WLY(px, py) - 0.5) * 16;
+        const u = wx / TS - 0.5, v = wy / TS - 0.5, i0 = Math.floor(u), j0 = Math.floor(v), fu = u - i0, fv = v - j0;
+        ws.fill(0);
+        ws[sk(i0, j0)] += (1 - fu) * (1 - fv); ws[sk(i0 + 1, j0)] += fu * (1 - fv); ws[sk(i0, j0 + 1)] += (1 - fu) * fv; ws[sk(i0 + 1, j0 + 1)] += fu * fv; ws[k0] += 0.001;
+        let best = k0, bw = -1; for (let k = 0; k < 16; k++) if (ws[k] > bw) { bw = ws[k]; best = k; }
+        SOLKP[i] = best;
+      } };
+      for (let py = 0; py < GH; py += 8) { solkRows(py, Math.min(GH, py + 8)); yield; }
+    }
     const SH = new Uint8Array(N);
     const ombreCols = (xa, xb) => { for (let px = xa; px < xb; px++) {
       let run = 99;
       for (let py = 0; py < GH; py++) {
         const i = py * GW + px, t = T[i];
         const tx = px >> 4, ty = py >> 4;
-        const caster = t === TER.canopy || t === TER.pastel || (t === TER.rock && tAt(tx, ty + 1) !== TER.rock) || (t === TER.cliff && tAt(tx, ty + 1) !== TER.cliff) || (t === TER.wall && tAt(tx, ty + 1) !== TER.wall);
+        const caster = t === TER.canopy || t === TER.pastel || t === TER.rock || (t === TER.cliff && tAt(tx, ty + 1) !== TER.cliff) || (t === TER.wall && tAt(tx, ty + 1) !== TER.wall);
         if (caster) run = 0; else run++;
         if (!caster && run <= 10 && t !== TER.water) SH[i] = 11 - run;
       }
@@ -376,7 +465,7 @@
         if (t === TER.grass && (TX_HERBE || TX_HSECHE)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
         else if (t === TER.lawn && TX_HERBE && !(LUSH && en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
         else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) tc = TX.lit(TX_SABLE, px, py);
-        else if (t === TER.dirt && TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) {
+        else if (t === TER.dirt && TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {
           tc = TX.lit(TX_CHEMIN, px, py);
           if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) tc = Art.mix(tc, TX.lit(TX_HERBE, px, py), 0.8);
           if (ed <= 4 && en === TER.grass) tc = Art.mix(tc, [30, 24, 14], 0.06 * (5 - ed));
@@ -405,12 +494,12 @@
           col = [col[0] + (gc[0] - col[0]) * k, col[1] + (gc[1] - col[1]) * k, col[2] + (gc[2] - col[2]) * k];
         }
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
-        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
+        if (TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
           col = TX.lit(TX_CHEMIN, px, py);
           if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) col = Art.mix(col, TX.lit(TX_HERBE, px, py), 0.8);
           if (ed <= 4 && en === TER.grass) col = Art.mix(col, [30, 24, 14], 0.06 * (5 - ed));   // (un peu creusé au bord)
         }
-        if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
+        if (SOLKP && SOLKP[i]) col = solVar(col, SOLKP[i], px, py);
         else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.lawn && LUSH) {
         // pelouse (Village des Bébés) : mêmes brins fins, palette pastel, fleurs semées
@@ -434,12 +523,12 @@
         v -= SH[i] * 0.2;
         col = DIRT[DW.clamp(Math.round(v), 0, 5)];
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.06) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);
-        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
+        if (TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
           col = TX.lit(TX_CHEMIN, px, py);
           if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) col = Art.mix(col, TX.lit(TX_HERBE, px, py), 0.8);
           if (ed <= 4 && en === TER.grass) col = Art.mix(col, [30, 24, 14], 0.06 * (5 - ed));   // (un peu creusé au bord)
         }
-        if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
+        if (SOLKP && SOLKP[i]) col = solVar(col, SOLKP[i], px, py);
         else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.sand) {
         const r = Math.sin(px * 0.2 + S8(px, py) * 9 + py * 0.55);
@@ -524,18 +613,22 @@
         if (d2 - d1 < 1.2) v -= 1.4;
         col = pal[DW.clamp(Math.round(v), 0, 4)];
       } else if (t === TER.rock) {
+        // (falaises arrondies : un pixel de roche peut déborder sur une case voisine ; il se repère sur la paroi la plus proche)
+        let RX = tx, RY = ty;
+        if (tAt(tx, ty) !== TER.rock) for (const [dx, dy] of [[0, 1], [0, -1], [-1, 0], [1, 0], [-1, 1], [1, 1], [-1, -1], [1, -1]]) if (tAt(tx + dx, ty + dy) === TER.rock) { RX = tx + dx; RY = ty + dy; break; }
+        const lxR = Math.max(0, Math.min(15, px - RX * 16)), lyR = Math.max(0, Math.min(15, py - RY * 16));
         // FALAISE EN COLONNES DE ROCHE (façon RPG 2D peint) : la paroi est faite de piliers arrondis empilés en blocs,
         // éclairés en haut à gauche (face claire, flanc droit dans l'ombre), joints sombres entre les blocs, mousse et
         // lierre qui pendent du rebord, liseré d'herbe qui déborde en haut, pied dans l'ombre avec des éboulis
-        const topRow = tAt(tx, ty - 1) !== TER.rock, botRow = tAt(tx, ty + 1) !== TER.rock;
-        const leftE = tAt(tx - 1, ty) !== TER.rock, rightE = tAt(tx + 1, ty) !== TER.rock;
-        const up = rockRun(tx, ty, -1), dn = rockRun(tx, ty, 1), Hpx = (up + dn + 1) * 16, wy = up * 16 + ly, depth = wy / Hpx;
+        const topRow = tAt(RX, RY - 1) !== TER.rock, botRow = tAt(RX, RY + 1) !== TER.rock;
+        const leftE = tAt(RX - 1, RY) !== TER.rock, rightE = tAt(RX + 1, RY) !== TER.rock;
+        const up = rockRun(RX, RY, -1), Hpx = RU[i] + RD[i] + 1, wy = RU[i], depth = wy / Hpx;
         if (TX_FALAISE) {
           const FH = TX_FALAISE.h, yt = Hpx === FH ? wy : wy < 16 ? wy : wy >= Hpx - 16 ? FH - (Hpx - wy) : 16 + ((wy - 16) % (FH - 32));
           col = TX.lit(TX_FALAISE, px, yt);
-          { const Lh = altCase(tx, ty - up - 1); if (Lh <= 3) col = refroidie(col, Lh <= 2 ? 1 : 0.6); }   // (en bas de la montagne : lave refroidie)
-          if (TX_ESC && lx < 7) { const RL = escalierVu(tx - 1, ty); if (RL && RL.x1 === tx - 1) col = Art.mix(col, [8, 4, 6], 0.42 * (1 - lx / 7)); }   // ombre de l'escalier sur la paroi
-          if (leftE && lx < 2) col = Art.mix(col, [0, 0, 0], 0.25); else if (rightE && lx > 13) col = Art.mix(col, [0, 0, 0], 0.35);
+          { const Lh = altCase(RX, RY - up - 1); if (Lh <= 3) col = refroidie(col, Lh <= 2 ? 1 : 0.6); }   // (en bas de la montagne : lave refroidie)
+          if (TX_ESC && lxR < 7) { const RL = escalierVu(RX - 1, RY); if (RL && RL.x1 === RX - 1) col = Art.mix(col, [8, 4, 6], 0.42 * (1 - lxR / 7)); }   // ombre de l'escalier sur la paroi
+          if (leftE && lxR < 2) col = Art.mix(col, [0, 0, 0], 0.25); else if (rightE && lxR > 13) col = Art.mix(col, [0, 0, 0], 0.35);
         } else {
         // colonnes de largeur inégale (9 à 15 px), légèrement ondulées
         const wx = px + (noise(px * 0.04, py * 0.025, 61) - 0.5) * 7;
@@ -545,11 +638,11 @@
         const gap = u < 0 || u > 1 || col0 !== k0;
         // blocs empilés dans chaque colonne : hauteur 11 à 22 px, décalés d'une colonne à l'autre
         const sh = 18 + hash(k0, 2, 64) * 16, sw = wy + hash(k0, 3, 65) * sh + Math.pow((wx - cx0) / cw - 0.5, 2) * 10, seg = Math.floor(sw / sh), fy = sw / sh - seg;   // (joints bombés : dessus de bloc arrondi)
-        const lipH = 3 + Math.round(noise(px * 0.18, ty, 66) * 4);
+        const lipH = 3 + Math.round(noise(px * 0.18, RY, 66) * 4);
         const drip = hash(k0, seg, 67) < 0.22 ? Math.floor(hash(k0, 4, 68) * 14) + 4 : 0;   // mousse / lierre qui pend
-        if (topRow && ly < lipH) {
-          col = lerpPal(GRASS, 3.4 - ly * 0.5 + b * 0.6);                                   // herbe du plateau qui déborde
-        } else if (topRow && ly === lipH) {
+        if (wy < lipH) {
+          col = lerpPal(GRASS, 3.4 - lyR * 0.5 + b * 0.6);                                   // herbe du plateau qui déborde
+        } else if (wy === lipH) {
           col = lerpPal(GRASS, 0.4);                                                        // ourlet sombre sous l'herbe
         } else if (wy < lipH + drip && !gap && Math.abs(u - 0.35 - hash(k0, 5, 69) * 0.3) < 0.14) {
           col = lerpPal(GRASS, 1.2 + (1 - (wy - lipH) / Math.max(1, drip)) * 1.6 + b * 0.5);   // lierre
@@ -565,11 +658,11 @@
           v += (noise(px * 0.3, py * 0.3, 70) - 0.5) * 1.1 + b * 0.45;                      // grain de la pierre
           if (noise(px * 0.6, py * 0.08, 71) > 0.8 && Math.abs(rx) < 0.6) v -= 1.3;          // fissure
           v -= depth * 1.5;                                                                 // le bas de la paroi est dans l'ombre
-          if (leftE && lx < 3) v += 0.8; if (rightE && lx > 12) v -= (lx - 12) * 0.7;
+          if (leftE && lxR < 3) v += 0.8; if (rightE && lxR > 12) v -= (lxR - 12) * 0.7;
           col = lerpPal(ROCK, v);
           if (fy > 0.06 && fy < 0.14 && hash(px >> 1, seg * 7 + k0, 72) < 0.3) col = lerpPal(GRASS, 1.8 + b);   // mousse sur les corniches
         }
-        if (botRow && ly >= 12) { const r = hash(px, py, 73); col = r < 0.3 ? lerpPal(ROCK, 2.6 + r * 3) : lerpPal(ROCK, 0.8 + (ly - 12) * 0.1); }   // pied : ombre et éboulis
+        if (Hpx - 1 - wy <= 3) { const r = hash(px, py, 73); col = r < 0.3 ? lerpPal(ROCK, 2.6 + r * 3) : lerpPal(ROCK, 0.8 + (3 - (Hpx - 1 - wy)) * 0.1); }   // pied : ombre et éboulis
         }
       } else if (t === TER.cliff) {
         const face = tAt(tx, ty + 1) !== TER.cliff;
@@ -747,6 +840,7 @@
       }
       lap('fondus');
     }
+    if (ALTP && DW.Relief.rebordsPixels) { DW.Relief.rebordsPixels(map, D, ALTP, i => T[i] === RK); map._rebordsPix = map.alt; yield; }   // (maps/relief.js)
     // décor peint (fleurs, champignons)
     const flowers = [];
     const decorate = (tx, ty, kind) => {

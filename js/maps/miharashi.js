@@ -270,8 +270,10 @@
     [['aiguille', 2, 1.6], ['tex_commun_mont_eboulis', 0, 1], ['tex_commun_mont_aiguille', 0, 0.8]]];
   // sols selon l'altitude (gfx/terrain.js, map.solsNiveau) : herbe de montagne puis terre sèche ; rocaille en terre, gravier,
   // puis roche craquelée près du sommet (les cendres du cratère gardent leur image)
-  const SOLS_MONT = { herbe: [null, null, 'mont_herbe_alpine', 'mont_herbe_alpine', 'mont_terre_seche', 'mont_terre_seche'],
-    rocaille: [null, 'mont_terre_seche', 'mont_terre_seche', 'mont_gravier', 'mont_roche_craquelee', 'mont_roche_craquelee'] };
+  // (chaque niveau mêle deux sols par grandes taches : [sol, taches] ; près du cratère, cendre et gravier)
+  const SOLS_MONT = { herbe: [null, null, 'mont_herbe_alpine', ['mont_herbe_alpine', 'mont_terre_seche'], ['mont_terre_seche', 'mont_herbe_alpine'], 'mont_terre_seche'],
+    rocaille: [null, 'mont_terre_seche', ['mont_terre_seche', 'mont_herbe_alpine'], ['mont_gravier', 'mont_terre_seche'], ['mont_gravier', 'volcan:sol_cendres'], ['volcan:sol_cendres', 'mont_gravier']],
+    cendres: 'mont_gravier' };
   function decorEtages(g, m, d = 1, skip, TAB = ETAGES) {
     const W = g.w, H = g.h, A = m.alt; if (!A) return;
     const libre = (x, y) => { const c = g.get(x, y); return c === '.' || c === ',' || c === 'j' || c === 'n' || c === 'ǥ' || c === 'ţ'; };

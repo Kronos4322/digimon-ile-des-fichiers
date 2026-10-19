@@ -213,38 +213,94 @@
     R.peindreRebords(m);
     return { alt, stairs, comps, lvl };
   }
-  // REBORDS DES PLATEAUX (vue de 3/4) : au nord, un liseré d'herbe claire qui déborde et une ombre portée sur le bas ;
-  // à l'est et à l'ouest, un flanc de roche étroit et sombre ; le dessus d'un plateau est un peu plus lumineux que le bas.
-  // (lu au moment du rendu : m.alt peut changer après coup, par exemple avec les retouches de l'éditeur)
-  function rebords(c, m) {
-    const W = m.w, H = m.h, A = m.alt, TS = 16, Hh2 = DW.Art.hash; if (!A) return;
-    const at = (x, y) => { if (x < 0 || y < 0 || x >= W || y >= H) return -1; const a = A[y * W + x]; return a === PASS ? -1 : a; };
-    const rockAt = (x, y) => m.rows[y] && m.rows[y][x] === ROCK;
+  // ALTITUDE AU PIXEL (contours arrondis) : l'altitude des cases est lissée (B-spline sur 4 × 4 cases, légère ondulation)
+  // puis arrondie au niveau le plus proche : le bord d'un plateau suit une courbe au lieu des marches des cases ; un bord
+  // droit reste à sa place. Seulement près des bords de plateau (ailleurs : l'altitude de la case). Sert au sol (images
+  // par niveau, gfx/terrain.js) et aux rebords ; les déplacements, eux, suivent toujours les cases.
+  function altPixels(m) {
+    const W = m.w, H = m.h, A = m.alt, TS = 16, GW = W * TS, GH = H * TS, Hh2 = DW.Art.hash;
+    const E = new Float32Array(W * H);   // (un escalier prend l'altitude de son voisin du haut, sinon du bas)
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const L = at(x, y); if (L <= 0 || rockAt(x, y)) continue;
-      const X = x * TS, Y = y * TS;
-      c.fillStyle = `rgba(255,250,210,${0.035 * L})`; c.fillRect(X, Y, TS, TS);
-      const n = at(x, y - 1), e = at(x + 1, y), w = at(x - 1, y);
-      // sur un sol de roche ou de cendres (volcan : sol 1 et 2, ou carte à images dessinées) : un rebord de ROCHE,
-      // pas un liseré d'herbe verte (il ressortait en traits clairs, presque cyan, sur la cendre sombre)
-      const I = DW.World.CH[m.rows[y][x]], roc = !!((I && I.sol) || (m.textures && L >= 3));
-      const sable = !roc && I && (I.t === 'sand' || I.t === 'dirt');   // (sur le sable et la terre : liseré de sable, pas d'herbe vert clair)
-      const C = roc ? { ombre: 'rgba(10,6,4,0.45)', levre: 'rgba(34,26,22,0.95)', brin: ['#7a6a5c', '#5e5046'], clair: '#9a8676', sombre: '#2a201c', trait: '#8a7868' }
-        : sable ? { ombre: 'rgba(70,46,16,0.3)', levre: 'rgba(150,118,72,0.9)', brin: ['#e6d4a4', '#d4bc88'], clair: '#d8bc88', sombre: '#8a6a40', trait: '#eedcb0' }
-        : { ombre: 'rgba(16,40,20,0.42)', levre: 'rgba(70,52,34,0.95)', brin: ['#b8e07a', '#8cc860'], clair: '#9a7448', sombre: '#4a3220', trait: '#a8d870' };
-      if (n >= 0 && n < L && !rockAt(x, y - 1)) {
-        c.fillStyle = C.ombre; c.fillRect(X, Y - 3, TS, 3);
-        c.fillStyle = C.levre; c.fillRect(X, Y - 1, TS, 2);
-        for (let k = 0; k < TS; k += 2) { const h = 1 + Math.floor(Hh2(x * 16 + k, y, 501) * (roc ? 2 : 3)); c.fillStyle = C.brin[Hh2(x * 16 + k, y, 502) < 0.5 ? 0 : 1]; c.fillRect(X + k, Y + 1, 2, h); }
-      }
-      for (const [d, nb] of [[1, e], [-1, w]]) if (nb >= 0 && nb < L && !rockAt(x + d, y)) {
-        const fx = d > 0 ? X + TS - 4 : X;
-        const g = c.createLinearGradient(fx, 0, fx + 4, 0); g.addColorStop(d > 0 ? 0 : 1, C.clair); g.addColorStop(d > 0 ? 1 : 0, C.sombre);
-        c.fillStyle = g; c.fillRect(fx, Y, 4, TS);
-        c.fillStyle = roc ? 'rgba(10,6,4,0.4)' : 'rgba(16,40,20,0.35)'; c.fillRect(d > 0 ? X + TS : X - 3, Y, 3, TS);
-        c.fillStyle = C.trait; c.fillRect(d > 0 ? X + TS - 5 : X + 4, Y, 1, TS);
-      }
+      let a = A[y * W + x];
+      if (a === PASS) { const n = y > 0 ? A[(y - 1) * W + x] : PASS, s2 = y < H - 1 ? A[(y + 1) * W + x] : PASS; a = n !== PASS ? n : s2 !== PASS ? s2 : 0; }
+      E[y * W + x] = a;
     }
+    const e = (x, y) => E[(y < 0 ? 0 : y >= H ? H - 1 : y) * W + (x < 0 ? 0 : x >= W ? W - 1 : x)];
+    const BORD = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const a = e(x, y); let diff = false;
+      for (let dy = -2; dy <= 2 && !diff; dy++) for (let dx = -2; dx <= 2; dx++) if (e(x + dx, y + dy) !== a) { diff = true; break; }
+      BORD[y * W + x] = diff ? 1 : 0;
+    }
+    const VL = new Uint8Array(GW * GH);
+    for (let py = 0; py < GH; py++) { const ty = py >> 4; for (let px = 0; px < GW; px++) {
+      const tx = px >> 4, i = py * GW + px;
+      if (!BORD[ty * W + tx]) { VL[i] = E[ty * W + tx]; continue; }
+      const u = (px + 0.5 + (Hh2(px >> 2, py >> 2, 931) - 0.5) * 2.5) / TS - 0.5, v = (py + 0.5 + (Hh2(px >> 2, py >> 2, 932) - 0.5) * 2.5) / TS - 0.5;
+      const i0 = Math.floor(u), j0 = Math.floor(v), fu = u - i0, fv = v - j0, u2 = fu * fu, u3 = u2 * fu, v2 = fv * fv, v3 = v2 * fv;
+      const a0 = (1 - fu) * (1 - fu) * (1 - fu) / 6, a1 = (3 * u3 - 6 * u2 + 4) / 6, a2 = (-3 * u3 + 3 * u2 + 3 * fu + 1) / 6, a3 = u3 / 6;
+      const b0 = (1 - fv) * (1 - fv) * (1 - fv) / 6, b1 = (3 * v3 - 6 * v2 + 4) / 6, b2 = (-3 * v3 + 3 * v2 + 3 * fv + 1) / 6, b3 = v3 / 6;
+      const row = y => a0 * e(i0 - 1, y) + a1 * e(i0, y) + a2 * e(i0 + 1, y) + a3 * e(i0 + 2, y);
+      const h = b0 * row(j0 - 1) + b1 * row(j0) + b2 * row(j0 + 1) + b3 * row(j0 + 2);
+      VL[i] = h < 0 ? 0 : Math.round(h);
+    } }
+    return VL;
+  }
+  // REBORDS DES PLATEAUX (vue de 3/4), peints sur les pixels du sol D (RGBA) d'après l'altitude au pixel VL : au nord,
+  // une lèvre sombre et des brins qui débordent, une ombre portée sur le niveau bas ; à l'est et à l'ouest, un flanc
+  // étroit (clair vers sombre) et son ombre ; un plateau plus haut est un peu plus lumineux. Rien sur la roche des parois
+  // (rock(i) : pixel de paroi), dessinée à part.
+  function rebordsPixels(m, D, VL, rock) {
+    const W = m.w, H = m.h, TS = 16, GW = W * TS, GH = H * TS, Hh2 = DW.Art.hash;
+    const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const STY = [
+      { ombre: [10, 6, 4, 0.45], levre: [34, 26, 22, 0.95], brin: [hex('#7a6a5c'), hex('#5e5046')], clair: hex('#9a8676'), sombre: hex('#2a201c'), trait: hex('#8a7868'), flanc: [10, 6, 4, 0.4] },
+      { ombre: [70, 46, 16, 0.3], levre: [150, 118, 72, 0.9], brin: [hex('#e6d4a4'), hex('#d4bc88')], clair: hex('#d8bc88'), sombre: hex('#8a6a40'), trait: hex('#eedcb0'), flanc: [16, 40, 20, 0.35] },
+      { ombre: [16, 40, 20, 0.42], levre: [70, 52, 34, 0.95], brin: [hex('#b8e07a'), hex('#8cc860')], clair: hex('#9a7448'), sombre: hex('#4a3220'), trait: hex('#a8d870'), flanc: [16, 40, 20, 0.35] },
+    ];
+    // (style selon le sol du plateau : roche ou cendres, sable et terre, herbe)
+    const style = (tx, ty, L) => {
+      const I = DW.World.CH[(m.rows[ty] || '')[tx]], roc = !!((I && I.sol) || (m.textures && L >= 3));
+      return roc ? STY[0] : I && (I.t === 'sand' || I.t === 'dirt') ? STY[1] : STY[2];
+    };
+    const mel = (i, r, g, b, k) => { const j = i * 4; D[j] += (r - D[j]) * k; D[j + 1] += (g - D[j + 1]) * k; D[j + 2] += (b - D[j + 2]) * k; };
+    const vl = (px, py) => (px < 0 || py < 0 || px >= GW || py >= GH ? 255 : VL[py * GW + px]);
+    const roche = (px, py) => px < 0 || py < 0 || px >= GW || py >= GH || rock(py * GW + px);
+    for (let py = 0; py < GH; py++) { const ty = py >> 4; for (let px = 0; px < GW; px++) {
+      const i = py * GW + px, L = VL[i];
+      if (rock(i)) continue;
+      if (L > 0) mel(i, 255, 250, 210, 0.035 * L);   // (un plateau plus haut est un peu plus lumineux)
+      // (un bord : un niveau différent à moins de 4 pixels ; sinon rien d'autre à peindre)
+      const n4 = vl(px, py - 4), s3 = vl(px, py + 3), e4 = vl(px + 4, py), w4 = vl(px - 4, py);
+      if (n4 === L && s3 === L && e4 === L && w4 === L && vl(px, py - 1) === L && vl(px + 1, py) === L && vl(px - 1, py) === L && vl(px, py + 1) === L) continue;
+      const tx = px >> 4;
+      // BORD NORD : le plateau touche un niveau plus bas juste au-dessus
+      let dn = 0; for (let k = 1; k <= 4; k++) { const n = vl(px, py - k); if (n < L && !roche(px, py - k)) { dn = k; break; } if (n !== L) break; }
+      if (dn) {
+        const S = style(tx, ty, L);
+        if (dn <= 2) mel(i, S.levre[0], S.levre[1], S.levre[2], S.levre[3]);   // lèvre sombre
+        else { const h = 1 + Math.floor(Hh2(px >> 1, py - dn, 501) * 3); if (dn - 2 <= h) { const B = S.brin[Hh2(px >> 1, py - dn, 502) < 0.5 ? 0 : 1]; mel(i, B[0], B[1], B[2], 1); } }   // brins qui débordent
+      }
+      // OMBRE PORTÉE sur le niveau bas, au nord du bord
+      for (let k = 1; k <= 3; k++) { const n = vl(px, py + k); if (n > L && n !== 255 && !roche(px, py + k)) { const S = style(tx, Math.min(H - 1, (py + k) >> 4), n); mel(i, S.ombre[0], S.ombre[1], S.ombre[2], S.ombre[3]); break; } if (n !== L) break; }
+      // FLANCS EST ET OUEST (et l'ombre du flanc sur le niveau bas d'à côté)
+      for (let d = -1; d <= 1; d += 2) {
+        let k0 = 0; for (let k = 1; k <= 4; k++) { const n = vl(px + d * k, py); if (n < L && !roche(px + d * k, py)) { k0 = k; break; } if (n !== L) break; }
+        if (k0) {
+          const S = style(tx, ty, L), t = (k0 - 1) / 3;
+          if (k0 === 4) mel(i, S.trait[0], S.trait[1], S.trait[2], 1);
+          else mel(i, S.sombre[0] + (S.clair[0] - S.sombre[0]) * t, S.sombre[1] + (S.clair[1] - S.sombre[1]) * t, S.sombre[2] + (S.clair[2] - S.sombre[2]) * t, 1);
+        }
+        for (let k = 1; k <= 3; k++) { const n = vl(px - d * k, py); if (n > L && n !== 255 && !roche(px - d * k, py)) { const S = style(tx, ty, n); mel(i, S.flanc[0], S.flanc[1], S.flanc[2], S.flanc[3]); break; } if (n !== L) break; }
+      }
+    } }
+  }
+  // (sur un canevas déjà peint : pour une carte dont le sol n'a pas été préparé par gfx/terrain.js, ex. l'éditeur)
+  function rebords(c, m) {
+    if (!m.alt || m._rebordsPix === m.alt) return;
+    const GW = m.w * 16, GH = m.h * 16, img = c.getImageData(0, 0, GW, GH), VL = altPixels(m);
+    rebordsPixels(m, img.data, VL, i => m.rows[((i / GW) | 0) >> 4][(i % GW) >> 4] === ROCK);
+    c.putImageData(img, 0, 0);
   }
   // (une seule fois par carte, en plus du sol peint qu'elle aurait déjà)
   function peindreRebords(m) {
@@ -274,7 +330,7 @@
   // ------------------------------------------------------------ vue de développement (frontières, passages, collisions, niveaux)
   const COL = ['rgba(60,140,255,0.0)', 'rgba(80,220,120,0.28)', 'rgba(240,220,60,0.32)', 'rgba(255,140,40,0.36)', 'rgba(255,60,60,0.4)'];
   const R = DW.Relief = {
-    MASSIFS, build, track, offset, PASS, rebords, peindreRebords,
+    MASSIFS, build, track, offset, PASS, rebords, peindreRebords, altPixels, rebordsPixels,
     debug: false,
     allowDebug: typeof location !== 'undefined' && /[?&]debug=geo\b/.test(location.search),
     drawDebug(ow, c, x0, x1, y0, y1) {

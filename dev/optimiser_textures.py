@@ -143,9 +143,9 @@ COMMUN.update({
     'mont_grotte': (_M('57 (3)'), 5),
     'mont_petit_rocher': (_M('57'), 0), 'mont_rocher': (_M('57'), 1), 'mont_gros_rocher': (_M('57'), 2), 'mont_aiguille': (_M('57'), 4),
     'mont_eboulis_gros': (_M('57'), 5), 'mont_rocher_mousse': (_M('57'), 6), 'mont_eboulis': (_M('57'), 7), 'mont_cairn': (_M('57'), 8),
-    'mont_gravier': (_M('55 (2)'), 2), 'mont_roche_craquelee': (_M('55 (2)'), 4), 'mont_herbe_alpine': (_M('55 (2)'), 6), 'mont_terre_seche': (_M('55 (2)'), 7),
+    'mont_gravier': (_M('55 (2)'), 2), 'mont_herbe_alpine': (_M('55 (2)'), 6), 'mont_terre_seche': (_M('55 (2)'), 7),
 })
-SOLS_PLANCHE = {'mont_gravier', 'mont_roche_craquelee', 'mont_herbe_alpine', 'mont_terre_seche'}
+SOLS_PLANCHE = {'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche'}
 # taille maximale de la copie (plus grand côté) pour les grands objets des planches ; sinon 160 px
 GRAND = {'mont_sapin': 220, 'mont_grotte': 200, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
 SOLS_COMMUN = {'herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre', 'sable_dunes',

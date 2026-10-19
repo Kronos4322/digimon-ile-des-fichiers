@@ -31,7 +31,7 @@
       // montagne : plantes, rochers, entrée de grotte, sols (carreaux rendus raccordables)
       'mont_sapin', 'mont_buisson', 'mont_arbuste_sec', 'mont_herbes_hautes', 'mont_herbes_seches', 'mont_herbe_rousse', 'mont_edelweiss', 'mont_fleurs_violettes', 'mont_buisson_baies',
       'mont_grotte', 'mont_petit_rocher', 'mont_rocher', 'mont_gros_rocher', 'mont_aiguille', 'mont_eboulis_gros', 'mont_rocher_mousse', 'mont_eboulis', 'mont_cairn',
-      'mont_gravier', 'mont_roche_craquelee', 'mont_herbe_alpine', 'mont_terre_seche'],
+      'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche'],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
@@ -53,7 +53,7 @@
     mont_edelweiss: { h: 13 }, mont_fleurs_violettes: { h: 14 }, mont_buisson_baies: { h: 24 }, mont_grotte: { h: 58 },
     mont_petit_rocher: { h: 12 }, mont_rocher: { h: 20 }, mont_gros_rocher: { h: 32 }, mont_aiguille: { h: 46 }, mont_eboulis_gros: { h: 26 },
     mont_rocher_mousse: { h: 24 }, mont_eboulis: { h: 18 }, mont_cairn: { h: 28 },
-    mont_gravier: [128, 128], mont_roche_craquelee: [128, 128], mont_herbe_alpine: [128, 128], mont_terre_seche: [128, 128],
+    mont_gravier: [128, 128], mont_herbe_alpine: [128, 128], mont_terre_seche: [128, 128],
   };
   // objets du jeu remplacés par une image (par dossier) : un nom, ou plusieurs (variante choisie selon la case)
   // ARBRES DU JEU dessinés avec les images du dossier commun : [type][variante] -> image (variantes de OBJ.tree : 0-2 verts,
