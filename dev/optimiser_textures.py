@@ -151,6 +151,30 @@ COMMUN.update({
 })
 # (pavés : un motif régulier ; rendu raccordable en miroir, sans fondu qui doublerait les joints)
 SOLS_MIROIR = {'ville_paves'}
+# planches PLAGE : rochers, arche, herbes de dune, coquillages, mares, palmiers, bois flotté, château de sable, barque, radeau, sables
+_PL = lambda n: 'PLAGE/photo_2026-10-20_00-17-' + n + '.jpg'
+COMMUN.update({
+    'plage_rocher': (_PL('46 (3)'), 3),
+    'plage_rochers': (_PL('46 (3)'), 2),
+    'plage_pile_rochers': (_PL('46 (3)'), 9),
+    'plage_arche': (_PL('46 (3)'), 7),
+    'plage_herbe_dune': (_PL('46'), 0),
+    'plage_herbe_seche': (_PL('46'), 1),
+    'plage_conque': (_PL('47 (2)'), 0),
+    'plage_escargot': (_PL('47 (2)'), 1),
+    'plage_coquille': (_PL('47 (2)'), 2),
+    'plage_etoile': (_PL('47 (2)'), 3),
+    'plage_mare': (_PL('47 (2)'), 6),
+    'plage_palmier': (_PL('47 (4)'), 0),
+    'plage_palmier_courbe': (_PL('47 (4)'), 1),
+    'plage_palmier_double': (_PL('47 (4)'), 2),
+    'plage_bois_flotte': (_PL('47 (5)'), 0),
+    'plage_bois_flotte2': (_PL('47 (5)'), 1),
+    'plage_chateau': (_PL('46 (2)'), 0),
+    'plage_barque': (_PL('46 (4)'), 2),
+    'plage_radeau': (_PL('46 (4)'), 0),
+    'plage_sable': (_PL('47'), 0), 'plage_borne': (_PL('47 (6)'), 9),
+})
 # planche à PANNEAUX (Mobiliers exterieurs, 10 catégories en 5 x 2, bandeau de titre) : ('panneau', catégorie, n°)
 _E = 'Mobiliers exterieurs/photo_2026-10-19_23-15-35.jpg'
 COMMUN.update({
@@ -159,11 +183,11 @@ COMMUN.update({
     'ext_boite_lettres': (_E, ('panneau', 1, 6)), 'ext_toilettes': (_E, ('panneau', 5, 1)),
     'ext_jardiniere_verte': (_E, ('panneau', 3, 0)), 'ext_jardiniere_blanche': (_E, ('panneau', 3, 1)), 'ext_jardiniere_rose': (_E, ('panneau', 3, 2)),
     'ext_etal_fruits': (_E, ('panneau', 8, 1)), 'ext_etal_legumes': (_E, ('panneau', 8, 2)), 'ext_etal_pain': (_E, ('panneau', 8, 3)),
-    'ext_puits': (_E, ('panneau', 9, 3)),
+    'ext_puits': (_E, ('panneau', 9, 3)), 'ext_panneau': (_E, ('panneau', 1, 8)),
 })
-SOLS_PLANCHE = {'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche'}
+SOLS_PLANCHE = {'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche', 'plage_sable'}
 # taille maximale de la copie (plus grand côté) pour les grands objets des planches ; sinon 160 px
-GRAND = {'mont_sapin': 220, 'mont_grotte': 200, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
+GRAND = {'plage_palmier': 220, 'plage_palmier_courbe': 220, 'plage_palmier_double': 220, 'plage_arche': 200, 'mont_sapin': 220, 'mont_grotte': 200, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
 SOLS_COMMUN = {'herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre', 'sable_dunes',
                'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'}
 

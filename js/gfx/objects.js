@@ -352,7 +352,8 @@
   // arbre dessiné avec une image du joueur (gfx/textures.js : ARBRES) : posé en bas, centré, dans le cadre de l'objet
   const arbreImg = (kind, v, z) => {
     const T = DW.Textures, A = T && T.fini && T.arbre && T.arbre(kind, v, z.w, z.h, z.W / z.w); if (!A) return null;
-    return paintRender({ paint: x => { x.imageSmoothingEnabled = true; x.drawImage(A.net, A.x, A.y, A.w, A.h); } }, v, z);
+    const o = OBJ[kind];   // (o.surImage : un détail dessiné par-dessus l'image, ex. les affiches du panneau de la ville)
+    return paintRender({ paint: x => { x.imageSmoothingEnabled = true; x.drawImage(A.net, A.x, A.y, A.w, A.h); if (o.surImage) o.surImage(x, v, z.w, z.h); } }, v, z);
   };
   World.obj = (kind, v = 0) => {
     const o = OBJ[kind], key = kind + v;

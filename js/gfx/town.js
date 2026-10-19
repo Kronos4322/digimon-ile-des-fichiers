@@ -334,4 +334,16 @@
       d.deco.rect(12, 46.4, 4, 1.2, '#ffffff', { unlit: true }); d.deco.rect(19, 46.4, 3, 1.2, '#ffd0d0', { unlit: true });
     } },
   });
+  // avec l'image du joueur (gfx/textures.js) : les affiches des habitants revenus, épinglées par-dessus (v = leur nombre)
+  OBJ.noticeboard.surImage = (x, v, w, h) => {
+    const notes = ['#fff4a0', '#ffc0d0', '#c0e8ff', '#c8f0b0', '#ffd8a0', '#e0c8ff', '#fff4a0', '#c0e8ff'];
+    for (let k = 0; k < v; k++) {
+      const nx = w * (0.3 + (k % 4) * 0.11), ny = h * (0.4 + Math.floor(k / 4) * 0.14), r = DW.Art.hash(k, v, 977) - 0.5;
+      x.save(); x.translate(nx, ny); x.rotate(r * 0.3);
+      x.fillStyle = 'rgba(0,0,0,0.25)'; x.fillRect(-2, -2.5, 5, 6.5);
+      x.fillStyle = notes[k]; x.fillRect(-2.5, -3, 5, 6.5);
+      x.fillStyle = '#e04848'; x.beginPath(); x.arc(0, -2.4, 0.8, 0, 7); x.fill();
+      x.restore();
+    }
+  };
 })();

@@ -83,7 +83,7 @@
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
     const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n)).filter(Boolean);
     const sol = r => (TX ? TX.sol(map, r) : null);
-    const TX_HERBE = sol('herbe'), TX_HSECHE = sol('herbe_seche'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves');
+    const TX_HERBE = sol('herbe'), TX_HSECHE = sol('herbe_seche'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves'), TX_SABLE2 = sol('sable_taches');   // (sable_taches : un second sable en grandes taches, ex. coquillages sur la plage)
     // herbe dessinée (l'herbe sèche sur les cases « j ») ; l'ombre des arbres et des falaises reste par-dessus
     // (la couleur est écrite dans HC, réutilisé : à lire aussitôt ; mêmes calculs que TX.lit et Art.mix)
     const texO = (P, x, y) => { const X = ((Math.floor(x) % P.w) + P.w) % P.w, Y = ((Math.floor(y) % P.h) + P.h) % P.h; return (Y * P.w + X) * 4; };
@@ -466,7 +466,7 @@
         let tc = null;
         if (t === TER.grass && (TX_HERBE || TX_HSECHE)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
         else if (t === TER.lawn && TX_HERBE && !(LUSH && en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
-        else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) tc = TX.lit(TX_SABLE, px, py);
+        else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) tc = TX_SABLE2 ? solNaturel(TX_SABLE, TX_SABLE2, px, py).slice() : TX.lit(TX_SABLE, px, py);
         else if (t === TER.dirt && TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {
           tc = TX.lit(TX_CHEMIN, px, py);
           if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) tc = Art.mix(tc, TX.lit(TX_HERBE, px, py), 0.8);
@@ -539,7 +539,7 @@
         v -= SH[i] * 0.2;
         if (en === TER.water && ed <= 9) { const wv = lerpPal(WET, v * 0.5 + ed * 0.35 - 0.6), dry = SAND[DW.clamp(Math.round(v), 0, 5)], k = ed <= 5 ? 0 : (ed - 5) / 4; col = [wv[0] + (dry[0] - wv[0]) * k, wv[1] + (dry[1] - wv[1]) * k, wv[2] + (dry[2] - wv[2]) * k]; }   // sable mouillé qui sèche en s'éloignant de l'eau
         else col = SAND[DW.clamp(Math.round(v), 0, 5)];
-        if (TX_SABLE && !(en === TER.water && ed <= 5)) { const s2 = TX.lit(TX_SABLE, px, py); col = en === TER.water && ed <= 9 ? Art.mix(col, s2, (ed - 5) / 4) : s2; }   // sable dessiné (le bord mouillé reste)
+        if (TX_SABLE && !(en === TER.water && ed <= 5)) { const s2 = TX_SABLE2 ? solNaturel(TX_SABLE, TX_SABLE2, px, py).slice() : TX.lit(TX_SABLE, px, py); col = en === TER.water && ed <= 9 ? Art.mix(col, s2, (ed - 5) / 4) : s2; }   // sable dessiné (le bord mouillé reste)
       } else if (t === TER.lawn) {
         let v = 3 + (L12(px, py) - 0.5) * 2 + b * 0.6;
         if (ed === 1 && en !== TER.lawn && en !== 255) v = 1;
@@ -676,11 +676,23 @@
         const face = tAt(tx, ty + 1) !== TER.cliff;
         const above = tAt(tx, ty - 1) !== TER.cliff;
         if (face) {
-          let v = 3 + (noise(px * 0.5, py * 0.12, 19) - 0.5) * 2.6 + b * 0.7 - (ly / 16) * 1.4;
-          if (noise(px * 0.9, py * 0.05, 20) > 0.72) v -= 1.5;
-          if (ly >= 14) v = 0.5;
-          col = CLIFF[DW.clamp(Math.round(v), 0, 5)];
-          if (above && ly < 3) col = ly === 2 ? GRASS[0] : GRASS[ly ? 2 : 4];
+          // FALAISE DE BORD DE MER (et des prairies) : blocs de roche claire irréguliers (cellules de 13 px), éclairés en haut
+          // à gauche, fissures sombres entre eux ; un bord d'herbe irrégulier qui déborde en haut, des brins qui pendent ;
+          // le pied plus sombre dans le sable
+          const cx = Math.floor(px / 13), cy = Math.floor(py / 13);
+          let d1 = 99, d2 = 99, ox = 0, oy = 0, kc = 0;
+          for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+            const k = cell13(cx + xx, cy + yy), ex = px - CF13[k], ey = py - CF13[k + 1], dd = Math.sqrt(ex * ex + ey * ey * 1.6);
+            if (dd < d1) { d2 = d1; d1 = dd; ox = ex; oy = ey; kc = k; } else if (dd < d2) d2 = dd;
+          }
+          const lip = above ? 3 + Math.floor(noise(px * 0.2, ty, 66) * 4) : 0, drip = above && hash(px >> 2, ty, 67) < 0.18 ? lip + 2 + Math.floor(hash(px >> 2, ty, 68) * 6) : 0;
+          let v = 4.2 - d1 * 0.09 - (ox + oy) * 0.06 + (hash(kc, 3, 62) - 0.5) * 1.2 - (ly / 16) * 1.3 + (noise(px * 0.35, py * 0.35, 70) - 0.5) * 0.8 + b * 0.4;
+          if (d2 - d1 < 1.5) v -= 1.8 * (1 - (d2 - d1) / 1.5);                                  // fissure entre deux blocs
+          col = lerpPal(CLIFF, v);
+          if (ly < lip) col = lerpPal(GRASS, 3.6 - ly * 0.55 + b * 0.6);                        // herbe du haut qui déborde
+          else if (ly === lip && above) col = lerpPal(GRASS, 0.5);
+          else if (ly < drip) col = lerpPal(GRASS, 1.4 + b * 0.5);                              // brins qui pendent
+          if (ly >= 13) col = Art.mix(col, [30, 22, 16], 0.12 * (ly - 12));                     // pied dans l'ombre
         } else {
           let v = 2.6 + (C21(px, py) - 0.5) * 2 + b;
           col = GRASS[DW.clamp(Math.round(v), 0, 4)];

@@ -35,7 +35,10 @@
       'maison_aquarium', 'maison_ordinateur', 'maison_cuisiniere', 'ville_lampadaire_noir', 'ville_paves',
       // mobilier extérieur (planche à 10 catégories) : caisses, distributeurs, boîte aux lettres, toilettes, jardinières, étals, puits
       'ext_caisse', 'ext_caisse2', 'ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc', 'ext_boite_lettres', 'ext_toilettes',
-      'ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose', 'ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain', 'ext_puits'],
+      'ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose', 'ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain', 'ext_puits', 'ext_panneau',
+      // plage : rochers, arche, herbes de dune, coquillages, mares, palmiers, bois flotté, château de sable, barque, radeau, sables
+      'plage_rocher', 'plage_rochers', 'plage_pile_rochers', 'plage_arche', 'plage_herbe_dune', 'plage_herbe_seche', 'plage_conque', 'plage_escargot', 'plage_coquille', 'plage_etoile', 'plage_mare',
+      'plage_palmier', 'plage_palmier_courbe', 'plage_palmier_double', 'plage_bois_flotte', 'plage_bois_flotte2', 'plage_chateau', 'plage_barque', 'plage_radeau', 'plage_sable', 'plage_borne'],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
@@ -57,7 +60,7 @@
     mont_edelweiss: { h: 13 }, mont_fleurs_violettes: { h: 14 }, mont_buisson_baies: { h: 24 }, mont_grotte: { h: 58 },
     mont_petit_rocher: { h: 12 }, mont_rocher: { h: 20 }, mont_gros_rocher: { h: 32 }, mont_aiguille: { h: 46 }, mont_eboulis_gros: { h: 26 },
     mont_rocher_mousse: { h: 24 }, mont_eboulis: { h: 18 }, mont_cairn: { h: 28 },
-    ville_paves: [96, 96],   // (pavés de la ville : une pierre fait environ 12 px du jeu)
+    ville_paves: [96, 96], plage_sable: [96, 96], plage_borne: { h: 40 },   // (pavés de la ville : une pierre fait environ 12 px du jeu)
     mont_gravier: [128, 128], mont_herbe_alpine: [128, 128], mont_terre_seche: [128, 128],
   };
   // objets du jeu remplacés par une image (par dossier) : un nom, ou plusieurs (variante choisie selon la case)
@@ -99,6 +102,13 @@
     crates: ['ext_caisse', 'ext_caisse2'], vending: ['ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc'], mailbox: ['ext_boite_lettres'], toilet: ['ext_toilettes'],
     planter: ['ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose'], marketstall: ['ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain'],
     stall: ['ext_etal_pain'], producestand: ['ext_etal_fruits'],
+    // le panneau d'affichage de la ville : son image, et par-dessus les affiches des habitants revenus (OBJ.noticeboard.surImage)
+    noticeboard: ['ext_panneau'],
+    // plage (ses rochers remplacent les pierres grises bleutées de la mer)
+    searock: ['plage_rocher', 'plage_rochers', 'plage_pile_rochers'], rockarch: ['plage_arche'], tidepool: ['plage_mare'],
+    palm: ['plage_palmier', 'plage_palmier_double'], cocotier: ['plage_palmier_courbe', 'plage_palmier'], driftwood: ['plage_bois_flotte', 'plage_bois_flotte2'],
+    starfish: ['plage_etoile'], sandcastle: ['plage_chateau'], rowboat: ['plage_barque'], raft: ['plage_radeau'], oyats: ['plage_herbe_dune', 'plage_herbe_seche'],
+    coquillages: ['plage_conque', 'plage_escargot', 'plage_coquille'], shellpile: ['plage_coquille', 'plage_conque'],
     toybox: ['maison_coffre_jouets'], desk: ['maison_bureau'], cushion: ['maison_coussins'], bigrug: ['maison_tapis'], rug: ['maison_tapis'],
     bigplant: ['maison_plante'], barrels: ['ville_tonneaux'], aquarium: ['maison_aquarium'], computer: ['maison_ordinateur'], oven: ['maison_cuisiniere'],
     _grandarbre: ['arbre_chene'],   // (le Grand Arbre de la Clairière : voir objets(), son passage reste dessiné par-dessus)
@@ -111,6 +121,7 @@
     bush: 0.85, hedge: 0.85, junglebush: 0.9, buissonfleuri: 0.85, rosebush: 0.8, flowerbed: 0.55, fern: 0.75, bigfern: 0.9, fougeres: 0.8, giantflower: 1.4,
     glowshroom: 0.9, giantshroom: 1.7, champignons: 0.5, mossrock: 0.8, rock: 0.6, boulder: 1, rochersmousse: 1, rubble: 0.8, cairn: 0.9,
     stump: 0.6, giantstump: 1, log: 0.5, hollowlog: 0.55, troncouche: 0.6, treeroots: 1, monolith: 1.6, totem: 1.7, crystal: 1, datacrystal: 1.3,
+    palm: 3.2, cocotier: 3.2, searock: 1, rockarch: 2.6, sandcastle: 0.9, oyats: 0.8, toilet: 2.1,
     sign: 1.1, roadsign: 1.2, spring: 1.1, shrine: 1.5, pipe: 0.9, lamp: 1.7, antenna: 1.3, stonelantern: 1.1, datapanel: 0.8, bench: 0.6, steplog: 0.4,
   };
   const nomArbre = (kind, v) => { const L = ARBRES[kind]; return L ? (v < L.length ? L[v] : L[v % L.length]) : null; };
@@ -120,7 +131,7 @@
   const CHOIX = {
     foret: { herbe: 'herbe_verte', chemin: 'terre_brune' }, spring: {}, meadow: { herbe: 'herbe_claire' },
     misty: { herbe: 'herbe_dense', chemin: 'terre_sombre' }, deep: { herbe: 'herbe_dense', chemin: 'terre_sombre' }, autumn: { herbe: 'herbe_seche', chemin: 'terre_brune' },
-    town: {}, farm: { chemin: 'terre_brune' }, beach: { herbe: 'herbe_claire', chemin: 'sable_terre' }, nursery: { herbe: 'herbe_fleurie' }, toy: { herbe: 'herbe_haute' },
+    town: {}, farm: { chemin: 'terre_brune' }, beach: { herbe: 'herbe_claire', chemin: 'sable_terre', sable: 'plage_sable' }, nursery: { herbe: 'herbe_fleurie' }, toy: { herbe: 'herbe_haute' },
     mountain: { herbe: 'herbe_terre', chemin: 'terre_cailloux' }, savanna: { herbe: 'herbe_seche', chemin: 'terre_savane', sable: 'sable_desert' },
     jungle: { herbe: 'herbe_dense', chemin: 'terre_sombre' }, dino: { herbe: 'herbe_dense', chemin: 'terre_brune' }, mangrove: { herbe: 'herbe_dense', chemin: 'terre_sombre' },
     beetle: { chemin: 'terre_brune' }, canyon: { herbe: 'herbe_seche', chemin: 'terre_craquelee', sable: 'sable_desert' },
@@ -218,7 +229,11 @@
   // motif (canvas.createPattern) pour remplir une forme avec la texture
   T.motif = (c, cle) => { const P = T.pixels(cle); if (!P) return null; return motifs[cle] || (motifs[cle] = c.createPattern(P.cv, 'repeat')); };
   // l'objet qui remplace « kind » sur cette carte (ou null) ; la variante dépend de la case
+  // ... et par thème de carte (dossier commun) : sur la plage, les dalles numériques deviennent la borne de la planche Plage
+  const PAR_THEME = { beach: { datapanel: ['plage_borne'] } };
   T.objet = (map, kind, tx, ty) => {
+    const th = map && !map.textures ? themeDe(map) : null, RT = th && PAR_THEME[th] && PAR_THEME[th][kind];
+    if (RT) { const d = RT.filter(n => T.a('commun/' + n)); if (d.length) return 'tex_commun_' + d[Math.floor(DW.Art.hash(tx, ty, 777) * d.length) % d.length]; }
     const R = map && map.textures && REMPLACE[map.textures] && REMPLACE[map.textures][kind]; if (!R) return null;
     const dispo = R.filter(n => T.a(map.textures + '/' + n)); if (!dispo.length) return null;
     return 'tex_' + map.textures + '_' + dispo[Math.floor(DW.Art.hash(tx, ty, 777) * dispo.length) % dispo.length];
