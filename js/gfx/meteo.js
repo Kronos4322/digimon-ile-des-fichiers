@@ -228,9 +228,10 @@
       }
     },
     // arbre de saison : [type, variante] à dessiner à la place de l'arbre, ou null
-    TREES: { tree: 1, oak: 1, birch: 1 },
+    TREES: { tree: 1, oak: 1, birch: 1, pine: 1 },
     treeV(o) {
       let kind = o.kind, v = o.v || 0;
+      if (kind === 'pine') return this.cur && this.cur.snow >= 0.3 && DW.Textures && DW.Textures.aArbre('pine', 3) ? ['pine', 3] : null;   // (sapin enneigé)
       if (kind === 'tree' && v === 3) { kind = 'oak'; v = 0; } else if (kind === 'tree' && v === 4) { kind = 'birch'; v = 0; }
       const C = this.cur, se = Math.floor(C.m / 3), p = C.m % 3, h = Art.hash(o.tx, o.ty, 77), snow = C.snow >= 0.3, isT = kind === 'tree';
       const green = !isT || [0, 1, 2, 8, 9].includes(v), warm = isT && v >= 5 && v <= 7;
@@ -239,7 +240,7 @@
       if (!green && !warm) return null;
       const BARE = isT ? (snow ? 15 : 14) : (snow ? 3 : 2), FALL = isT ? [5, 6, 7][Math.floor(h * 30) % 3] : 1;
       if (se === 0) {   // printemps : quelques arbres encore nus en mars, cerisiers en fleurs en mars-avril
-        if (p === 0 && h > 0.82) return [kind, BARE];
+        if (p === 0 && h > 0.82 && !(DW.Textures && DW.Textures.aArbre('tree', 0))) return [kind, BARE];
         if (isT && green && p < 2 && h < 0.3) return [kind, h < 0.18 ? 12 : 13];
         return null;
       }
@@ -259,7 +260,7 @@
       if (o.flat) return this.DRY[o.kind] && C.m >= 9 ? this.dry(img, this.DRY[o.kind]) : img;   // (fougères : objets plats)
       if (this.TREES[o.kind] && !o.sprs) {
         const r = this.treeV(o);
-        if (r) { img = DW.World.obj(r[0], r[1]).img; if (r[1] === (r[0] === 'tree' ? 15 : 3)) return img; }   // (déjà enneigé)
+        if (r) { img = DW.World.obj(r[0], r[1]).img; if (r[1] === (r[0] === 'tree' ? 15 : 3) || (r[0] === 'tree' && DW.Textures && DW.Textures.aArbre('tree', r[1]) && (r[1] === 10 || r[1] === 11))) return img; }   // (déjà enneigé)
         else if (o.kind === 'tree' && (o.v === 10 || o.v === 11)) return img;
       } else if (this.FLOWERS[o.kind] && (o.v || 0) < 3 && C.m >= 7) img = DW.World.obj(o.kind, C.m >= 9 ? 3 : 4).img;
       else if (this.DRY[o.kind] && C.m >= 9) img = this.dry(img, this.DRY[o.kind]);   // hiver : fougères fanées, buissons ternis

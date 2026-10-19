@@ -70,4 +70,5 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
 
 os.chdir(ROOT)
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
+http.server.ThreadingHTTPServer.request_queue_size = 128   # (le jeu charge des dizaines d'images d'un coup)
 http.server.ThreadingHTTPServer(('127.0.0.1', port), NoCache).serve_forever()

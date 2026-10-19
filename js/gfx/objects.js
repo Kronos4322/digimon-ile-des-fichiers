@@ -509,10 +509,16 @@
     c._k = k;
     return { img: c, w: c.width / k, h: c.height / k, k };
   };
+  // arbre dessiné avec une image du joueur (gfx/textures.js : ARBRES) : posé en bas, centré, dans le cadre de l'objet
+  const arbreImg = (kind, v, z) => {
+    const T = DW.Textures, A = T && T.fini && T.arbre && T.arbre(kind, v, z.w, z.h, z.W / z.w); if (!A) return null;
+    return paintRender({ paint: x => { x.imageSmoothingEnabled = true; x.drawImage(A.net, A.x, A.y, A.w, A.h); } }, v, z);
+  };
   World.obj = (kind, v = 0) => {
     const o = OBJ[kind], key = kind + v;
     if (!objCache[key]) {
-      const z = objSize(kind, v);
+      const z = objSize(kind, v), img = arbreImg(kind, v, z);
+      if (img) return (objCache[key] = img);
       objCache[key] = o.paint && (!o.painted || o.painted(v)) ? paintRender(o, v, z)
         : Art.render(dd => o.draw(dd, v, 0), z.W, z.H, { box: [z.w, z.h], silhouettes: false, noOutline: !!o.noOutline });
     }

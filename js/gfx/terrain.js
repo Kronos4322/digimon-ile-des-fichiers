@@ -79,12 +79,17 @@
     // sols spéciaux de la terre (rocaille, cendres) : une valeur par case, 0 = terre ordinaire
     let SOLK = null; for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) { const I = World.CH[map.rows[ty][tx]]; if (I && I.sol) { if (!SOLK) SOLK = new Uint8Array(map.w * map.h); SOLK[ty * map.w + tx] = I.sol; } }
     // TEXTURES DESSINÉES (gfx/textures.js) : sol, dessus des terrasses, falaises, escaliers, lave (null = dessin par code)
-    const TX = DW.Textures && map.textures ? DW.Textures : null, txp = n => (TX ? TX.pixels(map.textures + '/' + n) : null);
+    const TX = DW.Textures && (map.textures || DW.Textures.themeDe(map)) ? DW.Textures : null, txp = n => (TX && map.textures ? TX.pixels(map.textures + '/' + n) : null);
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
     const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n)).filter(Boolean);
-    const TX_HERBE = txp('herbe'), TX_HSECHE = txp('herbe_seche'), TX_SABLE = txp('sable'), TX_CHEMIN = txp('chemin');
+    const sol = r => (TX ? TX.sol(map, r) : null);
+    const TX_HERBE = sol('herbe'), TX_HSECHE = sol('herbe_seche'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce');
     // herbe dessinée (l'herbe sèche sur les cases « j ») ; l'ombre des arbres et des falaises reste par-dessus
-    const herbeTx = (tx, ty, px, py, sh) => { const P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE; const c = TX.lit(P, px, py), k = Math.min(0.45, sh * 0.04); return k > 0 ? Art.mix(c, [24, 50, 60], k) : c; };
+    const herbeTx = (tx, ty, px, py, sh, en, ed) => {
+      const P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE; let c = TX.lit(P, px, py);
+      if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) c = Art.mix(c, TX.lit(TX_CHEMIN, px, py), 0.55);   // (bord de chemin)
+      const k = Math.min(0.45, sh * 0.04); return k > 0 ? Art.mix(c, [24, 50, 60], k) : c;
+    };
     const altCase = (x, y) => { const a = map.alt ? map.alt[DW.clamp(y, 0, map.h - 1) * map.w + DW.clamp(x, 0, map.w - 1)] : 0; return a === 255 ? 9 : a; };
     // lave refroidie : sur une falaise basse (loin du cratère), les fissures de lave de l'image deviennent sombres
     const refroidie = (c, k) => { if (k <= 0) return c; const chaud = Math.max(0, Math.min(1, (c[0] - c[2] - 70) / 120)) * (c[0] > 150 ? 1 : 0.5); if (chaud <= 0) return c; const f = chaud * k, g = (c[0] + c[1] + c[2]) / 3 * 0.45; return [c[0] + (g + 18 - c[0]) * f, c[1] + (g + 8 - c[1]) * f, c[2] + (g - c[2]) * f, c[3]]; };
@@ -143,6 +148,8 @@
       return v - SH[i] * 0.18;
     };
     const CANOPY = TH ? TH.canopy.map(Art.hex) : PAL.canopy;
+    const FORET_ARBRES = !!(TX && DW.Textures.aArbre('tree', 0) && !(TH && TH.canopyStyle === 'rock'));   // forêts en vrais arbres (images du joueur)
+    const FLEURS_POSEES = [];   // fleurs et champignons du sol dessinés avec les images du joueur (petits objets plats)
     const LITTER = TH ? TH.litter : ['#c86a2a', '#e09a3a', '#8a5a2a', '#a8a040', '#7a9a38'];
     // biomes : le thème peut remplacer les couleurs de la terre, du sable, de l'eau (lave, marais, glace) et des falaises
     const DIRT = map.dirt ? map.dirt.map(Art.hex) : TH && TH.dirt ? TH.dirt.map(Art.hex) : PAL.dirt, SAND = TH && TH.sand ? TH.sand.map(Art.hex) : PAL.sand;
@@ -329,7 +336,7 @@
           const cool = Math.min(0.5, (p5 < 0.42 ? (0.42 - p5) * 1.2 : 0) + sh * 0.035);
           if (cool > 0) { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; }   // ombre bleutée
         }
-        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i]);   // (image dessinée : gfx/textures.js)
+        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // (image dessinée : gfx/textures.js)
       } else if (t === TER.dirt && LUSH) {
         // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre
         col = lerpPal(DIRT, lushDirtV(px, py, i) - (en === TER.grass && ed <= 4 ? (5 - ed) * 0.14 : 0));
@@ -339,7 +346,11 @@
           col = [col[0] + (gc[0] - col[0]) * k, col[1] + (gc[1] - col[1]) * k, col[2] + (gc[2] - col[2]) * k];
         }
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
-        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) col = TX.lit(TX_CHEMIN, px, py);   // sentier du bas (image dessinée)
+        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
+          col = TX.lit(TX_CHEMIN, px, py);
+          if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) col = Art.mix(col, TX.lit(TX_HERBE, px, py), 0.8);
+          if (ed <= 4 && en === TER.grass) col = Art.mix(col, [30, 24, 14], 0.06 * (5 - ed));   // (un peu creusé au bord)
+        }
         if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
         else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.lawn && LUSH) {
@@ -353,7 +364,7 @@
         v -= SH[i] * 0.22;
         if (tallAt(tx, ty)) v -= 1.2;
         col = GRASS[DW.clamp(Math.round(v), 0, 5)];
-        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i]);   // (image dessinée : gfx/textures.js)
+        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // (image dessinée : gfx/textures.js)
         if (map.ambient === 'forest' && SH[i] > 2 && hash(px >> 1, py >> 1, 90) < 0.02) col = Art.hex(['#c8a040', '#a8c050', '#d08a3a'][Math.floor(hash(px, py, 91) * 3)]);
       } else if (t === TER.dirt) {
         let v = 3 + (D7(px, py) - 0.5) * 2.4 + b * 0.8;
@@ -363,7 +374,11 @@
         v -= SH[i] * 0.2;
         col = DIRT[DW.clamp(Math.round(v), 0, 5)];
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.06) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);
-        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) col = TX.lit(TX_CHEMIN, px, py);   // sentier du bas (image dessinée)
+        if (TX_CHEMIN && !(SOLK && SOLK[ty * map.w + tx]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
+          col = TX.lit(TX_CHEMIN, px, py);
+          if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) col = Art.mix(col, TX.lit(TX_HERBE, px, py), 0.8);
+          if (ed <= 4 && en === TER.grass) col = Art.mix(col, [30, 24, 14], 0.06 * (5 - ed));   // (un peu creusé au bord)
+        }
         if (SOLK && SOLK[ty * map.w + tx]) col = solVar(col, SOLK[ty * map.w + tx], px, py);
         else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.sand) {
@@ -416,6 +431,7 @@
         // creux sombres et froids entre elles, tons continus (pas de paliers)
         let v = CANV(px, py) + (hash(px >> 1, py >> 1, 18) - 0.5) * 0.4 - Math.min(ed, 40) * 0.03;
         col = lerpPal(CANOPY, v);
+        if (FORET_ARBRES) { col = Art.mix(col, [10, 26, 16], 0.5); v -= 0.8; }   // (sous-bois sombre : les arbres dessinés sont posés dessus)
         if (v < 1.6) { const k = (1.6 - v) * 0.25; col[0] += (12 - col[0]) * k; col[1] += (40 - col[1]) * k * 0.6; col[2] += (60 - col[2]) * k; }   // ombre bleutée
         else if (v > 3.6) { const k = Math.min(0.4, (v - 3.6) * 0.3); col[0] += (230 - col[0]) * k; col[1] += (230 - col[1]) * k * 0.5; col[2] += (120 - col[2]) * k * 0.3; }   // éclat doré
       } else if (t === TER.canopy) {
@@ -703,7 +719,10 @@
     };
     for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
       const inf = World.info(map.rows[ty][tx]);
-      if (inf.deco && !(TH && TH.noFlowers && (inf.deco === 'flowers' || inf.deco === 'mushrooms'))) decorate(tx, ty, inf.deco);
+      if (inf.deco && !(TH && TH.noFlowers && (inf.deco === 'flowers' || inf.deco === 'mushrooms'))) {
+        const F = TX && (inf.deco === 'flowers' || inf.deco === 'mushrooms') ? TX.fleur(map, tx, ty, inf.deco) : null;
+        if (F) FLEURS_POSEES.push([tx, ty, F]); else if (F !== '') decorate(tx, ty, inf.deco);   // (images du joueur : posées plus bas, comme objets ; '' = case laissée nue)
+      }
     }
     // touffes d'herbe, trèfles et brindilles sur l'herbe des forêts
     if (map.ambient === 'forest') {
@@ -765,6 +784,27 @@
     }
     // bouche du volcan (dessinée par game/lave.js) : ses images sont préparées avec la carte
     if (map.bouche) for (const k of ['bouche', 'bouchelave']) for (let fr = 0; fr < OBJ[k].frames; fr++) if (!World.objReady(k, 0, fr)) { World.objFrame(k, 0, fr); yield; }
+    // FLEURS ET CHAMPIGNONS DU SOL (images du joueur) : une touffe par case, placée au hasard dans la case, plate (sous le héros)
+    for (const [tx, ty, kind] of FLEURS_POSEES) {
+      if (!OBJ[kind]) continue;
+      if (!World.objReady(kind, 0)) { World.obj(kind, 0); yield; }
+      const jx = Math.round((hash(tx, ty, 66) - 0.5) * 8), jy = Math.round((hash(tx, ty, 67) - 0.5) * 6);
+      objs.push({ kind, v: 0, flip: hash(tx, ty, 68) < 0.5, spr: World.obj(kind, 0), sprs: null, fps: 4, x: tx * TS + 8 + jx, y: ty * TS + 13 + jy, sort: -10 + ty * 0.01, big: false, tx, ty, flat: true });
+    }
+    // FORÊTS EN VRAIS ARBRES : là où le jeu peignait une voûte de feuillage (cases « # »), des arbres dessinés serrés en
+    // quinconce (une case sur quatre, et chaque case du premier rang, celui qu'on voit de face) ; variantes du thème
+    if (FORET_ARBRES) {
+      const pick = (tx, ty) => { const h = hash(tx, ty, 60); if (TH && TH.trees) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; for (const [tv, w] of TH.trees) { if (r < w) return tv; r -= w; } return TH.trees[0][0]; } return Math.floor(h * 3); };
+      for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+        if (tAt(tx, ty) !== TER.canopy) continue;
+        const devant = tAt(tx, ty + 1) !== TER.canopy, quinconce = ty % 2 === 0 && (tx + (ty >> 1)) % 2 === 0;
+        if (!(quinconce || (devant && (tx + ty) % 2 === 0))) continue;
+        const v = pick(tx, ty);
+        if (!World.objReady('tree', v)) { World.obj('tree', v); yield; }
+        const jx = Math.round((hash(tx, ty, 64) - 0.5) * 6), jy = devant ? 0 : Math.round((hash(tx, ty, 65) - 0.5) * 4);
+        objs.push({ kind: 'tree', v, flip: hash(tx, ty, 63) < 0.5, spr: World.obj('tree', v), sprs: null, fps: 4, x: tx * TS + 8 + jx, y: ty * TS + 16 + jy, sort: ty + 0.5 + jy / 16, big: true, tx, ty, flat: false });
+      }
+    }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
     for (const o0 of map.objects || []) {
       const R = TX && TX.objet(map, o0.kind, o0.x, o0.y), o = R ? { ...o0, kind: R, v: 0 } : o0;   // (image dessinée : gfx/textures.js)
@@ -969,6 +1009,10 @@
             const L = TX_LAVE[f % TX_LAVE.length], dec = TX_LAVE.length === 1 ? f * 2 : 0;
             col = TX.lit(L, px + dec, py + dec * 0.5); if (ed <= 2) col = Art.mix(col, [40, 14, 8], (3 - ed) * 0.22);
             put(W8, OUT[k], col); continue;
+          }
+          if ((TX_MER || TX_DOUCE) && !(EAUX && (K1[k] === 4 || K1[k] === 5))) {   // eaux dessinées (gfx/textures.js) ; marais et lave gardent leur dessin
+            const mer = EAUX && K1[k] ? K1[k] === 1 : !!(map.mer || map.climate === 'beach'), P = mer ? TX_MER || TX_DOUCE : TX_DOUCE || TX_MER;
+            col = Art.mix(TX.lit(P, px + ca * 3 + f * 0, py + sa * 2), col, 0.22);
           }
           if (en === TER.bridge && ed <= 4) col = Art.mix(col, [10, 30, 60], 0.4 * (1 - ed / 5));   // ombre sous le ponton
           if (en !== TER.bridge && en !== 255) {
