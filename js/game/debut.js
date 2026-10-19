@@ -95,7 +95,7 @@
     ow.flyers = null; ow.cine = false;
     s.flags.kuwaChase = true;
     // réveil chez Jijimon (comme avant)
-    ow.load('maison', 12, 5, 'down');
+    await ow.charger('maison', 12, 5, 'down');
     DW.Audio.play('village');
     DW.fade(0, 0.8);   // (comme une partie normale : le réveil se fait sur l'image, sinon tout restait noir)
     await DW.Game.push(new DW.WakeScene());

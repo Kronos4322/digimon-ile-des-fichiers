@@ -29,7 +29,7 @@
         if (this.o.battle) { await DW.say("Ça ne sert à rien en plein combat !"); return; }
         if (it.use === 'bell') { st.bag[id]--; st.bellUntil = st.clock + 120; st.repelUntil = 0; await DW.say('Ding ding ! Tous les Digimon sauvages des environs accourent...'); }
         if (it.use === 'potty') { if (!DW.Care || !st.party.length) return; st.bag[id]--; this.close(null); await DW.Care.toilet(); return; }
-        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); DW.ow.load('village', 20, 16, 'down'); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
+        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); await DW.ow.charger('village', 20, 16, 'down'); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
         this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (it.use === 'evo') {

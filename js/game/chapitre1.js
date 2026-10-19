@@ -61,7 +61,7 @@
   async function goTo(ow, p, face = 'up') {
     if (!p) return;
     await DW.fade(1, 0.3);
-    ow.load('village', p[0], p[1], face);
+    await ow.charger('village', p[0], p[1], face);
     ow.banner.t = 99;
     // Koromon suit, juste à côté du héros (pas sur la case de son partenaire)
     const k = (ow.map.npcs || []).find(n => n.sp === 'koromon' && !n.story);

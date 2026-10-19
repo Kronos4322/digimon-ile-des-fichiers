@@ -1086,6 +1086,8 @@
     return false;
   };
   World.unprepare = map => { delete map.gfx; delete map._prep; };
+  // prête à s'afficher (le reste de l'eau animée se termine ensuite, en tâche de fond)
+  World.pret = map => !!(map.gfx && map.gfx.ms !== undefined);
 
   // ------------------------------------------------------------ herbes hautes (sprites 16x24, 3 positions de vent)
   const TALL = { grass: ['#1c5a22', '#36923a', '#6cca58', 34], dune: ['#6a7228', '#9aac40', '#d4e07a', 18], pastel: ['#3e9a6e', '#72cc96', '#c4f4d8', 30] };

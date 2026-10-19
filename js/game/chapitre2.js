@@ -203,7 +203,7 @@
     // l'aube, sur l'île revenue contre la rive
     const h = DW.Time.hour(), day = Math.floor(s.clock / 1440);
     s.clock = (h >= 20 ? day + 1 : day) * 1440 + 6 * 60;
-    ow.load('lac2', 47, 49, 'up');
+    await ow.charger('lac2', 47, 49, 'up');
     const kids = [];
     const free = [[45, 49], [49, 49], [44, 50], [50, 50]].filter(([x, y]) => !ow.solid(x, y));
     if (free[0]) kids.push({ hero: 'matt', x: free[0][0], y: free[0][1], face: 'right', talk: () => {} });
@@ -229,7 +229,7 @@
     const extra = DW.giveItem('soin_m', 3) + DW.giveItem('pm_m', 2); s.bits += 1000;
     await say(`Tu reçois le Trophée de Seadramon !  Dans le sac de Matt, il y avait 3 RAM PV+, 2 RAM PM+ et 1000 Bits : « Prends-les, j'en ai plus besoin. »${DW.extraMsg(extra)}`);
     await DW.fade(1, 0.8);
-    ow.load('maison', 12, 5, 'down');
+    await ow.charger('maison', 12, 5, 'down');
     await DW.wait(0.3);
     await DW.fade(0, 0.8);
     DW.autosave();

@@ -12,6 +12,18 @@
   const SWAY = { tree: 1, oak: 1, birch: 1, bigtree: 1, palm: 1, pine: 1, fruittree: 1, jungletree: 1, swamptree: 1, cycad: 1, acacia: 1, baobab: 1, mangrove: 1, candytree: 1 };
   const WALK = 0.2, RUN = 0.11; // secondes par case (×√2 en diagonale : même vitesse dans toutes les directions)
 
+  // DONNÉES D'UNE CARTE avant de la dessiner (aussi pour une voisine préparée à l'avance : son décor de première visite
+  // est posé AVANT, sinon le dessin fait à l'avance serait jeté en entrant)
+  DW.preparerCarte = mapId => {
+    if (DW.MAPS[mapId].build) DW.MAPS[mapId].build();
+    if (DW.MAPS[mapId].populate) DW.MAPS[mapId].populate();
+    const map = DW.getMap(mapId);
+    if (DW.MapKit.dress) DW.MapKit.dress(map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
+    if (DW.Distrib) { DW.Distrib.signs(map); DW.Distrib.place(map, mapId); }   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
+    if (DW.Antre) DW.Antre.hole(map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
+    if (DW.YokoVillage) DW.YokoVillage.place(map, mapId);   // le tronc creux vers le village des Poyomon (maps/yokomon.js)
+    return map;
+  };
   class Overworld extends DW.Scene {
     constructor(mapId, x, y, dir) {
       super();
@@ -20,18 +32,23 @@
       this.load(mapId, x, y, dir);
       DW.ow = this;
     }
+    // changer de carte en douceur : la carte est préparée par petits morceaux pendant l'écran noir du fondu
+    // (« Chargement... » : core.js), puis on y entre ; déjà prête (préparée à l'avance) = immédiat
+    async charger(mapId, x, y, dir = 'down') {
+      const M = DW.preparerCarte(mapId);
+      if (!DW.World.pret(M)) {
+        DW.chargement = { texte: 'Chargement...' };
+        try { while (!DW.World.prepareSome(M, 30) && !DW.World.pret(M)) await new Promise(r => setTimeout(r, 0)); }
+        finally { DW.chargement = null; }
+      }
+      this.load(mapId, x, y, dir);
+    }
     load(mapId, x, y, dir = 'down') {
       this.wilds = [];
-      if (DW.MAPS[mapId].build) DW.MAPS[mapId].build();
-      if (DW.MAPS[mapId].populate) DW.MAPS[mapId].populate();
-      this.map = DW.getMap(mapId); this.mapId = mapId;
-      if (DW.MapKit.dress) DW.MapKit.dress(this.map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
-      if (DW.Distrib) { DW.Distrib.signs(this.map); DW.Distrib.place(this.map, mapId); }
-      if (DW.Antre) DW.Antre.hole(this.map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
-      if (DW.YokoVillage) DW.YokoVillage.place(this.map, mapId);   // le tronc creux vers le village des Poyomon (maps/yokomon.js)   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
+      this.map = DW.preparerCarte(mapId); this.mapId = mapId;
       this.gfx = DW.World.prepare(this.map);
-      // cartes voisines (sorties et portes) : préparées pendant qu'on explore ; les autres sont libérées
-      const near = new Set([mapId, ...(this.map.warps || []).map(w => w.to), ...(this.map.doors || []).map(d => d.to)]);
+      // cartes voisines (sorties, portes, portails) : préparées pendant qu'on explore ; les autres sont libérées
+      const near = new Set([mapId, ...(this.map.warps || []).map(w => w.to), ...(this.map.doors || []).map(d => d.to), ...(this.map.portails || []).map(o => o.to)]);
       this.near = [...near].filter(id => id !== mapId && DW.MAPS[id]);
       for (const id in DW.MAPS) if (!near.has(id) && DW.MAPS[id].gfx) DW.World.unprepare(DW.MAPS[id]);
       this.amb = new DW.World.Ambient(this.map); DW.Vivant.init(this);
@@ -207,18 +224,32 @@
       n.hx = DW.lerp(n.mv.sx, n.x, k); n.hy = DW.lerp(n.mv.sy, n.y, k);
       if (k >= 1) n.mv = null;
     }
-    // travail de fond, ~3 ms par image : fin de l'eau animée, puis cartes voisines
+    // travail de fond (quelques ms par image) : fin de l'eau animée, puis les cartes voisines, LA PLUS PROCHE D'ABORD (selon la
+    // position du héros : à l'ouest de la carte, on prépare la carte de l'ouest avant celle de l'est) ; en marchant,
+    // seulement si l'on approche d'une sortie (moins de 12 cases), à petit budget (pas de saccade)
     background() {
-      if (!DW.World.prepareSome(this.map, 3)) return;
-      // cartes voisines : seulement quand le héros est immobile (aucune saccade en marchant)
-      if (this.p.moving || Input.dir()) return;
-      for (const id of this.near || []) {
-        const M = DW.MAPS[id];
-        if (M.gfx && !M._prep) continue;
-        if (M.build) M.build();
-        DW.World.prepareSome(DW.getMap(id), 3);
-        return;
-      }
+      const marche = this.p.moving || Input.dir(), c = this.voisinePrioritaire();
+      // tout près d'une sortie (moins de 8 cases) : sa carte passe AVANT la fin de l'eau animée de la carte actuelle
+      const urgent = c && c.d < 8;
+      if (!urgent && !DW.World.prepareSome(this.map, marche ? 3 : 6)) return;
+      if (!c || (marche && c.d > 12)) return;
+      // (immobile : l'image n'utilise que 2 à 5 ms sur 16, on en donne 7 à 10 à la préparation ; en marchant, 2,5)
+      DW.World.prepareSome(DW.preparerCarte(c.id), marche ? 2.5 : urgent ? 10 : 7);
+    }
+    // la carte voisine pas encore prête dont la sortie est la plus proche du héros (un peu « plus proche » si l'on marche
+    // vers elle) ; null si toutes sont prêtes
+    voisinePrioritaire() {
+      const P = this.p, [dx, dy] = DIRS[P.dir] || [0, 0]; let best = null;
+      const vers = (id, x, y, w, h) => {
+        const M = DW.MAPS[id]; if (!M || id === this.mapId || (M.gfx && !M._prep)) return;
+        const vx = DW.clamp(P.x, x, x + w - 1) - P.x, vy = DW.clamp(P.y, y, y + h - 1) - P.y;
+        let d = Math.hypot(vx, vy); if (d > 0 && vx * dx + vy * dy > 0) d *= 0.7;
+        if (!best || d < best.d) best = { id, d };
+      };
+      for (const w of this.map.warps || []) vers(w.to, w.x, w.y, w.w || 1, w.h || 1);
+      for (const o of this.map.doors || []) vers(o.to, o.x, o.y, o.w || 1, 1);
+      for (const o of this.map.portails || []) vers(o.to, o.x, o.y, o.w || 1, o.h || 1);
+      return best;
     }
     tryMove(d, run, over, quiet) {
       const P = this.p;
@@ -316,13 +347,13 @@
       const P = this.p;
       await DW.fade(1, 0.38, null, 'digi');
       const nx = w.tx + (P.x - w.x), ny = w.ty + (P.y - w.y);
-      this.load(w.to, nx, ny, P.dir);
+      await this.charger(w.to, nx, ny, P.dir);
       DW.autosave();
       await DW.fade(0, 0.38, null, 'digi');
     }
     async enterPortail(o) {
       await DW.fade(1, 0.3, null, 'digi');
-      this.load(o.to, o.tx, o.ty, this.p.dir);
+      await this.charger(o.to, o.tx, o.ty, this.p.dir);
       DW.autosave();
       await DW.fade(0, 0.3, null, 'digi');
     }
@@ -331,7 +362,7 @@
       await DW.fade(1, 0.25);
       // (intérieur qui grandit avec la ville : l'arrivée suit sa taille — maps/grandir.js)
       const M = DW.MAPS[o.to], a = M && M.arrive ? M.arrive() : null;
-      this.load(o.to, (a ? a[0] : o.tx) + (nx - o.x), a ? a[1] : o.ty, o.dir);
+      await this.charger(o.to, (a ? a[0] : o.tx) + (nx - o.x), a ? a[1] : o.ty, o.dir);
       DW.autosave();
       await DW.fade(0, 0.25);
     }
@@ -453,7 +484,7 @@
       const st = DW.state;
       await DW.fade(1, 0.6);
       for (const m of st.party) m.heal();
-      this.load('maison', 12, 5, 'down');
+      await this.charger('maison', 12, 5, 'down');
       DW.Audio.play('village');
       await DW.wait(0.3);
       await DW.fade(0, 0.6);
@@ -467,7 +498,7 @@
       const lost = Math.floor(st.bits / 10); st.bits -= lost;
       st.party.forEach(m => m.heal());
       // toujours chez Jijimon (combat ordinaire ou boss) : il te ramène et soigne ton équipe
-      this.load('maison', 12, 5, 'down');
+      await this.charger('maison', 12, 5, 'down');
       await DW.wait(0.5);
       await DW.fade(0, 0.6);
       await DW.say("Hohoho... Te voilà réveillé ! On t'a retrouvé évanoui, ton Digimon à tes côtés. Je vous ai ramenés ici et soignés.", 'Jijimon');

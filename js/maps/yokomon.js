@@ -124,7 +124,7 @@
         if ((await DW.ask(st().flags.yokoQuest ? 'Le tronc creux qui mène au village des Poyomon. Se faufiler dedans ?' : "Un tronc creux couché contre les arbres... On entend des petites voix de l'autre côté. Se faufiler dedans ?")) !== 0) return;
         DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4);
         MAPS.village_yokomon.warps[0].tx = x; MAPS.village_yokomon.warps[0].ty = y + 1;
-        ow.load('village_yokomon', 17, H - 2, 'up'); await DW.fade(0, 0.4);
+        await ow.charger('village_yokomon', 17, H - 2, 'up'); await DW.fade(0, 0.4);
       };
       // un petit panneau à côté du tronc (sinon on passait devant sans le voir)
       for (const sx of [x + 1, x - 1, x + 2, x - 2]) {

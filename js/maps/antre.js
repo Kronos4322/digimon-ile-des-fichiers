@@ -25,7 +25,7 @@
     if (f.shellLair) {
       if ((await DW.ask("Entre les cabines, le sable s'est effondré : des marches descendent dans le noir. Descendre ?")) !== 0) return;
       DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4);
-      ow.load('antre1', MAPS.antre1.entry.x, MAPS.antre1.entry.y, 'up'); await DW.fade(0, 0.4);
+      await ow.charger('antre1', MAPS.antre1.entry.x, MAPS.antre1.entry.y, 'up'); await DW.fade(0, 0.4);
       return;
     }
     DW.Audio.sfx('ring');
@@ -145,8 +145,8 @@
       dark: { d: 0.55, col: '#140a04' }, rate: 0.1, wildN: 11, aggro: 0.9, sight: 7, encounters: enc,
       rows: g.map(r => r.join('')), objects: objects.filter(o => !o.skip), npcs: [], signs: {}, warps: [], doors: [],
       triggers: [
-        { x: sx, y: sy, w: 1, h: 1, run: async ow => { await DW.fade(1, 0.3); ow.load(back[0], back[1], back[2], 'down'); await DW.fade(0, 0.3); } },
-        { x: ex, y: ey, w: 1, h: 1, run: async ow => { await DW.fade(1, 0.3); const N = MAPS[next]; ow.load(next, N.entry.x, N.entry.y, 'up'); await DW.fade(0, 0.3); } },
+        { x: sx, y: sy, w: 1, h: 1, run: async ow => { await DW.fade(1, 0.3); await ow.charger(back[0], back[1], back[2], 'down'); await DW.fade(0, 0.3); } },
+        { x: ex, y: ey, w: 1, h: 1, run: async ow => { await DW.fade(1, 0.3); const N = MAPS[next]; await ow.charger(next, N.entry.x, N.entry.y, 'up'); await DW.fade(0, 0.3); } },
       ],
       entry: { x: sx, y: sy + 1 }, exitAt: { x: ex, y: ey + 1 },
     };
@@ -187,7 +187,7 @@
     MAPS.antre_shellmon = {
       name: 'Antre de Shellmon — La grande coquille', music: 'temple', bg: 'plage', ambient: 'forest', theme: 'sandtemple', climate: 'beach', region: 'plage', indoor: true,
       dark: { d: 0.5, col: '#100a06' }, rows: g.map(r => r.join('')), objects, npcs: [], signs: {}, warps: [], doors: [],
-      triggers: [{ x: 21, y: 31, w: 4, h: 1, run: async ow => { await DW.fade(1, 0.3); ow.load('antre2', L2.exitAt.x, L2.exitAt.y, 'down'); await DW.fade(0, 0.3); } }],
+      triggers: [{ x: 21, y: 31, w: 4, h: 1, run: async ow => { await DW.fade(1, 0.3); await ow.charger('antre2', L2.exitAt.x, L2.exitAt.y, 'down'); await DW.fade(0, 0.3); } }],
       entry: { x: 22, y: 29 },
     };
     MAPS.antre_shellmon.signs['22,3'] = MAPS.antre_shellmon.signs['23,3'] = "Un totem de grès couvert de coquillages. Les yeux sculptés semblent te suivre...";
@@ -228,7 +228,7 @@
       // la cinématique (comme l'introduction), puis retour dans la grande coquille, la cage ouverte
       DW.Crests.freeKid('tai');
       await DW.Game.push(new DW.ShellmonCinema());
-      ow.load('antre_shellmon', 30, 23, 'right');
+      await ow.charger('antre_shellmon', 30, 23, 'right');
       // Tai et Agumon, sortis de la cage, viennent te parler (le temps de la scène : ensuite ils vivent chez toi)
       const free = [[32, 23], [33, 23], [32, 24], [33, 22]].filter(([x, y]) => !ow.solid(x, y)), kids = [];
       if (free[0]) kids.push({ hero: 'tai', x: free[0][0], y: free[0][1], face: 'left', talk: () => {} });
@@ -250,7 +250,7 @@
     await say('(Shellmon reviendra hanter son antre : tu pourras l\'y affronter de nouveau pour t\'entraîner.)');
     // retour en ville : la fin du chapitre se raconte chez Jijimon
     await DW.fade(1, 0.8);
-    ow.load('maison', 12, 5, 'down');
+    await ow.charger('maison', 12, 5, 'down');
     await DW.wait(0.3);
     await DW.fade(0, 0.8);
     DW.autosave();

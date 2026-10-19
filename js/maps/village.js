@@ -589,7 +589,7 @@
       for (let r = 0; r < 20 && !free(best[0], best[1]); r++)
         for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++)
           if (free(x + dx, y + dy) && !free(best[0], best[1])) best = [x + dx, y + dy];
-      DW.ow.load(id, best[0], best[1], 'down');
+      await DW.ow.charger(id, best[0], best[1], 'down');
       await DW.wait(0.3);
       await DW.fade(0, 0.6);
       return;

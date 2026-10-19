@@ -87,7 +87,7 @@
       this.objects.push({ kind: 'trapdoor', x: TRAP[0], y: TRAP[1], w: 1, h: 1, walk: true });
       this.signs[`${TRAP[0]},${TRAP[1]}`] = async ow => {
         if ((await DW.ask("La trappe du souterrain. Descendre vers le Village des Poyomon ?")) !== 0) return;
-        DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4); ow.load('souterrain_jiji', 2, 3, 'down'); await DW.fade(0, 0.4);
+        DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4); await ow.charger('souterrain_jiji', 2, 3, 'down'); await DW.fade(0, 0.4);
       };
       if (this.gfx) DW.World.unprepare(this);
     }
@@ -109,7 +109,7 @@
     }
     const r = await DW.ask('Le puits des Poyomon.', ["Puiser de l'eau", "Descendre par l'échelle", 'Rien']);
     if (r === 0) await well0(ow);
-    else if (r === 1) { DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4); ow.load('souterrain_jiji', W - 4, 3, 'down'); await DW.fade(0, 0.4); }
+    else if (r === 1) { DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4); await ow.charger('souterrain_jiji', W - 4, 3, 'down'); await DW.fade(0, 0.4); }
   };
 
   // ------------------------------------------------------------ la source chaude du village (l'ancienne mare)

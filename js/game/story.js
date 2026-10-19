@@ -203,7 +203,7 @@
     await DW.fade(1, 1.2, '#ffffff');
     await DW.Game.push(new EndingScene());
     s.flags.ending = true;
-    ow.load('village', ...DW.MapKit.zpt('village', 20, 16), 'down');
+    await ow.charger('village', ...DW.MapKit.zpt('village', 20, 16), 'down');
     await DW.fade(0, 1);
     await say('Bravo, mon enfant ! L\'île est libérée et la ville n\'a jamais été aussi vivante.', 'Jijimon');
     await say("L'aventure continue : il reste des Digimon à élever, des tournois à gagner et des cartes à collectionner !", 'Jijimon');

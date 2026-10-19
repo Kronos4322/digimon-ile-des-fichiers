@@ -173,7 +173,7 @@
     await Game.push(new KuwaDefeatScene());
     await DW.fade(1, 1.2, '#000000');
     s.party.forEach(m => m.heal());
-    ow.load('maison', 10, 8, 'up');
+    await ow.charger('maison', 10, 8, 'up');
     await DW.wait(0.6);
     await DW.fade(0, 0.8);
     Audio.play('village');

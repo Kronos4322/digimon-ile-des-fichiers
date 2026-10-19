@@ -139,7 +139,7 @@
     s.party.forEach(m => m.heal());
     // retour au village : l'eau jaillit de nouveau
     await DW.fade(1, 0.8);
-    ow.load('miharashi1', 48, 34, 'up');
+    await ow.charger('miharashi1', 48, 34, 'up');
     await DW.wait(0.2);
     await DW.fade(0, 0.8);
     Audio.play('victory');
@@ -160,7 +160,7 @@
     const extra = DW.giveItem('soin_m', 3) + DW.giveItem('pm_m', 2) + DW.giveItem('gants_flamme'); s.bits += 1500;
     await say(`Tu reçois le Trophée de Meramon !  Les Yokomon t'offrent 3 RAM PV+, 2 RAM PM+ et 1500 Bits : « Pour notre héros ! »  Meramon te confie ses Gants de flamme (une arme : donne-la à un Digimon depuis le sac).${DW.extraMsg(extra)}`);
     await DW.fade(1, 0.8);
-    ow.load('maison', 12, 5, 'down');
+    await ow.charger('maison', 12, 5, 'down');
     await DW.wait(0.3);
     await DW.fade(0, 0.8);
     DW.autosave();

@@ -150,9 +150,20 @@ window.DW = window.DW || {};
     else if (Fade.a > 0) {
       ctx.globalAlpha = Fade.a; ctx.fillStyle = Fade.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
     }
+    drawChargement(dt);
     drawNotice(dt);
     drawError(dt);
     DW.Input.clear();
+  }
+  // CHARGEMENT d'une carte (DW.chargement = { texte }) : seulement sur l'écran noir d'un fondu ; des blocs de données
+  // qui défilent, pour qu'on voie que le jeu travaille (au lieu d'un écran figé)
+  DW.chargement = null;
+  function drawChargement(dt) {
+    const C = DW.chargement; if (!C || Fade.a < 0.95) return;
+    C.t = (C.t || 0) + dt;
+    const x = W / 2, y = H / 2;
+    if (DW.UI) DW.UI.text(ctx, C.texte || 'Chargement...', x, y - 4, { size: 8, align: 'center', color: '#9affc8' });
+    for (let i = 0; i < 12; i++) { const a = 0.2 + 0.8 * Math.max(0, Math.sin(C.t * 6 - i * 0.55)); ctx.fillStyle = `rgba(90,255,170,${a.toFixed(2)})`; ctx.fillRect(x - 47 + i * 8, y + 4, 6, 4); }
   }
   // message court en haut de l'écran (ex. « Manette connectée »), 4 secondes
   function drawNotice(dt) {

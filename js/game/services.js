@@ -143,7 +143,7 @@
         if ((await DW.ask('Je pars pour le Lac Dragon. Tu montes sur mon dos ?', ['Oui', 'Non'], n)) !== 0) return;
         const id = DW.REGION_ENTRY.lac, m = DW.getMap(id);
         DW.Audio.sfx('swoosh'); await DW.fade(1, 0.6, '#5ab0ff');
-        const hub = m.spec.hub; ow.load(id, hub[0], hub[1], 'down'); await DW.wait(0.3); await DW.fade(0, 0.6);
+        const hub = m.spec.hub; await ow.charger(id, hub[0], hub[1], 'down'); await DW.wait(0.3); await DW.fade(0, 0.6);
         await say('Nous voici au Lac Dragon. Je repasse aux Champs à 8 h et à 17 h !', n);
       } },
     gabumon: { home: 'champs', async talk(n) {
