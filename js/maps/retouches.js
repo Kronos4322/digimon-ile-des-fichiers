@@ -33,14 +33,19 @@
       if (m.alt && T && T.cases) for (const k in T.cases) if (T.cases[k] === STAIR) { const [x, y] = k.split(',').map(Number); m.alt[y * W + x] = DW.Relief.PASS; }
       const gone = new Set(T ? T.retraits || [] : []);
       m.objects = B.objects.filter(o => !gone.has(R.cle(o))).concat(T ? (T.ajouts || []).map(o => ({ ...o, ed: true })) : []);
-      // ENTRÉES ET SORTIES : retirées, déplacées ou ajoutées dans l'éditeur. bord = sortie au bord de la carte (on la passe
+      // ENTRÉES ET SORTIES : retirées, déplacées ou ajoutées dans l'éditeur (_zt : l'arrivée est déjà écrite à la taille
+      // réelle de la carte d'arrivée ; sans lui, DW.getMap la doublait à chaque appel vers une carte agrandie ×2). bord = sortie au bord de la carte (on la passe
       // en marchant vers l'extérieur) ; porte = on y entre en marchant dans sa direction ; portail = on y entre de tous côtés.
       // (les sorties ajoutées ne changent pas la géographie du monde : enclos)
       const parti = new Set(T ? T.sortiesRetirees || [] : []), S = T ? T.sorties || [] : [];
       const ok = o => o.to && DW.MAPS[o.to], regle = (w, o) => (DW.PUZZLE ? DW.PUZZLE.regle(w, o.regle) : w);   // (règle de chapitre : maps/puzzle.js)
-      m.warps = B.warps.filter(w => !parti.has(R.cleSortie(w))).concat(S.filter(o => o.type === 'bord' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, dir: o.dir, to: o.to, tx: o.tx, ty: o.ty, ed: true, enclos: true }, o)));
-      m.doors = B.doors.filter(d => !parti.has(R.cleSortie(d, true))).concat(S.filter(o => o.type === 'porte' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: 1, dir: o.dir || 'up', to: o.to, tx: o.tx, ty: o.ty, ed: true }, o)));
-      m.portails = S.filter(o => o.type === 'portail' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, to: o.to, tx: o.tx, ty: o.ty, ed: true }, o));
+      // une sortie posée dans l'éditeur REMPLACE la sortie générée vers la même carte, du même côté, qu'elle chevauche
+      // (sinon, si la génération a déplacé la sienne depuis, sa clé de retrait ne correspond plus et on avait un doublon)
+      const span = w => (w.dir === 'left' || w.dir === 'right' ? [w.y, w.y + (w.h || 1)] : [w.x, w.x + (w.w || 1)]);
+      const remplacee = w => S.some(o => o.type === 'bord' && o.to === w.to && o.dir === w.dir && span(o)[0] < span(w)[1] && span(w)[0] < span(o)[1]);
+      m.warps = B.warps.filter(w => !parti.has(R.cleSortie(w)) && !remplacee(w)).concat(S.filter(o => o.type === 'bord' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, dir: o.dir, to: o.to, tx: o.tx, ty: o.ty, ed: true, enclos: true, _zt: true }, o)));
+      m.doors = B.doors.filter(d => !parti.has(R.cleSortie(d, true))).concat(S.filter(o => o.type === 'porte' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: 1, dir: o.dir || 'up', to: o.to, tx: o.tx, ty: o.ty, ed: true, _zt: true }, o)));
+      m.portails = S.filter(o => o.type === 'portail' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, to: o.to, tx: o.tx, ty: o.ty, ed: true, _zt: true }, o));
       // PANNEAUX : texte écrit dans l'éditeur (une case = un texte ; « null » retire le texte d'origine)
       m.signs = { ...(m._baseSigns || m.signs || {}) };
       if (T) for (const k in T.panneaux || {}) { if (T.panneaux[k] == null) delete m.signs[k]; else m.signs[k] = T.panneaux[k]; }
