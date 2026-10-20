@@ -102,6 +102,7 @@
   const tint = (col, k) => '#' + Art.mix(Art.hex(col), k < 0 ? [0, 0, 0] : [255, 255, 255], Math.abs(k)).map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
   const SOLE = '#f4f0e8', BLUSH = '#ff9a8a', MOUTH = '#a8503a', WHITE = '#ffffff', SOCK = '#f4f2ec';
   const HW = 28, HH = 36;
+  const VERRE = '#e2f0fa';   // verres de lunettes
 
   // ------------------------------------------------------------ pièces communes
   // basket : bout renforcé clair, lacets, semelle épaisse
@@ -112,6 +113,13 @@
     d.deco.line(x - 2.7, y + 1.9, x + 2.7, y + 1.9, 0.5, tint(C.shoe, -0.45));
     d.deco.line(x - 1.1, y - 1.1, x + 1.1, y - 1.1, 0.45, WHITE); d.deco.line(x - 0.9, y - 0.4, x + 0.9, y - 0.4, 0.45, WHITE);   // lacets
     d.deco.line(x - 2.4, y - 0.2, x - 1.7, y + 0.6, 0.45, tint(C.shoe, 0.35));   // reflet
+  }
+  // basket de profil (vers la droite) : talon sous la jambe, bout arrondi vers l'avant, semelle, lacets
+  function shoeSide(d, x, y, C, o = {}) {
+    d.blob([[x - 1.8, y + 1.7], [x - 2, y - 0.8], [x - 0.6, y - 1.9], [x + 1.2, y - 1.4], [x + 3.2, y - 0.3], [x + 3.6, y + 1.7]], C.shoe, o);
+    d.deco.rect(x - 2, y + 0.8, 5.6, 1.1, SOLE);
+    d.deco.ell(x + 2.5, y + 0.2, 1.2, 0.9, tint(C.shoe, 0.6));                 // bout renforcé
+    d.deco.line(x - 0.5, y - 1.3, x + 1, y - 0.7, 0.45, WHITE);                // lacets
   }
   function bottoms(d, C, cx, w, front) {
     const x0 = cx - w / 2, B = C.bottomCol, D = tint(B, -0.3), L = tint(B, 0.25);
@@ -268,7 +276,7 @@
     d.ell(14, 8.6, 6.3, 6.2, C.skin);
     if (!back) {
       d.deco.ell(14, 10.3, 5.3, 4.3, tint(C.skin, 0.03), 0, { unlit: true });   // visage net (le modelé du volume salissait le bas du visage)
-      if (C.head === 'glasses') { d.deco.circ(11.6, 9.9, 2.1, C.headCol, { shiny: true }); d.deco.circ(16.4, 9.9, 2.1, C.headCol, { shiny: true }); }
+      if (C.head === 'glasses') { d.deco.circ(11.6, 9.9, 2.1, VERRE, { shiny: true }); d.deco.circ(16.4, 9.9, 2.1, VERRE, { shiny: true }); }
       face(d, C);
       if (C.head === 'glasses') d.deco.line(13.6, 9.6, 14.4, 9.6, 0.5, '#5a6a8a');
       hairFront(d, C);
@@ -382,7 +390,7 @@
       d.ell(14, 4, 6.4, 3.6, col);
       d.deco.line(sd ? 8.6 : 8.2, 5.6, 19.8, 5.6, 0.6, tint(col, -0.25));
     } else if (C.head === 'glasses' && sd) {
-      d.deco.circ(18.8, 9.8, 1.9, col, { shiny: true });
+      d.deco.circ(18.8, 9.8, 1.9, VERRE, { shiny: true });
       d.deco.line(12, 9.4, 17.2, 9.6, 0.5, '#5a6a8a');
     }
   }
@@ -392,17 +400,18 @@
     const s = SWING[ph], legCol = longLegs(C) ? C.bottomCol : C.skin, hand = C.glove || C.skin;
     if (C.bag) { d.rect(5.6, 15, 4.4, 8, C.bagCol, { round: 0.3, far: true }); d.deco.rect(5.8, 17.6, 3.6, 2.6, tint(C.bagCol, -0.2)); }   // le sac, dans le dos
     if (C.style === 'long') d.blob([[7.6, 6], [13, 6], [12.6, 21.6], [7.8, 21.6]], C.hair, { far: true });
-    // jambe et bras éloignés
-    d.tube([[14, 25], [14 - 3 * s, 31.6]], 3.6, 3.1, legCol, { far: true });
-    if (!longLegs(C)) d.deco.rect(12.6 - 3 * s, 30.2, 3, 1.3, SOCK);
-    shoe(d, 15 - 3 * s, 33, C, { far: true });
+    // jambe et bras éloignés (à l'arrêt, les deux pieds se voient : l'un un peu devant l'autre)
+    const lf = 13.2 - 3 * s, ln = 14.8 + 3 * s;
+    d.tube([[14, 25], [lf, 31.6]], 3.6, 3.1, legCol, { far: true });
+    if (!longLegs(C)) d.deco.rect(lf - 1.4, 30.2, 3, 1.3, SOCK);
+    shoeSide(d, lf + 0.4, 33, C, { far: true });
     d.tube([[15.2, 16.4], [15.2 + 1.2 * s, 20.2], [15.2 + 2.4 * s, 23.4]], 2.7, 2.3, C.skin, { far: true });
     d.circ(15.2 + 2.4 * s, 24, 1.5, hand, { far: true });
     // corps
     bottoms(d, C, 14, 9.8, false);
-    d.tube([[14, 25], [14 + 3 * s, 31.6]], 3.6, 3.1, legCol);
-    if (!longLegs(C)) d.deco.rect(12.6 + 3 * s, 30.2, 3, 1.3, SOCK);
-    shoe(d, 15 + 3 * s, 33, C);
+    d.tube([[14, 25], [ln, 31.6]], 3.6, 3.1, legCol);
+    if (!longLegs(C)) d.deco.rect(ln - 1.4, 30.2, 3, 1.3, SOCK);
+    shoeSide(d, ln + 0.4, 33, C);
     d.blob([[9, 14.8], [19, 14.8], [19.4, 22.6], [8.6, 22.6]], C.shirt);
     d.deco.line(10.4, 21, 12.6, 21.6, 0.5, tint(C.shirt, -0.22));
     if (C.deco === 'star' || C.deco === 'heart') d.deco.ell(17.4, 18.2, 1.2, 1.5, C.decoCol, 0, { unlit: true });
@@ -504,7 +513,7 @@
     if (!back) {
       d.deco.ell(14.8, 10.3, 5, 4.3, tint(C.skin, 0.03), 0, { unlit: true });   // visage net
       eye(d, C, 12.6, 1.05, -1); eye(d, C, 17.4, 1.3, 1);
-      if (C.head === 'glasses') { d.deco.circ(12.6, 9.9, 1.8, C.headCol, { shiny: true }); d.deco.circ(17.4, 9.9, 2.1, C.headCol, { shiny: true }); d.deco.line(14.4, 9.6, 15.3, 9.6, 0.5, '#5a6a8a'); }
+      if (C.head === 'glasses') { d.deco.circ(12.6, 9.9, 1.8, VERRE, { shiny: true }); d.deco.circ(17.4, 9.9, 2.1, VERRE, { shiny: true }); d.deco.line(14.4, 9.6, 15.3, 9.6, 0.5, '#5a6a8a'); }
       d.deco.ell(15.6, 11.6, 0.6, 0.45, tint(C.skin, -0.18));
       d.deco.line(14.6, 13, 16.4, 13, 0.6, MOUTH, { unlit: true });
       d.deco.ell(11.4, 12, 0.8, 0.5, BLUSH); d.deco.ell(18.8, 12, 1, 0.55, BLUSH);
