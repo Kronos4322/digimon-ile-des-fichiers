@@ -67,9 +67,10 @@ def optimiser(dossier):
 
 
 # ---------------------------------------------------------------- DOSSIER COMMUN (tout le jeu) : les assets maison du
-# joueur, rangés sur son Bureau (ASSETS - Digimon). Sols et eaux : textures qui se répètent (128 px du jeu) ; arbres :
+# joueur, rangés dans assets/ASSETS - Digimon. Sols et eaux : textures qui se répètent (128 px du jeu) ; arbres :
 # fond noir enlevé, recadrés, posés dans le cadre des arbres du jeu (36 x 46, agrandi 1,55 fois en jeu).
-SOURCE_COMMUN = os.path.join(os.path.expanduser('~'), 'Desktop', 'ASSETS - Digimon')
+# (le dossier est rangé dans le jeu : assets/ASSETS - Digimon ; ses originaux ne vont pas sur GitHub, seules les copies jeu/)
+SOURCE_COMMUN = os.path.join(RACINE, 'ASSETS - Digimon')
 H = 'Texture herbe/'; S = 'Sables et terre/'; E = 'eau/'; A = 'Arbres/'
 COMMUN = {
     # sols (128 x 128 px du jeu = 8 x 8 cases)

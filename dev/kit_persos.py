@@ -1,6 +1,6 @@
 """Kit d'habillage du joueur (création du personnage, ui/intro.js « QUI ES-TU ? »).
 
-Ses planches PErsonnages/ (Bureau/ASSETS - Digimon) -> pièces détourées, mises à l'échelle d'un repère commun,
+Ses planches PErsonnages/ (assets/ASSETS - Digimon) -> pièces détourées, mises à l'échelle d'un repère commun,
 rangées en une planche par catégorie (assets/commun/kit/<cat>.png), et leurs repères (js/gfx/kit_donnees.js) :
   corps (10 teintes de peau ; les garçons ont les jambes plus courtes, comme leurs vêtements), têtes de filles (30),
   têtes de garçons (10 coiffures, le visage pris sur ses expressions), hauts (30), ensembles (20 tenues complètes),
@@ -16,7 +16,7 @@ from PIL import Image
 from scipy import ndimage
 
 ICI = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(os.path.expanduser('~'), 'Desktop', 'ASSETS - Digimon', 'PErsonnages')
+SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'ASSETS - Digimon', 'PErsonnages')
 DST = os.path.join(ICI, '..', 'assets', 'commun', 'kit')
 JS = os.path.join(ICI, '..', 'js', 'gfx', 'kit_donnees.js')
 P = lambda n: os.path.join(SRC, 'photo_2026-10-19_18-09-' + n + '.jpg')

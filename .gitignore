@@ -12,3 +12,8 @@ dev/editeur/
 # Fichiers personnels posés dans le dossier du projet
 _perso/
 *.exe
+
+# Originaux des images du joueur (lourds) : seules les copies allégées (assets/*/jeu/, assets/commun/kit/) sont publiées
+assets/ASSETS - Digimon/
+assets/volcan/*.png
+!assets/volcan/jeu/
