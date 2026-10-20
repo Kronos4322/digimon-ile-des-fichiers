@@ -5,12 +5,11 @@
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
 // =====================================================================
 (function () {
-  const W = '#fbf6ea';
   Object.assign(DW.DRAW, {
     // Jijimon (d'après wikimon) : vieux sage tout en fourrure blanche hirsute, pagne beige noué d'une corde,
     // pieds et mains roses, bâton chéri surmonté d'une grosse patte jaune à coussinets sombres
     jijimon(d) {
-      const Sk = '#f4b8a0', Skd = '#d88a74', Wh = '#f6f4ee', Wg = '#d8d4cc', Y = '#f8c838', Yd = '#d89a20', K = '#2e2a2a', Cl = '#e8d4a8', Rp = '#8a5a32';
+      const Sk = '#f4b8a0', Skd = '#d88a74', Wh = '#f6f4ee', Wg = '#d8d4cc', Y = '#f8c838', Yd = '#d89a20', Cl = '#e8d4a8', Rp = '#8a5a32';
       // bâton (derrière la main) et sa patte
       d.tube([[46, 60], [48, 36], [50, 14]], 3, 2.6, '#8a5a32', { tex: 0.35 });
       // patte : paume ronde, trois doigts en bosse, coussinets gris-brun (un gros en haricot, trois petits)

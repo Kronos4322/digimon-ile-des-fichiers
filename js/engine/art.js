@@ -196,9 +196,8 @@
       const i = y * W + x, p = id[i];
       if (p < 0) continue;
       if (x === 0 || y === 0 || x === W - 1 || y === H - 1) { d[i] = 1; continue; }
-      let q;
-      if ((q = id[i - W - 1]) < p || (q = id[i - W]) < p || (q = id[i - W + 1]) < p || (q = id[i - 1]) < p ||
-          (q = id[i + 1]) < p || (q = id[i + W - 1]) < p || (q = id[i + W]) < p || (q = id[i + W + 1]) < p) d[i] = 1;
+      if (id[i - W - 1] < p || id[i - W] < p || id[i - W + 1] < p || id[i - 1] < p ||
+          id[i + 1] < p || id[i + W - 1] < p || id[i + W] < p || id[i + W + 1] < p) d[i] = 1;
     }
     const SQ2 = 1.414;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {

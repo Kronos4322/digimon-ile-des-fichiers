@@ -9,7 +9,7 @@
 //  Rendu par World.obj via « paint » (gfx/objects.js) : pinceau direct, en haute définition.
 // =====================================================================
 (function () {
-  const OBJ = DW.World.OBJ, Art = DW.Art, hash = Art.hash;
+  const Art = DW.Art, hash = Art.hash;
   const hex = c => Art.hex(c), rgb = (a, al = 1) => `rgba(${a[0] | 0},${a[1] | 0},${a[2] | 0},${al})`;
   const mix = (a, b, t) => Art.mix(typeof a === 'string' ? hex(a) : a, typeof b === 'string' ? hex(b) : b, t);
   const COOL = '#0c2a3a', WARM = '#fff0a8', INK = '#0a1a14';

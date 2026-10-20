@@ -3,7 +3,7 @@
 //  DÉMARRAGE : lancement de partie et chargement des polices
 // =====================================================================
 (function () {
-  const { UI, Input, Audio, Game } = DW;
+  const { UI, Game } = DW;
   const W = DW.W, H = DW.H;
 
   // les images des décors (gfx/textures.js) se chargent pendant l'écran titre ; si on lance la partie (ou l'introduction)

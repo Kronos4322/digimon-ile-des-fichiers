@@ -72,9 +72,7 @@
     conflits: () => (all(), CONF),
     horsGrille: () => (all(), [...BAD]),   // cartes à replacer (chapitres futurs qui contredisent la géographie)
     coeur: id => !!MAPS[id] && core(id),
-    sure: id => !!all()[id] && !BAD.has(id),   // position fiable (dans une partie cohérente du monde)
-    // conversions : case locale ↔ case du monde
-    toWorld: (id, x, y) => { const p = all()[id]; return p ? [p.x + x, p.y + y] : null; },
+    // conversion : case du monde → carte et case locale
     toLocal(X, Y) { for (const id in all()) { const p = POS[id]; if (X >= p.x && X < p.x + p.w && Y >= p.y && Y < p.y + p.h) return { id, x: X - p.x, y: Y - p.y }; } return null; },
     // altitude d'une case du monde (0 hors relief, ou si la carte n'est pas encore construite)
     z(X, Y) { const L = W.toLocal(X, Y); if (!L) return 0; const m = MAPS[L.id]; const a = m.alt ? m.alt[L.y * m.w + L.x] : 0; return a === (DW.Relief && DW.Relief.PASS) ? 0 : a || 0; },

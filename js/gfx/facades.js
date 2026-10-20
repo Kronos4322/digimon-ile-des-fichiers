@@ -13,7 +13,7 @@
 (function () {
   const OBJ = DW.World.OBJ, P = DW.World.Paint, B = DW.World.Brush, hash = DW.Art.hash;
   if (!B || !OBJ.bazar || !OBJ.restaurant || !OBJ.dojo) return;
-  const { rgb, mix, COOL, WARM, INK } = P;
+  const { rgb, mix, INK } = P;
   const { rr, plank, stone, tufts, roof } = B;
   const shadow = (x, cx, cy, rx, ry) => { const g = x.createRadialGradient(cx, cy, 1, cx, cy, rx); g.addColorStop(0, 'rgba(20,24,16,0.5)'); g.addColorStop(1, 'rgba(20,24,16,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill(); };
   // planche horizontale (tablier, comptoir)

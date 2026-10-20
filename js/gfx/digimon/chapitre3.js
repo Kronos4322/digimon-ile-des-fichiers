@@ -105,7 +105,7 @@
     // ---------------------------------------------------------- Champion : Flarizamon, lézard guerrier de flammes : écailles
     // rouge orangé, ventre jaune, crête et dos en flammes, brassards de fer, longue queue terminée par une flamme
     flarizamon(d, p = {}) {
-      const R = '#e0461c', Rd = '#a82a10', Rl = '#f87a3a', Yb = '#f8d060', Or = '#ff9a26', Ye = '#ffe060', Wf = '#fff6c8', Fe = '#6a6a78', Fl = '#b4b4c4', K = '#2a0a06';
+      const R = '#e0461c', Rd = '#a82a10', Yb = '#f8d060', Or = '#ff9a26', Ye = '#ffe060', Wf = '#fff6c8', Fe = '#6a6a78', Fl = '#b4b4c4', K = '#2a0a06';
       const atk = p.pose === 'attack';
       // queue longue terminée par une flamme
       d.tube([[22, 46], [12, 50], [5, 47], [2, 41]], 10, 3, R);

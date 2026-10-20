@@ -56,7 +56,7 @@
       c.fillStyle = 'rgba(0,30,10,0.25)'; c.fillRect(0, HZ, W, 4);
       place(TK, tv2(40), -6, 214, 2); place(TK, tv2(41), W + 4, 206, 2);
       // repères de la zone dans le décor (monolithe, lanterne, fleur géante, champignon, arbre mort) et décor numérique
-      if (TH && TH.marks) { place(TH.marks[0], 0, 44, 118); place(TH.marks[1], 0, 286, 120); }
+      if (TH && TH.marks) TH.marks.forEach((k, i) => place(k, 0, i ? 286 : 44, i ? 120 : 118));   // (un ou deux repères)
       else if (theme && MARK[theme]) { place(MARK[theme][0], 0, 44, 118); place(MARK[theme][1], 1, 286, 120); }
       else { place('bush', 1, 150, 112); place('rock', 0, 60, 110); }
       if (theme === 'misty') { const g2 = c.createLinearGradient(0, HZ - 30, 0, HZ + 30); g2.addColorStop(0, 'rgba(230,245,240,0)'); g2.addColorStop(0.5, 'rgba(230,245,240,0.45)'); g2.addColorStop(1, 'rgba(230,245,240,0)'); c.fillStyle = g2; c.fillRect(0, HZ - 30, W, 60); }

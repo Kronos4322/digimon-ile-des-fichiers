@@ -8,7 +8,7 @@
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ, P = DW.World.Paint, hash = DW.Art.hash;
-  const { rgb, mix, hex, COOL, WARM, INK } = P;
+  const { rgb, mix, COOL, WARM, INK } = P;
   const rr = (x, x0, y0, w, h, r) => { x.beginPath(); x.moveTo(x0 + r, y0); x.arcTo(x0 + w, y0, x0 + w, y0 + h, r); x.arcTo(x0 + w, y0 + h, x0, y0 + h, r); x.arcTo(x0, y0 + h, x0, y0, r); x.arcTo(x0, y0, x0 + w, y0, r); x.closePath(); };
 
   // une planche verticale : teinte propre, côté gauche éclairé, veines, nœud, clous

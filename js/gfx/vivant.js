@@ -18,7 +18,7 @@
     return (map._water = { rows: map.rows, all, deep });
   }
 
-  const V = DW.Vivant = {
+  DW.Vivant = {
     init(ow) {
       ow.viv = { fish: null, fishT: 2 + Math.random() * 3, flies: [], bugs: [] };
       const se = DW.Time.season();

@@ -61,7 +61,7 @@
     },
     pichimon: {
       front(d) {
-        const B = '#d6e6f4', Bd = '#9ab6d4', F = '#a8c8ec';
+        const B = '#d6e6f4', F = '#a8c8ec';
         d.poly([[28, 36], [32, 24], [36, 36]], F, { shiny: true });
         d.ell(32, 48, 19, 14, B, 0, { shiny: true });
         d.ell(12.6, 51, 5, 2.8, F, 0.6); d.ell(51.4, 51, 5, 2.8, F, -0.6);
@@ -304,7 +304,7 @@
         d.deco.curve([[30, 50], [31, 58]], 0.8, Yd);
       },
       body(d, front) {
-        const Y = '#f8b228', Yd = '#d88a1c';
+        const Y = '#f8b228';
         for (const s of [-1, 1]) {
           d.ell(32 + s * 9, 52, 7.4, 9, Y);
           d.ell(32 + s * 10.4, 60, 8, 3.4, Y);
@@ -572,7 +572,7 @@
         d.deco.curve([[26, 34], [32, 37], [38, 34]], 0.8, '#d06a1a');
       },
       body(d) {
-        const O = '#f2702a', R = '#d03a1c', Y = '#ffd040', Wg = '#f8a03a';
+        const O = '#f2702a', Y = '#ffd040', Wg = '#f8a03a';
         const wing = [[26, 31], [3, 6], [0, 18], [8, 21], [0, 30], [10, 33], [4, 42], [24, 38]];
         for (const w of [wing, mir(wing)]) d.poly(w, Wg, { shiny: true });
         for (const s of [-1, 1]) { d.deco.line(32 + s * 6, 32, 32 + s * 26, 10, 0.8, '#d06a1a'); d.deco.line(32 + s * 8, 35, 32 + s * 28, 30, 0.8, '#d06a1a'); }

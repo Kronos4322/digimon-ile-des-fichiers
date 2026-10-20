@@ -5,7 +5,6 @@
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
 // =====================================================================
 (function () {
-  const W = '#fbf6ea';
   Object.assign(DW.DRAW, {
     bukamon(d) {
       const T = '#a89e94', Tl = '#f0e4cc', O = '#f2722a', Y = '#ffc848';

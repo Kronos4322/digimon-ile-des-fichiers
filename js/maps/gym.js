@@ -10,7 +10,7 @@
 //  + allées pavées, gradins, torches, toilettes (y), panneau
 // =====================================================================
 (function () {
-  const { say, paint, zoomMap, st } = DW.MapKit;
+  const { say, paint, st } = DW.MapKit;
   const TRACK = { x: 16, y: 12.5, rx: 6.2, ry: 3.9 };
 
   const rows = paint(32, 22, '#', g => {

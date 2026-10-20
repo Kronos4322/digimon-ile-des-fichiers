@@ -118,7 +118,7 @@
   Story.KIOSK = DW.Services.KIOSK; Story.placeKiosks = DW.Services.placeKiosks;   // (appelé par les cartes de la ville)
   // appelé par Overworld.load une fois la carte prête
   Story.decorate = ow => {
-    const m = ow.map, id = ow.mapId, s = st();
+    const m = ow.map, id = ow.mapId;
     m.npcs = (m.npcs || []).filter(n => !n.story);
     const avoid = m.npcs.map(n => [n.x, n.y]).concat([[ow.p.x, ow.p.y]], Object.values(m.kiosks || {}));
     if (id === 'village' || id === 'champs' || DISTRICT_HOME_IDS.includes(id)) {

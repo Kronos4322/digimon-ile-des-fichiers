@@ -1,9 +1,9 @@
 'use strict';
 // =====================================================================
-//  DÉCOR PEINT — rochers, souches, troncs couchés, buissons, fougères, champignons, cairns, cailloux
+//  DÉCOR PEINT — cailloux, ponton, passage du Grand Arbre, épave, crabe, cabines téléphoniques, fanion
 //  au même pinceau que les arbres (gfx/arbres.js) : lumière chaude en haut à gauche, ombres froides,
-//  liseré de lumière, contour sombre discret, matière (facettes de pierre, écorce, mousse, folioles).
-//  Les variantes gardent leur sens (couleurs, baies, chapeau bleu / violet...). Rendu : World.obj (o.paint).
+//  liseré de lumière, contour sombre discret, matière (facettes de pierre, bois, mousse). Rendu : World.obj (o.paint).
+//  (rochers, souches, buissons, fougères, champignons, palmiers... : images du joueur, gfx/textures.js)
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ, P = DW.World.Paint, hash = DW.Art.hash;
@@ -56,36 +56,8 @@
   }
   OBJ.pebbles.paint = (x, v) => { for (const [cx, cy, rx, ry] of [[4, 6, 2.6, 1.6], [9, 5.6, 2, 1.4], [11.6, 7, 1.4, 0.9]]) stone(x, Array.from({ length: 7 }, (_, k) => { const a = k / 7 * Math.PI * 2; return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]; }), v ? '#7a7068' : '#6a6660', 41); };
 
-  // ------------------------------------------------------------ bois : souche et tronc creux
-  const BARK = '#7a5030';
-  function bark(x, x0, y0, w, h, horiz) {
-    const B = hex(BARK), lite = mix(B, '#ffd8a8', 0.3), dk = mix(B, COOL, 0.5);
-    const g = horiz ? x.createLinearGradient(0, y0, 0, y0 + h) : x.createLinearGradient(x0, 0, x0 + w, 0);
-    g.addColorStop(0, rgb(lite)); g.addColorStop(0.5, rgb(B)); g.addColorStop(1, rgb(dk));
-    x.fillStyle = g; x.strokeStyle = rgb(mix(dk, INK, 0.5)); x.lineWidth = 1;
-    x.beginPath(); x.roundRect ? x.roundRect(x0, y0, w, h, Math.min(w, h) * 0.3) : x.rect(x0, y0, w, h); x.fill(); x.stroke();
-    x.strokeStyle = rgb(dk, 0.7); x.lineWidth = 0.6;
-    for (let i = 1; i < 5; i++) { x.beginPath(); if (horiz) { x.moveTo(x0 + 2, y0 + i * h / 5); x.quadraticCurveTo(x0 + w / 2, y0 + i * h / 5 + 0.8, x0 + w - 3, y0 + i * h / 5); } else { x.moveTo(x0 + i * w / 5, y0 + 2); x.lineTo(x0 + i * w / 5 + 0.4, y0 + h - 1); } x.stroke(); }
-  }
+  // mousse posée sur le bois (épave de la crique)
   function moss(x, pts, seed) { for (let i = 0; i < pts.length; i++) { const [px, py] = pts[i]; x.fillStyle = hash(seed, i, 951) < 0.5 ? '#5aa844' : '#88cc5c'; x.beginPath(); x.ellipse(px, py, 2.2, 1.1, 0, 0, 7); x.fill(); } }
-
-  // ------------------------------------------------------------ feuillage bas : buissons et fougères
-  // fronde : tige courbée + folioles alternées, claires au soleil
-  function frond(x, x0, y0, ang, len, col, lite, dark) {
-    const ex = x0 + Math.cos(ang) * len, ey = y0 + Math.sin(ang) * len, mx = x0 + Math.cos(ang) * len * 0.55, my = y0 + Math.sin(ang) * len * 0.55 - len * 0.18;
-    x.strokeStyle = dark; x.lineWidth = 0.8; x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(mx, my, ex, ey); x.stroke();
-    const n = 7;
-    for (let i = 1; i <= n; i++) {
-      const t = i / (n + 1), qx = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * mx + t * t * ex, qy = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * my + t * t * ey;
-      const s = (1 - t * 0.7) * 2.6;
-      for (const side of [-1, 1]) {
-        const a = ang + side * 1.1 - 0.15;
-        x.fillStyle = side < 0 ? lite : col;
-        x.beginPath(); x.ellipse(qx + Math.cos(a) * s * 0.6, qy + Math.sin(a) * s * 0.6, s * 0.75, s * 0.32, a, 0, 7); x.fill();
-      }
-    }
-  }
-
 
   // ------------------------------------------------------------ petits décors de la Clairière
   // planche de bois peinte (veines, bord clair en haut, bord sombre en bas)

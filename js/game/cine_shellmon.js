@@ -68,7 +68,7 @@
 
     // ---------------------------------------------------------- dessin
     draw(c) {
-      const t = this.t, v = this.v;
+      const t = this.t;
       c.save();
       if (this.mode === 'cave') this.drawCave(c, t);
       else if (this.mode === 'gear') this.drawGear(c, t);

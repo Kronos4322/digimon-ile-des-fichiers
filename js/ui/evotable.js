@@ -7,7 +7,7 @@
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
-  const W = DW.W, H = DW.H;
+  const W = DW.W;
   const OK = '#7aff8a', NO = '#ff7a7a';
 
   class EvoTableScene extends DW.Scene {

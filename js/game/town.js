@@ -20,7 +20,7 @@
   ];
   const LEVELS = ['Ruines', 'Campement', 'Hameau', 'Petit village', 'Village', 'Bourg', 'Petite ville', 'Ville', 'Grande ville', 'Cité', 'Métropole', 'Mégapole'];
 
-  const Town = DW.Town = {
+  DW.Town = {
     RECRUITS,
     get st() { return DW.state; },
     has(id) { return !!(this.st.recruits && this.st.recruits[id]); },
@@ -61,7 +61,7 @@
       DW.autosave();
     },
     async recruit(id) {
-      const st = this.st, r = this.info(id), name = DW.SPECIES[id].name;
+      const st = this.st, name = DW.SPECIES[id].name;
       st.recruits = st.recruits || {};
       st.recruits[id] = true;
       st.seen[id] = true;

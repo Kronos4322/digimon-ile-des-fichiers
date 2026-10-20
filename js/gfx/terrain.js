@@ -628,7 +628,6 @@
         // FALAISE EN COLONNES DE ROCHE (façon RPG 2D peint) : la paroi est faite de piliers arrondis empilés en blocs,
         // éclairés en haut à gauche (face claire, flanc droit dans l'ombre), joints sombres entre les blocs, mousse et
         // lierre qui pendent du rebord, liseré d'herbe qui déborde en haut, pied dans l'ombre avec des éboulis
-        const topRow = tAt(RX, RY - 1) !== TER.rock, botRow = tAt(RX, RY + 1) !== TER.rock;
         const leftE = tAt(RX - 1, RY) !== TER.rock, rightE = tAt(RX + 1, RY) !== TER.rock;
         const up = rockRun(RX, RY, -1), Hpx = RU[i] + RD[i] + 1, wy = RU[i], depth = wy / Hpx;
         if (TX_FALAISE) {

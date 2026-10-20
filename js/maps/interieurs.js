@@ -4,7 +4,7 @@
 //  On parle au commerçant à travers le comptoir (cases du comptoir = panneau).
 // =====================================================================
 (function () {
-  const { say, rle } = DW.MapKit;
+  const { say } = DW.MapKit;
   const MAPS = DW.MAPS;
 
   // pièce : w × (2 rangées de mur + h rangées de parquet), porte en bas au centre

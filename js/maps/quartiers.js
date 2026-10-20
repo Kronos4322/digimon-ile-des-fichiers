@@ -12,7 +12,7 @@
 //  chambre ou salon de musique, avec un habitant).
 // =====================================================================
 (function () {
-  const { say, st, paint } = DW.MapKit;
+  const { say, paint } = DW.MapKit;
   const MAPS = DW.MAPS, Hh = DW.Art.hash;
   // les quartiers ont été conçus sur une échelle de 16 paliers ; la ville en compte 11 (développement en %, game/town.js)
   const level = () => Math.round(DW.Town.level() * 16 / 11);
@@ -191,7 +191,7 @@
     return id;
   }
   function addFloors(home, kind, seed) {
-    const r = Hh(seed, 11, 821), hm = MAPS[home];
+    const r = Hh(seed, 11, 821);
     const attic = { floor: { type: 'herring', cols: ['#a8845a', '#7a5a3a', '#4a3424'] }, wall: { base: '#c8a880', alt: '#b89870', pattern: 'plain', wood: '#6a4a2a' }, dark: { d: 0.3, col: '#3a2a20' } };
     const cellar = { floor: { type: 'stone', cols: ['#8a8478', '#6a6458', '#4a4438'] }, wall: { base: '#7a7468', alt: '#6a6458', pattern: 'brick', wood: '#3a3428' }, dark: { d: 0.45, col: '#201c18' } };
     if (kind === 'apartment') {

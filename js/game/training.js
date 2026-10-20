@@ -13,7 +13,7 @@
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
-  const W = DW.W, H = DW.H;
+  const W = DW.W;
   const STATS = {
     hp: { name: 'Endurance', stat: 'PV', obj: 'weights', desc: 'Soulever les gros rochers.' },
     mp: { name: 'Énergie', stat: 'PM', obj: 'datacrystal', desc: "Canaliser l'énergie du cristal de données." },

@@ -6,7 +6,6 @@
 // =====================================================================
 (function () {
   const Art = DW.Art;
-  const W = '#fbf6ea';
 
   const D = DW.DRAW = {}; // rempli par js/gfx/digimon/*.js
 

@@ -14,7 +14,7 @@
 //  Les passages sont créés dans les deux sens, alignés sur les sorties de chaque carte.
 // =====================================================================
 (function () {
-  const { forestGen, paint } = DW.MapKit;
+  const { forestGen } = DW.MapKit;
   const MAPS = DW.MAPS, Hh = DW.Art.hash;
   const OPP = { left: 'right', right: 'left', up: 'down', down: 'up' };
   // échelle des régions (façon Digimon World) : zones ~2 fois plus grandes en surface, passages 2 fois plus larges
@@ -574,7 +574,6 @@
   //                                       2 Plaine des Panneaux | Sentier des Murmures
   //                                       (au sud : le Bosquet des Pousses)
   // (cartes dessinées à la main : maps/miharashi.js ; relief en terrasses façon Digimon World 2003)
-  const MT = () => DW.Mih.MONT;
   // (géographie du pays et peinture de chaque carte : maps/miharashi.js — une seule terre en coordonnées du monde,
   //  les cartes en sont des fenêtres ; la côte, les routes et le relief se raccordent d'elles-mêmes)
   region('miharashi', { taille: DW.PUZZLE.case, mer: true, name: 'Pays de Meramon', theme: 'desert', entry: 'right', music: 'field', climate: 'beach', ambient: 'beach',

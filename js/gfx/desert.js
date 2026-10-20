@@ -217,7 +217,7 @@
   // (croûte sombre craquelée, veines jaunes, bulles), braises, coulées figées sur les flancs. 4 images animées.
   OBJ.cratere = { w: 176, h: 124, n: 1, frames: 4, smoke: [88, 30], lights: [[88, 70, 90, 'rgba(255,110,30,0.75)']], draw: draw0(176, 124, '#3a2a24'),
     paint(x, v, f = 0) {
-      const cx = 88, cy = 74;
+      const cx = 88;
       shadow(x, cx, 114, 86, 9, 0.45);
       // cône extérieur : roche brun-noir, rayée de coulées figées
       x.beginPath(); x.moveTo(2, 112); x.bezierCurveTo(10, 70, 40, 34, cx, 30); x.bezierCurveTo(136, 34, 166, 70, 174, 112); x.quadraticCurveTo(cx, 124, 2, 112); x.closePath();

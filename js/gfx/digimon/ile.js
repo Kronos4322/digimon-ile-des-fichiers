@@ -296,7 +296,7 @@
     },
     megadramon(d) {
       // dragon rouge serpentin, tête de métal, deux bras-canons argentés, grandes ailes violettes déchiquetées
-      const R = '#c8322a', Rd = '#8a1c18', Bel = '#f0a83a', M = '#6a6e7a', Md = '#3a3e48', Ml = '#c8ccd6', Wv = '#5a48b0', Wd = '#3a2c80';
+      const R = '#c8322a', Bel = '#f0a83a', M = '#6a6e7a', Md = '#3a3e48', Ml = '#c8ccd6', Wv = '#5a48b0', Wd = '#3a2c80';
       // ailes (derrière)
       d.blob([[24, 18], [34, 4], [52, 1], [63, 6], [54, 10], [60, 14], [50, 16], [56, 21], [44, 22], [48, 28], [34, 26]], Wv, { far: true, tex: 0.2 });
       for (const [x0, y0, x1, y1] of [[30, 18, 52, 4], [32, 21, 56, 12], [34, 24, 52, 20]]) d.deco.line(x0, y0, x1, y1, 0.7, Wd);

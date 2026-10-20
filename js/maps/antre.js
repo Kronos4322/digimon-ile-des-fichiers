@@ -10,7 +10,7 @@
 //     fin du chapitre 1. Ensuite Shellmon reste là : on peut le réaffronter pour l'expérience.
 // =====================================================================
 (function () {
-  const MAPS = DW.MAPS, P = DW.Palais;
+  const MAPS = DW.MAPS;
   const say = (t, s) => DW.say(t, s);
   const st = () => DW.state;
   if (DW.World.sandTheme) DW.World.sandTheme();   // thème « temple ensablé » (gfx/temple.js)
@@ -91,7 +91,7 @@
   }
   // objets : braseros contre les parois, paires de piliers dans les grandes cavernes, torches dans les couloirs
   function dress(maze, seed) {
-    const { g, halls } = maze, H = g.length, W = g[0].length, objs = [], used = new Set();
+    const { g, halls } = maze, objs = [], used = new Set();
     const isF = (x, y) => g[y] && (g[y][x] === '.' || g[y][x] === ',');
     const open = (x, y, r = 1) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (!isF(x + dx, y + dy) || used.has((x + dx) + ',' + (y + dy))) return false; return true; };
     const put = (kind, x, y, extra = {}) => { objs.push({ kind, v: 0, x, y, w: 1, h: 1, ...extra }); used.add(x + ',' + y); };

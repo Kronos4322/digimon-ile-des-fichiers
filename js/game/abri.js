@@ -15,7 +15,7 @@
   // un orage = une période météo (st.weather.until sert d'identifiant)
   const sid = () => storm() ? st().weather.until : 0;
 
-  const Abri = DW.Abri = {
+  DW.Abri = {
     // appelé par game/care.js à chaque minute de jeu qui passe
     tick(ow, min) {
       const s = st(), m = DW.Care.lead();

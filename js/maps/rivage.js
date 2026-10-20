@@ -9,7 +9,7 @@
 //  STAGES : le seul endroit où régler les Digimon sauvages de ces zones (remplace les listes des cartes).
 // =====================================================================
 (function () {
-  const { forestGen, zoomGen, zoomMap, say } = DW.MapKit;
+  const { forestGen, zoomGen, zoomMap } = DW.MapKit;
   const MAPS = DW.MAPS;
   const E = (sp, min, max, w, o) => Object.assign({ sp, min, max, w }, o || {});
 

@@ -4,7 +4,6 @@
 // =====================================================================
 (function () {
   const Art = DW.Art;
-  const W = DW.W, H = DW.H;
   // images-clés de la lumière : [heure, obscurité, teinte]
   const KEYS = [
     // aube bleu-violet → lever rose orangé → matinée dorée et douce → midi neutre → après-midi chaud →
@@ -56,7 +55,7 @@
 
   // alerte quand un phénomène commence (envoyée par Motimon s'il en est capable : game/calendrier.js)
   const WARN = { storm: 'Un ORAGE éclate ! Mets-toi à l\'abri le temps que l\'orage passe : la foudre peut frapper ton Digimon !', blizzard: 'TEMPÊTE DE NEIGE ! Il fait un froid glacial : mieux vaut rester à l\'abri.', gale: 'TEMPÊTE ! Le vent souffle fort (techniques Air plus fortes).', heat: 'CANICULE ! Il fait très chaud : ton Digimon a soif et se fatigue.' };
-  const T = DW.Time = {
+  DW.Time = {
     RATE: 1, CLIMATES: CLIMATE,
     get st() { return DW.state; },
     hour() { return (this.st.clock / 60) % 24; },

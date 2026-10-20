@@ -4,7 +4,6 @@
 // =====================================================================
 (function () {
   // ------------------------------------------------------------ objets
-  const STAGES = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
   // l'objet a-t-il un effet sur ce Digimon ? (battle : utilisé pendant un combat)
   DW.canUse = (id, m, battle) => {
     const it = DW.ITEMS[id];

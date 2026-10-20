@@ -154,7 +154,7 @@
         c.fillStyle = hg; c.fill(); c.lineWidth = on ? 2 : 1.4; c.strokeStyle = on ? '#ffffff' : '#cfe0f0'; c.stroke();
       };
       // bandeau du choix (au travers de l'anneau, comme dans le modèle) : dessiné AVANT les icônes, qui restent toutes visibles
-      const [label, col, help] = RING[items[this.i][0]];
+      const [label, , help] = RING[items[this.i][0]];
       const by = cy - 8;
       c.fillStyle = 'rgba(10,40,90,0.9)'; c.beginPath(); c.moveTo(cx - R + 16, by); c.lineTo(cx + R - 10, by); c.lineTo(cx + R - 18, by + 16); c.lineTo(cx - R + 16, by + 16); c.fill();
       c.strokeStyle = '#8ad0ff'; c.lineWidth = 1; c.stroke();

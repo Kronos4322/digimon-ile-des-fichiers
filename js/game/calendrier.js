@@ -19,7 +19,7 @@
     'Hiver (décembre-février) : la neige tombe, et les tempêtes de neige glacent tout.',
   ];
 
-  const Calendar = DW.Calendar = {
+  DW.Calendar = {
     tick(ow, min) {
       const m = DW.Care.lead();
       if (!m || ow.map.indoor || ow.locked) return;

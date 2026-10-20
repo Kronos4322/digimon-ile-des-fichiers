@@ -5,7 +5,7 @@
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
-  const W = DW.W, H = DW.H;
+  const W = DW.W;
 
   class FarmScene extends DW.Scene {
     constructor() { super(); this.i = 0; }

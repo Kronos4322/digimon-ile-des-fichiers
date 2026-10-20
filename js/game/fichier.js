@@ -61,7 +61,6 @@
 
   const F = DW.SaveFile = {
     can, lastWrite: 0,
-    linked: () => !!handle,
     name: () => (handle ? handle.name : null),
     // au démarrage : retrouver le fichier relié ; si l'accès est déjà permis, reprendre les parties plus récentes
     async init() {

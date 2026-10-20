@@ -10,7 +10,7 @@
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
-  const W = DW.W, H = DW.H;
+  const W = DW.W;
   const say = (t, s) => DW.say(t, s);
   const st = () => DW.state;
   const FEE = 120, MINUTES = 90, TIRE = 25, CAP = 100;

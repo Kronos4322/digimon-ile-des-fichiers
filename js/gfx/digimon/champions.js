@@ -5,7 +5,6 @@
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
 // =====================================================================
 (function () {
-  const W = '#fbf6ea';
 // ---- insectes (Kuwagamon, Kabuterimon) : trois griffes en éventail
   const claw3 = (d, x, y, ang, l, col, far) => {
     for (let i = -1; i <= 1; i++) { const a = ang + i * 0.45; d.tube([[x, y], [x + Math.cos(a) * l, y + Math.sin(a) * l]], 1.4, 0.3, col, { shiny: true, far }); }

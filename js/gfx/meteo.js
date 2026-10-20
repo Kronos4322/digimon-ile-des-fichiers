@@ -34,7 +34,7 @@
     for (const s of b.branches) strokeBolt(c, s, Math.max(0.6, w * 0.55));
   }
 
-  const M = DW.Meteo = {
+  DW.Meteo = {
     bolts: [], scorch: [], flash: 0, next: 2, fear: 0, clouds: null,
     // le partenaire est-il dehors, sur la carte, en train de jouer ?
     playing(ow) { return ow && ow === DW.Game.top() && !ow.map.indoor && !ow.locked && !ow.cine; },
@@ -316,7 +316,7 @@
     tall(cv) {
       const C = this.cur;
       if (!C || !C.tmp) return cv;
-      const se = Math.floor(C.m / 3), sn = Math.round(Math.min(1, C.snow) * 4);
+      const sn = Math.round(Math.min(1, C.snow) * 4);
       const mode = sn >= 1 ? 's' + sn : '';
       if (!mode) return cv;
       let e = this._tall.get(cv);

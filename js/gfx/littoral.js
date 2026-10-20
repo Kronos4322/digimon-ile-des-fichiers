@@ -6,7 +6,7 @@
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
-  const SAND = '#e8d29a', FOAM = '#f0fcff';
+  const SAND = '#e8d29a';
 
   Object.assign(OBJ, {
     // ---------------------------------------------------------- radeau en rondins (4×2) : mât, voile rapiécée, lianes

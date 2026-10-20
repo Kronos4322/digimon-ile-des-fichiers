@@ -74,7 +74,7 @@
     }
   }
 
-  const MJ = DW.MiniJeux = {
+  DW.MiniJeux = {
     WateringScene,
     async arrosage(name = 'Yokomon') {
       const s = DW.state;

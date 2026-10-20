@@ -3,8 +3,8 @@
 //  COMBAT au tour par tour (logique Pokémon, ambiance Digimon World)
 // =====================================================================
 (function () {
-  const { UI, Input, Audio, Game } = DW;
-  const W = DW.W, H = DW.H;
+  const { Input, Audio, Game } = DW;
+  const W = DW.W;
   const POS = { p: { x: 158, y: 178 }, e: { x: 250, y: 124 } };   // ennemi un peu plus bas (le cadre du partenaire ne le recouvre pas) ; partenaire au centre, à droite du menu (façon Digimon World 2003)
   const STAT_NAME = { atk: "L'Attaque", def: 'La Défense', spd: 'La Vitesse' };
   const ST_TXT = { brn: 'est brûlé', psn: 'est empoisonné', par: 'est paralysé', slp: "s'endort" };

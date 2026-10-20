@@ -15,7 +15,7 @@
     { id: 'serre', a: 'palmon', b: 'yokomon', name: 'Serre des Champs', at: 'champs', txt: 'Yokomon aide Palmon à cultiver : la récolte quotidienne est doublée !' },
     { id: 'bains', a: 'betamon', b: 'gomamon', name: 'Bains de la fontaine', at: 'fontaine', txt: "Gomamon réchauffe l'eau de la fontaine : elle efface aussi la fatigue de tes Digimon !" },
   ];
-  const Collab = DW.Collab = {
+  DW.Collab = {
     LIST,
     on(id) { const c = LIST.find(x => x.id === id); return !!c && DW.Town.has(c.a) && DW.Town.has(c.b); },
     priceMult() { return this.on('comptoir') ? 0.85 : 1; },

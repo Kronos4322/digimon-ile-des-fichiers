@@ -22,7 +22,7 @@
     const extra = DW.giveItem(id, 1); DW.Audio.sfx('buy');
     await say(`Tu ramasses ${id === 'viande' ? 'de la Digiviande' : 'un DigiChampignon'} !${DW.extraMsg(extra)}`);
   } });
-  const Ground = DW.Ground = {
+  DW.Ground = {
     // à l'arrivée sur une carte : les trouvailles du jour qui y sont encore
     decorate(ow) {
       ow.map.npcs = (ow.map.npcs || []).filter(n => !n.ground);

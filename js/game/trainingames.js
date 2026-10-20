@@ -97,7 +97,7 @@
       }
     }
     draw(c) {
-      const sc = this.sc, t = sc.t, effort = this.push > 0;
+      const sc = this.sc, effort = this.push > 0;
       arena(c, sc);
       shadow(c, 150, 170, 26);
       mon(c, sc, 150, 172, { pose: effort ? 'attack' : null, fps: effort ? 10 : 5 });
@@ -249,7 +249,7 @@
       if (this.c >= this.build + this.win) { sc.hit(0, 214, 90); this.wait = 0.7; this.cycle(); }
     }
     draw(c) {
-      const sc = this.sc, t = sc.t, k = this.wait > 0 ? 0 : Math.min(1, this.c / this.build), flash = this.wait <= 0 && this.c >= this.build;
+      const sc = this.sc, k = this.wait > 0 ? 0 : Math.min(1, this.c / this.build), flash = this.wait <= 0 && this.c >= this.build;
       arena(c, sc);
       const O = DW.World.obj('datacrystal', 0);
       c.save(); c.globalCompositeOperation = 'lighter';

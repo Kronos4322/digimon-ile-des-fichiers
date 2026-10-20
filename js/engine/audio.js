@@ -18,7 +18,7 @@
       return { f: n === '-' ? 0 : freq(n), d: d ? +d : 1 };
     });
   }
-  const Audio = DW.Audio = {
+  DW.Audio = {
     ctx: null, muted: false, cur: null, timer: null, pending: null, vol: 0.22,
     init() {
       if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }

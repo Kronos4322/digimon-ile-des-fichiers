@@ -86,8 +86,8 @@
     if (s.flags.whamonDay === day) { await say("Le jet d'eau de Whamon jaillit au loin. Il est parti fouiller les profondeurs : reviens demain !"); return; }
     s.flags.whamonDay = day;
     await say('PFFFOUUU ! Whamon fait surface près du radeau.', 'Whamon');
-    const r = Math.random(), got = r < 0.35 ? 'poisson' : r < 0.55 ? 'super_viande' : r < 0.75 ? 'disque_pm' : r < 0.9 ? 'medoc' : 'puce_pm';
-    const n = got === 'poisson' ? 2 : 1, extra = DW.giveItem(got, n); DW.Audio.sfx('buy');
+    const r = Math.random(), got = r < 0.35 ? 'digivivaneau' : r < 0.55 ? 'super_viande' : r < 0.75 ? 'disque_pm' : r < 0.9 ? 'medoc' : 'puce_pm';
+    const n = got === 'digivivaneau' ? 2 : 1, extra = DW.giveItem(got, n); DW.Audio.sfx('buy');
     await say(`Un trésor des profondeurs : ${n > 1 ? n + ' ' : ''}${DW.ITEMS[got].name} !${DW.extraMsg(extra)}`, 'Whamon');
   }
 
