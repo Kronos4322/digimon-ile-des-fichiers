@@ -338,6 +338,30 @@
   for (const k of ['giantflower', 'giantshroom', 'glowshroom']) OBJ_SCALE[k] = 0.9;
   for (const k of ['rock', 'boulder', 'mossrock', 'icerock', 'lavarock', 'searock', 'basalt', 'crystal', 'stalagmite', 'icecrystal', 'termite', 'log', 'hollowlog', 'stump']) OBJ_SCALE[k] = 1.3;
   World.OBJ_SCALE = OBJ_SCALE;
+  // TAILLE DES BÂTIMENTS (règle du joueur) : hauteur VISIBLE en hauteurs de héros (34,5 px) — maisons, boutiques et
+  // bâtiments 3 fois le héros, maisons des villages de bébés 2,5 fois, toilettes 2 fois. L'échelle de chaque dessin est
+  // calculée une fois, d'après sa vraie hauteur (variante 0), et vaut pour toutes ses variantes (les formes agrandies
+  // de la ville restent plus grandes que la première). Posé en bas, centré : la porte reste au même endroit.
+  const HEROS_VISIBLE = 34.5;
+  const TAILLE_HEROS = World.TAILLE_HEROS = {};
+  for (const k of ['jhouse', 'bazar', 'dojo', 'restaurant', 'garden', 'homepalace', 'shack', 'cottage', 'townhouse', 'apartment', 'shopfront',
+    'bakery', 'patisserie', 'bank', 'poste', 'ecole', 'gymnase', 'barn', 'greenhouse', 'windmill', 'chalet', 'wcabin', 'chapel', 'lighthouse',
+    'manor', 'bogshack', 'stilthut']) TAILLE_HEROS[k] = 3;
+  for (const k of ['house', 'eggcottage', 'yokohut']) TAILLE_HEROS[k] = 2.5;   // (Village des Bébés, Village des Yokomon)
+  const hauteurVisible = r => {
+    const c = r.img || r, k = c._k || 1, w = c.width, h = c.height, d = c.getContext('2d').getImageData(0, 0, w, h).data;
+    let y0 = h, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0, i = y * w * 4 + 3; x < w; x++, i += 4) if (d[i] > 60) { if (y < y0) y0 = y; y1 = y; break; }
+    return y1 < 0 ? 0 : (y1 - y0 + 1) / k;
+  };
+  function echelleBatiment(kind) {
+    const o = OBJ[kind], cible = TAILLE_HEROS[kind]; if (!cible || o._echelle != null) return;
+    o._echelle = 0; o.scale = 1;
+    const z = objSize(kind, 0), r = o.frames ? World.objFrame(kind, 0, 0) : World.obj(kind, 0), vh = hauteurVisible(r);
+    for (const key in objCache) if (key.startsWith(kind) && /^\d/.test(key.slice(kind.length))) delete objCache[key];   // (rendus à l'échelle 1 jetés)
+    o.scale = o._echelle = vh > 0 ? cible * HEROS_VISIBLE / vh : 1;
+  }
+  World.echelleBatiment = echelleBatiment;
   const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;
     const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)
     return { w, h, W: Math.round(w * S), H: Math.round(h * S) }; };
@@ -357,6 +381,7 @@
   };
   World.obj = (kind, v = 0) => {
     const o = OBJ[kind], key = kind + v;
+    if (TAILLE_HEROS[kind] && o._echelle == null) echelleBatiment(kind);
     if (!objCache[key]) {
       const z = objSize(kind, v), img = arbreImg(kind, v, z);
       if (img) return (objCache[key] = img);
@@ -368,6 +393,7 @@
   // images d'un objet animé (moulin, cascade, linge...) : OBJ.frames images
   World.objFrame = (kind, v, f) => {
     const o = OBJ[kind], key = kind + v + '_' + f;
+    if (TAILLE_HEROS[kind] && o._echelle == null) echelleBatiment(kind);
     if (objCache[key]) return objCache[key];
     const z = objSize(kind, v);
     return (objCache[key] = o.paint && (!o.painted || o.painted(v)) ? paintRender(o, v, z, f)

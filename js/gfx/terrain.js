@@ -1011,6 +1011,12 @@
       for (const [bx, by] of o.block || []) solid.add((o.x + bx) + ',' + (o.y + by));
       // pareil pour les objets posés plus larges que leur emprise (bas : bûches, piliers tombés...)
       if (!o.walk && !o.top && !o.back && spr.h <= 34 && spr.w > o.w * 16 + 6) { const k = Math.round((spr.w - o.w * 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((o.x - xx) + ',' + (o.y + o.h - 1), (o.x + o.w - 1 + xx) + ',' + (o.y + o.h - 1)); widen.push(grp); }
+      // BÂTIMENT mis à l'échelle du héros (gfx/objects.js : TAILLE_HEROS) plus large que son emprise : ses murs bloquent
+      // aussi sur les côtés (une colonne à la fois, jamais sur un chemin ni si cela coupe un passage)
+      if (World.TAILLE_HEROS[o.kind] && !o.walk && !o.top) {
+        const vw = largeurVisible(o.kind, o.v || 0, spr), k = Math.round((vw - o.w * 16) / 32);
+        for (let xx = 1; xx <= k; xx++) { const grp = []; for (let yy = 0; yy < o.h; yy++) grp.push((o.x - xx) + ',' + (o.y + yy), (o.x + o.w - 1 + xx) + ',' + (o.y + yy)); widen.push(grp); }
+      }
       const flat = o.walk || o.back;
       objs.push({ kind: o.kind, v: o.v || 0, flip: !!o.flip, spr, sprs: anim, fps: OBJ[o.kind].fps || 4, x: (o.x + o.w / 2) * TS + (o.ox || 0), y: (o.y + o.h) * TS - 1 + (o.oy || 0), sort: flat ? -10 + o.y * 0.01 : o.top ? 1000 : o.y + o.h - 0.5, big: !flat && !o.small && !o.top, flat: flat || o.top, tx: o.x, ty: o.y, def: o });
     }
@@ -1267,6 +1273,15 @@
   // la saison a changé depuis la préparation : on refait la carte
   const stale = map => { if (map.gfx && map.gfx.tk !== undefined && World.themeKey && map.gfx.tk !== World.themeKey(map)) World.unprepare(map); };
   const stamp = map => { if (map.gfx && map.gfx.tk === undefined) map.gfx.tk = World.themeKey ? World.themeKey(map) : null; };
+  // largeur VISIBLE d'un dessin (sans les marges transparentes), en pixels du jeu ; calculée une fois par variante
+  const LARGEURS = {};
+  function largeurVisible(kind, v, spr) {
+    const key = kind + v; if (LARGEURS[key] != null) return LARGEURS[key];
+    const c = spr.img || spr, k = c._k || 1, w = c.width, h = c.height, d = c.getContext('2d').getImageData(0, 0, w, h).data;
+    let x0 = w, x1 = -1;
+    for (let y = 0; y < h; y += 2) for (let x = 0, i = y * w * 4 + 3; x < w; x++, i += 4) if (d[i] > 60) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
+    return (LARGEURS[key] = x1 < 0 ? 0 : (x1 - x0 + 1) / k);
+  }
   World.prepare = map => {
     stale(map);
     if (map.gfx) return map.gfx;

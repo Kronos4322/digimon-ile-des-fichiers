@@ -22,12 +22,13 @@
       this.flies = this.type === 'forest' && !(th && th.noFlies) ? Array.from({ length: 26 }, () => ({ x: Math.random() * map.w * TS, y: Math.random() * map.h * TS, ph: Math.random() * 6, s: 0.5 + Math.random() })) : [];
       this.digits = [];
       // bâtiments : fenêtres éclairées, cheminées qui fument, feux de cheminée
-      const OBJ = World.OBJ, at = (o, p) => ({ x: Math.round(o.x - o.spr.w / 2) + p[0] + 1, y: Math.round(o.y - o.spr.h + 1) + p[1] + 1 });
+      // (bâtiment mis à l'échelle du héros : ses fenêtres et sa cheminée suivent — gfx/objects.js : TAILLE_HEROS)
+      const OBJ = World.OBJ, at = (o, p) => { const S = (OBJ[o.kind] && OBJ[o.kind]._echelle) || 1; return { x: Math.round(o.x - o.spr.w / 2) + p[0] * S + 1, y: Math.round(o.y - o.spr.h + 1) + p[1] * S + 1 }; };
       this.lit = []; this.smokers = []; this.fires = [];
       for (const o of map.gfx.objs || []) {
         const D = OBJ[o.kind];
         if (!D) continue;
-        for (const L of (D.lightsOf ? D.lightsOf(o.v || 0) : D.lights) || []) this.lit.push({ ...at(o, L), r: L[2], fire: !!D.fire, col: L[3] });
+        for (const L of (D.lightsOf ? D.lightsOf(o.v || 0) : D.lights) || []) this.lit.push({ ...at(o, L), r: L[2] * (D._echelle || 1), fire: !!D.fire, col: L[3] });
         if (D.smoke) this.smokers.push({ ...at(o, D.smoke), t: Math.random() });
         if (D.fire) this.fires.push(at(o, D.fire));
         if (o.kind === 'bigfountain' && o.def && o.def.v === 1) this.sprays = (this.sprays || []).concat([at(o, [35, 2])]);
