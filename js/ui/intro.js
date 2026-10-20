@@ -20,68 +20,109 @@
     c.globalAlpha = 1; c.restore();
   }
 
-  // ------------------------------------------------------------ création du personnage (un enfant qui n'est pas dans l'animé)
-  // Haut/Bas : ligne   Gauche/Droite : choix   ESPACE : valider (sur la dernière ligne)
+  // ------------------------------------------------------------ création du personnage (QUI ES-TU ?) : un enfant qui n'est pas
+  // dans l'animé, ASSEMBLÉ avec le kit d'habillage dessiné par le joueur (gfx/persos.js) : peau, coiffure, chapeau, haut (ou un
+  // ensemble), bas, chaussures, sac, accessoire ; debout dans un faisceau de lumière sur un disque holographique, son Digivice et
+  // son DigiŒuf en dessous (maquette du joueur : « Générique, introduction ») ; le petit sprite de marche reprend ses couleurs
+  // Haut/Bas : ligne   Gauche/Droite : choix   ESPACE : valider (sur « C'est moi ! »)
   const FOREST = [110, 44];   // la forêt sur la carte de l'île (DW.islandImage) : là où tombe le héros
+  // fond « numérique » : dégradé bleu nuit, quadrillage léger, pistes de circuit qui s'allument, cadre
+  function fondTech(c, t) {
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#04102a'); g.addColorStop(1, '#0a2c5c');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.fillStyle = 'rgba(80,170,255,0.06)';
+    for (let x = 0; x < W; x += 16) c.fillRect(x, 0, 1, H);
+    for (let y = 0; y < H; y += 16) c.fillRect(0, y, W, 1);
+    for (let i = 0; i < 7; i++) { const y = 12 + i * 34, k = (t * 0.22 + i * 0.37) % 1; c.fillStyle = `rgba(90,220,255,${(0.35 * (1 - k)).toFixed(2)})`; c.fillRect(Math.round(k * (W + 30)) - 30, y, 24, 1); }
+    c.strokeStyle = 'rgba(90,200,255,0.45)'; c.lineWidth = 1; c.strokeRect(3.5, 3.5, W - 7, H - 7);
+  }
+  const BEBES = () => Object.values(DW.HERO_LINE).map(l => l.baby);
+  // les lignes du menu : [libellé, choix]
+  const LIGNES = [['Je suis', 'g'], ['Peau', 'corps'], ['Coiffure', 'tete'], ['Chapeau', 'chapeau'], ['Haut', 'haut'], ['Bas', 'bas'],
+    ['Chaussures', 'chaus'], ['Sac', 'sac'], ['Accessoire', 'acc'], ['DigiŒuf', 'bebe'], ['Au hasard', 'hasard'], ["C'est moi !", null]];
+  const VIDES = ['chaus', 'chapeau', 'sac', 'acc'];   // (ces parties peuvent rester vides)
   class CreateScene extends DW.Scene {
     constructor() {
       super();
-      const L = DW.LOOK_OPTS;
-      // chaque partie du personnage sur sa propre ligne (règle du joueur) : coiffure, cheveux, yeux, haut, bas, chaussures...
-      const n = a => a.map(x => x[0]);
-      this.rows = [['Je suis', L.gender, 'gender'], ['Peau', n(L.skin), 'skin'], ['Coiffure', n(L.cut), 'cut'], ['Couleur des cheveux', n(L.hair), 'hair'], ['Yeux', n(L.eye), 'eye'],
-        ['Haut', n(L.top), 'top'], ['Couleur du haut', n(L.shirt), 'shirt'], ['Bas', n(L.bottom), 'bottom'], ['Couleur du bas', n(L.bottomCol), 'bottomCol'],
-        ['Chaussures', n(L.shoe), 'shoe'], ['Accessoire', n(L.head), 'head'], ['Sac', n(L.bag), 'bag'], ['DigiŒuf', Object.values(DW.HERO_LINE).map(l => l.baby), 'baby'], ["C'est moi !", [''], null]];
-      this.r = 0; this.v = { gender: 0, skin: 0, cut: 0, hair: 0, eye: 0, shirt: 0, top: 0, bottom: 0, bottomCol: 0, shoe: 0, head: 0, bag: 0, baby: 0 };
+      this.r = 0; this.ch = DW.Perso.valide(DW.state.perso && DW.state.perso.corps != null ? DW.state.perso : DW.Perso.DEFAUT[0]);
+      this.bebe = 0; this.flash = { v: 0 };
+      this.pts = Array.from({ length: 22 }, (_, i) => ({ a: i / 22 * Math.PI * 2, s: 0.5 + (i * 37 % 10) / 20, y: (i * 53 % 100) / 100 }));
       DW.state.hero = 'perso'; this.apply();
+      DW.Perso.charger();
     }
-    apply() {
-      const v = this.v;
-      DW.state.look = { gender: v.gender, style: 0, skin: v.skin, cut: v.cut, hair: v.hair, eye: v.eye, shirt: v.shirt, top: v.top, bottom: v.bottom, bottomCol: v.bottomCol, shoe: v.shoe, head: v.head, bag: v.bag, v2: true, v3: true, baby: Object.values(DW.HERO_LINE)[v.baby].baby };
+    apply() { DW.state.look = DW.Perso.look(this.ch, BEBES()[this.bebe]); DW.state.perso = { ...this.ch }; }
+    eclair(v = 0.4) { this.flash.v = 1; DW.tween(this.flash, { v: 0 }, v); }
+    change(k, d) {
+      const P = DW.Perso, ch = this.ch;
+      if (k === 'bebe') { const n = BEBES().length; this.bebe = (this.bebe + d + n) % n; }
+      else if (k === 'g') {   // garçon <-> fille : coiffures, hauts et bas ne sont pas les mêmes ; la peau et le reste restent
+        const g = 1 - ch.g; this.ch = P.valide({ ...P.DEFAUT[g], corps: ch.corps, chaus: ch.chaus, sac: ch.sac, acc: ch.acc, chapeau: ch.chapeau, g });
+      } else if (k === 'bas' && P.ensemble(ch)) { Audio.sfx('cancel'); return; }   // (un ensemble a son bas)
+      else {
+        const n = P.nombre(k, ch.g);
+        if (VIDES.includes(k)) ch[k] = (ch[k] + 1 + d + n) % n - 1; else ch[k] = (ch[k] + d + n) % n;
+      }
+      this.eclair(); Audio.sfx('move'); this.apply();
     }
     update() {
-      const n = this.rows.length, R = this.rows[this.r];
+      const n = LIGNES.length, k = LIGNES[this.r][1];
       if (Input.hit('up')) { this.r = (this.r + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.r = (this.r + 1) % n; Audio.sfx('move'); }
       const d = Input.hit('left') ? -1 : Input.hit('right') ? 1 : 0;
-      if (d && R[2]) { const k = R[2], m = R[1].length; this.v[k] = (this.v[k] + d + m) % m; if (k === 'gender') { this.v.cut = this.v.gender ? 2 : 0; this.v.bottom = this.v.gender ? 3 : 0; } Audio.sfx('move'); this.apply(); }
-      if (Input.hit('ok')) { if (this.r === n - 1) { Audio.sfx('select'); this.close('perso'); } else { this.r++; Audio.sfx('select'); } }
+      if (d && k && k !== 'hasard') this.change(k, d);
+      if (Input.hit('ok')) {
+        if (!k) { Audio.sfx('select'); this.close('perso'); }
+        else if (k === 'hasard') { this.ch = DW.Perso.hasard(this.ch.g); this.eclair(0.5); Audio.sfx('select'); this.apply(); }
+        else { this.r++; Audio.sfx('select'); }
+      }
     }
     draw(c) {
-      const t = this.t, look = DW.heroLook('perso');
-      UI.menuBg(c, t);
-      UI.text(c, 'QUI ES-TU ?', W / 2, 17, { size: 11, align: 'center', bold: true, color: '#ffe680' });
-      // le personnage, de face et immobile (il ne tourne plus), sur son socle
-      const cx = 78, g = c.createRadialGradient(cx, 130, 4, cx, 130, 64);
-      g.addColorStop(0, look.crestCol + 'aa'); g.addColorStop(1, 'rgba(0,0,0,0)');
-      c.fillStyle = g; c.fillRect(cx - 70, 60, 140, 120);
-      // socle de pierre claire (pas une flaque !) et faisceau de lumière venu d'en haut
+      const t = this.t, cx = 76, sol = 182;
+      fondTech(c, t);
+      // le faisceau de lumière qui tombe sur le disque
       c.save(); c.globalCompositeOperation = 'lighter';
-      const beam = c.createLinearGradient(0, 40, 0, 160); beam.addColorStop(0, 'rgba(255,240,200,0)'); beam.addColorStop(1, 'rgba(255,240,200,0.22)');
-      c.fillStyle = beam; c.beginPath(); c.moveTo(cx - 18, 40); c.lineTo(cx + 18, 40); c.lineTo(cx + 36, 160); c.lineTo(cx - 36, 160); c.fill();
+      const bg = c.createLinearGradient(0, 8, 0, sol); bg.addColorStop(0, 'rgba(150,230,255,0)'); bg.addColorStop(1, `rgba(150,230,255,${(0.2 + 0.25 * this.flash.v).toFixed(2)})`);
+      c.fillStyle = bg; c.beginPath(); c.moveTo(cx - 16, 8); c.lineTo(cx + 16, 8); c.lineTo(cx + 50, sol); c.lineTo(cx - 50, sol); c.fill();
       c.restore();
-      c.fillStyle = '#3a3448'; c.beginPath(); c.ellipse(cx, 164, 36, 9, 0, 0, 7); c.fill();
-      c.fillStyle = '#8a86a0'; c.beginPath(); c.ellipse(cx, 160, 34, 8, 0, 0, 7); c.fill();
-      c.fillStyle = '#b8b4cc'; c.beginPath(); c.ellipse(cx, 159, 28, 5.6, 0, 0, 7); c.fill();
-      c.strokeStyle = look.crestCol; c.lineWidth = 1; c.beginPath(); c.ellipse(cx, 159, 24 + Math.sin(t * 3), 4.6, 0, 0, 7); c.stroke();
-      for (let i = 0; i < 10; i++) { const a = t * 0.8 + i / 10 * Math.PI * 2, px = cx + Math.cos(a) * 40, py = 120 + Math.sin(a) * 9 - ((t * 12 + i * 9) % 50); c.fillStyle = 'rgba(255,240,200,0.7)'; c.fillRect(Math.round(px), Math.round(py), 1, 1); }
-      const dir = 'down', fr = 0;
-      c.imageSmoothingEnabled = false;
-      c.drawImage(DW.Sprites.hero(dir, fr, 'perso').img, Math.round(cx - 29), 86, 58, 75);
-      // l'œuf choisi et son bébé
-      const baby = DW.state.look.baby, line = DW.heroLine('perso');
-      DW.Sprites.draw(c, DW.Sprites.battle(baby), cx, 200, { frame: Math.floor(t * 4) });
-      UI.text(c, `${DW.SPECIES[baby].name} → ${DW.SPECIES[line.partner].name}`, cx, 214, { size: 7, align: 'center', color: '#ffe680' });
-      // les lignes de choix
-      this.rows.forEach(([label, opts, k], i) => {
-        const y = 23 + i * 14, on = i === this.r;   // (14 lignes : une par partie du personnage)
-        UI.box(c, 150, y, 160, 13, on ? 'dwsel' : 'dw');
-        if (!k) { UI.text(c, label, 230, y + 10, { size: 9, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' }); return; }
-        UI.text(c, label, 156, y + 9, { size: 7, color: '#8ae0f0' });
-        const val = k === 'baby' ? DW.SPECIES[opts[this.v[k]]].name : opts[this.v[k]];
-        UI.text(c, (on ? '◀ ' : '') + val + (on ? ' ▶' : ''), 304, y + 10, { size: 8, align: 'right', color: '#ffffff' });
+      // le disque holographique : anneaux lumineux qui tournent
+      c.fillStyle = '#0a2a52'; c.beginPath(); c.ellipse(cx, sol + 2, 52, 11, 0, 0, 7); c.fill();
+      c.save(); c.globalCompositeOperation = 'lighter';
+      const dg = c.createRadialGradient(cx, sol + 2, 4, cx, sol + 2, 52); dg.addColorStop(0, 'rgba(90,230,255,0.55)'); dg.addColorStop(1, 'rgba(40,140,255,0)');
+      c.fillStyle = dg; c.beginPath(); c.ellipse(cx, sol + 2, 52, 11, 0, 0, 7); c.fill();
+      c.strokeStyle = 'rgba(120,240,255,0.8)'; c.lineWidth = 1;
+      for (let i = 0; i < 3; i++) { const k = (t * 0.5 + i / 3) % 1; c.globalAlpha = 1 - k; c.beginPath(); c.ellipse(cx, sol + 2, 18 + k * 36, 4 + k * 8, 0, 0, 7); c.stroke(); }
+      c.globalAlpha = 1;
+      for (const p of this.pts) { const a = p.a + t * p.s, py = sol - ((t * 22 * p.s + p.y * 150) % 150); c.fillStyle = `rgba(170,240,255,${(0.7 * (1 - (sol - py) / 150)).toFixed(2)})`; c.fillRect(Math.round(cx + Math.cos(a) * 40), Math.round(py), 1, 1); }
+      c.restore();
+      // le personnage assemblé (en attendant les planches du kit : le sprite de marche agrandi)
+      if (!DW.Perso.dessiner(c, this.ch, cx, sol + 2, 166)) {
+        c.imageSmoothingEnabled = false; c.drawImage(DW.Sprites.hero('down', 0, 'perso').img, cx - 29, sol - 74, 58, 75);
+        UI.text(c, 'Chargement...', cx, 30, { size: 7, align: 'center', color: '#8ae0f0' });
+      }
+      // le Digivice et le DigiŒuf choisi (son bébé), puis le partenaire qu'il deviendra
+      const bebe = DW.state.look.baby, line = DW.heroLine('perso');
+      c.save(); c.translate(30, 212); c.scale(0.15, 0.15); DW.drawDigivice(c, 0, 0, 1, t); c.restore();
+      DW.Sprites.draw(c, DW.Sprites.battle(bebe), 92, 224, { frame: Math.floor(t * 4), scale: 0.8 });
+      UI.text(c, `${DW.SPECIES[bebe].name} → ${DW.SPECIES[line.partner].name}`, 92, 235, { size: 7, align: 'center', color: '#ffe680' });
+      // les choix
+      c.fillStyle = 'rgba(4,16,40,0.6)'; c.fillRect(150, 6, 166, 226);
+      UI.text(c, 'QUI ES-TU ?', 233, 18, { size: 11, align: 'center', bold: true, color: '#ffe680' });
+      const P = DW.Perso, ch = this.ch;
+      LIGNES.forEach(([label, k], i) => {
+        const on = i === this.r;
+        if (!k) {   // le bouton final
+          UI.box(c, 172, 199, 122, 18, on ? 'dwsel' : 'dw');
+          UI.text(c, label, 233, 212, { size: 10, align: 'center', bold: true, color: on ? '#ffe070' : '#ffffff' });
+          return;
+        }
+        const y = 25 + i * 15, eteint = k === 'bas' && P.ensemble(ch);
+        UI.box(c, 154, y, 158, 14, on ? 'dwsel' : 'dw');
+        UI.text(c, label, 158, y + 10, { size: 7, color: eteint ? '#5a6a8a' : '#8ae0f0' });
+        let v = k === 'hasard' ? (on ? 'ESPACE : tirer au sort' : 'un personnage surprise') : k === 'bebe' ? DW.SPECIES[BEBES()[this.bebe]].name : P.nom(ch, k);
+        if (on && k !== 'hasard' && !eteint) v = '◀ ' + v + ' ▶';
+        UI.text(c, v, 308, y + 10, { size: 7, align: 'right', color: eteint ? '#5a6a8a' : on ? '#ffffff' : '#d8e4f4' });
       });
-      UI.text(c, '▲▼ choisir la ligne   ◀ ▶ changer   ESPACE valider', W / 2, 238, { size: 6, align: 'center', color: '#7a8ab8' });
+      UI.text(c, '▲▼ ligne   ◀ ▶ changer   ESPACE valider', 233, 228, { size: 6, align: 'center', color: '#7a8ab8' });
     }
   }
   DW.CreateScene = CreateScene;

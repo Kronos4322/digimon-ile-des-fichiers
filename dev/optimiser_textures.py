@@ -151,6 +151,8 @@ COMMUN.update({
 })
 # (pavés : un motif régulier ; rendu raccordable en miroir, sans fondu qui doublerait les joints)
 SOLS_MIROIR = {'ville_paves'}
+# (PERSONNAGES : le kit d'habillage du joueur est fait par dev/kit_persos.py)
+ECHELLE = {}   # (échelle imposée d'un objet, au lieu de sa taille maximale)
 # planches PLAGE : rochers, arche, herbes de dune, coquillages, mares, palmiers, bois flotté, château de sable, barque, radeau, sables
 _PL = lambda n: 'PLAGE/photo_2026-10-20_00-17-' + n + '.jpg'
 COMMUN.update({
@@ -330,8 +332,36 @@ def panneau(f, p, cols=5, rows=2, titre=0.075):
     return _PANNEAUX[(f, p)]
 
 
+def grille(f, cols, rows, k, clair=False):
+    """Case k d'une planche rangée en grille (cols x rows) : fond vert, ou clair et quadrillé (clair=True), enlevé."""
+    import numpy as np
+    from scipy import ndimage
+    im = Image.open(f).convert('RGB'); W, H = im.size; cw, ch = W / cols, H / rows
+    x0, y0 = int((k % cols) * cw), int((k // cols) * ch)
+    a = np.array(im.crop((x0 + 4, y0 + 4, int(x0 + cw) - 4, int(y0 + ch) - 4))).astype(int); r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    if clair:   # (fond crème et lignes du quadrillage, reliés au bord de la case)
+        lab, n = ndimage.label((r + g + b > 3 * 196) & (np.max(a, -1) - np.min(a, -1) < 34))
+        bords = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
+        fond = np.isin(lab, list(bords))
+    else: fond = (g > 150) & (g - np.maximum(r, b) > 70)
+    obj = ndimage.binary_opening(~fond, iterations=1)
+    lab, n = ndimage.label(obj)   # (on garde le plus gros morceau et ce qui le touche presque : pas les voisins qui débordent)
+    if n > 1:
+        tailles = ndimage.sum(obj, lab, range(1, n + 1)); grand = 1 + int(np.argmax(tailles))
+        proche = ndimage.binary_dilation(lab == grand, iterations=6)
+        garde = np.isin(lab, [i + 1 for i in range(n) if (proche & (lab == i + 1)).any() and tailles[i] > 30])
+        obj = obj & garde
+    if not clair:
+        bord = ndimage.binary_dilation(~obj, iterations=2) & obj
+        gmax = np.maximum(r, b) + 8; g = np.where(bord & (g > gmax), gmax, g)
+    out = Image.fromarray(np.dstack([r, g, b, np.where(obj, 255, 0)]).clip(0, 255).astype('uint8'), 'RGBA')
+    box = out.getchannel('A').getbbox()
+    return out.crop(box) if box else out
+
+
 def morceau(f, k):
     if isinstance(k, tuple) and k[0] == 'panneau': return panneau(f, k[1])[k[2]]
+    if isinstance(k, tuple) and k[0] in ('grille', 'grille_clair'): return grille(f, k[1], k[2], k[3], k[0] == 'grille_clair')
     im, ordre = planche(f)
     ks = k if isinstance(k, list) else [k]
     y0 = min(ordre[i][0] for i in ks); x0 = min(ordre[i][1] for i in ks); y1 = max(ordre[i][2] for i in ks); x1 = max(ordre[i][3] for i in ks)
@@ -358,7 +388,7 @@ def optimiser_commun():
             print('%-24s -> %4dx%-4d  %4d Ko (sol)' % (nom, out.width, out.height, os.path.getsize(cible) // 1024))
             continue
         if part is not None:   # objet d'une planche (fond vert)
-            im = morceau(f, part); w, h = im.size; k = min(1.0, GRAND.get(nom, 160) / max(w, h))
+            im = morceau(f, part); w, h = im.size; k = ECHELLE.get(nom) or min(1.0, GRAND.get(nom, 160) / max(w, h))
             out = im.resize((round(w * k), round(h * k)), Image.LANCZOS)
             out.save(cible, optimize=True)
             print('%-24s -> %4dx%-4d  %4d Ko' % (nom, out.width, out.height, os.path.getsize(cible) // 1024))
