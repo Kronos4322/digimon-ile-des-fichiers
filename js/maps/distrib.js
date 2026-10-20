@@ -27,11 +27,12 @@
       if (DW.Town.has('gotsumon')) { if (has) { m.objects = m.objects.filter(o => o.kind !== 'vending'); for (const k in m.signs) if (m.signs[k] && m.signs[k].vending) delete m.signs[k]; if (m.gfx) DW.World.unprepare(m); } return; }
     } else if (m._distribFor === m.rows) return;
     const i = id === 'village' ? 3 : list().indexOf(id);
+    // un distributeur déjà là (posé ou déplacé dans l'atelier des cartes) : il garde sa boutique, même sur une carte hors
+    // de la liste (avant : celui posé au Terrain d'entraînement ne répondait pas) — là, celui de la ville
+    const deja = (m.objects || []).find(o => o.kind === 'vending');
+    if (deja) { m._distribFor = m.rows; brancher(m, deja.x, deja.y, MACHINES[id === 'village' || i < 0 ? 3 : i % 3]); return; }
     if (i < 0) return;
     m._distribFor = m.rows;
-    // un distributeur déjà là (déplacé dans l'atelier des cartes) : il garde sa boutique
-    const deja = (m.objects || []).find(o => o.kind === 'vending');
-    if (deja) { brancher(m, deja.x, deja.y, MACHINES[id === 'village' ? 3 : i % 3]); return; }
     const H = m.rows.length, W = m.rows[0].length, occ = new Set();
     for (const o of m.objects || []) if (!o.walk) for (let y = o.y - (o.top ? 0 : 0); y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
     const walk = (x, y) => x > 0 && y > 0 && x < W - 1 && y < H - 1 && !DW.SOLID.has(m.rows[y][x]) && !occ.has(x + ',' + y) && m.rows[y][x] !== '~';

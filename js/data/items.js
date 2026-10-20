@@ -157,6 +157,9 @@
     nuit: ['viande_moisie', 'champi_joie', 'reveil', 'medoc', 'cloche', 'super_reveil'],
     cartes: ['cartes'],
     boulangerie: ['pain', 'croissant', 'brioche'],
+    // l'étal de la ferme (Palmon) : les fruits et légumes du Quartier des Champs ; le glacier de Frigimon
+    ferme: ['super_carotte', 'radis', 'pomme_bleue', 'baie_rouge', 'grosse_baie', 'epinard', 'figue', 'digipomme', 'super_legume'],
+    glacier: ['glace_pilee', 'macaron', 'eclair', 'tarte'],
     patisserie: ['macaron', 'eclair', 'tarte', 'gateau_fete'],
   };
   // stock d'une boutique selon le niveau de la ville (les moins bons d'abord, puis on monte)
@@ -164,7 +167,8 @@
     // rang des objets (tier 0 à 20) : un rang par tranche de 5 % de développement de la ville ; tout est en vente à 100 %
     // … et plafonné par le chapitre : pas d'objets trop puissants trop tôt (chapitre 1 : rang 4 maximum)
     const CAP = { 1: 4, 2: 7, 3: 10 }, ch = (DW.state && DW.state.flags && DW.state.flags.chapter) || 1;
-    const lv = Math.min(DW.Town ? Math.floor(DW.Town.progress() / 5) : 0, CAP[ch] != null ? CAP[ch] : 20);
+    // (la ferme vend ses propres légumes dès qu'elle est cultivée : rang 6 au moins, même au chapitre 1)
+    const lv = Math.max(name === 'ferme' ? 6 : 0, Math.min(DW.Town ? Math.floor(DW.Town.progress() / 5) : 0, CAP[ch] != null ? CAP[ch] : 20));
     return (DW.SHOPS[name] || []).filter(id => I[id] && (I[id].tier || 0) <= lv)
       .sort((a, b) => (I[a].tier || 0) - (I[b].tier || 0) || I[a].price - I[b].price);
   };

@@ -171,6 +171,9 @@
     await say(`Laisse-moi t'aider : je pars m'installer à la Ville des Fichiers !`, name);
     await DW.Town.recruit(R.boss);
     s.party.forEach(m => m.heal());
+    // (ancienne partie dont le héros est un enfant de l'aventure : Seadramon, libéré ici, clôt le chapitre 2 — pour le
+    //  héros original, c'est la veillée de Matt au Lac du Tramway, game/chapitre2.js ; avant : chapitre 2 sans fin)
+    if (rid === 'lac' && s.hero !== 'perso' && (s.flags.chapter || 1) === 2 && DW.Chapter.end2) await DW.Chapter.end2();
     if (Story.gears() === FINAL) await say("Le ciel s'assombrit au-dessus de la Montagne de l'Infini... Quelqu'un t'attend là-haut.");
   }
   async function mateTalk(rid) {
@@ -273,11 +276,13 @@
       });
       const r = RID[this.i], R = REG[r], seen = Object.keys(DW.MAPS).some(id => DW.MAPS[id].region === r && s.visited[id]);
       UI.box(c, 6, 176, W - 12, 58);
-      const txt = !seen ? 'Région encore inexplorée. Consulte la carte (Menu → CARTE).'
+      // (région inexplorée — presque toutes, aux chapitres 1 à 3 : l'objectif du moment)
+      const obj = DW.Chapter && DW.Chapter.objective ? DW.Chapter.objective() : '';
+      const txt = !seen ? (obj ? `OBJECTIF : ${obj}` : 'Région encore inexplorée. Consulte la carte (Menu → CARTE).')
         : g[r] ? `${DW.SPECIES[R.boss].name} a été libéré${DW.Town.has(R.mate) ? ` et ${DW.SPECIES[R.mate].name} s'est installé en ville` : `. ${DW.SPECIES[R.mate].name} t'attend quelque part dans la région`}.`
         : `On raconte ${/^[aeiouyéh]/i.test(R.lore) ? "qu'" : 'que '}${R.lore}. Un Digimon possédé se cache au fond de la région${BOSS_TIME[r] ? ` (seulement ${BOSS_TIME[r][2]}, ${BOSS_TIME[r][0]} h – ${BOSS_TIME[r][1] % 24} h)` : ''}.`;
-      UI.wrap(c, txt, 290, 8).slice(0, 3).forEach((l, j) => UI.text(c, l, 14, 192 + j * 11, { size: 8, color: '#c8f0ff' }));
-      const fin = Story.gears() >= FINAL ? (s.flags.devimon ? 'Devimon est vaincu !' : "Devimon t'attend au sommet de la Montagne de l'Infini !") : `Brise ${FINAL} engrenages pour affronter leur maître.`;
+      UI.wrap(c, txt, 290, 8).slice(0, fin ? 3 : 4).forEach((l, j) => UI.text(c, l, 14, 192 + j * 11, { size: 8, color: !seen && obj ? '#ffe9a8' : '#c8f0ff' }));
+      const fin = Story.gears() >= FINAL ? (s.flags.devimon ? 'Devimon est vaincu !' : "Devimon t'attend au sommet de la Montagne de l'Infini !") : Story.gears() ? `Brise les ${FINAL} Engrenages Noirs : quelqu'un les lance sur l'île...` : '';
       UI.text(c, fin, 14, 228, { size: 7, color: '#ffe070' });
     }
   }

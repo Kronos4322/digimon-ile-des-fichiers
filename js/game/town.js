@@ -12,7 +12,7 @@
     { id: 'betamon', hint: "près de l'eau, à l'ombre de très grands arbres", building: 'Fontaine', zone: 'geants', role: 'Remet la fontaine en eau : elle soigne tes Digimon.' },
     { id: 'elecmon', hint: "quelque part le long d'un chemin de la forêt... ça crépitait !", building: 'Dojo', zone: 'sentier', role: 'Entraînements plus efficaces (+1 point par séance).' },
     { id: 'mushroomon', hint: 'dans un endroit dégagé et fleuri... mais seulement à la nuit tombée', building: 'Restaurant', zone: 'prairie', role: 'Repas qui rendent heureux et effacent la fatigue.' },
-    { id: 'yokomon', hint: "là où tout a commencé pour toi, une fois la forêt apaisée", building: 'Jardin', zone: 'clairiere', role: 'Le Jardin abrite la DigiFerme (Digimon en réserve).' },
+    { id: 'yokomon', hint: "là où tout a commencé pour toi, une fois la forêt apaisée", after: 'kuwagamon', building: 'Jardin', zone: 'clairiere', role: 'Le Jardin abrite la DigiFerme (Digimon en réserve).' },
     { id: 'palmon', hint: 'au pied de géants... de bois', building: 'Grange', zone: 'geants', district: 'champs', role: 'Palmon cultive les champs : passe chaque jour récolter de la nourriture.' },
     { id: 'biyomon', hint: 'au bord de la forêt', building: 'Poste', zone: 'lisiere', role: 'Biyomon distribue le courrier et sait où se cachent les Digimon errants.' },
     { id: 'kunemon', hint: "dans l'herbe haute, il bourdonnait", building: 'Banque', zone: 'prairie', role: 'Kunemon garde tes objets en trop dans la Banque : dépose-les et reprends-les quand tu veux.' },
@@ -22,6 +22,13 @@
 
   DW.Town = {
     RECRUITS,
+    // le prochain habitant qu'on peut aller chercher MAINTENANT : un indice, une zone ouverte et, s'il le faut, l'évènement
+    // d'avant passé (after : Yokomon, une fois Kuwagamon vaincu) ; null sinon (avant : Jijimon et Koromon envoyaient
+    // chercher Yokomon avant Kuwagamon, puis vers les Alpages Suspendus, fermés jusqu'au chapitre 10)
+    prochain() {
+      const f = DW.state.flags, lock = DW.Chapter && DW.Chapter.lock;
+      return RECRUITS.find(x => !this.has(x.id) && x.hint && (!x.after || f[x.after]) && !(lock && lock(x.zone))) || null;
+    },
     get st() { return DW.state; },
     has(id) { return !!(this.st.recruits && this.st.recruits[id]); },
     // développement de la ville (0 à 100 %)

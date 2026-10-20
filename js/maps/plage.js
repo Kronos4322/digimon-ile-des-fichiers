@@ -176,7 +176,7 @@
     ],
     triggers: [],
     signs: {
-      '21,3': "Nord : Forêt de l'Arrivée.  Est : Ville des Fichiers.  En bas de l'escalier : la Plage des Cabines.",
+      '21,3': "Nord : Lisière du Ravin et la forêt.  Est : Ville des Fichiers.  En bas de l'escalier : la Plage des Cabines.",
       '4,22': "Ouest : Crique du Radeau. Quelqu'un y construit un radeau pour quitter l'île...",
       '19,24': () => say(st().flags.kuwagamon && !st().flags.shellLair ? "Quelqu'un a gravé sous le panneau : « Chaque cabine murmure un mot. Dans le bon ordre, c'est un appel au secours. »" : 'Les cabines téléphoniques sonnent parfois toutes seules... Personne ne sait qui appelle.'),
     },

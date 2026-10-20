@@ -45,7 +45,7 @@
   const ORDER = Object.keys(FURN);
   const owned = id => !!(st().home && st().home.owned[id]);
   // la télévision OU le canapé aménagent le salon, ou un enfant délivré vient habiter chez toi : la maison prend un étage (ta chambre et celles des enfants)
-  const KIDS_HOME = ['tai', 'matt'];
+  const KIDS_HOME = ['tai', 'matt', 'sora'];
   const kidsHere = () => KIDS_HOME.filter(k => !!(st().kids || {})[k] && st().hero !== k);
   const upstairs = () => owned('tele') || owned('tapis') || KIDS_HOME.some(k => !!(st().kids || {})[k] && st().hero !== k);
   const roomOf = id => (typeof FURN[id].room === 'function' ? FURN[id].room() : FURN[id].room) || null;
@@ -98,6 +98,19 @@
         "Tai ronfle. Même à travers le mur. Je te jure.", "Cet harmonica, c'est tout ce qu'il me reste de la maison... Je joue le soir, pour que TK l'entende, peut-être.",
         "Gabumon refuse de quitter sa fourrure. Même quand il fait chaud. Allez comprendre."]), 'Matt') },
         { sp: 'gabumon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say(DW.pick(['Ne dis pas à Matt que je trouve sa musique très belle... Il serait gêné.', "Garurumon, c'était moi ! J'ai encore du mal à y croire."]), 'Gabumon') }] },
+    // chambre de Sora : elle apparaît quand Sora est délivrée (Mont Miharashi, chapitre 3) ; décor rose et bleu, son chapeau
+    sora:    { name: 'Chambre de Sora', from: 'etage', w: 10, h: 8, by: [], open: () => !!(st().kids || {}).sora && st().hero !== 'sora',
+      floor: { type: 'carpet', cols: ['#f0c0c8', '#d89aa8', '#a06878'] }, wall: { base: '#fff0f0', alt: '#f8dcdc', pattern: 'dots', wood: '#c84a5a' },
+      decor: [{ kind: 'bed', x: 6, y: 3, w: 2, h: 2 }, { kind: 'poster', v: 1, x: 2, y: 1, w: 1, h: 1, back: true, oy: 15 }, { kind: 'shelf', x: 3, y: 1, w: 2, h: 1, back: true, oy: 6 },
+        { kind: 'bigrug', v: 2, x: 3, y: 5, w: 3, h: 1, walk: true }, { kind: 'bigplant', x: 1, y: 5, w: 1, h: 1, small: true }],
+      npcs: [{ hero: 'sora', x: 4, y: 4, face: 'down', wander: 1, talk: async () => DW.say(DW.pick([
+        "Merci de m'avoir ramenée. Là-haut, sans toi et Birdramon, Meramon aurait tout brûlé...",
+        "Les Yokomon ont retrouvé leur eau. J'espère qu'ils pensent à boire, avec cette chaleur !",
+        "Tai et Matt se chamaillent encore ? Ces deux-là... il faut bien que quelqu'un veille sur eux.",
+        "Biyomon me suit partout. Elle dit que c'est son rôle. Je ne sais pas si je le mérite...",
+        "Si tu t'entraînes au Terrain, appelle-moi ! Je n'ai pas oublié mes entraînements de foot.",
+        "Ton Digimon a bien mangé aujourd'hui ? Un partenaire, il faut en prendre soin, tu sais."]), 'Sora') },
+        { sp: 'biyomon', x: 7, y: 5, face: 'left', wander: 1, talk: () => DW.say(DW.pick(["Sora fait semblant d'être forte, mais elle s'inquiète pour tout le monde. Cui !", "Chaque matin, je fais le tour de la maison en volant. Tout va bien ici !", "Birdramon, c'était moi ! Tu as vu mes ailes de feu ?"]), 'Biyomon') }] },
     digi:    { name: 'Chambre du Digimon', from: 'etage', w: 10, h: 8, by: ['chambre_digi'], floor: { type: 'carpet', cols: ['#bfe0f8', '#a0c8ec', '#f8f8ff'] }, wall: { base: '#fff0f6', alt: '#f8dce8', pattern: 'dots', wood: '#c86a9a' },
       decor: [{ kind: 'window', v: 0, x: 3, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'bigrug', v: 0, x: 4, y: 5, w: 3, h: 1, walk: true }] },
   };
@@ -176,9 +189,13 @@
       const K = ['hp', 'mp', 'atk', 'def', 'spd', 'int'], NAMES = ['PV', 'PM', 'Attaque', 'Défense', 'Vitesse', 'Intelligence'];
       const i = await DW.ask('Quelle statistique travailler ?', ['PV', 'PM', 'Attaque', 'Défense', 'Vitesse', 'Intelligence', 'Annuler']);
       if (i < 0 || i > 5) { st().home.used.k = st().home.used.k.filter(k => k !== used); return; }
+      // (comme au Terrain : pas de séance malade, blessé, épuisé ou affamé, et le potentiel plafonne les points ;
+      //  avant : un Koromon malade et épuisé dépassait son potentiel)
+      const why = DW.Training.blocked(m, K[i]);
+      if (why) { st().home.used.k = st().home.used.k.filter(k => k !== used); await say(why); return; }
       const pts = lv + 1;
-      m.tr = m.tr || {}; const v0 = K[i] === 'hp' ? m.maxHp : K[i] === 'mp' ? m.maxMp : m.stat(K[i]);
-      m.tr[K[i]] = (m.tr[K[i]] || 0) + pts; m.tired = Math.min(100, (m.tired || 0) + 15);
+      const v0 = K[i] === 'hp' ? m.maxHp : K[i] === 'mp' ? m.maxMp : m.stat(K[i]);
+      DW.Training.gain(m, K[i], pts); m.tired = Math.min(100, (m.tired || 0) + 15);
       const v1 = K[i] === 'hp' ? m.maxHp : K[i] === 'mp' ? m.maxMp : m.stat(K[i]);
       DW.Audio.sfx('super');
       await say(`Une, deux ! ${m.name} s'entraîne dur. ${NAMES[i]} +${Math.max(1, v1 - v0)} ! (fatigue +15)`);
@@ -332,7 +349,7 @@
 
   // ------------------------------------------------------------ la grande salle à manger : les enfants et leurs Digimon à table
   {
-    const S = MAPS.maison_joueur_salle, PARTNER = { tai: 'agumon', matt: 'gabumon' };
+    const S = MAPS.maison_joueur_salle, PARTNER = { tai: 'agumon', matt: 'gabumon', sora: 'biyomon' };
     const mealTime = () => { const h = DW.Time.hour(); return (h >= 12 && h < 14) || (h >= 19 && h < 21); };
     S.populate = function () {
       const kids = kidsHere(), meal = mealTime();

@@ -106,7 +106,13 @@
   // (lui rapporter les ingrédients du plat : il le cuisine devant toi, t'apprend la recette, et te laisse le plat)
   const learned = () => { const s = st(); s.recipes = s.recipes || {}; for (const id in s.cooked || {}) s.recipes[id] = true; return s.recipes; };
   const known = () => RECIPES.filter(r => learned()[r[0]]);
-  const nextQuest = () => RECIPES.find(r => !learned()[r[0]]) || null;
+  // la recette suivante dont on peut trouver tous les ingrédients MAINTENANT : vendus dans une boutique, pêchés, puisés
+  // (eau de source) ou offerts par un habitant déjà en ville (avant : la Brochette demandait le Piment de Meramon, qui
+  // n'arrive qu'à la fin du chapitre 3, et toute la suite restait bloquée)
+  const AUTRES = new Set(['eau_source', 'digianchois', 'digivivaneau', 'digitruite']);   // (le puits des Poyomon, la pêche)
+  const trouvable = id => AUTRES.has(id) || Object.values(DW.SHOPS).some(L => L.includes(id)) || Object.entries(PRODUCE).some(([sp, [g]]) => g === id && DW.Town.has(sp));
+  const restantes = () => RECIPES.filter(r => !learned()[r[0]]);
+  const nextQuest = () => restantes().find(r => Object.keys(r[1]).every(trouvable)) || null;
   const QUEST_WORDS = {
     grillade: "Pour commencer, la base : une grillade ! Rapporte-moi 1 Viande et 1 Sel (Gotsumon taille du sel dans la roche).",
     brochette: "Tu aimes quand ça pique ? Rapporte-moi 1 Viande et 1 Piment de feu.",
@@ -115,7 +121,7 @@
   const ingrText = r => Object.entries(r[1]).map(([id, n]) => `${n} ${I[id].name}`).join(', ');
   async function mushroomQuest() {
     const s = st(), r = nextQuest();
-    if (!r) { await DW.say("Tu connais toutes mes recettes ! Tu es un vrai chef maintenant. Hihi !", 'Mushroomon'); return; }
+    if (!r) { await DW.say(restantes().length ? "Mes autres recettes demandent des ingrédients que personne n'apporte encore en ville... Reviens quand de nouveaux habitants seront arrivés !" : "Tu connais toutes mes recettes ! Tu es un vrai chef maintenant. Hihi !", 'Mushroomon'); return; }
     const dish = I[r[0]].name;
     if (s.flags.recipeQuest !== r[0]) {
       s.flags.recipeQuest = r[0];

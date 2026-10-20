@@ -83,9 +83,9 @@
     // 3) la route des Champs : la nourriture
     await goTo(ow, DW.MapKit.zpt('village', 5, 23), 'down');   // en haut du chemin des Champs
     await say("Par là, au sud-ouest : le Quartier des Champs. Tanemon y fait pousser de la Digiviande ! Quand ton partenaire a faim, va le voir : il t'en donne 3 par jour.", K);
-    await say("Et pour la soif, il y a de l'eau partout : la rivière, l'étang... Mais pas l'eau de mer, hein ! Pour te soigner, le distributeur de la place vend des RAM, en attendant que le Bazar rouvre.", K);
+    await say("Et pour la soif, il y a de l'eau partout : la rivière, l'étang... Mais pas l'eau de mer, hein ! Pour te soigner, le distributeur, à l'est de la place, vend des RAM, en attendant que le Bazar rouvre.", K);
     await say("Au sud, il y a le Terrain d'entraînement : c'est là que ton partenaire devient plus fort. À l'ouest, la plage... et au-delà, la forêt.", K);
-    await say("Ton partenaire est encore un bébé : commence par les DUNES, à l'ouest de la plage. Les Digimon y sont tout petits. Ensuite le Bosquet des Pousses, puis la forêt !", K);
+    await say("Ton partenaire est encore un bébé : commence par les DUNES, au nord-ouest de la plage (par la Lisière du Ravin). Les Digimon y sont tout petits. Ensuite le Bosquet des Pousses, puis la forêt !", K);
     await say("Les habitants sont partis vers la forêt, je crois. Si tu en croises un, parle-lui : il se souviendra peut-être de la ville !", K);
     // retour devant la maison de Jijimon, avec ton partenaire
     await goTo(ow, villageSpot(m => (m.doors || []).find(d => d.to === 'maison'), 2), 'down');

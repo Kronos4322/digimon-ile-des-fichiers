@@ -126,7 +126,7 @@
   async function stand() {
     if (!T().has('palmon')) { await say("Un étal vide. Les produits de la ferme y seront vendus quand le quartier sera cultivé."); return; }
     await say('L\'étal de la ferme : fruits et légumes du Quartier des Champs !', 'Palmon');
-    DW.Game.push(new DW.ShopScene('fruits'));
+    await DW.Game.push(new DW.ShopScene('ferme'));
   }
   async function fieldLook(meat) {
     if (meat) { await say(st().flags.meat === today() ? 'Les plants de Digiviande repoussent... La prochaine récolte sera prête demain.' : 'De belles Digiviandes bien mûres pendent aux plants ! Tanemon les récolte pour toi.'); return; }

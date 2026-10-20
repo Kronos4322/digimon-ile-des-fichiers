@@ -29,6 +29,7 @@
     epouvantail: { k: 'atk', jeu: 'dummy', nom: 'Épouvantail', desc: "Frapper l'épouvantail : des coups vifs et légers (Attaque, un peu de Vitesse).", base: { atk: 6, spd: 4 } },
     traineau: { k: 'hp', jeu: 'weights', nom: 'Traîneau', desc: 'Tirer le traîneau chargé de pierres (PV, un peu d\'Attaque).', base: { hp: 35, atk: 4 } },
     pneus: { k: 'spd', jeu: 'hurdle', nom: 'Pneus', desc: 'Passer entre les pneus qui se balancent (Vitesse, un peu de Défense).', base: { spd: 6, def: 4 } },
+    hurdle: { k: 'spd', jeu: 'hurdle', nom: 'Haies', desc: 'Sauter les haies à toute allure.' },   // (haies posées dans l'atelier des cartes)
   };
   const TOTAL = 300, TIRE = 30, MINUTES = 90;   // TOTAL : points d'entraînement cumulés, toutes stats (6 avec les PM)
 
@@ -93,13 +94,21 @@
       return null;
     },
     partsText(parts) { const N = { hp: 'PV', mp: 'PM', atk: 'Attaque', def: 'Défense', spd: 'Vitesse', int: 'Intell.' }; const l = Object.keys(parts).map(s => `${N[s]} +${parts[s]}`); return l.length ? l.join('   ') : 'Potentiel atteint : gagne des niveaux !'; },
-    // case du poste lui-même (on a pu parler à son panneau, à côté)
+    // le poste lui-même (on a pu parler à son panneau, à côté) : la case de poste ou l'appareil de cette stat le plus
+    // proche, à 6 cases au plus (avant : 3, et les panneaux du plan agrandi x2 étaient plus loin : la séance se jouait au
+    // panneau, avec le mauvais exercice)
     station(ow, k, spot) {
-      for (let r = 0; r <= 3; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
-        const x = spot.x + dx, y = spot.y + dy;
-        if (DW.World.info(ow.tileAt(x, y)).train === k) return { x, y };
+      let best = null, bd = 1e9;
+      for (let dy = -6; dy <= 6; dy++) for (let dx = -6; dx <= 6; dx++) {
+        const x = spot.x + dx, y = spot.y + dy, d = Math.hypot(dx, dy);
+        if (d < bd && DW.World.info(ow.tileAt(x, y)).train === k) { best = { x, y }; bd = d; }
       }
-      return { x: spot.x, y: spot.y };
+      for (const o of ow.map.objects || []) {
+        if (!POSTES[o.kind] || POSTES[o.kind].k !== k) continue;
+        const x = o.x + ((o.w || 1) >> 1), y = o.y + (o.h || 1) - 1, d = Math.hypot(x - spot.x, y - spot.y);
+        if (d <= 6 && d < bd) { best = { x, y, eq: o.kind }; bd = d; }
+      }
+      return best || { x: spot.x, y: spot.y };
     },
     // en parlant à un poste : le partenaire de tête s'entraîne (ou un autre, au choix), séances enchaînées depuis l'écran de résultats
     async atSpot(k, spot) {

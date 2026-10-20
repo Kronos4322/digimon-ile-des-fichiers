@@ -279,7 +279,7 @@
       { const r = await this.allyTurn(); if (r) return r; }
       this.gainEnergy('p', 3); this.gainEnergy('e', 3);
       for (const side of ['p', 'e']) { const m = this.mon(side); if (m && m.hp > 0) m.mp = Math.min(m.maxMp, m.mp + Math.ceil(m.maxMp * MP_REGEN)); }
-      if (this.energyFull) { this.energyFull = 0; await this.msg(`Énergie au maximum ! ${this.active.name} peut lancer ${DW.MOVES[DW.sigOf(this.active)].name} (ATTAQUE puis ENTRÉE), puis appuie vite sur ESPACE pour le charger !`, 1.6); }
+      if (this.energyFull) { this.energyFull = 0; await this.msg(`Énergie au maximum ! ${this.active.name} peut lancer ${DW.MOVES[DW.sigOf(this.active)].name} (Combat puis ENTRÉE), puis appuie vite sur ESPACE pour le charger !`, 1.6); }
       for (const side of ['p', 'e']) {
         const m = this.mon(side);
         if (!m || m.hp <= 0) continue;

@@ -285,7 +285,7 @@
     }));
     // panneaux : ville, direction du terrain
     m.signs = {
-      '4,12': () => say(`Ville des Fichiers — ${T().label()}.  Ouest : Plage des Cabines.  Sud : Terrain d'entraînement.  Sud-ouest : Quartier des Champs.`),
+      '4,12': () => say(`Ville des Fichiers — ${T().label()}.  Nord-ouest : Plage des Cabines.  Sud : Terrain d'entraînement.  Sud-ouest : Quartier des Champs.`),
       '7,25': 'Sud-ouest : Quartier des Champs. Un moulin, un étang, et des champs à perte de vue.',
       '18,26': "Sud : Terrain d'entraînement. Le niveau se gagne en combat, les Digivolutions à l'entraînement !",
     };
@@ -360,7 +360,7 @@
   // ------------------------------------------------------------ Koromon : le guide de la ville (le seul Digimon qui se promène en ville au début)
   // conseils selon la situation : d'abord l'urgent (faim, toilettes), puis les objectifs, à tour de rôle
   async function guideTalk() {
-    const s = st(), m = s.party[0], next = T().RECRUITS.find(x => !T().has(x.id));
+    const s = st(), m = s.party[0], next = T().prochain();
     const urgent = [], tips = [];
     if (!s.flags.starter) urgent.push(`Ko-ko ! Bonjour ! Un bébé Digimon t'attend ici, sur la place : ${DW.SPECIES[DW.heroLine().baby].name}. Va lui parler !`);
     else {
@@ -370,11 +370,11 @@
       if (m && m.need >= 60) urgent.push("Vite ! Il y a des toilettes au sud de la ville, près de la route du Terrain d'entraînement.");
       if (m && DW.Evo.available(m).length) urgent.push(`${m.name} peut digivoluer ! Ouvre le menu (ENTRÉE) → DIGIMON → onglet DIGIVOLUTION.`);
       tips.push("Les Digimon ne se capturent pas : ils naissent ! Penguinmon confie un DigiŒuf par jour au Village des Bébés, à l'est de la Prairie. Ensuite, entraîne-les pour qu'ils digivoluent !");
-      tips.push("Certains chemins sont bloqués : un éboulis à l'est, des ronces aux Champs, le Bois Brumeux plongé dans le noir... Les Digimon qui rentrent en ville t'aideront à passer !");
+      tips.push("Certains chemins sont fermés par un voile de données... Ils s'ouvriront au fil de l'aventure, quand le calme reviendra sur l'île. Jijimon sait toujours ce qu'il faut faire ensuite !");
       if (!s.flags.tanemon) tips.push("Tu connais Tanemon ? Il cultive de la Digiviande au Quartier des Champs, au sud-ouest. Passe le voir chaque jour !");
       if (!T().level()) tips.push("La ville est vide... Les Digimon de l'île ont tout oublié. Explore l'ouest, retrouve-les et ramène-les ici !");
       if (m && DW.Training.total(m) < 10) tips.push("Les combats font monter le niveau. Mais pour digivoluer, il faut s'entraîner au Terrain d'entraînement, au sud.");
-      if (next) tips.push(`On m'a dit qu'un Digimon rôde du côté de « ${MAPS[next.zone].name} »... Il cherche peut-être un endroit où vivre.`);
+      if (next) tips.push(`On m'a dit qu'un Digimon se cache du côté de « ${MAPS[next.zone].name} », ${next.hint}... Il cherche peut-être un endroit où vivre.`);
       if (DW.bagUsed() >= DW.bagSlots() || Object.values(s.bag).some(n => n >= DW.BAG_MAX)) tips.push(`Ton sac est limité : ${DW.BAG_MAX} exemplaires par objet et ${DW.bagSlots()} sortes d'objets. Plein, il ne ramasse plus rien : range tes affaires dans ton coffre, et la nourriture dans ton frigo !`);
       tips.push("Chez Jijimon, Poyomon te propose une sieste dans le lit : ça soigne toute l'équipe.", "Ton partenaire a besoin d'aller aux toilettes de temps en temps. Sinon... gare aux accidents !");
     }
@@ -442,9 +442,11 @@
   }
   async function jijimonAdvice() {
     {
-      const next = T().RECRUITS.find(x => !T().has(x.id));
-      if (next) await say(`On raconte qu'un Digimon solitaire erre du côté de « ${MAPS[next.zone].name} »... Il cherche peut-être un endroit où vivre. Qui sait ce qu'il apporterait à la ville ?`, 'Jijimon');
-      else await say("La ville n'a jamais été aussi belle ! Merci, mon enfant.", 'Jijimon');
+      // d'abord ce qu'il faut faire maintenant (l'objectif du chapitre), puis un habitant qu'on peut aller chercher
+      if (DW.Chapter && DW.Chapter.objective) await say(`Ce qui compte maintenant : ${DW.Chapter.objective()}`, 'Jijimon');
+      const next = T().prochain();
+      if (next) await say(`On raconte qu'un Digimon solitaire se cache du côté de « ${MAPS[next.zone].name} », ${next.hint}... Il cherche peut-être un endroit où vivre. Qui sait ce qu'il apporterait à la ville ?`, 'Jijimon');
+      else if (T().RECRUITS.every(x => T().has(x.id))) await say("La ville n'a jamais été aussi belle ! Merci, mon enfant.", 'Jijimon');
       await say(`Pour l'instant, la ville est à ${T().label()}.`, 'Jijimon');
       await say("Ton partenaire ne digivoluera pas tout seul : entraîne-le au terrain du sud, gagne des combats, puis consulte la table des Digivolutions.", 'Jijimon');
     }
@@ -510,7 +512,7 @@
         // après Kuwagamon : le passage secret vers le Village des Yokomon (maps/yokomon.js)
         f.kuwagamon && !(st().visited || {}).village_yokomon && { boss: true, say: "Au nord-est de la Prairie des Lucioles, contre les arbres, il y a un tronc creux couché, avec un petit panneau. On entend des petites voix de l'autre côté... Parle au tronc pour t'y faufiler !" },
         // chapitre 2 (game/chapitre2.js)
-        (f.chapter || 1) >= 2 && !f.monoCh2 && { boss: true, say: "Sur la Rive Sud du grand lac, au nord de la Clairière, deux Monochromon se disputent le chemin à grands coups de cornes ! Leur carapace est dure comme le diamant : les coups de feu et d'électricité passent mieux." },
+        (f.chapter || 1) >= 2 && !f.monoCh2 && { boss: true, say: "Sur la Rive Sud du grand lac, au nord de la Clairière, deux Monochromon se disputent le chemin à grands coups de cornes ! Leur carapace est dure comme le diamant... mais l'eau la traverse sans peine !" },
         (f.chapter || 1) >= 2 && f.monoCh2 && !f.seadramon && st().hero === 'perso' && { boss: true, say: "Au Lac du Tramway, une île porte un vieux tramway. La nuit (20 h - 5 h), on y entend un harmonica... Un garçon blond y campe avec un Digimon à fourrure. Mais méfie-toi de la grande feuille rouge, sur la rive de l'île !" },
       ].filter(Boolean);
       const reach = BOSS.concat(all.filter(x => !lock || !lock(x.zone)));

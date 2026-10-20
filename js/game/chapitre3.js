@@ -113,7 +113,7 @@
     });
     if (res !== 'win') {
       await say('Les flammes de Meramon sont trop fortes...');
-      await ow.bossDefeat("Hohoho... Tu t'es brûlé les ailes, on dirait. Meramon est un Digimon de feu : l'eau et la glace lui font mal. Entraîne-toi bien avant d'y retourner !");
+      await ow.bossDefeat("Hohoho... Tu t'es brûlé les ailes, on dirait. Meramon est un Digimon de feu : l'eau et la terre lui font mal. Entraîne-toi bien avant d'y retourner !");
       return;
     }
     await victory(ow, withSora);
@@ -144,7 +144,7 @@
     await DW.fade(0, 0.8);
     Audio.play('victory');
     await say("Au village, la fontaine se met à gargouiller... puis l'eau jaillit en deux grands arcs ! Les Yokomon dansent autour, en criant de joie.");
-    await say("Meramon est descendu de la montagne pour s'excuser. Il a promis de veiller de nouveau sur la source.");
+    await say("Meramon est descendu de la montagne pour s'excuser. Le feu qui asséchait la source s'est éteint pour de bon... et pour se faire pardonner, il veut cuisiner pour tout le monde, à la Ville des Fichiers !");
     if (perso() && !withSora && !(s.kids || {}).sora) {   // (vaincu sans elle : Sora et Biyomon accourent quand même)
       await say("Une fille au chapeau bleu accourt avec un oiseau rose : « Tu as calmé Meramon tout seul ?! Je m'appelle Sora, et voici Biyomon. On aidait les Yokomon... »", 'Sora');
       DW.Crests.freeKid('sora');
@@ -193,7 +193,8 @@
     await say("Hohoho ! Meramon ouvre un restaurant en ville ? Tout ce qu'il cuit sera bien grillé, ça c'est sûr !", 'Jijimon');
     if ((s.kids || {}).sora) await say("Et Sora... Une jeune fille qui a du cœur. Elle a déjà réorganisé la cuisine de ta maison, hohoho.", 'Jijimon');
     await say("Ces Engrenages Noirs qui tombent du ciel... Quelqu'un les lance sur l'île. Il faudra découvrir qui.", 'Jijimon');
-    await Game.push(new DW.ChapterScene('CHAPITRE 4', "L'Insecte Électrique", "Des éclairs dans la forêt... et un garçon qui ne lâche jamais son ordinateur."));
+    // (le chapitre 4 n'est pas encore écrit : on l'annonce sans faire croire qu'il commence)
+    await Game.push(new DW.ChapterScene('À SUIVRE...', "Chapitre 4 : L'Insecte Électrique", "Des éclairs dans la forêt... La suite de l'aventure arrive bientôt."));
     DW.autosave();
   }
 

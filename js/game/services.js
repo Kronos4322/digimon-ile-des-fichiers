@@ -107,7 +107,7 @@
     } },
     andromon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Puces de données. Installation instantanée. Effet permanent.', n); await shop('puces'); } },
     meramon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Le Restaurant est ouvert ! Tout est cuit au feu de Meramon !', n); await shop('resto'); } },
-    frigimon: { home: 'village', async talk(n) { await say('Une glace ? Elles sont fraîches de ce matin !', n); await shop('fruits'); } },
+    frigimon: { home: 'village', async talk(n) { await say('Une glace ? Elles sont fraîches de ce matin !', n); await shop('glacier'); } },
     etemon: { home: 'village', async talk(n) { await say('Yeah baby ! Des cartes, des cartes, encore des cartes !', n); await shop('cartes'); } },
     tentomon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Je répare les vieux Disques. Il en faut ?', n); await shop('disques'); } },
     togemon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Un Digimon doit apprendre en lisant, pas seulement en se battant !', n); await shop('savoir'); } },

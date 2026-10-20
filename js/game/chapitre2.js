@@ -128,7 +128,7 @@
     const res = await ow.battle({ enemy: new DW.Digimon('monochromon', 21), boss: true, canLose: true, music: 'boss', intro: 'Monochromon charge, la corne en avant !' });
     if (res !== 'win') {
       await say('Monochromon est trop solide... Entraîne-toi et reviens !');
-      await ow.bossDefeat("Hohoho... Tu as foncé tête baissée contre un Monochromon ? Sa carapace est dure, mais le feu et l'électricité lui font mal. Prépare-toi, et emporte des RAM !");
+      await ow.bossDefeat("Hohoho... Tu as foncé tête baissée contre un Monochromon ? Sa carapace est dure, mais l'eau lui fait très mal. Prépare-toi, et emporte des RAM !");
       return;
     }
     s.flags.monoCh2 = true;
@@ -203,6 +203,9 @@
     // l'aube, sur l'île revenue contre la rive
     const h = DW.Time.hour(), day = Math.floor(s.clock / 1440);
     s.clock = (h >= 20 ? day + 1 : day) * 1440 + 6 * 60;
+    // (la veillée compte comme une nuit : avant, le partenaire s'effondrait de fatigue chez Jijimon, « nuit blanche »)
+    for (const d of s.party) { d.slept = s.clock; d.tired = 0; }
+    s.careClock = s.clock;
     await ow.charger('lac2', 47, 49, 'up');
     const kids = [];
     const free = [[45, 49], [49, 49], [44, 50], [50, 50]].filter(([x, y]) => !ow.solid(x, y));
@@ -358,7 +361,7 @@
     s.flags.chapter = 3;
     Audio.play('victory');
     await DW.wait(0.8);
-    await Game.push(new DW.ChapterScene('FIN DU CHAPITRE 2', 'Le Lac et le Loup', 'Matt et Garurumon sont libres. Mais où est TK ?'));
+    await Game.push(new DW.ChapterScene('FIN DU CHAPITRE 2', 'Le Lac et le Loup', s.hero === 'perso' ? 'Matt et Garurumon sont libres. Mais où est TK ?' : 'Seadramon est libéré : le lac respire de nouveau.'));
     const m = s.party[0], T = DW.Town, rec = T.RECRUITS.filter(r => T.has(r.id)).length;
     const days = Math.floor(s.clock / 1440) + 1, wins = s.party.reduce((a, d) => a + (d.wins || 0), 0);
     const tm = Math.floor((s.time || 0) / 60), hm = `${Math.floor(tm / 60)} h ${String(tm % 60).padStart(2, '0')}`;

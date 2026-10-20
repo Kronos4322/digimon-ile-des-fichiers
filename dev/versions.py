@@ -71,7 +71,14 @@ def verifier():
     s = git('show', 'HEAD:js/scripts.js').decode('utf-8')
     v = git('show', 'HEAD:js/data/versions_images.js').decode('utf-8')
     paires = [('js/' + f, h) for f, h in re.findall(r"'([\w/]+\.js)': '([0-9a-f]+)'", s)] + [('assets/' + k, h) for k, h in re.findall(r'"([^"]+)": "([0-9a-f]+)"', v)]
-    faux = [c for c, h in paires if hashlib.md5(git('show', 'HEAD:' + c)).hexdigest()[:8] != h]
+    # (tous les fichiers du commit en une seule commande : git cat-file --batch)
+    out = subprocess.run(['git', '-C', RACINE, 'cat-file', '--batch'], input=''.join('HEAD:%s\n' % c for c, h in paires).encode('utf-8'), capture_output=True).stdout
+    i, contenus = 0, []
+    for c, h in paires:
+        j = out.index(b'\n', i); tete = out[i:j].split()
+        if tete[-1] == b'missing': contenus.append(None); i = j + 1; continue
+        n = int(tete[2]); contenus.append(out[j + 1:j + 1 + n]); i = j + 1 + n + 1
+    faux = [c for (c, h), b in zip(paires, contenus) if b is None or hashlib.md5(b).hexdigest()[:8] != h]
     print('dernier commit : %d empreintes, %d fausses%s' % (len(paires), len(faux), (' : ' + ', '.join(faux[:10])) if faux else ''))
     return not faux
 

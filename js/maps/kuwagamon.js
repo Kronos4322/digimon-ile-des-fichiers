@@ -32,7 +32,7 @@
     if (s.flags.kuwagamon) { await say("Le Grand Arbre est silencieux. Les petits Digimon de la clairière jouent de nouveau à son pied."); return; }
     if (E.solved(RIDDLE)) { await say("Le tronc éclaté s'ouvre sur un passage sombre. De l'intérieur monte un bourdonnement sourd... BZZZZ..."); return; }
     const n = level(), R = RIDDLES[n];
-    await say(n ? `L'écorce est fissurée (${n} / 3). D'autres mots se sont allumés plus bas...` : "Un arbre immense, plus vieux que la forêt. De l'intérieur monte un bourdonnement sourd... Des mots luisent, gravés dans l'écorce.");
+    await say(n ? `L'écorce est fissurée (${n} / 3). D'autres mots se sont allumés plus bas...` : "Un arbre immense, plus vieux que la forêt. De l'intérieur monte un bourdonnement sourd... Des mots luisent, gravés dans l'écorce. (Attention : une mauvaise réponse réveille un gardien de l'arbre !)");
     await say(R.q);
     const r = await DW.ask('Ta réponse ?', R.choices, null, false);
     if (r !== R.answer) {

@@ -160,7 +160,7 @@
     npcs: [
       { sp: 'penguinmon', x: 20, y: 8, face: 'right', talk: elecmonTalk },
       baby('botamon', 7, 11, ['Bo-bo... Je fais la sieste dans les berceaux tous les après-midi !', "Penguinmon dit que les œufs zébrés de bleu deviennent des Botamon. Comme moi !"]),
-      baby('punimon', 30, 13, ['Puni ! Puni ! On joue à chat ? Le manège tourne toute la journée !', 'Les Punimon deviennent des Tsunomon, puis des Gabumon... ou des Elecmon, comme notre gardien !']),
+      baby('punimon', 30, 13, ['Puni ! Puni ! On joue à chat ? Le manège tourne toute la journée !', 'Les Punimon deviennent des Tsunomon, puis des Gabumon... ou des Elecmon ! Penguinmon dit que chacun choisit son chemin.']),
       baby('yuramon', 9, 21, ["Fuu... Le vent m'a encore emporté jusqu'ici...", "Un jour, je deviendrai Tanemon, puis Palmon. J'aurai une jolie fleur !"]),
       baby('nyokimon', 20, 27, ['Nyoki ! Ma fleur s\'ouvre quand je suis content !', 'Si tu frottes un œuf, il éclot plus vite. Les bébés adorent les câlins !']),
       baby('pichimon', 26, 21, ['Pichi ! Viens nager dans la mare !', "Un Digimon qui renaît garde ses techniques. Penguinmon l'a dit !"], 1),

@@ -79,7 +79,7 @@
     npcs: [
       { sp: 'tanemon', x: 6, y: 24, face: 'right', talk: async () => {
         const s = st();
-        await say('Psst... Fais attention. Un énorme Digimon rouge rôde près du ravin, au bout de la forêt...', 'Tanemon');
+        await say('Psst... Fais attention. Un énorme Digimon rouge se cache dans le Grand Arbre de la Clairière, au nord de la forêt...', 'Tanemon');
         if (!s.flags.gift_tanemon) {
           s.flags.gift_tanemon = true;
           await say('Tiens, prends ça. Ça te portera chance !', 'Tanemon');

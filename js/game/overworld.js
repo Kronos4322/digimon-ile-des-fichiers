@@ -415,7 +415,9 @@
         return true;
       }
       const sign = this.map.signs && this.map.signs[`${x},${y}`];
-      if (sign) { this.runScript(typeof sign === 'function' ? sign : async () => { await DW.say(sign); if (DW.Paysage) await DW.Paysage.afterSign(); }); return true; }
+      // (au comptoir : le commerçant juste derrière donne aussi son ingrédient du jour, comme si on lui parlait — game/cuisine.js)
+      const derriere = typeof sign === 'function' && this.npcAt(x + dx, y + dy);
+      if (sign) { this.runScript(typeof sign === 'function' ? async ow => { await sign(ow); if (derriere && DW.Cuisine) await DW.Cuisine.afterTalk(derriere); } : async () => { await DW.say(sign); if (DW.Paysage) await DW.Paysage.afterSign(); }); return true; }
       if (DW.Care.poopAt(this.mapId, x, y)) { this.runScript(() => DW.Care.clean(this.mapId, x, y)); return true; }
       const info = DW.World.info(this.tileAt(x, y));
       const ts = this.trainSpot();

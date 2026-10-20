@@ -169,8 +169,10 @@
     // le jeu de la séance, selon l'équipement (les essais sont notés par TrainingScene.hit)
     start() {
       this.state = 'play'; this.readyT = 1.1; this.endT = 1.4; Audio.sfx('buff');
-      const P = DW.Training.POSTES[this.eq];
-      this.game = (GAMES[(P && P.jeu) || this.eq] || GAMES.weights)(this);
+      // (un poste sans exercice à lui : celui de sa stat ; l'Intelligence se travaille au cristal de données, en se
+      //  concentrant — avant : « Soulève le rocher »)
+      const P = DW.Training.POSTES[this.eq], S0 = DW.Training.STATS[this.k];
+      this.game = (GAMES[(P && P.jeu) || this.eq] || GAMES[S0 && S0.obj] || (this.k === 'int' && GAMES.datacrystal) || GAMES.weights)(this);
       this.game.newRep();
     }
     // un essai terminé : animation du geste, puis essai suivant

@@ -53,7 +53,7 @@
     }],
     ['Les combats', async () => {
       await say("Les Digimon sauvages se promènent sur les chemins. Certains t'ignorent, d'autres te foncent dessus. Si tu les évites, pas de combat !", J);
-      await say("En combat, ton Digimon se bat tout seul, avec la technique que tu lui donnes, et il esquive selon sa Vitesse. Toi, tu le diriges : ESPACE ouvre la roue (technique, objet, garde, fuite), et les flèches te permettent de le guider pour esquiver.", J);
+      await say("Le combat se joue au tour par tour. À chaque tour, tu choisis : Combat (une technique de ton Digimon), Objet, Digimon (en changer) ou Fuite. Puis chacun agit à son tour.", J);
       await say("Chaque technique coûte des PM. Les attaques au corps à corps utilisent l'Attaque, celles à distance l'Intelligence.", J);
       await say("La jauge d'ÉNERGIE se remplit au fil des coups : pleine, elle permet le coup spécial de ton Digimon.", J);
       await say("Poison, brûlure, paralysie et sommeil ne durent que quelques tours (le nombre s'affiche à côté du nom). Feu, Eau, Plante, Glace, Lumière, Ténèbres... chaque élément a ses forces et ses faiblesses. Et les attributs aussi : Vaccin bat Virus, Virus bat Données, Données bat Vaccin.", J);

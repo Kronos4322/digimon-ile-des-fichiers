@@ -17,16 +17,16 @@
   const NODES = {
     // (chapitres 1-2, d'après les passages : le lac AU NORD de la Clairière, au bord nord-ouest de l'île ;
     //  la Plage des Cabines, les Dunes et la Crique sur la côte sud-ouest)
-    clairiere: { x: 70, y: 57, b: 'forest', desc: 'La clairière où tu as atterri. Une source de données y soigne les Digimon.' },
+    clairiere: { x: 70, y: 57, b: 'forest', desc: 'La clairière où tu as atterri. Kuwagamon se cache dans son Grand Arbre.' },
     sentier: { x: 84, y: 64, b: 'forest', desc: 'Un sentier sinueux traversé par une rivière. On y entend des murmures...' },
     prairie: { x: 114, y: 58, b: 'meadow', desc: "Une prairie d'herbes hautes où de nombreux Digimon viennent jouer. Idéal pour s'aguerrir au combat !" },
     geants: { x: 72, y: 90, b: 'forest', desc: 'Des arbres immenses entourent un lac paisible.' },
-    lisiere: { x: 94, y: 112, b: 'autumn', desc: "La forêt s'arrête au bord d'un ravin. Kuwagamon y rôde." },
+    lisiere: { x: 94, y: 112, b: 'autumn', desc: "La forêt s'arrête au bord d'un ravin ; un escalier descend vers la plage." },
     plage: { x: 104, y: 156, b: 'beach', desc: "Une plage de sable avec d'étranges cabines téléphoniques." },
     village: { x: 190, y: 128, b: 'town', desc: 'La ville de Jijimon. Fais-y revenir les Digimon pour la reconstruire !' },
     gym: { x: 206, y: 150, b: 'town', desc: "Le terrain d'entraînement de la ville. C'est ici que les Digimon se préparent à digivoluer." },
     champs: { x: 176, y: 150, b: 'farm', desc: 'Le quartier agricole de la ville : un moulin, des champs et un étang où tombe une cascade.' },
-    berceau: { x: 142, y: 44, b: 'nursery', desc: 'Le Village des Bébés, où naissent les Digimon. Elecmon y confie un DigiŒuf par jour.' },
+    berceau: { x: 142, y: 44, b: 'nursery', desc: 'Le Village des Bébés, où naissent les Digimon. Penguinmon y confie un DigiŒuf par jour.' },
     montagne: { x: 180, y: 76, b: 'mountain', name: "Montagne de l'Infini", desc: "La montagne au cœur de l'île : pont, grottes de cristal, alpages, et le sommet aux engrenages noirs." },
     volcan: { x: 214, y: 104, b: 'volcano', name: 'Mont Panorama', desc: 'Un volcan fumant : champs de cendres, coulées de lave et le cratère de Meramon.' },
     savane: { x: 246, y: 78, b: 'savanna', name: 'Savane des Engrenages', desc: 'Une plaine dorée où des engrenages géants sortent de terre. Le Rocher du Lion veille sur elle.' },
