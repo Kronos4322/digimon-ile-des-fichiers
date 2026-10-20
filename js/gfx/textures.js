@@ -115,13 +115,14 @@
   };
   // TAILLES : hauteur de chaque décor dessiné, en HAUTEURS DE HÉROS (le héros : 34 px du jeu) ; le joueur : « les arbres
   // doivent être 3 fois plus grands que le personnage »
-  const HEROS = 34;
+  const HEROS = 34.5;   // hauteur visible du héros (sprite de marche), en pixels du jeu
   const HAUTEUR = {
-    tree: 3, oak: 3, birch: 3.1, pine: 3.3, saule: 3, pintordu: 3, bigtree: 4, jungletree: 3, cycad: 2.5, mangrove: 3, swamptree: 3, acacia: 2.8, baobab: 3.5, deadtree: 2.6, candytree: 2.6,
+    // (règle du joueur : TOUS les arbres font 3 fois la hauteur du héros, quelle que soit l'espèce)
+    tree: 3, oak: 3, birch: 3, pine: 3, saule: 3, pintordu: 3, bigtree: 3, jungletree: 3, cycad: 3, mangrove: 3, swamptree: 3, acacia: 3, baobab: 3, deadtree: 3, candytree: 3,
     bush: 0.85, hedge: 0.85, junglebush: 0.9, buissonfleuri: 0.85, rosebush: 0.8, flowerbed: 0.55, fern: 0.75, bigfern: 0.9, fougeres: 0.8, giantflower: 1.4,
     glowshroom: 0.9, giantshroom: 1.7, champignons: 0.5, mossrock: 0.8, rock: 0.6, boulder: 1, rochersmousse: 1, rubble: 0.8, cairn: 0.9,
     stump: 0.6, giantstump: 1, log: 0.5, hollowlog: 0.55, troncouche: 0.6, treeroots: 1, monolith: 1.6, totem: 1.7, crystal: 1, datacrystal: 1.3,
-    palm: 3.2, cocotier: 3.2, searock: 1, rockarch: 2.6, sandcastle: 0.9, oyats: 0.8, toilet: 2.1,
+    palm: 3, cocotier: 3, searock: 1, rockarch: 2.6, sandcastle: 0.9, oyats: 0.8, toilet: 2.1,
     sign: 1.1, roadsign: 1.2, spring: 1.1, shrine: 1.5, pipe: 0.9, lamp: 1.7, antenna: 1.3, stonelantern: 1.1, datapanel: 0.8, bench: 0.6, steplog: 0.4,
   };
   const nomArbre = (kind, v) => { const L = ARBRES[kind]; return L ? (v < L.length ? L[v] : L[v % L.length]) : null; };
