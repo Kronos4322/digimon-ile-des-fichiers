@@ -109,8 +109,6 @@
     poly(B, pts); x.fillStyle = rgb(mix(C, WARM, 0.28)); x.fill();          // dessus : lumière
     x.strokeStyle = rgb(mix(C, '#f0f0a0', 0.55)); x.lineWidth = 0.6; x.beginPath(); pts.slice(0, N - 2).forEach((p, k) => (k ? x.lineTo(...p) : x.moveTo(...p))); x.stroke();
   }
-  // petite fleur à 5 pétales
-  const flower = (x, px, py, r, petal, heart) => { x.fillStyle = petal; for (let k = 0; k < 5; k++) { const b = k / 5 * TAU; x.beginPath(); x.arc(px + Math.cos(b) * r * 0.9, py + Math.sin(b) * r * 0.9, r * 0.62, 0, TAU); x.fill(); } x.fillStyle = heart; x.fillRect(px - 0.35, py - 0.35, 0.7, 0.7); };
   const def = (k, o) => { OBJ[k] = { n: 1, noOutline: true, ...o }; OBJ[k].draw = d => d.rect(0, 0, 1, 1, '#000');   // (« draw » de secours : jamais utilisé, le dessin passe par « paint »)
   };
 
@@ -522,81 +520,6 @@
     }
     if (v === 1) { const B = hex('#b8a080'); x.strokeStyle = rgb(mix(B, INK, 0.4)); x.lineWidth = 2.6; x.lineCap = 'round'; x.beginPath(); x.moveTo(4, 8); x.lineTo(22, 5); x.stroke(); x.strokeStyle = rgb(mix(B, '#ffffff', 0.25)); x.lineWidth = 1.6; x.beginPath(); x.moveTo(4, 7.6); x.lineTo(22, 4.6); x.stroke(); }
   } });
-
-  // =================================================================== TOILETTES (cabane du terrain, de la ville, de la forêt)
-  // cabane de planches éclairée en haut à gauche, flanc droit dans l'ombre, porte bleu ciel (lune découpée, traverse
-  // en Z, poignée en laiton, peinture usée en bas), toit de bardeaux moussus, plaque « WC » émaillée, lanterne
-  // (sa lueur la nuit : OBJ.toilet.lights), lierre, pot de fleurs, marches de pierre
-  const arrondi = (x, X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
-  OBJ.toilet.paint = x => {
-    const B = hex('#b8875a'), BD = hex('#6e4a2c'), BL = hex('#e8c08a'), BLEU = hex('#6aa8d8');
-    contact(x, 18, 44.5, 16, 2.2, 0.32);
-    // marches de pierre
-    for (const [sx, sy, sw, sh] of [[10, 41, 16, 4], [12.5, 39.4, 11, 2.4]]) {
-      x.fillStyle = rgb(hex('#6a6660')); x.fillRect(sx + 0.4, sy + 0.5, sw, sh);
-      const g = x.createLinearGradient(0, sy, 0, sy + sh); g.addColorStop(0, '#d8d2c4'); g.addColorStop(1, '#9a948a'); x.fillStyle = g; x.fillRect(sx, sy, sw, sh);
-      x.fillStyle = 'rgba(255,255,255,0.5)'; x.fillRect(sx, sy, sw, 0.5);
-    }
-    // flanc droit (volume) puis façade de planches
-    x.fillStyle = rgb(mix(BD, COOL, 0.25)); x.beginPath(); x.moveTo(30.5, 17); x.lineTo(34, 19.5); x.lineTo(34, 40.5); x.lineTo(30.5, 41); x.closePath(); x.fill();
-    x.fillStyle = rgb(mix(BD, INK, 0.5)); x.fillRect(4.6, 16.6, 26.4, 25);
-    for (let i = 0; i < 6; i++) {
-      const px = 5 + i * 4.3, t = 0.9 + hash(i, 1, 251) * 0.2, C = B.map(v => v * t), L = 1 - i / 5;
-      const g = x.createLinearGradient(px, 0, px + 4.3, 0); g.addColorStop(0, rgb(mix(C, BL, 0.25 + L * 0.25))); g.addColorStop(1, rgb(mix(C, BD, 0.25 + (1 - L) * 0.2)));
-      x.fillStyle = g; x.fillRect(px, 17, 4.0, 24);
-      x.strokeStyle = rgb(mix(C, BD, 0.5), 0.55); x.lineWidth = 0.3;
-      for (let k = 0; k < 2; k++) { const vx = px + 1 + hash(i, k, 252) * 2; x.beginPath(); x.moveTo(vx, 17); x.bezierCurveTo(vx + 0.6, 25, vx - 0.6, 32, vx, 41); x.stroke(); }
-      if (hash(i, 3, 253) < 0.4) { x.fillStyle = rgb(mix(C, BD, 0.7)); x.beginPath(); x.ellipse(px + 2, 20 + hash(i, 4, 253) * 18, 0.7, 0.45, 0, 0, TAU); x.fill(); }   // nœud
-    }
-    x.fillStyle = 'rgba(30,16,8,0.35)'; x.fillRect(5, 17, 26, 1.6);   // ombre sous l'avancée du toit
-    // PORTE bleu ciel : planches, traverses en Z, lune découpée éclairée de l'intérieur, poignée, peinture écaillée
-    x.fillStyle = rgb(mix(BLEU, INK, 0.55)); x.fillRect(11.6, 21.6, 12.8, 19.6);
-    for (let k = 0; k < 3; k++) {
-      const g = x.createLinearGradient(12 + k * 4, 0, 16 + k * 4, 0); g.addColorStop(0, rgb(mix(BLEU, '#ffffff', 0.25 - k * 0.06))); g.addColorStop(1, rgb(mix(BLEU, COOL, 0.15 + k * 0.08)));
-      x.fillStyle = g; x.fillRect(12 + k * 4, 22, 3.8, 19);
-    }
-    x.fillStyle = rgb(mix(BLEU, COOL, 0.3)); x.save(); x.beginPath(); x.rect(12, 22, 12, 19); x.clip();
-    x.fillRect(12, 25, 12, 1.6); x.fillRect(12, 37, 12, 1.6); x.translate(12, 37); x.rotate(-0.78); x.fillRect(0, 0, 17, 1.6); x.restore();
-    x.fillStyle = rgb(mix(B, BL, 0.2), 0.75); for (let k = 0; k < 7; k++) x.fillRect(12.5 + hash(k, 1, 254) * 10, 38.5 + hash(k, 2, 254) * 2.2, 1 + hash(k, 3, 254) * 1.4, 0.6);
-    x.fillStyle = '#2a1a10'; x.beginPath(); x.arc(18, 29.4, 2.4, 0, TAU); x.fill();
-    x.fillStyle = rgb(mix(BLEU, '#ffffff', 0.15)); x.beginPath(); x.arc(19.2, 28.8, 2.2, 0, TAU); x.fill();   // (la lune découpée)
-    x.fillStyle = 'rgba(255,214,120,0.85)'; x.beginPath(); x.arc(17.4, 29.6, 1.1, 0, TAU); x.fill();
-    x.fillStyle = '#c89a3a'; x.beginPath(); x.arc(22.3, 32.5, 0.9, 0, TAU); x.fill(); x.fillStyle = '#fff0b0'; x.fillRect(22, 32, 0.5, 0.5);
-    // TOIT de bardeaux : rangées qui se chevauchent, chaque bardeau éclairé à gauche, mousse sur le bas
-    const R = hex('#b8503a');
-    x.fillStyle = rgb(mix(R, INK, 0.55)); x.beginPath(); x.moveTo(0.5, 18.6); x.lineTo(18, 3.5); x.lineTo(35.5, 18.6); x.lineTo(35.5, 20); x.lineTo(0.5, 20); x.closePath(); x.fill();
-    x.save(); x.beginPath(); x.moveTo(0.5, 18.8); x.lineTo(18, 3.6); x.lineTo(35.5, 18.8); x.lineTo(35.5, 20); x.lineTo(0.5, 20); x.closePath(); x.clip();
-    for (let row = 0; row < 6; row++) {
-      const y0 = 3.5 + row * 2.8, half = 2 + row * 3.4, n = Math.max(2, Math.round(half * 2 / 3.4));
-      for (let k = 0; k < n; k++) {
-        const sx = 18 - half + k * (half * 2 / n) + (row % 2 ? 0.8 : 0), sw = half * 2 / n - 0.3, t = 0.88 + hash(row, k, 255) * 0.24, C = R.map(v => v * t);
-        const g = x.createLinearGradient(sx, y0, sx + sw, y0 + 3); g.addColorStop(0, rgb(mix(C, '#ffd0a0', 0.3))); g.addColorStop(1, rgb(mix(C, COOL, 0.25)));
-        x.fillStyle = g; x.beginPath(); x.moveTo(sx, y0); x.lineTo(sx + sw, y0); x.lineTo(sx + sw, y0 + 3.2); x.quadraticCurveTo(sx + sw / 2, y0 + 4, sx, y0 + 3.2); x.closePath(); x.fill();
-        if (row >= 4 && hash(row, k, 256) < 0.35) { x.fillStyle = 'rgba(110,160,70,0.85)'; x.beginPath(); x.ellipse(sx + sw / 2, y0 + 3, sw * 0.4, 0.9, 0, 0, TAU); x.fill(); }
-      }
-    }
-    x.restore();
-    x.strokeStyle = rgb(mix(R, INK, 0.4)); x.lineWidth = 1.1; x.beginPath(); x.moveTo(1, 19); x.lineTo(18, 4); x.lineTo(35, 19); x.stroke();
-    x.fillStyle = rgb(hex('#8a5a3a')); x.fillRect(16.8, 2.6, 2.4, 2);   // faîtière
-    // plaque « WC » émaillée (bleu, liseré blanc) au pignon
-    x.fillStyle = '#1a2a40'; arrondi(x, 12.6, 9.2, 10.8, 6.2, 1.2); x.fill();
-    x.fillStyle = '#f4f4f0'; arrondi(x, 13, 9.6, 10, 5.4, 1); x.fill();
-    x.fillStyle = '#2a5aa8'; arrondi(x, 13.6, 10.2, 8.8, 4.2, 0.8); x.fill();
-    x.strokeStyle = '#ffffff'; x.lineWidth = 0.7; x.lineJoin = 'round'; x.lineCap = 'round';
-    x.beginPath(); x.moveTo(14.4, 11); x.lineTo(15.2, 13.6); x.lineTo(16, 11.8); x.lineTo(16.8, 13.6); x.lineTo(17.6, 11); x.stroke();   // W
-    x.beginPath(); x.arc(20.3, 12.3, 1.3, 0.75, TAU - 0.75); x.stroke();   // C
-    // lanterne accrochée à droite de la porte
-    x.strokeStyle = '#3a2a1a'; x.lineWidth = 0.6; x.beginPath(); x.moveTo(27, 20.5); x.lineTo(29.6, 20.5); x.lineTo(29.6, 22); x.stroke();
-    x.fillStyle = '#3a2a1a'; x.fillRect(28.2, 22, 2.8, 0.8); x.fillRect(28.2, 26.4, 2.8, 0.8);
-    const gl = x.createRadialGradient(29.6, 24.6, 0.3, 29.6, 24.6, 4); gl.addColorStop(0, 'rgba(255,230,140,0.9)'); gl.addColorStop(1, 'rgba(255,200,90,0)'); x.fillStyle = gl; x.beginPath(); x.arc(29.6, 24.6, 4, 0, TAU); x.fill();
-    x.fillStyle = '#ffe48a'; x.fillRect(28.6, 22.8, 2, 3.6); x.fillStyle = '#fff8d0'; x.fillRect(29.2, 23.4, 0.8, 1.8);
-    // lierre qui grimpe au coin gauche, pot de fleurs à droite des marches
-    x.strokeStyle = '#2e6a2c'; x.lineWidth = 0.5; x.beginPath(); for (let k = 0; k < 9; k++) { const ly = 40 - k * 2.4, lx = 5.2 + Math.sin(k * 1.3) * 1.2; k ? x.lineTo(lx, ly) : x.moveTo(lx, ly); } x.stroke();
-    for (let k = 0; k < 9; k++) { const ly = 40 - k * 2.4, lx = 5.2 + Math.sin(k * 1.3) * 1.2; x.fillStyle = k % 2 ? '#3e8a3a' : '#5aa848'; x.beginPath(); x.ellipse(lx, ly, 1.4, 0.9, k % 2 ? 0.6 : -0.6, 0, TAU); x.fill(); }
-    x.fillStyle = '#a0522d'; x.beginPath(); x.moveTo(27, 39); x.lineTo(32, 39); x.lineTo(31.2, 43.5); x.lineTo(27.8, 43.5); x.closePath(); x.fill(); x.fillStyle = '#c87048'; x.fillRect(27, 39, 5, 0.9);
-    for (const [fx, fy, c] of [[28.2, 37.6, '#ff6a8a'], [30, 36.8, '#ffe070'], [31.2, 38, '#ff9ad0'], [29.2, 38.6, '#ffffff']]) flower(x, fx, fy, 0.9, c, '#f0a020');
-  };
-  OBJ.toilet.painted = () => true;
 
   // les décors plats se posent sous le héros (on marche dessus) : l'éditeur le sait grâce à « plat »
   DW.World.PLATS = new Set(Object.keys(OBJ).filter(k => OBJ[k].plat));

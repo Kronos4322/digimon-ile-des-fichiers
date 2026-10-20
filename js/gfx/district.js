@@ -199,36 +199,11 @@
       d.deco.line(15, 13, 18, 18, 0.8, '#2a2a3a');
     } },
     // rocher marin couvert de bernacles et d'algues
-    searock: { w: 26, h: 22, n: 3, draw(d, v) {
-      d.ell(13, 20, 11, 2.4, '#8a7050', 0, { flat: true });
-      d.blob([[1, 20], [2, 11], [7, 4], [15, 3], [22, 8], [25, 20]], ['#8a8a92', '#7e8088', '#96928a'][v], { tex: 0.35, texSize: 1 });
-      d.ell(18, 15, 5, 3.6, ['#7a7a84', '#70727a', '#86827a'][v], 0, { tex: 0.3 });
-      for (const [x, y] of [[6, 14], [9, 16], [12, 8], [20, 11]]) d.deco.circ(x, y, 1, '#e8e4dc');
-      d.deco.ell(5, 18, 4, 1.6, '#3a7a4a'); d.deco.ell(21, 18, 3, 1.4, '#4a8a3a');
-    } },
-    driftwood: { w: 34, h: 16, n: 2, draw(d, v) {
-      d.ell(17, 13, 15, 2, '#a88a5a', 0, { flat: true });
-      d.tube([[3, 10], [17, 8], [31, 10]], 6, 4, '#c8b49a', { tex: 0.3 });
-      d.tube([[20, 8], [26, 3]], 2.4, 1, '#c8b49a');
-      d.deco.line(6, 9, 26, 8.6, 0.6, '#9a8468'); d.deco.ell(31, 10, 1.6, 2, '#8a7458');
-      if (v) d.ell(10, 6, 2.6, 1.4, '#3a7a4a');
-    } },
+    searock: { w: 26, h: 22, n: 3, draw: DW.World.secours.rocher(26, 22) },
+    driftwood: { w: 34, h: 16, n: 2, draw: DW.World.secours.bois(34, 16) },
     // rocher avec une petite cuvette d'eau (crabe, étoile de mer)
-    tidepool: { w: 34, h: 24, n: 1, draw(d) {
-      d.ell(17, 21, 15, 2.6, '#8a7050', 0, { flat: true });
-      d.blob([[1, 20], [3, 9], [12, 4], [24, 4], [32, 10], [33, 20]], '#8e8a84', { tex: 0.35, texSize: 1 });
-      d.deco.ell(17, 11, 9, 4, '#2a6a9a'); d.deco.ell(17, 11, 7.6, 3, '#4ab0e8'); d.deco.ell(14, 10, 3, 1, '#c8f0ff');
-      d.deco.circ(21, 12, 1.6, '#f07a3a'); d.deco.ell(5, 17, 3, 1.4, '#3a7a4a');
-      for (const [x, y] of [[26, 15], [8, 13], [29, 18]]) d.deco.circ(x, y, 1, '#e8e4dc');
-    } },
-    sandcastle: { w: 30, h: 26, n: 1, draw(d) {
-      d.ell(15, 23, 13, 2.4, '#b8945a', 0, { flat: true });
-      d.rect(3, 13, 24, 10, '#e6c88a', { round: 0.15, tex: 0.3 });
-      for (const x of [3, 12, 21]) { d.rect(x, 7, 6, 8, '#ecd096', { round: 0.15, tex: 0.3 }); d.deco.rect(x + 1, 6, 1.4, 1.6, '#ecd096'); d.deco.rect(x + 3.6, 6, 1.4, 1.6, '#ecd096'); }
-      d.deco.ell(15, 19, 2.6, 3, '#8a6a3a');
-      d.tube([[15, 7], [15, 0]], 0.8, 0.8, '#8a5a32'); d.poly([[15.4, 0.4], [21, 2], [15.4, 3.6]], '#e04848', { noline: true });
-      d.deco.circ(7, 18, 1.2, '#ffe0e8'); d.deco.circ(23, 19, 1.2, '#f07a3a');
-    } },
+    tidepool: { w: 34, h: 24, n: 1, draw: DW.World.secours.rocher(34, 24) },
+    sandcastle: { w: 30, h: 26, n: 1, draw: DW.World.secours.pierre(30, 26) },
     // ---------------------------------------------------------- décor numérique dans la nature
     // tuyau rouillé en coude qui sort du sol (fumée : voir smoke)
     pipe: { w: 34, h: 32, n: 2, smoke: [26, 4], draw: DW.World.secours.pierre(34, 32) },

@@ -148,72 +148,8 @@
     for (const lx of [24, 48, 86, 108]) { x.beginPath(); x.moveTo(lx, 62); x.quadraticCurveTo(lx + 4, 80, lx - 1, 96); x.stroke(); x.fillStyle = '#5aa844'; for (let k = 0; k < 4; k++) { x.beginPath(); x.ellipse(lx + 1, 68 + k * 7, 1.6, 0.8, 0.5, 0, 7); x.fill(); } }
   };
 
-  // ------------------------------------------------------------ BORD DE MER : palmiers, rochers marins, bois flotté, cuvettes
-  // palmier : stipe annelé et courbé, couronne de palmes retombantes à folioles, noix de coco
-  OBJ.palm.paint = (x, v) => {
-    const base = [22, 59], top = v ? [26.5, 16] : [17.5, 16], bend = v ? -3 : 3;
-    const pt = t => [base[0] + (top[0] - base[0]) * t + Math.sin(t * 3) * bend * 0.7, base[1] + (top[1] - base[1]) * t];
-    x.fillStyle = 'rgba(30,24,10,0.25)'; x.beginPath(); x.ellipse(22, 59, 7, 1.6, 0, 0, 7); x.fill();
-    // stipe : anneaux du bas vers le haut, plus fins en montant, lumière à gauche
-    for (let i = 0; i < 16; i++) {
-      const t = i / 16, [cx, cy] = pt(t), w = 3.6 - t * 1.4;
-      const g = x.createLinearGradient(cx - w, 0, cx + w, 0); g.addColorStop(0, '#d8b080'); g.addColorStop(0.5, '#a8784a'); g.addColorStop(1, '#5e3e22');
-      x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, w, 1.9, 0, 0, 7); x.fill();
-      x.strokeStyle = 'rgba(70,44,22,0.75)'; x.lineWidth = 0.5; x.beginPath(); x.ellipse(cx, cy + 0.9, w * 0.95, 0.9, 0, 0, Math.PI); x.stroke();
-    }
-    // palmes : arrière (sombres) puis avant (claires)
-    const frond = (ang, len, droop, dark) => {
-      const [cx, cy] = top, ex = cx + Math.cos(ang) * len, ey = cy + Math.sin(ang) * len * 0.55 + droop;
-      const mx = cx + Math.cos(ang) * len * 0.55, my = cy + Math.sin(ang) * len * 0.3 - 3;
-      x.strokeStyle = dark ? '#2a5a2a' : '#3e7a30'; x.lineWidth = 0.9; x.beginPath(); x.moveTo(cx, cy); x.quadraticCurveTo(mx, my, ex, ey); x.stroke();
-      for (let i = 2; i <= 12; i++) {
-        const t = i / 13, qx = (1 - t) * (1 - t) * cx + 2 * (1 - t) * t * mx + t * t * ex, qy = (1 - t) * (1 - t) * cy + 2 * (1 - t) * t * my + t * t * ey;
-        const s = (1 - t * 0.6) * 4.2;
-        for (const side of [-1, 1]) {
-          const a = Math.atan2(ey - my, ex - mx) + side * 1.15 + 0.25;
-          x.strokeStyle = dark ? (side < 0 ? '#2f6e34' : '#245a2c') : (side < 0 ? '#7ccc5a' : '#4ea040'); x.lineWidth = 1.1;
-          x.beginPath(); x.moveTo(qx, qy); x.lineTo(qx + Math.cos(a) * s, qy + Math.sin(a) * s + 1.2); x.stroke();
-        }
-      }
-    };
-    for (const [a, l, dr] of [[-2.6, 17, 3], [-0.5, 17, 3], [-1.57, 13, -2], [-3.0, 15, 9], [-0.1, 15, 9]]) frond(a, l, dr, true);
-    for (const [a, l, dr] of [[-2.2, 19, 6], [-0.9, 19, 6], [2.6, 15, 12], [0.55, 15, 12], [-1.4, 15, 0]]) frond(a, l, dr, false);
-    // noix de coco
-    for (const [dx, dy] of [[-2, 3], [1.5, 3.6], [-0.2, 5]]) { x.fillStyle = '#6a4a22'; x.beginPath(); x.arc(top[0] + dx, top[1] + dy, 1.9, 0, 7); x.fill(); x.fillStyle = 'rgba(255,230,180,0.6)'; x.beginPath(); x.arc(top[0] + dx - 0.6, top[1] + dy - 0.6, 0.6, 0, 7); x.fill(); }
-  };
-  // rocher marin : pierre, base mouillée sombre, bernacles, algues
-  OBJ.searock.paint = (x, v) => {
-    x.fillStyle = 'rgba(60,46,26,0.35)'; x.beginPath(); x.ellipse(13, 20, 11.5, 2.2, 0, 0, 7); x.fill();
-    stone(x, [[1, 20], [2, 11], [7, 4], [15, 3], [22, 8], [25, 20]], ['#8a8a92', '#7e8088', '#96928a'][v], 121 + v);
-    const wg = x.createLinearGradient(0, 15, 0, 20.5); wg.addColorStop(0, 'rgba(30,40,60,0)'); wg.addColorStop(1, 'rgba(30,40,60,0.45)'); x.fillStyle = wg; x.fillRect(1, 15, 24, 6);
-    for (let i = 0; i < 9; i++) { const px = 4 + hash(v, i, 991) * 18, py = 7 + hash(v, i, 992) * 10; x.fillStyle = '#ece6d8'; x.beginPath(); x.arc(px, py, 0.8, 0, 7); x.fill(); x.fillStyle = '#8a8478'; x.fillRect(px - 0.2, py - 0.2, 0.4, 0.4); }
-    for (const [px, py] of [[4, 18.6], [21, 18.8], [7, 19.4]]) { x.fillStyle = '#3a7a4a'; x.beginPath(); x.ellipse(px, py, 2.6, 1.1, 0.2, 0, 7); x.fill(); x.fillStyle = '#5aa05a'; x.beginPath(); x.ellipse(px - 0.6, py - 0.4, 1.2, 0.5, 0.2, 0, 7); x.fill(); }
-  };
-  // bois flotté : blanchi par le sel, fendillé
-  OBJ.driftwood.paint = (x, v) => {
-    x.fillStyle = 'rgba(120,96,60,0.35)'; x.beginPath(); x.ellipse(17, 13, 15, 1.8, 0, 0, 7); x.fill();
-    x.lineCap = 'round';
-    const branch = (pts, w) => { x.strokeStyle = '#6e604c'; x.lineWidth = w + 1; x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); x.stroke(); x.strokeStyle = '#cdbca2'; x.lineWidth = w; x.stroke(); x.strokeStyle = 'rgba(255,250,236,0.8)'; x.lineWidth = w * 0.3; x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1] - w * 0.25) : x.moveTo(p[0], p[1] - w * 0.25))); x.stroke(); };
-    branch([[3, 10.5], [17, 8.6], [31, 10.2]], 5.4); branch([[20, 8.4], [26, 3.4]], 2);
-    x.strokeStyle = 'rgba(110,96,76,0.8)'; x.lineWidth = 0.5; for (const [a, b] of [[7, 22], [11, 27]]) { x.beginPath(); x.moveTo(a, 9.6); x.lineTo(b, 9.2); x.stroke(); }
-    x.fillStyle = '#8a7458'; x.beginPath(); x.ellipse(31, 10.2, 1.4, 2.4, 0, 0, 7); x.fill();
-    if (v) { x.fillStyle = '#3a7a4a'; x.beginPath(); x.ellipse(10, 6.8, 2.8, 1.2, 0.2, 0, 7); x.fill(); }
-  };
-  // cuvette d'eau dans un rocher (petit poisson orange, coquillages)
-  OBJ.tidepool.paint = x => {
-    x.fillStyle = 'rgba(80,60,30,0.35)'; x.beginPath(); x.ellipse(17, 21, 15, 2.4, 0, 0, 7); x.fill();
-    stone(x, [[1, 20], [3, 9], [12, 4], [24, 4], [32, 10], [33, 20]], '#8e8a84', 131);
-    const wg = x.createRadialGradient(15, 10, 1, 17, 11, 9); wg.addColorStop(0, '#c8f6ff'); wg.addColorStop(0.5, '#4ab0e8'); wg.addColorStop(1, '#1e5a8a');
-    x.fillStyle = '#2a4a5a'; x.beginPath(); x.ellipse(17, 11.2, 9.2, 4.2, 0, 0, 7); x.fill();
-    x.fillStyle = wg; x.beginPath(); x.ellipse(17, 11, 8.4, 3.6, 0, 0, 7); x.fill();
-    x.fillStyle = '#f07a3a'; x.beginPath(); x.ellipse(21, 12, 1.6, 0.9, 0.3, 0, 7); x.fill();
-    x.fillStyle = 'rgba(255,255,255,0.85)'; x.beginPath(); x.ellipse(13.5, 9.8, 2.6, 0.6, -0.1, 0, 7); x.fill();
-    for (const [px, py] of [[26, 15], [8, 13], [29, 18]]) { x.fillStyle = '#ece6d8'; x.beginPath(); x.arc(px, py, 0.9, 0, 7); x.fill(); }
-    x.fillStyle = '#3a7a4a'; x.beginPath(); x.ellipse(5, 17, 3, 1.3, 0, 0, 7); x.fill();
-  };
 
   // ------------------------------------------------------------ bateaux, épave, arche, château de sable, crabes, étoiles de mer
-  const reflectShadow = (x, cx, cy, rx, ry) => { const g = x.createRadialGradient(cx, cy, 1, cx, cy, rx); g.addColorStop(0, 'rgba(10,40,70,0.55)'); g.addColorStop(1, 'rgba(10,40,70,0)'); x.fillStyle = g; x.save(); x.translate(cx, cy); x.scale(1, ry / rx); x.beginPath(); x.arc(0, 0, rx, 0, 7); x.fill(); x.restore(); };
   function log(x, x0, y0, x1, y1, w, col) {
     const C = hex(col); x.lineCap = 'round';
     x.strokeStyle = rgb(mix(C, INK, 0.55)); x.lineWidth = w + 1; x.beginPath(); x.moveTo(x0, y0); x.lineTo(x1, y1); x.stroke();
@@ -226,38 +162,6 @@
     x.fillStyle = g; x.strokeStyle = 'rgba(90,70,50,0.8)'; x.lineWidth = 0.7;
     x.beginPath(); x.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) x.quadraticCurveTo((pts[i - 1][0] + pts[i][0]) / 2 + 2, (pts[i - 1][1] + pts[i][1]) / 2, pts[i][0], pts[i][1]); x.closePath(); x.fill(); x.stroke();
   }
-  OBJ.raft.paint = x => {
-    reflectShadow(x, 32, 54, 30, 4);
-    for (let k = 0; k < 7; k++) log(x, 6, 40 + k * 2, 58, 38 + k * 2, 2.6, k % 2 ? '#a8743c' : '#946232');
-    x.strokeStyle = '#5a8a3a'; x.lineWidth = 1.2; for (const lx of [14, 32, 50]) { x.beginPath(); x.moveTo(lx, 38); x.lineTo(lx + 1, 54); x.stroke(); }
-    log(x, 30.5, 44, 31.5, 6, 1.7, '#7a5030');
-    sail(x, [[32, 8], [52, 14], [50, 34], [32, 36]], '#e6d8bc');
-    x.fillStyle = '#d0bea0'; x.fillRect(38, 18, 7, 6); x.strokeStyle = 'rgba(120,96,70,0.7)'; x.strokeRect(38, 18, 7, 6);
-    x.fillStyle = '#e84a4a'; x.beginPath(); x.moveTo(34, 4); x.lineTo(40, 5); x.lineTo(34, 7); x.fill();
-  };
-  OBJ.rowboat.paint = x => {
-    reflectShadow(x, 20, 18, 18, 3.4);
-    const g = x.createLinearGradient(0, 8, 0, 19); g.addColorStop(0, '#d8784a'); g.addColorStop(1, '#7a3020');
-    x.fillStyle = g; x.strokeStyle = '#3a160c'; x.lineWidth = 0.9;
-    x.beginPath(); x.moveTo(1, 9); x.quadraticCurveTo(5, 18.5, 20, 18.5); x.quadraticCurveTo(35, 18.5, 39, 9); x.closePath(); x.fill(); x.stroke();
-    x.strokeStyle = 'rgba(60,20,10,0.6)'; x.lineWidth = 0.6; x.beginPath(); x.moveTo(4, 12.5); x.quadraticCurveTo(20, 15, 36, 12.5); x.stroke();
-    x.fillStyle = '#5a2c18'; x.beginPath(); x.ellipse(20, 9, 18, 3, 0, 0, 7); x.fill();
-    x.fillStyle = '#3a1c10'; x.beginPath(); x.ellipse(20, 9.4, 15.6, 2, 0, 0, 7); x.fill();
-    plank(x, 14, 7.5, 12, 2, '#c8945a', 141);
-    x.strokeStyle = '#c8945a'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(8, 9); x.lineTo(2, 4); x.stroke(); x.fillStyle = '#c8945a'; x.beginPath(); x.ellipse(2, 3.6, 2.4, 1, -0.6, 0, 7); x.fill();
-    x.strokeStyle = 'rgba(255,240,210,0.6)'; x.lineWidth = 0.6; x.beginPath(); x.moveTo(4, 9.6); x.quadraticCurveTo(10, 15.6, 18, 16.6); x.stroke();
-  };
-  OBJ.rockarch.paint = x => {
-    const R = '#8c847a';
-    for (const fx of [16, 72]) { x.fillStyle = 'rgba(240,252,255,0.9)'; x.beginPath(); x.ellipse(fx, 70, 15, 3.4, 0, 0, 7); x.fill(); x.fillStyle = 'rgba(200,236,246,0.7)'; x.beginPath(); x.ellipse(fx, 71.5, 17, 2.4, 0, 0, 7); x.fill(); }
-    stone(x, [[60, 70], [58, 36], [64, 20], [76, 16], [86, 38], [84, 70]], '#7e766c', 151);
-    x.lineCap = 'round'; x.strokeStyle = rgb(mix(R, INK, 0.6)); x.lineWidth = 12; x.beginPath(); x.moveTo(14, 26); x.bezierCurveTo(26, 6, 52, 2, 70, 20); x.stroke();
-    const g = x.createLinearGradient(0, 4, 0, 30); g.addColorStop(0, rgb(mix(R, WARM, 0.45))); g.addColorStop(1, rgb(mix(R, COOL, 0.45)));
-    x.strokeStyle = g; x.lineWidth = 10.4; x.stroke();
-    stone(x, [[4, 70], [2, 44], [8, 26], [20, 16], [28, 30], [27, 70]], R, 152);
-    x.fillStyle = '#5a9a4a'; x.beginPath(); x.moveTo(20, 9); x.quadraticCurveTo(40, -1, 60, 7); x.quadraticCurveTo(40, 4, 20, 11); x.fill();
-    x.fillStyle = '#f0e070'; for (const [px, py] of [[26, 6.5], [44, 3], [56, 6]]) { x.beginPath(); x.arc(px, py, 1.1, 0, 7); x.fill(); }
-  };
   OBJ.wreck.paint = x => {
     const Wk = '#3e2212';
     x.fillStyle = 'rgba(150,120,70,0.45)'; x.beginPath(); x.ellipse(40, 46, 36, 4, 0, 0, 7); x.fill();
@@ -276,16 +180,6 @@
     }
     moss(x, [[10, 44], [16, 45], [55, 44]], 161);
   };
-  OBJ.sandcastle.paint = x => {
-    x.fillStyle = 'rgba(150,110,60,0.35)'; x.beginPath(); x.ellipse(15, 23, 13, 2.4, 0, 0, 7); x.fill();
-    const sandBlock = (bx, by, bw, bh) => { const g = x.createLinearGradient(bx, by, bx + bw, by + bh); g.addColorStop(0, '#fbe6b4'); g.addColorStop(1, '#c8a060'); x.fillStyle = g; x.strokeStyle = '#9a7a44'; x.lineWidth = 0.6; x.beginPath(); x.rect(bx, by, bw, bh); x.fill(); x.stroke(); for (let i = 0; i < 6; i++) { x.fillStyle = 'rgba(150,110,60,0.4)'; x.fillRect(bx + hash(bx, i, 171) * bw, by + hash(by, i, 172) * bh, 0.6, 0.6); } };
-    sandBlock(3, 13, 24, 10);
-    for (const tx of [3, 12, 21]) { sandBlock(tx, 7, 6, 8); x.fillStyle = '#f0d49a'; x.fillRect(tx + 0.6, 5.6, 1.4, 1.8); x.fillRect(tx + 3.6, 5.6, 1.4, 1.8); }
-    x.fillStyle = '#6a4a26'; x.beginPath(); x.moveTo(12.4, 23); x.lineTo(12.4, 19); x.quadraticCurveTo(15, 15.6, 17.6, 19); x.lineTo(17.6, 23); x.fill();
-    x.strokeStyle = '#8a5a32'; x.lineWidth = 0.8; x.beginPath(); x.moveTo(15, 7); x.lineTo(15, 0); x.stroke();
-    x.fillStyle = '#e04848'; x.beginPath(); x.moveTo(15.4, 0.4); x.lineTo(21, 2); x.lineTo(15.4, 3.6); x.fill();
-    x.fillStyle = '#ffe0e8'; x.beginPath(); x.arc(7, 18, 1.2, 0, 7); x.fill(); x.fillStyle = '#f07a3a'; x.beginPath(); x.arc(23, 19, 1.2, 0, 7); x.fill();
-  };
   OBJ.crab.paint = (x, v, f) => {
     const C = hex(v ? '#e8783a' : '#d84a3a'), Cd = rgb(mix(C, INK, 0.4)), up = f ? -1.4 : 0;
     x.fillStyle = 'rgba(110,90,60,0.4)'; x.beginPath(); x.ellipse(9, 11, 7, 1.4, 0, 0, 7); x.fill();
@@ -296,14 +190,6 @@
     for (const [cx, cy] of [[3, 5 + up], [15, 5 - up]]) { x.fillStyle = rgb(C); x.beginPath(); x.ellipse(cx, cy, 1.9, 1.5, 0, 0, 7); x.fill(); x.stroke(); x.beginPath(); x.moveTo(cx - 0.4, cy - 0.2); x.lineTo(cx + 1.4, cy - 1); x.stroke(); }
     x.beginPath(); x.moveTo(5, 7); x.lineTo(4, 6 + up); x.moveTo(13, 7); x.lineTo(14, 6 - up); x.stroke();
     for (const ex of [7.6, 10.4]) { x.fillStyle = '#ffffff'; x.beginPath(); x.arc(ex, 4.6, 0.9, 0, 7); x.fill(); x.fillStyle = '#141414'; x.beginPath(); x.arc(ex, 4.7, 0.5, 0, 7); x.fill(); }
-  };
-  OBJ.starfish.paint = (x, v) => {
-    const C = hex(v ? '#f0a040' : '#e86a8a'), pts = [];
-    for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 1.9 : 4.6; pts.push([6 + Math.cos(a) * r, 5.4 + Math.sin(a) * r * 0.8]); }
-    const g = x.createRadialGradient(5, 4.4, 0.4, 6, 5.4, 4.6); g.addColorStop(0, rgb(mix(C, '#ffffff', 0.4))); g.addColorStop(1, rgb(mix(C, INK, 0.2)));
-    x.fillStyle = g; x.strokeStyle = rgb(mix(C, INK, 0.45)); x.lineWidth = 0.5; x.lineJoin = 'round';
-    x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); x.closePath(); x.fill(); x.stroke();
-    x.fillStyle = 'rgba(255,240,208,0.9)'; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + k * Math.PI * 2 / 5; for (const r of [1.4, 2.6]) { x.beginPath(); x.arc(6 + Math.cos(a) * r, 5.4 + Math.sin(a) * r * 0.8, 0.35, 0, 7); x.fill(); } }
   };
 
   // ------------------------------------------------------------ cabine téléphonique et distributeur
@@ -333,19 +219,6 @@
     x.fillStyle = '#3f72cc'; rr(x, 13, 2, 4, 6, 1.6); x.fill();
     x.save(); x.shadowColor = '#ffe060'; x.shadowBlur = 4; x.fillStyle = '#ffe060'; x.beginPath(); x.arc(15, 3.4, 1.3, 0, 7); x.fill(); x.restore();
   };
-  OBJ.vending.paint = (x, v) => {
-    const body = ['#2ec060', '#2a74e8', '#f07a1a'][v], dark = ['#147a38', '#163e96', '#9a4410'][v], item = ['#ff4a5a', '#7ad0ff', '#c8643c'][v], B = hex(body);
-    x.fillStyle = 'rgba(20,20,20,0.4)'; x.beginPath(); x.ellipse(13, 43, 12, 2, 0, 0, 7); x.fill();
-    const g = x.createLinearGradient(1, 0, 25, 0); g.addColorStop(0, rgb(mix(B, '#ffffff', 0.3))); g.addColorStop(0.55, body); g.addColorStop(1, rgb(mix(B, INK, 0.35)));
-    x.fillStyle = g; x.strokeStyle = rgb(mix(B, INK, 0.6)); x.lineWidth = 0.9; rr(x, 1, 6, 24, 37, 2); x.fill(); x.stroke();
-    x.fillStyle = dark; rr(x, 0, 0, 26, 8, 2); x.fill();
-    x.save(); x.shadowColor = '#fff6c0'; x.shadowBlur = 4; x.fillStyle = '#fff6c0'; x.fillRect(2, 1.6, 22, 4.8); x.restore(); x.fillStyle = item; x.fillRect(4, 2.6, 18, 2.8);
-    glass(x, 3, 9, 14, 20);
-    for (let r = 0; r < 4; r++) { x.fillStyle = 'rgba(120,150,170,0.9)'; x.fillRect(3, 13.6 + r * 5, 14, 0.8); for (let k = 0; k < 3; k++) { x.fillStyle = item; rr(x, 4 + k * 4.4, 10.4 + r * 5, 3.2, 3, 0.6); x.fill(); x.fillStyle = 'rgba(255,255,255,0.5)'; x.fillRect(4.4 + k * 4.4, 10.8 + r * 5, 0.8, 1.6); } }
-    x.fillStyle = '#ffe070'; x.fillRect(19, 10, 4, 3); x.fillStyle = '#1a1a1a'; x.fillRect(19.6, 14, 2.8, 1.4);
-    for (let r = 0; r < 3; r++) { x.fillStyle = ['#ff5050', '#50d050', '#ffffff'][r]; x.beginPath(); x.arc(21, 18 + r * 3.4, 1.1, 0, 7); x.fill(); }
-    x.fillStyle = '#141414'; rr(x, 4, 32, 18, 6, 1); x.fill(); x.fillStyle = '#3a3a3a'; x.fillRect(4, 32, 18, 1.4);
-  };
 
   // ------------------------------------------------------------ VILLAGE : haies, massifs, réverbères, bancs, drapeaux, tonneaux, caisses
   // massif de fleurs dans un bac de bois (v : couleurs ; 3 et 4 = fleurs d'hiver et d'automne, gfx/meteo.js)
@@ -359,22 +232,6 @@
     x.fillStyle = cg; x.beginPath(); x.moveTo(5, 3); x.quadraticCurveTo(10, 2, 15, 5.4); x.quadraticCurveTo(11, 7.6, 15, 11); x.quadraticCurveTo(10, 10, 5, 12); x.closePath(); x.fill();
     x.fillStyle = 'rgba(255,255,255,0.35)'; x.beginPath(); x.moveTo(5, 3); x.quadraticCurveTo(9, 2.4, 12, 4.4); x.lineTo(5, 6); x.fill();
     x.fillStyle = '#ffffff'; x.beginPath(); x.arc(8.4, 7.2, 1.4, 0, 7); x.fill();
-  };
-  // tonneau cerclé (v1 : caisse)
-  OBJ.barrel.paint = (x, v) => {
-    x.fillStyle = 'rgba(20,20,20,0.3)'; x.beginPath(); x.ellipse(8, 17.4, 6.4, 1.3, 0, 0, 7); x.fill();
-    if (v) { plank(x, 2, 4, 12, 13, '#b8844c', 231); x.strokeStyle = '#7a5028'; x.lineWidth = 0.8; x.beginPath(); x.moveTo(2, 4); x.lineTo(14, 17); x.moveTo(14, 4); x.lineTo(2, 17); x.stroke(); x.strokeStyle = '#4a2c14'; x.strokeRect(2, 4, 12, 13); return; }
-    const g = x.createLinearGradient(2, 0, 14, 0); g.addColorStop(0, '#c89060'); g.addColorStop(0.45, '#9a6a3c'); g.addColorStop(1, '#5a3a1e');
-    x.fillStyle = g; x.strokeStyle = '#3a2210'; x.lineWidth = 0.8; x.beginPath(); x.moveTo(3, 4); x.quadraticCurveTo(1.2, 10, 3, 17); x.lineTo(13, 17); x.quadraticCurveTo(14.8, 10, 13, 4); x.closePath(); x.fill(); x.stroke();
-    x.strokeStyle = 'rgba(58,34,16,0.6)'; x.lineWidth = 0.5; for (const sx of [5.5, 8, 10.5]) { x.beginPath(); x.moveTo(sx, 4); x.lineTo(sx, 17); x.stroke(); }
-    x.strokeStyle = '#5a5a62'; x.lineWidth = 1; for (const yy of [6.5, 14.5]) { x.beginPath(); x.moveTo(2.2, yy); x.quadraticCurveTo(8, yy + 0.8, 13.8, yy); x.stroke(); }
-    x.fillStyle = '#c89a62'; x.beginPath(); x.ellipse(8, 4, 5, 1.6, 0, 0, 7); x.fill(); x.strokeStyle = '#5a3a1e'; x.lineWidth = 0.6; x.stroke();
-  };
-  OBJ.crates.paint = (x, v) => {
-    x.fillStyle = 'rgba(20,20,20,0.3)'; x.beginPath(); x.ellipse(9, 23.4, 8, 1.4, 0, 0, 7); x.fill();
-    const box = (bx, by, s, col, seed) => { plank(x, bx, by, s, s, col, seed); x.strokeStyle = '#4a2c14'; x.lineWidth = 0.8; x.strokeRect(bx, by, s, s); x.strokeStyle = 'rgba(90,56,28,0.9)'; x.beginPath(); x.moveTo(bx, by); x.lineTo(bx + s, by + s); x.moveTo(bx + s, by); x.lineTo(bx, by + s); x.stroke(); x.fillStyle = 'rgba(255,230,190,0.5)'; x.fillRect(bx, by, s, 1); };
-    box(1, 11, 12, '#b8844c', 241); box(v ? 7 : 4, 1, 10, '#c8945a', 242);
-    if (v) { x.fillStyle = '#9a6a3c'; x.beginPath(); x.ellipse(15, 19, 2.6, 4, 0, 0, 7); x.fill(); }
   };
 
   // ------------------------------------------------------------ rosier (Rosière) : buisson sombre et roses épanouies (v : rouge, blanc, rose)

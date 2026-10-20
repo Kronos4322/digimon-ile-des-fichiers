@@ -184,16 +184,7 @@
       d.deco.circ(23, 14, 1.2, shade(stone, -0.5));
     } },
     // ---------------------------------------------------------- étal de marché (3×2) : toile et marchandises
-    marketstall: { w: 50, h: 48, n: 3, draw(d, v) {
-      const [cloth, goods] = [['#e85a5a', ['#ff7a3a', '#ffd040', '#4ac868']], ['#4a8ad8', ['#7ab8ff', '#e8e8f0', '#5ac8c0']], ['#e8a040', ['#c84838', '#f4ece0', '#8a5a2a']]][v];
-      d.ell(25, 46, 23, 2.2, '#2a2018', 0, { flat: true });
-      d.tube([[5, 46], [5, 12]], 1.3, 1.3, '#7a5030'); d.tube([[45, 46], [45, 12]], 1.3, 1.3, '#7a5030');
-      d.rect(3, 30, 44, 14, '#a8743c', { round: 0.08, tex: 0.3 }); d.deco.rect(3, 30, 44, 2, '#c8945a');
-      for (let k = 0; k < 9; k++) d.circ(8 + k * 4.4, 28, 2.4, goods[k % 3], { shiny: true });
-      d.poly([[0, 14], [50, 14], [46, 4], [4, 4]], cloth);
-      for (let x = 6; x < 46; x += 8) d.deco.poly([[x, 4], [x + 4, 4], [x + 4.6, 14], [x + 0.6, 14]], '#ffffff');
-      for (let x = 2; x < 50; x += 6) d.deco.ell(x + 2, 14, 2.4, 1.6, cloth);
-    } },
+    marketstall: { w: 50, h: 48, n: 3, draw: DW.World.secours.boite(50, 48) },
     // ---------------------------------------------------------- poteau à câbles (1×1) : câbles vers la droite
     cablepole: { w: 40, h: 60, n: 1, draw(d) {
       d.tube([[8, 58], [8, 6]], 1.8, 1.4, '#6a5a4a'); d.rect(1, 8, 14, 3, '#5a4a3a', { round: 0.3 });

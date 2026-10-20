@@ -67,6 +67,7 @@
     rocher: (w, h) => d => d.blob([[2, h - 2], [3, h * 0.45], [w * 0.4, h * 0.15], [w * 0.75, h * 0.25], [w - 2, h * 0.6], [w - 2, h - 2]], '#8e8a84', { tex: 0.3 }),
     bois: (w, h) => d => d.tube([[3, h * 0.6], [w - 3, h * 0.6]], h * 0.5, h * 0.5, '#7a5030', { tex: 0.3 }),
     pierre: (w, h) => d => d.blob([[w * 0.2, h - 1], [w * 0.15, h * 0.2], [w * 0.5, 2], [w * 0.85, h * 0.2], [w * 0.8, h - 1]], '#8a96a4', { tex: 0.3 }),
+    boite: (w, h) => d => d.rect(2, 2, w - 4, h - 3, '#9a7a5a'),   // (meubles, mobilier de ville)
   };
   const SECOURS = World.secours;
 
@@ -144,24 +145,7 @@
     } },
     lamp: { w: 12, h: 32, n: 1, draw: SECOURS.pierre(12, 32) },
     // distributeur (Digimon World 1) : 0 PV (vert), 1 PM (bleu), 2 nourriture (orange) ; grand, coloré, éclairé la nuit
-    vending: { w: 26, h: 44, n: 3, lights: [[13, 16, 22]], draw(d, v) {
-      const body = ['#2ec060', '#2a74e8', '#f07a1a'][v], dark = ['#147a38', '#163e96', '#9a4410'][v], item = ['#ff4a5a', '#7ad0ff', '#c8643c'][v];
-      d.ell(13, 43, 12, 2, '#1a1a1a', 0, { flat: true });
-      d.rect(1, 6, 24, 37, body, { round: 0.12, tex: 0.12 });
-      // enseigne lumineuse
-      d.rect(0, 0, 26, 8, dark, { round: 0.25 });
-      d.deco.rect(2, 1.6, 22, 4.8, '#fff6c0', { unlit: true });
-      d.deco.rect(4, 2.6, 18, 2.8, item, { unlit: true });
-      // vitrine éclairée avec ses produits
-      d.deco.rect(3, 9, 14, 20, '#dff6ff', { unlit: true });
-      for (let r = 0; r < 4; r++) { d.deco.rect(3, 13.6 + r * 5, 14, 0.8, '#9ab8c8'); for (let k = 0; k < 3; k++) d.deco.rect(4 + k * 4.4, 10.4 + r * 5, 3.2, 3, item, { unlit: true }); }
-      // monnayeur et boutons
-      d.deco.rect(19, 10, 4, 3, '#ffe070', { unlit: true }); d.deco.rect(19.6, 14, 2.8, 1.4, '#1a1a1a');
-      for (let r = 0; r < 3; r++) d.deco.circ(21, 18 + r * 3.4, 1.1, ['#ff5050', '#50d050', '#ffffff'][r], { unlit: true });
-      // trappe de sortie
-      d.deco.rect(4, 32, 18, 6, '#141414'); d.deco.rect(4, 32, 18, 1.4, '#3a3a3a');
-      d.deco.rect(1, 6, 2, 37, 'rgba(255,255,255,0.25)');
-    } },
+    vending: { w: 26, h: 44, n: 3, lights: [[13, 16, 22]], draw: SECOURS.boite(26, 44) },
     weights: { w: 26, h: 22, n: 1, draw(d) {
       d.ell(13, 20, 11, 2.4, '#4a3a2a', 0, { flat: true });
       d.tube([[5, 13], [21, 13]], 2.4, 2.4, '#8a5a32');
@@ -203,64 +187,17 @@
       d.deco.rect(13, 6, 8, 4, '#3a68a8'); DW.World.signText && DW.World.signText(d, 'WC', 14, 7, '#ffffff', 0.6);
     } },
     // toilettes publiques : jolie cabane de bois (toit de tuiles, porte au cœur, jardinière, enseigne WC, lanterne)
-    toilet: { w: 36, h: 46, n: 1, lights: [[30, 18, 12]], draw(d) {
-      d.ell(18, 45, 16, 2.4, '#2a2a1a', 0, { flat: true });
-      // marche de pierre
-      d.rect(9, 40, 18, 5, '#b0a898', { round: 0.3, tex: 0.3 });
-      // cabane : planches verticales crème et bleu ciel
-      d.rect(4, 16, 28, 26, '#f0e4c8', { round: 0.06, tex: 0.12 });
-      for (let x = 7; x < 32; x += 4) d.deco.line(x, 17, x, 41, 0.6, '#d4c4a0');
-      d.deco.rect(4, 38, 28, 4, '#8ac0d8');
-      // porte bleue avec un cœur découpé
-      d.rect(12, 21, 12, 20, '#4a8ac8', { round: 0.12 });
-      d.deco.rect(13.5, 22.5, 9, 17, '#5a9ad8');
-      d.deco.circ(16.4, 26, 1.8, '#1a2a40'); d.deco.circ(19.6, 26, 1.8, '#1a2a40'); d.deco.poly([[14.6, 26.6], [18, 30.4], [21.4, 26.6]], '#1a2a40');
-      d.deco.circ(22, 32, 0.9, '#ffe070', { unlit: true });
-      // jardinière fleurie sous la fenêtre
-      d.rect(5, 30, 6, 3, '#9a5a32', { round: 0.2 });
-      for (const [x, c] of [[6, '#ff6a8a'], [8, '#ffe070'], [10, '#ff9ad0']]) d.deco.circ(x, 29, 1.2, c, { unlit: true });
-      d.rect(5.5, 22, 5, 5, '#a8e0ff', { round: 0.2, shiny: true }); d.deco.line(8, 22, 8, 27, 0.6, '#ffffff');
-      // toit de tuiles rouges
-      d.poly([[0, 18], [18, 4], [36, 18], [33, 19], [3, 19]], '#c84a3a', { tex: 0.25 });
-      for (let k = 0; k < 4; k++) d.deco.line(3 + k * 2, 17 - k * 3, 33 - k * 2, 17 - k * 3, 0.6, '#9a3428');
-      d.deco.circ(18, 5, 1.6, '#ffe070');
-      // enseigne WC
-      d.rect(13, 10, 10, 6, '#ffffff', { round: 0.3 }); d.deco.rect(14, 11, 8, 4, '#3a68a8');
-      DW.World.signText && DW.World.signText(d, 'WC', 14.6, 11.6, '#ffffff', 0.55);
-      // lanterne
-      d.tube([[30, 20], [30, 16]], 0.6, 0.6, '#3a3040'); d.rect(28.4, 17, 3.2, 4, '#ffe08a', { round: 0.3 });
-    } },
+    toilet: { w: 36, h: 46, n: 1, lights: [[30, 18, 12]], draw: SECOURS.boite(36, 46) },
     bench: { w: 22, h: 14, n: 1, draw: SECOURS.bois(22, 14) },
     flag: { w: 16, h: 34, n: 2, draw(d, v) {
       d.tube([[4, 33], [4, 2]], 1.8, 1.6, '#c8c0b0', { shiny: true });
       d.poly([[5, 3], [15, 6], [5, 12]], v ? '#3a8ae8' : '#f8a830', { shiny: true });
       d.deco.circ(8, 7, 1.4, '#ffffff', { unlit: true });
     } },
-    barrel: { w: 16, h: 18, n: 2, draw(d, v) {
-      if (v) { d.rect(2, 4, 12, 13, '#b8844c', { round: 0.2, tex: 0.3 }); d.deco.line(2, 8, 14, 12, 0.8, '#7a5028'); d.deco.line(2, 12, 14, 8, 0.8, '#7a5028'); return; }
-      d.ell(8, 10, 6, 7.4, '#9a6a3c', 0, { tex: 0.25 });
-      d.deco.line(2.4, 6, 13.6, 6, 0.9, '#5a5a62'); d.deco.line(2.4, 14, 13.6, 14, 0.9, '#5a5a62');
-      d.ell(8, 4, 5, 1.8, '#c08a52');
-    } },
+    barrel: { w: 16, h: 18, n: 2, draw: SECOURS.bois(16, 18) },
     bush: { w: 22, h: 18, n: 2, draw: SECOURS.buisson(22, 18) },
     rock: { w: 20, h: 16, n: 2, draw: SECOURS.rocher(20, 16) },
-    palm: { w: 44, h: 60, n: 2, draw(d, v) {
-      const tr = '#a8784a', g = '#3fa640', gd = '#2e8a3a';
-      const top = v ? [26, 15] : [17, 15];
-      const base = [22, 59];
-      const pts = [base, [base[0] + (top[0] - base[0]) * 0.3 + (v ? -3 : 3), 44], [base[0] + (top[0] - base[0]) * 0.7, 28], top];
-      d.tube(pts, 7, 5, tr, { tex: 0.2 });
-      for (let i = 1; i < 9; i++) {
-        const k = i / 9, x = base[0] + (top[0] - base[0]) * k + Math.sin(k * 3) * (v ? -2 : 2), y = base[1] + (top[1] - base[1]) * k;
-        d.deco.line(x - 3, y, x + 3, y - 1, 0.8, '#7a5230');
-      }
-      const [tx, ty] = top;
-      const fr = [[-20, 6], [-15, -4], [-6, -12], [6, -12], [15, -4], [20, 6], [-10, 10], [10, 10]];
-      fr.forEach(([fx, fy], i) => {
-        d.tube([[tx, ty], [tx + fx * 0.55, ty + fy * 0.55 - 3], [tx + fx, ty + fy]], 5.5, 1.2, i < 2 || i > 5 ? gd : g, { far: i >= 6 });
-      });
-      d.circ(tx - 2, ty + 3, 2.4, '#7a4a28', { shiny: true }); d.circ(tx + 2, ty + 4, 2.4, '#7a4a28', { shiny: true });
-    } },
+    palm: { w: 44, h: 60, n: 2, draw: SECOURS.arbre(44, 60) },
     // cabine téléphonique de la plage (épisode 2 de l'animé) : grande cabine vitrée, toit bleu « TEL », combiné vert
     booth: { w: 30, h: 58, n: 1, draw(d) {
       d.ell(15, 56, 13, 2.4, '#7a6a4a', 0, { flat: true });
@@ -314,16 +251,7 @@
       d.deco.ell(20, 14, 5, 2, '#ff9ab0'); d.deco.ell(36, 22, 4, 1.6, '#ff9ab0');
       d.ell(10, 58, 4, 2.6, '#ff9ac0'); d.ell(46, 58, 4, 2.6, '#a8c8ff');
     } },
-    stall: { w: 36, h: 34, n: 1, draw(d) {
-      d.tube([[4, 33], [4, 8]], 2.4, 2.4, '#8a5a32'); d.tube([[32, 33], [32, 8]], 2.4, 2.4, '#8a5a32');
-      d.rect(1, 18, 34, 15, '#c08a52', { round: 0.25, tex: 0.25 });
-      d.deco.rect(1, 18, 34, 3, '#e0b070');
-      d.ell(9, 16, 4, 2.4, '#b04a2a'); d.deco.circ(6, 16, 1, '#ffffff', { unlit: true });
-      d.ell(18, 16, 4, 2.4, '#b04a2a'); d.deco.circ(15, 16, 1, '#ffffff', { unlit: true });
-      d.ell(27, 16.5, 3, 3, '#5ab8f0', 0, { shiny: true });
-      d.poly([[0, 10], [3, 2], [33, 2], [36, 10]], '#f05a5a', { shiny: true });
-      for (let x = 6; x < 33; x += 8) d.deco.poly([[x, 2], [x + 4, 2], [x + 5, 10], [x - 1, 10]], '#ffffff');
-    } },
+    stall: { w: 36, h: 34, n: 1, draw: SECOURS.boite(36, 34) },
     rubble: { w: 22, h: 20, n: 1, draw: SECOURS.rocher(22, 20) },
   };
   const objCache = {};

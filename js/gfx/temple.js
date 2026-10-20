@@ -79,10 +79,7 @@
       d.deco.circ(13, 15, 1.2, v ? '#40e0d0' : '#2a1a0a', { unlit: !!v }); d.deco.circ(19, 15, 1.2, v ? '#40e0d0' : '#2a1a0a', { unlit: !!v });
     } },
     // tas de coquillages et d'os (se traverse)
-    shellpile: { w: 18, h: 10, n: 2, draw(d, v) {
-      for (let k = 0; k < 6; k++) d.ell(3 + k * 2.6, 7 - (k % 2) * 2, 2.4, 1.7, ['#f0c8d8', '#e8d8b8', '#f8f0e0'][(k + v) % 3], 0, { shiny: true });
-      d.deco.line(4, 6, 14, 5, 0.6, '#c09a7a');
-    } },
+    shellpile: { w: 18, h: 10, n: 2, draw: DW.World.secours.pierre(18, 10) },
     // dalle gravée contre la paroi (hiéroglyphes)
     hieroslab: { w: 26, h: 40, n: 2, draw(d, v) {
       d.rect(1, 2, 24, 37, '#c8a66e', { round: 0.08, tex: 0.3 });

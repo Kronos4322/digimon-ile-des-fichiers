@@ -90,10 +90,6 @@
       // petite lanterne au sommet
       d.rect(6, 2, 6, 8, '#3a3440', { round: 0.2 }); d.deco.rect(7, 3.4, 4, 5, '#ffe090', { unlit: true }); d.rect(5, 1, 8, 1.6, '#2a2430');
     } },
-    planter: { w: 34, h: 22, n: 3, draw(d, v) {
-      d.rect(2, 12, 30, 9, '#9a6a3a', { round: 0.2, tex: 0.3 }); d.deco.rect(2, 12, 30, 2, '#c08a52');
-      const F = [['#f04a6a', '#ffd040', '#ffffff'], ['#a87af0', '#f0a0d0', '#ffffff'], ['#f08a20', '#e03a3a', '#ffe070']][v];
-      for (let k = 0; k < 7; k++) { const x = 5 + k * 4; d.circ(x, 10 - (k % 2) * 2, 2.6, '#4aa046'); d.circ(x + 0.6, 8 - (k % 2) * 2, 1.6, F[k % 3], { shiny: true }); }
-    } },
+    planter: { w: 34, h: 22, n: 3, draw: DW.World.secours.buisson(34, 22) },
   });
 })();

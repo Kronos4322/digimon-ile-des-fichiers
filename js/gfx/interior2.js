@@ -5,7 +5,7 @@
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
-  const WOOD = '#9a6a3a', WOOD_D = '#5a3a1e', WOOD_L = '#c08a52';
+  const WOOD = '#9a6a3a', WOOD_L = '#c08a52';
   Object.assign(OBJ, {
     // ---------------------------------------------------------- Plante : pots fleuris, arbre en pot
     flowerpots: { w: 46, h: 28, n: 2, draw(d, v) {
@@ -17,19 +17,9 @@
         for (let i = 0; i < 5; i++) d.circ(x - 4 + i * 2, 6 + (i % 2) * 2, 2, i % 2 ? '#4ab048' : F[(k + i) % 3]);
       }
     } },
-    pottedtree: { w: 30, h: 50, n: 2, draw(d, v) {
-      d.rect(8, 38, 14, 11, v ? '#3a6ab0' : '#b8643a', { round: 0.25, shiny: true });
-      d.tube([[15, 39], [15, 22]], 2.4, 2, '#6a4a2a');
-      for (const [x, y, r] of [[15, 14, 10], [8, 20, 7], [22, 20, 7], [15, 6, 6]]) d.circ(x, y, r, v ? '#3a9a5a' : '#5ab048', { tex: 0.3 });
-      if (!v) for (const [x, y] of [[10, 12], [20, 16], [14, 22]]) d.deco.circ(x, y, 1.6, '#f0603a');
-    } },
+    pottedtree: { w: 30, h: 50, n: 2, draw: DW.World.secours.buisson(30, 50) },
     // ---------------------------------------------------------- Électrique : ordinateur
-    computer: { w: 44, h: 38, n: 1, lights: [[22, 12, 20, 'rgba(120,255,200,0.4)']], draw(d) {
-      d.rect(2, 22, 40, 6, WOOD, { round: 0.2 }); d.tube([[6, 37], [6, 28]], 2, 2, WOOD_D); d.tube([[38, 37], [38, 28]], 2, 2, WOOD_D);
-      d.rect(10, 2, 24, 18, '#d8d4c8', { round: 0.15, shiny: true }); d.deco.rect(12.5, 4.5, 19, 12, '#0e2a24');
-      for (let k = 0; k < 4; k++) d.deco.rect(14, 6 + k * 2.6, 6 + (k * 5) % 11, 1, '#5aff9a', { unlit: true });
-      d.rect(12, 20, 20, 3, '#c8c4b8', { round: 0.3 }); d.ell(36, 21, 2.4, 1.4, '#e8e4d8');
-    } },
+    computer: { w: 44, h: 38, n: 1, lights: [[22, 12, 20, 'rgba(120,255,200,0.4)']], draw: DW.World.secours.boite(44, 38) },
     // ---------------------------------------------------------- Eau : étagère à coquillages
     shellshelf: { w: 34, h: 30, n: 1, draw(d) {
       d.rect(1, 2, 32, 26, '#7ab8d8', { round: 0.1, tex: 0.2 }); d.deco.rect(3, 4, 28, 22, '#2a5a7a');
@@ -56,12 +46,7 @@
       for (let k = 0; k < 3; k++) d.tube([[26 + k * 2, 44], [31, 39 - k * 2]], 1.6, 1.6, '#8a5a2a');
     } },
     // ---------------------------------------------------------- Terre : tonneaux
-    barrels: { w: 40, h: 30, n: 1, draw(d) {
-      for (const [x, y] of [[11, 28], [29, 28], [20, 16]]) {
-        d.rect(x - 8, y - 14, 16, 14, '#8a5a30', { round: 0.35, tex: 0.3 });
-        for (const yy of [y - 11, y - 4]) d.deco.rect(x - 8, yy, 16, 1.4, '#4a4a50');
-      }
-    } },
+    barrels: { w: 40, h: 30, n: 1, draw: DW.World.secours.bois(40, 30) },
     // ---------------------------------------------------------- Lumière : grand tableau (mur)
     painting: { w: 40, h: 28, n: 3, draw(d, v) {
       d.rect(1, 1, 38, 26, '#c8a040', { round: 0.1, shiny: true }); d.deco.rect(4, 4, 32, 20, ['#8ac8f0', '#f8d890', '#2a3a6a'][v]);
@@ -76,10 +61,7 @@
       for (let k = 0; k < 3; k++) d.ell(6 + k * 14, 21, 4, 1.2, '#f06a8a', 0.4 * k);
     } },
     // ---------------------------------------------------------- pour tous : coffre à jouets, fenêtre à rideaux
-    toybox: { w: 30, h: 26, n: 1, draw(d) {
-      d.rect(2, 10, 26, 15, '#e05a5a', { round: 0.2, shiny: true }); d.deco.rect(2, 10, 26, 3, '#f0d040');
-      d.circ(9, 8, 4, '#4a8ae0', { shiny: true }); d.rect(16, 3, 7, 7, '#5ac070', { round: 0.2 }); d.deco.circ(24, 7, 2, '#f0d040');
-    } },
+    toybox: { w: 30, h: 26, n: 1, draw: DW.World.secours.boite(30, 26) },
     curtains: { w: 40, h: 34, n: 2, lights: [[20, 14, 22]], draw(d, v) {
       d.rect(8, 4, 24, 24, '#6a4a30', { round: 0.08 }); d.deco.rect(10, 6, 20, 20, '#bfe2f2'); d.deco.line(20, 6, 20, 26, 1, '#6a4a30'); d.deco.line(10, 16, 30, 16, 1, '#6a4a30');
       const c = v ? '#d84a6a' : '#4a7ad8';

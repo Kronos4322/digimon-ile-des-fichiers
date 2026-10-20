@@ -224,27 +224,7 @@
     } },
 
     // ---------------------------------------------------------- grande fontaine de la place (4×2) : v1 en eau, v2 à sec
-    bigfountain: { w: 70, h: 56, n: 3, draw(d, v) {
-      const dry = v !== 1, St = '#b4aea2', St2 = '#9a948a';
-      d.ell(35, 42, 34, 12, St2, 0, { tex: 0.25 });
-      d.ell(35, 40, 32, 10.5, St, 0, { tex: 0.2 });
-      for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; d.deco.line(35 + Math.cos(a) * 28, 40 + Math.sin(a) * 9, 35 + Math.cos(a) * 32, 40 + Math.sin(a) * 10.5, 0.6, '#7a746a'); }
-      d.deco.ell(35, 39.6, 27, 8, dry ? '#6a6052' : '#3a9ad8', 0, { unlit: !dry });
-      if (dry) { d.deco.line(18, 38, 26, 42, 0.8, '#4a4236'); d.deco.line(44, 37, 52, 41, 0.8, '#4a4236'); d.deco.ell(22, 41, 3, 1.2, '#5aa040'); d.deco.ell(50, 39, 2.4, 1, '#5aa040'); d.deco.ell(38, 42, 4, 1.4, '#8a7a5a'); }
-      else { d.deco.ell(35, 39.6, 22, 6, '#5ab8ec', 0, { unlit: true }); d.deco.ell(26, 38, 7, 1.6, '#c8f0ff', 0, { unlit: true }); d.deco.ell(46, 41, 5, 1.2, '#a8e4ff', 0, { unlit: true }); }
-      // colonne et vasque
-      d.rect(30, 16, 10, 22, St, { round: 0.5, tex: 0.2 });
-      d.deco.line(30, 22, 40, 22, 0.8, St2); d.deco.line(30, 32, 40, 32, 0.8, St2);
-      d.ell(35, 17, 14, 5, St, 0, { tex: 0.2 });
-      d.deco.ell(35, 16.4, 11, 3.2, dry ? '#6a6052' : '#4ab0e8', 0, { unlit: !dry });
-      d.rect(32.5, 4, 5, 12, St, { round: 0.5 });
-      d.circ(35, 4, 4, St, { tex: 0.2 });
-      if (!dry) {
-        d.ell(35, 1.6, 2, 3, '#d8f8ff', 0, { unlit: true });
-        for (const s of [-1, 1]) d.curve([[35 + s * 3, 4], [35 + s * 9, 6], [35 + s * 13, 16]], 1.4, '#a8e8ff', { unlit: true, noline: true, noshadow: true });
-        for (const s of [-1, 1]) d.curve([[35 + s * 12, 18], [35 + s * 18, 22], [35 + s * 22, 36]], 1.4, '#a8e8ff', { unlit: true, noline: true, noshadow: true });
-      } else d.poly([[38, 2], [42, 0], [41, 5]], St);
-    } },
+    bigfountain: { w: 70, h: 56, n: 3, draw: DW.World.secours.pierre(70, 56) },
     // potager (3×2) : v0 envahi d'herbes, v1 cultivé
     vegpatch: { w: 52, h: 38, n: 2, draw(d, v) {
       if (!v) {
@@ -278,36 +258,10 @@
     flowerbed: { w: 20, h: 16, n: 3, draw: DW.World.secours.buisson(20, 16) },
     // PUITS : v 0 = plein (eau sombre qui brille, seau au bout de la corde), v 1 = vide (fond de terre sèche, cailloux,
     // corde effilochée sans seau, toit abîmé, mousse sèche)
-    well: { w: 30, h: 40, n: 2, draw(d, v) {
-      d.ell(15, 37, 13, 3, '#3a2a18', 0, { flat: true });
-      d.ell(15, 30, 12, 7, v ? '#9a9488' : '#a8a296', 0, { tex: 0.35 });
-      if (v) { d.deco.ell(15, 28.6, 9, 4, '#3a2c1e'); d.deco.ell(12, 29, 2, 0.9, '#6a5a44'); d.deco.ell(17.5, 28.2, 1.5, 0.7, '#7a6a52'); d.deco.line(9, 27.5, 13, 29.5, 0.5, '#2a1e12'); }
-      else { d.deco.ell(15, 28.6, 9, 4, '#1a2a3a'); d.deco.ell(13, 28, 4, 1.4, '#3a6a9a'); d.deco.ell(17.5, 29.2, 1.6, 0.6, '#8ac0e8'); }
-      for (let i = 0; i < 9; i++) d.deco.line(4 + i * 2.8, 31, 4 + i * 2.8, 36, 0.6, '#7a746a');
-      if (v) { d.deco.line(5, 33, 9, 35, 0.6, '#5a544a'); d.deco.ell(23, 34, 2.2, 1, '#8a9a5a'); }   // fissure, mousse sèche
-      d.tube([[4, 31], [4, 10]], 2.4, 2.2, WOOD); d.tube([[26, 31], [26, 10]], 2.4, 2.2, WOOD);
-      d.tube([[4, 16], [26, 16]], 1.6, 1.6, WOOD_D);
-      if (v) { d.deco.line(15, 16, 15, 19.5, 0.6, '#b8b0a0'); d.deco.line(15, 19.5, 14, 21, 0.4, '#b8b0a0'); d.deco.line(15, 19.5, 16.2, 20.8, 0.4, '#b8b0a0'); }
-      else { d.deco.line(15, 16, 15, 22, 0.6, '#c8c0b0'); d.rect(12.5, 21, 5, 5, '#8a6a44', { round: 0.3 }); d.deco.rect(12.5, 21, 5, 0.9, '#a8845a'); }
-      d.poly([[0, 12], [15, 2], [30, 12]], v ? '#9a5a42' : '#b8583a', { shiny: !v }); d.deco.line(1, 11.5, 29, 11.5, 0.9, '#7a2a18');
-      if (v) { d.deco.line(19, 5, 22, 8.5, 0.7, '#5a2a18'); d.deco.line(8, 8, 10.5, 6.6, 0.6, '#5a2a18'); }   // tuiles fendues
-    } },
-    crates: { w: 18, h: 24, n: 2, draw(d, v) {
-      const box = (x, y, s, c) => { d.rect(x, y, s, s, c, { round: 0.1, tex: 0.3 }); d.deco.line(x, y, x + s, y + s, 0.8, '#6a4424'); d.deco.line(x + s, y, x, y + s, 0.8, '#6a4424'); d.deco.rect(x, y, s, 1.2, '#d8a870'); };
-      box(1, 11, 12, '#b8844c'); box(v ? 7 : 4, 1, 10, '#c8945a');
-      if (v) d.ell(15, 19, 2.6, 4, '#9a6a3c', 0, { tex: 0.2 });
-    } },
-    planter: { w: 14, h: 20, n: 2, draw(d, v) {
-      d.poly([[2, 12], [12, 12], [10.5, 19], [3.5, 19]], '#c06a3a');
-      d.deco.rect(2, 12, 10, 1.6, '#e08a5a');
-      if (v) { d.circ(7, 7, 5, '#3e9a40', { tex: 0.5, texSize: 1 }); d.deco.circ(5, 5, 1.2, '#ff7a9a', { unlit: true }); d.deco.circ(9, 7, 1.2, '#ffd84a', { unlit: true }); }
-      else { for (const a of [-0.7, -0.25, 0.25, 0.7]) d.tube([[7, 12], [7 + Math.sin(a) * 7, 12 - Math.cos(a) * 9]], 2, 0.6, '#4aa046'); }
-    } },
-    mailbox: { w: 12, h: 24, n: 1, draw(d) {
-      d.tube([[6, 23], [6, 10]], 2, 2, WOOD_D);
-      d.rect(1, 3, 10, 8, '#d84838', { round: 0.45, shiny: true });
-      d.deco.rect(2, 6, 4, 1, '#3a1a10'); d.rect(10, 1, 1.4, 5, '#ffd040');
-    } },
+    well: { w: 30, h: 40, n: 2, draw: DW.World.secours.pierre(30, 40) },
+    crates: { w: 18, h: 24, n: 2, draw: DW.World.secours.boite(18, 24) },
+    planter: { w: 14, h: 20, n: 2, draw: DW.World.secours.buisson(14, 20) },
+    mailbox: { w: 12, h: 24, n: 1, draw: DW.World.secours.boite(12, 24) },
     bunting: { w: v => v * 16, h: 18, n: 1, draw(d, v) {
       const W = v * 16, cols = ['#e04848', '#ffd040', '#3a8ae8', '#4ac878', '#ff8ac0'];
       d.curve([[0, 3], [W / 2, 9], [W, 3]], 0.9, '#5a4a3a', { noline: true });
@@ -315,24 +269,7 @@
     } },
     // ---------------------------------------------------------- grand panneau d'affichage de la ville (façon tableau d'école), 2×1
     // v = nombre de notes épinglées (une par habitant revenu, 0 à 8) : le panneau se remplit avec la ville
-    noticeboard: { w: 58, h: 62, n: 9, draw(d, v) {
-      const Wd = '#8a5a30', Wl = '#b0804a', Wk = '#5a3a1e';
-      d.ell(29, 60, 26, 2.6, '#2a2418', 0, { flat: true });
-      d.tube([[8, 61], [8, 22]], 2.4, 2.2, Wk); d.tube([[50, 61], [50, 22]], 2.4, 2.2, Wk);      // pieds
-      d.poly([[1, 12], [29, 2], [57, 12], [53, 15], [29, 6], [5, 15]], '#b84a3a', { shiny: true });  // petit toit
-      d.rect(3, 13, 52, 34, Wd, { round: 0.06, tex: 0.3 }); d.deco.rect(3, 13, 52, 2, Wl);              // cadre
-      d.deco.rect(6, 16, 46, 28, '#2e5a3e');                                                             // tableau vert
-      d.deco.rect(6, 16, 46, 2, '#3e6e4e');
-      d.deco.rect(16, 18, 26, 4, '#e8e8dc', { unlit: true });                                            // titre à la craie
-      for (let k = 0; k < 3; k++) d.deco.line(9, 26 + k * 5, 9 + 14 + (k * 7) % 10, 26 + k * 5, 0.7, '#d8e0d4', { unlit: true });
-      const notes = ['#fff4a0', '#ffc0d0', '#c0e8ff', '#c8f0b0', '#ffd8a0', '#e0c8ff', '#fff4a0', '#c0e8ff'];
-      for (let k = 0; k < v; k++) {
-        const x = 28 + (k % 4) * 6, y = 24 + Math.floor(k / 4) * 10;
-        d.deco.rect(x, y, 5, 7, notes[k], { unlit: true }); d.deco.circ(x + 2.5, y + 0.5, 0.8, '#e04848', { unlit: true });
-      }
-      d.rect(5, 46, 48, 3, Wl, { round: 0.3 });                                                          // rebord (craies)
-      d.deco.rect(12, 46.4, 4, 1.2, '#ffffff', { unlit: true }); d.deco.rect(19, 46.4, 3, 1.2, '#ffd0d0', { unlit: true });
-    } },
+    noticeboard: { w: 58, h: 62, n: 9, draw: DW.World.secours.boite(58, 62) },
   });
   // avec l'image du joueur (gfx/textures.js) : les affiches des habitants revenus, épinglées par-dessus (v = leur nombre)
   OBJ.noticeboard.surImage = (x, v, w, h) => {

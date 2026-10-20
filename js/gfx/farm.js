@@ -48,14 +48,7 @@
       d.deco.ell(11, 18, 1.8, 1.4, '#4a2e10');
       for (const [x, y] of f ? [[3, 8], [18, 12], [6, 3]] : [[5, 6], [17, 9], [9, 2]]) { d.deco.ell(x, y, 1, 0.8, '#2a2a2a', 0, { unlit: true }); d.deco.ell(x, y - 0.8, 1, 0.5, '#ffffff', 0, { unlit: true }); }
     } },
-    producestand: { w: 64, h: 56, n: 1, draw(d) {
-      d.ell(32, 54, 30, 3, '#2a2010', 0, { flat: true });
-      d.tube([[6, 54], [6, 16]], 1.6, 1.6, '#6a4a2a'); d.tube([[58, 54], [58, 16]], 1.6, 1.6, '#6a4a2a');
-      for (let k = 0; k < 6; k++) d.poly([[2 + k * 10, 10], [12 + k * 10, 10], [12 + k * 10, 18], [2 + k * 10, 18]], k % 2 ? '#ffffff' : '#4aa046');
-      d.rect(4, 34, 56, 18, '#9a6a3a', { round: 0.08, tex: 0.25 });
-      const fruits = [['#f08a20', 12], ['#e03a3a', 25], ['#7ac858', 38], ['#f0d050', 51]];
-      for (const [c, x] of fruits) { d.ell(x, 34, 6, 3, '#c89a5a', 0, { shiny: true }); for (let i = 0; i < 4; i++) d.circ(x - 3 + (i % 2) * 6 - (i > 1 ? 3 : 0) + 1.5, 31 - (i > 1 ? 2.6 : 0), 2.2, c, { shiny: true }); }
-    } },
+    producestand: { w: 64, h: 56, n: 1, draw: DW.World.secours.boite(64, 56) },
     greenhouse: { w: 86, h: 70, n: 1, draw(d) {
       d.ell(43, 68, 40, 3, '#1a2a14', 0, { flat: true });
       d.rect(4, 26, 78, 42, '#8ec8c0', { round: 0.04, shiny: true }); d.deco.rect(6, 46, 74, 20, '#5a9a6a');
