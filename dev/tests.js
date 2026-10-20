@@ -101,6 +101,20 @@ test('scripts : chaque script a son empreinte à jour (bloc VERSIONS de js/scrip
   for (const f of LIST) eq(V[f], f === 'maps/retouches_donnees.js' ? undefined : crypto.createHash('md5').update(fs.readFileSync(path.join(ROOT, 'js', f))).digest('hex').slice(0, 8), f + ' : empreinte périmée');
   eq(Object.keys(V).length, LIST.length - 1, 'empreintes de scripts disparus');
 });
+test('paquets du site en ligne : chacun est la réunion exacte de ses scripts, avec son empreinte (python dev/versions.py)', () => {
+  const crypto = require('crypto'), s = fs.readFileSync(path.join(ROOT, 'js', 'scripts.js'), 'utf8');
+  const P = [...s.slice(s.indexOf('const PAQUETS = ['), s.indexOf('(fin des paquets)')).matchAll(/\{ f: '([^']+)'(?:, v: '([0-9a-f]+)')? \}/g)].map(m => [m[1], m[2]]);
+  yes(P.length >= 2, 'bloc PAQUETS vide');
+  let k = 0;   // (les fichiers de LIST, dans l'ordre, répartis dans les paquets)
+  for (const [f, v] of P) {
+    if (!f.startsWith('../paquets/')) { eq(f, LIST[k], 'fichier à part attendu'); k++; continue; }
+    const txt = fs.readFileSync(path.join(ROOT, 'paquets', path.basename(f)), 'utf8');
+    eq(crypto.createHash('md5').update(txt).digest('hex').slice(0, 8), v, f + ' : empreinte périmée');
+    const SEP = /\n\/\/ ===== js\/([\w/]+\.js)\n/g, fichiers = [...txt.matchAll(SEP)].map(m => m[1]), morceaux = txt.split(/\n\/\/ ===== js\/[\w/]+\.js\n/).slice(1);
+    fichiers.forEach((g, i) => { eq(g, LIST[k], f + ' : ordre des scripts'); k++; eq(morceaux[i].replace(/\n;\n$/, ''), fs.readFileSync(path.join(ROOT, 'js', g), 'utf8').replace(/\n+$/, ''), f + ' : ' + g + ' périmé'); });
+  }
+  eq(k, LIST.length, 'scripts absents des paquets');
+});
 test('images : chaque image servie a son empreinte à jour (js/data/versions_images.js : python dev/versions.py)', () => {
   const crypto = require('crypto'), V = DW.VERSIONS_IMAGES, A = path.join(ROOT, 'assets'), vus = new Set();
   for (const d of fs.readdirSync(A)) for (const sous of ['jeu', 'kit']) {

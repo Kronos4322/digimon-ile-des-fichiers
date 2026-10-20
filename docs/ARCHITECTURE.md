@@ -18,7 +18,7 @@ qu'il contient : c'est la référence, ce document en donne la carte.
 | `js/gfx/` | Graphismes | voir ci-dessous |
 | `js/game/` | Logique de jeu | voir ci-dessous |
 | `js/maps/` | Cartes et scénario | voir ci-dessous |
-| `assets/` | Images, polices, icônes | `commun/jeu/` et `volcan/jeu/` (copies allégées des images du créateur, faites par `dev/optimiser_textures.py`), `commun/kit/` (kit du personnage, `dev/kit_persos.py`), `ASSETS - Digimon/` et `volcan/*.png` (originaux : sur le PC du créateur seulement, hors GitHub), `css/`, `fonts/` (licence SIL OFL), `icons/` |
+| `assets/` | Images, polices, icônes | `commun/jeu/` et `volcan/jeu/` (copies allégées des images du créateur, faites par `dev/optimiser_textures.py`), `grotte/jeu/` (grotte de Shellmon, WebP, chargée après le démarrage), `intro/jeu/` (écran titre et introduction peints), `commun/kit/` (kit du personnage, `dev/kit_persos.py`), `ASSETS - Digimon/` et `volcan/*.png` (originaux : sur le PC du créateur seulement, hors GitHub), `css/`, `fonts/` (licence SIL OFL), `icons/` |
 | `dev/` | Outils (jamais chargés par le jeu) | voir « Outils » |
 | `docs/` | Documentation | ce fichier, `ZONES_DW1.md` (recherches sur Digimon World 1) |
 
@@ -160,6 +160,12 @@ Grande bulle des besoins (`Life.needs`), rythme **diurne / nocturne** par espèc
 renaissance en œuf. La maladie n'arrive jamais au hasard : `m.germs` accumule les négligences (`Life.causes`) et baisse
 quand tout va bien ; au-delà de 70 il peut tomber malade, à 100 c'est certain.
 
+## Quêtes annexes (game/quetes.js)
+Chapitre 2 : « Les Bukamon égarés » (Rive Sud → lac1, lac4, lac6 ; guide vers l'île du tramway). Chapitre 3 : « La soif
+des Yokomon » (oasis du Désert des Poteaux) et « Le trésor de l'épave » (Village des Yokomon, après Meramon). Leurs
+personnages sont posés à l'arrivée sur la carte (`DW.Quetes.decorate`, après `DW.Story.decorate`), drapeaux dans
+`js/data/flags.js`.
+
 ## Écussons et enfants perdus (quête parallèle)
 Au début, aucun Digimon ne dépasse le stade **Champion** : chaque Ultime demande l'écusson de sa famille
 (`data/ecussons.js`, `DW.Crests`), les sept réunis débloquent la Méga. Un donjon secret par enfant (`maps/donjons.js`,
@@ -174,8 +180,18 @@ Calendrier de 12 mois × 10 jours, 4 saisons ; météo par climat et par saison 
 sécheresses (`engine/time.js`, rendu `gfx/ciel.js` et `gfx/meteo.js`). Décor vivant : `decor.js`, `regionfx.js`,
 `vivant.js`, `paysage.js`.
 
+## Publication et lancement rapide (empreintes, service worker)
+- Chaque script (bloc `VERSIONS` de `js/scripts.js`) et chaque image servie (`js/data/versions_images.js`) a une
+  **empreinte** : le jeu les demande avec `?v=<empreinte>`. `sw.js` les sert depuis son cache sans rien redemander au
+  serveur tant qu'ils n'ont pas changé ; un fichier modifié change d'adresse (jamais de vieille version). La page,
+  `js/scripts.js`, les polices et `js/maps/retouches_donnees.js` (écrit par l'atelier) restent « réseau d'abord ».
+- **Avant chaque commit** : `python dev/versions.py` (les tests refusent une empreinte périmée) ; **après le commit** :
+  `python dev/versions.py --verifier` (chaque empreinte du commit correspond-elle au fichier du commit ?), puis `git push`.
+- À l'installation, le service worker range la page, les scripts et les images : le jeu installé s'ouvre hors ligne.
+
 ## Outils (`dev/`)
 - `node dev/tests.js` : tests de la logique, sans navigateur (`PILE=1` pour le détail d'une erreur).
+- `python dev/versions.py` (`--verifier`) : empreintes des scripts et des images (voir « Publication »).
 - `python dev/serve.py 8766` : serveur local sans cache (et services de l'atelier des cartes).
 - `dev/check.html` (+ `checkmaps.js`) : toutes les cartes (sorties, arrivées, portes, panneaux, personnages accessibles,
   décor compris) et l'arbre des Digivolutions ; `?seul=carte1,carte2`.
@@ -222,3 +238,11 @@ Pour insérer du texte brut, utiliser `s.slice(0, i) + b + s.slice(i + a.length)
   chaînes « x,y » dans une boucle répétée.
 - **Rendu des volumes** (`Art.render`) : tout changement doit donner exactement les mêmes pixels (`dev/empreintes.js`).
 - Mesure : `map.gfx.prof` (temps par étape) et `map.gfx.ms` ; `dev/check.html` affiche le temps de chaque carte.
+- **Cartes fabriquées à la demande** : les sous-zones des régions, la forêt, les Dunes et le Bosquet n'ont leurs cases
+  qu'à leur première visite (`build()` ; `MapKit.zoomMap` y ajoute les dégagements relevés au chargement, puis `finir`).
+  Une carte doit rester identique : comparer les empreintes de toutes les cartes avant/après (`DW.preparerCarte`).
+- **Images chargées plus tard** (`gfx/textures.js`, `TARDIFS`) : la grotte de Shellmon se charge en arrière-plan après
+  le démarrage ; `Overworld.charger` attend son dossier (`DW.Textures.dossier`) avant d'y entrer.
+- Mesures (PC du créateur, 2 cœurs à 1,1 GHz) : en ligne, images prêtes ~22 s → ~7 s avec les empreintes ; banc Node :
+  les scripts du jeu s'exécutent en ~2,5 s (dont `maps/regions.js` ~0,9 s). Sous Node, `vm.createContext` rend `Math.*`
+  très lent : pour mesurer, exécuter les scripts dans le contexte principal (`vm.runInThisContext`).

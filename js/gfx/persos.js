@@ -12,7 +12,7 @@
 // =====================================================================
 (function () {
   const nav = typeof Image !== 'undefined' && typeof document !== 'undefined';
-  const racine = nav && document.currentScript ? document.currentScript.src.replace(/js\/gfx\/persos\.js(\?.*)?$/, '') : '';
+  const racine = !nav ? '' : window.RACINE_JEU != null ? window.RACINE_JEU : document.currentScript ? document.currentScript.src.replace(/js\/gfx\/persos\.js(\?.*)?$/, '') : '';   // (RACINE_JEU : js/scripts.js ; un paquet n'a pas le nom de ce fichier)
   const K = DW.KIT, HB = K.HB;
   const CATS = ['corps_f', 'corps_g', 'tete_f', 'tete_g', 'haut', 'ensemble', 'bas_f', 'bas_g', 'chaus', 'chapeau', 'sac', 'acc'];
   const img = {};

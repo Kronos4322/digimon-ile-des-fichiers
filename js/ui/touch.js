@@ -88,32 +88,41 @@
   }
 
   // ------------------------------------------------------------ disposition selon l'écran
+  // zone sûre (encoche et barre d'accueil des iPhone, viewport-fit=cover) : les commandes restent dans la partie visible
+  let sonde = null;
+  function zoneSure() {
+    if (!sonde) { sonde = document.createElement('div'); sonde.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)'; document.body.appendChild(sonde); }
+    const s = getComputedStyle(sonde), v = k => parseFloat(s[k]) || 0;
+    return { t: v('paddingTop'), r: v('paddingRight'), b: v('paddingBottom'), l: v('paddingLeft') };
+  }
   function place(el, x, y, w, h) { Object.assign(el.style, { left: Math.round(x) + 'px', top: Math.round(y) + 'px', width: Math.round(w) + 'px', height: Math.round(h) + 'px', fontSize: Math.max(8, Math.round(Math.min(w, h) * 0.2)) + 'px', opacity: '' }); }
   function layout() {
     if (!root) return;
     const vw = window.innerWidth, vh = window.innerHeight, c = DW.canvas.getBoundingClientRect();
     const $ = s => root.querySelector(s), S = $('.stick'), A = $('.a'), B = $('.b'), M = $('.menu'), R = $('.run');
-    const below = vh - c.bottom, side = (vw - c.width) / 2, D = $('.deck');
+    const below = vh - c.bottom, side = (vw - c.width) / 2, D = $('.deck'), Z = zoneSure();
     D.style.display = below > 150 ? 'block' : 'none';
     if (below > 150) {
       // portrait : panneau façon console portable sous l'écran de jeu, commandes compactes
       const top = c.bottom, h = vh - top; D.style.top = top + 'px';
-      const u = Math.min(h * 0.42, vw * 0.3, 150), cy = top + Math.min(h * 0.5, 34 + u * 0.75);
-      place(S, vw * 0.08, cy - u / 2, u, u);
-      const a = u * 0.46, b = u * 0.36;
-      place(A, vw - a - vw * 0.08, cy - a * 0.9, a, a);
-      place(B, vw - a - b - vw * 0.11, cy + a * 0.1, b, b);
-      place(M, vw / 2 + 6, cy + u * 0.5 + 14, 84, 26);
-      place(R, vw / 2 - 90, cy + u * 0.5 + 14, 84, 26);
+      // (boutons d'au moins 44 px : la taille conseillée pour un doigt)
+      const u = Math.min(h * 0.42, vw * 0.3, 150), cy = top + Math.min(h * 0.5, 34 + u * 0.75) - Z.b / 2;
+      place(S, vw * 0.08 + Z.l, cy - u / 2, u, u);
+      const a = Math.max(48, u * 0.46), b = Math.max(44, u * 0.4);
+      place(A, vw - a - vw * 0.08 - Z.r, cy - a * 0.9, a, a);
+      place(B, vw - a - b - vw * 0.11 - Z.r, cy + a * 0.1, b, b);
+      const py = Math.min(cy + u * 0.5 + 14, vh - Z.b - 40);
+      place(M, vw / 2 + 6, py, 90, 34);
+      place(R, vw / 2 - 96, py, 90, 34);
     } else {
       // paysage : sur les côtés de l'écran de jeu (par-dessus, un peu transparents, si la place manque)
       const room = side > 110, u = Math.min(room ? side * 0.8 : vh * 0.28, vh * 0.34, 140), m = room ? (side - u) / 2 : 10;
-      place(S, m, vh - u - 14, u, u);
-      const a = u * 0.5, b = u * 0.4;
-      place(A, vw - a - m, vh - u * 0.95 - 14, a, a);
-      place(B, vw - a - b - m - 6, vh - b - 14, b, b);
-      place(M, vw - 100 - m, 10, 100, 30);
-      place(R, m, 10, 100, 30);
+      place(S, m + Z.l, vh - u - 14 - Z.b, u, u);
+      const a = Math.max(48, u * 0.5), b = Math.max(44, u * 0.42);
+      place(A, vw - a - m - Z.r, vh - u * 0.95 - 14 - Z.b, a, a);
+      place(B, vw - a - b - m - 6 - Z.r, vh - b - 14 - Z.b, b, b);
+      place(M, vw - 100 - m - Z.r, 10 + Z.t, 100, 34);
+      place(R, m + Z.l, 10 + Z.t, 100, 34);
       if (!room) for (const el of [S, A, B, M, R]) el.style.opacity = '0.55';   // par-dessus le jeu : discrets
     }
   }

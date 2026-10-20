@@ -180,7 +180,7 @@
   const FLAMMES = new Set(['autel_soleil', 'braises', 'brasero', 'brasero_anubis', 'brasero_colonne', 'coupe_feu', 'lampe', 'lanterne', 'porte_torches', 'torche', 'torche_anubis', 'torche_murale', 'torche_plantee', 'torche_trepied']);
   const T = DW.Textures = { img: {}, fini: false, LISTE, TAILLE };
   const nav = typeof Image !== 'undefined' && typeof document !== 'undefined';
-  const racine = nav && document.currentScript ? document.currentScript.src.replace(/js\/gfx\/textures\.js(\?.*)?$/, '') : '';
+  const racine = !nav ? '' : window.RACINE_JEU != null ? window.RACINE_JEU : document.currentScript ? document.currentScript.src.replace(/js\/gfx\/textures\.js(\?.*)?$/, '') : '';   // (RACINE_JEU : js/scripts.js ; un paquet n'a pas le nom de ce fichier)
   const pix = {}, motifs = {};
   const nomDe = cle => cle.split('/')[1];
 

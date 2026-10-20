@@ -81,9 +81,9 @@
     'gfx/hero.js': '97095308',
     'gfx/icons.js': 'a527443c',
     'gfx/objects.js': 'd0117709',
-    'gfx/textures.js': 'b3eff4a3',
+    'gfx/textures.js': '7d365838',
     'gfx/kit_donnees.js': '742be2d2',
-    'gfx/persos.js': 'bcc06639',
+    'gfx/persos.js': '22695c99',
     'gfx/pinceau.js': '7ee82687',
     'gfx/premium.js': 'b3573708',
     'gfx/town.js': '2fd90457',
@@ -155,7 +155,7 @@
     'ui/worldmap.js': '894734a8',
     'ui/title.js': '99cbd66d',
     'ui/intro.js': '919e3315',
-    'ui/touch.js': 'ba4c3469',
+    'ui/touch.js': '59197a5b',
     'maps/common.js': '3abc309b',
     'maps/retouches.js': 'd0180747',
     'maps/puzzle.js': 'f06fe783',
@@ -203,9 +203,21 @@
     'game/minijeux.js': 'be70ba3d',
     'main.js': 'b4b3e189',
   };   // (fin des versions)
+  // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
+  // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
+  const PAQUETS = [
+    { f: '../paquets/jeu-1.js', v: '19dc72ee' },
+    { f: 'maps/retouches_donnees.js' },
+    { f: '../paquets/jeu-2.js', v: 'a998655b' },
+  ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.
   const me = document.currentScript, base = me.src.replace(/scripts\.js(\?.*)?$/, '');
   const noMain = me.hasAttribute('data-sans-main');
+  window.RACINE_JEU = base.replace(/js\/$/, '');   // (le dossier du jeu, pour ses images : gfx/textures.js, gfx/persos.js)
+  // en ligne : les paquets ; en local (atelier, essais) et pour les pages de dev/, les fichiers un par un (erreurs lisibles)
+  // (?paquets=1 : essayer les paquets en local)
+  const local = /^(localhost|127\.0\.0\.1|\[::1\]|)$/.test(location.hostname) && !/[?&]paquets=1/.test(location.search);
+  if (!local && !noMain && PAQUETS.length) { for (const p of PAQUETS) document.write(`<script src="${base}${p.f}${p.v ? '?v=' + p.v : ''}"></` + 'script>'); return; }
   for (const f of LIST) if (!(noMain && f === 'main.js')) document.write(`<script src="${base}${f}${VERSIONS[f] ? '?v=' + VERSIONS[f] : ''}"></` + 'script>');
 })();

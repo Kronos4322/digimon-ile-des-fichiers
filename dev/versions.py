@@ -18,6 +18,30 @@ SCRIPTS = os.path.join(JS, 'scripts.js')
 SOUS = ('jeu', 'kit')   # (les images d'origine du joueur, « ASSETS - Digimon », ne sont pas servies)
 DEBUT, FIN = '  const VERSIONS = {', '  };   // (fin des versions)'
 EXCLUS = {'maps/retouches_donnees.js'}
+# PAQUETS DU SITE EN LIGNE : les scripts réunis en quelques fichiers (paquets/jeu-<n>.js), coupés à chaque fichier exclu
+# (les retouches de l'atelier restent un fichier à part, toujours redemandé) ; bloc PAQUETS de js/scripts.js
+PAQUETS_DIR = os.path.join(RACINE, 'paquets')
+DEBUT_P, FIN_P = '  const PAQUETS = [', '  ];   // (fin des paquets)'
+ENTETE_P = ("'use strict';\n// FICHIER FABRIQUÉ PAR dev/versions.py : des scripts du jeu (liste de js/scripts.js), dans l'ordre, réunis pour le\n"
+            "// site en ligne (une seule demande au lieu d'une par fichier). Ne pas modifier : modifier js/, puis relancer dev/versions.py.\n")
+
+
+def paquets(liste, lire):
+    # [(nom du paquet, fichiers, texte)] : un paquet par suite de fichiers non exclus ; un fichier exclu reste seul (nom None)
+    out, cur = [], []
+    for f in liste:
+        if f in EXCLUS:
+            if cur: out.append(cur); cur = []
+            out.append(f)
+        else: cur.append(f)
+    if cur: out.append(cur)
+    res, n = [], 0
+    for p in out:
+        if isinstance(p, str): res.append((None, p, None)); continue
+        n += 1
+        texte = ENTETE_P + ''.join('\n// ===== js/%s\n%s\n;\n' % (f, lire(f).rstrip('\n')) for f in p)
+        res.append(('jeu-%d.js' % n, p, texte))
+    return res
 ENTETE = """'use strict';
 // =====================================================================
 //  VERSIONS DES IMAGES (fichier fabriqué par dev/versions.py : ne pas modifier à la main)
@@ -61,8 +85,20 @@ def ecrire():
     liste = re.findall(r"'([\w/]+\.js)'", s[s.index('const LIST = ['):s.index('];', s.index('const LIST = ['))])
     i, j = s.index(DEBUT), s.index(FIN)
     bloc = DEBUT + '\n' + ''.join("    '%s': '%s',\n" % (f, empreinte(os.path.join(JS, f))) for f in liste if f not in EXCLUS) + FIN
-    ch_s = ecrire_si_change(SCRIPTS, s[:i] + bloc + s[j + len(FIN):])
-    print('empreintes : %d images%s, %d scripts%s' % (len(V), '' if ch_i else ' (inchangées)', len(liste), '' if ch_s else ' (inchangés)'))
+    s = s[:i] + bloc + s[j + len(FIN):]
+    # paquets du site en ligne (fichiers écrits en LF : leur empreinte est celle de leur texte)
+    os.makedirs(PAQUETS_DIR, exist_ok=True)
+    lire = lambda f: open(os.path.join(JS, f), encoding='utf-8').read()
+    P = paquets(liste, lire)
+    for nom, fichiers, texte in P:
+        if nom: ecrire_si_change(os.path.join(PAQUETS_DIR, nom), texte)
+    for f in os.listdir(PAQUETS_DIR):
+        if f.endswith('.js') and f not in [p[0] for p in P]: os.remove(os.path.join(PAQUETS_DIR, f))
+    lignes = ''.join(("    { f: '../paquets/%s', v: '%s' },\n" % (nom, hashlib.md5(texte.encode('utf-8')).hexdigest()[:8])) if nom else ("    { f: '%s' },\n" % fichiers) for nom, fichiers, texte in P)
+    i, j = s.index(DEBUT_P), s.index(FIN_P)
+    s = s[:i] + DEBUT_P + '\n' + lignes + FIN_P + s[j + len(FIN_P):]
+    ch_s = ecrire_si_change(SCRIPTS, s)
+    print('empreintes : %d images%s, %d scripts%s, %d paquets' % (len(V), '' if ch_i else ' (inchangées)', len(liste), '' if ch_s else ' (inchangés)', len([p for p in P if p[0]])))
 
 
 def verifier():
@@ -79,6 +115,16 @@ def verifier():
         if tete[-1] == b'missing': contenus.append(None); i = j + 1; continue
         n = int(tete[2]); contenus.append(out[j + 1:j + 1 + n]); i = j + 1 + n + 1
     faux = [c for (c, h), b in zip(paires, contenus) if b is None or hashlib.md5(b).hexdigest()[:8] != h]
+    # paquets du site en ligne : chacun doit être exactement la réunion des fichiers du commit, avec son empreinte
+    liste = re.findall(r"'([\w/]+\.js)'", s[s.index('const LIST = ['):s.index('];', s.index('const LIST = ['))])
+    contenu = {c: b for (c, h), b in zip(paires, contenus)}
+    lire = lambda f: (contenu.get('js/' + f) or git('show', 'HEAD:js/' + f)).decode('utf-8')
+    attendus = dict(re.findall(r"f: '\.\./paquets/([^']+)', v: '([0-9a-f]+)'", s))
+    for nom, fichiers, texte in paquets(liste, lire):
+        if not nom: continue
+        b = git('show', 'HEAD:paquets/' + nom)
+        if b.decode('utf-8') != texte or hashlib.md5(b).hexdigest()[:8] != attendus.get(nom): faux.append('paquets/' + nom)
+    paires += [('paquets/' + n, h) for n, h in attendus.items()]
     print('dernier commit : %d empreintes, %d fausses%s' % (len(paires), len(faux), (' : ' + ', '.join(faux[:10])) if faux else ''))
     return not faux
 

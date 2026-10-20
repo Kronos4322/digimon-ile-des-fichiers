@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
 //  SERVICE WORKER : le jeu installé (PC ou téléphone) démarre vite et marche hors ligne
-//  - SCRIPTS et IMAGES versionnés (?v=<empreinte> : dev/versions.py) : pris dans le cache, sans rien demander au serveur
+//  - SCRIPTS (réunis en paquets : paquets/) et IMAGES versionnés (?v=<empreinte> : dev/versions.py) : pris dans le cache, sans rien demander au serveur
 //    (avant : les 159 scripts, l'un après l'autre, et les 249 images étaient redemandés à chaque lancement, ~20 s) ;
 //    un fichier modifié a une autre adresse : il est téléchargé, l'ancienne version est retirée du cache
 //  - le reste (la page, la liste des scripts js/scripts.js, les polices) : réseau d'abord — chaque mise à jour publiée
@@ -15,9 +15,11 @@ const CACHE = 'digimon-ile';   // (un seul cache, gardé d'une version du jeu à
 async function fichiersDuJeu() {
   const texte = async u => (await fetch(u, { cache: 'no-cache' })).text(), abs = u => new URL(u, self.registration.scope).href;
   const S = await texte('js/scripts.js'), V = await texte('js/data/versions_images.js');
-  const versionnes = [...[...S.matchAll(/'([\w/]+\.js)': '([0-9a-f]+)'/g)].map(m => abs('js/' + m[1] + '?v=' + m[2])),
+  // (les paquets du site en ligne : bloc PAQUETS de js/scripts.js ; sans eux, les scripts un par un)
+  const P = [...S.matchAll(/f: '\.\.\/(paquets\/[^']+)', v: '([0-9a-f]+)'/g)].map(m => abs(m[1] + '?v=' + m[2]));
+  const versionnes = [...(P.length ? P : [...S.matchAll(/'([\w/]+\.js)': '([0-9a-f]+)'/g)].map(m => abs('js/' + m[1] + '?v=' + m[2]))),
     ...[...V.matchAll(/"([^"]+)": "([0-9a-f]+)"/g)].map(m => abs('assets/' + m[1] + '?v=' + m[2]))];
-  return { pages: ['./', 'index.html', 'js/scripts.js', 'assets/css/style.css', 'manifest.webmanifest'], versionnes };
+  return { pages: ['./', 'index.html', 'js/scripts.js', 'js/maps/retouches_donnees.js', 'assets/css/style.css', 'manifest.webmanifest'], versionnes };
 }
 
 self.addEventListener('install', e => e.waitUntil((async () => {
