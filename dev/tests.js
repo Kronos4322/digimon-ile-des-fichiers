@@ -94,6 +94,25 @@ test('js/scripts.js liste tous les fichiers du jeu, et seulement eux', () => {
   yes(!extra.length, 'listés mais introuvables : ' + extra.join(', '));
   eq(new Set(LIST).size, LIST.length, 'doublons dans la liste');
 });
+test('scripts : chaque script a son empreinte à jour (bloc VERSIONS de js/scripts.js : python dev/versions.py)', () => {
+  const crypto = require('crypto'), s = fs.readFileSync(path.join(ROOT, 'js', 'scripts.js'), 'utf8');
+  const V = Object.fromEntries([...s.slice(s.indexOf('const VERSIONS = {'), s.indexOf('(fin des versions)')).matchAll(/'([\w/]+\.js)': '([0-9a-f]+)'/g)].map(m => [m[1], m[2]]));
+  // (les retouches de l'atelier, souvent modifiées sans être publiées, n'en ont pas : toujours redemandées au serveur)
+  for (const f of LIST) eq(V[f], f === 'maps/retouches_donnees.js' ? undefined : crypto.createHash('md5').update(fs.readFileSync(path.join(ROOT, 'js', f))).digest('hex').slice(0, 8), f + ' : empreinte périmée');
+  eq(Object.keys(V).length, LIST.length - 1, 'empreintes de scripts disparus');
+});
+test('images : chaque image servie a son empreinte à jour (js/data/versions_images.js : python dev/versions.py)', () => {
+  const crypto = require('crypto'), V = DW.VERSIONS_IMAGES, A = path.join(ROOT, 'assets'), vus = new Set();
+  for (const d of fs.readdirSync(A)) for (const sous of ['jeu', 'kit']) {
+    const p = path.join(A, d, sous); if (d.startsWith('ASSETS') || !fs.existsSync(p)) continue;
+    for (const f of fs.readdirSync(p)) if (/\.(png|webp|jpg)$/i.test(f)) {
+      const k = `${d}/${sous}/${f}`; vus.add(k);
+      eq(V[k], crypto.createHash('md5').update(fs.readFileSync(path.join(p, f))).digest('hex').slice(0, 8), k + ' : empreinte périmée');
+    }
+  }
+  const trop = Object.keys(V).filter(k => !vus.has(k));
+  yes(!trop.length, 'images disparues : ' + trop.join(', '));
+});
 test('aucune page HTML ne recopie la liste des scripts', () => {
   for (const f of ['index.html', 'dev/check.html', 'dev/gallery.html']) {
     const s = fs.readFileSync(path.join(ROOT, f), 'utf8');

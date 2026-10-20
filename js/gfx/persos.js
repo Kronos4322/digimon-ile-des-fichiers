@@ -28,7 +28,7 @@
         else if (k < 2) { setTimeout(() => essai(n, k + 1), 600 * (k + 1)); return; }
         if (--reste === 0) { fait = true; fin(); }
       };
-      im.src = racine + 'assets/commun/kit/' + n + '.png' + (k ? '?essai=' + k : '');
+      im.src = racine + 'assets/commun/kit/' + n + '.png' + DW.versionImage('commun/kit/' + n + '.png');   // (adresse versionnée : sw.js)
     };
     for (const n of CATS) essai(n, 0);
   }));

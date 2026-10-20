@@ -170,16 +170,17 @@
   const nomDe = cle => cle.split('/')[1];
 
   // chargement : la copie allégée, sinon l'original, sinon rien (null) ; main.js attend la fin avant de lancer le jeu
-  // (6 images à la fois, comme un navigateur sur un même serveur ; un échec est retenté deux fois : un petit serveur qui
-  //  reçoit 100 demandes d'un coup en refuse une partie)
+  // (adresse versionnée, ?v=<empreinte> : le service worker la sert depuis son cache sans rien redemander au serveur,
+  //  sw.js ; 10 images à la fois ; un échec est retenté deux fois : un petit serveur qui reçoit 100 demandes d'un coup
+  //  en refuse une partie)
   const charger1 = url => new Promise(ok => { const im = new Image(); im.onload = () => ok(im.naturalWidth ? im : null); im.onerror = () => ok(undefined); setTimeout(() => ok(undefined), 40000); im.src = url; });
   const charger = async (url, absent) => { for (let k = 0; k < 3; k++) { const im = await charger1(url); if (im !== undefined || absent) return im || null; await new Promise(r => setTimeout(r, 400 * (k + 1))); } return null; };
   const taches = Object.entries(LISTE).flatMap(([d, noms]) => noms.map(n => async () => {
-    T.img[d + '/' + n] = (await charger(racine + 'assets/' + d + '/jeu/' + n + '.png')) || (await charger(racine + 'assets/' + d + '/' + n + '.png', true));
+    T.img[d + '/' + n] = (await charger(racine + 'assets/' + d + '/jeu/' + n + '.png' + DW.versionImage(d + '/jeu/' + n + '.png'))) || (await charger(racine + 'assets/' + d + '/' + n + '.png', true));
   }));
   const ouvrier = async () => { while (taches.length) await taches.shift()(); };
   // (les Digimon dessinés pendant le chargement, sur l'écran titre, l'ont été avec leur dessin de secours : on les oublie)
-  T.charge = !nav ? Promise.resolve() : Promise.all([1, 2, 3, 4, 5, 6].map(ouvrier)).then(() => { T.fini = true; objets(); DW.Sprites.oublier(); });
+  T.charge = !nav ? Promise.resolve() : Promise.all([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(ouvrier)).then(() => { T.fini = true; objets(); DW.Sprites.oublier(); });
 
   T.a = cle => T.img[cle] || null;
   // thème de la carte (sans la saison) ; null = pas d'images communes sur cette carte

@@ -597,3 +597,5 @@ if __name__ == '__main__':
         if d == 'commun': optimiser_commun()
         elif d == 'digimon': optimiser_digimon()
         else: optimiser(d)
+    # empreintes des fichiers servis (dev/versions.py : le téléphone reprend une image changée)
+    import versions; versions.ecrire()
