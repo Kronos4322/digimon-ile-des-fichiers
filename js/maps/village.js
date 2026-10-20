@@ -539,7 +539,7 @@
     if (s.bits < 50) { await say("Il te faut 50 Bits pour jouer !", 'Gotsumon'); return; }
     if ((await DW.ask("Une pépite est cachée sous un de ces trois cailloux. 50 Bits la partie, je t'en donne 150 si tu la trouves !", ['Jouer', 'Non merci'], 'Gotsumon')) !== 0) return;
     s.bits -= 50; f.gotsuBet.n++;
-    const win = Math.floor(Math.random() * 3), pick = await DW.ask('Quel caillou ?', ['Le gauche', 'Celui du milieu', 'Le droit'], 'Gotsumon');
+    const win = Math.floor(Math.random() * 3), pick = await DW.ask('Quel caillou ?', ['Le gauche', 'Celui du milieu', 'Le droit'], 'Gotsumon', false);
     if (pick === win) { s.bits += 150; DW.Audio.sfx('buy'); await say('Grrr... Bien joué ! Voilà tes 150 Bits.', 'Gotsumon'); }
     else await say(`Raté ! La pépite était sous ${['le caillou de gauche', 'celui du milieu', 'le caillou de droite'][win]}. Hé hé !`, 'Gotsumon');
   }
@@ -552,7 +552,7 @@
     await say(`Je dois livrer ces lettres dans l'ordre : ${seq.join(', puis ')}. Retiens bien !`, 'Biyomon');
     f.biyoGame = d;
     for (let i = 0; i < 4; i++) {
-      const r = await DW.ask(`Lettre n°${i + 1} : pour qui ?`, DEST, 'Biyomon');
+      const r = await DW.ask(`Lettre n°${i + 1} : pour qui ?`, DEST, 'Biyomon', false);
       if (DEST[r] !== seq[i]) { await say(`Oh non, celle-là était pour ${seq[i]} ! Pas grave, on rejouera demain. Cui !`, 'Biyomon'); return; }
     }
     DW.Audio.sfx('fanfare');

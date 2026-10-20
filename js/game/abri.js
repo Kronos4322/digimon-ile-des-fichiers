@@ -83,7 +83,7 @@
           const others = pool.filter(k => k !== id && S[k].name !== sp.name).sort(() => Math.random() - 0.5).slice(0, 2);
           const opts = [id, ...others].sort(() => Math.random() - 0.5);
           const clue = sp.desc.split(sp.name).join('...');
-          const r = await DW.ask(`${m.name} : Devine ! « ${clue} » Qui est-ce ?`, opts.map(k => S[k].name));
+          const r = await DW.ask(`${m.name} : Devine ! « ${clue} » Qui est-ce ?`, opts.map(k => S[k].name), null, false);
           if (opts[r] === id) { good++; DW.Audio.sfx('buff'); await DW.say(`Bravo ! C'est ${sp.name} !`); }
           else await DW.say(`Raté ! C'était ${sp.name}.`);
         } else {
@@ -91,7 +91,7 @@
           const strong = Object.keys(EFF[atk]).filter(d => EFF[atk][d] === 2), ans = DW.pick(strong);
           const wrong = Object.keys(DW.TYPES).filter(t => !strong.includes(t)).sort(() => Math.random() - 0.5).slice(0, 2);
           const opts = [ans, ...wrong].sort(() => Math.random() - 0.5);
-          const r = await DW.ask(`${m.name} : Dernière ! Les techniques ${atk} sont très efficaces contre...`, opts);
+          const r = await DW.ask(`${m.name} : Dernière ! Les techniques ${atk} sont très efficaces contre...`, opts, null, false);
           if (opts[r] === ans) { good++; DW.Audio.sfx('buff'); await DW.say('Exact ! Tu es un vrai DigiSélectionné !'); }
           else await DW.say(`Non ! Contre ${strong.join(', ')}.`);
         }

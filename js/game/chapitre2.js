@@ -73,6 +73,7 @@
     L.populate = function () {
       const gone = !!st().flags.seadramon, has = this.objects.some(o => o.tail);
       if (gone && has) { this.objects = this.objects.filter(o => !o.tail); if (this.gfx) DW.World.unprepare(this); }
+      if (gone) delete this.signs['52,47'];
     };
     L.signs['52,47'] = async () => { await say("Une grande feuille rouge, posée au bord de l'île. Elle est... tiède ? Et elle bouge un peu, on dirait qu'elle respire."); };
     const visible = s => perso() && ch2() && !!s.flags.monoCh2 && !(s.kids || {}).matt && night();
@@ -372,7 +373,7 @@
       ['Combats gagnés', String(wins)],
       ['Monochromon', s.flags.monoCh2 ? 'vaincu !' : '-'],
       ['Seadramon', 'libéré !'],
-      ['Enfants retrouvés', `${kids} / 6`],
+      ['Enfants retrouvés', `${kids} / ${DW.Crests.ORDER.filter(k => k !== s.hero).length}`],
       ['Bits', String(s.bits)],
     ], 'BILAN DU CHAPITRE 2'));
     await say("Hohoho ! Matt est un garçon bien taciturne... mais il a bon cœur. Il est monté direct dans sa chambre.", 'Jijimon');

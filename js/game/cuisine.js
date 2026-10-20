@@ -85,7 +85,7 @@
   };
   async function afterTalk(n) {
     const sp = n && n.sp, P = PRODUCE[sp];
-    if (!P || n.recruit || n.gear || !DW.Town.has(sp)) return;
+    if (!P || n.recruit || n.gear || !DW.Town.has(sp) || !DW.ow || !DW.ow.map || DW.ow.map.region !== 'village') return;
     const s = st();
     if (!s.produce || s.produce.day !== today()) s.produce = { day: today(), got: [] };
     if (s.produce.got.includes(sp)) return;

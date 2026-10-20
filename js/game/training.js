@@ -50,10 +50,9 @@
     STAGE_BONUS: { 'Bébé': -0.55, 'Entraînement': -0.35, 'Disciple': 0, 'Champion': 0.15, 'Ultime': 0.25, 'Méga': 0.35 },   // les petits stades progressent bien moins vite
     // réussite des 3 essais (score 0 à 6) → multiplicateur final (comme le « Bonus Try »)
     tryMult: score => score === 0 ? 0.5 : score <= 2 ? 1 : score <= 4 ? 2 : score === 5 ? 3 : 4,
-    statGain(m, k, score, L) {
+    statGain(m, k, score, L, boost = 0) {   // (boost : Super carotte, Radis... lus avant la séance par finish)
       const up = 1 + (this.STAGE_BONUS[m.d.stage] || 0) + (DW.state.bag.manuel_entr ? 0.1 : 0) + Math.min(0.2, (DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) * 0.1) + (DW.Town.has && DW.Town.has('elecmon') ? 0.1 : 0) + (DW.Collab && DW.Collab.on('muscu') ? 0.1 : 0);
-      const item = (m.boost || 0) > 0 ? 1.2 : 1;
-      if (item > 1) m.boost = 0;
+      const item = boost > 0 ? 1.2 : 1;
       const S = DW.SCALE, parts = {};
       m.raw = m.raw || {};
       for (const s in this.BASE[k]) {
@@ -163,10 +162,11 @@
       const score = this.hits.reduce((a, b) => a + b, 0);                 // 0 à 6
       const bonus = score > 0 ? (DW.Town.has('elecmon') ? 1 : 0) + (DW.Collab && DW.Collab.on('muscu') ? 1 : 0) + Math.min(2, DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) : 0; // Dojo d'Elecmon, Salle de musculation, coachs recrutés
       this.score = score;
-      const extra = score > 0 ? (m.boost || 0) + (DW.state.bag.manuel_entr ? 1 : 0) : 0;   // Super carotte, Radis... et Manuel d'entraînement
+      // Super carotte, Radis, séance avec Tai... (m.boost) et Manuel d'entraînement : comptés pour une séance réussie, puis épuisés
+      const boost = score > 0 ? m.boost || 0 : 0, extra = score > 0 ? boost + (DW.state.bag.manuel_entr ? 1 : 0) : 0;
       if (score > 0) m.boost = 0;
       const L = this.opts.level, raw = score + bonus + extra;
-      if (this.opts.mode === 'stat') { this.parts = Training.statGain(m, k, score, L); this.g = Object.values(this.parts).reduce((a, b) => a + b, 0); }
+      if (this.opts.mode === 'stat') { this.parts = Training.statGain(m, k, score, L, boost); this.g = Object.values(this.parts).reduce((a, b) => a + b, 0); }
       else this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
       m.tired = Math.min(100, m.tired + L.tire);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);

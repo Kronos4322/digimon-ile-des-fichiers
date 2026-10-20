@@ -58,7 +58,7 @@
       m.signs[`${x},${y}`] = async ow => {
         if (E.solved(id)) { await say(o.done || 'Les inscriptions de la stèle se sont éteintes.'); return; }
         await say(o.q);
-        const r = await DW.ask(o.ask || 'Ta réponse ?', o.choices);
+        const r = await DW.ask(o.ask || 'Ta réponse ?', o.choices, null, false);
         if (r === o.answer) await E.solve(id, ow, o.ok || 'La stèle brille... La barrière de données se dissipe !');
         else { DW.Audio.sfx('bump'); await say(o.ko || 'La stèle reste muette. Ce n\'est pas la bonne réponse.'); }
       };

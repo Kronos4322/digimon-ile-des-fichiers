@@ -6,7 +6,7 @@
   const { Input, Audio, Game } = DW;
   const W = DW.W;
   const POS = { p: { x: 158, y: 178 }, e: { x: 250, y: 124 } };   // ennemi un peu plus bas (le cadre du partenaire ne le recouvre pas) ; partenaire au centre, à droite du menu (façon Digimon World 2003)
-  const STAT_NAME = { atk: "L'Attaque", def: 'La Défense', spd: 'La Vitesse' };
+  const STAT_NAME = { atk: "L'Attaque", def: 'La Défense', spd: 'La Vitesse', int: "L'Intelligence" };
   const ST_TXT = { brn: 'est brûlé', psn: 'est empoisonné', par: 'est paralysé', slp: "s'endort" };
   // statuts stables et prévisibles : chacun dure un nombre fixe de tours (affiché), puis s'en va tout seul
   const STATUS_TURNS = { psn: 4, brn: 4, par: 3, slp: 2 };
@@ -27,7 +27,7 @@
       this.hpShow = { p: 0, e: 0 }; this.xpShow = { v: 0 };
       this.fx = []; this.fxd = []; this.pt = []; this.shake = 0; this.flash = 0; this.bars = { v: 1 };
       this.weather = new DW.Time.Weather(); this.lvPanel = null;
-      this.stages = { p: { atk: 0, def: 0, spd: 0 }, e: { atk: 0, def: 0, spd: 0 } };
+      this.stages = { p: { atk: 0, def: 0, spd: 0, int: 0 }, e: { atk: 0, def: 0, spd: 0, int: 0 } };
       // jauge d'énergie (0-100) : se remplit en frappant et en encaissant ; pleine = coup spécial
       this.energy = { p: 0, e: 0 }; this.energyShow = { p: 0, e: 0 };
       this.seenMoves = new Set();   // techniques ennemies observées (apprentissage façon Digimon World)
@@ -125,7 +125,7 @@
     async sendOut(idx) {
       const m = this.st.party[idx];
       this.active = m; this.activeIdx = idx; this.parts.add(m);
-      this.stages.p = { atk: 0, def: 0, spd: 0 };
+      this.stages.p = { atk: 0, def: 0, spd: 0, int: 0 };
       this.mcursor = 0;
       Object.assign(this.spr.p, { dx: -30, dy: 0, vis: true, white: 1, scale: 0.15, alpha: 1 });
       this.hpShow.p = m.hp; this.xpShow.v = m.xpRatio();
@@ -187,7 +187,9 @@
     async enemyOnly() {
       const em = this.aiPick();
       await this.useMove('e', em);
-      return (await this.checkFaints()) || (await this.endOfTurn());
+      const r = await this.checkFaints(); if (r) return r;
+      if (this.switchedAfterKO) { this.switchedAfterKO = false; return null; }   // (remplaçant envoyé : comme dans doTurn)
+      return this.endOfTurn();
     }
     async doTurn(action) {
       const em = this.aiPick();

@@ -28,13 +28,14 @@
       this.mistakes = o.mistakes || 0;                     // erreurs de soin
       this.disc = o.disc != null ? o.disc : 40;            // discipline
       this.fat = o.fat || 0;                               // corpulence
-      this.lives = o.lives || 0;
-      this.kos = o.kos || 0;                               // K.O. en combat (au 3e, il meurt : game/life.js)                           // renaissances
+      this.lives = o.lives || 0;                           // renaissances
+      this.kos = o.kos || 0;                               // K.O. en combat (au 3e, il meurt : game/life.js)
       this.lifespan = o.lifespan || 30;                    // durée de vie (jours)
       this.life2 = o.life2 || !o.lifespan;                 // (déjà à la durée de vie de 30 jours)
       this.slept = o.slept != null ? o.slept : this.born;  // dernier sommeil
       this.sick = o.sick || 0; this.hurt = o.hurt || 0;    // maladie, blessure
       this.germs = o.germs || 0;                           // négligences accumulées (risque de maladie, voir life.js)
+      this.boost = o.boost || 0;                           // bonus de la prochaine séance d'entraînement (Super carotte, Tai...)
       this.moves = o.moves ? o.moves.map(m => ({ id: m.id })) : this.defaultMoves();
       this.nick = o.nick || null;
       this.uid = o.uid || Math.random().toString(36).slice(2, 10);
@@ -98,8 +99,13 @@
       const a = DW.Evo.available(this);
       return a.length ? a[0].to : null;
     }
+    // après un changement des PV / PM maximum (Digivolution, équipement) : PV et PM suivent l'écart, dans leurs bornes
+    reajuster(hp0, mp0) {
+      this.hp = DW.clamp(this.hp + this.maxHp - hp0, this.hp > 0 ? 1 : 0, this.maxHp);
+      this.mp = DW.clamp(this.mp + this.maxMp - mp0, 0, this.maxMp);
+    }
     evolve(to) {
-      const oldMax = this.maxHp;
+      const hp0 = this.maxHp, mp0 = this.maxMp;
       // une forme obtenue est débloquée dans la table des Digivolutions (l'avoir seulement croisée ne suffit pas)
       if (DW.state) { DW.state.seen[to] = true; DW.state.owned = DW.state.owned || {}; DW.state.owned[to] = true; }
       // ABI (Cyber Sleuth) : +1 en digivoluant, +2 en dé-digivoluant (le stade d'arrivée est plus bas)
@@ -107,12 +113,12 @@
       this.abi = (this.abi || 0) + (ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage) ? 2 : 1);
       this.sp = to;
       this.evoAt = DW.state ? DW.state.clock : 0;
-      this.hp = DW.clamp(this.hp + (this.maxHp - oldMax), 1, this.maxHp);
+      this.reajuster(hp0, mp0);   // (une dé-digivolution laissait des PM au-dessus du maximum)
     }
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {} };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);

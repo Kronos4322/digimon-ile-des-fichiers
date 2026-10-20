@@ -20,7 +20,7 @@
       this.dust = Array.from({ length: 60 }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 4 + Math.random() * 10 }));
       this.buf = DW.Art.canvas(W, H);
     }
-    enter() { this.run().then(() => this.close()); }
+    enter() { this.run().catch(e => DW.reportError(e, 'cinématique')).then(() => this.close()); }   // (une erreur referme la scène au lieu de figer le jeu)
     update() { if (DW.Input.hit('ok')) this.skip = true; }
     tick(dt) { if (this.flash > 0) this.flash = Math.max(0, this.flash - dt * 1.6); }
     async show(txt, hold = 2.8) {

@@ -34,7 +34,7 @@
     const n = level(), R = RIDDLES[n];
     await say(n ? `L'écorce est fissurée (${n} / 3). D'autres mots se sont allumés plus bas...` : "Un arbre immense, plus vieux que la forêt. De l'intérieur monte un bourdonnement sourd... Des mots luisent, gravés dans l'écorce.");
     await say(R.q);
-    const r = await DW.ask('Ta réponse ?', R.choices);
+    const r = await DW.ask('Ta réponse ?', R.choices, null, false);
     if (r !== R.answer) {
       // mauvaise réponse : l'arbre se défend, un Digimon caché dans ses branches attaque (on ne devine plus au hasard)
       Audio.sfx('bump'); ow.shake = 0.6;

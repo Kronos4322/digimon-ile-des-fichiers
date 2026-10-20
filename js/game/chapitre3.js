@@ -187,7 +187,7 @@
       ['Développement de la ville', `${T.progress()} %`],
       ['Combats gagnés', String(wins)],
       ['Meramon', 'calmé !'],
-      ['Enfants retrouvés', `${kids} / 6`],
+      ['Enfants retrouvés', `${kids} / ${DW.Crests.ORDER.filter(k => k !== s.hero).length}`],
       ['Bits', String(s.bits)],
     ], 'BILAN DU CHAPITRE 3'));
     await say("Hohoho ! Meramon ouvre un restaurant en ville ? Tout ce qu'il cuit sera bien grillé, ça c'est sûr !", 'Jijimon');

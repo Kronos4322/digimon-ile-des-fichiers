@@ -58,7 +58,7 @@
     const P = prof(sp), r = R(), cur = r[sp] || { count: 0 };
     const [k, a, n] = P.asks[(cur.count + today()) % P.asks.length];
     const lv = st().party[0] ? st().party[0].level : 5, scale = k === 'stat' ? Math.max(0.5, Math.min(2.5, lv / 20)) : 1;
-    r[sp] = { k, a, n: k === 'stat' ? Math.round(n * scale) : n, prog: 0, accepted: false, done: false, day: today(), count: cur.count };
+    r[sp] = { k, a, n: k === 'stat' ? Math.round(n * scale) : n, prog: 0, accepted: false, done: false, day: today(), count: cur.count, evoDue: cur.evoDue || undefined };
     return r[sp];
   }
   function current(sp) { const q = R()[sp]; return q && q.day === today() ? q : null; }
@@ -90,18 +90,20 @@
         if (q.k === 'item') st().bag[q.a] -= q.n;
         q.done = true; q.count++;
         const gift = DW.pick(P.gifts), bits = 150 + q.count * 100 + (st().party[0] ? st().party[0].level * 10 : 0);
-        st().bits += bits; DW.giveItem(gift, 1); DW.Audio.sfx('levelup');
-        await say(`Merci, tu es formidable ! Voilà pour toi : ${bits} Bits et ${DW.ITEMS[gift].name} !`, name);
+        st().bits += bits; const extra = DW.giveItem(gift, 1); DW.Audio.sfx('levelup');
+        await say(`Merci, tu es formidable ! Voilà pour toi : ${bits} Bits et ${DW.ITEMS[gift].name} !${DW.extraMsg(extra)}`, name);
         if (st().party[0]) st().party[0].addHappy(3);
-        if (P.evo && q.count === 3 && DW.ITEMS[P.evo]) {
-          DW.giveItem(P.evo, 1); DW.Audio.sfx('fanfare');
-          await say(`Tu m'as tellement aidé... Prends ceci : ${DW.ITEMS[P.evo].name}. C'est le secret de ma propre Digivolution. Il fera de ton partenaire un ${DW.SPECIES[DW.ITEMS[P.evo].to].name} !`, name);
+        // (l'objet de Digivolution, à la 3e demande ; sac plein : il attend la prochaine demande réussie)
+        if (P.evo && (q.count === 3 || q.evoDue) && DW.ITEMS[P.evo]) {
+          const reste = DW.giveItem(P.evo, 1); q.evoDue = reste > 0; DW.Audio.sfx('fanfare');
+          await say(`Tu m'as tellement aidé... ${reste ? 'Je voulais te donner' : 'Prends ceci :'} ${DW.ITEMS[P.evo].name}. C'est le secret de ma propre Digivolution. Il fera de ton partenaire un ${DW.SPECIES[DW.ITEMS[P.evo].to].name} !${reste ? ' Mais ton sac est plein... Reviens me voir avec de la place !' : ''}`, name);
         }
         DW.autosave();
         return true;
       }
+      if (q.later === today()) return false;   // (« Plus tard » : pas avant demain ; son service reste ouvert)
       const r = await DW.ask(`J'ai un service à te demander : ${describe(q)}. Tu veux bien ?`, ['Oui', 'Plus tard'], name);
-      if (r !== 0) return true;
+      if (r !== 0) { q.later = today(); return false; }
       q.accepted = true;
       await say(P.evo && q.count < 3 ? `Super ! Aide-moi encore ${3 - q.count} fois et je te confierai quelque chose de très précieux...` : 'Super ! Je compte sur toi.', name);
       return true;

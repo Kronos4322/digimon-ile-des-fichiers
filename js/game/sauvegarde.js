@@ -58,7 +58,8 @@
     try {
       const cur = read(K.KEY), pick = kind === 'precedente' ? read(K.BAK) : kind === 'ancienne' ? read(OLD(n)) : cur;
       if (!pick || pick === cur) return;
-      if (cur) write(OLD(n), cur);
+      // (échange : la partie remplacée prend la place de celle qu'on reprend — précédente ou ancienne —, l'autre ne bouge pas)
+      if (cur) write(kind === 'precedente' ? K.BAK : OLD(n), cur);
       write(K.KEY, pick);
     } finally { DW.slot = keep; }
   };

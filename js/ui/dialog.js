@@ -40,7 +40,8 @@
         if (Input.hit('up')) { this.choice = (this.choice + n - 1) % n; DW.Audio.sfx('move'); }
         if (Input.hit('down')) { this.choice = (this.choice + 1) % n; DW.Audio.sfx('move'); }
         if (Input.hit('ok')) { DW.Audio.sfx('select'); this.close(this.choice); }
-        else if (Input.hit('back')) { DW.Audio.sfx('back'); this.close(n - 1); }
+        // RETOUR prend la réponse « annuler » : la dernière, sauf `cancel` (son numéro, ou false : RETOUR ne répond pas)
+        else if (Input.hit('back') && this.o.cancel !== false) { DW.Audio.sfx('back'); this.close(this.o.cancel != null ? this.o.cancel : n - 1); }
         return;
       }
       if (Input.hit('ok') || Input.hit('back')) {
@@ -112,7 +113,7 @@
   }
   DW.DialogScene = DialogScene;
   DW.say = (text, speaker) => Game.push(new DialogScene(text, { speaker }));
-  DW.ask = (text, choices = ['Oui', 'Non'], speaker) => Game.push(new DialogScene(text, { speaker, choices }));
+  DW.ask = (text, choices = ['Oui', 'Non'], speaker, cancel) => Game.push(new DialogScene(text, { speaker, choices, cancel }));
 
   // ------------------------------------------------------------ menu de choix générique
   class ChoiceScene extends DW.Scene {

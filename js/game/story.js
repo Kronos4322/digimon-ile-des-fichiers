@@ -86,7 +86,6 @@
       DW.Town.RECRUITS.push({ id: sp, zone: rid + k, role: role[0], train: role[1], region: rid, boss: k === 7 });
     }
   }
-  DW.Town.LEVELS.push('Capitale', 'Grande Capitale', 'Cité Digitale', 'Cité Lumière', 'Ville Légendaire');
   // bonus d'entraînement des recrues (le Terrain n'est pas modifié : ce sont des coachs)
   DW.Town.trainBonus = k => DW.Town.RECRUITS.filter(r => r.train === k && DW.Town.has(r.id)).length;
 
@@ -214,7 +213,7 @@
       super();
       const s = st(), m = s.party[0];
       this.lines = ['L\'Île des Fichiers est libérée.', '', `${s.name} et ${m ? m.name : 'son partenaire'}`, 'ont brisé les Engrenages Noirs', 'et vaincu Devimon.', '',
-        `Habitants de la ville : ${DW.Town.level()}`, `Digimon rencontrés : ${Object.keys(s.seen).length}`, `Jours passés sur l'île : ${DW.Time.day()}`, '', 'Merci d\'avoir joué !', '', '— FIN —'];
+        `Habitants de la ville : ${DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length}`, `Digimon rencontrés : ${Object.keys(s.seen).length}`, `Jours passés sur l'île : ${DW.Time.day()}`, '', 'Merci d\'avoir joué !', '', '— FIN —'];
     }
     update() { if (this.t > 4 && (DW.Input.hit('ok') || DW.Input.hit('back'))) this.close(); }
     draw(c) {

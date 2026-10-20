@@ -55,8 +55,8 @@
     const k = await DW.choose(slots.map(([n, i]) => `Partie ${n} : ${i.name}, jour ${i.day}${n === DW.slot ? ' (en cours)' : ''}`).concat(['Annuler']));
     if (k < 0 || k >= slots.length) return;
     const [n, info] = slots[k];
-    if ((await DW.ask(`Supprimer la partie ${n} (${info.name}) ? Elle sera perdue pour toujours !`, ['Non', 'Oui, supprimer'])) !== 1) return;
-    if ((await DW.ask('Vraiment ? Cette action est définitive.', ['Non', 'Oui, j\'en suis sûr'])) !== 1) return;
+    if ((await DW.ask(`Supprimer la partie ${n} (${info.name}) ? Elle sera perdue pour toujours !`, ['Non', 'Oui, supprimer'], null, 0)) !== 1) return;
+    if ((await DW.ask('Vraiment ? Cette action est définitive.', ['Non', 'Oui, j\'en suis sûr'], null, 0)) !== 1) return;
     DW.deleteSave(n);
     Audio.sfx('bump');
     await DW.say(n === DW.slot ? `Partie ${n} supprimée. (Ta partie en cours continue : sauvegarde-la si tu veux la garder.)` : `Partie ${n} supprimée.`);

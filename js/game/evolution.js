@@ -38,7 +38,7 @@
       this.shards = [];
     }
     streak(init) { return { a: Math.random() * Math.PI * 2, r: init ? Math.random() * 220 : 4, v: 0.8 + Math.random() * 1.4 }; }
-    enter() { this.run().then(r => this.close(r)); }
+    enter() { this.run().catch(e => { DW.reportError(e, 'Digivolution'); return false; }).then(r => this.close(r)); }   // (une erreur referme la scène au lieu de figer le jeu)
     // éclats de données qui s'échappent du corps
     burst(n, speed) {
       for (let i = 0; i < n; i++) {

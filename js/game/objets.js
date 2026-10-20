@@ -13,7 +13,7 @@
         // nourriture : hors combat seulement, quand il a faim (ou soif, ou pour un effet spécial)
         if (it.food != null) return !battle && (m.hunger >= 5 || (it.drink && (m.thirst || 0) >= 5) || !!(it.chip || it.boost || it.disc || it.happy || it.tired || it.life || it.fat < 0));
         const special = it.chip || it.boost || it.disc || it.happy || it.fat || it.tired || it.life;
-        return m.hp < m.maxHp || (it.mp || it.mpFull) && m.mp < m.maxMp || (it.cure && m.status) || (!battle && (m.hunger >= 5 || special));
+        return m.hp < m.maxHp || (it.mp || it.mpFull) && m.mp < m.maxMp || (it.cure && m.status) || (!battle && !!special);   // (la nourriture : ligne d'au-dessus)
       }
       case 'mp': return m.hp > 0 && (m.mp < m.maxMp || (!battle && m.hunger >= 5 && it.food));
       case 'cure': return m.hp > 0 && !!m.status;
@@ -24,7 +24,10 @@
       case 'manual': return !battle && !!DW.nextMove(m);
       case 'buff': case 'protect': return !!battle && m.hp > 0;
       case 'evo': return !battle && m.hp > 0 && m.d.stage === it.from;
-      case 'equip': return !battle;   // (équipement : remplace celui du même emplacement, qui revient dans le sac)
+      case 'equip': {   // (remplace celui du même emplacement, qui revient dans le sac : il faut de la place)
+        const old = m.equip && m.equip[it.slot];
+        return !battle && (!old || DW.bagRoom(old) > 0 || (DW.state.bag[id] || 0) === 1);
+      }
       default: return false;
     }
   };
@@ -33,7 +36,7 @@
     const id = m.equip && m.equip[slot]; if (!id) return '';
     if (!DW.bagRoom(id)) return 'Ton sac est plein : impossible de le retirer.';
     const hp0 = m.maxHp, mp0 = m.maxMp; delete m.equip[slot]; DW.giveItem(id);
-    m.hp = DW.clamp(m.hp + m.maxHp - hp0, m.hp > 0 ? 1 : 0, m.maxHp); m.mp = DW.clamp(m.mp + m.maxMp - mp0, 0, m.maxMp);
+    m.reajuster(hp0, mp0);
     return `${DW.ITEMS[id].name} retourne dans le sac.`;
   };
   // applique les bonus permanents d'un objet (puces, fruits) ; renvoie le texte des gains
@@ -53,7 +56,7 @@
       if (it.use === 'mp' || it.mp || it.mpFull) m.mp = Math.min(m.maxMp, it.mpFull ? m.maxMp : m.mp + (it.use === 'mp' ? it.amt || 0 : it.mp || 0));
       if (it.cure) { m.status = null; m.slp = 0; }
       const fed = it.food && DW.Care && DW.Care.feed(m, it.food);
-      if (it.drink) { m.thirst = Math.max(0, (m.thirst || 0) - it.drink); txt.push('soif étanchée'); }
+      if (it.drink && DW.Care.drink(m, it.drink)) txt.push('soif étanchée');
       if (it.happy) m.addHappy(it.happy);
       if (it.disc && DW.Life) { DW.Life.addDisc(m, it.disc); txt.push(`discipline ${it.disc > 0 ? '+' : ''}${it.disc}`); }
       if (it.fat && DW.Life) { DW.Life.addFat(m, it.fat); if (Math.abs(it.fat) >= 1 || it.fat < 0) txt.push(it.fat > 0 ? 'il grossit' : 'il maigrit'); }
@@ -78,8 +81,8 @@
       m.equip = m.equip || {};
       const old = m.equip[it.slot], hp0 = m.maxHp, mp0 = m.maxMp;
       m.equip[it.slot] = id;
-      if (old) st.bag[old] = (st.bag[old] || 0) + 1;   // (la place vient d'être libérée dans le sac)
-      m.hp = DW.clamp(m.hp + m.maxHp - hp0, m.hp > 0 ? 1 : 0, m.maxHp); m.mp = DW.clamp(m.mp + m.maxMp - mp0, 0, m.maxMp);
+      if (old) DW.giveItem(old, 1);   // (de la place : vérifié par DW.canUse)
+      m.reajuster(hp0, mp0);
       return `${m.name} s'équipe : ${it.name} (${DW.equipText(it.st)})${old ? ` — ${DW.ITEMS[old].name} retourne dans le sac` : ''} !`;
     }
     return '';

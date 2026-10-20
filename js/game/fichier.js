@@ -114,11 +114,14 @@
   F.init();
 
   // ------------------------------------------------------------ menu « Fichier sur l'ordinateur »
+  // (le menu s'ouvre aussi depuis l'écran titre, où aucune partie n'est chargée : on n'enregistre que s'il y en a une,
+  //  sinon l'emplacement de la vraie partie était écrasé par une partie vide)
+  const enregistrerPartie = () => { if (DW.state && DW.state.party && DW.state.party.length) DW.save(); };
   DW.saveFileMenu = async () => {
     const say = DW.say;
     if (!can) {
       const r = await DW.ask('Sauvegarde sur l\'ordinateur : ce navigateur ne peut pas écrire directement dans un fichier. Tu peux télécharger tes parties, puis les recharger ailleurs.', ['Télécharger mes parties', 'Charger un fichier', 'Retour']);
-      if (r === 0) { DW.save(); F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » téléchargé. Garde-le précieusement !'); }
+      if (r === 0) { enregistrerPartie(); F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » téléchargé. Garde-le précieusement !'); }
       else if (r === 1) { const res = await F.importFile(); await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
       return;
     }
@@ -129,16 +132,16 @@
       return;
     }
     if (handle) {
-      const r = await DW.ask(`Tes parties sont enregistrées dans le fichier « ${handle.name} », à chaque sauvegarde. Ouvre le jeu où tu veux sur ce PC et relie ce même fichier : tu retrouveras tout.`, ['D\'accord', 'Choisir un autre fichier', 'Télécharger une copie']);
+      const r = await DW.ask(`Tes parties sont enregistrées dans le fichier « ${handle.name} », à chaque sauvegarde. Ouvre le jeu où tu veux sur ce PC et relie ce même fichier : tu retrouveras tout.`, ['D\'accord', 'Choisir un autre fichier', 'Télécharger une copie'], null, 0);
       if (r === 1) await pick();
-      else if (r === 2) { DW.save(); F.exportFile(); }
+      else if (r === 2) { enregistrerPartie(); F.exportFile(); }
       return;
     }
     await pick();
     async function pick() {
       const r = await DW.ask('Enregistrer tes parties dans un fichier sur l\'ordinateur ? Ainsi tu les retrouves partout : site en ligne, application installée...', ['Créer le fichier', 'J\'ai déjà un fichier', 'Retour']);
       try {
-        if (r === 0) { DW.save(); await F.create(); await say(`Fichier « ${handle.name} » créé ! Chaque sauvegarde y sera aussi écrite. Sur une autre version du jeu, choisis « J'ai déjà un fichier ».`); }
+        if (r === 0) { enregistrerPartie(); await F.create(); await say(`Fichier « ${handle.name} » créé ! Chaque sauvegarde y sera aussi écrite. Sur une autre version du jeu, choisis « J'ai déjà un fichier ».`); }
         else if (r === 1) {
           const res = await F.open();
           if (!res.ok) { await say('Accès refusé.'); return; }

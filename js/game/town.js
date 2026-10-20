@@ -37,6 +37,7 @@
     label() { return `${this.progress()} % · niveau ${this.level()} « ${this.levelName()} »`; },
     LEVELS,
     levelName() { return LEVELS[Math.min(LEVELS.length - 1, this.level())]; },
+    nextName() { return LEVELS[Math.min(LEVELS.length - 1, this.level() + 1)]; },
     info(id) { return RECRUITS.find(r => r.id === id); },
     // à l'arrivée en ville : découverte des nouveaux bâtiments
     async reveal() {
@@ -54,7 +55,7 @@
         await DW.say(r.role);
       }
       const lv = this.level();
-      await DW.say(`Développement de la ville : ${this.progress()} %.${lv > lv0 ? ` Elle passe au niveau ${lv} : « ${this.levelName()} » !` : ` Prochain niveau (« ${this.nextName()} ») à ${this.STEPS[Math.min(this.STEPS.length - 1, lv + 1)]} %.`}`);
+      await DW.say(`Développement de la ville : ${this.progress()} %.${lv > lv0 ? ` Elle passe au niveau ${lv} : « ${this.levelName()} » !` : lv + 1 < this.STEPS.length ? ` Prochain niveau (« ${this.nextName()} ») à ${this.STEPS[lv + 1]} %.` : ''}`);
       st.townLevelSeen = lv;
       if (DW.Collab) await DW.Collab.announce();   // habitants qui s'associent (game/collab.js)
       DW.Audio.play('village');
