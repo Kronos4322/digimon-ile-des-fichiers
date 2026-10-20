@@ -18,6 +18,10 @@
   const FOND = typeof Image !== 'undefined' ? new Image() : null;
   if (FOND) FOND.src = 'assets/intro/jeu/titre.webp' + DW.versionImage('intro/jeu/titre.webp');
   const fondPret = () => !!(FOND && FOND.complete && FOND.naturalWidth);
+  // iPhone / iPad dans Safari (pas installé) : Safari efface les données d'un site après 7 jours sans visite ; installé sur
+  // l'écran d'accueil, le jeu garde ses parties (et s'ouvre en plein écran)
+  const IOS_SAFARI = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+    && !(navigator.standalone || (typeof matchMedia !== 'undefined' && matchMedia('(display-mode: standalone)').matches));
 
   // ------------------------------------------------------------ couches du décor (rendues une fois)
   const cache = {};
@@ -540,6 +544,10 @@
       for (let y = 0; y < H; y += 2) { c.fillStyle = 'rgba(0,0,0,0.07)'; c.fillRect(0, y, W, 1); }
       if (!fondPret()) this.drawLogo(c);
       this.drawMenu(c);
+      if (IOS_SAFARI && this.phase !== 'boot') {
+        c.fillStyle = 'rgba(8,20,58,0.78)'; c.fillRect(0, 0, W, 13);
+        UI.text(c, 'iPhone : Partager ▸ Sur l’écran d’accueil (garde tes parties)', W / 2, 9.5, { size: 7, align: 'center', color: '#ffe680' });
+      }
       UI.text(c, 'Jeu de fan non officiel — Digimon © Bandai / Toei Animation', W / 2, 236, { size: 7, align: 'center', color: '#c8b8e0' });
       if (this.flashA > 0) { c.fillStyle = `rgba(255,255,255,${Math.min(1, this.flashA)})`; c.fillRect(0, 0, W, H); }
       this.drawWipe(c);

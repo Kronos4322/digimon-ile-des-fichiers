@@ -15218,10 +15218,16 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       F.needsPermission = false; F.ready = true; await writeNow();
       return { ok: true, n };
     },
-    // sans accès aux fichiers : téléchargement et import manuels
-    exportFile() {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bundle()], { type: 'application/json' }));
-      a.download = 'Digimon-sauvegarde.json'; document.body.appendChild(a); a.click(); a.remove();
+    // sans accès aux fichiers : téléchargement et import manuels (téléphone : le menu « Partager » du système, qui sait
+    // ranger le fichier dans Fichiers, Drive, un message... ; sinon le téléchargement)
+    async exportFile() {
+      const nom = 'Digimon-sauvegarde.json', texte = bundle();
+      try {
+        const f = new File([texte], nom, { type: 'application/json' });
+        if (DW.Touch && DW.Touch.on && navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: 'Sauvegarde Digimon' }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; /* sinon : le téléchargement */ }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([texte], { type: 'application/json' }));
+      a.download = nom; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 60000);   // (Safari demande d'abord l'accord : le lien doit encore marcher)
     },
     // choisir un fichier ; le sélecteur fermé sans fichier rend { annule: true } (l'écran titre attendait pour toujours)
@@ -15263,7 +15269,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const say = DW.say;
     if (!can) {
       const r = await DW.ask('Sauvegarde sur l\'ordinateur : ce navigateur ne peut pas écrire directement dans un fichier. Tu peux télécharger tes parties, puis les recharger ailleurs.', ['Télécharger mes parties', 'Charger un fichier', 'Retour']);
-      if (r === 0) { enregistrerPartie(); F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » téléchargé. Garde-le précieusement !'); }
+      if (r === 0) { enregistrerPartie(); await F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » prêt. Garde-le précieusement !'); }
       else if (r === 1) { const res = await F.importFile(); if (!res.annule) await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
       return;
     }
@@ -15276,7 +15282,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     if (handle) {
       const r = await DW.ask(`Tes parties sont enregistrées dans le fichier « ${handle.name} », à chaque sauvegarde. Ouvre le jeu où tu veux sur ce PC et relie ce même fichier : tu retrouveras tout.`, ['D\'accord', 'Choisir un autre fichier', 'Télécharger une copie'], null, 0);
       if (r === 1) await pick();
-      else if (r === 2) { enregistrerPartie(); F.exportFile(); }
+      else if (r === 2) { enregistrerPartie(); await F.exportFile(); }
       return;
     }
     await pick();
@@ -22547,6 +22553,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const FOND = typeof Image !== 'undefined' ? new Image() : null;
   if (FOND) FOND.src = 'assets/intro/jeu/titre.webp' + DW.versionImage('intro/jeu/titre.webp');
   const fondPret = () => !!(FOND && FOND.complete && FOND.naturalWidth);
+  // iPhone / iPad dans Safari (pas installé) : Safari efface les données d'un site après 7 jours sans visite ; installé sur
+  // l'écran d'accueil, le jeu garde ses parties (et s'ouvre en plein écran)
+  const IOS_SAFARI = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+    && !(navigator.standalone || (typeof matchMedia !== 'undefined' && matchMedia('(display-mode: standalone)').matches));
 
   // ------------------------------------------------------------ couches du décor (rendues une fois)
   const cache = {};
@@ -23069,6 +23079,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       for (let y = 0; y < H; y += 2) { c.fillStyle = 'rgba(0,0,0,0.07)'; c.fillRect(0, y, W, 1); }
       if (!fondPret()) this.drawLogo(c);
       this.drawMenu(c);
+      if (IOS_SAFARI && this.phase !== 'boot') {
+        c.fillStyle = 'rgba(8,20,58,0.78)'; c.fillRect(0, 0, W, 13);
+        UI.text(c, 'iPhone : Partager ▸ Sur l’écran d’accueil (garde tes parties)', W / 2, 9.5, { size: 7, align: 'center', color: '#ffe680' });
+      }
       UI.text(c, 'Jeu de fan non officiel — Digimon © Bandai / Toei Animation', W / 2, 236, { size: 7, align: 'center', color: '#c8b8e0' });
       if (this.flashA > 0) { c.fillStyle = `rgba(255,255,255,${Math.min(1, this.flashA)})`; c.fillRect(0, 0, W, H); }
       this.drawWipe(c);

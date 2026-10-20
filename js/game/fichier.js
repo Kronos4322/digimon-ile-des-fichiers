@@ -96,10 +96,16 @@
       F.needsPermission = false; F.ready = true; await writeNow();
       return { ok: true, n };
     },
-    // sans accès aux fichiers : téléchargement et import manuels
-    exportFile() {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bundle()], { type: 'application/json' }));
-      a.download = 'Digimon-sauvegarde.json'; document.body.appendChild(a); a.click(); a.remove();
+    // sans accès aux fichiers : téléchargement et import manuels (téléphone : le menu « Partager » du système, qui sait
+    // ranger le fichier dans Fichiers, Drive, un message... ; sinon le téléchargement)
+    async exportFile() {
+      const nom = 'Digimon-sauvegarde.json', texte = bundle();
+      try {
+        const f = new File([texte], nom, { type: 'application/json' });
+        if (DW.Touch && DW.Touch.on && navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: 'Sauvegarde Digimon' }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; /* sinon : le téléchargement */ }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([texte], { type: 'application/json' }));
+      a.download = nom; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 60000);   // (Safari demande d'abord l'accord : le lien doit encore marcher)
     },
     // choisir un fichier ; le sélecteur fermé sans fichier rend { annule: true } (l'écran titre attendait pour toujours)
@@ -141,7 +147,7 @@
     const say = DW.say;
     if (!can) {
       const r = await DW.ask('Sauvegarde sur l\'ordinateur : ce navigateur ne peut pas écrire directement dans un fichier. Tu peux télécharger tes parties, puis les recharger ailleurs.', ['Télécharger mes parties', 'Charger un fichier', 'Retour']);
-      if (r === 0) { enregistrerPartie(); F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » téléchargé. Garde-le précieusement !'); }
+      if (r === 0) { enregistrerPartie(); await F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » prêt. Garde-le précieusement !'); }
       else if (r === 1) { const res = await F.importFile(); if (!res.annule) await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
       return;
     }
@@ -154,7 +160,7 @@
     if (handle) {
       const r = await DW.ask(`Tes parties sont enregistrées dans le fichier « ${handle.name} », à chaque sauvegarde. Ouvre le jeu où tu veux sur ce PC et relie ce même fichier : tu retrouveras tout.`, ['D\'accord', 'Choisir un autre fichier', 'Télécharger une copie'], null, 0);
       if (r === 1) await pick();
-      else if (r === 2) { enregistrerPartie(); F.exportFile(); }
+      else if (r === 2) { enregistrerPartie(); await F.exportFile(); }
       return;
     }
     await pick();
