@@ -111,8 +111,9 @@
     return key;
   };
   // herbe propre à une carte (sol façon DW1) : même teinte de saison que le thème
+  DW.World.saisonDe = map => { const k = DW.World.themeKey(map); return k && k.includes('~') ? +k.split('~')[1] : 0; };
   DW.World.seasonGrass = (map, cols) => {
-    const k = DW.World.themeKey(map), se = k && k.includes('~') ? +k.split('~')[1] : 0;
+    const se = DW.World.saisonDe(map);
     return se === 1 ? mixAll(cols, '#c8c040', 0.26) : se === 2 ? mixAll(cols, '#c8902e', 0.4) : se === 3 ? mixAll(cols, '#e8f0f8', 0.66) : cols;
   };
   DW.World.themeOf = map => TH[DW.World.themeKey(map)];

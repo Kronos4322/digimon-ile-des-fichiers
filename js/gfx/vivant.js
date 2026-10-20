@@ -2,30 +2,32 @@
 // =====================================================================
 //  DÉCOR VIVANT (cartes extérieures) — dessiné au sol, sous les objets :
 //  reflets du soleil sur l'eau, poissons qui sautent, reflet du héros au bord de l'eau,
-//  ombres des nuages qui glissent, papillons le jour, lucioles les nuits d'été.
+//  ombres des nuages qui glissent, papillons le jour (les lucioles : gfx/ambient.js).
 // =====================================================================
 (function () {
   const TS = 16, hash = DW.Art.hash;
-  const isWater = ch => { const I = DW.World.info(ch); return I && I.t === 'water'; };
+  // de l'eau (pas la lave : le lac de lave du cratère, ni « l'eau » d'une carte de volcan, qui est de la lave)
+  const lave = map => { const TH = DW.World.themeOf(map); return !!(TH && TH.water === DW.World.LAVA); };
+  const isWater = (map, ch) => { const I = DW.World.info(ch); return !!I && I.t === 'water' && I.eau !== 5 && !lave(map); };
   // cases d'eau « au large » (entourées d'eau) : là où les poissons sautent
   function waterTiles(map) {
     if (map._water && map._water.rows === map.rows) return map._water;
     const all = [], deep = [];
-    map.rows.forEach((r, y) => { for (let x = 0; x < r.length; x++) if (isWater(r[x])) {
+    if (!lave(map)) map.rows.forEach((r, y) => { for (let x = 0; x < r.length; x++) if (isWater(map, r[x])) {
       all.push([x, y]);
-      if ([[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => isWater((map.rows[y + dy] || '')[x + dx] || '#'))) deep.push([x, y]);
+      if ([[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => isWater(map, (map.rows[y + dy] || '')[x + dx] || '#'))) deep.push([x, y]);
     } });
     return (map._water = { rows: map.rows, all, deep });
   }
 
   DW.Vivant = {
     init(ow) {
-      ow.viv = { fish: null, fishT: 2 + Math.random() * 3, flies: [], bugs: [] };
-      const se = DW.Time.season();
-      // papillons (7 au printemps et en été, 3 en automne, aucun en hiver) ; lucioles (l'été, la nuit)
-      const n = ow.map.indoor ? 0 : se === 3 ? 0 : se === 2 ? 3 : 7;
+      ow.viv = { fish: null, fishT: 2 + Math.random() * 3, bugs: [] };
+      // papillons : 7 au printemps et en été, 3 en automne, aucun en hiver (zones tempérées ; ailleurs, toute l'année),
+      // aucun là où il n'y a pas d'insectes (thèmes « noFlies » : neige, volcan, usines, cimetière...)
+      const se = DW.World.saisonDe(ow.map), th = DW.World.themeOf(ow.map);
+      const n = ow.map.indoor || (th && th.noFlies) ? 0 : se === 3 ? 0 : se === 2 ? 3 : 7;
       for (let i = 0; i < n; i++) ow.viv.bugs.push({ x: Math.random() * ow.map.w * TS, y: Math.random() * ow.map.h * TS, ph: Math.random() * 6, c: ['#ffffff', '#ffe070', '#ff9ac8', '#9ad0ff', '#ffb050'][i % 5], vx: 0, vy: 0 });
-      if (!ow.map.indoor && se === 1) for (let i = 0; i < 18; i++) ow.viv.flies.push({ x: Math.random() * ow.map.w * TS, y: Math.random() * ow.map.h * TS, ph: Math.random() * 6 });
     },
     update(ow, dt) {
       const v = ow.viv; if (!v || ow.map.indoor) return;
@@ -45,7 +47,6 @@
         b.x += b.vx * dt; b.y += b.vy * dt + Math.sin(b.ph) * 8 * dt;
         b.x = Math.max(0, Math.min(ow.map.w * TS, b.x)); b.y = Math.max(0, Math.min(ow.map.h * TS, b.y));
       }
-      for (const f of v.flies) { f.ph += dt; f.x += Math.sin(f.ph * 0.7) * 6 * dt; f.y += Math.cos(f.ph * 0.5) * 4 * dt; }
     },
     // au sol (avant les objets) : reflets, poissons, reflet du héros, ombres des nuages
     drawGround(ow, c, x0, x1, y0, y1) {
@@ -68,7 +69,7 @@
       }
       // reflet du héros quand il se tient juste au-dessus de l'eau
       const P = ow.p, below = (ow.map.rows[P.y + 1] || '')[P.x];
-      if (below && isWater(below) && !P.moving) {
+      if (below && isWater(ow.map, below) && !P.moving) {
         const spr = DW.Sprites.hero(P.face8 || P.dir, 0), pp = ow.pos(P);
         const X = Math.round(pp.x * TS + 8 - spr.w / 2), Y = Math.round(pp.y * TS + 17);
         c.save(); c.globalAlpha = 0.28; c.translate(X, Y + spr.h); c.scale(1, -1);
@@ -104,19 +105,13 @@
         }
       }
     },
-    // au-dessus des objets : papillons et lucioles
+    // au-dessus des objets : papillons
     drawAir(ow, c) {
       const v = ow.viv; if (!v || ow.map.indoor) return;
-      const L = DW.Time.light(), t = ow.t;
-      if (L.dark < 0.4 && !DW.Time.rainy()) for (const b of v.bugs) {
+      if (DW.Time.light().dark < 0.4 && !DW.Time.rainy()) for (const b of v.bugs) {
         const w = Math.abs(Math.sin(b.ph * 2)) * 2 + 0.5;
         c.fillStyle = b.c; c.fillRect(Math.round(b.x - w), Math.round(b.y), Math.round(w), 2); c.fillRect(Math.round(b.x + 1), Math.round(b.y), Math.round(w), 2);
         c.fillStyle = '#3a2a2a'; c.fillRect(Math.round(b.x), Math.round(b.y), 1, 2);
-      }
-      if (L.dark > 0.35 && v.flies.length) {
-        c.save(); c.globalCompositeOperation = 'lighter';
-        for (const f of v.flies) { const a = 0.5 + 0.5 * Math.sin(t * 3 + f.ph * 5); c.fillStyle = `rgba(200,255,120,${a})`; c.fillRect(Math.round(f.x), Math.round(f.y), 2, 2); c.fillStyle = `rgba(200,255,120,${a * 0.25})`; c.fillRect(Math.round(f.x) - 2, Math.round(f.y) - 2, 6, 6); }
-        c.restore();
       }
     },
   };

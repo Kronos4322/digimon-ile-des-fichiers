@@ -203,7 +203,7 @@
     // panneau de circuit à moitié enterré, aux lignes lumineuses
     datapanel: { w: 34, h: 22, n: 2, lights: [[17, 10, 18]], draw: DW.World.secours.pierre(34, 22) },
     // monolithe de données (Clairière) : pierre ancienne parcourue de lignes numériques qui luisent
-    monolith: { w: 22, h: 46, n: 2, lights: [[11, 20, 26]], draw: DW.World.secours.pierre(22, 46) },
+    monolith: { w: 22, h: 46, n: 2, lights: [[11, 30, 26]], draw: DW.World.secours.pierre(22, 46) },   // (lueur : les runes, au milieu de la pierre)
     // lanterne de pierre moussue (Sentier)
     stonelantern: { w: 18, h: 34, n: 1, lights: [[9, 14, 30]], draw: DW.World.secours.pierre(18, 34) },
     // fleur géante (Prairie) : v0 tournesol, v1 tulipe rose, v2 campanule bleue

@@ -251,12 +251,12 @@
     TREES: { tree: 1, oak: 1, birch: 1, pine: 1 },
     treeV(o) {
       let kind = o.kind, v = o.v || 0;
-      if (kind === 'pine') return this.cur && this.cur.snow >= 0.3 && DW.Textures && DW.Textures.aArbre('pine', 3) ? ['pine', 3] : null;   // (sapin enneigé)
+      if (kind === 'pine') return this.cur && this.cur.snow >= 0.3 && DW.Textures && DW.Textures.aArbre('pine', 3) ? ['pine', v === 2 ? 4 : 3] : null;   // (sapin enneigé)
       if (kind === 'tree' && v === 3) { kind = 'oak'; v = 0; } else if (kind === 'tree' && v === 4) { kind = 'birch'; v = 0; }
       const C = this.cur, se = Math.floor(C.m / 3), p = C.m % 3, h = Art.hash(o.tx, o.ty, 77), snow = C.snow >= 0.3, isT = kind === 'tree';
       const green = !isT || [0, 1, 2, 8, 9].includes(v), warm = isT && v >= 5 && v <= 7;
       // arbres déjà enneigés du thème d'hiver (gfx/themes.js) : la plupart perdent leurs feuilles, quelques persistants restent
-      if (isT && (v === 10 || v === 11)) return se === 3 && (v === 11 || h < 0.65) ? [kind, snow ? 15 : 14] : null;
+      if (isT && (v === 10 || v === 11)) return se === 3 && v === 10 && h < 0.65 ? [kind, snow ? 15 : 14] : null;
       if (!green && !warm) return null;
       const BARE = isT ? (snow ? 15 : 14) : (snow ? 3 : 2), FALL = isT ? [5, 6, 7][Math.floor(h * 30) % 3] : 1;
       if (se === 0) {   // printemps : quelques arbres encore nus en mars, cerisiers en fleurs en mars-avril

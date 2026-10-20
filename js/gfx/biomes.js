@@ -21,7 +21,7 @@
     // Sommet de l'Infini : neige, roche glacée
     summit: { grass: ['#9aaac4', '#b0bed6', '#c6d2e6', '#dae4f2', '#ecf2fa', '#ffffff'], canopy: ['#2e3448', '#3e4660', '#525c7a', '#6c7896', '#8c98b4', '#b4c0d8'], canopyStyle: 'rock',
       dirt: ['#5e6880', '#707a92', '#8490a6', '#9aa4b8', '#b0b8ca', '#c8cfdc'], cliff: ['#3e4458', '#4e566c', '#626a82', '#7a849a', '#949eb2', '#b4bcce'], water: ICE, foam: ['#ffffff', '#e4f6ff'],
-      tall: ['#8090b0', '#b8c6dc', '#ffffff'], trees: [[0, 1]], objMap: { tree: 'pine', bush: 'snowbush', mossrock: 'icerock', fern: 'icecrystal', glowshroom: 'icecrystal', hollowlog: 'icerock', stump: 'icerock' }, trees2: [[1, 4], [2, 1]],
+      tall: ['#8090b0', '#b8c6dc', '#ffffff'], trees: [[0, 1]], objMap: { tree: 'pine', bush: 'snowbush', mossrock: 'icerock', fern: 'icecrystal', glowshroom: 'icecrystal', hollowlog: 'icerock', stump: 'icerock' }, trees2: [[1, 4], [4, 1]],
       litter: ['#ffffff', '#d8e4f4'], particle: 'snow', leaves: ['#ffffff'], sparkle: ['#ffffff', '#e0f4ff', '#c8e8ff'], noFlowers: true, noFlies: true, sky: ['#8aa8d8', '#f0f6ff'], marks: ['blackgear', 'icerock'] },
     // grottes : sol sombre, parois rocheuses, gouttes
     cave: { grass: ['#2a2420', '#332b25', '#3d342c', '#483d33', '#54473b', '#625446'], canopy: ['#0a080e', '#141118', '#1e1a24', '#2a2432', '#383040', '#483e52'], canopyStyle: 'rock',
@@ -110,7 +110,7 @@
 
   Object.assign(OBJ, {
     // ---------------------------------------------------------- végétation des biomes
-    // sapin : 0 vert  1 enneigé  2 mort
+    // sapin : 0 vert, 1 enneigé, 2 mort (images : gfx/textures.js, avec 3 enneigé l'hiver et 4 mort enneigé des sommets)
     pine: { w: 26, h: 46, n: 3, big: true, draw: DW.World.secours.arbre(26, 46) },
     // rocher arrondi (montagne, grottes)
     boulder: { w: 22, h: 18, n: 3, draw: DW.World.secours.rocher(22, 18) },

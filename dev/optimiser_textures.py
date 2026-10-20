@@ -525,7 +525,8 @@ def optimiser_digimon():
 
 
 if __name__ == '__main__':
-    for d in (sys.argv[1:] or DOSSIERS + ['commun', 'digimon']):
+    # (les options --numeros et --tout ne sont pas des dossiers)
+    for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon']):
         if d == 'commun': optimiser_commun()
         elif d == 'digimon': optimiser_digimon()
         else: optimiser(d)

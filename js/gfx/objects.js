@@ -132,7 +132,7 @@
       d.deco.rect(13, 6, 8, 4, '#3a68a8'); DW.World.signText && DW.World.signText(d, 'WC', 14, 7, '#ffffff', 0.6);
     } },
     // toilettes publiques (image : gfx/textures.js)
-    toilet: { w: 36, h: 46, n: 1, lights: [[30, 18, 12]], draw: SECOURS.boite(36, 46) },
+    toilet: { w: 36, h: 46, n: 1, lights: [[18, 22, 10]], draw: SECOURS.boite(36, 46) },   // (lueur : l'enseigne WC de la porte)
     bench: { w: 22, h: 14, n: 1, draw: SECOURS.bois(22, 14) },
     flag: { w: 16, h: 34, n: 2 },   // (peint : gfx/peints.js)
     barrel: { w: 16, h: 18, n: 2, draw: SECOURS.bois(16, 18) },
@@ -219,13 +219,16 @@
     oublier(kind);   // (rendus à l'échelle 1 jetés)
     o.scale = o._echelle = vh > 0 ? cible * HEROS_VISIBLE / vh : 1;
   }
-  const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;
+  // (échelle de rendu : par variante quand ses images n'ont pas les mêmes proportions — o.echelles, gfx/textures.js —,
+  //  sinon celle de l'objet)
+  const echelleObjet = World.echelleObjet = (kind, v = 0) => { const o = OBJ[kind]; return (o.echelles && o.echelles[v % o.echelles.length]) || o.scale || OBJ_SCALE[kind] || 1; };
+  const objSize = (kind, v) => { const o = OBJ[kind], S = echelleObjet(kind, v);
     const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)
     return { w, h, W: Math.round(w * S), H: Math.round(h * S) }; };
   // dessin « au pinceau » (o.paint, ex. décors peints : gfx/peints.js) : canvas en haute définition, repère = boîte de l'objet
   const paintRender = (o, v, z, f = 0) => {
     const k = Art.HD || 1, c = Art.canvas(Math.round((z.W + 2) * k), Math.round((z.H + 2) * k)), x = c.getContext('2d');
-    x.scale(k * z.W / z.w, k * z.H / z.h); x.translate(1, 1);
+    x.scale(k, k); x.translate(1, 1); x.scale(z.W / z.w, z.H / z.h);
     o.paint(x, v, f);
     c._k = k;
     return { img: c, w: c.width / k, h: c.height / k, k };

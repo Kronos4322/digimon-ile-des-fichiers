@@ -5,7 +5,7 @@
 window.DW = window.DW || {};
 (function () {
   const W = 320, H = 240, SCALE = 3;
-  DW.W = W; DW.H = H; DW.SCALE = SCALE;
+  DW.W = W; DW.H = H; DW.ECRAN = SCALE;   // (pixels de l'écran par pixel du jeu ; DW.SCALE : l'échelle des stats, game/monster.js)
   const canvas = document.getElementById('game');
   canvas.width = W * SCALE; canvas.height = H * SCALE;
   const ctx = canvas.getContext('2d');

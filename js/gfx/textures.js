@@ -71,17 +71,18 @@
   // ARBRES DU JEU dessinés avec les images du dossier commun : [type][variante] -> image (variantes de OBJ.tree : 0-2 verts,
   // 3 chêne, 4 bouleau, 5-7 automne, 8 vert profond, 9 moussu, 10-11 hiver, 12-13 en fleurs, 14 sans feuilles vertes (feuillage
   // brun : pas d'image d'arbre nu sans neige), 15 nu enneigé ;
-  // chêne et bouleau : 0 été, 1 automne, 2 nu, 3 nu enneigé ; sapin : 0-2, 3 enneigé — gfx/meteo.js choisit selon la saison)
+  // chêne et bouleau : 0 été, 1 automne, 2 nu, 3 nu enneigé ; sapin : 0 vert, 1 enneigé, 2 mort (sec), 3 enneigé (l'hiver),
+  // 4 mort enneigé (sommets) — gfx/meteo.js choisit selon la saison)
   const ARBRES = {
     tree: ['arbre_vert', 'arbre_vert_vif', 'arbre_chene_clair', 'arbre_chene', 'arbre_bouleau', 'arbre_erable_orange', 'arbre_erable_rouge', 'arbre_mi_automne',
       'arbre_chene', 'arbre_chene_clair', 'arbre_neige_rond', 'arbre_neige_sapin3', 'arbre_cerisier', 'arbre_fleurs', 'arbre_automne_brun', 'arbre_neige_nu'],
     oak: ['arbre_chene', 'arbre_chene_automne', 'arbre_automne_brun', 'arbre_neige_chene'],
     birch: ['arbre_bouleau', 'arbre_bouleau_automne', 'arbre_automne_brun', 'arbre_neige_bouleau'],
-    pine: ['mont_sapin', 'arbre_sapin', 'mont_sapin', 'arbre_neige_sapin'],
+    pine: ['mont_sapin', 'arbre_neige_sapin', 'arbre_automne_brun', 'arbre_neige_sapin', 'arbre_neige_tordu'],
     // (le joueur veut SES arbres partout : toutes les autres espèces d'arbres du jeu prennent l'image la plus proche)
     saule: ['arbre_saule'], pintordu: ['arbre_sapin'], bigtree: ['arbre_chene', 'arbre_chene_clair'],
     jungletree: ['arbre_vert', 'arbre_chene', 'arbre_vert_vif'], cycad: ['arbre_vert_vif', 'arbre_vert'], mangrove: ['arbre_saule'], swamptree: ['arbre_saule'],
-    acacia: ['arbre_chene_clair', 'arbre_mi_automne'], baobab: ['arbre_chene'], deadtree: ['arbre_automne_brun', 'arbre_neige_tordu'],
+    acacia: ['arbre_chene_clair', 'arbre_mi_automne'], baobab: ['arbre_chene'], deadtree: ['arbre_automne_brun'],
     candytree: ['arbre_cerisier', 'arbre_mauve', 'arbre_fleurs'],
     // DÉCORS : buissons, fougères, rochers, souches, troncs, champignons lumineux, objets de forêt
     bush: ['buisson', 'buisson_baies', 'buisson_fleuri', 'buisson_baies2'], hedge: ['buisson'], junglebush: ['buisson', 'buisson_baies2'],
@@ -262,11 +263,14 @@
     const OBJ = DW.World && DW.World.OBJ; if (!OBJ) return;
     // les décors dessinés pendant le chargement (écran titre...) l'ont été avec leur dessin de secours : on les oublie
     for (const kind in ARBRES) DW.World.oublierObjet(kind);
-    // chaque décor dessiné prend sa hauteur de jeu (HAUTEUR) : on agrandit sa boîte (l'image y est posée en bas, centrée)
+    // chaque décor dessiné prend sa hauteur de jeu (HAUTEUR) : on agrandit sa boîte (l'image y est posée en bas, centrée) ;
+    // chaque variante à la même hauteur (les images d'un arbre, d'une saison à l'autre, n'ont pas les mêmes proportions)
     for (const kind in HAUTEUR) {
-      const O = OBJ[kind], n = nomArbre(kind, 0), im = n && T.a('commun/' + n); if (!O || !im) continue;
+      const O = OBJ[kind]; if (!O) continue;
       const bw = typeof O.w === 'function' ? O.w(0) : O.w, bh = typeof O.h === 'function' ? O.h(0) : O.h;
-      O.scale = HAUTEUR[kind] * HEROS / (im.naturalHeight * Math.min(bw / im.naturalWidth, bh / im.naturalHeight));
+      const ech = (ARBRES[kind] || []).map(n => { const im = T.a('commun/' + n); return im ? HAUTEUR[kind] * HEROS / (im.naturalHeight * Math.min(bw / im.naturalWidth, bh / im.naturalHeight)) : null; });
+      if (ech[0] == null) continue;
+      O.scale = ech[0]; O.echelles = ech.map(e => e || ech[0]);
     }
     const GA = OBJ.grandarbre;
     if (GA && GA.porte && T.aArbre('_grandarbre', 0) && !GA._image) {

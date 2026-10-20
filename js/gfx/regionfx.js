@@ -3,10 +3,10 @@
 //  AMBIANCES DE RÉGION (au-dessus du décor, autour de la caméra) :
 //    marais : bulles qui remontent, feux follets verts la nuit     volcan : braises et cendres
 //    neige / sommet : scintillements au sol                         cimetière : feux follets bleus, chauves-souris
-//    usine / décharge / égouts : étincelles et vapeur               plage : mouettes, écume qui brille
+//    usine / décharge / égouts : étincelles et vapeur               plage : écume qui brille (mouettes : gfx/ambient.js)
 //    jungle / dinosaures : papillons tropicaux, feuilles qui tombent   jouets : confettis et étoiles
 //    brume : nappes de brouillard        canyon / savane : tourbillons de poussière
-//    forêts : pollen, feuilles (rousses en automne)
+//    forêts : pollen, feuilles (rousses en automne) ; l'hiver, rien de tout cela (les flocons : gfx/ambient.js)
 // =====================================================================
 (function () {
   // type d'effet → { n (particules à l'écran), make, step, draw }
@@ -29,8 +29,6 @@
       draw: (c, p) => { c.fillStyle = `rgba(255,230,120,${Math.min(1, p.life * 2)})`; c.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); } },
     steam: { n: 8, make: (x, y) => ({ x, y, vy: -12 - R() * 6, life: 2.5 + R(), r: 3 }), step: (p, dt) => { p.y += p.vy * dt; p.r += 3 * dt; },
       draw: (c, p) => { c.fillStyle = `rgba(220,225,230,${Math.min(0.35, p.life * 0.15)})`; c.beginPath(); c.arc(p.x, p.y, p.r, 0, 7); c.fill(); } },
-    gulls: { n: 3, make: (x, y) => ({ x: x - 220, y: y - 80 + R() * 60, vx: 40 + R() * 25, ph: R() * 6, life: 12 }), step: (p, dt, t) => { p.x += p.vx * dt; p.y += Math.sin(t * 1.5 + p.ph) * 6 * dt; },
-      draw: (c, p, t) => { const f = Math.sin(t * 5 + p.ph) > 0 ? 2 : 0; c.strokeStyle = '#f8f8f8'; c.lineWidth = 1; c.beginPath(); c.moveTo(p.x - 4, p.y - f); c.lineTo(p.x, p.y); c.lineTo(p.x + 4, p.y - f); c.stroke(); c.fillStyle = 'rgba(0,0,0,0.12)'; c.fillRect(Math.round(p.x) - 2, Math.round(p.y) + 40, 4, 1); } },
     butterflies: { n: 8, day: true, make: (x, y) => ({ x, y, ph: R() * 6, life: 6 + R() * 4, col: ['#ff5a8a', '#5ac8ff', '#ffd040', '#b07aff', '#ff8a2a'][Math.floor(R() * 5)] }), step: (p, dt, t) => { p.x += Math.sin(t * 0.8 + p.ph) * 18 * dt; p.y += Math.cos(t * 1.1 + p.ph) * 12 * dt; },
       draw: (c, p, t) => { const w = Math.abs(Math.sin(t * 12 + p.ph)) * 2.5 + 0.5; c.fillStyle = p.col; c.fillRect(Math.round(p.x - w), Math.round(p.y), Math.round(w), 3); c.fillRect(Math.round(p.x + 1), Math.round(p.y), Math.round(w), 3); c.fillStyle = '#2a2a2a'; c.fillRect(Math.round(p.x), Math.round(p.y), 1, 3); } },
     leaves: { n: 12, make: (x, y) => ({ x, y: y - 180, vy: 14 + R() * 10, ph: R() * 6, life: 9 }), step: (p, dt, t) => { p.y += p.vy * dt; p.x += Math.sin(t * 2 + p.ph) * 16 * dt; },
@@ -48,11 +46,12 @@
   // effets par thème de zone
   const BY_THEME = {
     swamp: ['bubbles', 'swampwisps'], mangrove: ['bubbles', 'butterflies'], volcano: ['embers', 'ash'], snow: ['sparkle'], summit: ['sparkle'],
-    cemetery: ['wisps', 'bats'], factory: ['sparks', 'steam'], trash: ['sparks'], sewer: ['steam', 'bubbles'], beach: ['gulls', 'sparkle'],
+    cemetery: ['wisps', 'bats'], factory: ['sparks', 'steam'], trash: ['sparks'], sewer: ['steam', 'bubbles'], beach: ['sparkle'],
     jungle: ['butterflies', 'leaves'], dino: ['butterflies', 'leaves'], toy: ['confetti', 'sparkle'], fog: ['mist'], misty: ['mist', 'pollen'],
     canyon: ['dust'], savanna: ['dust', 'pollen'], spring: ['pollen', 'leaves'], meadow: ['pollen'], deep: ['leaves', 'pollen'], autumn: ['leaves'], beetle: ['leaves', 'pollen'],
   };
   const LEAF = { autumn: ['#d06a2a', '#e8a040', '#a84a24'], default: ['#6aa040', '#8ac050', '#4a8a30'] };
+  const HIVER = new Set(['pollen', 'butterflies', 'leaves']);   // (absents l'hiver des zones tempérées)
 
   DW.RegionFx = {
     draw(ow, c) {
@@ -61,9 +60,11 @@
       if (!kinds) return;
       const st = ow.rfx && ow.rfx.map === ow.mapId ? ow.rfx : (ow.rfx = { map: ow.mapId, ps: {}, last: ow.t });
       const dt = Math.min(0.05, Math.max(0, ow.t - st.last)); st.last = ow.t;
-      const cam = ow.camera(), dark = DW.Time.light().dark, M = { leaf: ow.map.theme === 'autumn' ? LEAF.autumn : LEAF.default };
+      const se = DW.World.saisonDe(ow.map);
+      const cam = ow.camera(), dark = DW.Time.light().dark, M = { leaf: ow.map.theme === 'autumn' || se === 2 ? LEAF.autumn : LEAF.default };
       for (const k of kinds) {
         const F = FX[k];
+        if (se === 3 && HIVER.has(k)) continue;
         if (F.night && dark < 0.3) continue;
         if (F.day && dark > 0.45) continue;
         const list = st.ps[k] = st.ps[k] || [];
