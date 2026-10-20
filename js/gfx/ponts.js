@@ -187,9 +187,11 @@
       if (sh.edge) { if (comp.length > 24) for (const [cx, cy] of comp) g[cy][cx] = 's'; continue; }
       // traversées possibles : dans les deux sens, à plusieurs hauteurs ; une traversée = une suite continue d'eau
       // d'une rive à l'autre (3 cases de large si possible, sinon 2) ; on garde la plus courte qui relie les mêmes terres
+      // (d'abord dans le sens du pont d'origine — celui du chemin qu'il porte ; l'autre sens seulement s'il n'y a rien :
+      //  sinon un raccourci en travers d'une petite anse remplaçait le vrai pont, et le chemin menait au milieu de la lave)
       let best = null;
-      const cx0 = Math.round(sx / comp.length), cy0 = Math.round(sy / comp.length);
-      for (const hz of [true, false]) for (const d of [0, -1, 1, -2, 2, -3, 3]) for (const width of [3, 2]) {
+      const cx0 = Math.round(sx / comp.length), cy0 = Math.round(sy / comp.length), vertical = My - my >= Mx - mx;
+      for (const hz of vertical ? [false, true] : [true, false]) for (const d of best ? [] : [0, -1, 1, -2, 2, -3, 3]) for (const width of [3, 2]) {
         const c0 = (hz ? cy0 : cx0) + d, at = (p, q) => (hz ? [p, q] : [q, p]);
         const wetAt = (p, q) => { const [cx, cy] = at(p, q); return cx >= 0 && cy >= 0 && cx < W && cy < H && wet(g[cy][cx]); };
         const landAt = (p, q) => { const [cx, cy] = at(p, q); return land(cx, cy); };
@@ -216,7 +218,7 @@
       for (const [cx, cy] of best) g[cy][cx] = '_';
     }
     DW.World.prolongerPonts(g);
-    map.rows = map._pontsFor = g.map(r => r.join(''));
+    DW.MapKit.changerLignes(map, g.map(r => r.join(''))); map._pontsFor = map.rows;
   };
   // UN PONT MÈNE TOUJOURS QUELQUE PART : un pont qui s'arrête à 1-3 cases de la rive est prolongé jusqu'à la terre,
   // et ses deux bouts sont dégagés sur 2 cases (pas d'arbre, de bûche ni de lisière en travers de la sortie).

@@ -3,7 +3,9 @@
 //  RETOUCHES : ce que le créateur a peint à la main dans l'éditeur de cartes (données : maps/retouches_donnees.js).
 //  Appliquées par DW.getMap APRÈS toute la génération (forêts, relief, puzzle, décor dense) : les outils automatiques
 //  ne peuvent donc jamais écraser une retouche. Ordre : thème → relief (niveaux) → cases → objets retirés → objets ajoutés
-//  → entrées et sorties → collisions choisies à la main.
+//  → entrées et sorties → collisions choisies à la main. Le décor posé ensuite par DW.preparerCarte (ensembles de décor,
+//  distributeurs, panneaux au bord des chemins) respecte aussi les retouches : objets retirés, panneaux placés à la main,
+//  décor automatique coupé (decorAuto: false).
 //  RELIEF : une altitude par case ; une baisse vers le SUD devient une paroi rocheuse de 3 cases par niveau (vue de 3/4),
 //  vers le nord, l'est ou l'ouest un rebord d'une case (même règle que maps/relief.js) ; « ^ » = escalier (passage).
 // =====================================================================
@@ -18,7 +20,7 @@
     appliquer(m, id, force) {
       const T = R.de(id);
       if (!m.rows || (!T && !m._baseRows) || (!force && m._retFor === m.rows)) return;
-      if (m._retFor !== m.rows) { m._baseSigns = { ...(m.signs || {}) }; m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed); m._baseAlt = m.alt; m._baseTheme = m.theme; m._baseWarps = (m.warps || []).filter(w => !w.ed); m._baseDoors = (m.doors || []).filter(d => !d.ed); }
+      if (m._retFor !== m.rows) { m._baseSigns = { ...(m.signs || {}) }; m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed && !o.decor); m._baseAlt = m.alt; m._baseTheme = m.theme; m._baseWarps = (m.warps || []).filter(w => !w.ed); m._baseDoors = (m.doors || []).filter(d => !d.ed); }
       const B = R.base(m);
       m.theme = T && T.theme ? T.theme : B.theme;
       if (T && T.ambient) m.ambient = T.ambient;
@@ -26,6 +28,9 @@
       m.falaise = T && T.falaise ? T.falaise : m._baseFalaise || undefined;   // style des falaises (gfx/terrain.js : World.FALAISES)
       if (m._basePont === undefined) m._basePont = m.pont || null;
       m.pont = T && T.pont ? T.pont : m._basePont || undefined;   // style des ponts (gfx/ponts.js : pierre, bois, tronc, corde)
+      // décor automatique du jeu (ensembles de décor et repère : maps/decor.js) : le créateur peut le couper sur une carte
+      if (m._baseDress === undefined) m._baseDress = m.dress === undefined ? null : m.dress;
+      m.dress = T && T.decorAuto === false ? false : m._baseDress === null ? undefined : m._baseDress;
       const W = B.rows[0].length, H = B.rows.length, g = B.rows.map(r => [...r]);
       m.alt = B.alt;
       if (T && T.niveaux && Object.keys(T.niveaux).length) relief(g, m, W, H, T.niveaux, B.alt);
@@ -124,7 +129,7 @@
     const rock = new Uint8Array(W * H);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const L = lvl(x, y); if (L <= 0) continue;
-      const n = lvl(x, y - 1), e = lvl(x + 1, y), w = lvl(x - 1, y), s = lvl(x, y + 1);
+      const s = lvl(x, y + 1);
       if (s >= 0 && s < L) { let k = 1; for (; k <= WALL * (L - s) && y + k < H; k++) { if (lvl(x, y + k) >= L) break; rock[(y + k) * W + x] = 1; } }
     }
     // trous d'une case dans une paroi (entre deux colonnes de roche) : bouchés

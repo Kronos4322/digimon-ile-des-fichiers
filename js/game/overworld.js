@@ -19,7 +19,7 @@
     if (DW.MAPS[mapId].populate) DW.MAPS[mapId].populate();
     const map = DW.getMap(mapId);
     if (DW.MapKit.dress) DW.MapKit.dress(map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
-    if (DW.Distrib) { DW.Distrib.signs(map); DW.Distrib.place(map, mapId); }   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
+    if (DW.Distrib) { DW.Distrib.signs(map, mapId); DW.Distrib.place(map, mapId); }   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
     if (DW.Antre) DW.Antre.hole(map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
     if (DW.YokoVillage) DW.YokoVillage.place(map, mapId);   // le tronc creux vers le village des Poyomon (maps/yokomon.js)
     pnjHorsDecor(map);

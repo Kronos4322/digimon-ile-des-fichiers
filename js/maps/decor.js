@@ -65,10 +65,16 @@
     if (m._dressFor === m.rows || m.indoor || m.dress === false || NO_DRESS.has(m.theme) || !KITS[m.theme] || !m.rows) return;
     const W = DW.World, A = DW.Art, kits = KITS[m.theme], seed = [...String(id || m.name)].reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 11) & 1023;
     m.objects = m.objects || [];
+    // décor retiré dans l'atelier des cartes (maps/retouches.js) : il n'est plus posé
+    const T = DW.Retouches && DW.Retouches.de(id), retire = new Set((T && T.retraits) || []), retiré = (kind, x, y) => retire.has(kind + '@' + x + ',' + y);
+    // GRILLES (une case = un octet) : l'accès à tous les passages est revérifié après chaque ensemble posé, il faut que
+    // ce soit rapide (avant, avec des ensembles de « x,y » : près d'une seconde sur la plage, à chaque entrée sur la carte)
+    const MW = m.w, MH = m.h, dans = (x, y) => x >= 0 && y >= 0 && x < MW && y < MH;
     // cases occupées par les objets déjà posés
-    const occ = new Set();
-    const mark = (o, set) => { for (let y = o.y; y < o.y + o.h; y++) for (let x = o.x; x < o.x + o.w; x++) set.add(x + ',' + y); };
-    for (const o of m.objects) if (!o.walk && !o.top) mark(o, occ);
+    const OCC = new Uint8Array(MW * MH);
+    const mark = o => { for (let y = o.y; y < o.y + o.h; y++) for (let x = o.x; x < o.x + o.w; x++) if (dans(x, y)) OCC[y * MW + x] = 1; };
+    const libere = (x, y) => { if (dans(x, y)) OCC[y * MW + x] = 0; };
+    for (const o of m.objects) if (!o.walk && !o.top) mark(o);
     // cases couvertes À L'ÉCRAN par chaque dessin (largeur réelle × échelle, et sa hauteur au-dessus du pied) :
     // deux éléments de décor ne se chevauchent jamais (un champignon ne pousse plus sur un rocher)
     const vis = new Set();
@@ -77,40 +83,52 @@
     for (const o of m.objects) if (!o.top) for (const k of visCells(o.kind, o.x, o.y + (o.h || 1) - 1, o.w || 1)) vis.add(k);
     for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) { const I = W.info(m.rows[y][x]); if (I && I.obj) for (const k of visCells(I.obj, x, y, 1)) vis.add(k); }
     // abords à laisser libres
-    const keep = new Set(), near = (x, y, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) keep.add((x + dx) + ',' + (y + dy)); };
+    const KEEP = new Uint8Array(MW * MH), garde = (x, y) => { if (dans(x, y)) KEEP[y * MW + x] = 1; };
+    const near = (x, y, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) garde(x + dx, y + dy); };
     for (const w of [...(m.warps || []), ...(m.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) near(x, y, 3);
     for (const k in m.signs || {}) { const [x, y] = k.split(',').map(Number); near(x, y, 2); }
-    for (const [x0, y0, x1, y1] of m.dressKeep || []) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) keep.add(x + ',' + y);   // zones à garder nues (ex. les cabines)
+    for (const [x0, y0, x1, y1] of m.dressKeep || []) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) garde(x, y);   // zones à garder nues (ex. les cabines)
     // aux deux bouts des ponts : rien (les parapets bloquent les côtés, un décor au débouché fermerait le passage)
     for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.rows[y][x] === '_') near(x, y, 2);
     // devant les lieux clés (le Grand Arbre de Kuwagamon) : rien ne doit cacher l'entrée ni le héros
     for (const o of m.objects) if (o.kind === 'grandarbre') {
       const rows = m.rows.map(r => [...r]); let cut = false;
       for (let y = o.y + o.h - 1; y <= o.y + o.h + 6; y++) for (let x = o.x - 3; x <= o.x + o.w + 2; x++) {
-        keep.add(x + ',' + y);
+        garde(x, y);
         if (rows[y] && 'TtYbBg'.includes(rows[y][x])) { rows[y][x] = '.'; cut = true; }
       }
-      if (cut) m.rows = rows.map(r => r.join(''));
+      if (cut) DW.MapKit.changerLignes(m, rows.map(r => r.join('')));
     }
     for (const n of m.npcs || []) near(n.x, n.y, 2);
     for (const t of m.triggers || []) for (let y = t.y; y < t.y + (t.h || 1); y++) for (let x = t.x; x < t.x + (t.w || 1); x++) near(x, y, 1);
-    const free = (x, y) => x > 0 && y > 0 && x < m.w - 1 && y < m.h - 1 && GROUND.has(m.rows[y][x]) && !occ.has(x + ',' + y) && !keep.has(x + ',' + y);
+    const SOL = new Uint8Array(MW * MH), DUR = new Uint8Array(MW * MH);   // (sol où poser un élément ; case bloquante)
+    for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { const c = m.rows[y][x]; SOL[y * MW + x] = GROUND.has(c) ? 1 : 0; DUR[y * MW + x] = DW.SOLID.has(c) ? 1 : 0; }
+    const free = (x, y) => x > 0 && y > 0 && x < MW - 1 && y < MH - 1 && SOL[y * MW + x] && !OCC[y * MW + x] && !KEEP[y * MW + x];
     // accessibilité : cases praticables reliées au premier passage
-    const walk = (x, y) => x >= 0 && y >= 0 && x < m.w && y < m.h && !DW.SOLID.has(m.rows[y][x]) && !occ.has(x + ',' + y);
+    const walk = (x, y) => dans(x, y) && !DUR[y * MW + x] && !OCC[y * MW + x];
     const targets = [];
     for (const w of [...(m.warps || []), ...(m.doors || [])]) targets.push([w.x, w.y]);
     for (const n of m.npcs || []) targets.push([n.x, n.y]);
     for (const k in m.signs || {}) targets.push(k.split(',').map(Number));
+    // cases atteintes depuis le premier point d'intérêt praticable (grille partagée : à lire aussitôt)
+    const SEEN = new Uint8Array(MW * MH), PILE = new Int32Array(MW * MH);
     const reach = () => {
-      const seen = new Set(), q = [];
-      const start = targets.find(([x, y]) => walk(x, y)) || null;
-      if (!start) return seen;
-      q.push(start); seen.add(start.join(','));
-      while (q.length) { const [x, y] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, k = nx + ',' + ny; if (!seen.has(k) && walk(nx, ny)) { seen.add(k); q.push([nx, ny]); } } }
-      return seen;
+      SEEN.fill(0);
+      const start = targets.find(([x, y]) => walk(x, y));
+      if (!start) return SEEN;
+      let n = 0; SEEN[start[1] * MW + start[0]] = 1; PILE[n++] = start[1] * MW + start[0];
+      while (n) {
+        const i = PILE[--n], x = i % MW, y = (i - x) / MW;
+        if (x + 1 < MW && !SEEN[i + 1] && !DUR[i + 1] && !OCC[i + 1]) { SEEN[i + 1] = 1; PILE[n++] = i + 1; }
+        if (x > 0 && !SEEN[i - 1] && !DUR[i - 1] && !OCC[i - 1]) { SEEN[i - 1] = 1; PILE[n++] = i - 1; }
+        if (y + 1 < MH && !SEEN[i + MW] && !DUR[i + MW] && !OCC[i + MW]) { SEEN[i + MW] = 1; PILE[n++] = i + MW; }
+        if (y > 0 && !SEEN[i - MW] && !DUR[i - MW] && !OCC[i - MW]) { SEEN[i - MW] = 1; PILE[n++] = i - MW; }
+      }
+      return SEEN;
     };
-    const ok = (seen, [x, y]) => seen.has(x + ',' + y) || [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => seen.has((x + dx) + ',' + (y + dy)));
-    const base = reach(), must = targets.filter(t => ok(base, t));
+    const vu = (S, x, y) => dans(x, y) && S[y * MW + x] === 1;
+    const ok = (S, [x, y]) => vu(S, x, y) || vu(S, x + 1, y) || vu(S, x - 1, y) || vu(S, x, y + 1) || vu(S, x, y - 1);
+    const base = reach().slice(), must = targets.filter(t => ok(base, t));
     // ---------- lieu marquant de la sous-zone (au plus près du centre ; pas si elle a déjà son lieu emblématique)
     const pool = !m.piece && !m.noLandmark && LANDMARKS[m.theme];   // (noLandmark : pas de grand repère, ex. les Dunes des Bébés)
     if (pool) {
@@ -123,12 +141,14 @@
         let fits = true;
         for (let yy = y - 1; yy <= y + fh && fits; yy++) for (let xx = x - 1; xx <= x + fw && fits; xx++) if (!free(xx, yy)) fits = false;
         // devant le lieu (sous son rang du bas) : une case accessible, sinon on pourrait le poser dans une poche fermée
-        if (![...Array(fw).keys()].some(i => base.has((x + i) + ',' + (y + fh)))) fits = false;
+        if (![...Array(fw).keys()].some(i => vu(base, x + i, y + fh))) fits = false;
         if (!fits) continue;
         const o = { kind: L[0], x, y, w: fw, h: fh, decor: true, landmark: true };
+        if (retiré(L[0], x, y)) break search;
         if (visCells(L[0], x, y + fh - 1, fw).some(k => vis.has(k))) continue;
-        m.objects.push(o); mark(o, occ); for (const k of visCells(L[0], x, y + fh - 1, fw)) vis.add(k);
-        if (must.some(t => !ok(reach(), t))) { m.objects.pop(); for (let yy = y; yy < y + fh; yy++) for (let xx = x; xx < x + fw; xx++) occ.delete(xx + ',' + yy); continue; }
+        m.objects.push(o); mark(o); for (const k of visCells(L[0], x, y + fh - 1, fw)) vis.add(k);
+        const S = reach();
+        if (must.some(t => !ok(S, t))) { m.objects.pop(); for (let yy = y; yy < y + fh; yy++) for (let xx = x; xx < x + fw; xx++) libere(xx, yy); continue; }
         m.landmark = L[1];
         m.signs = m.signs || {};
         for (let xx = x; xx < x + fw; xx++) m.signs[xx + ',' + (y + fh - 1)] = `« ${L[1]} » — ${L[2]}`;   // on le lit par-devant
@@ -141,26 +161,28 @@
     for (let i = 0, tries = 0; i < n && tries < n * 8; tries++) {
       const cx = 2 + Math.floor(A.hash(tries, 1, seed) * (m.w - 4)), cy = 2 + Math.floor(A.hash(tries, 2, seed) * (m.h - 4));
       if (!free(cx, cy)) continue;
-      const kit = A.hash(tries, 3, seed) < 0.1 && m.theme !== 'toy' ? DW.pick(DIGITAL) : kits[Math.floor(A.hash(tries, 4, seed) * kits.length)];
+      // (choix tiré de la carte elle-même, jamais au hasard : le même décor à chaque partie, et dans l'atelier des cartes)
+      const kit = A.hash(tries, 3, seed) < 0.1 && m.theme !== 'toy' ? DIGITAL[Math.floor(A.hash(tries, 5, seed) * DIGITAL.length)] : kits[Math.floor(A.hash(tries, 4, seed) * kits.length)];
       const added = [];
       kit.forEach((kind, j) => {
         const D = W.OBJ[kind], sw = typeof D.w === 'number' ? D.w : 32, sh = typeof D.h === 'number' ? D.h : 32;   // taille d'après la définition (sans dessiner)
         const spr = { w: sw, h: sh }, tiny = spr.w <= 20 && spr.h <= 16, fw = Math.max(1, Math.round(spr.w / 16 * 0.7));
         const ox = j === 0 ? 0 : Math.round((A.hash(tries, 10 + j, seed) - 0.5) * 6), oy = j === 0 ? 0 : Math.round((A.hash(tries, 20 + j, seed) - 0.5) * 3);
         const x = cx + ox - Math.floor(fw / 2), y = cy + oy;
+        if (retiré(kind, x, y)) return;
         for (let xx = x; xx < x + fw; xx++) if (!free(xx, y)) return;
         const cells = visCells(kind, x, y, fw);
         if (cells.some(k => vis.has(k))) return;
         const v = Math.floor(A.hash(tries, 30 + j, seed) * (W.OBJ[kind].n || 1));
         const o = { kind, v, x, y, w: fw, h: 1, decor: true, ...(tiny && SOFT.test(kind) ? { walk: true } : {}), ...(spr.h < 30 ? { small: true } : {}) };
         m.objects.push(o); added.push(o); o._vis = cells; for (const k of cells) vis.add(k);
-        if (!o.walk) mark(o, occ);
+        if (!o.walk) mark(o);
       });
       if (!added.length) continue;
       // un ensemble qui coupe un chemin est retiré
       const seen = reach();
       if (must.some(t => !ok(seen, t))) {
-        for (const o of added) { m.objects.splice(m.objects.indexOf(o), 1); for (let xx = o.x; xx < o.x + o.w; xx++) occ.delete(xx + ',' + o.y); for (const k of o._vis) vis.delete(k); }
+        for (const o of added) { m.objects.splice(m.objects.indexOf(o), 1); for (let xx = o.x; xx < o.x + o.w; xx++) libere(xx, o.y); for (const k of o._vis) vis.delete(k); }
         continue;
       }
       // l'espace autour devient réservé : les ensembles restent espacés

@@ -49,9 +49,14 @@
     }
     for (const o of m.doors || []) { const dy = { up: 1, down: -1 }[o.dir] || 0, dx = { left: 1, right: -1 }[o.dir] || 0; let ok = false; for (let x = o.x; x < o.x + (o.w || 1); x++) if (seen.has((x + dx) + ',' + (o.y + dy))) ok = true; if (!ok) p.push('porte vers ' + o.to + ' inaccessible'); const tm = DW.getMap(o.to); if (!tm.rows[o.ty] || tm.rows[o.ty][o.tx] === undefined) p.push('arrivée de porte hors carte ' + o.to); }
     for (const n of m.npcs || []) if (!n.shadow && (DW.SOLID.has(m.rows[n.y][n.x]) || g.solid.has(n.x + ',' + n.y))) p.push(`PNJ ${n.sp || 'objet'} (${n.x},${n.y}) sur un obstacle`);
-    // chaque case d'arrivée d'un passage doit être praticable dans la carte d'arrivée (sinon on arrive dans les arbres)
+    // chaque case d'arrivée d'un passage doit être praticable dans la carte d'arrivée (sinon on arrive dans les arbres) ;
+    // une case prise mais avec une case libre juste à côté est acceptée : le jeu y pose le héros (Overworld.caseLibre)
     for (const w of m.warps || []) { const tm = DW.getMap(w.to), occ = new Set(); for (const o of tm.objects || []) if (!o.walk && !o.top) for (let yy = o.y; yy < o.y + o.h; yy++) for (let xx = o.x; xx < o.x + o.w; xx++) occ.add(xx + ',' + yy);
-      for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) { const tx = w.tx + (x - w.x), ty = w.ty + (y - w.y), ch = (tm.rows[ty] || '')[tx]; if (ch === undefined || DW.SOLID.has(ch) || occ.has(tx + ',' + ty)) p.push(`arrivée bloquée vers ${w.to} (${tx},${ty})`); } }
+      const libre = (tx, ty) => { const ch = (tm.rows[ty] || '')[tx]; return ch !== undefined && !DW.SOLID.has(ch) && !occ.has(tx + ',' + ty); };
+      for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) {
+        const tx = w.tx + (x - w.x), ty = w.ty + (y - w.y);
+        if (!libre(tx, ty) && ![[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => libre(tx + dx, ty + dy))) p.push(`arrivée bloquée vers ${w.to} (${tx},${ty})`);
+      } }
     for (const n of m.npcs || []) if (!adj(n.x, n.y)) p.push(`PNJ ${n.sp || 'objet'} (${n.x},${n.y}) inaccessible`);
     for (const t of m.triggers || []) {
       let ok = false;

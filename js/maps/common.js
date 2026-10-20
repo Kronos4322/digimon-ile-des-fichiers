@@ -49,11 +49,16 @@
     clearPassages(m);
     densify(m);
     // ponts redressés et raccordés à la terre AVANT les retouches : l'éditeur et le jeu voient la même carte (gfx/ponts.js)
-    if (DW.World.fixBridges && m._pontsFor !== m.rows) { const r0 = m.rows; DW.World.fixBridges(m); if (m.rows !== r0) for (const k of ['_passFor', '_denseFor', '_racFor']) if (m[k] === r0) m[k] = m.rows; }
+    if (DW.World.fixBridges && m._pontsFor !== m.rows) DW.World.fixBridges(m);
     if (DW.Retouches && (!DW.PUZZLE || DW.PUZZLE.applied)) DW.Retouches.appliquer(m, id);   // (après la pose des passages du puzzle)   // retouches de l'éditeur de cartes, toujours en dernier (maps/retouches.js)
     if (DW.Monde && !m.indoor && !m.voisines) DW.Monde.annoter(id);   // place dans la grille du monde, voisines (maps/monde.js)
     return m;
   };
+  // REMPLACER LES LIGNES d'une carte déjà préparée (ponts redressés, décor posé après coup, panneau ajouté ou déplacé...) :
+  // les marqueurs « déjà fait » (_retFor, _denseFor, _dressFor...) qui désignaient les anciennes lignes les suivent.
+  // Sinon la génération, les retouches de l'atelier et le décor se refaisaient par-dessus à la visite suivante (dans la
+  // Clairière : un ponton de plus à chaque entrée)
+  const changerLignes = (m, rows) => { const r0 = m.rows; m.rows = rows; for (const k of Object.keys(m)) if (k[0] === '_' && k.endsWith('For') && m[k] === r0) m[k] = rows; };
   // case praticable la plus proche (PNJ posés sur une carte générée, dont le décor peut occuper la place prévue)
   const freeNear = (m, x, y, R = 8) => {
     const occ = new Set(); for (const o of m.objects || []) if (!o.walk && !o.top) for (let yy = o.y; yy < o.y + o.h; yy++) for (let xx = o.x; xx < o.x + o.w; xx++) occ.add(xx + ',' + yy);
@@ -418,5 +423,5 @@
     return g.map(r => r.join(''));
   }
 
-  DW.MapKit = { say, st, rle, paint, coast, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom, freeNear };
+  DW.MapKit = { say, st, rle, paint, coast, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom, freeNear, changerLignes };
 })();

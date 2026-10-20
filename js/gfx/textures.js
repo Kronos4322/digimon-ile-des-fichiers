@@ -205,6 +205,9 @@
     return T.a('commun/' + n) ? 'tex_commun_' + n : null;
   };
   T.aArbre = (kind, v) => { const n = nomArbre(kind, v); return !!(n && T.a('commun/' + n)); };
+  // (atelier des cartes : combien d'images différentes pour un objet du jeu, et le nom de celle d'une variante)
+  T.variantes = kind => (ARBRES[kind] || []).length;
+  T.nomImage = (kind, v) => nomArbre(kind, v);
   // réduction par moitiés successives (une grande image réduite d'un coup devient granuleuse)
   function reduire(im, sx, sy, sw, sh, w, h) {
     let src = im, ox = sx, oy = sy, cw = sw, ch = sh;

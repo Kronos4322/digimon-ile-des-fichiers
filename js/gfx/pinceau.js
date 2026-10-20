@@ -1,12 +1,10 @@
 'use strict';
 // =====================================================================
-//  ARBRES PEINTS — feuillus, chênes et bouleaux dessinés « au pinceau » (façon Sea of Stars / Octopath)
-//  au lieu de piles de sphères : silhouette irrégulière faite de grappes de feuilles, masse sombre et froide
-//  au cœur, tons moyens, éclats chauds en haut à gauche (le soleil), liseré de lumière sur le bord, petites
-//  feuilles en touches, tronc avec écorce, racines et ombre du feuillage sur le tronc. Contour sombre discret.
-//  Les variantes (OBJ.tree : 0-2 verts, 5-7 automne, 8 vert profond, 9 moussu, 10-11 hiver, 12-13 fleurs)
-//  gardent leur sens ; les arbres nus (14-15) gardent leur dessin. OBJ.oak et OBJ.birch aussi (v 0 et 1).
-//  Rendu par World.obj via « paint » (gfx/objects.js) : pinceau direct, en haute définition.
+//  PINCEAU DU DÉCOR — les outils de peinture communs (DW.World.Paint) : couronnes de feuillage en grappes, troncs
+//  avec écorce et racines, couleurs (lumière chaude en haut à gauche, ombres froides, encre des contours).
+//  Servent aux décors encore peints par le code : jeunes pousses et massifs (premium.js), ponton, passage du Grand
+//  Arbre, épave (peints.js), cabanes du début (maisons.js), premières boutiques (facades.js).
+//  (les arbres du jeu sont les images du joueur : gfx/textures.js)
 // =====================================================================
 (function () {
   const Art = DW.Art, hash = Art.hash;

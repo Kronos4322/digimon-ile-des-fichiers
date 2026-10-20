@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
 //  MAISONS DU DÉBUT, PEINTES — la cabane de Jijimon (ville en ruines) et ta cabane
-//  au même pinceau que le décor (gfx/arbres.js, gfx/peints.js) : lumière chaude en haut à gauche,
+//  au même pinceau que le décor (gfx/pinceau.js, gfx/peints.js) : lumière chaude en haut à gauche,
 //  ombres froides, planches veinées une à une, toit de bardeaux moussus rapiécé de tôle,
 //  soubassement de pierres, fenêtre éclairée, fenêtre condamnée, tas de bois, lierre, herbes au pied.
 //  La porte reste à la même place que l'ancien dessin (porte de la carte) : centre cx, de 0.58 H à 0.9 H.

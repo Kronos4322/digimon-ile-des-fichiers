@@ -139,11 +139,10 @@
       for (const sx of [x + 1, x - 1, x + 2, x - 2]) {
         const ch = m.rows[y][sx];
         if (!ch || solid(ch) || occ.has(sx + ',' + y) || solid(m.rows[y + 1][sx])) continue;
-        m.rows = m.rows.map((r, yy) => (yy === y ? r.slice(0, sx) + 'S' + r.slice(sx + 1) : r));
+        DW.MapKit.changerLignes(m, m.rows.map((r, yy) => (yy === y ? r.slice(0, sx) + 'S' + r.slice(sx + 1) : r)));
         m.signs[`${sx},${y}`] = '« VILLAGE DES YOKOMON » — une flèche gravée montre le tronc creux juste à côté. Parle au tronc pour t\'y faufiler.';
         break;
       }
-      if (m._denseFor) m._denseFor = m.rows;   // (carte déjà « densifiée » : ne pas la refaire à cause du panneau)
       m._yokoFor = m.rows;
       if (m.gfx) DW.World.unprepare(m);
     },

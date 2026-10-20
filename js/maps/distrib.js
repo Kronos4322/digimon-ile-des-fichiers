@@ -25,12 +25,13 @@
     if (id === 'village') {   // distributeur provisoire de la ville : jusqu'à l'ouverture du Bazar
       const has = (m.objects || []).some(o => o.kind === 'vending');
       if (DW.Town.has('gotsumon')) { if (has) { m.objects = m.objects.filter(o => o.kind !== 'vending'); for (const k in m.signs) if (m.signs[k] && m.signs[k].vending) delete m.signs[k]; if (m.gfx) DW.World.unprepare(m); } return; }
-      if (has) return;
     } else if (m._distribFor === m.rows) return;
     const i = id === 'village' ? 3 : list().indexOf(id);
     if (i < 0) return;
     m._distribFor = m.rows;
-    if ((m.objects || []).some(o => o.kind === 'vending')) return;
+    // un distributeur déjà là (déplacé dans l'atelier des cartes) : il garde sa boutique
+    const deja = (m.objects || []).find(o => o.kind === 'vending');
+    if (deja) { brancher(m, deja.x, deja.y, MACHINES[id === 'village' ? 3 : i % 3]); return; }
     const H = m.rows.length, W = m.rows[0].length, occ = new Set();
     for (const o of m.objects || []) if (!o.walk) for (let y = o.y - (o.top ? 0 : 0); y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
     const walk = (x, y) => x > 0 && y > 0 && x < W - 1 && y < H - 1 && !DW.SOLID.has(m.rows[y][x]) && !occ.has(x + ',' + y) && m.rows[y][x] !== '~';
@@ -51,22 +52,30 @@
       if (s < bs) { bs = s; best = [x, y]; }
     }
     if (!best) return;
-    const [x, y] = best, v = i % 3, M = MACHINES[id === 'village' ? 3 : v];
+    const [x, y] = best, v = i % 3, T = DW.Retouches && DW.Retouches.de(id);
+    if (T && (T.retraits || []).includes(`vending@${x},${y}`)) return;   // (retiré dans l'atelier des cartes)
     m.objects.push({ kind: 'vending', v, x, y, w: 1, h: 1 });
+    brancher(m, x, y, MACHINES[id === 'village' ? 3 : v]);
+    if (m.gfx) DW.World.unprepare(m);
+  }
+  // la machine répond quand on lui parle (sa boutique)
+  function brancher(m, x, y, M) {
     m.signs = m.signs || {};
+    if (m.signs[`${x},${y}`]) return;
     m.signs[`${x},${y}`] = Object.assign(async () => {
       DW.Audio.sfx('select');
       await DW.say(`${M.name}. Insère tes Bits !`);
       await DW.Game.push(new DW.ShopScene(M.stock));
     }, { vending: true });
-    if (m.gfx) DW.World.unprepare(m);
   }
   // PANNEAUX bien placés : un panneau perdu dans l'herbe est déplacé au bord du chemin le plus proche
   // (case d'herbe touchant le chemin, devant dégagé), son texte le suit. Une seule fois par carte.
   const SIGN = new Set(['S', 'Z', 'Q']);
-  function signs(m) {
+  function signs(m, id) {
     if (m.indoor || !m.rows || m._signsFor === m.rows || !m.signs) return;
     const H = m.rows.length, W = m.rows[0].length, g = m.rows.map(r => [...r]);
+    // un panneau posé ou écrit dans l'atelier des cartes reste où le créateur l'a mis
+    const T = DW.Retouches && DW.Retouches.de(id), fixe = new Set(T ? [...Object.keys(T.panneaux || {}), ...Object.keys(T.cases || {}).filter(k => SIGN.has(T.cases[k]))] : []);
     const at = (x, y) => (g[y] || [])[x];
     const isPath = (x, y) => at(x, y) === '=';
     const nearWarp = (x, y) => [...(m.warps || []), ...(m.doors || [])].some(w => x >= w.x - 2 && x < w.x + (w.w || 1) + 2 && y >= w.y - 2 && y < w.y + (w.h || 1) + 2);
@@ -76,7 +85,7 @@
     const hidden = (x, y) => { for (let dy = 1; dy <= 2; dy++) for (let dx = -1; dx <= 1; dx++) if (TREE.has(at(x + dx, y + dy))) return true; return false; };
     let moved = false;
     for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
-      if (!SIGN.has(at(x, y)) || !m.signs[`${x},${y}`]) continue;
+      if (!SIGN.has(at(x, y)) || !m.signs[`${x},${y}`] || fixe.has(x + ',' + y)) continue;
       let ok = false;
       for (let dy = -2; dy <= 2 && !ok; dy++) for (let dx = -2; dx <= 2; dx++) if (isPath(x + dx, y + dy)) { ok = true; break; }
       if (ok && !hidden(x, y)) continue;   // au bord d'un chemin et bien visible : il reste là
@@ -94,7 +103,7 @@
       m.signs[`${nx},${ny}`] = m.signs[`${x},${y}`]; delete m.signs[`${x},${y}`];
       moved = true;
     }
-    if (moved) { m.rows = g.map(r => r.join('')); if (m.gfx) DW.World.unprepare(m); }
+    if (moved) { DW.MapKit.changerLignes(m, g.map(r => r.join(''))); if (m.gfx) DW.World.unprepare(m); }
     m._signsFor = m.rows;
   }
   DW.Distrib = { place, signs, MACHINES };

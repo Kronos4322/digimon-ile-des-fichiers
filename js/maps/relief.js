@@ -69,7 +69,7 @@
     const isRock = new Uint8Array(W * H);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const L = lvl(x, y); if (L <= 0) continue;
-      const n = lvl(x, y - 1), e = lvl(x + 1, y), w = lvl(x - 1, y), s = lvl(x, y + 1);
+      const s = lvl(x, y + 1);
       // (au nord, à l'est et à l'ouest : pas de muret de roche, un rebord dessiné — le dénivelé arrête le héros, voir altBord)
       if (s >= 0 && s < L) {
         let k = 1;

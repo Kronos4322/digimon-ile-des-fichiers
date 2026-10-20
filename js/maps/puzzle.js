@@ -120,7 +120,10 @@
     if (!P.isPiece(id) || !P.applied) return;
     const mine = P.passages.filter(q => (q[0] === id || q[2] === id) && q[3] != null);
     const along = (w, s2) => (s2 === 'left' || s2 === 'right' ? w.y : w.x);
-    if (mine.every(q => (m.warps || []).some(w => w.puzzle && w.to === (q[0] === id ? q[2] : q[0]) && along(w, w.dir) === q[3]))) return;
+    // (carte retouchée dans l'atelier et pas regénérée depuis : on regarde ses sorties d'avant les retouches — un passage
+    //  remplacé par une sortie de l'atelier n'est pas « perdu », sinon il était remis et le chemin recreusé à chaque visite)
+    const W0 = m._retFor === m.rows && m._baseWarps ? m._baseWarps : m.warps || [];
+    if (mine.every(q => W0.some(w => w.puzzle && w.to === (q[0] === id ? q[2] : q[0]) && along(w, w.dir) === q[3]))) return;
     m.warps = (m.warps || []).filter(w => !(w.dir && P.isPiece(w.to)) || w.puzzle);
     for (const [a, side, b, p, len = 6] of mine) {
       const s2 = a === id ? side : OPP[side], to = a === id ? b : a;

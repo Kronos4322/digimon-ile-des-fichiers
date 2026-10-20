@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
 //  DÉCOR PEINT — cailloux, ponton, passage du Grand Arbre, épave, crabe, cabines téléphoniques, fanion
-//  au même pinceau que les arbres (gfx/arbres.js) : lumière chaude en haut à gauche, ombres froides,
+//  au même pinceau (gfx/pinceau.js) : lumière chaude en haut à gauche, ombres froides,
 //  liseré de lumière, contour sombre discret, matière (facettes de pierre, bois, mousse). Rendu : World.obj (o.paint).
 //  (rochers, souches, buissons, fougères, champignons, palmiers... : images du joueur, gfx/textures.js)
 // =====================================================================
@@ -109,7 +109,7 @@
   };
   OBJ.grandarbre.paint = (x, v) => {
     x.fillStyle = 'rgba(14,26,16,0.4)'; x.beginPath(); x.ellipse(66, 146, 60, 5, 0, 0, 7); x.fill();
-    // tronc massif, racines puissantes (même pinceau que les arbres : gfx/arbres.js)
+    // tronc massif, racines puissantes (gfx/pinceau.js)
     P.trunk(x, { cx: 66, top: 54, base: 146, w: 30, seed: 9, roots: 6, bark: '#6a4626' });
     porteGrandArbre(x, v);
     // ombre du feuillage sur le haut du tronc, puis la couronne immense

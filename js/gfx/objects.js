@@ -296,7 +296,7 @@
   const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;
     const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)
     return { w, h, W: Math.round(w * S), H: Math.round(h * S) }; };
-  // dessin « au pinceau » (o.paint, ex. arbres peints : gfx/arbres.js) : canvas en haute définition, repère = boîte de l'objet
+  // dessin « au pinceau » (o.paint, ex. décors peints : gfx/peints.js) : canvas en haute définition, repère = boîte de l'objet
   const paintRender = (o, v, z, f = 0) => {
     const k = Art.HD || 1, c = Art.canvas(Math.round((z.W + 2) * k), Math.round((z.H + 2) * k)), x = c.getContext('2d');
     x.scale(k * z.W / z.w, k * z.H / z.h); x.translate(1, 1);

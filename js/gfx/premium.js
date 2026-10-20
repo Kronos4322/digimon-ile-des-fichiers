@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  DÉCORS PEINTS DES BIOMES PILOTES (forêt, montagne, côte) — au même pinceau que les arbres (gfx/arbres.js) :
+//  DÉCORS PEINTS DES BIOMES PILOTES (forêt, montagne, côte) — au même pinceau (gfx/pinceau.js) :
 //  lumière en haut à gauche, ombres froides en bas à droite, contour sombre discret, touches de lumière chaude,
 //  haute définition (pas de pixels étirés). Chaque variante change la SILHOUETTE (pas seulement la couleur).
 //  Boîte de dessin : w × h (en pixels du jeu), le sol est en bas (y = h). plat = on marche dessus (sous le héros).

@@ -1,14 +1,19 @@
 # Serveur de développement local sans cache (python dev/serve.py [port])
 # POST /dev/save?name=xxx.png  : enregistre le corps (image PNG ou fichier texte) dans le dossier dev/captures/
 #                                (utilisé par dev/captures.js pour la galerie de captures d'écran)
-# ÉDITEUR DE CARTES (dossier dev/editeur/, seulement sur ce PC : le serveur n'écoute que 127.0.0.1)
-# POST /dev/retouches          : réécrit js/maps/retouches_donnees.js (les cartes retouchées) ; copie de sûreté
-#                                de l'ancienne version dans dev/editeur/sauvegardes/
-# POST /dev/publier            : commit de ce seul fichier et envoi sur GitHub (le jeu en ligne est mis à jour)
+# ATELIER DES CARTES (dossier dev/editeur/, seulement sur ce PC : le serveur n'écoute que 127.0.0.1)
+# POST /dev/retouches            : réécrit js/maps/retouches_donnees.js (les cartes retouchées) ; copie de sûreté
+#                                  de l'ancienne version dans dev/editeur/sauvegardes/
+# GET  /dev/retouches_validees   : la dernière version VALIDÉE de ce fichier (celle du dernier commit) : l'atelier
+#                                  compare avec elle pour lister ce qui reste à faire valider
+# POST /dev/validation?name=...  : le rapport « à valider » (a_valider.md) et ses images avant / après, dans
+#                                  dev/editeur/validation/ ; POST /dev/validation?vider=1 : on repart d'un dossier vide
+# (pas de publication directe : Claude relit le rapport, vérifie les cartes, puis met en ligne)
 import http.server, os, sys, re, urllib.parse, shutil, subprocess, time
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 RET = os.path.join(ROOT, 'js', 'maps', 'retouches_donnees.js')
+VALIDATION = os.path.join(ROOT, 'dev', 'editeur', 'validation')
 
 class NoCache(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -24,10 +29,17 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def do_GET(self):
+        if urllib.parse.urlparse(self.path).path == '/dev/retouches_validees':
+            r = subprocess.run(['git', 'show', 'HEAD:js/maps/retouches_donnees.js'], cwd=ROOT, capture_output=True)
+            return self.reply(200, r.stdout.decode('utf-8', errors='replace') if r.returncode == 0 else '')
+        return super().do_GET()
+
     def do_POST(self):
         url = urllib.parse.urlparse(self.path)
         size = int(self.headers.get('Content-Length', 0))
         data = self.rfile.read(size)
+        query = urllib.parse.parse_qs(url.query)
         if url.path == '/dev/retouches':
             txt = data.decode('utf-8')
             if not txt.lstrip().startswith("'use strict';") or 'DW.RETOUCHES = ' not in txt:
@@ -45,20 +57,20 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
             with open(RET, 'w', encoding='utf-8', newline='\n') as f:
                 f.write(txt.replace('\r\n', '\n'))
             return self.reply(200, 'ok')
-        if url.path == '/dev/publier':
-            msg = data.decode('utf-8').strip() or 'Cartes retouchées dans l\'éditeur'
-            msg = re.sub(r'[\r\n]+', ' ', msg)[:300]
-            rel = 'js/maps/retouches_donnees.js'
-            def git(*a):
-                r = subprocess.run(['git', *a], cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace')
-                return r.returncode, (r.stdout + r.stderr).strip()
-            git('add', rel)
-            c, out = git('commit', '-m', msg, '--', rel)
-            if c != 0 and 'nothing to commit' not in out and 'rien à valider' not in out:
-                return self.reply(500, out)
-            c, out2 = git('push')
-            return self.reply(200 if c == 0 else 500, (out + '\n' + out2).strip())
-        name = urllib.parse.parse_qs(url.query).get('name', [''])[0]
+        if url.path == '/dev/validation':
+            os.makedirs(VALIDATION, exist_ok=True)
+            if query.get('vider'):
+                for f in os.listdir(VALIDATION):
+                    if re.fullmatch(r'[a-zA-Z0-9_\-]+\.(png|md)', f):
+                        os.remove(os.path.join(VALIDATION, f))
+                return self.reply(200, 'ok')
+            name = query.get('name', [''])[0]
+            if not re.fullmatch(r'[a-zA-Z0-9_\-]+\.(png|md)', name):
+                return self.reply(400, 'nom de fichier invalide')
+            with open(os.path.join(VALIDATION, name), 'wb') as f:
+                f.write(data)
+            return self.reply(200, 'ok')
+        name = query.get('name', [''])[0]
         # nom de fichier simple uniquement, dans dev/captures/
         if url.path != '/dev/save' or not re.fullmatch(r'[a-zA-Z0-9_\-]+\.(png|html)', name):
             self.send_error(400, 'requete invalide')
