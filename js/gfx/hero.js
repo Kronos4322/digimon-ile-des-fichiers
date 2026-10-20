@@ -85,7 +85,13 @@
       if (L.skin) o.skin = (S.skin[L.skin] || S.skin[0])[1];
       o.bottom = (S.bottom[L.bottom || 0] || S.bottom[0])[1]; o.bottomCol = (S.bottomCol[L.bottomCol || 0] || S.bottomCol[0])[1]; o.shoe = (S.shoe[L.shoe || 0] || S.shoe[0])[1];
     }
-    o.name = 'perso3-' + [L.gender, L.style, L.hair, L.shirt, L.head, L.top || 0, L.bag || 0, L.v2 ? 1 : 0, L.v3 ? [L.cut, L.eye, L.bottom, L.bottomCol, L.shoe, L.skin || 0].join('.') : ''].join('-');   // (clé du cache des sprites)
+    // création avec le kit du joueur : les VRAIES couleurs du personnage assemblé (gfx/persos.js : couleurs)
+    const C = L.cols;
+    if (C) {
+      for (const k of ['skin', 'hair', 'hairL', 'shirt', 'bottomCol', 'shoe']) if (C[k]) o[k] = C[k];
+      o.sleeve = o.shirt; o.crestCol = o.shirt; if (C.headCol && o.head) o.headCol = C.headCol;
+    }
+    o.name = (C ? 'perso4-' + [C.skin, C.hair, C.shirt, C.bottomCol, C.shoe, C.headCol].join('') + '-' : '') + 'perso3-' + [L.gender, L.style, L.hair, L.shirt, L.head, L.top || 0, L.bag || 0, L.v2 ? 1 : 0, L.v3 ? [L.cut, L.eye, L.bottom, L.bottomCol, L.shoe, L.skin || 0].join('.') : ''].join('-');   // (clé du cache des sprites)
     return o;
   };
   DW.lookOf = lookOf;

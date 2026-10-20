@@ -6,7 +6,32 @@
   const { UI, Input, Audio, Game } = DW;
   const W = DW.W, H = DW.H;
 
-  DW.startGame = isNew => {
+  // les images des décors (gfx/textures.js) se chargent pendant l'écran titre ; si on lance la partie avant la fin,
+  // un écran de chargement avec sa barre attend qu'elles soient prêtes (avant : écran noir de 30 s au lancement)
+  class ChargementScene extends DW.Scene {
+    update() { if (!DW.Textures || DW.Textures.fini) this.close(); }
+    draw(c) {
+      c.fillStyle = '#070a14'; c.fillRect(0, 0, W, H);
+      const T = DW.Textures, tot = T ? Object.values(T.LISTE).flat().length : 1, n = T ? Object.keys(T.img).length : tot, k = Math.min(1, n / tot);
+      UI.text(c, 'Chargement des décors...', W / 2, H / 2 - 14, { size: 10, align: 'center', bold: true, color: '#ffe680' });
+      c.fillStyle = '#1a2440'; c.fillRect(W / 2 - 80, H / 2, 160, 8);
+      c.fillStyle = '#5ad08a'; c.fillRect(W / 2 - 80, H / 2, Math.round(160 * k), 8);
+      UI.text(c, Math.round(k * 100) + ' %', W / 2, H / 2 + 22, { size: 8, align: 'center', color: '#9ab0e8' });
+    }
+  }
+  DW.attendreDecors = async () => { if (DW.Textures && !DW.Textures.fini) await Game.push(new ChargementScene()); };
+  DW.startGame = async isNew => {
+    await DW.attendreDecors();
+    // personnage créé avec le kit : le petit sprite reprend ses vraies couleurs (aussi pour les parties déjà commencées)
+    const st = DW.state;
+    if (st.hero === 'perso' && st.perso && DW.Perso) {
+      await DW.Perso.charger();
+      const cols = DW.Perso.couleurs(st.perso);
+      if (cols && st.look) st.look = { ...st.look, cols };
+    }
+    lancer(isNew);
+  };
+  const lancer = isNew => {
     const st = DW.state;
     // nouvelle partie (personnage original) : le début se JOUE dans la forêt (game/debut.js) — le bébé rejoint le héros là-bas
     if (isNew && st.hero === 'perso' && DW.Debut) {
@@ -56,9 +81,7 @@
   }
   const boot = () => { Game.push(new DW.TitleScene()); DW.start(); };
   if (document.fonts && document.fonts.load) {
-    Promise.all([
-      Promise.race([Promise.all([document.fonts.load('10px "DotGothic16"'), document.fonts.load('28px "Press Start 2P"')]), new Promise(r => setTimeout(r, 1500))]),
-      DW.Textures ? DW.Textures.charge : null,   // (images dessinées : gfx/textures.js)
-    ]).then(boot, boot);
+    // (l'écran titre n'attend que les polices, au plus 1,5 s ; les images des décors arrivent pendant ce temps)
+    Promise.race([Promise.all([document.fonts.load('10px "DotGothic16"'), document.fonts.load('28px "Press Start 2P"')]), new Promise(r => setTimeout(r, 1500))]).then(boot, boot);
   } else boot();
 })();

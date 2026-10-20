@@ -58,6 +58,7 @@
       else if (k === 'g') {   // garçon <-> fille : coiffures, hauts et bas ne sont pas les mêmes ; la peau et le reste restent
         const g = 1 - ch.g; this.ch = P.valide({ ...P.DEFAUT[g], corps: ch.corps, chaus: ch.chaus, sac: ch.sac, acc: ch.acc, chapeau: ch.chapeau, g });
       } else if (k === 'bas' && P.ensemble(ch)) { Audio.sfx('cancel'); return; }   // (un ensemble a son bas)
+      else if (k === 'bas') ch.bas = P.basSuivant(ch, d);   // (un garçon ne porte pas les jupes de sa planche)
       else {
         const n = P.nombre(k, ch.g);
         if (VIDES.includes(k)) ch[k] = (ch[k] + 1 + d + n) % n - 1; else ch[k] = (ch[k] + d + n) % n;

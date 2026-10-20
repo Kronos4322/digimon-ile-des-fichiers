@@ -29,6 +29,8 @@
 
   // ------------------------------------------------------------ les choix possibles
   const NB_HAUTS = K.haut.length, NB_ENS = K.ensemble.length;
+  // (la planche des bas de garçons contient deux jupes : un garçon ne les porte pas, on les saute)
+  const BAS_G_OK = K.bas_g.map((b, i) => (b.type === 'skirt' ? -1 : i)).filter(i => i >= 0);
   const nombre = (k, g) => ({ g: 2, corps: K.corps_f.length, tete: (g ? K.tete_f : K.tete_g).length, haut: NB_HAUTS + (g ? NB_ENS : 0),
     bas: (g ? K.bas_f : K.bas_g).length, chaus: K.chaus.length + 1, chapeau: K.chapeau.length + 1, sac: K.sac.length + 1, acc: K.acc.length + 1 })[k];
   const ensemble = ch => ch.g && ch.haut >= NB_HAUTS;
@@ -52,6 +54,7 @@
   function hasard(g) {
     const R = n => Math.floor(Math.random() * n), ch = { g };
     ch.corps = R(K.corps_f.length); ch.tete = R(nombre('tete', g)); ch.haut = R(nombre('haut', g)); ch.bas = R(nombre('bas', g));
+    if (!g) ch.bas = BAS_G_OK[R(BAS_G_OK.length)];
     ch.chaus = R(K.chaus.length); ch.chapeau = Math.random() < 0.35 && !(g ? K.tete_f : K.tete_g)[ch.tete].coiffe ? R(K.chapeau.length) : -1;
     ch.sac = Math.random() < 0.4 ? R(K.sac.length) : -1; ch.acc = Math.random() < 0.35 ? R(K.acc.length) : -1;
     return ch;
@@ -65,14 +68,24 @@
       const n = nombre(k, g), vide = ['chaus', 'chapeau', 'sac', 'acc'].includes(k);
       if (typeof o[k] !== 'number' || o[k] < (vide ? -1 : 0) || o[k] >= (vide ? n - 1 : n)) o[k] = DEFAUT[g][k];
     }
+    if (!g && !BAS_G_OK.includes(o.bas)) o.bas = DEFAUT[0].bas;
     return o;
   }
+  // bas suivant / précédent d'un garçon (sans les jupes)
+  function basSuivant(ch, d) {
+    if (ch.g) { const n = K.bas_f.length; return (ch.bas + d + n) % n; }
+    const i = Math.max(0, BAS_G_OK.indexOf(ch.bas)), n = BAS_G_OK.length; return BAS_G_OK[(i + d + n) % n];
+  }
+
 
   // ------------------------------------------------------------ pièces (découpées dans leur planche ; peau à la teinte du corps)
   const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const pieces = {};
   function piece(cat, p, peau) {
     const cle = cat + ':' + p.r.join(',') + ':' + (peau || '');
+    // (zone où la pièce montre de la peau : le cou d'un haut ; ailleurs, toute la pièce mais avec une tolérance serrée,
+    //  sinon un chemisier crème ou un pantalon beige prenait la couleur de la peau : « ventre nu »)
+    const zoneY = cat === 'haut' ? 0.3 : 1;
     if (pieces[cle]) return pieces[cle];
     const [x, y, w, h] = p.r, cv = DW.Art.canvas(w, h), c = cv.getContext('2d');
     c.drawImage(img[cat], x, y, w, h, 0, 0, w, h);
@@ -80,11 +93,12 @@
       const s = hex(p.peau), d = hex(peau);
       if (Math.abs(s[0] - d[0]) + Math.abs(s[1] - d[1]) + Math.abs(s[2] - d[2]) > 30) {
         const D = c.getImageData(0, 0, w, h), a = D.data, k = [d[0] / Math.max(1, s[0]), d[1] / Math.max(1, s[1]), d[2] / Math.max(1, s[2])];
-        for (let i = 0; i < a.length; i += 4) {
+        const iMax = Math.round(h * zoneY) * w * 4;
+        for (let i = 0; i < Math.min(a.length, iMax); i += 4) {
           if (a[i + 3] < 60 || a[i] <= a[i + 2]) continue;
           const e = Math.abs(a[i] - s[0]) + Math.abs(a[i + 1] - s[1]) * 1.2 + Math.abs(a[i + 2] - s[2]);
-          if (e >= 80) continue;
-          const t = Math.min(1, (80 - e) / 35);
+          if (e >= 46) continue;
+          const t = Math.min(1, (46 - e) / 20);
           for (let j = 0; j < 3; j++) a[i + j] = a[i + j] * (1 - t) + Math.min(255, a[i + j] * k[j]) * t;
         }
         c.putImageData(D, 0, 0);
@@ -146,6 +160,60 @@
     liste.forEach((v, i) => { const b = hex(f(v)), d = (a[0] - b[0]) ** 2 * 0.3 + (a[1] - b[1]) ** 2 * 0.59 + (a[2] - b[2]) ** 2 * 0.11; if (d < d0) { d0 = d; best = i; } });
     return best;
   }
+  // couleur dominante d'une pièce (pixels opaques, sans le contour sombre ; sans la peau si on la donne) ; y0-y1 : bande (0 à 1)
+  function dominante(cv, y0 = 0, y1 = 1, sauf, filtre) {
+    const w = cv.width, h = cv.height, d = cv.getContext('2d').getImageData(0, Math.floor(h * y0), w, Math.max(1, Math.floor(h * (y1 - y0)))).data;
+    const pal = {}; let best = null, nb = 0;
+    for (let i = 0; i < d.length; i += 8) {
+      if (d[i + 3] < 200) continue;
+      const r = d[i], g = d[i + 1], b = d[i + 2], l = r * 0.3 + g * 0.59 + b * 0.11;
+      if (l < 38 || l > 248) continue;
+      if (sauf && Math.abs(r - sauf[0]) + Math.abs(g - sauf[1]) + Math.abs(b - sauf[2]) < 60) continue;
+      if (filtre && !filtre(r, g, b)) continue;
+      const k = (r >> 4) + ',' + (g >> 4) + ',' + (b >> 4), e = pal[k] || (pal[k] = [0, 0, 0, 0]);
+      e[0] += r; e[1] += g; e[2] += b; e[3]++;
+      if (e[3] > nb) { nb = e[3]; best = e; }
+    }
+    if (!best) return null;
+    return '#' + [0, 1, 2].map(j => Math.round(best[j] / best[3]).toString(16).padStart(2, '0')).join('');
+  }
+  // peau mesurée sur les mains du corps (là où il n'y a jamais de vêtement)
+  function peauMesuree(cat, B) {
+    const cv = piece(cat, B), d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, s = [0, 0, 0, 0];
+    for (const [mx, my] of B.mains) {
+      const cx = Math.round(B.a[0] + mx), cy = Math.round(B.a[1] + my);
+      for (let y = cy - 3; y <= cy + 3; y++) for (let x = cx - 3; x <= cx + 3; x++) {
+        if (x < 0 || y < 0 || x >= cv.width || y >= cv.height) continue;
+        const i = (y * cv.width + x) * 4; if (d[i + 3] < 200 || d[i] + d[i + 1] + d[i + 2] < 150) continue;
+        s[0] += d[i]; s[1] += d[i + 1]; s[2] += d[i + 2]; s[3]++;
+      }
+    }
+    return s[3] ? '#' + [0, 1, 2].map(j => Math.round(s[j] / s[3]).toString(16).padStart(2, '0')).join('') : B.peau;
+  }
+  const eclaircir = (h, k) => '#' + hex(h).map(v => Math.round(v + (255 - v) * k).toString(16).padStart(2, '0')).join('');
+  // les vraies couleurs du personnage assemblé (null si les planches ne sont pas encore chargées)
+  function couleurs(ch0) {
+    if (!fait) return null;
+    const ch = valide(ch0), g = ch.g, B = (g ? K.corps_f : K.corps_g)[ch.corps], T = (g ? K.tete_f : K.tete_g)[ch.tete];
+    const cB = g ? 'corps_f' : 'corps_g', cT = g ? 'tete_f' : 'tete_g'; if (!img[cB] || !img[cT]) return null;
+    // peau : la teinte de peau la plus présente sur le corps (rouge > vert > bleu, ni grise ni saturée comme un tissu)
+    const peauOk = (r, g, b) => r > g && g > b && r - b > 30 && r - b < 150 && g - b > 8;
+    const moyenne = (cv, ok) => { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, m = [0, 0, 0, 0];
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && ok(d[i], d[i + 1], d[i + 2])) { m[0] += d[i]; m[1] += d[i + 1]; m[2] += d[i + 2]; m[3]++; }
+      return m[3] > 30 ? '#' + [0, 1, 2].map(j => Math.round(m[j] / m[3]).toString(16).padStart(2, '0')).join('') : null; };
+    // la peau qu'on VOIT : les joues du personnage assemblé (une tête du kit peut être plus foncée que le corps choisi)
+    const joues = () => { const I = image(ch); if (!I) return null; const c = I.cv.getContext('2d'), m = [0, 0, 0, 0], yj = Y0 + K.menton;
+      for (const sx of [-1, 1]) { const d = c.getImageData(X0 + sx * 16 - 5, yj - 34, 10, 14).data;
+        for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && peauOk(d[i], d[i + 1], d[i + 2])) { m[0] += d[i]; m[1] += d[i + 1]; m[2] += d[i + 2]; m[3]++; } }
+      return m[3] > 20 ? '#' + [0, 1, 2].map(j => Math.round(m[j] / m[3]).toString(16).padStart(2, '0')).join('') : null; };
+    const peau = joues() || moyenne(piece(cB, B), peauOk) || peauMesuree(cB, B), P = hex(peau), E = ensemble(ch);
+    const cheveux = dominante(piece(cT, T), 0, 0.35, P) || T.cheveux;
+    const haut = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.12, 0.45, P) : dominante(piece('haut', K.haut[ch.haut]), 0.25, 1, P);
+    const bas = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.55, 0.85, P) : dominante(piece(g ? 'bas_f' : 'bas_g', (g ? K.bas_f : K.bas_g)[ch.bas]), 0, g ? 0.5 : 1, P);
+    const chaus = ch.chaus >= 0 ? dominante(piece('chaus', K.chaus[ch.chaus])) : null;
+    const chap = ch.chapeau >= 0 ? dominante(piece('chapeau', K.chapeau[ch.chapeau])) : null;
+    return { skin: peau, hair: cheveux, hairL: eclaircir(cheveux, 0.3), shirt: haut || '#e04a3a', bottomCol: bas || '#3a5a9a', shoe: chaus || '#3a3a4a', headCol: chap };
+  }
   function look(ch0, baby) {
     const ch = valide(ch0), g = ch.g, S = DW.LOOK_OPTS, T = (g ? K.tete_f : K.tete_g)[ch.tete], B = (g ? K.corps_f : K.corps_g)[ch.corps];
     const E = ensemble(ch), Hh = E ? K.ensemble[ch.haut - NB_HAUTS] : K.haut[ch.haut], Bs = E ? null : (g ? K.bas_f : K.bas_g)[ch.bas];
@@ -158,7 +226,8 @@
       shirt: proche(Hh.coul, S.shirt, v => v[1]), top: idx(S.top, Hh.type || (g ? 'tee' : 'jacket')),
       bottom: idx(S.bottom, Bs ? Bs.type : 'skirt'), bottomCol: proche(Bs ? Bs.coul : Hh.coul, S.bottomCol, v => v[1]),
       shoe: ch.chaus >= 0 ? proche(K.chaus[ch.chaus].coul, S.shoe, v => v[1]) : 0, head: idx(S.head, tete), bag: ch.sac >= 0 ? 1 : 0,
+      cols: couleurs(ch) || undefined,   // (les vraies couleurs : le petit sprite ressemble au personnage créé — gfx/hero.js)
     };
   }
-  DW.Perso = { charger, pret: () => fait, nombre, nom, hasard, valide, ensemble, image, dessiner, look, DEFAUT };
+  DW.Perso = { charger, pret: () => fait, nombre, nom, hasard, valide, ensemble, image, dessiner, look, couleurs, basSuivant, DEFAUT };
 })();
