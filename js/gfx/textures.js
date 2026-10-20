@@ -251,6 +251,8 @@
   // chaque image d'objet devient un objet du jeu « tex_<dossier>_<nom> », à sa taille de jeu (TAILLE)
   function objets() {
     const OBJ = DW.World && DW.World.OBJ; if (!OBJ) return;
+    // les décors dessinés pendant le chargement (écran titre...) l'ont été avec leur dessin de secours : on les oublie
+    for (const kind in ARBRES) DW.World.oublierObjet(kind);
     // chaque décor dessiné prend sa hauteur de jeu (HAUTEUR) : on agrandit sa boîte (l'image y est posée en bas, centrée)
     for (const kind in HAUTEUR) {
       const O = OBJ[kind], n = nomArbre(kind, 0), im = n && T.a('commun/' + n); if (!O || !im) continue;
@@ -266,6 +268,7 @@
         x.imageSmoothingEnabled = true; x.drawImage(A.net, A.x, A.y, A.w, A.h);
         GA.porte(x, v);
       };
+      DW.World.oublierObjet('grandarbre');
     }
     for (const [d, noms] of Object.entries(LISTE)) for (const n of noms) {
       const im = T.a(d + '/' + n), t = TAILLE[n]; if (!im || !t || Array.isArray(t)) continue;

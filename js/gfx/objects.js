@@ -255,6 +255,9 @@
     rubble: { w: 22, h: 20, n: 1, draw: SECOURS.rocher(22, 20) },
   };
   const objCache = {};
+  // oublie les rendus d'un objet (toutes variantes et images) : à refaire au prochain appel
+  const oublier = kind => { for (const key in objCache) if (key.startsWith(kind) && /^\d/.test(key.slice(kind.length))) delete objCache[key]; };
+  World.oublierObjet = oublier;
   // ------------------------------------------------------------ échelle du décor (proportions façon Digimon World)
   // Les arbres dominent largement le héros, comme dans Digimon World : le dessin est rendu plus grand
   // (vraie résolution, pas de pixels étirés), posé sur la même case (ancrage en bas au centre).
@@ -285,8 +288,8 @@
   function echelleBatiment(kind) {
     const o = OBJ[kind], cible = TAILLE_HEROS[kind]; if (!cible || o._echelle != null) return;
     o._echelle = 0; o.scale = 1;
-    const z = objSize(kind, 0), r = o.frames ? World.objFrame(kind, 0, 0) : World.obj(kind, 0), vh = hauteurVisible(r);
-    for (const key in objCache) if (key.startsWith(kind) && /^\d/.test(key.slice(kind.length))) delete objCache[key];   // (rendus à l'échelle 1 jetés)
+    const r = o.frames ? World.objFrame(kind, 0, 0) : World.obj(kind, 0), vh = hauteurVisible(r);
+    oublier(kind);   // (rendus à l'échelle 1 jetés)
     o.scale = o._echelle = vh > 0 ? cible * HEROS_VISIBLE / vh : 1;
   }
   World.echelleBatiment = echelleBatiment;

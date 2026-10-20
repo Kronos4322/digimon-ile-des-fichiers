@@ -37,6 +37,47 @@
     c.fillStyle = '#fff4cc'; c.beginPath(); c.arc(sx, HZ, 19, Math.PI, 0); c.fill();
     return c0;
   });
+  // SILHOUETTES EN CONTRE-JOUR, dessinées ici : l'écran titre s'affiche avant le chargement des images du jeu
+  // palmier : tronc annelé qui se courbe, palmes retombantes à folioles, grappe de noix de coco ; « miroir » : penché
+  // vers la gauche (boîte w × h, dessin 3 fois plus fin)
+  function palmier(w, h, miroir) {
+    const k = 3, c0 = DW.Art.canvas(w * k, h * k), c = c0.getContext('2d');
+    c.scale(k, k); if (miroir) { c.translate(w, 0); c.scale(-1, 1); }
+    c.fillStyle = c.strokeStyle = '#160a22'; c.lineCap = 'round';
+    const bx = w * 0.3, by = h, tx = w * 0.56, ty = h * 0.28, qx = w * 0.3, qy = h * 0.55;
+    const tronc = t => [(1 - t) * (1 - t) * bx + 2 * (1 - t) * t * qx + t * t * tx, (1 - t) * (1 - t) * by + 2 * (1 - t) * t * qy + t * t * ty];
+    for (let i = 0; i <= 48; i++) {
+      const t = i / 48, [x, y] = tronc(t), r = 4.4 - t * 2 + (i % 4 === 0 ? 0.6 : 0);   // (bourrelet tous les 4 pas : les anneaux)
+      c.fillRect(x - r, y - 1, r * 2, 2.2);
+    }
+    // palmes : [angle, longueur, chute] ; folioles qui pendent de chaque côté, plus courtes vers la pointe
+    for (const [a, L, chute] of [[-2.95, 40, 10], [-2.45, 36, 4], [-1.95, 30, 2], [-1.3, 32, 2], [-0.7, 38, 5], [-0.15, 44, 12], [0.45, 34, 14], [2.55, 34, 14], [3.1, 42, 14]]) {
+      const ex = tx + Math.cos(a) * L, ey = ty + Math.sin(a) * L * 0.5 + chute, mx = tx + Math.cos(a) * L * 0.55, my = ty + Math.sin(a) * L * 0.45 - L * 0.18;
+      const P = t => [(1 - t) * (1 - t) * tx + 2 * (1 - t) * t * mx + t * t * ex, (1 - t) * (1 - t) * ty + 2 * (1 - t) * t * my + t * t * ey];
+      c.lineWidth = 1.5; c.beginPath(); c.moveTo(tx, ty); c.quadraticCurveTo(mx, my, ex, ey); c.stroke();
+      c.lineWidth = 1;
+      for (let i = 2; i < 22; i++) {
+        const t = i / 22, [x, y] = P(t), [x2, y2] = P(t + 0.03), d = Math.atan2(y2 - y, x2 - x), s = (1 - t * 0.7) * 10;
+        for (const cote of [-1, 1]) {
+          let vx = Math.cos(d + cote * 1.05), vy = Math.sin(d + cote * 1.05) + 0.7;   // (la foliole retombe)
+          const n = Math.hypot(vx, vy); vx /= n; vy /= n;
+          c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + vx * s * 0.5 + Math.cos(d) * 1.5, y + vy * s * 0.5 - 1, x + vx * s, y + vy * s); c.stroke();
+        }
+      }
+    }
+    for (const [x, y] of [[-2.5, 3.5], [2.2, 4.2], [-0.2, 6.4]]) { c.beginPath(); c.arc(tx + x, ty + y, 2.4, 0, Math.PI * 2); c.fill(); }
+    return c0;
+  }
+  // arbre lointain de la lisière : sapin à trois étages, ou feuillu en touffes (bord irrégulier)
+  function arbreLointain(c, x, y, h, sapin) {
+    if (sapin) {
+      for (let k = 0; k < 3; k++) { const w = h * (0.16 + k * 0.08), y0 = y - h + k * h * 0.24; c.beginPath(); c.moveTo(x, y0); c.lineTo(x + w, y0 + h * 0.4); c.lineTo(x - w, y0 + h * 0.4); c.fill(); }
+      c.fillRect(Math.round(x) - 1, Math.round(y - h * 0.16), 2, Math.round(h * 0.16));
+      return;
+    }
+    c.fillRect(Math.round(x) - 1, Math.round(y - h * 0.4), 2, Math.round(h * 0.4));
+    for (const [dx, dy, r] of [[0, -0.78, 0.2], [-0.17, -0.6, 0.17], [0.17, -0.62, 0.18], [-0.08, -0.46, 0.15], [0.12, -0.45, 0.14]]) { c.beginPath(); c.arc(x + dx * h, y + dy * h, r * h, 0, Math.PI * 2); c.fill(); }
+  }
   // Montagne de l'Infini et relief de l'île (silhouettes violettes avec liseré doré)
   const islandLayer = () => layer('island', () => {
     const Art = DW.Art, c0 = cv(), c = c0.getContext('2d');
@@ -54,9 +95,11 @@
     // neige au sommet
     c.fillStyle = '#e8d8f0';
     ridge.forEach(([x, y]) => { if (y < HZ - 64) c.fillRect(x, Math.round(y), 2, Math.round((HZ - 64 - y) * 0.6) + 1); });
-    // forêt (arbres teintés)
-    const tree = Art.tint(DW.World.obj('tree', 0).img, '#1e1438'), oak = Art.tint(DW.World.obj('tree', 3).img, '#22163e');
-    for (let x = -10; x < W; x += 9) { const t = (x / 9) % 3 ? tree : oak, y = HZ - 14 + Art.hash(x, 1, 7) * 6; c.drawImage(t, x, y - 22, 20, 26); }
+    // forêt : lisière de sapins et de feuillus
+    for (let x = -10; x < W; x += 9) {
+      const sapin = (x / 9) % 3 !== 0, y = HZ - 10 + Art.hash(x, 1, 7) * 6;
+      c.fillStyle = sapin ? '#1e1438' : '#22163e'; arbreLointain(c, x + 10, y, 22 + Art.hash(x, 2, 7) * 6, sapin);
+    }
     // la Ville des Fichiers (silhouettes + fenêtres)
     c.fillStyle = '#1a1030';
     c.fillRect(150, HZ - 16, 14, 10); c.beginPath(); c.moveTo(146, HZ - 15); c.lineTo(157, HZ - 25); c.lineTo(168, HZ - 15); c.fill();
@@ -90,7 +133,7 @@
     for (let x = 0; x <= W; x += 3) { const y = 190 + Math.sin(x * 0.02) * 6 + Art.noise(x * 0.1, 3, 9) * 6 + (x > 200 ? (x - 200) * 0.05 : 0); c.fillRect(x, Math.round(y) - 1, 2, 2); if (Art.hash(x, 2, 3) < 0.35) c.fillRect(x, Math.round(y) - 4, 1, 3); }
     return c0;
   });
-  const palms = () => layer('palms', () => [DW.Art.tint(DW.World.obj('palm', 0).img, '#160a22'), DW.Art.tint(DW.World.obj('palm', 1).img, '#160a22')]);
+  const palms = () => layer('palms', () => [palmier(96, 140, false), palmier(88, 126, true)]);
   const millFrames = () => layer('mill', () => DW.World.objFrames('windmill', 1).map(f => DW.Art.tint(f.img, '#1a1030')));
   const birdramon = () => layer('bird', () => DW.Art.tint(DW.Sprites.battle('birdramon').img, '#2a1438'));
 
@@ -280,7 +323,8 @@
           }
           if (had) DW.archiveSave(slot);   // l'ancienne partie est mise de côté (récupérable depuis « Continuer »)
           DW.state = DW.newState();
-          DW.fade(1, 0.01).then(() => { Game.replaceAll(new DW.IntroScene()); DW.fade(0, 0.6); });
+          // (l'introduction montre des décors du jeu : on attend leurs images)
+          DW.fade(1, 0.01).then(DW.attendreDecors).then(() => { Game.replaceAll(new DW.IntroScene()); DW.fade(0, 0.6); });
         } };
       } finally { this.busy = false; }
     }

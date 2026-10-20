@@ -6,8 +6,9 @@
   const { UI, Input, Audio, Game } = DW;
   const W = DW.W, H = DW.H;
 
-  // les images des décors (gfx/textures.js) se chargent pendant l'écran titre ; si on lance la partie avant la fin,
-  // un écran de chargement avec sa barre attend qu'elles soient prêtes (avant : écran noir de 30 s au lancement)
+  // les images des décors (gfx/textures.js) se chargent pendant l'écran titre ; si on lance la partie (ou l'introduction)
+  // avant la fin, un écran de chargement avec sa barre attend qu'elles soient prêtes. On l'appelle sur un écran noir :
+  // il apparaît en fondu, puis le noir revient avant la suite.
   class ChargementScene extends DW.Scene {
     update() { if (!DW.Textures || DW.Textures.fini) this.close(); }
     draw(c) {
@@ -19,7 +20,12 @@
       UI.text(c, Math.round(k * 100) + ' %', W / 2, H / 2 + 22, { size: 8, align: 'center', color: '#9ab0e8' });
     }
   }
-  DW.attendreDecors = async () => { if (DW.Textures && !DW.Textures.fini) await Game.push(new ChargementScene()); };
+  DW.attendreDecors = async () => {
+    if (!DW.Textures || DW.Textures.fini) return;
+    DW.fade(0, 0.25);
+    await Game.push(new ChargementScene());
+    await DW.fade(1, 0.2);
+  };
   DW.startGame = async isNew => {
     await DW.attendreDecors();
     // personnage créé avec le kit : le petit sprite reprend ses vraies couleurs (aussi pour les parties déjà commencées)
