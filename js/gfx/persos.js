@@ -107,6 +107,37 @@
     return (pieces[cle] = cv);
   }
 
+  // ------------------------------------------------------------ chaussures
+  // Les bas des FILLES (et leurs ensembles) sont dessinés avec leurs chaussures, à la bonne taille : on n'en pose pas
+  // d'autres par-dessus (sinon deux paires l'une sur l'autre, trop grandes : des « bottes » sur tout le monde).
+  // Les GARÇONS ont les pieds nus : chaque paire du kit (dessinée plus grande que les corps) est coupée en deux, et chaque
+  // chaussure, ramenée à la largeur du pied, est posée sous sa jambe.
+  const chausses = g => !g;
+  const LARGEUR_PIED = 1.12;   // largeur d'une chaussure : 1,12 fois celle du pied nu
+  const opaques = (cv, y) => {   // segments de pixels opaques sur une rangée d'une pièce
+    const w = cv.width, d = cv.getContext('2d').getImageData(0, Math.max(0, Math.min(cv.height - 1, Math.round(y))), w, 1).data, out = [];
+    let s = -1;
+    for (let x = 0; x <= w; x++) { const op = x < w && d[x * 4 + 3] > 100; if (op && s < 0) s = x; if (!op && s >= 0) { out.push([s, x - 1]); s = -1; } }
+    return out;
+  };
+  const deuxPlus = L => L.filter(s => s[1] - s[0] >= 4).sort((a, b) => (b[1] - b[0]) - (a[1] - a[0])).slice(0, 2).sort((a, b) => a[0] - b[0]);
+  // les deux pieds nus d'un corps : centre (par rapport au point d'ancrage) et largeur, juste au-dessus du sol
+  const piedsNus = {};
+  function piedsDe(cat, B) {
+    const cle = cat + ':' + B.r.join(','); if (piedsNus[cle]) return piedsNus[cle];
+    const S = deuxPlus(opaques(piece(cat, B), B.a[1] + B.pieds - 5));
+    return (piedsNus[cle] = S.length === 2 ? S.map(([a, b]) => ({ x: (a + b) / 2 - B.a[0], w: b - a + 1 })) : [{ x: -0.09 * HB, w: 0.13 * HB }, { x: 0.08 * HB, w: 0.13 * HB }]);
+  }
+  // une paire du kit coupée en deux : pour chaque chaussure, son image, le centre de sa semelle et sa largeur
+  const paires = {};
+  function paire(p) {
+    const cle = p.r.join(','); if (paires[cle]) return paires[cle];
+    const cv = piece('chaus', p), w = cv.width, h = cv.height;
+    const S = deuxPlus(opaques(cv, h - 4)), coupe = S.length === 2 ? Math.round((S[0][1] + S[1][0]) / 2) : Math.round(w / 2);
+    const moitie = (x0, x1, s) => { const c = DW.Art.canvas(x1 - x0, h); c.getContext('2d').drawImage(cv, x0, 0, x1 - x0, h, 0, 0, x1 - x0, h); return { cv: c, x: s ? (s[0] + s[1]) / 2 - x0 : (x1 - x0) / 2, w: s ? s[1] - s[0] + 1 : x1 - x0 }; };
+    return (paires[cle] = [moitie(0, coupe, S[0]), moitie(coupe, w, S[1])]);
+  }
+
   // ------------------------------------------------------------ assemblage
   const CW = 260, CH = 380, X0 = 130, Y0 = 140;   // le canevas du personnage ; le haut du cou en (X0, Y0)
   const cache = {};
@@ -128,7 +159,13 @@
       pose(g ? 'corps_f' : 'corps_g', B, 0, 0);
       if (g) pose('bas_f', K.bas_f[ch.bas], 0, pieds, true); else pose('bas_g', K.bas_g[ch.bas], 0, K.taille - 2, true);
     }
-    if (ch.chaus >= 0) pose('chaus', K.chaus[ch.chaus], 0, pieds + 2);
+    if (ch.chaus >= 0 && chausses(g)) {
+      const P = piedsDe(g ? 'corps_f' : 'corps_g', B), S = paire(K.chaus[ch.chaus]);
+      for (let i = 0; i < 2; i++) {
+        const s = S[i], k = P[i].w * LARGEUR_PIED / s.w, W = s.cv.width * k, Hs = s.cv.height * k;
+        c.drawImage(s.cv, X0 + P[i].x - s.x * k, Y0 + pieds + 3 - Hs, W, Hs);
+      }
+    }
     if (!ensemble(ch)) pose('haut', K.haut[ch.haut], 0, K.epaule - 3, true);
     if (A) {
       const [m1, m2] = B.mains;
@@ -177,6 +214,25 @@
     if (!best) return null;
     return '#' + [0, 1, 2].map(j => Math.round(best[j] / best[3]).toString(16).padStart(2, '0')).join('');
   }
+  // couleur des chaussures : la plus présente HORS du blanc (semelles, lacets, chaussettes), sauf si elles sont surtout blanches
+  function couleurChaussures(cv, y0, y1, sauf) {
+    const blanc = (r, g, b) => r * 0.3 + g * 0.59 + b * 0.11 > 165 && Math.max(r, g, b) - Math.min(r, g, b) < 45;   // (blanc et son ombre grise)
+    const w = cv.width, h = cv.height, d = cv.getContext('2d').getImageData(0, Math.floor(h * y0), w, Math.max(1, Math.floor(h * (y1 - y0)))).data;
+    // (groupes larges : les nuances d'une même couleur — rouge clair, rouge, rouge sombre — comptent ensemble)
+    const groupes = {}, blancs = [0, 0, 0, 0]; let nb = 0, best = null;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i + 1], b = d[i + 2];
+      if (d[i + 3] < 200 || r * 0.3 + g * 0.59 + b * 0.11 < 38) continue;
+      if (sauf && Math.abs(r - sauf[0]) + Math.abs(g - sauf[1]) + Math.abs(b - sauf[2]) < 60) continue;
+      nb++;
+      const e = blanc(r, g, b) ? blancs : groupes[(r >> 5) + ',' + (g >> 5) + ',' + (b >> 5)] || (groupes[(r >> 5) + ',' + (g >> 5) + ',' + (b >> 5)] = [0, 0, 0, 0]);
+      e[0] += r; e[1] += g; e[2] += b; e[3]++;
+      if (e !== blancs && (!best || e[3] > best[3])) best = e;
+    }
+    if (!nb) return null;
+    const E = blancs[3] > nb * 0.6 || !best ? blancs : best;
+    return '#' + [0, 1, 2].map(j => Math.round(E[j] / E[3]).toString(16).padStart(2, '0')).join('');
+  }
   // peau mesurée sur les mains du corps (là où il n'y a jamais de vêtement)
   function peauMesuree(cat, B) {
     const cv = piece(cat, B), d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, s = [0, 0, 0, 0];
@@ -209,8 +265,13 @@
     const peau = joues() || moyenne(piece(cB, B), peauOk) || peauMesuree(cB, B), P = hex(peau), E = ensemble(ch);
     const cheveux = dominante(piece(cT, T), 0, 0.35, P) || T.cheveux;
     const haut = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.12, 0.45, P) : dominante(piece('haut', K.haut[ch.haut]), 0.25, 1, P);
-    const bas = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.55, 0.85, P) : dominante(piece(g ? 'bas_f' : 'bas_g', (g ? K.bas_f : K.bas_g)[ch.bas]), 0, g ? 0.5 : 1, P);
-    const chaus = ch.chaus >= 0 ? dominante(piece('chaus', K.chaus[ch.chaus])) : null;
+    // (le bas d'une fille montre aussi ses jambes, de la peau d'origine de la planche : ce n'est pas la couleur du vêtement)
+    const Bs = E ? null : (g ? K.bas_f : K.bas_g)[ch.bas], pB = g && Bs && Bs.peau ? hex(Bs.peau) : null;
+    const pasPeau = (r, v, b) => !pB || Math.abs(r - pB[0]) + Math.abs(v - pB[1]) + Math.abs(b - pB[2]) >= 45;
+    const bas = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.55, 0.85, P) : dominante(piece(g ? 'bas_f' : 'bas_g', Bs), 0, g ? 0.5 : 1, P, pasPeau);
+    // (filles : les chaussures de la tenue, au bas de la pièce ; garçons : la paire du kit)
+    const chaus = !chausses(g) ? couleurChaussures(E ? piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]) : piece('bas_f', K.bas_f[ch.bas]), 0.8, 1, P)
+      : ch.chaus >= 0 ? couleurChaussures(piece('chaus', K.chaus[ch.chaus]), 0.4, 1) : null;
     const chap = ch.chapeau >= 0 ? dominante(piece('chapeau', K.chapeau[ch.chapeau])) : null;
     return { skin: peau, hair: cheveux, hairL: eclaircir(cheveux, 0.3), shirt: haut || '#e04a3a', bottomCol: bas || '#3a5a9a', shoe: chaus || '#3a3a4a', headCol: chap };
   }

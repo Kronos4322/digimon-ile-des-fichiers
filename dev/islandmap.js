@@ -6,7 +6,6 @@
 //  Nécessite dev/shots.js. Dans la console :  await ISLAND.build()   (enregistre dev/captures/carte_ile.png)
 // =====================================================================
 (function () {
-  const wait = ms => new Promise(r => setTimeout(r, ms));
   const T = 6;          // pixels par case sur la carte finale
   const GAP = 7;        // cases de chemin entre deux zones voisines
   const DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };

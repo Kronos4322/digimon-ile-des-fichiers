@@ -12,7 +12,7 @@
     if (!im) { im = document.createElement('img'); im.id = 'dbg'; im.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;object-fit:contain;background:#000;image-rendering:pixelated;z-index:99'; im.onclick = () => (im.style.display = 'none'); document.body.appendChild(im); }
     im.src = cv.toDataURL(); im.style.display = 'block';
   };
-  const DEV = window.DEV = {
+  window.DEV = {
     hide() { const im = document.getElementById('dbg'); if (im) im.style.display = 'none'; },
     async ensure(mapId, x, y) {
       if (!DW.ow || DW.Game.top() !== DW.ow) {

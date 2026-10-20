@@ -4,7 +4,7 @@
 //  Réseau d'abord : chaque mise à jour publiée est prise dès qu'on est en ligne ;
 //  sans réseau, on joue avec la dernière version gardée en cache.
 // =====================================================================
-const CACHE = 'digimon-ile-2026-10-19';   // (nouveau nom à chaque grand ménage : l'ancien cache est vidé)
+const CACHE = 'digimon-ile-2026-10-20';   // (nouveau nom à chaque grand ménage : l'ancien cache est vidé)
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil((async () => {

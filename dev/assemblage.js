@@ -6,12 +6,11 @@
 //  Nécessite dev/shots.js.   ASSEMBLAGE.places(ids)  ·  await ASSEMBLAGE.rendre(ids, 'nom', 0.25)
 // =====================================================================
 (function () {
-  const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
   const A = window.ASSEMBLAGE = {
     // décalages du monde (en cases) de chaque carte, depuis la première ; conflits = cartes qui se chevauchent
     // positions : la grille du monde du jeu (maps/monde.js) ; conflits = boucles qui ne se referment pas, chevauchements
     places(ids) {
-      const set = new Set(ids), off = {};
+      const off = {};
       for (const id of ids) { const p = DW.Monde.pos(id); if (p) off[id] = [p.x, p.y]; }
       const conflits = DW.Monde.conflits().filter(c => ids.some(id => c.includes(id)));
       A.last = { off, conflits };
