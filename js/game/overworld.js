@@ -97,6 +97,7 @@
       const rs = this.map.respawn;
       if (rs) st.heal = Array.isArray(rs) ? { map: mapId, x: rs[0], y: rs[1] } : { ...rs };
       if (DW.Story.decorate) DW.Story.decorate(this);
+      if (DW.Quetes) DW.Quetes.decorate(this);   // (les personnages des quêtes annexes : game/quetes.js)
       if (DW.Ground) DW.Ground.decorate(this);   // trouvailles au sol du jour (game/sol.js)
       // Digimon qui se promènent : position affichée interpolée
       for (const n of this.map.npcs || []) {

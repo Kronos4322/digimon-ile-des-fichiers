@@ -51,6 +51,10 @@
     arrosage: "jour de la dernière partie d'arrosage des fleurs au Village des Yokomon (game/minijeux.js)",
     mihaFire: 'grondement du Mont Miharashi entendu (Meramon au sommet)',
     meramon: 'Meramon calmé au sommet du Mont Miharashi, l’eau revient au village (fin du chapitre 3)',
+    // quêtes annexes (game/quetes.js)
+    bukaQuete: 'quête des Bukamon égarés (chapitre 2) : 1 acceptée, 2 terminée',
+    bukaTrouves: 'Bukamon égarés retrouvés (un bit par rive : lac1, lac4, lac6)',
+    yokoSoif: 'Yokomon assoiffé de l’oasis du Désert des Poteaux secouru (chapitre 3)',
     crestSeen: 'premier portail d\'écusson découvert (la page ÉCUSSONS du Journal apparaît)',
     bota: 'prochain conseil de Koromon, le guide de la ville (compteur)',
     cups: 'coupes du Colisée remportées { nom: true }',

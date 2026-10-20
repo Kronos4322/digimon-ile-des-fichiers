@@ -226,6 +226,8 @@
     pond(g, 24, 49, 11, 5.5, null);
     for (let y = 45; y <= 53; y++) for (let x = 17; x <= 31; x++) { const d = Math.hypot((x - 24) / 7, (y - 49.5) / 3.4); if (d < 1) g.set(x, y, d < 0.75 ? 's' : ';'); }
     for (let y = 40; y < 60; y++) for (let x = 8; x < 40; x++) if (free(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g.get(x + dx, y + dy) === '~') && Hh(x, y, 937) < 0.4) g.set(x, y, 'Ð');
+    // un passage de planches, au sud du petit lac, jusqu'au banc de sable de l'épave (quête de l'épave : game/quetes.js)
+    for (let y = 52; y <= 56; y++) for (const x of [24, 25]) { const c = g.get(x, y); if (c === '~') g.set(x, y, '_'); else if (c === 'Ð') g.set(x, y, '.'); }
     // la place autour de la fontaine, les allées vers chaque hutte et vers les sorties
     for (let y = 22; y <= 36; y++) for (let x = 34; x <= 62; x++) if (Math.hypot((x - 48) / 13, (y - 29.5) / 6.5) < 1 && free(x, y)) g.set(x, y, '=');
     const road = (pts, r, keep) => { for (let i = 0; i + 1 < pts.length; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2);

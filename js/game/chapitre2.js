@@ -67,7 +67,15 @@
       }
     };
     L.signs['47,48'] = async () => { await say(night() && !kidMatt() && perso() && ch2() ? 'Le feu crépite. Matt fixe les flammes, son harmonica à la main.' : 'Un feu de camp. Les braises sont encore tièdes...'); };
-    L.signs['46,45'] = "Un vieux tramway échoué sur l'île. Personne ne sait comment il est arrivé là... Une couverture et un sac traînent sur la banquette.";
+    L.signs['46,45'] = async () => {
+      await say("Un vieux tramway échoué sur l'île. Personne ne sait comment il est arrivé là... Une couverture et un sac traînent sur la banquette.");
+      // (Matt ne vient qu'à la nuit tombée : on peut l'attendre ici, sur la banquette)
+      const s = st(), h = DW.Time.hour();
+      if (!perso() || !ch2() || !s.flags.monoCh2 || kidMatt() || h < 5 || h >= 20) return;
+      if ((await DW.ask("S'allonger sur la banquette et attendre le soir ?", ['Oui', 'Non'], null, 1)) !== 0) return;
+      await DW.fade(1, 0.6); s.clock = Math.floor(s.clock / 1440) * 1440 + 20 * 60 + 5; await DW.wait(0.4); await DW.fade(0, 0.6);
+      await say("Le soleil s'est couché sur le lac... Au loin, quelqu'un joue de l'harmonica.");
+    };
     // la « feuille rouge » disparaît une fois Seadramon vaincu
     L.populate = function () {
       const gone = !!st().flags.seadramon, has = this.objects.some(o => o.tail);

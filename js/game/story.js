@@ -112,6 +112,7 @@
     }
     return out;
   }
+  Story.freeSpots = freeSpots;   // (aussi pour les quêtes annexes : game/quetes.js)
   // services des recrues et stands : game/services.js
   const { homeOf, TOWN, talkRecruit, DISTRICT_HOME_IDS } = DW.Services;
   Story.KIOSK = DW.Services.KIOSK; Story.placeKiosks = DW.Services.placeKiosks;   // (appelé par les cartes de la ville)
