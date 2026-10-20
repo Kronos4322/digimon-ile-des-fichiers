@@ -12,7 +12,7 @@
 //    - rivière qui disparaît à la frontière ; forêt coupée net ; niveaux d'altitude différents (map.alt).
 // =====================================================================
 (function () {
-  const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const OPP = DW.OPP;
   const DEPTH = 6;
   const outdoor = id => { const m = DW.MAPS[id]; return m && !m.indoor && (m.rows || m.build || m.spec); };
   // nature d'une case : E eau, F forêt, R roche/falaise, P chemin, S sable, G sol praticable, X autre obstacle

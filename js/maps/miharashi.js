@@ -15,7 +15,7 @@
 (function () {
   const Hh = DW.Art.hash, fbm = DW.Art.fbm;
   const N = (x, y, s, f = 0.08) => fbm(x * f, y * f, s);
-  const ROCK = 'Ŵ', OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const ROCK = 'Ŵ';
   const ZONE = ['miharashi0', 'miharashi1', 'miharashi2', 'miharashi3', 'miharashi4'];
   const WALK = c => c === '.' || c === ',' || c === ';' || c === 's' || c === 'f' || c === '=' || c === 'v';
 
@@ -131,7 +131,7 @@
     const ex = exitCells(m), [ox, oy] = offsets()[id];
     for (const w of m.warps || []) {
       if (!w.dir || ZONE.includes(w.to) || !DW.MAPS[w.to]) continue;
-      const B = DW.getMap(w.to), back = (B.warps || []).find(b => b.to === id && b.dir === OPP[w.dir]); if (!back) continue;
+      const B = DW.getMap(w.to), back = DW.MapKit.retour(B, w, id); if (!back) continue;
       const vert = w.dir === 'left' || w.dir === 'right', len = vert ? m.h : m.w, shift = vert ? back.y - w.y : back.x - w.x;
       for (let p = 0; p < len; p++) {
         const q = p + shift;

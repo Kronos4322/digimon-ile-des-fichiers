@@ -16,7 +16,7 @@
 (function () {
   const { forestGen } = DW.MapKit;
   const MAPS = DW.MAPS, Hh = DW.Art.hash;
-  const OPP = { left: 'right', right: 'left', up: 'down', down: 'up' };
+  const OPP = DW.OPP;
   // échelle des régions (façon Digimon World) : zones ~2 fois plus grandes en surface, passages 2 fois plus larges
   const K = 1.45;
   const PLAN = [[0, 0], [1, 0], [2, 0], [3, 0], [3, 1], [2, 1], [1, 1], [0, 1], [0, 2], [1, 2]];
@@ -631,14 +631,15 @@
     ['savane1', 'up', R('usine')], ['savane4', 'right', R('decharge')], ['savane5', 'down', R('canyon')],
     ['canyon7', 'left', R('dino')], ['canyon8', 'down', R('jungle')], ['jungle5', 'down', R('overdell')],
     ['berceau', 'up', R('brumes')], ['brumes4', 'right', R('jouets')], ['brumes5', 'up', R('gel')],
-    ['clairiere', 'up', R('lac')], ['clairiere', 'left', 'miharashi0'], ['lac1', 'down', 'miharashi0'], ['sentier', 'left', 'miharashi2'], ['bosquet', 'up', 'miharashi2'], ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
+    ['champs', 'left', R('marais')], ['champs', 'down', R('tunnel')],
   );
+  // (entre deux pièces du puzzle — Clairière, Lac, Sentier, Bosquet, Mont Miharashi — les passages et leurs règles de
+  //  chapitre viennent de l'atelier des cartes : maps/puzzle.js)
   // portes des régions (comme dans Digimon World 1 : les recrues ouvrent le monde, la ville qui grandit aussi)
   const T = () => DW.Town, LV = n => T().LEVELS[n];
   const byLevel = (n, what) => ({ cond: () => T().level() >= n, lock: () => `Une barrière de données bloque ${what}. Elle se dissipera quand la Ville des Fichiers sera devenue « ${LV(n)} » (${T().STEPS[n]} % de développement ; actuellement ${T().progress()} %).` });
   const GATE = {
     montagne: { cond: () => T().has('gotsumon'), lock: "Un éboulis bloque le Pont de l'Infini... Un Digimon solide comme un roc pourrait le déblayer. (Recrute Gotsumon)" },
-    lac: { cond: () => T().has('betamon') || (DW.state.flags.chapter || 1) >= 2, lock: "Le sentier du nord est inondé... Un Digimon amphibie saurait ouvrir un passage. (Recrute Betamon)" },
     brumes: { cond: () => T().has('elecmon'), lock: "Le Bois Brumeux est plongé dans le noir total... Il faudrait quelqu'un pour rallumer les lanternes. (Recrute Elecmon)" },
     marais: { cond: () => T().has('palmon'), lock: "Des ronces géantes bloquent le chemin de l'ouest... Un Digimon plante pourrait les écarter. (Recrute Palmon)" },
     tunnel: { cond: () => T().level() >= 5, lock: () => `Une grille rouillée ferme le tunnel. Jijimon en a la clé : il te la confiera quand la ville sera devenue « ${LV(5)} ».` },
@@ -650,7 +651,7 @@
 
   // sorties ajoutées aux cartes existantes (cases ouvertes dans leurs fichiers)
   // (plan d'origine des cartes agrandies ×2 : voir MapKit.ZOOM)
-  const EXTRA0 = { village: { right: [13, 3] }, berceau: { up: [23, 3] }, clairiere: { up: [16, 3], left: [14, 3] }, sentier: { left: [11, 3] }, bosquet: { up: [19, 3] }, champs: { left: [19, 3], down: [20, 3] } };
+  const EXTRA0 = { village: { right: [13, 3] }, berceau: { up: [23, 3] }, champs: { left: [19, 3], down: [20, 3] } };
   const EXTRA = {}, DIM = {};
   for (const id in EXTRA0) { const [Z] = DW.MapKit.ZOOM[id]; EXTRA[id] = {}; for (const k in EXTRA0[id]) { const [p, l] = EXTRA0[id][k]; EXTRA[id][k] = [p * Z, l * Z]; } }
   for (const id of ['village', 'champs']) { const [Z, w, h] = DW.MapKit.ZOOM[id]; DIM[id] = [w * Z, h * Z]; }

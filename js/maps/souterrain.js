@@ -72,7 +72,9 @@
     await say('Hohoho ?! Ma vieille trappe s\'est ouverte toute seule... Ah, c\'est toi !', 'Jijimon');
     await say("J'avais complètement oublié ce souterrain ! Je l'ai creusé quand j'étais jeune, pour rendre visite aux Poyomon sans traverser la forêt.", 'Jijimon');
     await say("Garde-le pour toi : c'est le chemin le plus court et le plus sûr vers le nord de la forêt. La trappe restera ouverte, maintenant !", 'Jijimon');
+    await DW.fade(1, 0.3);
     ow.load('maison', ow.p.x, ow.p.y, 'up');   // (la trappe apparaît dans la pièce)
+    await DW.fade(0, 0.3);
     ow.banner.t = 99;
     DW.autosave();
   };

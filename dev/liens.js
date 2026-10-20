@@ -4,7 +4,7 @@
 //  - l'arrivée de l'aller tombe à côté de la sortie de retour (on ressort là où l'on est entré) ;
 //  - pour chaque bord : ce qu'on y trouve (mer, plage, falaise/forêt, sorties).
 (function () {
-  const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const OPP = DW.OPP;
   const sideOf = (m, w) => w.dir || (w.y === 0 ? 'up' : w.x === 0 ? 'left' : w.y + (w.h || 1) >= m.h ? 'down' : 'right');
   function edge(m, side) {
     const cells = [];
@@ -25,7 +25,7 @@
           const tm = DW.getMap(w.to), d = sideOf(m, w);
           const back = (tm.warps || []).filter(b => b.to === id);
           if (!back.length) { out.push(`${id} → ${w.to} : PAS DE RETOUR`); continue; }
-          const b = back.find(b => sideOf(tm, b) === OPP[d]);
+          const vert = d === 'left' || d === 'right', b = back.find(b => sideOf(tm, b) === OPP[d] && (vert ? b.y === w.y : b.x === w.x)) || back.find(b => sideOf(tm, b) === OPP[d]);
           if (!b) out.push(`${id} → ${w.to} (${d}) : retour sur le bord ${back.map(b => sideOf(tm, b)).join('/')} au lieu de ${OPP[d]}`);
           else {
             const Z = DW.MapKit.ZOOM[w.to] && !w._zt ? DW.MapKit.zpt(w.to, w.tx, w.ty) : [w.tx, w.ty], ax = Z[0], ay = Z[1], near = ax >= b.x - 2 && ax <= b.x + (b.w || 1) + 1 && ay >= b.y - 2 && ay <= b.y + (b.h || 1) + 1;

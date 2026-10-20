@@ -40,7 +40,7 @@
       ['dunes', 'down', 'crique', null, 6], ['lisiere', 'down', 'plage', null, 6], ['crique', 'right', 'plage', null, 6], ['plage', 'right', 'village', null, 6],
     ],
   };
-  const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const OPP = DW.OPP;
   const [CW, CHH] = P.case;
   P.isPiece = id => !!P.pieces[id];
   P.pos = id => { const c = P.pieces[id]; return c ? { x: c[0] * CW, y: c[1] * CHH, w: CW, h: CHH } : null; };
@@ -62,7 +62,7 @@
       for (let x = 0; x < CW; x++) r += src[sy][x < w0 ? x : mir(x, w0, Math.min(8, w0))];
       rows.push(r);
     }
-    m.rows = rows; m._gabFor = m.rows; m.w = CW; m.h = CHH;
+    DW.MapKit.changerLignes(m, rows); m._gabFor = m.rows; m.w = CW; m.h = CHH;
     // les sorties du bord droit / bas suivent le nouveau bord (et les arrivées des autres cartes avec elles)
     for (const w of m.warps || []) { if (w.x + (w.w || 1) === w0) w.x = CW - (w.w || 1); if (w.y + (w.h || 1) === h0) w.y = CHH - (w.h || 1); }
     for (const k in DW.MAPS) for (const w of DW.MAPS[k].warps || []) if (w.to === id && !w.puzzle) { if (w.tx === w0 - 1) w.tx = CW - 1; if (w.ty === h0 - 1) w.ty = CHH - 1; }
@@ -174,6 +174,6 @@
       }
       for (let k = end; k >= 0; k = prev[k]) { const px = k % W, py = Math.floor(k / W), c = g[py][px]; if (DW.SOLID.has(c)) g[py][px] = DW.World.info(c).t === 'water' ? '_' : '='; }
     }
-    m.rows = g.map(r => r.join('')); m._racFor = m.rows;
+    DW.MapKit.changerLignes(m, g.map(r => r.join(''))); m._racFor = m.rows;
   };
 })();

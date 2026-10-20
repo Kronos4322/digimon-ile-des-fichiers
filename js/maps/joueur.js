@@ -450,7 +450,7 @@
     const got = await DW.Game.push(new FurnitureScene());
     if (!got || !got.length) return;
     await say(`Merci ! Je fais livrer tout ça chez toi : ${got.map(id => FURN[id].name).join(', ')} !`, 'Gotsumon');
-    for (const r in ROOMS) if (roomOpen(r) && !before.includes(r)) await say(`Il lui faut une pièce rien qu'à lui : une nouvelle porte s'ouvre ${ROOMS[r].from ? 'à l’étage' : 'dans ton salon'}. Ta maison a maintenant une ${ROOMS[r].name} !`, 'Gotsumon');
+    for (const r in ROOMS) if (roomOpen(r) && !before.includes(r)) await say(`Il lui faut une pièce rien qu'à lui : une nouvelle porte s'ouvre ${ROOMS[r].from === 'etage' ? 'à l’étage' : 'dans ton salon'}. Ta maison a maintenant une ${ROOMS[r].name} !`, 'Gotsumon');
     if (!up0 && upstairs()) await say('Ton salon est si bien aménagé que ta maison s’agrandit : un ÉTAGE avec ta chambre (ton lit y est monté) et un grenier tout en haut !', 'Gotsumon');
   }
   DW.Home = { FURN, ROOMS, furnitureShop, owned, tierOf };

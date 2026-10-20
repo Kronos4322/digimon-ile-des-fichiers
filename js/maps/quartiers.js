@@ -1,13 +1,13 @@
 'use strict';
 // =====================================================================
 //  QUARTIERS PÉRIPHÉRIQUES — la Ville des Fichiers devient une mégapole
-//  Chaque quartier s'ouvre quand la ville atteint un certain niveau (une recrue = un niveau),
-//  puis se remplit au fil des niveaux suivants : chaque emplacement a son niveau minimal.
+//  Chaque quartier s'ouvre quand la ville atteint un certain niveau, puis se remplit au fil des niveaux suivants :
+//  chaque emplacement a son niveau minimal (sur une échelle de 16 paliers : level()).
 //  Rien n'est montré à l'avance : avant son ouverture, le chemin vers le quartier n'existe pas,
 //  et un emplacement pas encore construit reste une simple pelouse.
-//    Quartier Résidentiel (nord de la ville)    — maisons de ville, immeubles, parc     (niveau 3)
-//    Quartier du Marché  (est du Résidentiel)   — boutiques, étals, tour de l'horloge   (niveau 8)
-//    Quartier Numérique  (ouest du Résidentiel) — tours de données, câbles, façon DW2003 (niveau 14)
+//    Quartier Résidentiel (nord de la ville)    — maisons de ville, immeubles, parc     (ville au niveau 3)
+//    Quartier du Marché  (est du Résidentiel)   — boutiques, étals, tour de l'horloge   (ville au niveau 6)
+//    Quartier Numérique  (ouest du Résidentiel) — tours de données, câbles, façon DW2003 (ville au niveau 10)
 //  Toutes les maisons et tous les immeubles se visitent (intérieurs générés : salon, cuisine,
 //  chambre ou salon de musique, avec un habitant).
 // =====================================================================
@@ -40,11 +40,13 @@
   // (anciennes sauvegardes sans st.fought : on se fie aux Digimon déjà vus)
   const known = sp => { const s = DW.state; if (!s) return false; const F = s.fought || s.seen || {}; return !!(F[sp] || (s.owned || {})[sp] || (DW.Town && DW.Town.has(sp))); };
   DW.Citizens = { known };
+  // promeneur des rues : un des Digimon déjà rencontrés
   const citizenOf = seed => { const P = CITIZENS.filter(known); return P.length ? P[Math.floor(Hh(seed, 7, 801) * P.length)] : null; };
-  const homeNpc = (seed, x, y, line, flavor) => {
-    const sp = citizenOf(seed);
-    return sp ? [{ sp, x, y, face: 'left', wander: 1, talk: async () => { await say(line, nameOf(sp)); if (flavor && Hh(seed, 5, 807) < 0.5) await say(flavor, nameOf(sp)); } }] : [];
-  };
+  // chaque logement a son PROPRIÉTAIRE (décor de la maison, nom, boîte aux lettres à son élément) ; il y habite une fois
+  // rencontré, le logement reste vide avant
+  const ownerOf = seed => CITIZENS[Math.floor(Hh(seed, 7, 801) * CITIZENS.length)];
+  const homeNpc = (sp, seed, x, y, line, flavor) => (!known(sp) ? [] :
+    [{ sp, x, y, face: 'left', wander: 1, talk: async () => { await say(line, nameOf(sp)); if (flavor && Hh(seed, 5, 807) < 0.5) await say(flavor, nameOf(sp)); } }]);
   const lineOf = seed => LINES[Math.floor(Hh(seed, 9, 802) * LINES.length)];
   const nameOf = sp => (DW.SPECIES[sp] ? DW.SPECIES[sp].name : sp);
 
@@ -132,14 +134,13 @@
   }
   function makeHome(id, seed, name, quarter, back) {
     const kind = LAYOUT_ORDER[Math.floor(Hh(seed, 1, 803) * 4)], v = Math.floor(Hh(seed, 2, 804) * 6);
-    const L = LAYOUTS[kind](v), sp = CITIZENS[Math.floor(Hh(seed, 7, 801) * CITIZENS.length)], line = lineOf(seed), flavor = lineOf(seed + 17);
+    const L = LAYOUTS[kind](v), sp = ownerOf(seed), line = lineOf(seed), flavor = lineOf(seed + 17);
     MAPS[id] = {
       name, music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: FLOORS[Math.floor(Hh(seed, 3, 805) * FLOORS.length)], wall: WALLS[Math.floor(Hh(seed, 4, 806) * WALLS.length)],
       rows: roomRows(), objects: L.objs, signs: { ...L.signs },
-      npcs: [{ sp, x: L.npc[0], y: L.npc[1] }],
-      // l'habitant est choisi à l'entrée parmi les Digimon déjà combattus (maison vide sinon)
-      populate() { this.npcs = homeNpc(seed, L.npc[0], L.npc[1], line, flavor); if (this.npcs[0]) this.name = name === 'Maison' ? `Maison de ${nameOf(this.npcs[0].sp)}` : this.name; else if (name === 'Maison') this.name = 'Maison inoccupée'; },
+      npcs: [{ sp, x: L.npc[0], y: L.npc[1] }], owner: sp,   // (sa place : le décor la laisse libre, themeHome)
+      populate() { this.npcs = homeNpc(sp, seed, L.npc[0], L.npc[1], line, flavor); if (name === 'Maison') this.name = this.npcs.length ? `Maison de ${nameOf(sp)}` : 'Maison inoccupée'; },
       warps: [{ x: DOOR_X, y: ROOM_H + 3, w: 2, h: 1, dir: 'down', to: quarter, tx: back[0], ty: back[1] }],
       entry: { x: DOOR_X, y: ROOM_H + 2 },
     };
@@ -184,8 +185,9 @@
     { kind: 'sacks', x: 8, y: 7, w: 2, h: 1 }, { kind: 'shelf', x: 4, y: 1, w: 2, h: 1, back: true }];
   const clearStairs = (id, x) => { const m = MAPS[id]; m.objects = m.objects.filter(o => o.back || o.walk || !(o.x < x + 2 && o.x + (o.w || 1) > x && o.y <= 4)); };
   function addLevel(home, sub, name, objs, up, opts = {}, hx = 11, ax = 2) {
-    const P = DW.Palais, id = `${home}_${sub}`;
-    P.room(id, 'village', { name: `${MAPS[home].name.split(' — ')[0]} — ${name}`, w: 14, h: 11, floor: opts.floor, wall: opts.wall, dark: opts.dark, objects: objs.map(o => ({ ...o })) });
+    const P = DW.Palais, id = `${home}_${sub}`, racine = MAPS[home].racine || home;
+    P.room(id, 'village', { name: `${MAPS[racine].name} — ${name}`, w: 14, h: 11, floor: opts.floor, wall: opts.wall, dark: opts.dark, objects: objs.map(o => ({ ...o })) });
+    Object.assign(MAPS[id], { racine, populate() { this.name = `${MAPS[racine].name} — ${name}`; } });
     clearStairs(home, hx); clearStairs(id, ax);
     P.stairs(home, hx, id, ax, up);
     return id;
@@ -201,7 +203,7 @@
         const s2 = seed + n * 101, L = LAYOUTS[LAYOUT_ORDER[Math.floor(Hh(s2, 1, 803) * 4)]](Math.floor(Hh(s2, 2, 804) * 6));
         const id = addLevel(below, `e${n}`, `${n}${n === 1 ? 'er' : 'e'} étage`, L.objs, true, { floor: FLOORS[(n + 2) % FLOORS.length], wall: WALLS[(n + 3) % WALLS.length] });
         const line = lineOf(s2);
-        MAPS[id].populate = function () { this.npcs = homeNpc(s2, L.npc[0], L.npc[1], line); };
+        MAPS[id].populate = function () { this.npcs = homeNpc(ownerOf(s2), s2, L.npc[0], L.npc[1], line); };
         Object.assign(MAPS[id].signs, L.signs);
         below = id;
       }
@@ -328,7 +330,7 @@
           if (L.door) this.doors.push({ ...L.door, dir: 'up', to: L.home, tx: DOOR_X, ty: ROOM_H + 2 });
           // façade : jardinière à gauche, boîte aux lettres (couleur de l'habitant, lanterne le soir) à droite
           if (L.door && L.home && !FOOD_SHOPS[L.kind]) {
-            const fy = L.y + L.h, dx0 = L.door.x, dx1 = L.door.x + L.door.w - 1, hm = MAPS[L.home], res = hm && hm.npcs && hm.npcs[0] && hm.npcs[0].sp;
+            const fy = L.y + L.h, dx0 = L.door.x, dx1 = L.door.x + L.door.w - 1, res = (MAPS[L.home] || {}).owner;
             const t0 = res ? (DW.SPECIES[res].types || ['Neutre'])[0] : 'Neutre';
             const v = { 'Feu': 0, 'Eau': 1, 'Plante': 2, 'Insecte': 2, 'Électrique': 3, 'Glace': 4, 'Air': 4, 'Ténèbres': 5 }[t0] ?? 6;
             const free = x => x < dx0 - 1 || x > dx1 + 1;
@@ -358,7 +360,9 @@
   const EXIT_Y = z(14);   // rangées des passages est / ouest entre quartiers
 
   // ============================================================ QUARTIER RÉSIDENTIEL (nord de la ville) : hameau de chaumières
-  const OPEN = { residentiel: 3, marche: 8, numerique: 14 };
+  // ouverture (paliers sur 16) : le Résidentiel avec la route du nord de la ville (niveau 3 de la ville : maps/village.js),
+  // le Marché au niveau 6, le Numérique au niveau 10
+  const OPEN = { residentiel: 4, marche: 8, numerique: 14 };
   {
     const list = [C(26, 5, 0), C(15, 4, 1), C(10, 11, 2), C(16, 11, 3), C(27, 10, 1), C(4, 4, 3), C(9, 18, 0), C(3, 19, 1), C(16, 20, 2),
       C(26, 19, 3), C(5, 25, 2), C(12, 26, 0), C(18, 27, 1), C(28, 27, 0), C(35, 28, 2), C(41, 9, 0), C(39, 2, 3)];

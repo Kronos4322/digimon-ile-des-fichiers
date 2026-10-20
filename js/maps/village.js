@@ -21,7 +21,6 @@
     yokomon: { kind: 'garden', x: 29, y: 19, w: 5, h: 3, in: ['serre_in', 7, 9], sign: [3, 34, 21] },
   };
   const FREE_LOT = { x: 24, y: 23, w: 5, h: 3 };
-  const NORTH_LEVEL = 3;   // ouverture du Quartier Résidentiel (maps/quartiers.js)
   const BANK = { x: 6, y: 3, w: 5, h: 3 };   // à l'ouest de la grande maison de Jijimon (route du nord : x 11-12)
 
   // ------------------------------------------------------------ construction de la carte
@@ -141,6 +140,7 @@
 
   function build() {
     const m = MAPS.village, lvl = T().level(), has = id => T().has(id);
+    const nord = !!DW.Quartiers && DW.Quartiers.open('residentiel');   // (Quartier Résidentiel ouvert : maps/quartiers.js)
     const version = Object.keys(LOTS).concat(['betamon', 'biyomon', 'kunemon']).map(id => (has(id) ? 1 : 0)).join('') + lvl + (st().hero || '') + (Object.keys((st().home || {}).owned || {}).length >= 4 ? 'H' : 'h') + 'k' + Object.keys(st().kids || {}).filter(id => st().kids[id]).length;
     if (m.version === version && m.rows) return;
     m.version = version;
@@ -228,8 +228,8 @@
       g.rect(14, 2, 12, 4, '.');
       g.rect(29, 3, 5, 4, '.');   // maison du joueur (maps/joueur.js)
       g.rect(BANK.x, BANK.y + BANK.h, BANK.w + 1, 1, '.'); // devant la banque : passage dégagé
-      // route du nord vers le Quartier Résidentiel : elle n'existe qu'une fois le quartier construit (niveau 3)
-      if (lvl >= NORTH_LEVEL) {
+      // route du nord vers le Quartier Résidentiel : elle n'existe qu'une fois le quartier ouvert
+      if (nord) {
         tr([[11.5, 10], [12, 5], [11.5, -1]], 0.95, 11); g.rect(11, 0, 2, 2, '=');
         for (const [x, y] of [[9, 2], [10, 2], [13, 2], [14, 2]]) g.set(x, y, 'K');
         if (has('gotsumon')) g.set(13, 8, 'a');
@@ -254,7 +254,7 @@
     if (has('biyomon')) m.objects.push({ kind: 'poste', ...FREE_LOT }, { kind: 'hangsign', v: 4, x: 29, y: 25, w: 1, h: 1, small: true });
     if (has('kunemon')) m.objects.push({ kind: 'bank', ...BANK });
     if (lvl >= 1) m.objects.push({ kind: 'laundry', x: 14, y: 7, w: 3, h: 1 });
-    if (lvl >= NORTH_LEVEL) m.objects.push({ kind: 'districtgate', v: 0, x: 9, y: 0, w: 6, h: 3, top: true });
+    if (nord) m.objects.push({ kind: 'districtgate', v: 0, x: 9, y: 0, w: 6, h: 3, top: true });
     // clôtures : jardins des maisons (réparées à partir du niveau 2)
     if (lvl >= 2) {
       m.objects.push({ kind: 'fence', v: 4, x: 33, y: 25, w: 4, h: 1, oy: 0 });
@@ -370,7 +370,7 @@
       if (m && m.need >= 60) urgent.push("Vite ! Il y a des toilettes au sud de la ville, près de la route du Terrain d'entraînement.");
       if (m && DW.Evo.available(m).length) urgent.push(`${m.name} peut digivoluer ! Ouvre le menu (ENTRÉE) → DIGIMON → onglet DIGIVOLUTION.`);
       tips.push("Les Digimon ne se capturent pas : ils naissent ! Penguinmon confie un DigiŒuf par jour au Village des Bébés, à l'est de la Prairie. Ensuite, entraîne-les pour qu'ils digivoluent !");
-      tips.push("Certains chemins sont bloqués : un éboulis à l'est, des ronces aux Champs, l'inondation au nord de la Clairière... Les Digimon qui rentrent en ville t'aideront à passer !");
+      tips.push("Certains chemins sont bloqués : un éboulis à l'est, des ronces aux Champs, le Bois Brumeux plongé dans le noir... Les Digimon qui rentrent en ville t'aideront à passer !");
       if (!s.flags.tanemon) tips.push("Tu connais Tanemon ? Il cultive de la Digiviande au Quartier des Champs, au sud-ouest. Passe le voir chaque jour !");
       if (!T().level()) tips.push("La ville est vide... Les Digimon de l'île ont tout oublié. Explore l'ouest, retrouve-les et ramène-les ici !");
       if (m && DW.Training.total(m) < 10) tips.push("Les combats font monter le niveau. Mais pour digivoluer, il faut s'entraîner au Terrain d'entraînement, au sud.");

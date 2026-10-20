@@ -11,7 +11,7 @@
 //  dev/geographie.js). Les incohérences (boucle qui ne se referme pas, cartes qui se chevauchent) sont listées.
 // =====================================================================
 (function () {
-  const MAPS = DW.MAPS, OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const MAPS = DW.MAPS;
   const SIDES = ['up', 'right', 'down', 'left'];
   const outdoor = id => !!MAPS[id] && !MAPS[id].indoor;
   // dimensions sans construire la carte (régions : connues d'avance ; cartes faites main : lignes ou plan agrandi)
@@ -39,9 +39,7 @@
       const id = queue.shift(), A = MAPS[id], P = POS[id];
       for (const w of A.warps || []) {
         if (!w.dir || w.enclos || !outdoor(w.to)) continue;
-        const B = MAPS[w.to], same = v => v.to === id && v.dir === OPP[w.dir];
-        // (plusieurs passages vers une même carte : le retour est celui qui est au même endroit le long du bord)
-        const vert = w.dir === 'left' || w.dir === 'right', back = (B.warps || []).find(v => same(v) && (vert ? v.y === w.y : v.x === w.x)) || (B.warps || []).find(same); if (!back) continue;
+        const back = DW.MapKit.retour(MAPS[w.to], w, id); if (!back) continue;
         const [bw, bh] = dims(w.to);
         const p = w.dir === 'left' ? [P.x - bw, P.y + w.y - back.y] : w.dir === 'right' ? [P.x + P.w, P.y + w.y - back.y]
           : w.dir === 'up' ? [P.x + w.x - back.x, P.y - bh] : [P.x + w.x - back.x, P.y + P.h];
@@ -67,7 +65,7 @@
   const all = () => POS || (W.pret ? build() : {});
 
   const W = DW.Monde = {
-    SIDES, OPP, build, dims, pret: false,
+    SIDES, build, dims, pret: false,
     pos: id => all()[id] || null,
     conflits: () => (all(), CONF),
     horsGrille: () => (all(), [...BAD]),   // cartes à replacer (chapitres futurs qui contredisent la géographie)

@@ -25,6 +25,7 @@ window.DW = window.DW || {};
   DW.lerp = (a, b, t) => a + (b - a) * t;
   DW.ease = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
   DW.linear = t => t;
+  DW.OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };   // direction opposée
   DW.weighted = list => {
     const tot = list.reduce((s, e) => s + e.w, 0);
     let r = Math.random() * tot;

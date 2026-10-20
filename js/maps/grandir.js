@@ -30,7 +30,7 @@
             if (F.decor) F.decor(this);
           }
           if (!F) { this.warps = [{ ...exit }]; }
-          DW.World.unprepare(this);
+          DW.World.unprepare(this); delete this.w;   // (nouvelle taille : recalculée par DW.getMap)
         }
         if (F) this.npcs = F.npcs ? F.npcs() : [];
         else if (pop0) pop0.call(this);   // (forme d'origine : son propre peuplement)

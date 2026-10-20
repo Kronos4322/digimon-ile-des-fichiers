@@ -54,11 +54,17 @@
     if (DW.Monde && !m.indoor && !m.voisines) DW.Monde.annoter(id);   // place dans la grille du monde, voisines (maps/monde.js)
     return m;
   };
-  // REMPLACER LES LIGNES d'une carte déjà préparée (ponts redressés, décor posé après coup, panneau ajouté ou déplacé...) :
-  // les marqueurs « déjà fait » (_retFor, _denseFor, _dressFor...) qui désignaient les anciennes lignes les suivent.
-  // Sinon la génération, les retouches de l'atelier et le décor se refaisaient par-dessus à la visite suivante (dans la
-  // Clairière : un ponton de plus à chaque entrée)
+  // REMPLACER LES LIGNES d'une carte (chaque étape de la génération, ponts redressés, décor posé après coup, panneau
+  // ajouté...) : les marqueurs « déjà fait » (_passFor, _denseFor, _dressFor...) qui désignaient les anciennes lignes les
+  // suivent. Sinon les étapes déjà faites se refaisaient à chaque préparation : décor ajouté par-dessus (un ponton de plus
+  // à chaque entrée dans la Clairière, un « Embarcadère du lac » de plus à chaque préparation), carte voisine jamais finie
   const changerLignes = (m, rows) => { const r0 = m.rows; m.rows = rows; for (const k of Object.keys(m)) if (k[0] === '_' && k.endsWith('For') && m[k] === r0) m[k] = rows; };
+  // passage de RETOUR d'une sortie de bord w (de la carte id vers la carte B) : il peut y en avoir plusieurs entre deux
+  // cartes ; c'est celui qui est au même endroit le long du bord (à défaut, le premier dans l'autre sens)
+  const retour = (B, w, id) => {
+    const L = B.warps || [], same = v => v.to === id && v.dir === DW.OPP[w.dir], vert = w.dir === 'left' || w.dir === 'right';
+    return L.find(v => same(v) && (vert ? v.y === w.y : v.x === w.x)) || L.find(same) || null;
+  };
   // case praticable la plus proche (PNJ posés sur une carte générée, dont le décor peut occuper la place prévue)
   const freeNear = (m, x, y, R = 8) => {
     const occ = new Set(); for (const o of m.objects || []) if (!o.walk && !o.top) for (let yy = o.y; yy < o.y + o.h; yy++) for (let xx = o.x; xx < o.x + o.w; xx++) occ.add(xx + ',' + yy);
@@ -82,7 +88,7 @@
         g[y][x] = I.t === 'sand' ? 's' : along > 12 ? '.' : '=';   // (un très large passage s'ouvre sur de l'herbe, pas sur une route)
       }
     }
-    m.rows = g.map(r => r.join('')); m._passFor = m.rows;
+    changerLignes(m, g.map(r => r.join(''))); m._passFor = m.rows;
   }
   // décor dense façon Digimon World 2003 : des bouquets de fougères, herbes folles, fleurs, champignons
   // (sur l'herbe) et de coquillages (sur le sable). Tous praticables : rien ne change pour les déplacements.
@@ -106,7 +112,7 @@
       if (cl < (town ? 0.6 : 0.52) || h > (town ? 0.35 : 0.55)) continue;
       g[y][x] = ch === 's' ? (h < 0.3 ? '3' : ch) : GRASS[Math.floor(A.hash(x, y, seed + 7) * GRASS.length)];
     }
-    m.rows = m._denseFor = g.map(r => r.join(''));
+    changerLignes(m, g.map(r => r.join(''))); m._denseFor = m.rows;
   }
 
   // ------------------------------------------------------------ scripts partagés
@@ -423,5 +429,5 @@
     return g.map(r => r.join(''));
   }
 
-  DW.MapKit = { say, st, rle, paint, coast, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom, freeNear, changerLignes };
+  DW.MapKit = { say, st, rle, paint, coast, healAll, forestGen, recruitNPC, trail, DW1_GROUND, ZOOM, zpt, zTarget, zoomMap, zoomGen, zoomRows, densify, roomRows, doorRoom, freeNear, changerLignes, retour };
 })();

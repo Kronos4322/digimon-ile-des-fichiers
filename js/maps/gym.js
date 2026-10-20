@@ -158,7 +158,7 @@
       { x: 8, y: 4, w: 2, dir: 'up', to: 'gymnase', tx: 8, ty: 10, cond: () => !!(DW.Gymnase && DW.Gymnase.open()) }],
     signs: {
       '14,6': async () => {
-        await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Jardin zen : méditation (Intelligence).  Cristal de données : énergie (PM).");
+        await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Salle de classe (au nord-est) : Intelligence.  Cristal de données : énergie (PM).");
         await say("Les COMBATS font monter le niveau, et le niveau fixe le POTENTIEL de ton Digimon (10 + 3 × niveau points par stat). Dé-digivoluer ton Digimon augmente son ABI : son potentiel grimpe encore !");
         await say("L'ENTRAÎNEMENT remplit ce potentiel. Ce sont les points d'entraînement qui permettent de digivoluer !");
         await say("Chaque poste a son exercice : marteler le mannequin, enchaîner les coups au sac de frappe, soulever le rocher au bon moment, sauter la haie sur la marque, encaisser les pierres du mur, charger l'énergie du cristal. Parle au poste ou à son panneau (le pictogramme indique la stat) pour commencer. Plus ton Digimon est entraîné, plus c'est dur !");

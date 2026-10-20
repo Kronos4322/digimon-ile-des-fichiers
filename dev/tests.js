@@ -272,6 +272,26 @@ test('arrivées vers les cartes agrandies converties une seule fois', () => {
   eq(w.tx, 38); eq(w.ty, 12);
   DW.getMap('maison'); eq(w.tx, 38);
 });
+// (chaque étape de la génération qui remplace les lignes passe par DW.MapKit.changerLignes : sinon les étapes suivantes
+//  et le décor se refaisaient à chaque préparation, et une carte voisine préparée en fond n'était jamais finie)
+test('préparer de nouveau une carte ne la change pas (lignes, décor, panneaux)', () => {
+  for (const id of ['lac1', 'montagne9', 'volcan1', 'clairiere', 'plage', 'village', 'gym']) {
+    const m = DW.preparerCarte(id), rows = m.rows, n = m.objects.length, s = Object.keys(m.signs || {}).length;
+    DW.preparerCarte(id);
+    yes(m.rows === rows, id + ' : lignes refaites'); eq(m.objects.length, n, id + ' : objets'); eq(Object.keys(m.signs || {}).length, s, id + ' : panneaux');
+  }
+});
+test('un commerce qui grandit avec la ville prend sa nouvelle taille (sinon sa sortie était hors de la carte)', () => {
+  const lv = DW.Town.level;
+  try {
+    for (const id of ['bazar_in', 'resto_in', 'dojo_in', 'serre_in']) for (const L of [0, 5, 8, 0]) {
+      DW.Town.level = () => L;
+      const m = DW.preparerCarte(id);
+      eq(m.w + 'x' + m.h, m.rows[0].length + 'x' + m.rows.length, `${id} au niveau ${L}`);
+      yes(m.warps.every(w => w.x < m.w && w.y < m.h), `${id} au niveau ${L} : sortie hors de la carte`);
+    }
+  } finally { DW.Town.level = lv; }
+});
 test('maladie : jamais au hasard, seulement par accumulation de négligences', () => {
   fresh();
   const m = new DW.Digimon('agumon', 6); DW.state.party = [m]; DW.state.clock = 12 * 60; m.slept = DW.state.clock;

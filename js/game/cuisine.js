@@ -110,7 +110,7 @@
   const QUEST_WORDS = {
     grillade: "Pour commencer, la base : une grillade ! Rapporte-moi 1 Viande et 1 Sel (Gotsumon taille du sel dans la roche).",
     brochette: "Tu aimes quand ça pique ? Rapporte-moi 1 Viande et 1 Piment de feu.",
-    soupe: "Ma spécialité : la soupe aux champignons ! 2 Digichampignons et 1 Eau de source (la fontaine de Betamon, ou le puits des Yokomon).",
+    soupe: "Ma spécialité : la soupe aux champignons ! 2 Digichampignons et 1 Eau de source (la fontaine de Betamon, ou le puits des Poyomon).",
   };
   const ingrText = r => Object.entries(r[1]).map(([id, n]) => `${n} ${I[id].name}`).join(', ');
   async function mushroomQuest() {

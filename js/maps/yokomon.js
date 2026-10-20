@@ -1,6 +1,7 @@
 'use strict';
 // =====================================================================
-//  VILLAGE DES YOKOMON (épisode 4 de l'animé) — un hameau caché dans la forêt
+//  VILLAGE DES POYOMON — un hameau caché dans la forêt (le Village des Yokomon de l'animé est au Mont Miharashi,
+//  chapitre 3 : maps/miharashi.js)
 //  On y entre en se faufilant dans un tronc creux, au bord de la Prairie des Lucioles.
 //  Les Poyomon vivent dans des nids autour d'un vieux puits... à sec. Quête : rapporter 3 bouteilles
 //  d'eau (Eau fraîche ou Eau de source). Récompense : cartes Digimon, Pomme bleue, et un puits qui
@@ -33,8 +34,9 @@
     // (l'arrivée est réglée sur le tronc creux à la première visite ; en attendant, près de l'entrée de la Prairie)
     warps: [(() => {
       // arrivée par défaut : là où l'on arrive dans la Prairie depuis une autre carte (une case sûre)
-      let a = null; for (const id in MAPS) for (const w of MAPS[id].warps || []) if (!a && w.to === 'prairie' && w.tx != null) a = [w.tx, w.ty];
-      return { x: 17, y: H - 1, w: 1, h: 1, dir: 'down', to: 'prairie', tx: a ? a[0] : 5, ty: a ? a[1] : 5 };
+      // (recopiée d'une sortie peut-être déjà convertie à la taille de la Prairie agrandie : son marqueur _zt suit)
+      let a = null; for (const id in MAPS) for (const w of MAPS[id].warps || []) if (!a && w.to === 'prairie' && w.tx != null) a = w;
+      return { x: 17, y: H - 1, w: 1, h: 1, dir: 'down', to: 'prairie', tx: a ? a.tx : 5, ty: a ? a.ty : 5, _zt: !!(a && a._zt) };
     })()],
     entry: { x: 17, y: H - 2 },
     populate() {
@@ -140,7 +142,7 @@
         const ch = m.rows[y][sx];
         if (!ch || solid(ch) || occ.has(sx + ',' + y) || solid(m.rows[y + 1][sx])) continue;
         DW.MapKit.changerLignes(m, m.rows.map((r, yy) => (yy === y ? r.slice(0, sx) + 'S' + r.slice(sx + 1) : r)));
-        m.signs[`${sx},${y}`] = '« VILLAGE DES YOKOMON » — une flèche gravée montre le tronc creux juste à côté. Parle au tronc pour t\'y faufiler.';
+        m.signs[`${sx},${y}`] = '« VILLAGE DES POYOMON » — une flèche gravée montre le tronc creux juste à côté. Parle au tronc pour t\'y faufiler.';
         break;
       }
       m._yokoFor = m.rows;

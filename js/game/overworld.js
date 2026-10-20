@@ -6,7 +6,7 @@
   const { UI, Input, Audio, Game } = DW;
   const W = DW.W, H = DW.H, TS = 16;
   const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-  const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  const OPP = DW.OPP;
   const SIGN_STAT = ['hp', 'atk', 'def', 'spd', 'int', 'mp'];   // pictogramme des panneaux du Terrain d'entraînement (v) → poste
   // (seul le feuillage ondule au vent : jamais les maisons ni les grands décors)
   const SWAY = { tree: 1, oak: 1, birch: 1, bigtree: 1, palm: 1, pine: 1, fruittree: 1, jungletree: 1, swamptree: 1, cycad: 1, acacia: 1, baobab: 1, mangrove: 1, candytree: 1 };
@@ -410,7 +410,7 @@
       const n = this.npcAt(x, y);
       if (n) {
         if (P.dir === 'left') n.face = 'right'; else if (P.dir === 'right') n.face = 'left';
-        if (n.hero) n.face = { up: 'down', down: 'up', left: 'right', right: 'left' }[P.dir];   // un enfant se tourne vers toi
+        if (n.hero) n.face = OPP[P.dir];   // un enfant se tourne vers toi
         this.runScript(async ow => { await n.talk(ow, n); if (DW.Cuisine) await DW.Cuisine.afterTalk(n); });
         return true;
       }
