@@ -1,33 +1,11 @@
 'use strict';
 // =====================================================================
-//  DESSINS DES DIGIMON — stade Entraînement
+//  DESSINS DES DIGIMON — stade Entraînement (Koromon, Tsunomon et Bukamon : images du joueur, gfx/sprites.js)
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
 // =====================================================================
 (function () {
   Object.assign(DW.DRAW, {
-    bukamon(d) {
-      const T = '#a89e94', Tl = '#f0e4cc', O = '#f2722a', Y = '#ffc848';
-      d.tube([[26, 52], [16, 58.5], [8, 56], [6, 50]], 9, 3, T);
-      d.ell(4.6, 46.6, 3.4, 6, T, 0.3); d.ell(9, 45.4, 2.8, 5, T, -0.5);
-      d.deco.line(4, 43, 5, 50, 0.6, '#7a7068');
-      d.ell(28, 42, 4.2, 2.4, T, 0.7, { far: true });
-      d.ell(32, 46, 12.5, 12, T);
-      d.deco.ell(36.5, 48, 7, 9, Tl);
-      d.tube([[34, 41], [38, 30]], 13, 11, T, { noline: true });
-      d.deco.ell(41, 36, 4, 6, Tl);
-      d.ell(41, 21, 13, 11, T);
-      d.ell(51, 25.5, 8.4, 7, T, 0.1, { noline: true });
-      d.deco.ell(51.5, 29.5, 7, 3.6, '#6a1a2a', 0.1, { unlit: true });
-      d.deco.ell(51.5, 31, 4, 1.6, '#e86a8a');
-      d.deco.poly([[46, 27.6], [47, 29.8], [48, 27.6]], '#ffffff', { unlit: true }); d.deco.poly([[54, 27.6], [55, 29.8], [56, 27.4]], '#ffffff', { unlit: true });
-      d.deco.ell(57.6, 22.6, 0.8, 0.6, '#5a5048', 0, { unlit: true });
-      d.poly([[35, 13], [31.6, 5], [36, 8], [37, 0.5], [41, 7], [44.6, 2.6], [43.4, 12]], O, { shiny: true });
-      d.deco.poly([[36.6, 11.6], [37.4, 5], [40.4, 9.6], [42.6, 6.4], [41.8, 11.6]], Y, { unlit: true });
-      d.eye(45.6, 18.4, 4.4, 5.2, '#3a72e0', { look: 0.35 });
-      d.deco.ell(36, 24, 2.4, 1.2, '#cfc4b8');
-      d.ell(42.6, 42.4, 5.2, 2.6, T, 0.7);
-    },
     tanemon(d) {
       const B = '#f4f6e2', G = '#5aa040', Gd = '#2e7a2a', E = '#8a2a1a';
       d.curve([[30, 26], [26, 14], [18, 9], [12, 13]], 3.6, Gd);
@@ -43,26 +21,7 @@
       d.deco.curve([[38.6, 51.6], [40.4, 53], [42.2, 51.6]], 0.8, '#7a3020', { unlit: true });
       d.deco.ell(28.6, 50, 2.8, 1.5, '#ffb0b0'); d.deco.ell(51, 50.4, 2.2, 1.3, '#ffb0b0');
     },
-    // boule de poils orange, corne bleu-violet, grands yeux rouges (partenaire de Matt)
-    tsunomon(d) {
-      const O = '#f0a040', Od = '#c87428', L = '#ffd27a', H = '#8a90e8';
-      d.ell(32, 45, 19.5, 16.5, O, 0, { tex: 0.25 });
-      // touffe de poils sur le crâne (mèches pointues)
-      d.blob([[13, 40], [12, 31], [17, 33], [18, 24], [23, 29], [27, 21], [31, 28], [36, 22], [39, 29], [45, 25], [46, 32], [52, 30], [51, 39], [32, 36]], O, { tex: 0.3 });
-      d.deco.line(20, 30, 22, 36, 0.7, Od); d.deco.line(30, 26, 31, 33, 0.7, Od); d.deco.line(43, 28, 42, 34, 0.7, Od);
-      d.deco.ell(25, 52, 8, 5, L);
-      // corne
-      d.tube([[38, 28], [40, 16], [43, 5]], 7, 1.2, H, { shiny: true });
-      d.deco.line(36.2, 23, 41, 22, 0.8, '#5a5ab0'); d.deco.line(37.6, 16, 42, 15.4, 0.8, '#5a5ab0');
-      // visage
-      d.eye(37, 42, 5, 6, '#d02828', { look: 0.35 });
-      d.eye(49, 43, 4.2, 5.6, '#d02828', { look: 0.35 });
-      d.deco.ell(45, 53.6, 7, 3.4, '#5a1018', 0, { unlit: true });
-      d.deco.ell(45, 55.2, 4, 1.4, '#e8607a');
-      d.deco.poly([[40.4, 51.6], [41.8, 54], [43, 51.6]], '#ffffff', { unlit: true });
-      d.ell(17, 59, 4, 2.2, Od, 0, { far: true }); d.ell(44, 60, 4, 2.2, Od);
-    },
-    // petite boule noire duveteuse aux yeux jaunes (stade Bébé)
+    // bulbe rose, fleur bleue sur la tête
     yokomon(d) {
       const P = '#fad8e0', Bl = '#3a66e0', Bd = '#2440a8', Y = '#ffd84a', G = '#3e9a3e';
       d.tube([[26, 56], [22, 61]], 2.4, 1.6, '#e8b0c0', { far: true }); d.tube([[38, 56], [42, 61]], 2.4, 1.6, '#e8b0c0', { far: true });

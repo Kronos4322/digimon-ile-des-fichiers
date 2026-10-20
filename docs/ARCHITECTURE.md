@@ -22,7 +22,8 @@ qu'il contient : c'est la référence, ce document en donne la carte.
 | `dev/` | Outils (jamais chargés par le jeu) | voir « Outils » |
 | `docs/` | Documentation | ce fichier, `ZONES_DW1.md` (recherches sur Digimon World 1) |
 
-**`js/gfx/`** — `sprites.js` (cache et respiration des Digimon), `digimon/*.js` (un dessin par espèce : `bebes.js`,
+**`js/gfx/`** — `sprites.js` (cache et respiration des Digimon ; ceux qui ont des images du créateur, table `IMAGES`, les
+prennent : vues combat, profil, face, dos), `digimon/*.js` (un dessin par espèce pour les autres : `bebes.js`,
 `entrainement.js`, `disciples.js`, `champions.js`, `ultimes.js`, `ultimes2.js`, `ile.js`, `chapitre3.js`, lignées détaillées
 `agumon.js`, `gabumon.js`, `lignees.js`, vues de face / de dos `vues.js`), `hero.js` (sprite de marche du joueur et des
 enfants de l'histoire `DW.HEROES`), `persos.js` + `kit_donnees.js` (personnage assemblé avec le kit du créateur), `icons.js`,
@@ -83,20 +84,29 @@ compare avec la dernière version validée (le dernier commit) ; « Faire valide
 et des images avant / après : Claude vérifie les cartes (`dev/check.html?seul=...`) puis met en ligne.
 
 ## Les images du créateur
-Les décors (sols, arbres, buissons, rochers, fleurs, mobilier, meubles, plage, montagne, volcan) sont ses images,
-fabriquées avec ChatGPT. `python dev/optimiser_textures.py` en fait des copies allégées (`assets/<dossier>/jeu/`) ;
+Les décors (sols, arbres, buissons, rochers, fleurs, mobilier, meubles, plage, montagne, volcan) et une partie des Digimon
+sont ses images, fabriquées avec ChatGPT. `python dev/optimiser_textures.py` en fait des copies allégées (`assets/<dossier>/jeu/`) ;
 `gfx/textures.js` les relie aux objets du jeu (table `ARBRES` : objet → images par variante, `HAUTEUR` : taille en hauteurs
 de héros, `CHOIX` : sols par thème). Un objet remplacé garde seulement un petit dessin de secours (`World.secours`), utilisé
 si l'image ne se charge pas ; les rendus faits pendant le chargement sont oubliés dès que les images arrivent
 (`World.oublierObjet`). Règles du créateur : arbres et maisons font 3 fois la hauteur du héros ; un objet vu de biais n'est
 pas utilisé (on garde le dessin de face).
 
+DIGIMON : une planche par espèce (`assets/ASSETS - Digimon/Digimon/`, fond vert). La table `DIGIMON` de
+`dev/optimiser_textures.py` y choisit quatre poses par leur rang dans la planche — combat (de trois quarts), profil (de
+côté), face, dos, tournées vers la droite (« miroir » sinon) — et les découpe en `assets/commun/jeu/digi_<espèce>_<vue>.png`.
+`gfx/sprites.js` (`IMAGES` : hauteur dans le cadre du stade) les met à la taille de chaque écran, avec la même respiration
+et les mêmes poses de combat que les dessins par code ; le dessin par code de l'espèce est alors retiré (un petit dessin de
+secours, `DRAW._secours`, sert pendant le chargement ; les Digimon déjà rendus sont refaits à l'arrivée des images :
+`Sprites.oublier`).
+
 ## Recettes
 
 **Ajouter un Digimon**
 1. `js/data/species.js` (ou `species2.js`, `species3.js`) : `def('id', {...})` + ajout dans `DW.DEX_ORDER`.
-2. `js/gfx/digimon/<stade>.js` : fonction de dessin `id(d, p = {}) { ... }` (repère 64×64, tourné vers la droite).
-   `p.pose` vaut `'attack'` ou `'hurt'` pendant les combats (optionnel).
+2. Son image : une planche du créateur (voir « Les images du créateur » : table `DIGIMON` de `dev/optimiser_textures.py`,
+   puis `IMAGES` dans `gfx/sprites.js`), ou une fonction de dessin dans `js/gfx/digimon/<stade>.js` :
+   `id(d, p = {}) { ... }` (repère 64×64, tourné vers la droite ; `p.pose` vaut `'attack'` ou `'hurt'` en combat).
 3. Évolutions : `js/data/evolutions.js` (tout Digimon doit être atteignable depuis un œuf : `dev/check.html` le vérifie).
 4. Vérifier le rendu : `dev/gallery.html?sp=id`.
 
@@ -179,7 +189,8 @@ sécheresses (`engine/time.js`, rendu `gfx/ciel.js` et `gfx/meteo.js`). Décor v
 
 ## Conventions
 - Textes du jeu et commentaires en français ; fichiers en UTF-8, fins de ligne LF (les tests le vérifient).
-- Aucune image officielle : décors = images du créateur, Digimon et héros dessinés par le code.
+- Aucune image officielle : décors et une partie des Digimon = images du créateur ; les autres Digimon, le héros et les
+  effets sont dessinés par le code.
 - Sauvegarde : `localStorage` (`DW.save` / `DW.load` dans `game/sauvegarde.js`), options séparées (`options.js`).
   `_precedente` (copie écrite juste avant chaque sauvegarde) et `_illisible` (sauvegarde abîmée mise de côté). Un Digimon
   d'espèce inconnue va dans `state.orphans`. Changer le format = augmenter `DW.SAVE_V` et ajouter la migration.

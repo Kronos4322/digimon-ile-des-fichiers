@@ -1,7 +1,9 @@
 'use strict';
 // Vérifie chaque carte : sorties, arrivées, PNJ, panneaux, terrains d'entraînement et déclencheurs accessibles.
 // Point de départ = première sortie de la carte. Ouvrir dev/check.html (via dev/serve.py).
-(function () {
+(async function () {
+  // (comme le jeu, on attend les images du joueur : elles donnent leur taille aux décors et aux Digimon)
+  await DW.Textures.charge;
   const lines = [];
   // vérification sur la ville au complet (toutes les recrues) : quartiers, routes et maisons ouverts.
   // (À bas niveau, certains passages sont fermés exprès : ils n'existent pas encore.)
@@ -76,7 +78,8 @@
     for (const sp in SP) {
       if (SP[sp].npc) continue;
       if (!seen.has(sp)) p.push(`${sp} inatteignable depuis un œuf`);
-      if (!DW.DRAW[sp]) p.push(`${sp} sans dessin`);
+      if (!DW.DRAW[sp] && !DW.Sprites.IMAGES[sp]) p.push(`${sp} sans dessin`);
+      if (DW.Sprites.IMAGES[sp]) for (const v of DW.Sprites.VUES) if (!DW.Textures.a('commun/digi_' + sp + '_' + v)) p.push(`${sp} : image « ${v} » absente`);
       for (const [, mv] of SP[sp].learn) if (!DW.MOVES[mv]) p.push(`${sp} : technique inconnue ${mv}`);
       if (SP[sp].stage === 'Champion' && !DW.Evo.options(sp).length) p.push(`${sp} (Champion) sans Ultime`);
       for (const o of DW.Evo.options(sp)) if (!SP[o.to]) p.push(`${sp} → ${o.to} inconnu`);

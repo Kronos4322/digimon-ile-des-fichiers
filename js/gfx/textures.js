@@ -1,14 +1,16 @@
 'use strict';
 // =====================================================================
-//  TEXTURES DESSINÉES (assets/<dossier>/*.png, fabriquées avec ChatGPT) : chaque image présente remplace le dessin
-//  par code de l'élément correspondant ; une image absente = le dessin par code reste (voir assets/volcan/LISEZ-MOI.txt).
+//  IMAGES DU JOUEUR (assets/<dossier>/*.png, fabriquées avec ChatGPT) : chaque image remplace le dessin par code de
+//  l'élément correspondant (sol, décor, Digimon) ; une image absente ou pas encore chargée = un petit dessin de secours.
 //  Le jeu charge d'abord la copie allégée (assets/<dossier>/jeu/, faite par dev/optimiser_textures.py), sinon l'original.
 //  Quelle que soit la taille de l'image, elle est mise à l'échelle du jeu (TAILLE, en pixels du jeu : 1 case = 16) ;
 //  les objets sont d'abord recadrés sur leur contenu (fond transparent enlevé).
 //  Une carte choisit son dossier avec map.textures (ex. 'volcan' : maps/miharashi.js). Toutes les cartes extérieures
 //  prennent aussi le dossier COMMUN (assets maison du joueur : herbes, terres, sables, eaux, arbres), selon leur thème
 //  (CHOIX) ; les arbres du jeu (variantes de saison comprises) sont dessinés avec ses images (ARBRES).
-//  Utilisé par : gfx/terrain.js (sol, falaises, escaliers, lave, objets), gfx/premium.js (cratère), game/lave.js (coulées).
+//  Les Digimon dessinés par le joueur (digi_<espèce>_<vue>) : gfx/sprites.js (IMAGES).
+//  Utilisé par : gfx/terrain.js (sol, falaises, escaliers, lave, objets), gfx/objects.js (décors), gfx/meteo.js (saisons),
+//  gfx/sprites.js (Digimon), gfx/premium.js (cratère), game/lave.js (coulées), main.js (attente du chargement), l'atelier.
 // =====================================================================
 (function () {
   const SOLS = ['herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre',
@@ -38,7 +40,9 @@
       'ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose', 'ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain', 'ext_puits', 'ext_panneau',
       // plage : rochers, arche, herbes de dune, coquillages, mares, palmiers, bois flotté, château de sable, barque, radeau, sables
       'plage_rocher', 'plage_rochers', 'plage_pile_rochers', 'plage_arche', 'plage_herbe_dune', 'plage_herbe_seche', 'plage_conque', 'plage_escargot', 'plage_coquille', 'plage_etoile', 'plage_mare',
-      'plage_palmier', 'plage_palmier_courbe', 'plage_palmier_double', 'plage_bois_flotte', 'plage_bois_flotte2', 'plage_chateau', 'plage_barque', 'plage_radeau', 'plage_sable', 'plage_borne'],
+      'plage_palmier', 'plage_palmier_courbe', 'plage_palmier_double', 'plage_bois_flotte', 'plage_bois_flotte2', 'plage_chateau', 'plage_barque', 'plage_radeau', 'plage_sable', 'plage_borne',
+      // Digimon (planches du joueur, une image par vue : gfx/sprites.js)
+      ...Object.keys(DW.Sprites.IMAGES).flatMap(sp => DW.Sprites.VUES.map(v => 'digi_' + sp + '_' + v))],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
       'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
@@ -158,7 +162,8 @@
     T.img[d + '/' + n] = (await charger(racine + 'assets/' + d + '/jeu/' + n + '.png')) || (await charger(racine + 'assets/' + d + '/' + n + '.png', true));
   }));
   const ouvrier = async () => { while (taches.length) await taches.shift()(); };
-  T.charge = !nav ? Promise.resolve() : Promise.all([1, 2, 3, 4, 5, 6].map(ouvrier)).then(() => { T.fini = true; objets(); });
+  // (les Digimon dessinés pendant le chargement, sur l'écran titre, l'ont été avec leur dessin de secours : on les oublie)
+  T.charge = !nav ? Promise.resolve() : Promise.all([1, 2, 3, 4, 5, 6].map(ouvrier)).then(() => { T.fini = true; objets(); DW.Sprites.oublier(); });
 
   T.a = cle => T.img[cle] || null;
   // thème de la carte (sans la saison) ; null = pas d'images communes sur cette carte
@@ -209,6 +214,7 @@
   T.variantes = kind => (ARBRES[kind] || []).length;
   T.nomImage = (kind, v) => nomArbre(kind, v);
   // réduction par moitiés successives (une grande image réduite d'un coup devient granuleuse)
+  T.reduire = (im, w, h) => reduire(im, 0, 0, im.naturalWidth || im.width, im.naturalHeight || im.height, w, h);
   function reduire(im, sx, sy, sw, sh, w, h) {
     let src = im, ox = sx, oy = sy, cw = sw, ch = sh;
     while (cw / 2 >= w && ch / 2 >= h) {

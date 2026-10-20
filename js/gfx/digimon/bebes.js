@@ -1,26 +1,11 @@
 'use strict';
 // =====================================================================
-//  DESSINS DES DIGIMON — stade Bébé (Botamon est dans agumon.js)
+//  DESSINS DES DIGIMON — stade Bébé (Botamon est dans agumon.js ; Punimon, Nyokimon, Pabumon et Poyomon : images du
+//  joueur, gfx/sprites.js)
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 // =====================================================================
 (function () {
   Object.assign(DW.DRAW, {
-    // boule rouge gélatineuse à trois pointes jaunes
-    punimon(d) {
-      const R = '#ee5a6a', Rd = '#c83a50', Rl = '#ffb0b8', Y = '#f8d040';
-      d.poly([[22, 33], [20, 20], [28, 30]], Y, { shiny: true, far: true });
-      d.poly([[30, 30], [32, 15], [37, 30]], Y, { shiny: true });
-      d.poly([[39, 32], [46, 20], [45, 35]], Y, { shiny: true });
-      d.ell(32, 47, 19, 15.4, R, 0, { shiny: true });
-      d.ell(32, 60, 17, 3, R, 0, { noline: true });
-      d.deco.ell(24, 38, 6, 3.4, Rl, -0.4);
-      d.deco.ell(22.6, 36.6, 2, 1, '#ffffff', -0.4, { unlit: true });
-      d.deco.curve([[15, 50], [17, 56], [22, 59.4]], 0.9, Rd);
-      d.eye(38, 46, 4.2, 5.4, '#2a2a3a', { look: 0.35, white: '#fff6c0' });
-      d.eye(48.6, 46.6, 3.6, 5, '#2a2a3a', { look: 0.35, white: '#fff6c0' });
-      d.deco.curve([[41, 54.6], [44, 56.4], [47, 54.6]], 1, '#7a1020', { unlit: true });
-      d.deco.ell(34.4, 52.6, 2.4, 1.3, '#ff8a9a'); d.deco.ell(51.6, 52.4, 1.8, 1.1, '#ff8a9a');
-    },
     // petit poisson-bulle aux nageoires duveteuses
     pichimon(d) {
       const B = '#d6e6f4', Bd = '#9ab6d4', Bl = '#ffffff', F = '#a8c8ec';
@@ -59,26 +44,6 @@
       d.eye(47, 48.4, 3, 4.2, '#2a2a2a', { look: 0.3 });
       d.deco.curve([[40.6, 55.4], [42.4, 56.6], [44, 55.4]], 0.8, '#a05a4a', { unlit: true });
       d.deco.ell(33.4, 54, 2.2, 1.2, '#ffc8c0'); d.deco.ell(50, 54, 1.8, 1, '#ffc8c0');
-    },
-    // bourgeon sur pattes, bouton de fleur rose sur la tête
-    nyokimon(d) {
-      const G = '#a8d86a', Gd = '#6aa040', Gl = '#e0f8b0', P = '#f490b8', Pd = '#d0608a';
-      // bouton de fleur
-      d.ell(26, 22, 5, 10, P, -0.5, { far: true });
-      d.ell(36, 20, 5.6, 11, P, 0.35, { shiny: true });
-      d.ell(31, 18, 5, 12, P, -0.05, { shiny: true });
-      d.deco.curve([[31, 8], [31, 26]], 0.7, Pd);
-      d.ell(32, 30, 8, 3.6, Gd);
-      // corps-bulbe
-      d.blob([[18, 44], [22, 32], [32, 29], [43, 32], [47, 44], [43, 56], [32, 60], [21, 56]], G);
-      d.deco.ell(26, 38, 5, 3, Gl, -0.4);
-      d.deco.curve([[20, 48], [23, 55]], 0.8, Gd);
-      // petites pattes
-      d.ell(26, 60, 4, 2.4, Gd, 0, { far: true }); d.ell(38, 60.4, 4.4, 2.6, Gd);
-      d.eye(36, 44, 3.6, 4.6, '#2a2a2a', { look: 0.35 });
-      d.eye(44.6, 44.6, 3, 4.2, '#2a2a2a', { look: 0.35 });
-      d.deco.curve([[38.6, 51.4], [40.6, 52.8], [42.6, 51.4]], 0.8, '#5a2a1a', { unlit: true });
-      d.deco.ell(33, 50, 2, 1.1, '#ffb0c0'); d.deco.ell(46, 49.6, 1.6, 1, '#ffb0c0');
     },
   });
 })();

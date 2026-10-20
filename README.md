@@ -2,8 +2,9 @@
 
 Jeu de fan non officiel inspiré de la saison 1 de Digimon Adventure, dans l'esprit de **Digimon World 1**
 (élevage, ville à reconstruire) et de **Digimon World 2003** (décors denses, menus), avec des combats **au tour par
-tour** façon Pokémon. Aucune image officielle n'est utilisée : les décors sont les images du créateur
-(`assets/commun/jeu/`), les Digimon, le héros et les effets sont dessinés par le code.
+tour** façon Pokémon. Aucune image officielle n'est utilisée : les décors et une partie des Digimon (bébés et
+entraînement) sont les images du créateur (`assets/commun/jeu/`) ; les autres Digimon, le héros et les effets sont
+dessinés par le code.
 
 ## Lancer le jeu
 - **En ligne / téléphone** : la version publiée sur GitHub Pages s'installe comme une application

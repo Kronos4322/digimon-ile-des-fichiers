@@ -38,27 +38,6 @@
         for (let i = 0; i < 3; i++) d.deco.line(29 + i * 3, 37, 29.4 + i * 3, 41, 0.5, K2);
       },
     },
-    punimon: {
-      front(d) {
-        const R = '#ee5a6a', Rd = '#c83a50', Rl = '#ffb0b8', Y = '#f8d040';
-        d.poly([[21, 34], [17, 21], [28, 30]], Y, { shiny: true }); d.poly(mir([[21, 34], [17, 21], [28, 30]]), Y, { shiny: true });
-        d.poly([[28.6, 30], [32, 14], [35.4, 30]], Y, { shiny: true });
-        d.ell(32, 47, 19, 15.4, R, 0, { shiny: true }); d.ell(32, 60, 17, 3, R, 0, { noline: true });
-        d.deco.ell(24, 38.6, 5.6, 3, Rl, -0.4); d.deco.ell(22.6, 37.2, 2, 1, '#ffffff', -0.4, { unlit: true });
-        d.deco.curve([[15, 50], [17, 56], [22, 59.4]], 0.9, Rd); d.deco.curve([[49, 50], [47, 56], [42, 59.4]], 0.9, Rd);
-        eyes(d, 46.4, 6.2, 4, 5.2, '#2a2a3a', { white: '#fff6c0' });
-        smile(d, 54.4, 3.2, '#7a1020', 1.8, 1);
-        pair(d, 52.8, 12.6, 2.2, 1.2, '#ff8a9a');
-      },
-      back(d) {
-        const R = '#ee5a6a', Rd = '#c83a50', Rl = '#ffb0b8', Y = '#f8d040';
-        d.poly([[21, 34], [17, 21], [28, 30]], Y, { shiny: true }); d.poly(mir([[21, 34], [17, 21], [28, 30]]), Y, { shiny: true });
-        d.poly([[28.6, 30], [32, 14], [35.4, 30]], Y, { shiny: true });
-        d.ell(32, 47, 19, 15.4, R, 0, { shiny: true }); d.ell(32, 60, 17, 3, R, 0, { noline: true });
-        d.deco.ell(25, 40, 8, 4, Rl, -0.35); d.deco.ell(23, 38.4, 2.4, 1.1, '#ffffff', -0.35, { unlit: true });
-        d.deco.curve([[22, 52], [32, 56], [42, 52]], 0.8, Rd);
-      },
-    },
     pichimon: {
       front(d) {
         const B = '#d6e6f4', F = '#a8c8ec';
@@ -96,90 +75,7 @@
         d.tube([[32, 29], [32, 23], [33, 19]], 1.8, 1.2, St); d.ell(32, 18, 3.6, 1.8, Sl, 0);
       },
     },
-    nyokimon: {
-      front(d) { V.nyokimon.body(d); eyes(d, 44.6, 5, 3.3, 4.4, '#2a2a2a'); smile(d, 51.4, 2, '#5a2a1a', 1.2, 0.8); pair(d, 49.6, 10.4, 1.8, 1, '#ff9ab8'); },
-      back(d) { V.nyokimon.body(d); d.deco.curve([[22, 46], [32, 50], [42, 46]], 0.7, '#6aa040'); },
-      body(d) {
-        const G = '#a8d86a', Gd = '#6aa040', Gl = '#e0f8b0', P = '#f490b8', Pd = '#d0608a';
-        d.ell(26, 22, 5, 10, P, -0.45, { far: true }); d.ell(38, 22, 5, 10, P, 0.45, { far: true });
-        d.ell(32, 18, 5.4, 12, P, 0, { shiny: true }); d.deco.curve([[32, 8], [32, 26]], 0.7, Pd);
-        d.ell(32, 30, 8, 3.6, Gd);
-        d.blob(sym([[32, 29], [22, 32], [18, 44], [21, 56], [32, 60]]), G);
-        d.deco.ell(25.6, 38, 4.8, 2.8, Gl, -0.4);
-        d.ell(25, 60.2, 4.2, 2.5, Gd); d.ell(39, 60.2, 4.2, 2.5, Gd);
-      },
-    },
-    pabumon: {
-      front(d) {
-        const Y = '#f0cc40';
-        V.pabumon.body(d);
-        eyes(d, 42, 4.6, 2.4, 3.1, '#1a1a22');
-        d.circ(32, 50, 3.6, Y, { shiny: true }); d.deco.circ(32, 50, 1.6, '#c89820'); d.ell(32, 54, 2.6, 1.3, Y);
-      },
-      back(d) { V.pabumon.body(d); d.deco.curve([[24, 44], [32, 47], [40, 44]], 0.7, '#a8cc84'); },
-      body(d) {
-        const G = '#d4ecb0', Gd = '#a8cc84', Gl = '#f2fbe4';
-        d.blob(sym([[32, 27], [22, 30], [16, 40], [15, 52], [10, 61], [20, 59], [26, 62], [32, 60]]), G, { shiny: true });
-        d.deco.ell(25, 36, 5.6, 3.2, Gl, -0.4); d.deco.ell(23.6, 34.8, 1.8, 1, '#ffffff', -0.4, { unlit: true });
-        d.deco.curve([[15, 54], [19, 58]], 0.8, Gd); d.deco.curve([[49, 54], [45, 58]], 0.8, Gd);
-        for (const [x, y, r] of [[52, 34], [56, 28], [49, 25], [12, 32], [9, 38]].map(([x, y], i) => [x, y, [2.6, 1.8, 1.4, 2, 1.4][i]])) { d.circ(x, y, r, '#e8f6dc', { shiny: true }); d.deco.circ(x - r * 0.35, y - r * 0.35, r * 0.3, '#ffffff', { unlit: true }); }
-      },
-    },
-    poyomon: {
-      front(d) {
-        V.poyomon.body(d);
-        eyes(d, 34, 4.8, 2.2, 3, '#1a1a22', { white: '#22222a' });
-        d.deco.blob([[28.6, 40], [35.4, 40], [34, 43.4], [30, 43.4]], '#e86a4a', { unlit: true });
-        pair(d, 39, 10.4, 1.6, 0.9, '#ffd0d8');
-      },
-      back(d) { V.poyomon.body(d); },
-      body(d) {
-        const W = '#f6f8ff', B = '#c4d6f4', Bd = '#90aee0';
-        d.blob(sym([[32, 18], [22, 22], [15, 34], [14, 50], [18, 56], [22, 52], [26, 57], [30, 52], [32, 54]]), W, { shiny: true });
-        d.deco.blob(sym([[32, 50], [24, 48], [17, 46], [16, 50], [18, 54], [22, 51], [26, 55], [30, 51], [32, 52]]), B);
-        d.deco.curve([[20, 53], [24, 49]], 0.6, Bd); d.deco.curve([[44, 53], [40, 49]], 0.6, Bd);
-        d.deco.ell(24, 28, 5.6, 3.4, '#ffffff', -0.5, { unlit: true });
-      },
-    },
     // ================================================================ ENTRAÎNEMENT
-    koromon: {
-      front(d) {
-        const R = '#d81a36';
-        V.koromon.body(d, true);
-        eyes(d, 38.6, 7.6, 5, 6.2, R);
-        d.deco.curve([[19, 48.6], [25, 52.6], [32, 53.6], [39, 52.6], [45, 48.6]], 1.4, '#6a0a28', { unlit: true });
-        d.deco.poly([[24.6, 51.4], [26, 55], [27.4, 51.8]], '#ffffff', { unlit: true }); d.deco.poly([[36.6, 51.8], [38, 55], [39.4, 51.4]], '#ffffff', { unlit: true });
-        pair(d, 48, 15.2, 2.6, 1.4, '#ff8ab4');
-      },
-      back(d) { V.koromon.body(d, false); d.deco.curve([[20, 52], [32, 57], [44, 52]], 0.9, '#d8809e'); },
-      body(d, front) {
-        const P = '#f6a8c8', Pd = '#d8809e', Pi = '#ffd8e8';
-        const earL = [[27, 31], [21, 25], [14, 24], [8, 27], [3, 24]];
-        d.blob(sym([[32, 26], [22, 28], [14, 37], [12, 50], [16, 58], [24, 61], [32, 62]]), P);
-        d.deco.ell(24.4, 35, 7.4, 4.2, Pi, -0.35); d.deco.ell(23, 33, 2.8, 1.4, '#ffffff', -0.35, { unlit: true });
-        // oreilles-rubans : elles flottent de chaque côté
-        for (const pts of [earL, mir(earL)]) { d.tube(pts, 8, 2.6, P); d.deco.tube(pts.slice(0, 4).map(([x, y]) => [x, y + 1.2]), 3, 1.2, front ? Pi : Pd); }
-      },
-    },
-    tsunomon: {
-      front(d) {
-        V.tsunomon.body(d);
-        eyes(d, 42.6, 7.4, 4.6, 5.8, '#d02828');
-        d.deco.ell(32, 53, 6, 3, '#5a1018', 0, { unlit: true }); d.deco.ell(32, 54.4, 3.6, 1.2, '#e8607a');
-        d.deco.poly([[28.4, 51.6], [29.6, 54], [30.8, 51.6]], '#ffffff', { unlit: true }); d.deco.poly([[33.2, 51.6], [34.4, 54], [35.6, 51.6]], '#ffffff', { unlit: true });
-      },
-      back(d) { V.tsunomon.body(d); for (const x of [24, 32, 40]) d.deco.line(x, 40, x + (x - 32) * 0.15, 52, 0.7, '#c87428'); },
-      body(d) {
-        const O = '#f0a040', Od = '#c87428', L = '#ffd27a', H = '#8a90e8';
-        d.ell(22, 59.6, 4, 2.2, Od); d.ell(42, 59.6, 4, 2.2, Od);
-        d.ell(32, 45, 19.5, 16.5, O, 0, { tex: 0.25 });
-        d.blob(sym([[32, 36], [13, 40], [12, 31], [17, 33], [18, 24], [23, 29], [27, 21], [31, 27], [32, 23]]), O, { tex: 0.3 });
-        d.deco.line(20, 30, 22, 36, 0.7, Od); d.deco.line(44, 30, 42, 36, 0.7, Od); d.deco.line(27, 25, 28, 32, 0.7, Od); d.deco.line(37, 25, 36, 32, 0.7, Od);
-        d.deco.ell(32, 53, 9, 4.6, L);
-        d.tube([[32, 28], [32, 16], [32, 5]], 7, 1.2, H, { shiny: true });
-        d.deco.line(29.4, 23, 34.6, 23, 0.8, '#5a5ab0'); d.deco.line(30, 16, 34, 16, 0.8, '#5a5ab0');
-      },
-    },
     yokomon: {
       front(d) { V.yokomon.body(d); eyes(d, 46, 6.2, 3.6, 4.4, '#2a9a4a'); smile(d, 53.4, 2, '#a04060', 1.4, 0.8); },
       back(d) { V.yokomon.body(d); d.deco.curve([[22, 50], [32, 54], [42, 50]], 0.6, '#f0b8c8'); },
@@ -228,34 +124,6 @@
         d.deco.ell(25.6, 27, 5.6, 3.6, Pl, -0.4); d.deco.ell(24.4, 25.6, 1.8, 1.1, '#ffffff', -0.4, { unlit: true });
         const arm = [[19, 40], [12, 36], [9, 30]];
         for (const a of [arm, mir(arm)]) { d.tube(a, 3.4, 2.6, Pd); const [hx, hy] = a[2]; for (let i = -1; i <= 1; i++) d.tube([[hx, hy], [hx + i * 2, hy - 3]], 0.9, 0.4, '#3a3a44'); }
-      },
-    },
-    bukamon: {
-      front(d) {
-        const T = '#a89e94', Tl = '#f0e4cc';
-        V.bukamon.body(d);
-        d.ell(32, 27.4, 8.4, 6.4, T, 0, { noline: true });
-        d.deco.ell(32, 29.6, 6.4, 3.4, '#6a1a2a', 0, { unlit: true }); d.deco.ell(32, 31, 3.6, 1.4, '#e86a8a');
-        d.deco.poly([[27.6, 27.6], [28.6, 29.8], [29.6, 27.6]], '#ffffff', { unlit: true }); d.deco.poly([[34.4, 27.6], [35.4, 29.8], [36.4, 27.6]], '#ffffff', { unlit: true });
-        eyes(d, 18.6, 6.4, 4, 5, '#3a72e0');
-        d.deco.ell(32, 45, 6.6, 8.6, Tl);
-      },
-      back(d) {
-        const T = '#a89e94';
-        // queue de phoque recourbée vers nous, nageoire en deux lobes
-        d.tube([[32, 50], [32, 58], [30, 61]], 9, 4, T);
-        d.ell(26.6, 60, 5, 2.6, T, 0.3); d.ell(35, 60.6, 4.4, 2.4, T, -0.3);
-        V.bukamon.body(d);
-        d.deco.curve([[22, 36], [32, 39], [42, 36]], 0.7, '#7a7068');
-      },
-      body(d) {
-        const T = '#a89e94', O = '#f2722a', Y = '#ffc848';
-        d.ell(32, 46, 12.5, 12, T);
-        d.tube([[32, 41], [32, 30]], 13, 11, T, { noline: true });
-        d.ell(32, 21, 13, 11, T);
-        d.poly([[25.6, 13], [24.6, 5], [29, 8], [32, 0.5], [35, 8], [39.4, 5], [38.4, 13]], O, { shiny: true });
-        d.deco.poly([[27.6, 11.6], [28, 6.4], [30.6, 9.4], [32, 5.6], [33.4, 9.4], [36, 6.4], [36.4, 11.6]], Y, { unlit: true });
-        d.ell(19.6, 44, 5.2, 2.6, T, -0.7); d.ell(44.4, 44, 5.2, 2.6, T, 0.7);
       },
     },
     tokomon: {

@@ -410,7 +410,122 @@ def optimiser_commun():
         print('%-24s -> %4dx%-4d  %4d Ko' % (nom, W, Hh, os.path.getsize(cible) // 1024))
 
 
+# ---------------------------------------------------------------- DIGIMON : planches du joueur (dossier Digimon/, fond vert),
+# une pose par dessin. Quatre vues par espèce, tournées vers la DROITE (« miroir » quand la planche les montre vers la
+# gauche) : combat (de trois quarts : combats, menus), profil (de côté : marche à gauche ou à droite), face (marche vers
+# le bas), dos (marche vers le haut) -> assets/commun/jeu/digi_<espèce>_<vue>.png ; le jeu les met à la taille de chaque
+# écran (js/gfx/sprites.js : IMAGES). Le numéro d'une pose : son rang dans l'ordre de lecture de la planche (rangées de
+# haut en bas, puis de gauche à droite).
+DIGIMON = {
+    'koromon':  ('Koromon.jpg',  {'combat': 5, 'profil': (2, 'miroir'), 'face': 0, 'dos': 1}),
+    'tsunomon': ('TSUNOMON.jpg', {'combat': (1, 'miroir'), 'profil': (2, 'miroir'), 'face': 0, 'dos': 4}),
+    'bukamon':  ('BUKAMON.jpg',  {'combat': 5, 'profil': 3, 'face': 8, 'dos': 1}),
+    'nyokimon': ('NYAKOMON.jpg', {'combat': 6, 'profil': 12, 'face': 0, 'dos': 8}),
+    'pabumon':  ('PABUMON.jpg',  {'combat': (2, 'miroir'), 'profil': (3, 'miroir'), 'face': 0, 'dos': 7}),
+    'poyomon':  ('POYOMON.jpg',  {'combat': 3, 'profil': (2, 'miroir'), 'face': 0, 'dos': 4}),
+    'punimon':  ('PUNIMON.jpg',  {'combat': 5, 'profil': 4, 'face': 0, 'dos': 3}),
+}
+HAUT_DIGIMON = 168   # hauteur des copies : le plus grand affichage d'un Bébé ou d'un Digimon d'entraînement (combat, en haute définition)
+
+
+def planche_digimon(f):
+    """Poses d'une planche de Digimon : (image, part de vert, [(y0, x0, y1, x1, masque)]) dans l'ordre de lecture."""
+    import numpy as np
+    from scipy import ndimage
+    a = np.array(Image.open(f).convert('RGB')).astype(int)
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    vert = g - np.maximum(r, b)
+    # fond : le vert pur, clair ou sombre (les ombres vertes sous les poses qui sautent) ; les feuilles d'un Digimon,
+    # vert-jaune, restent
+    fond = (vert > 100) | ((r < 40) & (b < 40) & (g > 80))
+    obj = ndimage.binary_opening(~fond, iterations=1)
+    lab, n = ndimage.label(obj)
+    aires = ndimage.sum(obj, lab, range(1, n + 1))
+    boites = ndimage.find_objects(lab)
+    B = [(s[0].start, s[1].start, s[0].stop, s[1].stop) for s in boites]
+    grands = [i for i in range(n) if aires[i] >= aires.max() * 0.12]
+    groupe = {i: [i + 1] for i in grands}
+    # un morceau détaché (bulle, étincelle, trait de vitesse) va à la pose juste en dessous de lui (les bulles montent),
+    # sinon à la plus proche
+    for i in range(n):
+        if i in groupe or aires[i] < 12: continue
+        y0, x0, y1, x1 = B[i]; cy, cx = (y0 + y1) / 2, (x0 + x1) / 2
+        dessous = [q for q in grands if B[q][1] - 15 <= cx <= B[q][3] + 15 and B[q][0] > cy - 10 and B[q][0] - y1 < 90]
+        if dessous:
+            q = min(dessous, key=lambda q: B[q][0] - y1)
+        else:
+            dist = lambda q: max(0, B[q][1] - cx, cx - B[q][3]) + max(0, B[q][0] - cy, cy - B[q][2])
+            q = min(grands, key=dist)
+            if dist(q) > 50: continue
+        groupe[q].append(i + 1)
+    poses = []
+    for q, ks in groupe.items():
+        m = np.isin(lab, ks); ys, xs = np.where(m)
+        poses.append((ys.min(), xs.min(), ys.max() + 1, xs.max() + 1, m))
+    poses.sort(key=lambda p: (p[0] + p[2]) / 2)
+    rangs, cur = [], []
+    for p in poses:
+        if cur and (p[0] + p[2]) / 2 - (cur[-1][0] + cur[-1][2]) / 2 > (cur[-1][2] - cur[-1][0]) * 0.5: rangs.append(cur); cur = []
+        cur.append(p)
+    if cur: rangs.append(cur)
+    return a, vert, [p for rg in rangs for p in sorted(rg, key=lambda p: p[1])]
+
+
+def pose_digimon(a, vert, p, miroir=False):
+    """Une pose détourée (RGBA recadré) : bord doux de 2 pixels, liseré vert neutralisé."""
+    import numpy as np
+    from scipy import ndimage
+    y0, x0, y1, x1, m = p
+    sub = a[y0:y1, x0:x1].copy(); v = vert[y0:y1, x0:x1]; mm = m[y0:y1, x0:x1]
+    bord = mm & ndimage.binary_dilation(~mm, iterations=2)
+    interieur = mm & ~bord
+    ref = max(0, int(np.percentile(v[interieur], 97))) if interieur.any() else 0   # (le vert propre au Digimon : ses feuilles)
+    alpha = np.where(mm, 255.0, 0.0)
+    alpha[bord] = 255 * np.clip((150 - v[bord]) / (150 - max(ref, 20)), 0, 1)
+    gmax = np.maximum(sub[..., 0], sub[..., 2]) + ref
+    sub[..., 1] = np.where(bord & (sub[..., 1] > gmax), gmax, sub[..., 1])
+    im = Image.fromarray(np.dstack([sub, alpha]).clip(0, 255).astype('uint8'), 'RGBA')
+    return im.transpose(Image.FLIP_LEFT_RIGHT) if miroir else im
+
+
+def numeroter_digimon():
+    """python dev/optimiser_textures.py digimon --numeros : chaque planche avec le numéro de ses poses (dev/captures/),
+    pour choisir les quatre vues d'une nouvelle espèce."""
+    from PIL import ImageDraw
+    src = os.path.join(SOURCE_COMMUN, 'Digimon'); dst = os.path.join(RACINE, '..', 'dev', 'captures'); os.makedirs(dst, exist_ok=True)
+    for f in sorted(os.listdir(src)):
+        a, vert, poses = planche_digimon(os.path.join(src, f))
+        im = Image.open(os.path.join(src, f)).convert('RGB'); dr = ImageDraw.Draw(im)
+        for i, (y0, x0, y1, x1, m) in enumerate(poses):
+            dr.rectangle([x0, y0, x1, y1], outline=(255, 0, 0), width=3)
+            dr.rectangle([x0, y0, x0 + 34, y0 + 22], fill=(0, 0, 0)); dr.text((x0 + 4, y0 + 4), str(i), fill=(255, 255, 0))
+        cible = os.path.join(dst, 'planche_' + os.path.splitext(f)[0] + '_numeros.png'); im.save(cible)
+        print('%-16s %3d poses -> %s' % (f, len(poses), os.path.relpath(cible)))
+
+
+def optimiser_digimon():
+    if '--numeros' in sys.argv: return numeroter_digimon()
+    src = os.path.join(SOURCE_COMMUN, 'Digimon')
+    dst = os.path.join(RACINE, 'commun', 'jeu'); os.makedirs(dst, exist_ok=True)
+    for sp, (fichier, vues) in DIGIMON.items():
+        f = os.path.join(src, fichier)
+        if not os.path.exists(f):
+            print('absent :', fichier); continue
+        cibles = {v: os.path.join(dst, 'digi_%s_%s.png' % (sp, v)) for v in vues}
+        if all(os.path.exists(c) and os.path.getmtime(c) >= os.path.getmtime(f) for c in cibles.values()) and '--tout' not in sys.argv:
+            continue
+        a, vert, poses = planche_digimon(f)
+        for v, k in vues.items():
+            n, miroir = (k[0], True) if isinstance(k, tuple) else (k, False)
+            im = pose_digimon(a, vert, poses[n], miroir)
+            w, h = im.size; s = min(1.0, HAUT_DIGIMON / h)
+            out = im.resize((max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
+            out.save(cibles[v], optimize=True)
+            print('%-24s -> %4dx%-4d  %4d Ko' % ('digi_%s_%s' % (sp, v), out.width, out.height, os.path.getsize(cibles[v]) // 1024))
+
+
 if __name__ == '__main__':
-    for d in (sys.argv[1:] or DOSSIERS + ['commun']):
+    for d in (sys.argv[1:] or DOSSIERS + ['commun', 'digimon']):
         if d == 'commun': optimiser_commun()
+        elif d == 'digimon': optimiser_digimon()
         else: optimiser(d)

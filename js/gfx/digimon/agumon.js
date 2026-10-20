@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
-//  DESSINS — LIGNÉE D'AGUMON (Botamon → Koromon → Agumon → Greymon →
-//  MetalGreymon → WarGreymon), version détaillée fidèle aux modèles officiels
+//  DESSINS — LIGNÉE D'AGUMON (Botamon → Agumon → Greymon → MetalGreymon → WarGreymon ; Koromon : images du joueur,
+//  gfx/sprites.js), version détaillée fidèle aux modèles officiels
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
 // =====================================================================
@@ -44,28 +44,6 @@
       d.deco.ell(35.6, 47.4, 3.8, 4.4, '#f8c020', 0.1, { unlit: true });
       d.deco.ell(46.4, 47.8, 3.3, 4, '#f8c020', -0.1, { unlit: true });
       d.deco.ell(34.6, 46, 1.2, 1.2, '#fff4b0', 0, { unlit: true }); d.deco.ell(45.6, 46.4, 1.1, 1.1, '#fff4b0', 0, { unlit: true });
-    },
-
-    // ---------------------------------------------------------- Entraînement : Koromon, oreilles-rubans flottantes
-    koromon(d) {
-      const P = '#f6a8c8', Pd = '#d8809e', Pi = '#ffd8e8', R = '#d81a36';
-      // oreille éloignée : long ruban ondulé qui flotte en arrière
-      d.tube([[34, 28], [30, 21], [23, 17], [16, 19], [10, 16], [5, 12]], 7, 2.4, Pd, { far: true });
-      // corps en goutte (plus large en bas)
-      d.blob([[14, 50], [16, 36], [26, 27], [38, 26], [50, 32], [55, 44], [52, 56], [32, 61], [16, 58]], P);
-      d.deco.ell(26, 35, 8, 4.6, Pi, -0.35);
-      d.deco.ell(24.6, 33, 3, 1.5, '#ffffff', -0.35, { unlit: true });
-      d.deco.curve([[15, 49], [17, 55], [22, 58.6]], 1, Pd);
-      // oreille proche
-      d.tube([[29, 30], [23, 25], [16, 25], [10, 29], [5, 27.6], [1, 24]], 8, 2.6, P);
-      d.deco.tube([[27, 28.6], [23, 26.4], [16, 26.4], [10.6, 30]], 3, 1.2, Pi);
-      // joues, grands yeux rouges, large gueule avec crocs
-      d.deco.ell(36, 49.6, 3.2, 1.6, '#ff8ab4'); d.deco.ell(54, 47.4, 2, 1.4, '#ff8ab4');
-      d.eye(40.4, 38, 5.4, 6.4, R, { look: 0.3 });
-      d.eye(51.6, 38.6, 4.2, 5.8, R, { look: 0.3 });
-      d.deco.curve([[34, 48], [42, 52.4], [52, 51.6], [56, 47.6]], 1.4, '#6a0a28', { unlit: true });
-      d.deco.poly([[39.6, 50.4], [41, 54], [42.6, 51.2]], '#ffffff', { unlit: true });
-      d.deco.poly([[49.4, 51.6], [50.8, 55], [52.2, 51.2]], '#ffffff', { unlit: true });
     },
 
     // ---------------------------------------------------------- Disciple : Agumon

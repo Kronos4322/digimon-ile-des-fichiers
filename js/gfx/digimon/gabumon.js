@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
-//  DESSINS — LIGNÉE DE GABUMON (Punimon → Tsunomon → Gabumon → Garurumon →
-//  WereGarurumon → MetalGarurumon), d'après les modèles officiels (proportions et couleurs, rien n'est copié) :
+//  DESSINS — LIGNÉE DE GABUMON (Gabumon → Garurumon → WereGarurumon → MetalGarurumon ; Punimon et Tsunomon : images
+//  du joueur, gfx/sprites.js), d'après les modèles officiels (proportions et couleurs, rien n'est copié) :
 //  fourrure blanc lavande rayée de bleu-violet, griffes rose foncé, yeux rouges.
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62. Pose « attack » : gueule ouverte, flamme bleue / souffle glacé.
 // =====================================================================
@@ -29,37 +29,6 @@
   };
 
   Object.assign(DW.DRAW, {
-    // ---------------------------------------------------------- Bébé : Punimon, gelée rouge à deux grandes « oreilles »
-    punimon(d, p = {}) {
-      const R = '#e8303c', Rd = '#a8182a', Rl = '#ff8a8a';
-      d.blob([[16, 40], [15, 24], [20, 18], [25, 24], [26, 36]], R, { far: true, shiny: true });
-      d.blob([[36, 34], [38, 18], [44, 13], [49, 20], [48, 38]], R, { shiny: true });
-      d.deco.blob([[40, 30], [41, 20], [44, 17], [46, 22], [45, 31]], Rl);
-      d.blob([[12, 52], [13, 40], [22, 32], [42, 31], [52, 38], [54, 50], [46, 59], [20, 59]], R, { shiny: true });
-      d.ell(33, 59.6, 18, 2.8, Rd, 0, { noline: true });
-      d.deco.ell(22, 40, 6, 3, Rl, -0.4); d.deco.ell(21, 39.4, 2.6, 1, '#ffffff', -0.4);
-      for (const [x, r] of [[27, 3.4], [40, 3.8]]) { d.deco.circ(x, 47, r + 0.8, '#1a0a10', { unlit: true }); d.deco.circ(x, 47, r, '#ffffff', { unlit: true }); d.deco.circ(x + 0.8, 47.4, r * 0.45, '#1a0a10', { unlit: true }); }
-      if (p.pose === 'attack') { d.deco.ell(34, 54.4, 2.6, 2, '#5a0a14', 0, { unlit: true }); d.deco.circ(48, 49, 1.8, '#ffe0e0', { unlit: true }); d.deco.circ(52, 46, 1.2, '#ffe0e0', { unlit: true }); }
-      else d.deco.curve([[31.4, 54], [33.4, 55.2], [35.4, 54]], 0.9, '#5a0a14', { unlit: true });
-    },
-
-    // ---------------------------------------------------------- Entraînement : Tsunomon, boule de poils orange, corne grise
-    tsunomon(d, p = {}) {
-      const O = '#e8962e', Od = '#b8661a', Cr = '#fbecd2', Hn = '#7a8494', Hl = '#b0b8c4';
-      d.poly([[24, 30], [26, 14], [32, 2], [36, 12], [38, 28]], Hn, { shiny: true, round: 0.3 });
-      d.deco.poly([[29, 26], [31, 10], [33.6, 6], [33, 26]], Hl);
-      d.blob([[11, 46], [13, 34], [22, 27], [42, 27], [52, 35], [54, 47], [48, 57], [32, 60], [17, 57]], O, { tex: 0.2 });
-      for (const [x, y, a] of [[11, 44, 3.1], [12, 51, 2.7], [53, 42, 0], [52, 50, 0.4], [16, 33, 2.4], [48, 32, 0.8]]) d.poly([[x - 2.6, y - 2.6], [x + Math.cos(a) * 5, y + Math.sin(a) * 5], [x + 2.6, y + 2.6]], O);
-      d.deco.blob([[16, 48], [20, 41], [32, 39], [45, 41], [49, 48], [44, 56], [32, 58], [21, 56]], Cr);
-      d.ell(32, 60.2, 15, 2.4, Od, 0, { noline: true });
-      for (const x of [26, 39]) {
-        d.deco.ell(x, 41.4, 3.6, 3.2, '#2a1008', 0, { unlit: true }); d.deco.ell(x + 0.4, 41.8, 2.6, 2.4, '#d42a2a', 0, { unlit: true });
-        d.deco.circ(x + 0.6, 42, 1.1, '#2a0808', { unlit: true }); d.deco.circ(x - 0.8, 40.6, 0.8, '#ffffff', { unlit: true });
-      }
-      if (p.pose === 'attack') { d.deco.ell(32.6, 50.4, 3.4, 2.4, '#5a1008', 0, { unlit: true }); d.deco.circ(47, 50, 2.2, '#e0f0ff', { unlit: true }); }
-      else d.deco.curve([[29.6, 49.4], [32.6, 51], [35.6, 49.4]], 1, '#6a3008', { unlit: true });
-    },
-
     // ---------------------------------------------------------- Disciple : Gabumon, reptile jaune sous la fourrure de Garurumon
     gabumon(d, p = {}) {
       const Y = '#f6c832', Yd = '#c8961c', Yl = '#ffe486', Hn = '#f0d050', Hd = '#9a7020', Fb = '#dfe4fa', CW = '#f2f2f6';

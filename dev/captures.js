@@ -82,6 +82,7 @@
 
   async function run() {
     const t0 = performance.now();
+    await DW.Textures.charge;   // (images du joueur : décors et Digimon)
     window.requestAnimationFrame = cb => setTimeout(() => cb(performance.now()), 16);
     prepareState();
 

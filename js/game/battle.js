@@ -542,11 +542,11 @@
     async faint(side) {
       const s = this.spr[side], m = this.mon(side);
       Audio.sfx('faint');
-      // dissolution en données
-      const spr = DW.Sprites.battle(m.sp), d = spr.data.data, sc = 1;
+      // dissolution en données (un grain par pixel du jeu ; les pixels du sprite sont k fois plus fins : haute définition)
+      const spr = DW.Sprites.battle(m.sp), d = spr.data.data, dw = spr.data.width, k = spr.k || 1, sc = 1;
       const x0 = POS[side].x + s.dx - spr.w * sc / 2, y0 = POS[side].y + s.dy - spr.h * sc;
       for (let y = 0; y < spr.h; y++) for (let x = 0; x < spr.w; x++) {
-        const i = (y * spr.w + x) * 4;
+        const i = (Math.floor(y * k) * dw + Math.floor(x * k)) * 4;
         if (d[i + 3] < 128 || Math.random() < 0.2) continue;
         const px = side === 'e' ? spr.w - 1 - x : x;
         this.pt.push({ x: x0 + px * sc, y: y0 + y * sc, vx: (Math.random() - 0.5) * 20, vy: -(10 + Math.random() * 50),
