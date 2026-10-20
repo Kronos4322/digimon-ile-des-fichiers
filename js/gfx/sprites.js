@@ -19,7 +19,7 @@
   // stade (la place qu'avait son dessin par code)
   const VUES = ['combat', 'profil', 'face', 'dos'];
   const IMAGES = {
-    punimon: { taille: 0.77 }, nyokimon: { taille: 0.91 }, pabumon: { taille: 0.6 }, poyomon: { taille: 0.6 },
+    punimon: { taille: 0.77 }, nyokimon: { taille: 0.91 }, pabumon: { taille: 0.88 }, poyomon: { taille: 0.76 },   // (Pabumon : ses bulles comptent dans sa hauteur)
     koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
   };
   const imageDe = (sp, vue) => (IMAGES[sp] && DW.Textures && DW.Textures.a('commun/digi_' + sp + '_' + vue)) || null;
