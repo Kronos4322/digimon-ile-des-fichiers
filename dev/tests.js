@@ -23,31 +23,28 @@ function fakeCtx() {
 }
 function fakeCanvas() { const c = { width: 1, height: 1, style: {}, getContext: () => { const x = fakeCtx(); x.canvas = c; return x; } }; return c; }
 const store = new Map();
-const sandbox = {
-  console, Math, JSON, Date, Promise, Set, Map, WeakMap, Symbol, Proxy, Reflect, Error, TypeError, Object, Array, String, Number, Boolean, RegExp,
-  Float32Array, Float64Array, Uint8Array, Uint8ClampedArray, Int32Array, Uint32Array, Int16Array, Uint16Array, ArrayBuffer, Intl,
-  parseInt, parseFloat, isNaN, isFinite, setTimeout, clearTimeout, setInterval: () => 0, clearInterval: () => {},
-  performance: { now: () => Date.now() },
-  requestAnimationFrame: () => 0,
-  innerWidth: 960, innerHeight: 720,
-  addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => {},
-  matchMedia: () => ({ matches: false }),
-  navigator: {},
-  ImageData: class { constructor(d, w, h) { this.data = d; this.width = w; this.height = h; } },
-  Event: class { constructor(t) { this.type = t; } },
-  localStorage: { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: k => store.delete(k) },
-  document: {
-    getElementById: () => fakeCanvas(),
-    createElement: t => (t === 'canvas' ? fakeCanvas() : { style: {}, appendChild() {}, addEventListener() {}, classList: { add() {} } }),
-    addEventListener: () => {}, body: { appendChild() {}, classList: { add() {}, toggle() {} } }, head: { appendChild() {} }, fonts: null,
-  },
-};
-sandbox.window = sandbox; sandbox.globalThis = sandbox;
-vm.createContext(sandbox);
-const LIST = require(path.join(ROOT, 'js', 'scripts.js'));
+const LIST = require(path.join(ROOT, 'js', 'scripts.js'));   // (avant le faux document : sinon scripts.js se croit dans un navigateur)
+// Le faux navigateur est posé sur l'objet global de Node et les scripts du jeu s'exécutent dans le contexte principal
+// (vm.runInThisContext) : dans un contexte vm.createContext, chaque accès à une variable globale (Math, DW...) passe par
+// un intercepteur, Math.* y était environ 200 fois plus lent et la suite prenait plusieurs minutes.
+const sandbox = globalThis, poser = (k, v) => Object.defineProperty(sandbox, k, { value: v, writable: true, configurable: true });
+poser('setInterval', () => 0); poser('clearInterval', () => {}); poser('requestAnimationFrame', () => 0);
+poser('innerWidth', 960); poser('innerHeight', 720);
+poser('addEventListener', () => {}); poser('removeEventListener', () => {}); poser('dispatchEvent', () => {});
+poser('matchMedia', () => ({ matches: false }));
+poser('navigator', {});
+poser('ImageData', class { constructor(d, w, h) { this.data = d; this.width = w; this.height = h; } });
+poser('Event', class { constructor(t) { this.type = t; } });
+poser('localStorage', { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: k => store.delete(k) });
+poser('document', {
+  getElementById: () => fakeCanvas(),
+  createElement: t => (t === 'canvas' ? fakeCanvas() : { style: {}, appendChild() {}, addEventListener() {}, classList: { add() {} } }),
+  addEventListener: () => {}, body: { appendChild() {}, classList: { add() {}, toggle() {} } }, head: { appendChild() {} }, fonts: null,
+});
+poser('window', sandbox);
 for (const f of LIST) {
   if (f === 'main.js') continue;
-  vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', f), 'utf8'), sandbox, { filename: 'js/' + f });
+  vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js', f), 'utf8'), { filename: 'js/' + f });
 }
 const DW = sandbox.DW;
 DW.say = async () => {}; DW.ask = async () => 0; DW.choose = async () => 0;   // dialogues : réponses automatiques
@@ -71,7 +68,7 @@ const withRandom = (v, fn) => { const r = Math.random; Math.random = () => v; tr
 // toutes les boucles se referment, rien ne se chevauche, et aucune frontière n'a de rupture (côte d'un seul côté,
 // rivière qui disparaît, chemin qui finit dans l'eau, arrivée dans un obstacle, niveaux d'altitude différents)
 test('monde des chapitres 1 à 3 : cartes raccordées en un seul territoire, sans rupture géographique', () => {
-  for (const f of ['geographie.js', 'assemblage.js']) vm.runInContext(fs.readFileSync(path.join(ROOT, 'dev', f), 'utf8'), sandbox, { filename: 'dev/' + f });
+  for (const f of ['geographie.js', 'assemblage.js']) vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'dev', f), 'utf8'), { filename: 'dev/' + f });
   const REG = new Set(['plage', 'foret', 'lac', 'village', 'miharashi']), ids = ['clairiere'], seen = new Set(ids);
   for (let i = 0; i < ids.length; i++) for (const w of DW.getMap(ids[i]).warps || []) {
     const t = DW.MAPS[w.to]; if (!t || seen.has(w.to) || t.indoor || !w.dir || w.enclos || !REG.has(t.region) || ['residentiel', 'numerique', 'marche'].includes(w.to)) continue;
@@ -430,6 +427,55 @@ test('Tai délivré : sa chambre apparaît à l’étage de ta maison (escalier 
   const atJiji = DW.MAPS.maison.npcs.find(n => n.hero === 'tai');
   yes(!atJiji || !atJiji.cond(DW.state), 'Tai attend encore chez Jijimon');
 });
+test('Sora délivrée : sa chambre à l’étage (avec Biyomon), et elle ne reste pas chez Jijimon', () => {
+  fresh();
+  DW.state.hero = 'perso';
+  DW.Crests.freeKid('sora');
+  const E = DW.MAPS.maison_joueur_etage; E.version = null; E.build();
+  yes(E.doors.some(d => d.to === 'maison_joueur_sora'), 'pas de porte vers la chambre de Sora (couloir de l’étage)');
+  const R = DW.preparerCarte('maison_joueur_sora');
+  yes(R.npcs.some(n => n.hero === 'sora') && R.npcs.some(n => n.sp === 'biyomon'), 'Sora et Biyomon absents de sa chambre');
+  const atJiji = DW.MAPS.maison.npcs.find(n => n.hero === 'sora');
+  yes(!atJiji || !atJiji.cond(DW.state), 'Sora attend encore chez Jijimon');
+});
+test('cuisine : Mushroomon propose une recette dont on peut trouver les ingrédients (la Brochette attend le Piment de Meramon)', async () => {
+  fresh();
+  const has = DW.Town.has;
+  try {
+    DW.state.recipes = { grillade: true };
+    DW.Town.has = id => ['gotsumon', 'mushroomon'].includes(id);
+    await DW.Cuisine.mushroomQuest(); eq(DW.state.flags.recipeQuest, 'soupe', 'sans Meramon en ville');
+    DW.Town.has = id => ['gotsumon', 'mushroomon', 'meramon'].includes(id); delete DW.state.flags.recipeQuest;
+    await DW.Cuisine.mushroomQuest(); eq(DW.state.flags.recipeQuest, 'brochette', 'avec Meramon en ville');
+  } finally { DW.Town.has = has; }
+});
+test('quêtes annexes : les Bukamon égarés (chapitre 2), la soif des Yokomon et le trésor de l’épave (chapitre 3)', async () => {
+  fresh();
+  const s = DW.state; s.hero = 'perso'; s.flags.starter = 'agumon'; s.flags.chapter = 2; s.flags.monoCh2 = true;
+  // un faux Overworld : la carte préparée, ses obstacles, puis les personnages posés à l'arrivée (histoire, quêtes)
+  const arriver = (id, x, y) => {
+    const m = DW.preparerCarte(id), solid = new Set();
+    for (const o of m.objects) if (!o.walk && !o.top) for (let yy = 0; yy < (o.h || 1); yy++) for (let xx = 0; xx < (o.w || 1); xx++) solid.add((o.x + xx) + ',' + (o.y + yy));
+    const ow = Object.create(DW.Overworld.prototype);
+    if (x == null) [x, y] = m.spec ? m.spec.hub : [m.w >> 1, m.h >> 1];
+    Object.assign(ow, { map: m, mapId: id, wilds: [], gfx: { solid, objs: [] }, p: { x, y, dir: 'down', moving: false, sx: x, sy: y, tx: x, ty: y } });
+    DW.Story.decorate(ow); DW.Quetes.decorate(ow); return ow;
+  };
+  const pnj = (ow, sp) => ow.map.npcs.find(n => n.sp === sp && (!n.cond || n.cond(s)));
+  let ow = arriver('lac0'); const g = pnj(ow, 'gomamon'); yes(g, 'pas de Gomamon sur la Rive Sud'); await g.talk(ow); eq(s.flags.bukaQuete, 1, 'quête acceptée');
+  for (const id of ['lac1', 'lac4', 'lac6']) { ow = arriver(id); const b = pnj(ow, 'bukamon'); yes(b, `pas de Bukamon sur ${id}`); await b.talk(ow); }
+  const bits = s.bits; ow = arriver('lac0'); await pnj(ow, 'gomamon').talk(ow); eq(s.flags.bukaQuete, 2, 'quête terminée'); yes(s.bits > bits, 'pas de récompense');
+  s.flags.chapter = 3; s.bag.eau_fraiche = 1;
+  ow = arriver('miharashi0'); const y = pnj(ow, 'yokomon'); yes(y, "pas de Yokomon à l'oasis"); await y.talk(ow); yes(s.flags.yokoSoif && !s.bag.eau_fraiche, 'Yokomon pas secouru');
+  s.flags.meramon = true;
+  const V = DW.preparerCarte('miharashi1'), c = V.objects.find(o => o.epave); yes(c, "pas de coffre dans l'épave");
+  // le coffre est atteignable depuis le carrefour du village (passage de planches)
+  const occ = new Set(); for (const o of V.objects) if (!o.walk) for (let yy = o.y; yy < o.y + (o.h || 1); yy++) for (let xx = o.x; xx < o.x + (o.w || 1); xx++) occ.add(xx + ',' + yy);
+  const free = (x2, y2) => V.rows[y2] && V.rows[y2][x2] !== undefined && !DW.SOLID.has(V.rows[y2][x2]) && !occ.has(x2 + ',' + y2);
+  const [hx, hy] = V.spec.hub, seen = new Set([hx + ',' + hy]), q = [[hx, hy]];
+  while (q.length) { const [x2, y2] = q.shift(); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (x2 + a) + ',' + (y2 + b); if (!seen.has(k) && free(x2 + a, y2 + b)) { seen.add(k); q.push([x2 + a, y2 + b]); } } }
+  yes([[0, 1], [1, 0], [-1, 0], [0, -1]].some(([a, b]) => seen.has((c.x + a) + ',' + (c.y + b))), "coffre de l'épave inaccessible");
+});
 test("poids : un repas fait grossir, un combat fait à peine maigrir (on peut atteindre les Digivolutions « costaudes »)", () => {
   fresh();
   const m = new DW.Digimon('agumon', 12); DW.state.party = [m]; DW.Life.init(m); m.fat = 0;
@@ -442,6 +488,7 @@ test("poids : un repas fait grossir, un combat fait à peine maigrir (on peut at
 
 (async () => {
   for (const [name, fn] of tests) {
+    if (process.env.SEUL && !name.includes(process.env.SEUL)) continue;   // SEUL=texte : seulement les tests dont le nom le contient
     const t0 = Date.now(); try { await fn(); ok++; console.log('  OK  ' + name + '  (' + ((Date.now() - t0) / 1000).toFixed(1) + ' s)'); }
     catch (e) { ko++; console.log('  ÉCHEC  ' + name + '\n        ' + (e && e.message) + (process.env.PILE ? '\n' + e.stack : '')); }   // PILE=1 : détail de l'erreur
   }
