@@ -75,6 +75,7 @@
       (sources[a] = sources[a] || new Set()).add(src);
       if (DIRS.includes(a) && !repeat) { this.dirStack = this.dirStack.filter(d => d !== a); this.dirStack.push(a); }
       if (!repeat) this.device = src.startsWith('pad') ? 'pad' : src.startsWith('touch') ? 'touch' : 'key';
+      if (a === 'ok' && !repeat) this.okSrc = src;   // (OK venu d'un toucher de l'écran : Input.toucher)
       this.held[a] = true;
       if (a === 'mute' && !repeat) { DW.Audio.toggleMute(); DW.Options.save(); }   // (retenu au prochain lancement)
     },
@@ -85,6 +86,12 @@
       if (!this.held[a] && DIRS.includes(a)) this.dirStack = this.dirStack.filter(d => d !== a);
     },
     releaseAll() { for (const a in sources) sources[a].clear(); this.held = {}; this.dirStack = []; },
+    // TÉLÉPHONE : l'endroit de l'écran de jeu touché pour ce OK ([x, y] en pixels du jeu), sinon null (bouton A, clavier) ;
+    // les menus s'en servent pour choisir directement la ligne touchée
+    toucher() { return this.okSrc === 'touch:screen' && this.tapXY ? this.tapXY : null; },
+    // ligne d'une liste (x, y du haut de la première ligne, largeur, hauteur d'une ligne, nombre) sous le doigt : son numéro,
+    // -1 à côté de la liste, null si ce OK ne vient pas d'un toucher de l'écran
+    ligneTouchee(x, y, w, lh, n) { const T = this.toucher(); if (!T) return null; const i = Math.floor((T[1] - y) / lh); return T[0] >= x && T[0] <= x + w && i >= 0 && i < n ? i : -1; },
     // stick (manette ou tactile) : 8 secteurs de 45° ; autour du secteur actuel `prev`, ~28° de marge pour ne pas
     // hésiter entre deux directions. Renvoie le numéro du secteur (SECT : ses directions)
     SECT: ['right', 'right,down', 'down', 'down,left', 'left', 'left,up', 'up', 'up,right'],
@@ -99,7 +106,7 @@
     DW.Audio.init();
     if (Input.textMode) {
       if (e.target && e.target.dataset && e.target.dataset.saisie) return; // champ de saisie tactile (ui/touch.js)
-      if (e.key.length === 1 || ['Backspace', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'].includes(e.key)) { Input.typed.push(e.key); e.preventDefault(); }
+      if (e.key.length === 1 || ['Backspace', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Escape'].includes(e.key)) { Input.typed.push(e.key); e.preventDefault(); }
       return;
     }
     const a = KEYMAP[e.code];

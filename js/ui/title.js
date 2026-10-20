@@ -233,6 +233,8 @@
       const V = this.vars[this.i];
       if (!vert && this.mode === 'load' && V.length > 1 && (Input.hit('left') || Input.hit('right'))) { this.vi[this.i] = (this.vi[this.i] + (Input.hit('left') ? V.length - 1 : 1)) % V.length; this.info[this.i] = V[this.vi[this.i]].info; Audio.sfx('move'); }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(-1); return; }
+      // (téléphone : toucher un autre emplacement le sélectionne ; toucher celui qui l'est le choisit)
+      if (Input.hit('ok')) { const L = Input.ligneTouchee(24, 46, W - 48, 56, 3); if (L != null && L < 0) return; if (L != null && L !== this.i) { this.i = L; Audio.sfx('move'); return; } }
       if (Input.hit('ok')) {
         if (this.mode === 'load' && !this.info[this.i]) { Audio.sfx('bump'); return; }
         const v = this.mode === 'load' && V.length && V[this.vi[this.i]], k = this.i;
@@ -302,6 +304,8 @@
       const n = this.opts.length;
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; Audio.sfx('move'); }
+      // (téléphone : toucher une ligne du menu la choisit ; toucher ailleurs ne lance rien)
+      if (Input.hit('ok') && this.menuBox) { const L = Input.ligneTouchee(this.menuBox.x, this.menuBox.y + 4, this.menuBox.w, 16, n); if (L != null && L < 0) return; if (L != null) this.i = L; }
       if (Input.hit('ok') && !this.busy) {
         if (this.opts[this.i] === 'FICHIER') this.fileMenu();
         else this.choose(this.i === 1);
@@ -479,6 +483,7 @@
       // (sur l'image peinte, le menu passe au-dessus du héros et d'Agumon)
       const bw = 132, bx = (this.info ? 14 : W / 2 - bw / 2), by = (fondPret() ? 104 : 146) + (1 - e) * 100;
       UI.box(c, bx, by, bw, this.opts.length * 16 + 10);
+      this.menuBox = { x: bx, y: by, w: bw };
       this.opts.forEach((o, i) => UI.text(c, o, bx + 22, by + 16 + i * 16, { size: 10, color: i === this.i ? '#ffe070' : '#bfeaf6' }));
       UI.cursor(c, bx + 9, by + 12.5 + this.i * 16, t);
       if (this.info) {

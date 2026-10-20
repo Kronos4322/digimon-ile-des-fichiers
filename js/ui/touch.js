@@ -151,6 +151,7 @@
         Input.typed.push('Tap:' + x + ',' + y); return;
       }
       if (e.pointerType === 'mouse') return; e.preventDefault(); buzz();
+      { const r = DW.canvas.getBoundingClientRect(); Input.tapXY = [(e.clientX - r.left) / r.width * DW.W, (e.clientY - r.top) / r.height * DW.H]; }
       Input.press('touch:screen', 'ok');
     });
     for (const ev of ['pointerup', 'pointercancel']) DW.canvas.addEventListener(ev, () => Input.release('touch:screen', 'ok'));

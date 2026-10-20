@@ -39,6 +39,10 @@
         const n = this.o.choices.length;
         if (Input.hit('up')) { this.choice = (this.choice + n - 1) % n; DW.Audio.sfx('move'); }
         if (Input.hit('down')) { this.choice = (this.choice + 1) % n; DW.Audio.sfx('move'); }
+        // (téléphone : toucher une réponse la choisit ; toucher à côté ne répond rien)
+        const B = this.boiteChoix, L = Input.hit('ok') && B ? Input.ligneTouchee(B.x, B.y + 5, B.w, 14, n) : null;
+        if (L != null && L < 0) return;
+        if (L != null) this.choice = L;
         if (Input.hit('ok')) { DW.Audio.sfx('select'); this.close(this.choice); }
         // RETOUR prend la réponse « annuler » : la dernière, sauf `cancel` (son numéro, ou false : RETOUR ne répond pas)
         else if (Input.hit('back') && this.o.cancel !== false) { DW.Audio.sfx('back'); this.close(this.o.cancel != null ? this.o.cancel : n - 1); }
@@ -78,6 +82,7 @@
         const w = Math.max(...ch.map(s => UI.measure(c, s, 10))) + 28;
         const h = ch.length * 14 + 10;
         const x = 314 - w, y = 176 - h;
+        this.boiteChoix = { x, y, w };   // (pour le toucher : update)
         UI.box(c, x, y, w, h);
         ch.forEach((s, i) => UI.text(c, s, x + 18, y + 16 + i * 14));
         UI.cursor(c, x + 8, y + 12.5 + this.choice * 14, this.t);
@@ -129,6 +134,9 @@
       const n = this.opts.length;
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; DW.Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; DW.Audio.sfx('move'); }
+      const L = Input.hit('ok') ? Input.ligneTouchee(this.x, this.y + 5, this.w, 14, n) : null;   // (téléphone : la ligne touchée)
+      if (L != null && L < 0) return;
+      if (L != null) this.i = L;
       if (Input.hit('ok')) { DW.Audio.sfx('select'); this.close(this.i); }
       else if (Input.hit('back')) { DW.Audio.sfx('back'); this.close(-1); }
     }

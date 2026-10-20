@@ -68,6 +68,7 @@
         if (k === 'Enter') { if (this.act(this.sel)) return; continue; }
         if (k === 'ArrowLeft') this.move(-1, 0); else if (k === 'ArrowRight' || k === 'Tab') this.move(1, 0);
         else if (k === 'ArrowUp') this.move(0, -1); else if (k === 'ArrowDown') this.move(0, 1);
+        else if (k === 'Escape' || (k === 'Backspace' && !this.name)) { Input.textMode = false; Audio.sfx('back'); this.close(null); return; }   // (retour à la création)
         else if (k === 'Backspace') this.name = this.name.slice(0, -1);
         else if (this.name.length < 10 && /^[\p{L}\p{N} '\-]$/u.test(k)) { this.name += k; this.sel = NAMES.length + 1; Audio.sfx('text'); }
       }
@@ -99,7 +100,7 @@
         UI.box(c, x, y, w, h, on ? 'dwsel' : 'dw');
         UI.text(c, label, x + w / 2, y + 15, { size: 10, align: 'center', bold: true, color: dis ? '#6a7aa8' : key === 'ok' ? '#7aff8a' : '#ffb0a0' });
       }
-      UI.text(c, DW.Touch && DW.Touch.on ? 'Touche un prénom, ou le cadre pour écrire le tien' : 'Tape ton nom, ou choisis un prénom (flèches + Entrée)', 160, 212, { size: 7, align: 'center', color: '#7a8ab8' });
+      UI.text(c, DW.Touch && DW.Touch.on ? 'Touche un prénom, ou le cadre pour écrire le tien (B : retour)' : 'Tape ton nom ou choisis un prénom (Échap : retour)', 160, 212, { size: 7, align: 'center', color: '#7a8ab8' });
     }
   }
   NameScene.FIELD = [70, 44, 180, 32];

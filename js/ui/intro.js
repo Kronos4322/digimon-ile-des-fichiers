@@ -55,6 +55,7 @@
     }
     update() {
       const n = LIGNES.length, k = LIGNES[this.r][1];
+      if (Input.hit('back')) { Audio.sfx('back'); this.close(null); return; }   // (RETOUR : l'écran titre)
       if (Input.hit('up')) { this.r = (this.r + n - 1) % n; Audio.sfx('move'); }
       if (Input.hit('down')) { this.r = (this.r + 1) % n; Audio.sfx('move'); }
       const d = Input.hit('left') ? -1 : Input.hit('right') ? 1 : 0;
@@ -157,9 +158,15 @@
     update() { if (Input.hit('ok')) this.skip = true; }
     async run() {
       const st = DW.state;
-      // 1) qui es-tu ? (un enfant qui n'est pas dans l'animé : il va délivrer les autres)
-      st.hero = await Game.push(new CreateScene());
-      st.name = await Game.push(new DW.NameScene(st.look && st.look.gender ? 'Aiko' : 'Kenji'));
+      // 1) qui es-tu ? (un enfant qui n'est pas dans l'animé : il va délivrer les autres) ; RETOUR : de la saisie du nom à
+      //    la création, de la création à l'écran titre
+      for (;;) {
+        const h = await Game.push(new CreateScene());
+        if (!h) { Input.textMode = false; Game.replaceAll(new DW.TitleScene()); DW.fade(0, 0.3); return; }
+        st.hero = h;
+        const nom = await Game.push(new DW.NameScene(st.look && st.look.gender ? 'Aiko' : 'Kenji'));
+        if (nom) { st.name = nom; break; }
+      }
       // les autres enfants du camp : les sept de l'animé (ils seront séparés en arrivant sur l'île)
       const others = DW.HERO_ORDER;
       const SPOTS = [[24, 206, 'right'], [124, 208, 'right'], [180, 210, 'left'], [208, 212, 'left'], [238, 200, 'left'], [266, 208, 'left'], [294, 202, 'left']];   // loin de la tente (x 48-110)
