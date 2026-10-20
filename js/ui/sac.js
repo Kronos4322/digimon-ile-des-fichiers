@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  SAC ET BANQUE : objets du sac (utiliser, jeter), banque de Kunemon, coffre et frigo de la maison
+//  SAC ET BANQUE : objets du sac (utiliser), banque de Kunemon, coffre et frigo de la maison
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
@@ -28,8 +28,8 @@
         if (it.use === 'none' || it.use === 'passive') { await DW.say(it.desc); return; }
         if (this.o.battle) { await DW.say("Ça ne sert à rien en plein combat !"); return; }
         if (it.use === 'bell') { st.bag[id]--; st.bellUntil = st.clock + 120; st.repelUntil = 0; await DW.say('Ding ding ! Tous les Digimon sauvages des environs accourent...'); }
-        if (it.use === 'potty') { if (!DW.Care || !st.party.length) return; st.bag[id]--; this.close(null); await DW.Care.toilet(); return; }
-        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); await DW.ow.charger('village', 20, 16, 'down'); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
+        if (it.use === 'potty') { if (!DW.Care || !st.party.length) return; this.close(null); if (await DW.Care.toilet()) st.bag[id]--; return; }
+        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); await DW.ow.charger('village', ...DW.MapKit.zpt('village', 20, 16), 'down'); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
         this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (it.use === 'evo') {
@@ -54,7 +54,8 @@
         const m = st.party[0]; if (!m) return;
         const mv = DW.nextMove(m);
         if (!mv) { await DW.say(`${m.name} connaît déjà toutes les techniques de son espèce.`); return; }
-        st.bag[id]--; await DW.say(`${m.name} étudie le manuel...`); await DW.learnMove(m, mv);
+        await DW.say(`${m.name} étudie le manuel...`);
+        if (await DW.learnMove(m, mv)) st.bag[id]--;   // (gardé s'il renonce à la technique)
         this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (it.use === 'pack') {

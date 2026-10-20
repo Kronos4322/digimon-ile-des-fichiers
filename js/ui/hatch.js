@@ -27,7 +27,10 @@
 
   // ------------------------------------------------------------ choix de l'œuf
   class EggScene extends DW.Scene {
-    constructor(list = DW.EGG_ORDER) { super(); this.list = list; this.i = 0; }
+    constructor(list = DW.EGG_ORDER) { super(); this.list = list; this.i = 0; this.cam = this.camCible(); }
+    // au-delà de 6 œufs, le rang défile : premier œuf visible (fractionnaire pendant le défilement)
+    camCible() { const n = this.list.length, vis = Math.min(n, 6); return n > vis ? DW.clamp(this.i - (vis - 1) / 2, 0, n - vis) : 0; }
+    tick(dt) { this.cam += (this.camCible() - this.cam) * Math.min(1, dt * 13); }
     update() {
       const n = this.list.length;
       if (Input.hit('left')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
@@ -40,8 +43,7 @@
       nurseryBg(c, t);
       UI.text(c, 'CHOISIS UN DIGIŒUF', W / 2, 22, { size: 12, align: 'center', bold: true, color: '#8a3a6a', shadowColor: 'rgba(255,255,255,0.8)' });
       // (tous les œufs tiennent à l'écran : espacement réduit, et au-delà de 6 œufs le rang défile vers l'œuf choisi)
-      const vis = Math.min(n, 6), gap = Math.min(56, (W - 40) / Math.max(1, vis - 1)), target = n > vis ? DW.clamp(this.i - (vis - 1) / 2, 0, n - vis) : 0;
-      this.cam = this.cam == null ? target : this.cam + (target - this.cam) * 0.2;
+      const vis = Math.min(n, 6), gap = Math.min(56, (W - 40) / Math.max(1, vis - 1));
       const x0 = W / 2 - (vis - 1) / 2 * gap - this.cam * gap;
       if (n > vis) { if (this.cam > 0.05) UI.text(c, '◀', 8, 116, { size: 10, color: '#e0508a', shadow: false }); if (this.cam < n - vis - 0.05) UI.text(c, '▶', W - 16, 116, { size: 10, color: '#e0508a', shadow: false }); }
       this.list.forEach((sp, j) => {
@@ -63,9 +65,9 @@
 
   // ------------------------------------------------------------ éclosion
   class HatchScene extends DW.Scene {
-    constructor(sp, o = {}) {
+    constructor(sp) {
       super();
-      this.sp = sp; this.o = o;
+      this.sp = sp;
       this.rubs = 0; this.need = 6; this.wob = 0; this.phase = 'rub';
       this.v = { glow: 0, flash: 0, mon: 0 };
       this.cracks = []; this.parts = [];
@@ -75,7 +77,10 @@
     }
     enter() { Audio.play('evolve'); }
     update() {
-      if (this.phase !== 'rub') { if (this.phase === 'done' && Input.hit('ok')) this.close(this.sp); return; }
+      if (this.phase !== 'rub') {
+        if (this.phase === 'done' && Input.hit('ok')) { if (DW.ow) Audio.play(DW.ow.map.music); this.close(this.sp); }   // (la musique de la carte revient)
+        return;
+      }
       if (Input.hit('ok')) {
         this.rubs++; this.wob = 1; Audio.sfx(this.rubs >= this.need ? 'evolve' : 'shake');
         for (let i = 0; i < 6; i++) this.parts.push({ x: W / 2 + (Math.random() - 0.5) * 30, y: 110 + (Math.random() - 0.5) * 40, vx: (Math.random() - 0.5) * 40, vy: -20 - Math.random() * 30, t: 0 });

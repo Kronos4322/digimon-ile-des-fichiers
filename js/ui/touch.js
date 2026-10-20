@@ -10,7 +10,7 @@
 // =====================================================================
 (function () {
   const Input = DW.Input;
-  let built = false, field = null, root = null, running = false;
+  let built = false, field = null, root = null;
 
   const css = `
   html,body{touch-action:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
@@ -53,15 +53,14 @@
     el.addEventListener('pointerdown', down);
     el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); el.addEventListener('lostpointercapture', up);
   }
-  // COURIR : interrupteur
+  // COURIR : interrupteur (Input.runLock : ce n'est pas une touche tenue, il n'accélère donc pas les textes)
   function toggleRun(el) {
     el.addEventListener('pointerdown', e => {
-      e.preventDefault(); buzz(); running = !running; el.classList.toggle('toggled', running);
-      if (running) Input.press('touch:run', 'run'); else Input.release('touch:run', 'run');
+      e.preventDefault(); buzz(); Input.runLock = !Input.runLock; el.classList.toggle('toggled', Input.runLock);
     });
   }
-  // stick analogique : 8 secteurs de 45°, avec une marge pour ne pas hésiter entre deux directions
-  const SECT = ['right', 'right,down', 'down', 'down,left', 'left', 'left,up', 'up', 'up,right'];
+  // stick analogique : 8 secteurs de 45° (Input.secteur) ; dans la saisie du nom, il déplace la sélection des prénoms
+  const ARROW = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' };
   function stick(el) {
     const knob = el.querySelector('.knob');
     let cur = null, sector = -1;
@@ -69,7 +68,8 @@
       if (d === cur) return;
       if (cur) for (const a of cur.split(',')) Input.release('touch:pad:' + a, a);
       cur = d;
-      if (d && !Input.textMode) { for (const a of d.split(',')) Input.press('touch:pad:' + a, a); buzz(); }
+      if (d && Input.textMode) { if (ARROW[d]) { Input.typed.push(ARROW[d]); buzz(); } }   // (pas en diagonale)
+      else if (d) { for (const a of d.split(',')) Input.press('touch:pad:' + a, a); buzz(); }
       el.classList.toggle('on', !!d);
     };
     const move = e => {
@@ -79,10 +79,7 @@
       if (dist > lim) { x *= lim / dist; y *= lim / dist; }
       knob.style.transform = `translate(${x}px,${y}px)`;
       if (dist < R * 0.22) { sector = -1; set(null); return; }                     // zone morte au centre
-      const a = (Math.atan2(y, x) / (Math.PI / 4) + 8) % 8;
-      let s = Math.round(a) % 8;
-      if (sector >= 0 && Math.abs(((a - sector + 12) % 8) - 4) < 0.62) s = sector;  // marge autour du secteur actuel
-      sector = s; set(SECT[s]);
+      sector = Input.secteur(x, y, sector); set(Input.SECT[sector]);
     };
     const end = () => { sector = -1; knob.style.transform = ''; set(null); };
     el.addEventListener('pointerdown', e => { e.preventDefault(); capture(el, e); move(e); });

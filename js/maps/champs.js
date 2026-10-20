@@ -22,7 +22,7 @@
   function build() {
     const m = MAPS.champs, has = id => T().has(id);
     const ripe = st().flags.meat !== today();
-    const version = ['palmon', 'gomamon'].map(id => (has(id) ? 1 : 0)).join('') + (ripe ? 'm' : '-') + T().level();
+    const version = ['palmon', 'gomamon', 'yokomon'].map(id => (has(id) ? 1 : 0)).join('') + (ripe ? 'm' : '-') + T().level();
     if (m.version === version && m.rows) return;
     m.version = version;
     const farm = has('palmon');
@@ -87,6 +87,7 @@
     m.npcs = [{ sp: 'tanemon', x: 7, y: 14, face: 'left', wander: 1, talk: tanemonTalk }];
     if (farm) m.npcs.push({ sp: 'palmon', x: 11, y: 9, face: 'left', wander: 2, talk: palmonTalk });
     if (has('gomamon')) m.npcs.push({ sp: 'gomamon', x: 30, y: 16, face: 'right', talk: gomamonTalk });
+    if (DW.Collab) DW.Collab.place(m, { champs: [30, 23] });   // (Serre des Champs : Yokomon aide Palmon, devant la serre)
     m.signs = {
       '7,2': () => say(`Quartier des Champs — Ville des Fichiers (${T().label()}).  Nord : la place.`),
       '31,13': "Une petite lanterne de pierre sur l'îlot. Il règne ici un calme étonnant.",

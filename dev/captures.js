@@ -102,19 +102,19 @@
       ts.phase = 'menu'; DW.tween(ts.menuIn, { v: 1 }, 0.3); await wait(700); await save('titre_menu', copyScreen(), "Menu de l'écran titre");
     });
     await safe('intro', async () => {
-      const cs = new DW.CharScene(); DW.Game.replaceAll(cs); cs.i = 3; await wait(900);
-      await save('intro_choix', copyScreen(), 'Choix du DigiSélectionné (7 héros)');
+      const cs = new DW.CreateScene(); DW.Game.replaceAll(cs); cs.change('perso', 3); await DW.Perso.charger(); await wait(900);
+      await save('intro_choix', copyScreen(), 'Création du personnage (8 personnages, puis son DigiŒuf)');
       const hs = DW.HERO_ORDER.map(id => ({ img: DW.Sprites.hero('down', 0, id).img, w: 24, h: 30, label: DW.HEROES[id].name }))
         .concat(DW.HERO_ORDER.map(id => ({ img: DW.Sprites.hero('right', 1, id).img, w: 24, h: 30, label: '' })))
         .concat(DW.HERO_ORDER.map(id => ({ img: DW.Sprites.hero('up', 0, id).img, w: 24, h: 30, label: '' })));
-      await save('heros_choix', plate(hs, 4, '#3a6a4a'), 'Les 7 héros : face, profil, dos');
+      await save('heros_choix', plate(hs, 4, '#3a6a4a'), "Les 7 enfants de l'animé : face, profil, dos");
       const it = new DW.IntroScene(); it.run = () => {}; DW.Game.replaceAll(it); it.bars.v = 1;
       it.snowOn = true; it.aurora.v = 1; it.dv.on = true; it.dv.landed = true; it.dv.y = 194; it.dv.glow = 1; await wait(900);
       await save('intro_camp', copyScreen(), "Le camp d'été : neige, aurore et Digivice");
       it.beam.v = 1; it.lift.v = 0.8; await wait(300); await save('intro_rayon', copyScreen(), 'Le rayon de lumière soulève le héros');
       it.mode = 'tunnel'; await wait(900); await save('intro_tunnel', copyScreen(), 'Le tunnel numérique');
       it.mode = 'sky'; it.zoom.v = 0.3; await wait(500); await save('intro_chute1', copyScreen(), "Chute vers l'Île des Fichiers");
-      it.zoom.v = 0.95; await wait(400); await save('intro_chute2', copyScreen(), "... jusqu'à la plage");
+      it.zoom.v = 0.95; await wait(400); await save('intro_chute2', copyScreen(), "... jusqu'à la forêt");
     });
     prepareState();
 
@@ -215,7 +215,6 @@
       ['carte_ile', "Carte de l'île", () => new DW.WorldMapScene()],
       ['digiferme', 'DigiFerme', () => new DW.FarmScene()],
       ['options', 'Options', () => new DW.OptionsScene()],
-      ['fiche_digimon', 'Fiche de présentation (choix du partenaire)', () => new DW.InfoCard('tanemon')],
       ['oublier', 'Oublier une technique : avantages et inconvénients', () => { const m = DW.state.party[0]; m.moves = m.moves.slice(0, 6); while (m.moves.length < 6) m.moves.push({ id: ['charge', 'griffe', 'morsure', 'coup_queue', 'souffle_ardent', 'flamme_bebe'][m.moves.length] }); const s = new DW.ForgetScene(m, 'mega_flamme'); s.i = 1; return s; }],
       ['entrainement', "Séance d'entraînement (mini-jeu)", () => new DW.TrainingScene(DW.state.party[0], 'atk')],
       ['journal', 'Journal : les Engrenages Noirs', () => new DW.Story.JournalScene()],

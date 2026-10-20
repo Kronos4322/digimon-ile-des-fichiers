@@ -313,8 +313,8 @@
         Audio.sfx('evolve');
         this.wipe = { t: 0, done: () => {
           if (cont) {
-            DW.fade(1, 0.01).then(() => {
-              DW.startGame(false);
+            DW.fade(1, 0.01).then(async () => {
+              await DW.startGame(false);
               if (DW.loadNote && DW.ow) { const note = DW.loadNote; DW.ow.runScript(() => DW.say(note)); }
               // retour après une longue pause (plus de 6 h réelles) : « Précédemment... »
               else if (DW.ow && DW.Chapter && DW.Chapter.previously && Date.now() - (DW.state.savedAt || 0) > 6 * 3600 * 1000) DW.ow.runScript(() => DW.Chapter.previously());

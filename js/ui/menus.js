@@ -12,27 +12,6 @@
     return 0;
   };
 
-  // ------------------------------------------------------------ carte d'infos (choix du partenaire)
-  class InfoCard extends DW.Scene {
-    constructor(sp) { super(); this.overlay = true; this.sp = sp; }
-    draw(c) {
-      const d = DW.SPECIES[this.sp];
-      UI.box(c, 40, 14, 240, 150);
-      c.fillStyle = 'rgba(120,220,255,0.10)'; c.fillRect(48, 22, 92, 92);
-      DW.Sprites.draw(c, DW.Sprites.battle(this.sp), 94, 112, { frame: Math.floor(this.t * 4) });
-      UI.text(c, d.name, 148, 38, { size: 14, bold: true, color: '#d8f6ff' });
-      UI.text(c, `Niveau : ${d.stage}`, 148, 52, { size: 9, color: '#8ae0f0' });
-      UI.text(c, `Attribut : ${d.attr}`, 148, 64, { size: 9, color: '#8ae0f0' });
-      let x = 148;
-      d.types.forEach(t => { x += UI.typeTag(c, t, x, 70) + 3; });
-      const evo = d.evo ? DW.SPECIES[d.evo.to].name : '?';
-      UI.text(c, `Digivolue en : ${evo}`, 148, 96, { size: 9, color: '#8ae0f0' });
-      UI.wrap(c, d.desc, 222, 9).slice(0, 3).forEach((l, i) =>
-        UI.text(c, l, 50, 128 + i * 11, { size: 9, color: '#e0f8ff' }));
-    }
-  }
-  DW.InfoCard = InfoCard;
-
   // ------------------------------------------------------------ menu principal : le Digivice (ENTRÉE ou Échap)
   // Un anneau d'icônes hexagonales qui tourne : l'entrée choisie vient à gauche, son nom s'affiche en bandeau.
   // À droite, les fiches de l'équipe ; en bas, les Bits et l'aide. Haut/Bas ou Gauche/Droite : tourner l'anneau.
@@ -82,8 +61,7 @@
         else await Game.push(new PartyScene({ mode: 'view' }));
       } else if (k === 'feliciter' || k === 'gronder') {
         if (!st.party.length) { await DW.say("Tu n'as pas encore de partenaire Digimon !"); return; }
-        this.close();
-        await DW.Life.educate(k === 'feliciter');
+        this.close(() => DW.Life.educate(k === 'feliciter'));   // (joué sur la carte, menu fermé : overworld.js)
       } else if (k === 'systeme') {
         const r = await DW.ask('Système du Digivice :', ['Sauvegarder', "Fichier sur l'ordinateur", 'Options', 'Supprimer une partie', 'Écran titre', 'Retour']);
         if (r === 0) await this.act('sauver');
@@ -101,9 +79,7 @@
         if (!m) { await DW.say("Tu n'as pas encore de partenaire."); return; }
         if (!DW.Life.sleepy(m)) { const S = DW.Life.sched(m); await DW.say(`${m.name} n'a pas sommeil (il se couche vers ${S.bed} h). Il peut se reposer une heure chez Jijimon, ou dans sa chambre.`); return; }
         if ((await DW.ask(`Faire dormir ${m.name} ici jusqu'au matin ?`)) !== 0) return;
-        this.close();
-        await DW.Life.sleep(false);
-        await DW.say(`Bonjour ! ${m.name} a bien dormi et se sent en forme.`);
+        this.close(async () => { await DW.Life.sleep(false); await DW.say(`Bonjour ! ${m.name} a bien dormi et se sent en forme.`); });
       }
       else if (k === 'sauver') {
         const r = await DW.ask('Sauvegarder ta progression ?');

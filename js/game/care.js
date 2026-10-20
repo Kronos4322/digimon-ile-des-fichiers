@@ -110,7 +110,7 @@
       m.starve = 0;
       return eaten > 0;
     },
-    // toilettes : on peut y aller dès que l'envie est là ; plus on attend, plus le soulagement est grand
+    // toilettes : on peut y aller dès que l'envie est là ; plus on attend, plus le soulagement est grand (true : il y est allé)
     async toilet() {
       const m = this.lead();
       if (!m) { await DW.say('Des toilettes toutes propres, avec un petit lavabo. Il y a même du papier !'); return; }
@@ -125,6 +125,7 @@
       m.need = 0; m.addHappy(gain); m.germs = Math.max(0, (m.germs || 0) - 4);
       await DW.fade(0, 0.25);
       await DW.say(`${m.name} ressort tout content, les mains lavées. Ouf, quel soulagement ! (bonheur +${gain})`);
+      return true;
     },
     // phrase du partenaire selon ses besoins (ou null)
     talkLine(m) {

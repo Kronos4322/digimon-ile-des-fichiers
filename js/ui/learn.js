@@ -13,7 +13,7 @@
   const GOOD = '#7aff8a', BAD = '#ff8a7a';
 
   // texte de l'effet secondaire d'une technique
-  const STAT = { atk: 'Attaque', def: 'Défense', spd: 'Vitesse' }, STS = { brn: 'brûlure', psn: 'poison', par: 'paralysie', slp: 'sommeil' };
+  const STAT = { atk: 'Attaque', def: 'Défense', spd: 'Vitesse', int: 'Intelligence' }, STS = { brn: 'brûlure', psn: 'poison', par: 'paralysie', slp: 'sommeil' };
   function effect(mv) {
     const out = [];
     if (mv.st) out.push(`${Math.round((mv.st.ch || 1) * 100)} % ${STS[mv.st.s] || mv.st.s}`);
@@ -25,8 +25,8 @@
   // puissance « réelle » pour ce Digimon (bonus d'élément ×1.5)
   const real = (mon, mv) => (mv.pow || 0) * (mon.d.types.includes(mv.type) ? 1.5 : 1);
 
-  // avantages / inconvénients d'apprendre « nw » à la place de « old »
-  function compare(mon, old, nw, others) {
+  // avantages / inconvénients d'apprendre « nw » à la place de « old » (oldId, nwId : leurs identifiants)
+  function compare(mon, old, nw, others, oldId, nwId) {
     const pros = [], cons = [];
     const d = Math.round(real(mon, nw) - real(mon, old));
     if (nw.pow && old.pow) { if (d > 0) pros.push(`Plus puissante (+${d} avec le bonus d'élément)`); else if (d < 0) cons.push(`Moins puissante (${d} avec le bonus d'élément)`); }
@@ -47,12 +47,14 @@
     if (old.type !== nw.type && !others.some(m => m.type === old.type)) cons.push(`Plus aucune technique ${old.type}`);
     if (old.pow && !nw.pow && !others.some(m => m.pow)) cons.push('Plus aucune technique offensive !');
     if (nw.type !== old.type && !others.some(m => m.type === nw.type)) pros.push(`Nouvel élément : ${nw.type}`);
-    if (DW.sigOf(mon) === nw.id || DW.sigOf(mon) === old.id) (DW.sigOf(mon) === nw.id ? pros : cons).push('Technique signature (coup spécial)');
+    // (le coup spécial ne dépend pas des techniques connues : il reste, même si on oublie la technique signature)
+    const sig = DW.sigOf(mon);
+    if (sig === nwId) pros.push('Sa technique signature'); else if (sig === oldId) cons.push('Sa technique signature (le coup spécial reste)');
     return { pros, cons };
   }
 
   class ForgetScene extends DW.Scene {
-    constructor(mon, id) { super(); this.mon = mon; this.nw = DW.MOVES[id]; this.i = 0; }
+    constructor(mon, id) { super(); this.mon = mon; this.nwId = id; this.nw = DW.MOVES[id]; this.i = 0; }
     update() {
       const n = this.mon.moves.length + 1;
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; Audio.sfx('move'); }
@@ -98,7 +100,7 @@
         UI.text(c, f(old), 232, y, { size: 8, align: 'center' });
         UI.text(c, f(nw), 286, y, { size: 8, align: 'center' });
       });
-      const { pros, cons } = compare(m, old, nw, others);
+      const { pros, cons } = compare(m, old, nw, others, m.moves[this.i].id, this.nwId);
       let y = 122;
       UI.text(c, 'AVANTAGES', 168, y, { size: 7, color: GOOD }); y += 11;
       (pros.length ? pros : ['Aucun']).slice(0, 4).forEach(p => { UI.wrap(c, '+ ' + p, 142, 7).forEach(l => { UI.text(c, l, 168, y, { size: 7, color: pros.length ? '#c8ffd0' : '#8aa0a8' }); y += 9; }); });

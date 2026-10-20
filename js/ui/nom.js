@@ -60,8 +60,6 @@
         else if (k === 'Backspace') this.name = this.name.slice(0, -1);
         else if (this.name.length < 10 && /^[\p{L}\p{N} '\-]$/u.test(k)) { this.name += k; this.sel = NAMES.length + 1; Audio.sfx('text'); }
       }
-      // stick / croix du téléphone
-      for (const [a, dx, dy] of [['left', -1, 0], ['right', 1, 0], ['up', 0, -1], ['down', 0, 1]]) if (Input.hit(a)) this.move(dx, dy);
     }
     draw(c) {
       UI.menuBg(c, this.t);

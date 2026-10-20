@@ -119,7 +119,7 @@
   class ChoiceScene extends DW.Scene {
     constructor(opts, o = {}) {
       super();
-      this.overlay = true; this.opts = opts; this.o = o; this.i = o.start || 0;
+      this.overlay = true; this.opts = opts; this.o = o; this.i = 0;
       this.w = o.w || Math.max(...opts.map(s => UI.measure(ctx, s, 10))) + 30;
       this.h = opts.length * 14 + 10;
       this.x = o.x != null ? o.x : W - this.w - 8;
@@ -130,7 +130,7 @@
       if (Input.hit('up')) { this.i = (this.i + n - 1) % n; DW.Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % n; DW.Audio.sfx('move'); }
       if (Input.hit('ok')) { DW.Audio.sfx('select'); this.close(this.i); }
-      else if (Input.hit('back') && this.o.cancel !== false) { DW.Audio.sfx('back'); this.close(-1); }
+      else if (Input.hit('back')) { DW.Audio.sfx('back'); this.close(-1); }
     }
     draw(c) {
       UI.box(c, this.x, this.y, this.w, this.h);

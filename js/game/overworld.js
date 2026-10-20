@@ -177,7 +177,8 @@
       const wc = DW.Wild.contact(this);
       if (wc) { this.runScript(wc); return; }
       if (Input.hit('menu') || (Input.hit('back') && Input.device !== 'key')) {   // (clavier : ENTRÉE ouvre le menu, SUPPR ne sert qu'à sortir)
-        Audio.sfx('select'); this.runScript(async () => { await Game.push(new DW.MenuScene()); }); return; }
+        // (une action du menu qui se joue sur la carte — dormir, féliciter — revient en fonction : le héros reste immobile)
+        Audio.sfx('select'); this.runScript(async () => { const suite = await Game.push(new DW.MenuScene()); if (suite) await suite(); }); return; }
       if (Input.hit('ok')) { this.interact(); return; }
       const v = Input.vec();
       if (!v.x && !v.y) { P.turnT = 0; return; }
@@ -205,7 +206,7 @@
     }
     // un pas dans la direction v (8 directions) ; contre un obstacle en diagonale, on glisse le long
     walk(v, over) {
-      const P = this.p, run = Input.isDown('run') || Input.analogRun();
+      const P = this.p, run = Input.isDown('run') || Input.runLock || Input.analogRun();
       if (!(v.x && v.y)) return this.tryMove(this.faceFor(v), run, over);
       P.dir = this.faceFor(v);
       if (this.canDiag(v.x, v.y)) { P.face8 = (v.y > 0 ? 'down' : 'up') + (v.x > 0 ? 'right' : 'left'); this.startMove(P.x + v.x, P.y + v.y, run, over); return true; }   // vue de trois-quarts

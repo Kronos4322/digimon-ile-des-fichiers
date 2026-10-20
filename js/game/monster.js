@@ -128,16 +128,16 @@
   }
   DW.Digimon = Digimon;
 
-  // ------------------------------------------------------------ apprentissage d'attaque (6 techniques au maximum)
+  // ------------------------------------------------------------ apprentissage d'attaque (6 techniques au maximum ; true : apprise)
   DW.MAX_MOVES = 6;
   DW.learnMove = async (mon, id) => {
     const mv = DW.MOVES[id];
-    if (mon.knows(id)) return;
+    if (mon.knows(id)) return false;
     if (mon.moves.length < DW.MAX_MOVES) {
       mon.moves.push({ id });
       DW.Audio.sfx('levelup');
       await DW.say(`${mon.name} apprend ${mv.name} !`);
-      return;
+      return true;
     }
     await DW.say(`${mon.name} veut apprendre ${mv.name}... Mais ${mon.name} connaît déjà ${DW.MAX_MOVES} techniques.`);
     const r = await DW.ask(`Oublier une attaque pour apprendre ${mv.name} ?`);
@@ -149,10 +149,11 @@
         mon.moves[i] = { id };
         DW.Audio.sfx('levelup');
         await DW.say(`1, 2 et... Tadaa ! ${mon.name} oublie ${old} et apprend ${mv.name} !`);
-        return;
+        return true;
       }
     }
     await DW.say(`${mon.name} n'a pas appris ${mv.name}.`);
+    return false;
   };
 
   // ------------------------------------------------------------ équilibrage

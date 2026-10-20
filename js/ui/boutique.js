@@ -9,8 +9,9 @@
   class ShopScene extends DW.Scene {
     // stock : liste d'objets, ou nom de boutique (DW.SHOPS, stock selon le niveau de la ville)
     constructor(stock) { super(); this.src = stock; this.i = 0; this.qty = 0; this.sell = false; this.top = 0; }
-    get stock() { return this.sell ? DW.ITEM_ORDER.filter(id => (DW.state.bag[id] || 0) > 0) : typeof this.src === 'string' ? DW.shopStock(this.src) : this.src; }
-    price(id) { const it = DW.ITEMS[id]; return this.sell ? (it.sell || Math.floor(it.price / 2)) : Math.ceil(it.price * (DW.Collab ? DW.Collab.priceMult() : 1)); }   // (Comptoir du Bazar : -15 %)
+    // (à vendre : tout le sac, sauf les objets à `sell: 0` — la Canne à pêche, cadeau unique de Gomamon)
+    get stock() { return this.sell ? DW.ITEM_ORDER.filter(id => (DW.state.bag[id] || 0) > 0 && DW.ITEMS[id].sell !== 0) : typeof this.src === 'string' ? DW.shopStock(this.src) : this.src; }
+    price(id) { const it = DW.ITEMS[id]; return this.sell ? (it.sell != null ? it.sell : Math.floor(it.price / 2)) : Math.ceil(it.price * (DW.Collab ? DW.Collab.priceMult() : 1)); }   // (Comptoir du Bazar : -15 %)
     update() {
       const st = DW.state, L = this.stock;
       if (this.qty > 0) {
@@ -36,7 +37,7 @@
         if (this.i >= L.length) { Audio.sfx('back'); this.close(); return; }
         const id = L[this.i];
         if (!this.sell) {
-          if (st.bits < DW.ITEMS[id].price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+          if (st.bits < this.price(id)) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
           if (!DW.bagRoom(id)) { Audio.sfx('bump'); this.msg = `Sac plein (${DW.BAG_MAX} max) !`; this.msgT = 2; return; }
         }
         Audio.sfx('select'); this.qty = 1;

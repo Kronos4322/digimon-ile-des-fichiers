@@ -31,34 +31,9 @@
   const NB_HAUTS = K.haut.length, NB_ENS = K.ensemble.length;
   // (la planche des bas de garçons contient deux jupes : un garçon ne les porte pas, on les saute)
   const BAS_G_OK = K.bas_g.map((b, i) => (b.type === 'skirt' ? -1 : i)).filter(i => i >= 0);
-  const nombre = (k, g) => ({ g: 2, corps: K.corps_f.length, tete: (g ? K.tete_f : K.tete_g).length, haut: NB_HAUTS + (g ? NB_ENS : 0),
+  const nombre = (k, g) => ({ corps: K.corps_f.length, tete: (g ? K.tete_f : K.tete_g).length, haut: NB_HAUTS + (g ? NB_ENS : 0),
     bas: (g ? K.bas_f : K.bas_g).length, chaus: K.chaus.length + 1, chapeau: K.chapeau.length + 1, sac: K.sac.length + 1, acc: K.acc.length + 1 })[k];
   const ensemble = ch => ch.g && ch.haut >= NB_HAUTS;
-  // le nom d'un choix (menus)
-  function nom(ch, k) {
-    const v = ch[k], aucun = v < 0;
-    switch (k) {
-      case 'g': return ch.g ? 'Fille' : 'Garçon';
-      case 'corps': return `Teinte ${v + 1}`;
-      case 'tete': return `${v + 1} / ${nombre('tete', ch.g)}`;
-      case 'haut': return ensemble(ch) ? K.ensemble[v - NB_HAUTS].nom : K.haut[v].nom;
-      case 'bas': return ensemble(ch) ? '(avec l\'ensemble)' : (ch.g ? K.bas_f : K.bas_g)[v].nom;
-      case 'chaus': return aucun ? 'Pieds nus' : K.chaus[v].nom;
-      case 'chapeau': return aucun ? 'Rien' : K.chapeau[v].nom;
-      case 'sac': return aucun ? 'Sans sac' : K.sac[v].nom;
-      case 'acc': return aucun ? 'Aucun' : K.acc[v].nom;
-    }
-    return '';
-  }
-  // un choix tiré au sort (toujours habillé et chaussé)
-  function hasard(g) {
-    const R = n => Math.floor(Math.random() * n), ch = { g };
-    ch.corps = R(K.corps_f.length); ch.tete = R(nombre('tete', g)); ch.haut = R(nombre('haut', g)); ch.bas = R(nombre('bas', g));
-    if (!g) ch.bas = BAS_G_OK[R(BAS_G_OK.length)];
-    ch.chaus = R(K.chaus.length); ch.chapeau = Math.random() < 0.35 && !(g ? K.tete_f : K.tete_g)[ch.tete].coiffe ? R(K.chapeau.length) : -1;
-    ch.sac = Math.random() < 0.4 ? R(K.sac.length) : -1; ch.acc = Math.random() < 0.35 ? R(K.acc.length) : -1;
-    return ch;
-  }
   const DEFAUT = [{ g: 0, corps: 0, tete: 0, haut: 10, bas: 1, chaus: 10, chapeau: 0, sac: -1, acc: 5 },
     { g: 1, corps: 0, tete: 20, haut: 0, bas: 0, chaus: 0, chapeau: -1, sac: -1, acc: -1 }];
   // un choix incomplet ou d'une ancienne version : complété, ramené dans les bornes
@@ -71,12 +46,6 @@
     if (!g && !BAS_G_OK.includes(o.bas)) o.bas = DEFAUT[0].bas;
     return o;
   }
-  // bas suivant / précédent d'un garçon (sans les jupes)
-  function basSuivant(ch, d) {
-    if (ch.g) { const n = K.bas_f.length; return (ch.bas + d + n) % n; }
-    const i = Math.max(0, BAS_G_OK.indexOf(ch.bas)), n = BAS_G_OK.length; return BAS_G_OK[(i + d + n) % n];
-  }
-
 
   // ------------------------------------------------------------ pièces (découpées dans leur planche ; peau à la teinte du corps)
   const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
@@ -303,5 +272,5 @@
     { nom: 'Inspiré de T.K.', bebe: 'tk', ch: { g: 0, corps: 4, tete: 1, haut: 12, bas: 1, chaus: 16, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspirée de Kari', bebe: 'tai', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
   ];
-  DW.Perso = { PRESETS, charger, pret: () => fait, nombre, nom, hasard, valide, ensemble, image, dessiner, look, couleurs, basSuivant, DEFAUT };
+  DW.Perso = { PRESETS, charger, valide, dessiner, look, couleurs };
 })();
