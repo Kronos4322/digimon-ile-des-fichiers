@@ -38,14 +38,14 @@
   }
   const BEBES = () => Object.values(DW.HERO_LINE).map(l => l.baby);
   // les lignes du menu : [libellé, choix]
-  const LIGNES = [['Je suis', 'g'], ['Peau', 'corps'], ['Coiffure', 'tete'], ['Chapeau', 'chapeau'], ['Haut', 'haut'], ['Bas', 'bas'],
-    ['Chaussures', 'chaus'], ['Sac', 'sac'], ['Accessoire', 'acc'], ['DigiŒuf', 'bebe'], ['Au hasard', 'hasard'], ["C'est moi !", null]];
+  // (règle du joueur : des personnages FIXES inspirés des DigiSauveurs ; on choisit l'un d'eux, puis son DigiŒuf)
+  const LIGNES = [['Personnage', 'perso'], ['DigiŒuf', 'bebe'], ["C'est moi !", null]];
   const VIDES = ['chaus', 'chapeau', 'sac', 'acc'];   // (ces parties peuvent rester vides)
   class CreateScene extends DW.Scene {
     constructor() {
       super();
-      this.r = 0; this.ch = DW.Perso.valide(DW.state.perso && DW.state.perso.corps != null ? DW.state.perso : DW.Perso.DEFAUT[0]);
-      this.bebe = 0; this.flash = { v: 0 };
+      this.r = 0; this.ip = 0; this.ch = DW.Perso.valide(DW.Perso.PRESETS[0].ch);
+      this.bebe = Math.max(0, Object.keys(DW.HERO_LINE).indexOf(DW.Perso.PRESETS[0].bebe)); this.flash = { v: 0 };
       this.pts = Array.from({ length: 22 }, (_, i) => ({ a: i / 22 * Math.PI * 2, s: 0.5 + (i * 37 % 10) / 20, y: (i * 53 % 100) / 100 }));
       DW.state.hero = 'perso'; this.apply();
       DW.Perso.charger();
@@ -55,6 +55,10 @@
     change(k, d) {
       const P = DW.Perso, ch = this.ch;
       if (k === 'bebe') { const n = BEBES().length; this.bebe = (this.bebe + d + n) % n; }
+      else if (k === 'perso') {   // personnage fixe suivant ; son DigiŒuf par défaut : celui de l'enfant qui l'inspire
+        const L = P.PRESETS, n = L.length; this.ip = (this.ip + d + n) % n; this.ch = P.valide(L[this.ip].ch);
+        this.bebe = Math.max(0, Object.keys(DW.HERO_LINE).indexOf(L[this.ip].bebe));
+      }
       else if (k === 'g') {   // garçon <-> fille : coiffures, hauts et bas ne sont pas les mêmes ; la peau et le reste restent
         const g = 1 - ch.g; this.ch = P.valide({ ...P.DEFAUT[g], corps: ch.corps, chaus: ch.chaus, sac: ch.sac, acc: ch.acc, chapeau: ch.chapeau, g });
       } else if (k === 'bas' && P.ensemble(ch)) { Audio.sfx('cancel'); return; }   // (un ensemble a son bas)
@@ -119,9 +123,16 @@
         const y = 25 + i * 15, eteint = k === 'bas' && P.ensemble(ch);
         UI.box(c, 154, y, 158, 14, on ? 'dwsel' : 'dw');
         UI.text(c, label, 158, y + 10, { size: 7, color: eteint ? '#5a6a8a' : '#8ae0f0' });
-        let v = k === 'hasard' ? (on ? 'ESPACE : tirer au sort' : 'un personnage surprise') : k === 'bebe' ? DW.SPECIES[BEBES()[this.bebe]].name : P.nom(ch, k);
+        let v = k === 'perso' ? `${P.PRESETS[this.ip].nom}  (${this.ip + 1}/${P.PRESETS.length})` : k === 'bebe' ? DW.SPECIES[BEBES()[this.bebe]].name : P.nom(ch, k);
         if (on && k !== 'hasard' && !eteint) v = '◀ ' + v + ' ▶';
         UI.text(c, v, 308, y + 10, { size: 7, align: 'right', color: eteint ? '#5a6a8a' : on ? '#ffffff' : '#d8e4f4' });
+      });
+      // les 8 personnages en vignettes (le choisi en surbrillance)
+      P.PRESETS.forEach((p, i) => {
+        const x = 168 + (i % 4) * 33, y = 72 + Math.floor(i / 4) * 62, on = i === this.ip;
+        c.fillStyle = on ? 'rgba(255,224,112,0.25)' : 'rgba(255,255,255,0.05)'; c.fillRect(x - 15, y, 30, 58);
+        if (on) { c.strokeStyle = '#ffe070'; c.lineWidth = 1; c.strokeRect(x - 14.5, y + 0.5, 29, 57); }
+        P.dessiner(c, p.ch, x, y + 56, 52);
       });
       UI.text(c, '▲▼ ligne   ◀ ▶ changer   ESPACE valider', 233, 228, { size: 6, align: 'center', color: '#7a8ab8' });
     }
