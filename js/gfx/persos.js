@@ -20,11 +20,17 @@
   const charger = () => charge || (charge = new Promise(fin => {
     if (!nav) { fait = true; fin(); return; }
     let reste = CATS.length;
-    for (const n of CATS) {
+    // (une planche ratée est redemandée deux fois : sinon « Chargement... » restait affiché pour toujours)
+    const essai = (n, k) => {
       const im = new Image();
-      im.onload = im.onerror = () => { if (im.naturalWidth) img[n] = im; if (--reste === 0) { fait = true; fin(); } };
-      im.src = racine + 'assets/commun/kit/' + n + '.png';
-    }
+      im.onload = im.onerror = () => {
+        if (im.naturalWidth) img[n] = im;
+        else if (k < 2) { setTimeout(() => essai(n, k + 1), 600 * (k + 1)); return; }
+        if (--reste === 0) { fait = true; fin(); }
+      };
+      im.src = racine + 'assets/commun/kit/' + n + '.png' + (k ? '?essai=' + k : '');
+    };
+    for (const n of CATS) essai(n, 0);
   }));
 
   // ------------------------------------------------------------ les choix possibles

@@ -96,6 +96,7 @@
         await DW.fade(1, 0.4);
         Audio.stop();
         DW.ow = null;
+        DW.state = DW.newState();   // (sinon FICHIER, sur l'écran titre, enregistrait la partie abandonnée)
         Game.replaceAll(new DW.TitleScene());
         DW.fade(0, 0.4);
       }

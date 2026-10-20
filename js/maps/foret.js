@@ -12,7 +12,7 @@
   // ------------------------------------------------------------ 1. CLAIRIÈRE DE L'ARRIVÉE (36x30)
   MAPS.clairiere = {
     name: "Clairière de l'Arrivée", music: 'forest', bg: 'foret', ambient: 'forest', theme: 'spring', climate: 'forest', rate: 0.13, region: 'foret', wildN: 9,
-    rows: forestGen(zoomGen({ landmarks: [['<', 3], ['?', 3]], avoid: [[17, 11], [30, 15]],
+    build() { this.rows = forestGen(zoomGen({ landmarks: [['<', 3], ['?', 3]], avoid: [[17, 11], [30, 15]],
       w: 36, h: 30, seed: 1,
       clearings: [{ x: 18, y: 12, rx: 12, ry: 7.5 }, { x: 9, y: 9, rx: 4, ry: 3.5 }],
       paths: [{ pts: [[17, 14], [17, 20], [18, 25], [17, 30]], r: 1.8 }, { pts: [[17, -1], [17, 4], [17, 10]], r: 1.6 }, { pts: [[-1, 15], [5, 15], [9, 13]], r: 1.6 }],   // (à l'ouest : le désert, chapitre 3)
@@ -20,7 +20,7 @@
       bigtrees: [],
       free: [[17, 12, 5], [9, 9, 3], [28, 10, 4.5]],   // dégagé autour du Grand Arbre
       set: [[9, 8, 'O'], [19, 21, 'S']],
-    })),
+    })); },
     encounters: [{ sp: 'botamon', min: 3, max: 4, w: 10 }, { sp: 'yuramon', min: 3, max: 4, w: 10 }, { sp: 'nyokimon', min: 3, max: 4, w: 8 }, { sp: 'yokomon', min: 6, max: 7, w: 35 }, { sp: 'kunemon', min: 6, max: 8, w: 35 }, { sp: 'tanemon', min: 6, max: 7, w: 15 }, { sp: 'mushroomon', min: 6, max: 8, w: 15, night: 40 }],
     warps: [{ x: 16, y: 29, w: 3, h: 1, dir: 'down', to: 'sentier', tx: 21, ty: 0 }],
     // le Grand Arbre où se cache Kuwagamon : une énigme dans l'écorce ouvre le tronc (maps/kuwagamon.js)
@@ -50,7 +50,7 @@
   // ------------------------------------------------------------ 2. SENTIER DES MURMURES (44x36)
   MAPS.sentier = {
     name: 'Sentier des Murmures', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'misty', climate: 'forest', rate: 0.11, region: 'foret', wildN: 9,
-    rows: forestGen(zoomGen({ landmarks: [['>', 4], ['$', 3]], avoid: [[4, 13], [6, 24], [37, 12], [4, 13]],
+    build() { this.rows = forestGen(zoomGen({ landmarks: [['>', 4], ['$', 3]], avoid: [[4, 13], [6, 24], [37, 12], [4, 13]],
       w: 44, h: 36, seed: 2, autoTall: 0.54,
       paths: [
         { pts: [[22, -1], [22, 5], [15, 10], [14, 14], [14, 20], [17, 22], [27, 25], [30, 30], [30, 36]], r: 2 },
@@ -65,7 +65,7 @@
       bigtrees: [[30, 9]],
       free: [[6, 25, 3], [38, 12, 3]],
       set: [[23, 7, 'S'], [5, 14, '.'], [4, 13, '.'], [6, 22, 'G'], [9, 27, 'G'], [3, 26, 'G']],
-    })),
+    })); },
     encounters: [
       { sp: 'kunemon', min: 5, max: 7, w: 40 }, { sp: 'yokomon', min: 5, max: 6, w: 25 },
       { sp: 'mushroomon', min: 5, max: 7, w: 10, night: 45 }, { sp: 'tanemon', min: 5, max: 6, w: 12 }, { sp: 'elecmon', min: 6, max: 7, w: 6 }, { sp: 'tsunomon', min: 5, max: 6, w: 8 },
@@ -98,7 +98,7 @@
   // ------------------------------------------------------------ 2b. PRAIRIE DES LUCIOLES (40x30) — beaucoup de Digimon sauvages
   MAPS.prairie = {
     name: 'Prairie des Lucioles', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', rate: 0.16, region: 'foret', wildN: 9,
-    rows: forestGen(zoomGen({ landmarks: [['{', 7], ['!', 2]], avoid: [[7, 15], [31, 9], [21, 17], [18, 4]],
+    build() { this.rows = forestGen(zoomGen({ landmarks: [['{', 7], ['!', 2]], avoid: [[7, 15], [31, 9], [21, 17], [18, 4]],
       w: 40, h: 30, seed: 5, autoTall: 0.42, deco: 0.7,
       clearings: [{ x: 20, y: 15, rx: 17, ry: 11 }],
       paths: [{ pts: [[-1, 14], [8, 14], [16, 17], [26, 12], [33, 15], [41, 13]], r: 1.6 }, { pts: [[16, 17], [14, 21], [13, 25]], r: 1.2 }],   // (un petit pont franchit la rivière vers le sud de la prairie)
@@ -108,7 +108,7 @@
       bigtrees: [[34, 22]],
       free: [[5, 12, 2.5], [33, 15, 2.5], [38, 13, 2.2]],
       set: [[33, 14, 'S']],
-    })),
+    })); },
     encounters: [
       { sp: 'yokomon', min: 4, max: 6, w: 25 }, { sp: 'tanemon', min: 4, max: 6, w: 18 }, { sp: 'kunemon', min: 4, max: 6, w: 20 },
       { sp: 'bukamon', min: 4, max: 5, w: 12 }, { sp: 'biyomon', min: 5, max: 6, w: 8 }, { sp: 'gabumon', min: 5, max: 6, w: 5 },
@@ -136,7 +136,7 @@
   // ------------------------------------------------------------ 3. BOIS DES GÉANTS (44x36)
   MAPS.geants = {
     name: 'Bois des Géants', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'deep', climate: 'forest', rate: 0.12, region: 'foret', wildN: 9,
-    rows: forestGen(zoomGen({ landmarks: [['}', 5], ['$', 2], ['?', 2]], avoid: [[14, 11], [28, 14], [28, 16], [7, 15], [35, 29]],
+    build() { this.rows = forestGen(zoomGen({ landmarks: [['}', 5], ['$', 2], ['?', 2]], avoid: [[14, 11], [28, 14], [28, 16], [7, 15], [35, 29]],
       w: 44, h: 36, seed: 3, autoTall: 0.53,
       paths: [
         { pts: [[30, -1], [30, 6], [24, 12], [26, 19], [18, 24], [14, 30], [14, 36]], r: 2 },
@@ -150,7 +150,7 @@
       bigtrees: [[19, 8], [36, 7], [9, 26], [27, 30], [16, 17]],
       free: [[22, 17, 3]],
       set: [[27, 19, 'S'], [22, 12, 'y']],
-    })),
+    })); },
     encounters: [
       { sp: 'bukamon', min: 4, max: 5, w: 25 }, { sp: 'yokomon', min: 4, max: 5, w: 25 }, { sp: 'tanemon', min: 4, max: 5, w: 15 },
       { sp: 'kunemon', min: 5, max: 6, w: 15 }, { sp: 'betamon', min: 5, max: 6, w: 12 }, { sp: 'mushroomon', min: 5, max: 6, w: 8, night: 35 },
@@ -177,7 +177,7 @@
   };
 
   // ------------------------------------------------------------ 4. LISIÈRE DU RAVIN (38x32)
-  const lis = forestGen(zoomGen({ landmarks: [['|', 5], ['!', 3], ['$', 1]], avoid: [[26, 29], [27, 8]],
+  const lis = () => forestGen(zoomGen({ landmarks: [['|', 5], ['!', 3], ['$', 1]], avoid: [[26, 29], [27, 8]],
     w: 38, h: 32, seed: 4, autoTall: 0.56,
     paths: [{ pts: [[18, -1], [18, 6], [12, 12], [15, 18], [22, 22], [18, 27], [18, 32]], r: 2 }, { pts: [[-1, 13.5], [6, 13.5], [12, 13]], r: 1.6 }, { pts: [[14, 10], [21, 9], [27, 9]], r: 1.4, dirt: false }],
     clearings: [{ x: 15, y: 17, rx: 8, ry: 4 }, { x: 27, y: 9, rx: 4, ry: 3 }, { x: 18, y: 29, rx: 14, ry: 2.6 }],
@@ -186,13 +186,13 @@
     free: [[15, 17, 4]],
   }));
   // falaise du ravin avec un escalier vers la plage (plan agrandi : ligne 54, escalier colonnes 34-39)
-  const lisRows = lis.map((r, y) => {
+  const lisRows = () => lis().map((r, y) => {
     if (y !== 54) return r;
     return [...r].map((ch, x) => (x >= 34 && x <= 39 ? '^' : (x > 4 && x < 70 ? 'C' : ch))).join('');
   });
   MAPS.lisiere = {
     name: 'Lisière du Ravin', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'autumn', climate: 'forest', rate: 0.12, region: 'foret', wildN: 9,
-    rows: lisRows,
+    build() { this.rows = lisRows(); },
     encounters: [{ sp: 'yokomon', min: 3, max: 4, w: 25 }, { sp: 'tanemon', min: 3, max: 4, w: 25 }, { sp: 'nyokimon', min: 2, max: 3, w: 15 }, { sp: 'yuramon', min: 2, max: 3, w: 10 }, { sp: 'kunemon', min: 4, max: 5, w: 15 }, { sp: 'mushroomon', min: 4, max: 5, w: 8, night: 30 }],
     warps: [
       { x: 17, y: 0, w: 3, h: 1, dir: 'up', to: 'geants', tx: 13, ty: 35 },
@@ -207,5 +207,6 @@
     ],
     signs: {},
   };
+  // (cases fabriquées à la première visite : build, DW.getMap ; ici, leur plan agrandi)
   for (const id of ['clairiere', 'sentier', 'prairie', 'geants', 'lisiere']) zoomMap(MAPS[id], id, { rows: false });
 })();

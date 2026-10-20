@@ -16,6 +16,8 @@
   // ------------------------------------------------------------ couches du décor (rendues une fois)
   const cache = {};
   const layer = (k, fn) => cache[k] || (cache[k] = fn());
+  // (le logo dessiné avant l'arrivée des polices — l'écran titre ne les attend que 1,5 s — est redessiné avec elles)
+  if (typeof document !== 'undefined' && document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { delete cache.logo; });
   const cv = () => DW.Art.canvas(W, H);
 
   // ciel du crépuscule, étoiles, soleil
@@ -214,16 +216,30 @@
       // pour reprendre : chaque emplacement peut avoir plusieurs versions (◀ ▶)
       this.vars = [1, 2, 3].map(n => (DW.saveVariants ? DW.saveVariants(n) : [])); this.vi = [0, 0, 0];
       if (mode === 'load') this.vars.forEach((V, k) => { if (!this.info[k] && V.length) this.info[k] = V[0].info; });
+      // (pour reprendre : la partie la plus récente d'abord)
+      if (mode === 'load') this.info.forEach((x, k) => { if (x && (!this.info[this.i] || (x.savedAt || 0) > (this.info[this.i].savedAt || 0))) this.i = k; });
     }
     update() {
+      if (this.attente) return;
+      const vert = Input.hit('up') || Input.hit('down');   // (stick en diagonale : on change d'emplacement, pas de version)
       if (Input.hit('up')) { this.i = (this.i + 2) % 3; Audio.sfx('move'); }
       if (Input.hit('down')) { this.i = (this.i + 1) % 3; Audio.sfx('move'); }
       const V = this.vars[this.i];
-      if (this.mode === 'load' && V.length > 1 && (Input.hit('left') || Input.hit('right'))) { this.vi[this.i] = (this.vi[this.i] + (Input.hit('left') ? V.length - 1 : 1)) % V.length; this.info[this.i] = V[this.vi[this.i]].info; Audio.sfx('move'); }
+      if (!vert && this.mode === 'load' && V.length > 1 && (Input.hit('left') || Input.hit('right'))) { this.vi[this.i] = (this.vi[this.i] + (Input.hit('left') ? V.length - 1 : 1)) % V.length; this.info[this.i] = V[this.vi[this.i]].info; Audio.sfx('move'); }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(-1); return; }
       if (Input.hit('ok')) {
         if (this.mode === 'load' && !this.info[this.i]) { Audio.sfx('bump'); return; }
-        if (this.mode === 'load' && V.length && V[this.vi[this.i]].kind !== 'actuelle') DW.restoreVariant(this.i + 1, V[this.vi[this.i]].kind);
+        const v = this.mode === 'load' && V.length && V[this.vi[this.i]], k = this.i;
+        if (v && v.kind !== 'actuelle') {
+          // reprendre une autre version, sur confirmation : la partie actuelle est mise de côté (on peut y revenir)
+          this.attente = true;
+          DW.ask(`Reprendre « ${v.label} » ? Ta partie actuelle sera mise de côté : tu pourras y revenir ici (◀ ▶).`, ['Non', 'Oui'], null, 0).then(r => {
+            this.attente = false;
+            if (r !== 1) return;
+            DW.restoreVariant(k + 1, v.kind); Audio.sfx('select'); this.close(k + 1);
+          });
+          return;
+        }
         Audio.sfx('select'); this.close(this.i + 1);
       }
     }

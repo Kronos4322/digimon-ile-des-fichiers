@@ -54,7 +54,7 @@
       xbox: { ok: 'A', back: 'B', menu: 'START', run: 'X', move: 'stick gauche' },
       ps: { ok: 'Croix', back: 'Rond', menu: 'START', run: 'Carré', move: 'stick gauche' },
       nintendo: { ok: 'B', back: 'A', menu: '+', run: 'Y', move: 'stick gauche' },
-      touch: { ok: 'OK', back: 'Retour', menu: 'Menu', run: 'Courir', move: 'croix tactile' },
+      touch: { ok: 'A', back: 'B', menu: 'MENU', run: 'COURIR', move: 'stick' },   // (les boutons de l'écran : ui/touch.js)
     },
     names() { return this.NAMES[this.device === 'pad' ? this.padKind : this.device] || this.NAMES.key; },
     // (les textes écrivent ÉCHAP pour « retour » et ENTRÉE pour « menu » : au clavier, c'est SUPPR et ENTRÉE ;

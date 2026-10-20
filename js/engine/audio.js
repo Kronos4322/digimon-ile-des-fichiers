@@ -21,7 +21,7 @@
   DW.Audio = {
     ctx: null, muted: false, cur: null, timer: null, pending: null, vol: 0.22,
     init() {
-      if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
+      if (this.ctx) { if (this.ctx.state !== 'running' && !document.hidden) this.ctx.resume().catch(() => {}); return; }
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       this.ctx = new AC();

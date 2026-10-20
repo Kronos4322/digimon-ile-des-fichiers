@@ -30,8 +30,8 @@
   #touch .b{background:rgba(160,50,50,.45);border-color:rgba(255,160,160,.7)}
   #touch .pill{border-radius:999px}
   #touch .run.toggled{background:rgba(255,160,40,.6);border-color:#ffd080}
-  #touch input{position:absolute;left:50%;top:30%;transform:translateX(-50%);width:220px;font:16px sans-serif;padding:8px;
-    pointer-events:auto;display:none;border:2px solid #ffd860;border-radius:6px;background:#0a1430;color:#ffd860;text-align:center}
+  #touch input{position:absolute;font:16px sans-serif;padding:0;margin:0;box-sizing:border-box;pointer-events:auto;display:none;
+    border:0;outline:0;background:transparent;color:transparent;caret-color:transparent;text-align:center;opacity:.02}
   #touch .deck{position:absolute;left:0;right:0;bottom:0;pointer-events:none;border-top:2px solid rgba(120,180,255,.35);
     background:linear-gradient(180deg,#14224a 0%,#0a1230 60%,#070b1e 100%);box-shadow:0 -6px 18px rgba(0,0,0,.5) inset}
   #touch .deck::after{content:'DIGIVICE';position:absolute;left:50%;top:10px;transform:translateX(-50%);font-size:8px;letter-spacing:3px;color:rgba(160,200,255,.45)}
@@ -118,6 +118,14 @@
     }
   }
 
+  const surTitre = () => !!(DW.TitleScene && DW.Game.top() instanceof DW.TitleScene);
+  // le champ de saisie du nom, exactement sur le cadre du nom de l'écran (NameScene.FIELD)
+  function placeChamp() {
+    const F = DW.NameScene && DW.NameScene.FIELD; if (!field || !F) return;
+    const c = DW.canvas.getBoundingClientRect(), kx = c.width / DW.W, ky = c.height / DW.H;
+    Object.assign(field.style, { left: Math.round(c.left + F[0] * kx) + 'px', top: Math.round(c.top + F[1] * ky) + 'px', width: Math.round(F[2] * kx) + 'px', height: Math.round(F[3] * ky) + 'px' });
+  }
+
   function build() {
     if (built) return;
     built = true;
@@ -126,7 +134,7 @@
     root = document.createElement('div'); root.id = 'touch';
     root.innerHTML = '<div class="deck"></div><div class="t stick"><i class="u"></i><i class="d"></i><i class="l"></i><i class="r"></i><div class="knob"></div></div>' +
       '<div class="t a">A</div><div class="t b">B</div><div class="t pill menu">MENU</div><div class="t pill run">COURIR</div>' +
-      '<input data-saisie="1" maxlength="10" autocomplete="off" autocapitalize="words" enterkeyhint="done" placeholder="Ton nom">';
+      '<input data-saisie="1" maxlength="10" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" enterkeyhint="done">';
     document.body.appendChild(root);
     stick(root.querySelector('.stick'));
     hold(root.querySelector('.a'), 'ok'); hold(root.querySelector('.b'), 'back');
@@ -146,19 +154,30 @@
       Input.press('touch:screen', 'ok');
     });
     for (const ev of ['pointerup', 'pointercancel']) DW.canvas.addEventListener(ev, () => Input.release('touch:screen', 'ok'));
-    // saisie du nom : le clavier du téléphone écrit dans ce champ, recopié lettre par lettre dans Input.typed
+    // saisie du nom : le clavier du téléphone écrit dans ce champ, posé (invisible) sur le cadre du nom ; son texte entier
+    // devient le nom à chaque changement (avant : vidé à chaque lettre, la touche d'effacement et les mots proposés par
+    // le clavier ne marchaient pas)
     field = root.querySelector('input');
-    field.addEventListener('input', e => {
-      if (e.inputType && e.inputType.startsWith('delete')) Input.typed.push('Backspace');
-      else for (const ch of e.data || '') Input.typed.push(ch);
-      field.value = '';
-    });
+    field.addEventListener('input', () => Input.typed.push('Set:' + field.value));
+    field.addEventListener('focus', () => { field.value = Input.textValue || ''; });
     field.addEventListener('keydown', e => { if (e.key === 'Enter') { Input.typed.push('Enter'); field.blur(); e.preventDefault(); } });
-    // affiche le champ seulement pendant la saisie du nom
+    // le champ n'existe que pendant la saisie du nom, recopie le nom choisi autrement (prénom proposé, EFFACER)
     setInterval(() => {
       const show = Input.textMode;
       if ((field.style.display === 'block') !== show) { field.style.display = show ? 'block' : 'none'; if (!show) field.blur(); }
+      if (show) { placeChamp(); if (document.activeElement !== field && field.value !== (Input.textValue || '')) field.value = Input.textValue || ''; }
+      // bouton Retour du téléphone (Android) : prêt dès qu'on quitte l'écran titre (voir plus bas)
+      if (!surTitre() && !(history.state && history.state.jeu)) try { history.pushState({ jeu: 1 }, ''); } catch (e) { /* sans historique */ }
     }, 150);
+    // bouton Retour du téléphone : c'est le Retour du jeu (avant : il fermait l'appli) ; sur l'écran titre, il quitte
+    window.addEventListener('popstate', () => {
+      if (surTitre()) return;
+      Input.press('touch:retour', 'back'); setTimeout(() => Input.release('touch:retour', 'back'), 90);
+      try { history.pushState({ jeu: 1 }, ''); } catch (e) { /* sans historique */ }
+    });
+    // (iOS ne libère le son qu'à la fin d'un toucher)
+    window.addEventListener('touchend', () => DW.Audio.init(), { passive: true });
+    Input.device = 'touch';   // (sinon les aides disaient « ESPACE » jusqu'au premier toucher)
     window.addEventListener('resize', () => setTimeout(layout, 30));
     window.dispatchEvent(new Event('resize'));
     setTimeout(layout, 50);

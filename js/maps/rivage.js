@@ -37,7 +37,7 @@
   // ------------------------------------------------------------ DUNES DES BÉBÉS (40×30, agrandie ×2)
   MAPS.dunes = {
     name: 'Dunes des Bébés', music: 'beach', bg: 'plage', ambient: 'beach', theme: 'beach', climate: 'beach', region: 'plage', rate: 0.14, wildN: 10, noLandmark: true,
-    rows: forestGen(zoomGen({ w: 40, h: 30, seed: 41, autoTall: 0.5, deco: 0.8, landmarks: [['{', 3]],
+    build() { this.rows = forestGen(zoomGen({ w: 40, h: 30, seed: 41, autoTall: 0.5, deco: 0.8, landmarks: [['{', 3]],
       clearings: [{ x: 20, y: 16, rx: 15, ry: 10 }, { x: 8, y: 8, rx: 5, ry: 4 }],
       paths: [{ pts: [[41, 19.5], [30, 18], [22, 17], [12, 15], [6, 9]], r: 1.6 }, { pts: [[20, 16], [24, 8], [24, -1]], r: 1.4 }, { pts: [[20, 17], [20, 24], [20, 31]], r: 1.6 }],
       lakes: [{ x: 30, y: 22, rx: 4.5, ry: 2.6 }],
@@ -51,7 +51,8 @@
       if (ch === '.' || ch === 'f') return n > 0.38 ? 's' : ch;
       if (ch === ',') return n > 0.38 ? ';' : ch;
       return ch;
-    }).join('')),
+    }).join('')); },
+    finir() { ouest(this); },
     warps: [
       { x: 39, y: 19, w: 1, h: 2, dir: 'right', to: 'lisiere', tx: 0, ty: 13 },   // à l'est, la Lisière du Ravin
       { x: 23, y: 0, w: 3, h: 1, dir: 'up', to: 'bosquet', tx: 19, ty: 29 },
@@ -63,14 +64,15 @@
   // ------------------------------------------------------------ BOSQUET DES POUSSES (40×30, agrandi ×2)
   MAPS.bosquet = {
     name: 'Bosquet des Pousses', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'plage', rate: 0.14, wildN: 10,
-    rows: forestGen(zoomGen({ w: 40, h: 30, seed: 42, autoTall: 0.48, deco: 1, landmarks: [['}', 3], ['>', 2]],
+    build() { this.rows = forestGen(zoomGen({ w: 40, h: 30, seed: 42, autoTall: 0.48, deco: 1, landmarks: [['}', 3], ['>', 2]],
       clearings: [{ x: 20, y: 15, rx: 13, ry: 9 }, { x: 31, y: 8, rx: 5, ry: 4 }, { x: 9, y: 22, rx: 5, ry: 4 }],
       paths: [{ pts: [[20, 31], [20, 22], [16, 15], [22, 9], [31, 8], [36, 12], [41, 15]], r: 1.5 }, { pts: [[20.5, -1], [20.5, 4], [22, 9]], r: 1.8 }, { pts: [[16, 15], [9, 22]], r: 1.3, dirt: false }],
       tall: [{ x: 27, y: 18, r: 4 }, { x: 10, y: 11, r: 3.5 }],
       bigtrees: [[30, 22]],
       free: [[20, 27, 3]],
       set: [[21, 25, 'S']],
-    })),
+    })); },
+    finir() { ouest(this); },
     warps: [{ x: 19, y: 29, w: 3, h: 1, dir: 'down', to: 'dunes', tx: 23, ty: 0 },
       { x: 39, y: 14, w: 1, h: 3, dir: 'right', to: 'geants', tx: 0, ty: 14 }],   // à l'est, un sentier vers le Bois des Géants
     npcs: [], triggers: [],
@@ -79,14 +81,19 @@
   // agrandies ×2 comme les autres cartes faites à la main (plan d'origine 40×30)
   // (leur facteur d'agrandissement est déclaré dans MapKit.ZOOM, avant toute carte qui y mène)
   zoomMap(MAPS.dunes, 'dunes', { rows: false }); zoomMap(MAPS.bosquet, 'bosquet', { rows: false });
-  // bord ouest de l'île : les dunes descendent vers la mer à l'ouest (au sud, elles rejoignent la Crique), le bosquet domine l'océan du haut d'une falaise
-  { const near = M => { const pts = [...(M.warps || []).flatMap(w => { const a = []; for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) a.push([x, y]); return a; }), ...Object.keys(M.signs || {}).map(k => k.split(',').map(Number))];
-      return (x, y) => pts.some(([px, py]) => Math.abs(px - x) < 4 && Math.abs(py - y) < 4); };
-    MAPS.dunes.rows = DW.MapKit.coast(MAPS.dunes.rows, { left: 'beach' }, { seed: 41, sea: 11, keep: near(MAPS.dunes) });
-    MAPS.bosquet.rows = DW.MapKit.coast(MAPS.bosquet.rows, { left: 'cliff' }, { seed: 42, sea: 10, keep: near(MAPS.bosquet) });
+  // bord ouest de l'île, posé à la fabrication de la carte, après ses dégagements (finir : MapKit.zoomMap) : les dunes descendent vers la mer
+  // à l'ouest (au sud, elles rejoignent la Crique), le bosquet domine l'océan du haut d'une falaise
+  // (la mer garde libres les abords des sorties et des panneaux d'origine, relevés dès maintenant : le puzzle du monde
+  //  change ensuite les sorties, maps/puzzle.js)
+  const near = M => { const pts = [...(M.warps || []).flatMap(w => { const a = []; for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) a.push([x, y]); return a; }), ...Object.keys(M.signs || {}).map(k => k.split(',').map(Number))];
+    return (x, y) => pts.some(([px, py]) => Math.abs(px - x) < 4 && Math.abs(py - y) < 4); };
+  const garde = { dunes: near(MAPS.dunes), bosquet: near(MAPS.bosquet) };
+  function ouest(M) {
+    if (M === MAPS.bosquet) { M.rows = DW.MapKit.coast(M.rows, { left: 'cliff' }, { seed: 42, sea: 10, keep: garde.bosquet }); return; }
+    M.rows = DW.MapKit.coast(M.rows, { left: 'beach' }, { seed: 41, sea: 11, keep: garde.dunes });
     // au sud, les dunes s'ouvrent en grande plage de sable jusqu'à la Crique du Radeau (plus de forêt ni de mer de ce côté)
-    const H = MAPS.dunes.rows.length;
-    MAPS.dunes.rows = MAPS.dunes.rows.map((r, y) => {
+    const H = M.rows.length;
+    M.rows = M.rows.map((r, y) => {
       const k = (y - (H - 18)) / 12; if (k <= 0) return r;
       return [...r].map((ch, x) => {
         if (!'#TbknpR'.includes(ch)) return ch;
@@ -95,7 +102,8 @@
         if (DW.Art.hash(x, y, 432) < 0.03) return 'T';                   // quelques arbres isolés dans le sable
         return n > 0.45 ? ';' : 's';                                     // sable et herbe des dunes
       }).join('');
-    }); }
+    });
+  }
 
   // (la Plage des Cabines ne touche plus les dunes : elle est au sud de la Lisière ; à l'ouest, la Crique du Radeau)
   // RACCORD AVEC LA CRIQUE : la Plage et la Crique bordent la même baie. En haut, la route de la falaise passe de l'une

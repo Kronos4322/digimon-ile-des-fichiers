@@ -8,15 +8,20 @@
   // ------------------------------------------------------------ saisie du nom
   // Prénoms proposés (on les touche ou on les choisit aux flèches), ou on tape le sien.
   // Il faut au moins 3 lettres : impossible de partir à l'aventure sans nom.
-  const NAMES = ['Tai', 'Kenji', 'Matt', 'Sora', 'Izzy', 'Mimi', 'Joe', 'Kari', 'Aiko', 'Davis', 'Yolei', 'Ken'];
+  // (pas les prénoms des enfants de l'aventure : nommé « Matt », le héros entendait « Moi, c'est Matt » et prenait son
+  //  portrait ; ces prénoms sont refusés, PRIS)
+  const NAMES = ['Kenji', 'Aiko', 'Hiro', 'Yuki', 'Léo', 'Lina', 'Kaito', 'Emma', 'Noa', 'Sami', 'Rin', 'Théo'];
+  const norme = s => s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f.\s'\-]/g, '');
+  const PRIS = () => new Set([...Object.keys(DW.HEROES).filter(k => k !== 'perso').map(k => DW.HEROES[k].name),
+    'TK', 'Kari', 'Hikari', 'Taichi', 'Yamato', 'Koushiro', 'Takeru', 'Gennai'].map(norme));
   const NCOL = 4, CHW = 66, CHH = 18, CHX = 19, CHY = 98, GAPX = 6, GAPY = 5;
   const BTN = { clear: [52, 172, 96, 22], ok: [172, 172, 96, 22] };
   class NameScene extends DW.Scene {
     constructor(def) {
-      super(); this.name = ''; this.def = def || 'Tai';
+      super(); this.name = ''; this.def = def || 'Kenji';
       this.sel = Math.max(0, NAMES.indexOf(this.def)); this.err = 0;
     }
-    enter() { Input.textMode = true; }
+    enter() { Input.textMode = true; Input.textValue = this.name; }
     letters() { return (this.name.match(/\p{L}/gu) || []).length; }
     chipRect(i) { return [CHX + (i % NCOL) * (CHW + GAPX), CHY + Math.floor(i / NCOL) * (CHH + GAPY), CHW, CHH]; }
     // 0..11 prénoms, 12 = EFFACER, 13 = VALIDER
@@ -28,7 +33,8 @@
       return false;
     }
     validate() {
-      if (this.letters() < 3) { this.err = 2.2; Audio.sfx('back'); return false; }
+      if (this.letters() < 3) { this.err = 2.2; this.errMsg = 'Il faut un nom d’au moins 3 lettres !'; Audio.sfx('back'); return false; }
+      if (PRIS().has(norme(this.name))) { this.err = 2.6; this.errMsg = 'C’est le prénom d’un enfant de l’aventure !'; Audio.sfx('back'); return false; }
       Input.textMode = false; Audio.sfx('select');
       this.close(this.name.trim());
       return true;
@@ -54,12 +60,18 @@
           for (let i = 0; i <= NAMES.length + 1; i++) { const [rx, ry, rw, rh] = this.rectOf(i); if (x >= rx && x <= rx + rw && y >= ry && y <= ry + rh) { this.sel = i; if (this.act(i)) return; break; } }
           continue;
         }
+        if (k.startsWith('Set:')) {   // (téléphone : le texte entier du champ de saisie, ui/touch.js)
+          const v = [...k.slice(4)].filter(ch => /^[\p{L}\p{N} '\-]$/u.test(ch)).join('').slice(0, 10);
+          if (v !== this.name) { this.name = v; this.sel = NAMES.length + 1; Audio.sfx('text'); }
+          continue;
+        }
         if (k === 'Enter') { if (this.act(this.sel)) return; continue; }
         if (k === 'ArrowLeft') this.move(-1, 0); else if (k === 'ArrowRight' || k === 'Tab') this.move(1, 0);
         else if (k === 'ArrowUp') this.move(0, -1); else if (k === 'ArrowDown') this.move(0, 1);
         else if (k === 'Backspace') this.name = this.name.slice(0, -1);
         else if (this.name.length < 10 && /^[\p{L}\p{N} '\-]$/u.test(k)) { this.name += k; this.sel = NAMES.length + 1; Audio.sfx('text'); }
       }
+      Input.textValue = this.name;   // (recopié dans le champ de saisie du téléphone)
     }
     draw(c) {
       UI.menuBg(c, this.t);
@@ -73,7 +85,7 @@
       else UI.text(c, (DW.Touch && DW.Touch.on ? 'Touche ici pour écrire' : 'Tape ton nom') + caret, 160, fy + 19, { size: 9, align: 'center', color: '#6a7aa8' });
       // règle des 3 lettres
       const n = this.letters();
-      const msg = this.err > 0 ? 'Il faut un nom d’au moins 3 lettres !' : n >= 3 ? 'Nom valide !' : `Au moins 3 lettres (encore ${3 - n})`;
+      const msg = this.err > 0 ? this.errMsg : n >= 3 ? 'Nom valide !' : `Au moins 3 lettres (encore ${3 - n})`;
       UI.text(c, msg, 160, 89, { size: 8, align: 'center', bold: this.err > 0, color: this.err > 0 ? '#ff7070' : n >= 3 ? '#7aff8a' : '#9ab0e8' });
       // prénoms proposés
       NAMES.forEach((nm, i) => {

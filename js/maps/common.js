@@ -35,7 +35,7 @@
 
   DW.getMap = id => {
     const m = MAPS[id];
-    if (!m.rows && m.build) m.build(); // cartes générées à la demande (régions)
+    if (!m.rows && m.build) m.build(); // cartes générées à la demande (régions, forêt, rivage : leurs cases à la première visite)
     // arrivées vers les cartes agrandies (écrites dans leur plan d'origine)
     for (const w of m.warps || []) DW.MapKit.zTarget(w);
     for (const d of m.doors || []) DW.MapKit.zTarget(d);
@@ -362,16 +362,27 @@
       m.warps = (m.warps || []).map(wp => { const o = { ...wp, ...zrect(Z, wp, w, h) }; zTarget(o); return o; });
       m.triggers = (m.triggers || []).map(t => ({ ...t, ...zrect(Z, t, w, h) }));
     }
-    // dégagements : une lisière ou un buisson ne doit pas tomber sur un PNJ, ni sur une sortie et l'entrée de la carte
-    const g = m.rows.map(r => [...r]), SOFT = '#TbrMkGLHng|f,mj';
-    const clear = (x, y) => { if (g[y] && g[y][x] !== undefined && SOFT.includes(g[y][x])) g[y][x] = '.'; };
-    for (const n of m.npcs || []) { clear(n.x, n.y); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) clear(n.x + dx, n.y + dy); }
+    // carte fabriquée à la demande (DW.getMap ; l'entrée sur une carte appelle aussi build) : fabriquée une seule fois,
+    // ses cases sont alors dégagées autour des PNJ et des sorties d'ICI (le puzzle du monde change ensuite les sorties :
+    // maps/puzzle.js), puis finies (finir : la côte des dunes...)
+    if (m.rows) degager(m);
+    else if (m.build) { const cases = aDegager(m), fab = m.build; m.build = function () { if (this.rows) return; fab.call(this); degager(this, cases); if (this.finir) this.finir(); }; }
+    return m;
+  }
+  // DÉGAGEMENTS d'une carte agrandie : une lisière ou un buisson ne doit pas tomber sur un PNJ, ni sur une sortie et l'entrée de la carte
+  function aDegager(m) {
+    const out = [];
+    for (const n of m.npcs || []) { out.push([n.x, n.y]); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) out.push([n.x + dx, n.y + dy]); }
     for (const wp of m.warps || []) {
       const [ix, iy] = { left: [1, 0], right: [-1, 0], up: [0, 1], down: [0, -1] }[wp.dir] || [0, 0];
-      for (let y = wp.y; y < wp.y + (wp.h || 1); y++) for (let x = wp.x; x < wp.x + (wp.w || 1); x++) for (let k = 0; k < 3; k++) clear(x + ix * k, y + iy * k);
+      for (let y = wp.y; y < wp.y + (wp.h || 1); y++) for (let x = wp.x; x < wp.x + (wp.w || 1); x++) for (let k = 0; k < 3; k++) out.push([x + ix * k, y + iy * k]);
     }
+    return out;
+  }
+  function degager(m, cases = aDegager(m)) {
+    const g = m.rows.map(r => [...r]), SOFT = '#TbrMkGLHng|f,mj';
+    for (const [x, y] of cases) if (g[y] && g[y][x] !== undefined && SOFT.includes(g[y][x])) g[y][x] = '.';
     m.rows = g.map(r => r.join(''));
-    return m;
   }
   // options du générateur de forêt exprimées dans le plan d'origine → plan agrandi
   function zoomGen(o, Z = 2) {

@@ -12,6 +12,7 @@
   const PREFIX = 'digimon_ile_des_fichiers_save';
   const can = typeof window !== 'undefined' && 'showSaveFilePicker' in window && 'indexedDB' in window;
   const ls = () => { try { return window.localStorage; } catch (e) { return null; } };
+  const GESTES = ['pointerup', 'keyup', 'click'];   // (gestes qui autorisent l'ouverture du sélecteur de fichier)
 
   // ------------------------------------------------------------ poignée du fichier, gardée d'une visite à l'autre (IndexedDB)
   const db = () => new Promise((res, rej) => { const r = indexedDB.open('digimon_fichier', 1); r.onupgradeneeded = () => r.result.createObjectStore('h'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
@@ -99,13 +100,32 @@
     exportFile() {
       const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bundle()], { type: 'application/json' }));
       a.download = 'Digimon-sauvegarde.json'; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000);   // (Safari demande d'abord l'accord : le lien doit encore marcher)
     },
+    // choisir un fichier ; le sélecteur fermé sans fichier rend { annule: true } (l'écran titre attendait pour toujours)
     importFile() {
       return new Promise(res => {
         const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json';
-        inp.onchange = async () => { try { res({ ok: true, n: merge(await inp.files[0].text()) }); } catch (e) { res({ ok: false }); } };
-        inp.click();
+        inp.style.display = 'none'; document.body.appendChild(inp);
+        let fini = false, demande = false, relache = false;
+        const ouvrir = () => { if (demande) return; demande = true; for (const ev of GESTES) window.removeEventListener(ev, ouvrir, true); inp.click(); };
+        const annule = () => { if (!inp.files || !inp.files.length) fin({ ok: false, annule: true }); };
+        const retour = () => { if (!document.hidden) setTimeout(annule, 1500); };   // (de retour sur la page sans fichier choisi)
+        // filet : sélecteur jamais ouvert, ou fermé sans aucun signal → un nouvel appui sur OK ou Retour dans le jeu annule
+        const garde = setInterval(() => { if (!(DW.Input.held.ok || DW.Input.held.back)) relache = true; else if (relache) annule(); }, 100);
+        function fin(r) {
+          if (fini) return; fini = true; clearInterval(garde); inp.remove();
+          for (const ev of GESTES) window.removeEventListener(ev, ouvrir, true);
+          window.removeEventListener('focus', retour); document.removeEventListener('visibilitychange', retour);
+          res(r);
+        }
+        inp.onchange = async () => { if (!inp.files || !inp.files.length) return annule(); try { fin({ ok: true, n: merge(await inp.files[0].text()) }); } catch (e) { fin({ ok: false }); } };
+        inp.addEventListener('cancel', annule);
+        window.addEventListener('focus', retour); document.addEventListener('visibilitychange', retour);
+        // le navigateur n'ouvre le sélecteur que juste après un geste : au toucher, OK part dès l'appui du doigt, le
+        // sélecteur s'ouvre donc quand le doigt se lève
+        if (!navigator.userActivation || navigator.userActivation.isActive) ouvrir();
+        else for (const ev of GESTES) window.addEventListener(ev, ouvrir, true);
       });
     },
     afterSave: schedule,
@@ -122,7 +142,7 @@
     if (!can) {
       const r = await DW.ask('Sauvegarde sur l\'ordinateur : ce navigateur ne peut pas écrire directement dans un fichier. Tu peux télécharger tes parties, puis les recharger ailleurs.', ['Télécharger mes parties', 'Charger un fichier', 'Retour']);
       if (r === 0) { enregistrerPartie(); F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » téléchargé. Garde-le précieusement !'); }
-      else if (r === 1) { const res = await F.importFile(); await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
+      else if (r === 1) { const res = await F.importFile(); if (!res.annule) await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
       return;
     }
     if (handle && F.needsPermission) {

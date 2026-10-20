@@ -29,7 +29,8 @@
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const write = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
   // supprimer un emplacement (la sauvegarde et sa copie précédente)
-  DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { localStorage.removeItem(K.KEY); localStorage.removeItem(K.BAK); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
+  // (toutes ses versions : sinon l'emplacement vide dans NOUVELLE PARTIE restait plein dans CONTINUER)
+  DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { for (const k of [K.KEY, K.BAK, K.BROKEN, OLD(n), SWAP(n)]) localStorage.removeItem(k); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
   // VERSIONS d'un emplacement : la partie actuelle, la version précédente (avant la dernière sauvegarde)
   // et l'ANCIENNE partie (mise de côté quand on commence une nouvelle partie sur cet emplacement)
   const infoOf = json => {
@@ -40,7 +41,7 @@
         level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
     } catch (e) { return null; }
   };
-  const OLD = n => keyOf(n) + '_ancienne';
+  const OLD = n => keyOf(n) + '_ancienne', SWAP = n => keyOf(n) + '_remplacee';
   DW.archiveSave = n => { const keep = DW.slot; DW.slot = n; try { const cur = read(K.KEY) || read(K.BAK); if (cur) write(OLD(n), cur); } finally { DW.slot = keep; } };
   DW.saveVariants = n => {
     const keep = DW.slot; DW.slot = n;
@@ -49,17 +50,19 @@
       if (cur) out.push({ kind: 'actuelle', label: 'Partie actuelle', info: infoOf(cur) });
       if (bak && bak !== cur) out.push({ kind: 'precedente', label: 'Version précédente', info: infoOf(bak) });
       if (old && old !== cur && old !== bak) out.push({ kind: 'ancienne', label: 'Ancienne partie (mise de côté)', info: infoOf(old) });
+      const rem = read(SWAP(n));
+      if (rem && rem !== cur && rem !== bak && rem !== old) out.push({ kind: 'remplacee', label: 'Partie d\'avant ta reprise', info: infoOf(rem) });
       return out.filter(v => v.info);
     } finally { DW.slot = keep; }
   };
-  // reprendre une autre version : elle devient la partie de l'emplacement ; la partie remplacée est mise de côté (rien n'est perdu)
+  // reprendre une autre version : elle devient la partie de l'emplacement ; la partie remplacée est mise de côté à part
+  // (avant : elle prenait la place de la version précédente, que la sauvegarde suivante écrasait — elle était perdue)
   DW.restoreVariant = (n, kind) => {
     const keep = DW.slot; DW.slot = n;
     try {
-      const cur = read(K.KEY), pick = kind === 'precedente' ? read(K.BAK) : kind === 'ancienne' ? read(OLD(n)) : cur;
+      const cur = read(K.KEY), pick = { precedente: read(K.BAK), ancienne: read(OLD(n)), remplacee: read(SWAP(n)) }[kind] || cur;
       if (!pick || pick === cur) return;
-      // (échange : la partie remplacée prend la place de celle qu'on reprend — précédente ou ancienne —, l'autre ne bouge pas)
-      if (cur) write(kind === 'precedente' ? K.BAK : OLD(n), cur);
+      if (cur) write(SWAP(n), cur);
       write(K.KEY, pick);
     } finally { DW.slot = keep; }
   };
@@ -76,7 +79,7 @@
   };
   // sauvegarde automatique silencieuse (changement de zone, après un combat)
   const warnedFlags = new Set();
-  DW.autosave = () => { if (DW.state.flags.starter) { DW.save(); DW.saveFlash = 2; } };
+  DW.autosave = () => { if (DW.state.flags.starter && DW.save()) DW.saveFlash = 2; };   // (« Sauvegardé » seulement si c'est vrai)
   DW.save = () => {
     const st = DW.state;
     if (DW.ow) { st.map = DW.ow.mapId; st.x = DW.ow.p.x; st.y = DW.ow.p.y; st.dir = DW.ow.p.dir; }
@@ -89,8 +92,17 @@
     if (old && old !== json) write(K.BAK, old);
     const ok = write(K.KEY, json);
     if (ok && DW.SaveFile) DW.SaveFile.afterSave();   // copie dans le fichier de l'ordinateur (game/fichier.js)
+    // stockage « persistant » demandé une fois : le navigateur n'efface plus les parties pour faire de la place
+    if (ok && !persiste) { persiste = true; try { navigator.storage.persist().catch(() => {}); } catch (e) { /* non disponible */ } }
     return ok;
   };
+  let persiste = false;
+  // le jeu passe en arrière-plan (téléphone : autre appli, écran éteint ; l'appareil peut alors le fermer sans prévenir) :
+  // sauvegarde si on se promène librement (pas pendant un combat, une scène, un dialogue ou un menu)
+  if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', () => {
+    const ow = DW.ow;
+    if (document.hidden && ow && !ow.locked && DW.Game.top() === ow && DW.state.flags.starter) DW.save();
+  });
 
   // Digimon d'une sauvegarde : une espèce ou une technique disparue du jeu ne doit pas tout casser.
   // Un Digimon d'espèce inconnue est gardé tel quel dans st.orphans (et rendu si l'espèce revient).

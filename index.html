@@ -29,9 +29,11 @@
     (function () {
       const btn = document.getElementById('installer');
       let ask = null;
-      window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ask = e; btn.style.display = 'block'; });
-      window.addEventListener('appinstalled', () => { btn.style.display = 'none'; });
-      btn.addEventListener('click', async () => { if (!ask) return; ask.prompt(); await ask.userChoice; ask = null; btn.style.display = 'none'; });
+      window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ask = e; });
+      window.addEventListener('appinstalled', () => { ask = null; });
+      btn.addEventListener('click', async () => { if (!ask) return; ask.prompt(); await ask.userChoice; ask = null; });
+      // (seulement sur l'écran titre : en jeu, il couvrait le bouton B du téléphone)
+      setInterval(() => { const on = !!ask && !!DW.TitleScene && DW.Game.top() instanceof DW.TitleScene; if ((btn.style.display === 'block') !== on) btn.style.display = on ? 'block' : 'none'; }, 400);
     })();
     // plein écran : téléphone dès le premier toucher (en paysage), PC avec F11 ou un double-clic sur le jeu
     (function () {
@@ -43,7 +45,8 @@
         Promise.resolve(req.call(el, { navigationUI: 'hide' })).then(() => { try { screen.orientation.lock('landscape').catch(() => {}); } catch (e) { /* pas de verrouillage */ } }).catch(() => {});
       };
       window.addEventListener('touchend', go, { passive: true });
-      document.getElementById('game').addEventListener('dblclick', () => (full() ? document.exitFullscreen() : go()));
+      // (pas au toucher : deux touchers rapides dans un dialogue faisaient sortir du plein écran)
+      document.getElementById('game').addEventListener('dblclick', () => { if (DW.Touch && DW.Touch.on) return; full() ? document.exitFullscreen() : go(); });
       window.addEventListener('keydown', e => { if (e.code === 'F11') { e.preventDefault(); full() ? document.exitFullscreen() : go(); } });
     })();
   </script>
