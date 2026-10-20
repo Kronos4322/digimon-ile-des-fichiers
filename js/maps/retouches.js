@@ -54,6 +54,9 @@
       // PANNEAUX : texte écrit dans l'éditeur (une case = un texte ; « null » retire le texte d'origine)
       m.signs = { ...(m._baseSigns || m.signs || {}) };
       if (T) for (const k in T.panneaux || {}) { if (T.panneaux[k] == null) delete m.signs[k]; else m.signs[k] = T.panneaux[k]; }
+      // (un objet retiré emporte les panneaux posés sur lui, sauf ceux écrits dans l'éditeur : une cabine de toilettes
+      //  retirée laissait 3 cases « toilettes » invisibles)
+      for (const o of B.objects) if (gone.has(R.cle(o))) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) if (!(T && T.panneaux && (x + ',' + y) in T.panneaux)) delete m.signs[x + ',' + y];
       // COLLISIONS CHOISIES À LA MAIN : cases forcées bloquantes (1) ou praticables (0), quel que soit le décor
       m.forceBloque = new Set(); m.forceLibre = new Set();
       if (T) for (const k in T.bloque || {}) (T.bloque[k] ? m.forceBloque : m.forceLibre).add(k);

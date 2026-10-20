@@ -422,7 +422,9 @@
       const info = DW.World.info(this.tileAt(x, y));
       const ts = this.trainSpot();
       if (ts) { this.runScript(() => DW.Training.atSpot(ts.k, ts)); return true; }
-      if (info.toilet) { this.runScript(() => DW.Care.toilet()); return true; }
+      // (toilettes posées comme objet, dans l'atelier des cartes : utilisables aussi)
+      const wc = (this.map.objects || []).some(o => o.kind === 'toilet' && x >= o.x && x < o.x + (o.w || 1) && y >= o.y && y < o.y + (o.h || 1));
+      if (info.toilet || wc) { this.runScript(() => DW.Care.toilet()); return true; }
       const act = this.map.tileActs && this.map.tileActs[this.tileAt(x, y)];
       if (act) { this.runScript(ow => act(ow, x, y)); return true; }
       const F = this.f, pt = this.partner;

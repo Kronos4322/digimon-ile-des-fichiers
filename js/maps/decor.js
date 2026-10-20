@@ -67,6 +67,9 @@
     m.objects = m.objects || [];
     // décor retiré dans l'atelier des cartes (maps/retouches.js) : il n'est plus posé
     const T = DW.Retouches && DW.Retouches.de(id), retire = new Set((T && T.retraits) || []), retiré = (kind, x, y) => retire.has(kind + '@' + x + ',' + y);
+    // (un lieu marquant retiré dans l'atelier ne revient pas ailleurs : une carte retouchée déplace sa place, et le quai de
+    //  la Clairière ou le phare du lac réapparaissaient à côté)
+    const sorteRetiree = kind => [...retire].some(r => r.startsWith(kind + '@'));
     // GRILLES (une case = un octet) : l'accès à tous les passages est revérifié après chaque ensemble posé, il faut que
     // ce soit rapide (avant, avec des ensembles de « x,y » : près d'une seconde sur la plage, à chaque entrée sur la carte)
     const MW = m.w, MH = m.h, dans = (x, y) => x >= 0 && y >= 0 && x < MW && y < MH;
@@ -144,7 +147,7 @@
         if (![...Array(fw).keys()].some(i => vu(base, x + i, y + fh))) fits = false;
         if (!fits) continue;
         const o = { kind: L[0], x, y, w: fw, h: fh, decor: true, landmark: true };
-        if (retiré(L[0], x, y)) break search;
+        if (retiré(L[0], x, y) || sorteRetiree(L[0])) break search;
         if (visCells(L[0], x, y + fh - 1, fw).some(k => vis.has(k))) continue;
         m.objects.push(o); mark(o); for (const k of visCells(L[0], x, y + fh - 1, fw)) vis.add(k);
         const S = reach();

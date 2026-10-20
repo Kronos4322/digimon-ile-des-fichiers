@@ -163,7 +163,7 @@
     await say("Vous restez près du feu. Matt joue de l'harmonica ; le lac est noir et calme. Les Digimon s'endorment l'un contre l'autre...");
     await DW.fade(0, 0.8);
     Audio.sfx('select');
-    await say("CRAC ! Une bûche s'effondre. Une braise s'envole... et retombe sur la grande feuille rouge, au bord de l'île.");
+    await say("CRAC ! Une bûche s'effondre. Une braise s'envole... et retombe sur une grande feuille rouge qui flottait au bord de l'île, dans le noir.");
     ow.shake = 1.2; Audio.sfx('roar');
     await say("La « feuille » se tord de douleur ! L'île tout entière tremble...");
     // Seadramon jaillit du lac, à l'est de l'île
