@@ -162,7 +162,22 @@
   // ambiances qui gardent leur dessin (sombres, enneigées, mécaniques) ; le Terrain d'entraînement reste tel quel
   const SANS = new Set(['cave', 'lavacave', 'sewer', 'snow', 'summit', 'icecave', 'swamp', 'fog', 'cemetery', 'trash', 'factory', 'volcano']);
   const CARTES_SANS = new Set(['gym']);
-  const REMPLACE = { volcan: { lavarock: ['rocher_magma'], steamvent: ['fumerolle'], aiguille: ['pic_1', 'pic_2', 'pic_3'] } };
+  const REMPLACE = { volcan: { lavarock: ['rocher_magma'], steamvent: ['fumerolle'], aiguille: ['pic_1', 'pic_2', 'pic_3'] }, grotte: { chest: ['coffre'] } };
+  // DOSSIERS CHARGÉS PLUS TARD, en arrière-plan après le démarrage (le démarrage n'attend pas leurs images ; une carte qui
+  // s'en sert attend qu'ils soient prêts : T.dossier, game/overworld.js) — la grotte de Shellmon (maps/antre.js), en WebP
+  const TARDIFS = {
+    grotte: ['alcove_sarcophage', 'ankh', 'ankh_lumineux', 'anubis', 'anubis_geant', 'arche', 'arche_ruine', 'autel', 'autel_soleil', 'banniere', 'bassin_colonnes', 'braises', 'brasero', 'brasero_anubis', 'brasero_colonne', 'caisse', 'canopes', 'cascade_roche', 'cascade_temple', 'champignons', 'chemin', 'coffre', 'coffre_anubis', 'colonne_cristaux', 'colonne_moussue', 'coupe_feu', 'cristaux', 'cristaux_violets', 'dais', 'dalle_soleil', 'dalles_fissurees', 'eboulis', 'entree', 'entree_mousse', 'entree_temple', 'escalier', 'escalier_roche', 'flamme_bleue', 'fleurs_lanternes', 'fontaine', 'fontaine_lotus', 'fresque', 'frise_murale', 'gres_aiguilles', 'gres_ankh', 'gres_arche', 'gres_eboulis', 'gres_entree', 'gres_mur', 'gres_rochers', 'grille', 'gue', 'herbe', 'jarre', 'lampe', 'lanterne', 'mur_blocs', 'mur_brise', 'mur_colonne', 'mur_ecroule', 'mur_fissure', 'mur_frise', 'mur_grave', 'mur_hieroglyphes', 'mur_moussu', 'mur_niche', 'mur_peint', 'mur_scarabee', 'mur_soleil', 'mur_sombre', 'niche', 'niche_statue', 'obelisque', 'obelisque_bleu', 'obelisque_cristal', 'offrandes', 'ossements', 'panneau', 'paves', 'piedestal_orbe', 'pierre_runique', 'pilier_brise', 'pilier_grave', 'pilier_lotus', 'pilier_peint', 'pilier_roche', 'portail_roche', 'porte_anubis', 'porte_arche', 'porte_bannieres', 'porte_gardiens', 'porte_grotte', 'porte_ruine', 'porte_scellee', 'porte_temple', 'porte_tombeau', 'porte_torches', 'portique', 'rideau', 'rocher_mousse', 'rochers', 'sable', 'sanctuaire_orbe', 'sarcophage', 'sarcophage_roche', 'scarabee_or', 'socle', 'sol_roche', 'source', 'source_grotte', 'stalagmite', 'stalagmites', 'statue_scarabee', 'stele', 'stele_lumineuse', 'stele_magique', 'tambour', 'terre_sombre', 'tombeau', 'tonneau', 'torche', 'torche_anubis', 'torche_murale', 'torche_plantee', 'torche_trepied', 'tresor_sable', 'vase', 'vasque'],
+  };
+  const EXT = { grotte: 'webp' };
+  // tailles propres à un dossier (en pixels du jeu, comme TAILLE ; un même nom peut exister ailleurs : l'escalier du volcan)
+  const TAILLES_DOSSIER = {
+    grotte: { alcove_sarcophage: { h: 82 }, ankh: { h: 44 }, ankh_lumineux: { h: 46 }, anubis: { h: 60 }, anubis_geant: { h: 112 }, arche: { h: 72 }, arche_ruine: { h: 84 }, autel: { h: 26 }, autel_soleil: { h: 92 }, banniere: { h: 56 }, bassin_colonnes: { h: 64 }, braises: { h: 20 }, brasero: { h: 42 }, brasero_anubis: { h: 58 }, brasero_colonne: { h: 56 }, caisse: { h: 22 }, canopes: { h: 28 }, cascade_roche: { h: 78 }, cascade_temple: { h: 74 }, champignons: { h: 30 }, chemin: [128, 128], coffre: { h: 26 }, coffre_anubis: { h: 34 }, colonne_cristaux: { h: 72 }, colonne_moussue: { h: 52 }, coupe_feu: { h: 46 }, cristaux: { h: 30 }, cristaux_violets: { h: 38 }, dais: { h: 80 }, dalle_soleil: { h: 12 }, dalles_fissurees: [64, 64], eboulis: { h: 34 }, entree: { h: 72 }, entree_mousse: { h: 72 }, entree_temple: { h: 92 }, escalier: { h: 42 }, escalier_roche: { h: 50 }, flamme_bleue: { h: 52 }, fleurs_lanternes: { h: 36 }, fontaine: { h: 60 }, fontaine_lotus: { h: 70 }, fresque: { h: 58 }, frise_murale: { h: 40 }, gres_aiguilles: { h: 58 }, gres_ankh: { h: 46 }, gres_arche: { h: 66 }, gres_eboulis: { h: 34 }, gres_entree: { h: 72 }, gres_mur: { h: 62 }, gres_rochers: { h: 42 }, grille: { h: 66 }, gue: { h: 22 }, herbe: [128, 128], jarre: { h: 30 }, lampe: { h: 52 }, lanterne: { h: 50 }, mur_blocs: { h: 56 }, mur_brise: { h: 54 }, mur_colonne: { h: 58 }, mur_ecroule: { h: 56 }, mur_fissure: { h: 56 }, mur_frise: { h: 56 }, mur_grave: { h: 56 }, mur_hieroglyphes: { h: 46 }, mur_moussu: { h: 56 }, mur_niche: { h: 58 }, mur_peint: { h: 56 }, mur_scarabee: { h: 44 }, mur_soleil: { h: 42 }, mur_sombre: { h: 58 }, niche: { h: 58 }, niche_statue: { h: 76 }, obelisque: { h: 88 }, obelisque_bleu: { h: 70 }, obelisque_cristal: { h: 80 }, offrandes: { h: 28 }, ossements: { h: 14 }, panneau: { h: 32 }, paves: [64, 64], piedestal_orbe: { h: 50 }, pierre_runique: { h: 52 }, pilier_brise: { h: 50 }, pilier_grave: { h: 76 }, pilier_lotus: { h: 82 }, pilier_peint: { h: 82 }, pilier_roche: { h: 74 }, portail_roche: { h: 82 }, porte_anubis: { h: 72 }, porte_arche: { h: 86 }, porte_bannieres: { h: 98 }, porte_gardiens: { h: 98 }, porte_grotte: { h: 86 }, porte_ruine: { h: 82 }, porte_scellee: { h: 92 }, porte_temple: { h: 92 }, porte_tombeau: { h: 72 }, porte_torches: { h: 92 }, portique: { h: 66 }, rideau: { h: 46 }, rocher_mousse: { h: 30 }, rochers: { h: 34 }, sable: [128, 128], sanctuaire_orbe: { h: 74 }, sarcophage: { h: 62 }, sarcophage_roche: { h: 72 }, scarabee_or: { h: 54 }, socle: { h: 22 }, sol_roche: [128, 128], source: { h: 46 }, source_grotte: { h: 52 }, stalagmite: { h: 50 }, stalagmites: { h: 40 }, statue_scarabee: { h: 48 }, stele: { h: 50 }, stele_lumineuse: { h: 60 }, stele_magique: { h: 54 }, tambour: { h: 34 }, terre_sombre: [128, 128], tombeau: { h: 58 }, tonneau: { h: 24 }, torche: { h: 46 }, torche_anubis: { h: 50 }, torche_murale: { h: 42 }, torche_plantee: { h: 46 }, torche_trepied: { h: 48 }, tresor_sable: { h: 30 }, vase: { h: 30 }, vasque: { h: 26 } },
+  };
+  const tailleDe = (d, n) => (TAILLES_DOSSIER[d] && TAILLES_DOSSIER[d][n]) || TAILLE[n];
+  // lumières des décors dessinés, dans le noir des cartes sombres : [x, y] en fraction de l'image, rayon, couleur ;
+  // FLAMMES : leur lumière vacille, des flammèches et des étincelles s'en échappent (gfx/ambient.js)
+  const LUMIERES = { grotte: { ankh_lumineux: [[0.5, 0.3, 44, 'rgba(255,240,120,0.6)']], autel_soleil: [[0.15, 0.25, 34], [0.85, 0.25, 34]], braises: [[0.5, 0.4, 30]], brasero: [[0.5, 0.15, 44]], brasero_anubis: [[0.5, 0.12, 48]], brasero_colonne: [[0.5, 0.14, 48]], champignons: [[0.5, 0.4, 26, 'rgba(170,120,255,0.45)']], colonne_cristaux: [[0.5, 0.5, 40, 'rgba(140,140,255,0.45)']], coupe_feu: [[0.5, 0.16, 52]], cristaux: [[0.5, 0.5, 30, 'rgba(110,170,255,0.5)']], cristaux_violets: [[0.5, 0.5, 34, 'rgba(170,120,255,0.5)']], flamme_bleue: [[0.5, 0.14, 44, 'rgba(120,190,255,0.6)']], fleurs_lanternes: [[0.5, 0.35, 32, 'rgba(220,140,255,0.5)']], fontaine_lotus: [[0.5, 0.5, 46, 'rgba(110,230,240,0.5)']], lampe: [[0.5, 0.62, 40]], lanterne: [[0.62, 0.72, 36]], obelisque_bleu: [[0.5, 0.3, 30, 'rgba(110,190,255,0.5)']], obelisque_cristal: [[0.5, 0.4, 40, 'rgba(120,180,255,0.5)']], piedestal_orbe: [[0.5, 0.12, 28, 'rgba(120,180,255,0.5)']], pierre_runique: [[0.5, 0.4, 32, 'rgba(110,200,255,0.5)']], porte_torches: [[0.12, 0.3, 38], [0.88, 0.3, 38]], sanctuaire_orbe: [[0.5, 0.45, 44, 'rgba(255,200,90,0.55)']], source: [[0.5, 0.6, 30, 'rgba(110,200,240,0.4)']], source_grotte: [[0.5, 0.6, 34, 'rgba(110,200,240,0.4)']], stele_lumineuse: [[0.5, 0.45, 40, 'rgba(255,210,120,0.5)']], stele_magique: [[0.5, 0.45, 36, 'rgba(110,200,255,0.5)']], torche: [[0.55, 0.12, 40]], torche_anubis: [[0.6, 0.12, 40]], torche_murale: [[0.5, 0.2, 38]], torche_plantee: [[0.5, 0.12, 40]], torche_trepied: [[0.5, 0.12, 42]] } };
+  const FLAMMES = new Set(['autel_soleil', 'braises', 'brasero', 'brasero_anubis', 'brasero_colonne', 'coupe_feu', 'lampe', 'lanterne', 'porte_torches', 'torche', 'torche_anubis', 'torche_murale', 'torche_plantee', 'torche_trepied']);
   const T = DW.Textures = { img: {}, fini: false, LISTE, TAILLE };
   const nav = typeof Image !== 'undefined' && typeof document !== 'undefined';
   const racine = nav && document.currentScript ? document.currentScript.src.replace(/js\/gfx\/textures\.js(\?.*)?$/, '') : '';
@@ -175,12 +190,19 @@
   //  en refuse une partie)
   const charger1 = url => new Promise(ok => { const im = new Image(); im.onload = () => ok(im.naturalWidth ? im : null); im.onerror = () => ok(undefined); setTimeout(() => ok(undefined), 40000); im.src = url; });
   const charger = async (url, absent) => { for (let k = 0; k < 3; k++) { const im = await charger1(url); if (im !== undefined || absent) return im || null; await new Promise(r => setTimeout(r, 400 * (k + 1))); } return null; };
-  const taches = Object.entries(LISTE).flatMap(([d, noms]) => noms.map(n => async () => {
-    T.img[d + '/' + n] = (await charger(racine + 'assets/' + d + '/jeu/' + n + '.png' + DW.versionImage(d + '/jeu/' + n + '.png'))) || (await charger(racine + 'assets/' + d + '/' + n + '.png', true));
-  }));
-  const ouvrier = async () => { while (taches.length) await taches.shift()(); };
+  // une image : la copie allégée (jeu/, en PNG ou en WebP : EXT), sinon l'original
+  const chargerImage = async (d, n) => {
+    const f = d + '/jeu/' + n + '.' + (EXT[d] || 'png');
+    T.img[d + '/' + n] = (await charger(racine + 'assets/' + f + DW.versionImage(f))) || (await charger(racine + 'assets/' + d + '/' + n + '.png', true));
+  };
+  const ouvriers = (taches, k) => Promise.all(Array.from({ length: k }, async () => { while (taches.length) await taches.shift()(); }));
   // (les Digimon dessinés pendant le chargement, sur l'écran titre, l'ont été avec leur dessin de secours : on les oublie)
-  T.charge = !nav ? Promise.resolve() : Promise.all([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(ouvrier)).then(() => { T.fini = true; objets(); DW.Sprites.oublier(); });
+  T.charge = !nav ? Promise.resolve() : ouvriers(Object.entries(LISTE).flatMap(([d, noms]) => noms.map(n => () => chargerImage(d, n))), 10)
+    .then(() => { T.fini = true; objetsCommuns(); objets(LISTE); DW.Sprites.oublier(); });
+  const enCours = {};
+  T.dossier = d => enCours[d] || (enCours[d] = !nav || !TARDIFS[d] ? Promise.resolve()
+    : T.charge.then(() => ouvriers(TARDIFS[d].map(n => () => chargerImage(d, n)), 6)).then(() => objets({ [d]: TARDIFS[d] })));
+  if (nav) T.charge.then(() => { for (const d in TARDIFS) T.dossier(d); });
 
   T.a = cle => T.img[cle] || null;
   // thème de la carte (sans la saison) ; null = pas d'images communes sur cette carte
@@ -195,7 +217,8 @@
   // l'image commune choisie pour son thème ; null = le dessin par code
   T.sol = (map, role) => {
     if (map && map.textures) { const P = T.pixels(map.textures + '/' + role); if (P) return P; }
-    const th = themeDe(map); if (!th) return null;
+    // (une carte d'intérieur avec son dossier — la grotte — prend les sols communs qui lui manquent : solCommun)
+    const th = themeDe(map) || (map && map.solCommun ? 'autre' : null); if (!th) return null;
     const n = (CHOIX[th] && CHOIX[th][role]) || DEFAUT[role];
     return n ? T.pixels('commun/' + n) : null;
   };
@@ -246,7 +269,7 @@
   // pixels d'une texture à sa taille de jeu (ou w × h) ; null si l'image manque
   T.pixels = (cle, w, h) => {
     const im = T.a(cle); if (!im) return null;
-    const t = TAILLE[nomDe(cle)]; w = w || (Array.isArray(t) ? t[0] : 64); h = h || (Array.isArray(t) ? t[1] : 64);
+    const t = tailleDe(cle.split('/')[0], nomDe(cle)); w = w || (Array.isArray(t) ? t[0] : 64); h = h || (Array.isArray(t) ? t[1] : 64);
     const k = cle + '@' + w + 'x' + h; if (pix[k]) return pix[k];
     const cv = reduire(im, 0, 0, im.naturalWidth, im.naturalHeight, w, h);
     return (pix[k] = { w, h, d: cv.getContext('2d').getImageData(0, 0, w, h).data, cv });
@@ -274,8 +297,8 @@
     if (x1 < 0) return [0, 0, im.naturalWidth, im.naturalHeight];
     return [x0 * s, y0 * s, Math.min(im.naturalWidth, (x1 + 1) * s) - x0 * s, Math.min(im.naturalHeight, (y1 + 1) * s) - y0 * s];
   }
-  // chaque image d'objet devient un objet du jeu « tex_<dossier>_<nom> », à sa taille de jeu (TAILLE)
-  function objets() {
+  // les décors du jeu dessinés avec les images du joueur (arbres, Grand Arbre) : leur taille de jeu
+  function objetsCommuns() {
     const OBJ = DW.World && DW.World.OBJ; if (!OBJ) return;
     // les décors dessinés pendant le chargement (écran titre...) l'ont été avec leur dessin de secours : on les oublie
     for (const kind in ARBRES) DW.World.oublierObjet(kind);
@@ -299,11 +322,17 @@
       };
       DW.World.oublierObjet('grandarbre');
     }
-    for (const [d, noms] of Object.entries(LISTE)) for (const n of noms) {
-      const im = T.a(d + '/' + n), t = TAILLE[n]; if (!im || !t || Array.isArray(t)) continue;
+  }
+  // chaque image d'objet devient un objet du jeu « tex_<dossier>_<nom> », à sa taille de jeu (TAILLE), avec sa lumière
+  function objets(listes) {
+    const OBJ = DW.World && DW.World.OBJ; if (!OBJ) return;
+    for (const [d, noms] of Object.entries(listes)) for (const n of noms) {
+      const im = T.a(d + '/' + n), t = tailleDe(d, n); if (!im || !t || Array.isArray(t)) continue;
       const [sx, sy, sw, sh] = cadre(im), w = Math.round(t.w || t.h * sw / sh), h = Math.round(t.h || t.w * sh / sw);
       let net = null;
+      const L = LUMIERES[d] && LUMIERES[d][n];
       OBJ['tex_' + d + '_' + n] = { w, h, n: 1, noOutline: true, image: true,
+        ...(L ? { lights: L.map(([fx, fy, r, c]) => [fx * w, fy * h, r, c]), fire: FLAMMES.has(n) ? [L[0][0] * w, L[0][1] * h + 3] : undefined } : {}),
         paint(x) { const k = DW.Art.HD || 1; net = net || reduire(im, sx, sy, sw, sh, w * k, h * k); x.drawImage(net, 0, 0, w, h); },
         draw: dd => dd.rect(0, 0, 1, 1, 'rgba(0,0,0,0)') };
     }

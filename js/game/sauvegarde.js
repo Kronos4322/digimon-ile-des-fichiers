@@ -12,7 +12,7 @@
   DW.slot = 1;
   const keyOf = n => (n > 1 ? BASE + '_' + n : BASE);
   const K = { get KEY() { return keyOf(DW.slot); }, get BAK() { return keyOf(DW.slot) + '_precedente'; }, get BROKEN() { return keyOf(DW.slot) + '_illisible'; } };
-  DW.SAVE_V = 5; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20)
+  DW.SAVE_V = 6; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20) — v6 : antre de Shellmon redessinée
   DW.newState = () => ({
     name: 'Tai', hero: 'tai', party: [], box: [], bag: {}, bits: 300, flags: {}, seen: {}, owned: {},
     map: 'maison', x: 12, y: 5, dir: 'down', heal: { map: 'maison', x: 12, y: 5 }, time: 0, recruits: {},
@@ -132,6 +132,8 @@
       if (Zm[st.heal.map]) [st.heal.x, st.heal.y] = zp(st.heal.map, st.heal.x, st.heal.y);
       for (const id in st.poops || {}) if (Zm[id]) st.poops[id] = st.poops[id].map(([x, y]) => zp(id, x, y));
     }
+    // v6 : l'antre de Shellmon est redessinée (images du joueur) : une partie sauvegardée dedans reprend à l'entrée de la salle
+    if (v < 6 && /^antre/.test(st.map) && DW.MAPS[st.map] && DW.MAPS[st.map].entry) Object.assign(st, { x: DW.MAPS[st.map].entry.x, y: DW.MAPS[st.map].entry.y, dir: 'up' });
     st.v = DW.SAVE_V;
     for (const box of [st.bag, st.bank, st.fridge || {}]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
     const orphans = (st.orphans || []).slice();

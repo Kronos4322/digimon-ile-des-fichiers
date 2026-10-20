@@ -35,6 +35,9 @@
       const cols = DW.Perso.couleurs(st.perso);
       if (cols && st.look) st.look = { ...st.look, cols };
     }
+    // (partie reprise dans une carte dont les images sont chargées à part : la grotte de Shellmon)
+    const M = DW.MAPS[st.map], dossier = !isNew && M && M.textures;
+    if (dossier && DW.Textures && DW.Textures.dossier) await DW.Textures.dossier(dossier);
     lancer(isNew);
   };
   const lancer = isNew => {
@@ -71,7 +74,7 @@
     };
     const go = () => { try { const M = DW.getMap(id), [x0, y0] = x != null ? [+x, +y] : [M.w >> 1, M.h >> 1]; Game.replaceAll(new DW.Overworld(id, x0, y0, 'down')); DW.start(); } catch (e) { oups(e); } };
     if (!DW.MAPS[id]) { oups(new Error('carte inconnue')); return; }
-    const tex = DW.Textures ? DW.Textures.charge : Promise.resolve();   // (images dessinées : gfx/textures.js)
+    const tex = DW.Textures ? DW.Textures.charge.then(() => DW.MAPS[id] && DW.MAPS[id].textures && DW.Textures.dossier ? DW.Textures.dossier(DW.MAPS[id].textures) : null) : Promise.resolve();   // (images dessinées : gfx/textures.js)
     if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('10px "DotGothic16"'), tex]).then(go, go); else tex.then(go, go);
     return;
   }

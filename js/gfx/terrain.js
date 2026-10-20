@@ -82,6 +82,7 @@
     const TX = DW.Textures && (map.textures || DW.Textures.themeDe(map)) ? DW.Textures : null, txp = n => (TX && map.textures ? TX.pixels(map.textures + '/' + n) : null);
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
     const TX_LAVE = txp('lave');
+    const TX_PAROI = map.paroi ? txp(map.paroi) : null;   // (roche des parois : une image du dossier de la carte — la grotte de Shellmon)
     const sol = r => (TX ? TX.sol(map, r) : null);
     const TX_HERBE = sol('herbe'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves');
     // herbe dessinée ; l'ombre des arbres et des falaises reste par-dessus
@@ -598,6 +599,8 @@
           if (d2 - d1 < 1) v -= 2;
         } else if (d2 - d1 < 1.2) v -= 1.3;
         col = CANOPY[DW.clamp(Math.round(v), 0, 5)];
+        // (paroi dessinée : l'image choisie par la carte, éclairée par les mêmes facettes)
+        if (ROCKY && TX_PAROI) { const t = texel(TX_PAROI, px, py), s = 0.3 + DW.clamp(v, 0, 5) * 0.12; col = [Math.min(255, t[0] * s), Math.min(255, t[1] * s), Math.min(255, t[2] * s)]; }
       } else if (t === TER.pastel) {
         const cx = Math.floor(px / 8), cy = Math.floor(py / 8);
         let d1 = 99, d2 = 99, ox = 0, oy = 0, cell = 0;

@@ -52,6 +52,9 @@
     // changer de carte en douceur : la carte est préparée par petits morceaux pendant l'écran noir du fondu
     // (« Chargement... » : core.js), puis on y entre ; déjà prête (préparée à l'avance) = immédiat
     async charger(mapId, x, y, dir = 'down') {
+      // (carte dont les images sont chargées à part — la grotte de Shellmon : gfx/textures.js, TARDIFS — on les attend)
+      const dossier = DW.MAPS[mapId] && DW.MAPS[mapId].textures;
+      if (dossier && DW.Textures && DW.Textures.dossier) { DW.chargement = { texte: 'Chargement...' }; try { await DW.Textures.dossier(dossier); } finally { DW.chargement = null; } }
       const M = DW.preparerCarte(mapId);
       if (!DW.World.pret(M)) {
         // gros morceaux (~50 ms) : entre deux, seulement l'écran de chargement (core.js), et aucune préparation de fond

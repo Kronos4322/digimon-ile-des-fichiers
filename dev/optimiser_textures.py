@@ -591,11 +591,66 @@ def optimiser_digimon():
             print('%-24s -> %4dx%-4d  %4d Ko' % ('digi_%s_%s' % (sp, v), out.width, out.height, os.path.getsize(cibles[v]) // 1024))
 
 
+# ---------------------------------------------------------------- GROTTE DE SHELLMON (dossier du joueur « GROTTE DE SHELLMON ») :
+# 20 planches sur fond vert, 10 objets chacune (5 x 2) : temple ensablé et grotte côtière -> assets/grotte/jeu/<nom>.webp
+# (chargé en arrière-plan après le démarrage : gfx/textures.js, TARDIFS). Sols : carreaux rendus raccordables, au nom du
+# rôle de sol qu'ils remplacent sur les cartes de la grotte (herbe = sable du sol, chemin, sable, paves = dalles).
+_G = lambda n: 'GROTTE DE SHELLMON/photo_2026-10-20_21-' + n + '.jpg'
+_GP = ['34-49', '34-52', '34-53', '34-54 (2)', '34-54 (3)', '34-54', '34-55 (2)', '34-55', '34-56 (2)', '34-56',
+       '38-42 (2)', '38-42 (3)', '38-42 (4)', '38-42', '38-43 (2)', '38-43 (3)', '38-43', '38-44', '38-45 (2)', '38-45']
+GROTTE_NOMS = {
+    0: ['pilier_peint', 'pilier_lotus', 'stele', 'portique', 'escalier', 'dalle_soleil', 'pilier_brise', 'autel', 'mur_brise', 'brasero'],
+    1: [None, 'statue_scarabee', 'tambour', None, 'porte_tombeau', None, 'stele_magique', None, None, 'obelisque_bleu'],
+    2: ['offrandes', 'jarre', 'vase', 'coffre', 'sarcophage', 'canopes', 'scarabee_or', 'ankh', 'vasque', 'brasero_anubis'],
+    3: [None, None, None, None, 'arche_ruine', 'porte_gardiens', None, 'dais', 'porte_bannieres', None],
+    4: ['cristaux', 'champignons', 'source', 'torche_trepied', 'panneau', 'caisse', 'tonneau', 'ossements', 'rocher_mousse', 'fleurs_lanternes'],
+    5: ['stalagmites', 'eboulis', None, None, None, None, 'cristaux_violets', 'cascade_roche', 'pierre_runique', 'grille'],
+    6: ['niche_statue', 'obelisque_cristal', 'entree_temple', 'anubis_geant', 'sanctuaire_orbe', 'stele_lumineuse', 'sarcophage_roche', 'fontaine_lotus', 'colonne_cristaux', 'portail_roche'],
+    7: ['alcove_sarcophage', 'porte_anubis', 'fresque', 'tombeau', 'anubis', 'lanterne', None, 'piedestal_orbe', 'tresor_sable', 'autel_soleil'],
+    8: ['entree', None, 'arche', 'rochers', 'stalagmite', None, None, None, 'pilier_roche', 'entree_mousse'],
+    9: [None, None, 'escalier_roche', None, None, None, None, 'gue', None, None],
+    10: [None, None, 'pilier_grave', 'obelisque', None, None, 'colonne_moussue', 'socle', None, None],
+    11: ['gres_entree', 'gres_rochers', 'gres_aiguilles', 'gres_ankh', 'gres_arche', None, None, None, 'gres_eboulis', 'gres_mur'],
+    12: [None, None, None, None, None, None, None, None, None, 'ankh_lumineux'],
+    13: [None, 'bassin_colonnes', 'cascade_temple', 'source_grotte', None, None, None, None, None, 'fontaine'],
+    14: ['paves', 'dalles_fissurees', None, None, 'sol_roche', None, None, None, None, None],
+    15: ['mur_hieroglyphes', 'mur_scarabee', 'mur_soleil', 'niche', 'frise_murale', 'banniere', 'rideau', None, 'coffre_anubis', 'torche_murale'],
+    16: ['herbe', None, 'sable', None, None, None, 'chemin', 'terre_sombre', None, None],
+    17: ['mur_blocs', 'mur_fissure', 'mur_ecroule', 'mur_grave', 'mur_sombre', 'mur_frise', 'mur_moussu', 'mur_niche', 'mur_peint', 'mur_colonne'],
+    18: ['porte_temple', 'porte_scellee', 'porte_arche', 'porte_grotte', 'porte_ruine', None, None, None, 'porte_torches', None],
+    19: ['torche', 'brasero_colonne', 'torche_anubis', 'lampe', None, 'flamme_bleue', None, 'torche_plantee', 'coupe_feu', 'braises'],
+}
+GROTTE_SOLS = {'herbe', 'sable', 'chemin', 'paves', 'dalles_fissurees', 'sol_roche', 'terre_sombre'}
+GROTTE_GRAND = {'porte_gardiens': 260, 'porte_bannieres': 240, 'arche_ruine': 220, 'dais': 220, 'anubis_geant': 240, 'entree_temple': 220,
+                'autel_soleil': 240, 'porte_temple': 220, 'porte_grotte': 220, 'porte_scellee': 220, 'porte_arche': 200, 'porte_ruine': 200,
+                'porte_torches': 220, 'gres_entree': 200, 'gres_arche': 200, 'entree': 200, 'entree_mousse': 200, 'arche': 200,
+                'cascade_temple': 220, 'bassin_colonnes': 220, 'fontaine': 200, 'fontaine_lotus': 200, 'sanctuaire_orbe': 200}
+
+
+def optimiser_grotte():
+    dst = os.path.join(RACINE, 'grotte', 'jeu'); os.makedirs(dst, exist_ok=True)
+    for i, noms in GROTTE_NOMS.items():
+        f = os.path.join(SOURCE_COMMUN, _G(_GP[i]))
+        if not os.path.exists(f):
+            print('absent :', f); continue
+        for k, nom in enumerate(noms):
+            if not nom: continue
+            cible = os.path.join(dst, nom + '.webp')   # (WebP : 4 à 5 fois plus léger que le PNG pour ces images peintes)
+            if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
+            im = morceau(f, ('case', k))
+            if nom in GROTTE_SOLS: out = raccordable(im)
+            else: w, h = im.size; s = min(1.0, GROTTE_GRAND.get(nom, 170) / max(w, h)); out = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
+            out.save(cible, 'WEBP', quality=85, method=4)
+            if os.path.exists(cible[:-5] + '.png'): os.remove(cible[:-5] + '.png')
+            print('grotte/%-20s -> %4dx%-4d  %4d Ko%s' % (nom, out.width, out.height, os.path.getsize(cible) // 1024, ' (sol)' if nom in GROTTE_SOLS else ''))
+
+
 if __name__ == '__main__':
     # (les options --numeros et --tout ne sont pas des dossiers)
-    for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon']):
+    for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon', 'grotte']):
         if d == 'commun': optimiser_commun()
         elif d == 'digimon': optimiser_digimon()
+        elif d == 'grotte': optimiser_grotte()
         else: optimiser(d)
     # empreintes des fichiers servis (dev/versions.py : le téléphone reprend une image changée)
     import versions; versions.ecrire()
