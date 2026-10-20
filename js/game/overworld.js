@@ -431,22 +431,26 @@
       if (scen) { this.runScript(scen); return true; }
       return false;
     }
-    // poste d'entraînement devant le héros : on peut viser le poste lui-même (pierre, mannequin...) ou son panneau
+    // poste d'entraînement devant le héros : on peut viser le poste lui-même (pierre, mannequin...), un appareil-poste (sac
+    // de frappe, traîneau... : DW.Training.POSTES) ou le panneau devant eux
     trainSpot() {
       const P = this.p;
       if (P.moving) return null;
-      const [dx, dy] = DIRS[P.dir], x = P.x + dx, y = P.y + dy;
-      const signAt = (ax, ay) => (this.map.objects || []).find(o => o.kind === 'stationsign' && ax >= o.x && ax < o.x + (o.w || 1) && ay >= o.y && ay < o.y + (o.h || 1));
+      const [dx, dy] = DIRS[P.dir], x = P.x + dx, y = P.y + dy, objs = this.map.objects || [], POSTES = DW.Training.POSTES;
+      const sur = (o, ax, ay) => ax >= o.x && ax < o.x + (o.w || 1) && ay >= o.y && ay < o.y + (o.h || 1);
+      const poste = o => ({ x: o.x + ((o.w || 1) >> 1), y: o.y + (o.h || 1) - 1, k: POSTES[o.kind].k, eq: o.kind });
       // la case visée, ses deux voisines, puis la case juste derrière (les gros postes, comme la pierre, débordent sur 2 cases)
       for (const [ax, ay] of [[x, y], [x + dy, y + dx], [x - dy, y - dx], [x + dx, y + dy], [x + dx + dy, y + dy + dx], [x + dx - dy, y + dy - dx]]) {
         const I = DW.World.info(this.tileAt(ax, ay));
         if (I.train) return { x: ax, y: ay, k: I.train };
-        // le panneau à pictogramme devant chaque poste lance aussi la séance
-        const o = signAt(ax, ay);
-        // le sac de frappe : un poste d'Attaque à part (son propre exercice), par son panneau ou en face de lui
-        const bag = (this.map.objects || []).find(b => b.kind === 'punchbag' && ((o && o.eq === 'punchbag') || (ax >= b.x && ax < b.x + (b.w || 1) && ay >= b.y && ay < b.y + (b.h || 1))));
-        if (o && SIGN_STAT[o.v || 0] && o.eq !== 'punchbag') return { x: ax, y: ay, k: SIGN_STAT[o.v || 0] };
-        if (bag) return { x: bag.x + ((bag.w || 1) >> 1), y: bag.y + (bag.h || 1) - 1, k: 'atk', eq: 'punchbag' };
+        const a = objs.find(o => POSTES[o.kind] && sur(o, ax, ay));
+        if (a) return poste(a);
+        // le panneau à pictogramme devant chaque poste lance aussi la séance (celui d'un appareil : son appareil le plus proche)
+        const s = objs.find(o => o.kind === 'stationsign' && sur(o, ax, ay));
+        if (s && s.eq) {
+          const L = objs.filter(o => o.kind === s.eq && POSTES[o.kind]).sort((u, v) => Math.hypot(u.x - s.x, u.y - s.y) - Math.hypot(v.x - s.x, v.y - s.y));
+          if (L.length) return poste(L[0]);
+        } else if (s && SIGN_STAT[s.v || 0]) return { x: ax, y: ay, k: SIGN_STAT[s.v || 0] };
       }
       return null;
     }

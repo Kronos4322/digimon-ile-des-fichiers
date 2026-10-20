@@ -15,15 +15,16 @@
   const st = () => DW.state;
   const FEE = 120, MINUTES = 90, TIRE = 25, CAP = 100;
   const NAME = { hp: 'PV max', mp: 'PM max', atk: 'Attaque', def: 'Défense', spd: 'Vitesse', int: 'Intelligence' };
-  // appareils : élément travaillé, effet secondaire (stat, sens), chapitre d'ouverture
+  // appareils : élément travaillé, effet secondaire (stat, sens), chapitre d'ouverture ; l'appareil dans la salle (obj, x, y :
+  // images du joueur, dossier SPORT) : lui parler commence sa séance
   const GYM = [
-    { id: 'feu', name: 'Mur de flammes', type: 'Feu', side: ['mp', 1], ch: 2, fx: ['#ff6a1a', '#ffd040'] },
-    { id: 'eau', name: 'Cascade glacée', type: 'Eau', side: ['int', -1], ch: 2, fx: ['#4aa8ff', '#e0f4ff'] },
-    { id: 'glace', name: 'Chambre froide', type: 'Glace', side: ['spd', -1], ch: 2, fx: ['#98ecff', '#ffffff'] },
-    { id: 'air', name: 'Soufflerie', type: 'Air', side: ['atk', -1], ch: 2, fx: ['#b8c8ff', '#ffffff'] },
-    { id: 'elec', name: 'Paratonnerre', type: 'Électrique', side: ['def', -1], ch: 2, fx: ['#ffe030', '#ffffff'] },
-    { id: 'terre', name: 'Bombardement de rochers', type: 'Terre', side: ['hp', 1], ch: 3, fx: ['#9a6a38', '#d8a860'] },
-    { id: 'tenebres', name: 'Chambre noire', type: 'Ténèbres', side: ['int', -1], ch: 4, fx: ['#6a3a8a', '#c890f0'] },
+    { id: 'feu', name: 'Mur de flammes', type: 'Feu', side: ['mp', 1], ch: 2, fx: ['#ff6a1a', '#ffd040'], obj: 'anneaufeu', x: 2 },
+    { id: 'eau', name: 'Cascade glacée', type: 'Eau', side: ['int', -1], ch: 2, fx: ['#4aa8ff', '#e0f4ff'], obj: 'cascade', x: 4 },
+    { id: 'glace', name: 'Chambre froide', type: 'Glace', side: ['spd', -1], ch: 2, fx: ['#98ecff', '#ffffff'], obj: 'bainglace', x: 6 },
+    { id: 'air', name: 'Soufflerie', type: 'Air', side: ['atk', -1], ch: 2, fx: ['#b8c8ff', '#ffffff'], obj: 'portailvent', x: 11 },
+    { id: 'elec', name: 'Paratonnerre', type: 'Électrique', side: ['def', -1], ch: 2, fx: ['#ffe030', '#ffffff'], obj: 'bobinefoudre', x: 13 },
+    { id: 'terre', name: 'Bombardement de rochers', type: 'Terre', side: ['hp', 1], ch: 3, fx: ['#9a6a38', '#d8a860'], obj: 'rochersuspendu', x: 15 },
+    { id: 'tenebres', name: 'Chambre noire', type: 'Ténèbres', side: ['int', -1], ch: 4, fx: ['#6a3a8a', '#c890f0'], obj: 'portailombre', x: 15, y: 7 },
   ];
   const Gym = DW.Gymnase = {
     GYM, CAP,
@@ -99,7 +100,7 @@
 
   // ------------------------------------------------------------ l'écran du gymnase (façon DW3)
   class GymScene extends DW.Scene {
-    constructor(m) { super(); this.m = m; this.i = 0; this.state = 'menu'; this.msg = ''; this.pt = []; this.hits = []; }
+    constructor(m, i = 0) { super(); this.m = m; this.i = i; this.state = 'menu'; this.msg = ''; this.pt = []; this.hits = []; }
     get G() { return GYM[this.i]; }
     update(dt) {
       for (let k = this.pt.length - 1; k >= 0; k--) { const p = this.pt[k]; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; if (p.life <= 0) this.pt.splice(k, 1); }
@@ -218,14 +219,14 @@
   const room = DW.Palais.room('gymnase', 'village', { name: 'Gymnase', w: 18, h: 12, music: 'village',
     floor: { type: 'tatami', cols: ['#d8c890', '#b8a870', '#6a5a3a'] }, wall: { base: '#9ab0c8', alt: '#8aa0b8', pattern: 'stripes', wood: '#4a5a6a' },
     objects: [
-      { kind: 'guardwall', x: 2, y: 3, w: 1, h: 1, small: true }, { kind: 'datacrystal', x: 5, y: 3, w: 1, h: 1, small: true },
-      { kind: 'weights', x: 12, y: 3, w: 1, h: 1, small: true }, { kind: 'shieldrack', x: 15, y: 3, w: 1, h: 1, small: true },
+      ...GYM.map(g => ({ kind: g.obj, x: g.x, y: g.y || 3, w: 1, h: 1, small: true })),
       { kind: 'mat', x: 6, y: 6, w: 6, h: 3, walk: true }, { kind: 'barrel', v: 0, x: 1, y: 9, w: 1, h: 1, small: true }, { kind: 'bench', x: 15, y: 9, w: 1, h: 1, small: true },
     ] });
   room.calm = true;
   DW.Palais.entrance('gymnase');
   for (const w of room.warps) if (w.to === '?') Object.assign(w, { to: 'gym', tx: 9, ty: 5 });
-  room.npcs.push({ sp: 'leomon', x: 9, y: 4, face: 'down', talk: async () => {
+  // une séance (devant Leomon, ou à un appareil : i)
+  async function seance(i = 0) {
     const s = st();
     if (!s.party.length) { await say("Reviens avec un partenaire, petit !", 'Leomon'); return; }
     if (!s.flags.gymIntro) {
@@ -236,7 +237,8 @@
     }
     let m = s.party[0];
     if (s.party.length > 1) { const i = await Game.push(new DW.PartyScene({ mode: 'select', title: 'GYMNASE' })); if (i == null || i < 0) return; m = s.party[i]; }
-    await Game.push(new GymScene(m));
-  } });
-  for (const k of ['2,3', '5,3', '12,3', '15,3']) room.signs[k] = 'Un appareil du gymnase. Parle à Leomon pour commencer une séance.';
+    await Game.push(new GymScene(m, i));
+  }
+  room.npcs.push({ sp: 'leomon', x: 9, y: 4, face: 'down', talk: () => seance() });
+  GYM.forEach((g, i) => { room.signs[g.x + ',' + (g.y || 3)] = () => seance(i); });
 })();

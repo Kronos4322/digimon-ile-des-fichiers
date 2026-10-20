@@ -15,6 +15,15 @@
 (function () {
   const SOLS = ['herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre',
     'sable_dunes', 'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'];
+  // matériel d'entraînement du joueur (dossier SPORT) : appareil du jeu -> image
+  const SPORT = {
+    dummy: ['sport_mannequin_cible'], weights: ['sport_rocher_socle'], punchbag: ['sport_sac_frappe'], hurdle: ['sport_vit_haies'],
+    guardwall: ['sport_mur_soleil'], datacrystal: ['sport_pilier_cristal'], shieldrack: ['sport_def_boucliers'],
+    epouvantail: ['sport_epouvantail'], traineau: ['sport_traineau'], pneus: ['sport_pneus'], slalom: ['sport_vit_slalom'], mannequinbois: ['sport_def_mannequin_bois'],
+    anneaufeu: ['sport_feu_anneau'], cascade: ['sport_eau_cascade'], bainglace: ['sport_glace_bain'], portailvent: ['sport_portail_vent'],
+    bobinefoudre: ['sport_bobine_foudre'], rochersuspendu: ['sport_rocher_suspendu'], portailombre: ['sport_portail_ombre'],
+    tableaumemoire: ['sport_int_memoire'], telescope: ['sport_int_telescope'], formes: ['sport_int_formes'],
+  };
   const LISTE = {
     commun: [...SOLS, 'arbre_sapin', 'arbre_cerisier', 'arbre_chene_clair', 'arbre_saule', 'arbre_mauve', 'arbre_chene', 'arbre_vert', 'arbre_vert_vif', 'arbre_bouleau',
       'arbre_fleurs', 'arbre_automne_brun', 'arbre_erable_orange', 'arbre_erable_rouge', 'arbre_mi_automne', 'arbre_bouleau_automne', 'arbre_chene_automne', 'arbre_neige_tordu', 'arbre_neige_bouleau', 'arbre_neige_rond', 'arbre_neige_chene',
@@ -41,6 +50,8 @@
       // plage : rochers, arche, herbes de dune, coquillages, mares, palmiers, bois flotté, château de sable, barque, radeau, sables
       'plage_rocher', 'plage_rochers', 'plage_pile_rochers', 'plage_arche', 'plage_herbe_dune', 'plage_herbe_seche', 'plage_conque', 'plage_escargot', 'plage_coquille', 'plage_etoile', 'plage_mare',
       'plage_palmier', 'plage_palmier_courbe', 'plage_palmier_double', 'plage_bois_flotte', 'plage_bois_flotte2', 'plage_chateau', 'plage_barque', 'plage_radeau', 'plage_sable', 'plage_borne',
+      // matériel d'entraînement (planches SPORT) : Terrain d'entraînement, Gymnase de Leomon, salle de classe
+      ...Object.values(SPORT).flat(),
       // Digimon (planches du joueur, une image par vue : gfx/sprites.js)
       ...Object.keys(DW.Sprites.IMAGES).flatMap(sp => DW.Sprites.VUES.map(v => 'digi_' + sp + '_' + v))],
     volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
@@ -92,7 +103,7 @@
     glowshroom: ['champi_violet', 'champi_bleu'], giantshroom: ['champi_bleu', 'champi_vert'], champignons: ['cepes', 'girolles', 'champi_blancs'],
     monolith: ['monolithe', 'pierre_runique'], totem: ['totem'], pipe: ['tuyau', 'tuyau'], lamp: ['ville_lampadaire_noir'], antenna: ['borne_bleue', 'borne_rouge'],
     datapanel: ['dalle_runique', 'dalle_runique'], bench: ['banc_dossier'], steplog: ['banc_rondin'], stonelantern: ['lanterne_pierre'], cairn: ['cairn'], rubble: ['mont_eboulis'],
-    crystal: ['cristaux'], datacrystal: ['cristaux'], sign: ['panneau'], roadsign: ['panneau'], flowerbed: ['fleur_2', 'fleur_6', 'fleur_9', 'fleur_3'],
+    crystal: ['cristaux'], sign: ['panneau'], roadsign: ['panneau'], flowerbed: ['fleur_2', 'fleur_6', 'fleur_9', 'fleur_3'],
     giantflower: ['fleur_cristal'], spring: ['source'], shrine: ['sanctuaire'],
     // ville : fontaines, puits, sacs, tonneaux, pots (seulement les images vues de face ; celles vues de biais gardent
     // l'ancien dessin — règle du joueur ; la fontaine du Village des Yokomon, à sec puis qui coule, garde aussi le sien)
@@ -116,6 +127,7 @@
     coquillages: ['plage_conque', 'plage_escargot', 'plage_coquille'], shellpile: ['plage_coquille', 'plage_conque'],
     toybox: ['maison_coffre_jouets'], desk: ['maison_bureau'], cushion: ['maison_coussins'], bigrug: ['maison_tapis'], rug: ['maison_tapis'],
     bigplant: ['maison_plante'], barrels: ['ville_tonneaux'], aquarium: ['maison_aquarium'], computer: ['maison_ordinateur'], oven: ['maison_cuisiniere'],
+    ...SPORT,
     _grandarbre: ['arbre_chene'],   // (le Grand Arbre de la Clairière : voir objets(), son passage reste dessiné par-dessus)
   };
   // TAILLES : hauteur de chaque décor dessiné, en HAUTEURS DE HÉROS (le héros : 34 px du jeu) ; le joueur : « les arbres
@@ -126,8 +138,11 @@
     tree: 3, oak: 3, birch: 3, pine: 3, saule: 3, pintordu: 3, bigtree: 3, jungletree: 3, cycad: 3, mangrove: 3, swamptree: 3, acacia: 3, baobab: 3, deadtree: 3, candytree: 3,
     bush: 0.85, hedge: 0.85, junglebush: 0.9, buissonfleuri: 0.85, rosebush: 0.8, flowerbed: 0.55, fern: 0.75, bigfern: 0.9, fougeres: 0.8, giantflower: 1.4,
     glowshroom: 0.9, giantshroom: 1.7, champignons: 0.5, mossrock: 0.8, rock: 0.6, boulder: 1, rochersmousse: 1, rubble: 0.8, cairn: 0.9,
-    stump: 0.6, giantstump: 1, log: 0.5, hollowlog: 0.55, troncouche: 0.6, treeroots: 1, monolith: 1.6, totem: 1.7, crystal: 1, datacrystal: 1.3,
+    stump: 0.6, giantstump: 1, log: 0.5, hollowlog: 0.55, troncouche: 0.6, treeroots: 1, monolith: 1.6, totem: 1.7, crystal: 1, datacrystal: 1.9,
     palm: 3, cocotier: 3, searock: 1, rockarch: 2.6, sandcastle: 0.9, oyats: 0.8, toilet: 2.1,
+    // matériel d'entraînement (le héros : 1)
+    dummy: 1.6, weights: 1.5, punchbag: 1.9, hurdle: 1.2, guardwall: 2, shieldrack: 1.5, epouvantail: 1.6, traineau: 1.25, pneus: 2, slalom: 1.6, mannequinbois: 1.6,
+    anneaufeu: 2, cascade: 2.1, bainglace: 1.5, portailvent: 2, bobinefoudre: 2, rochersuspendu: 1.9, portailombre: 2, tableaumemoire: 1.6, telescope: 1.6, formes: 1.3,
     sign: 1.1, roadsign: 1.2, spring: 1.1, shrine: 1.5, pipe: 0.9, lamp: 1.7, antenna: 1.3, stonelantern: 1.1, datapanel: 0.8, bench: 0.6, steplog: 0.4,
   };
   const nomArbre = (kind, v) => { const L = ARBRES[kind]; return L ? (v < L.length ? L[v] : L[v % L.length]) : null; };

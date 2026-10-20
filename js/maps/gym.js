@@ -2,12 +2,13 @@
 // =====================================================================
 //  TERRAIN D'ENTRAÎNEMENT — juste au sud de la Ville des Fichiers
 //  Un centre sportif délimité, une aire de couleur par stat (sol peint : paintGround) :
-//    aire rouge de force (ouest) : W rochers (PV), E mannequins (Attaque)
-//    piste d'athlétisme (centre) : N haies (Vitesse), pelouse au milieu
-//    tatami bleu de garde (est)  : A mur de pierre (Défense)
+//    aire rouge de force (ouest) : W rocher (PV), E mannequin (Attaque), traîneau (PV), sac de frappe (Attaque)
+//    piste d'athlétisme (centre) : N haies (Vitesse), pneus au nord de la piste (Vitesse), pelouse au milieu
+//    tatami bleu de garde (est)  : A mur de pierre (Défense), râtelier à boucliers, mannequin de bois
 //    dalle violette (sud-ouest)  : Ψ cristal de données (PM)
-//    jardin zen (sud-est) ; l'Intelligence s'apprend à l'école (maps/classe.js)
-//  + allées pavées, gradins, torches, toilettes (y), panneau
+//    jardin zen (sud-est) ; l'Intelligence s'apprend à l'école (maps/classe.js), les résistances au Gymnase (maps/gymnase.js)
+//  Chaque poste a son panneau à pictogramme juste à sa gauche. Appareils : images du joueur (dossier SPORT : gfx/textures.js).
+//  + allées pavées, torches, toilettes (y), panneau
 // =====================================================================
 (function () {
   const { say, paint, st } = DW.MapKit;
@@ -30,7 +31,7 @@
     // antennes de données et tuyau (décor numérique)
     g.set(4, 6, '!'); g.set(27, 6, '!'); g.set(27, 17, '$');
     // postes d'entraînement
-    g.set(4, 10, 'W'); g.set(4, 13, 'E'); g.set(6, 13, 'E');
+    g.set(7, 9, 'W'); g.set(7, 11, 'E');
     g.set(10, 12, 'N'); g.set(22, 12, 'N');
     g.set(27, 9, 'A');
     // (l'Intelligence s'entraîne désormais dans la salle de classe : maps/classe.js)
@@ -134,21 +135,23 @@
     paintGround,
     objects: [
       // marquages au sol (on marche dessus)
-      { kind: 'mat', x: 3, y: 12, w: 5, h: 3, walk: true },
       { kind: 'zenrakes', x: 23, y: 14, w: 6, h: 4, walk: true },
       // gradins, torches, râtelier à boucliers, rochers, bancs
       { kind: 'gymnase', x: 7, y: 3, w: 4, h: 2 }, { kind: 'ecole', x: 21, y: 3, w: 4, h: 2 },   // gymnase (résistances, après le chapitre 1) ; école : la salle de classe (Intelligence)
       { kind: 'torch', x: 13, y: 7, w: 1, h: 1, small: true }, { kind: 'torch', x: 18, y: 7, w: 1, h: 1, small: true },
-      { kind: 'shieldrack', x: 25, y: 9, w: 1, h: 1, small: true },
-      { kind: 'kanjirock', x: 6, y: 9, w: 2, h: 1 },
-      { kind: 'punchbag', x: 7, y: 15, w: 1, h: 1, small: true },   // sac de frappe : un poste à part, au bas de l'aire de force
-      // panneaux à pictogramme devant chaque poste
-      // (w: 2 : le panneau, agrandi, est solide sur toute sa largeur)
-      { kind: 'stationsign', v: 0, x: 5, y: 10, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 12, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 3, x: 8, y: 12, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 2, x: 26, y: 8, w: 2, h: 1, small: true },
-      { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 8, y: 16, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 6, eq: 'punchbag', x: 5, y: 15, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 2, h: 1, small: true },
-      { kind: 'rock', v: 1, x: 24, y: 16, w: 1, h: 1, small: true }, { kind: 'rock', v: 0, x: 28, y: 15, w: 1, h: 1, small: true },
+      // appareils-postes (DW.Training.POSTES) et décor du tatami
+      { kind: 'traineau', x: 7, y: 13, w: 1, h: 1, small: true }, { kind: 'punchbag', x: 7, y: 15, w: 1, h: 1, small: true },
+      { kind: 'pneus', x: 20, y: 8, w: 1, h: 1, small: true },
+      { kind: 'shieldrack', x: 25, y: 11, w: 1, h: 1, small: true }, { kind: 'mannequinbois', x: 27, y: 11, w: 1, h: 1, small: true },
+      // panneaux à pictogramme, chacun juste à gauche de son poste (w: 2 : solide sur toute sa largeur ; eq : son appareil)
+      { kind: 'stationsign', v: 0, x: 4, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 4, y: 11, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 0, eq: 'traineau', x: 4, y: 13, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 6, eq: 'punchbag', x: 4, y: 15, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 3, x: 8, y: 12, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 3, eq: 'pneus', x: 18, y: 8, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 2, x: 25, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 8, y: 16, w: 2, h: 1, small: true },
+      // jardin zen : lanterne, rochers, le gros rocher peint de signes rouges
+      { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'kanjirock', x: 23, y: 16, w: 2, h: 1 },
+      { kind: 'rock', v: 1, x: 25, y: 17, w: 1, h: 1, small: true }, { kind: 'rock', v: 0, x: 28, y: 15, w: 1, h: 1, small: true },
       { kind: 'bench', x: 12, y: 18, w: 1, h: 1, small: true }, { kind: 'bench', x: 19, y: 18, w: 1, h: 1, small: true },
       { kind: 'barrel', v: 0, x: 3, y: 16, w: 1, h: 1, small: true }, { kind: 'barrel', v: 1, x: 28, y: 12, w: 1, h: 1, small: true },
       { kind: 'bunting', v: 6, x: 13, y: 4, w: 6, h: 1, top: true, oy: -14 },
@@ -158,16 +161,17 @@
       { x: 8, y: 4, w: 2, dir: 'up', to: 'gymnase', tx: 8, ty: 10, cond: () => !!(DW.Gymnase && DW.Gymnase.open()) }],
     signs: {
       '14,6': async () => {
-        await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rochers (PV) et mannequins (Attaque).  Piste : haies (Vitesse).  Est : mur (Défense).  Salle de classe (au nord-est) : Intelligence.  Cristal de données : énergie (PM).");
+        await say("TERRAIN D'ENTRAÎNEMENT — Ouest : rocher et traîneau (PV), mannequin et sac de frappe (Attaque).  Piste : haies et pneus (Vitesse).  Est : mur (Défense).  Cristal de données : énergie (PM).  École (nord-est) : Intelligence.  Gymnase (nord-ouest) : résistances aux éléments.");
         await say("Les COMBATS font monter le niveau, et le niveau fixe le POTENTIEL de ton Digimon (10 + 3 × niveau points par stat). Dé-digivoluer ton Digimon augmente son ABI : son potentiel grimpe encore !");
         await say("L'ENTRAÎNEMENT remplit ce potentiel. Ce sont les points d'entraînement qui permettent de digivoluer !");
-        await say("Chaque poste a son exercice : marteler le mannequin, enchaîner les coups au sac de frappe, soulever le rocher au bon moment, sauter la haie sur la marque, encaisser les pierres du mur, charger l'énergie du cristal. Parle au poste ou à son panneau (le pictogramme indique la stat) pour commencer. Plus ton Digimon est entraîné, plus c'est dur !");
+        await say("Chaque poste a son exercice : marteler le mannequin, enchaîner les coups au sac de frappe, soulever le rocher et tirer le traîneau au bon moment, sauter la haie ou passer les pneus sur la marque, encaisser les pierres du mur, charger l'énergie du cristal. Le traîneau et les pneus font aussi travailler une autre stat (objectif « Statistique »). Parle au poste ou à son panneau (le pictogramme indique la stat) pour commencer. Plus ton Digimon est entraîné, plus c'est dur !");
       },
       // le gymnase : fermé pendant le chapitre 1 (on y entre par la porte quand il est ouvert)
       ...Object.fromEntries(['7,4', '8,4', '9,4', '10,4'].map(k => [k, () => say(DW.Gymnase && DW.Gymnase.open()
         ? "GYMNASE — Entraînement des résistances aux éléments, avec Leomon. Entre par la grande porte !"
         : "GYMNASE — « Fermé. Le coach a disparu dans les montagnes... Celui qui le ramènera pourra endurcir ses Digimon contre le feu, l'eau, la glace, le vent et la foudre ! »")])),
-      '25,9': 'Un râtelier plein de boucliers cabossés. Parfait pour apprendre à encaisser.',
+      '25,11': 'Un râtelier plein de boucliers cabossés. Parfait pour apprendre à encaisser.',
+      '27,11': "Un mannequin de bois aux bras tendus : Leomon s'en sert pour apprendre à parer les coups.",
     },
   };
   DW.MapKit.zoomMap(DW.MAPS.gym, 'gym');   // plan agrandi ×2 (maps/common.js)

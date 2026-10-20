@@ -82,35 +82,16 @@
     glowshroom: { w: 24, h: 28, n: 2, draw: SECOURS.champignon(24, 28) },
     mossrock: { w: 24, h: 20, n: 2, draw: SECOURS.rocher(24, 20) },
     hollowlog: { w: 36, h: 18, n: 1, draw: SECOURS.bois(36, 18) },
-    dummy: { w: 20, h: 30, n: 1, draw(d) {
-      d.tube([[10, 29], [10, 8]], 3, 2.6, '#8a5a32', { tex: 0.3 });
-      d.tube([[3, 12], [17, 12]], 2, 2, '#8a5a32');
-      d.blob([[5, 13], [15, 13], [16, 24], [10, 27], [4, 24]], '#e2c46a', { tex: 0.35, texSize: 1 });
-      d.deco.line(4.6, 17, 15.6, 17, 1, '#a07a3a'); d.deco.line(4.6, 22, 15.6, 22, 1, '#a07a3a');
-      d.deco.circ(10, 19.5, 2.6, '#ffffff'); d.deco.circ(10, 19.5, 1.6, '#e04040'); d.deco.circ(10, 19.5, 0.6, '#ffffff', { unlit: true });
-      d.circ(10, 6, 4, '#e2c46a', { tex: 0.35, texSize: 1 });
-    } },
+    // appareils d'entraînement (images du joueur, dossier SPORT : gfx/textures.js ; ici leur dessin de secours)
+    dummy: { w: 22, h: 30, n: 1, draw: SECOURS.bois(22, 30) },
     lamp: { w: 12, h: 32, n: 1, draw: SECOURS.pierre(12, 32) },
     // distributeur (Digimon World 1) : 0 PV, 1 PM, 2 nourriture (images rouge, bleue, blanche : gfx/textures.js) ; éclairé la nuit
     vending: { w: 26, h: 44, n: 3, lights: [[13, 16, 22]], draw: SECOURS.boite(26, 44) },
-    weights: { w: 26, h: 22, n: 1, draw(d) {
-      d.tube([[5, 13], [21, 13]], 2.4, 2.4, '#8a5a32');
-      d.blob([[0, 19], [1, 8], [6, 5], [10, 9], [10, 19]], '#9a948a', { tex: 0.35, texSize: 1 });
-      d.blob([[16, 19], [16, 9], [20, 5], [25, 8], [26, 19]], '#8a847a', { tex: 0.35, texSize: 1 });
-    } },
-    guardwall: { w: 22, h: 26, n: 1, draw(d) {
-      d.rect(2, 4, 18, 21, '#8a8478', { round: 0.2, tex: 0.3 });
-      for (let y = 9; y < 25; y += 5) d.deco.line(2, y, 20, y, 0.8, '#5e5a52');
-      d.deco.circ(11, 13, 4.2, '#e04040'); d.deco.circ(11, 13, 2.6, '#ffffff'); d.deco.circ(11, 13, 1.2, '#e04040');
-      d.deco.line(5, 19, 8, 22, 0.8, '#4a463e');
-    } },
-    hurdle: { w: 22, h: 16, n: 1, draw(d) {
-      d.tube([[4, 15], [4, 5]], 2, 2, '#f0f0f0'); d.tube([[18, 15], [18, 5]], 2, 2, '#f0f0f0');
-      d.rect(2, 4, 18, 4, '#e04848', { round: 0.4 });
-      d.deco.rect(6, 4.6, 3, 2.8, '#ffffff'); d.deco.rect(13, 4.6, 3, 2.8, '#ffffff');
-    } },
-    // cristal de données (poste PM ; image : gfx/textures.js)
-    datacrystal: { w: 30, h: 44, n: 1, lights: [[15, 16, 16]], draw: SECOURS.pierre(30, 44) },
+    weights: { w: 27, h: 30, n: 1, draw: SECOURS.rocher(27, 30) },
+    guardwall: { w: 18, h: 30, n: 1, draw: SECOURS.pierre(18, 30) },
+    hurdle: { w: 27, h: 30, n: 1, draw: SECOURS.boite(27, 30) },
+    // cristal de données (poste PM) : le cristal brille en haut de son pilier
+    datacrystal: { w: 24, h: 44, n: 1, lights: [[12, 7, 16]], draw: SECOURS.pierre(24, 44) },
     shrine: { w: 28, h: 26, n: 1, draw: SECOURS.pierre(28, 26) },
     toiletroom: { w: 34, h: 40, n: 1, lights: [[17, 12, 14]], draw(d) {
       // dalle et mur du fond

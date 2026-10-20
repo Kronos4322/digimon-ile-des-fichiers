@@ -142,6 +142,8 @@
       this.oc = DW.Art.canvas(W, H);
       this.anim = null;   // geste en cours : { res, t }
       this.eq = spot.eq || (DW.World.info(this.ow.tileAt(spot.x, spot.y)).obj) || k;   // l'équipement du poste
+      const P = DW.Training.POSTES[this.eq];
+      if (P) this.S = { ...this.S, name: P.nom, desc: P.desc };
       this.tap = 0;
     }
     enter() {
@@ -167,7 +169,8 @@
     // le jeu de la séance, selon l'équipement (les essais sont notés par TrainingScene.hit)
     start() {
       this.state = 'play'; this.readyT = 1.1; this.endT = 1.4; Audio.sfx('buff');
-      this.game = (GAMES[this.eq] || GAMES.weights)(this);
+      const P = DW.Training.POSTES[this.eq];
+      this.game = (GAMES[(P && P.jeu) || this.eq] || GAMES.weights)(this);
       this.game.newRep();
     }
     // un essai terminé : animation du geste, puis essai suivant
@@ -225,7 +228,7 @@
       let x = sx + side * 18, y = sy + 2, moving = false, flip = side > 0, lift = 0;
       const k1 = a ? Math.min(1, a.t / 0.35) : 0, back = a ? Math.max(0, (a.t - 0.6) / 0.5) : 0, power = a ? [0.4, 1, 1.4][a.res] : 0;
       const G = this.game, eq = this.eq;
-      if (eq === 'punchbag') x = sx + side * (this.reach > 1 ? 24 : 17);   // (le sac est large : il se place un peu plus loin)
+      if (DW.Training.POSTES[eq]) x = sx + side * (this.reach > 1 ? 24 : 17);   // (les appareils sont larges : il se place un peu plus loin)
       if (k === 'atk' && !a && this.tap > 0) x = sx + side * ((eq === 'punchbag' ? 24 : 18) - 7 * Math.sin(this.tap / 0.15 * Math.PI)) + (eq === 'punchbag' ? (this.tapSide || 1) * 3 : 0);   // coups rapides
       if (k === 'atk' && a) { x = sx + side * (18 - 12 * k1 + 12 * back); if (a.t > 0.3 && a.t < 0.5) this.shake = Math.max(this.shake, 0.15 * power); }
       else if (k === 'hp' && a) { x = sx + side * (16 - 4 * k1); lift = a.t < 0.8 ? Math.sin(a.t * 30) * power : 0; }

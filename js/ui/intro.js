@@ -77,11 +77,8 @@
       c.globalAlpha = 1;
       for (const p of this.pts) { const a = p.a + t * p.s, py = sol - ((t * 22 * p.s + p.y * 150) % 150); c.fillStyle = `rgba(170,240,255,${(0.7 * (1 - (sol - py) / 150)).toFixed(2)})`; c.fillRect(Math.round(cx + Math.cos(a) * 40), Math.round(py), 1, 1); }
       c.restore();
-      // le personnage assemblé (en attendant les planches du kit : le sprite de marche agrandi)
-      if (!DW.Perso.dessiner(c, this.ch, cx, sol + 2, 166)) {
-        c.imageSmoothingEnabled = false; c.drawImage(DW.Sprites.hero('down', 0, 'perso').img, cx - 29, sol - 74, 58, 75);
-        UI.text(c, 'Chargement...', cx, 30, { size: 7, align: 'center', color: '#8ae0f0' });
-      }
+      // le personnage assemblé (planches du kit chargées dès l'écran titre : main.js ; sinon, rien qu'un « Chargement »)
+      if (!DW.Perso.dessiner(c, this.ch, cx, sol + 2, 166)) UI.text(c, 'Chargement...', cx, sol - 60, { size: 7, align: 'center', color: '#8ae0f0' });
       // le Digivice et le DigiŒuf choisi (son bébé), puis le partenaire qu'il deviendra
       const bebe = DW.state.look.baby, line = DW.heroLine('perso');
       c.save(); c.translate(30, 212); c.scale(0.15, 0.15); DW.drawDigivice(c, 0, 0, 1, t); c.restore();

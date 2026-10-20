@@ -148,13 +148,8 @@
       else if (v === 6) { d.deco.rect(7, 7, 10, 7, '#ff8a4a', { unlit: true }); for (const x of [7.5, 10, 12.5, 15]) d.deco.rect(x, 5, 2, 3, '#ffb07a', { unlit: true }); d.deco.rect(5, 9, 3, 4, '#ff8a4a', { unlit: true }); d.deco.rect(9, 14, 6, 2, '#c8603a', { unlit: true }); }   // poing (sac de frappe)
       else d.deco.poly([[12, 4], [16, 10], [12, 16], [8, 10]], C, { unlit: true });   // cristal (PM)
     } },
-    // sac de frappe rouge suspendu à un portique
-    punchbag: { w: 26, h: 40, n: 1, draw(d) {
-      d.tube([[3, 39], [3, 4]], 2.4, 2, '#5a4a3a'); d.tube([[23, 39], [23, 4]], 2.4, 2, '#5a4a3a'); d.tube([[2, 4], [24, 4]], 2, 2, '#6a5a4a');
-      d.deco.line(13, 4, 13, 9, 0.8, '#c8c0b0');
-      d.rect(7, 9, 12, 22, '#c83a2e', { round: 0.5, shiny: true });
-      d.deco.line(7, 14, 19, 14, 0.8, '#8a2418'); d.deco.line(7, 26, 19, 26, 0.8, '#8a2418');
-    } },
+    // sac de frappe suspendu à un portique (image du joueur, dossier SPORT)
+    punchbag: { w: 27, h: 40, n: 1, draw: DW.World.secours.boite(27, 40) },
     // gros rocher peint de signes rouges (Endurance)
     kanjirock: { w: 44, h: 38, n: 1, draw(d) {
       d.blob([[2, 36], [3, 18], [12, 5], [26, 3], [38, 10], [42, 24], [41, 36]], '#9a948c', { tex: 0.4, texSize: 1 });
@@ -184,11 +179,25 @@
       d.deco.rect(2, 9, 12, 1.6, '#ff9a3a', { unlit: true });
       d.ell(8, 8, 5, 2.4, '#ff7a20', 0, { unlit: true, noline: true }); d.ell(8, 6, 3, 3, '#ffd060', 0, { unlit: true, noline: true });
     } },
-    shieldrack: { w: 26, h: 30, n: 1, draw(d) {
-      d.tube([[3, 29], [3, 6]], 2, 2, '#8a5a32'); d.tube([[23, 29], [23, 6]], 2, 2, '#8a5a32'); d.tube([[2, 8], [24, 8]], 2, 2, '#9a6a3a');
-      for (const [x, c] of [[7, '#c84838'], [13, '#3a6ac8'], [19, '#c8a040']]) { d.circ(x, 17, 5, c, { shiny: true }); d.deco.circ(x, 17, 2.4, '#e8e0d0'); d.deco.circ(x, 17, 1, c); }
-      d.deco.line(15, 13, 18, 18, 0.8, '#2a2a3a');
-    } },
+    shieldrack: { w: 27, h: 30, n: 1, draw: DW.World.secours.boite(27, 30) },
+    // autres appareils (images du joueur, dossier SPORT) : postes du Terrain d'entraînement (DW.Training.POSTES : épouvantail,
+    // traîneau, pneus), décor (slalom, mannequin de bois), appareils du Gymnase de Leomon (un par élément : maps/gymnase.js),
+    // matériel de la salle de classe
+    epouvantail: { w: 26, h: 30, n: 1, draw: DW.World.secours.bois(26, 30) },
+    traineau: { w: 27, h: 30, n: 1, draw: DW.World.secours.pierre(27, 30) },
+    pneus: { w: 27, h: 30, n: 1, draw: DW.World.secours.boite(27, 30) },
+    slalom: { w: 20, h: 30, n: 1, draw: DW.World.secours.boite(20, 30) },
+    mannequinbois: { w: 27, h: 30, n: 1, draw: DW.World.secours.bois(27, 30) },
+    anneaufeu: { w: 24, h: 30, n: 1, lights: [[12, 14, 30, 'rgba(255,140,50,0.6)']], draw: DW.World.secours.boite(24, 30) },
+    cascade: { w: 20, h: 30, n: 1, draw: DW.World.secours.pierre(20, 30) },
+    bainglace: { w: 25, h: 30, n: 1, draw: DW.World.secours.boite(25, 30) },
+    portailvent: { w: 24, h: 30, n: 1, draw: DW.World.secours.boite(24, 30) },
+    bobinefoudre: { w: 19, h: 30, n: 1, lights: [[9.5, 6, 22, 'rgba(140,220,255,0.6)']], draw: DW.World.secours.boite(19, 30) },
+    rochersuspendu: { w: 21, h: 30, n: 1, draw: DW.World.secours.rocher(21, 30) },
+    portailombre: { w: 23, h: 30, n: 1, lights: [[11.5, 15, 20, 'rgba(170,90,255,0.5)']], draw: DW.World.secours.pierre(23, 30) },
+    tableaumemoire: { w: 25, h: 30, n: 1, draw: DW.World.secours.boite(25, 30) },
+    telescope: { w: 19, h: 30, n: 1, draw: DW.World.secours.boite(19, 30) },
+    formes: { w: 25, h: 30, n: 1, draw: DW.World.secours.boite(25, 30) },
     // rocher marin couvert de bernacles et d'algues
     searock: { w: 26, h: 22, n: 3, draw: DW.World.secours.rocher(26, 22) },
     driftwood: { w: 34, h: 16, n: 2, draw: DW.World.secours.bois(34, 16) },
@@ -265,5 +274,5 @@
     } },
   });
   OBJ.kiosk.scale = 1.15;
-  OBJ.stationsign.scale = 1.5;   // panneaux des postes d'entraînement : bien visibles
+  OBJ.stationsign.scale = 1.25;   // panneaux des postes d'entraînement : bien visibles, sans cacher les appareils
 })();

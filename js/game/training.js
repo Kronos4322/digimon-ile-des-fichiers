@@ -22,10 +22,18 @@
     spd: { name: 'Sprint', stat: 'Vitesse', obj: 'hurdle', desc: 'Sauter les haies à toute allure.' },
     int: { name: 'Méditation', stat: 'Intelligence', obj: 'shrine', desc: 'Se concentrer dans le cercle de pierres.' },
   };
+  // APPAREILS qui sont des postes partout où on les pose : stat entraînée (k), exercice (jeu : game/trainfield.js) et,
+  // pour l'objectif « Statistique », leur propre mélange de stats (base ; sinon celui de la stat : BASE)
+  const POSTES = {
+    punchbag: { k: 'atk', jeu: 'punchbag', nom: 'Sac de frappe', desc: 'Enchaîner les coups sur le sac de frappe.' },
+    epouvantail: { k: 'atk', jeu: 'dummy', nom: 'Épouvantail', desc: "Frapper l'épouvantail : des coups vifs et légers (Attaque, un peu de Vitesse).", base: { atk: 6, spd: 4 } },
+    traineau: { k: 'hp', jeu: 'weights', nom: 'Traîneau', desc: 'Tirer le traîneau chargé de pierres (PV, un peu d\'Attaque).', base: { hp: 35, atk: 4 } },
+    pneus: { k: 'spd', jeu: 'hurdle', nom: 'Pneus', desc: 'Passer entre les pneus qui se balancent (Vitesse, un peu de Défense).', base: { spd: 6, def: 4 } },
+  };
   const TOTAL = 300, TIRE = 30, MINUTES = 90;   // TOTAL : points d'entraînement cumulés, toutes stats (6 avec les PM)
 
   const Training = DW.Training = {
-    STATS, TOTAL,
+    STATS, POSTES, TOTAL,
     // potentiel : ce que le niveau (gagné en combat) permet d'atteindre
     cap: m => Math.min(99, 10 + m.level * 3 + (m.abi || 0) * 4),
     total: m => Object.values(m.tr).reduce((a, b) => a + b, 0),
@@ -50,13 +58,14 @@
     STAGE_BONUS: { 'Bébé': -0.55, 'Entraînement': -0.35, 'Disciple': 0, 'Champion': 0.15, 'Ultime': 0.25, 'Méga': 0.35 },   // les petits stades progressent bien moins vite
     // réussite des 3 essais (score 0 à 6) → multiplicateur final (comme le « Bonus Try »)
     tryMult: score => score === 0 ? 0.5 : score <= 2 ? 1 : score <= 4 ? 2 : score === 5 ? 3 : 4,
-    statGain(m, k, score, L, boost = 0) {   // (boost : Super carotte, Radis... lus avant la séance par finish)
+    statGain(m, k, score, L, boost = 0, eq) {   // (boost : Super carotte, Radis... lus avant la séance par finish ; eq : l'appareil)
       const up = 1 + (this.STAGE_BONUS[m.d.stage] || 0) + (DW.state.bag.manuel_entr ? 0.1 : 0) + Math.min(0.2, (DW.Town.trainBonus ? DW.Town.trainBonus(k) : 0) * 0.1) + (DW.Town.has && DW.Town.has('elecmon') ? 0.1 : 0) + (DW.Collab && DW.Collab.on('muscu') ? 0.1 : 0);
       const item = boost > 0 ? 1.2 : 1;
       const S = DW.SCALE, parts = {};
       m.raw = m.raw || {};
-      for (const s in this.BASE[k]) {
-        const n = Math.floor(Math.floor(Math.floor(this.BASE[k][s] * up) * item) * this.tryMult(score) * L.mul);
+      const B = (POSTES[eq] && POSTES[eq].base) || this.BASE[k];
+      for (const s in B) {
+        const n = Math.floor(Math.floor(Math.floor(B[s] * up) * item) * this.tryMult(score) * L.mul);
         if (n <= 0) continue;
         // valeur affichée → points « bruts » (bonus = brut × 0,8, puis × l'échelle de la stat)
         const unit = 0.8 * (s === 'hp' ? S.hp : s === 'mp' ? S.mp : S.stat), cap = this.cap(m) * 2.5;
@@ -166,7 +175,7 @@
       const boost = score > 0 ? m.boost || 0 : 0, extra = score > 0 ? boost + (DW.state.bag.manuel_entr ? 1 : 0) : 0;
       if (score > 0) m.boost = 0;
       const L = this.opts.level, raw = score + bonus + extra;
-      if (this.opts.mode === 'stat') { this.parts = Training.statGain(m, k, score, L, boost); this.g = Object.values(this.parts).reduce((a, b) => a + b, 0); }
+      if (this.opts.mode === 'stat') { this.parts = Training.statGain(m, k, score, L, boost, this.eq); this.g = Object.values(this.parts).reduce((a, b) => a + b, 0); }
       else this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
       m.tired = Math.min(100, m.tired + L.tire);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);

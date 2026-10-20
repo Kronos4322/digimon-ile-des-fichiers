@@ -189,8 +189,25 @@ COMMUN.update({
     'ext_puits': (_E, ('panneau', 9, 3)), 'ext_panneau': (_E, ('panneau', 1, 8)),
 })
 SOLS_PLANCHE = {'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche', 'plage_sable'}
+# planches SPORT (fond vert, 5 x 2 appareils par planche : cases()) : le matériel d'entraînement retenu pour le jeu
+# (Terrain d'entraînement, Gymnase de Leomon, salle de classe : gfx/sport.js) ; les autres appareils attendent dans le dossier
+_SP = lambda n: 'SPORT/photo_2026-10-20_11-39-' + n + '.jpg'
+COMMUN.update({
+    'sport_pilier_cristal': (_SP('57'), ('case', 1)),
+    'sport_mannequin_cible': (_SP('57 (2)'), ('case', 0)), 'sport_rocher_socle': (_SP('57 (2)'), ('case', 1)), 'sport_mur_soleil': (_SP('57 (2)'), ('case', 2)),
+    'sport_bobine_foudre': (_SP('57 (3)'), ('case', 0)), 'sport_portail_vent': (_SP('57 (3)'), ('case', 1)), 'sport_rocher_suspendu': (_SP('57 (3)'), ('case', 2)),
+    'sport_portail_ombre': (_SP('57 (3)'), ('case', 5)),
+    'sport_sac_frappe': (_SP('58'), ('case', 1)), 'sport_pneus': (_SP('58'), ('case', 2)), 'sport_traineau': (_SP('58'), ('case', 4)), 'sport_epouvantail': (_SP('58'), ('case', 9)),
+    'sport_glace_bain': (_SP('58 (2)'), ('case', 9)),
+    'sport_eau_cascade': (_SP('58 (3)'), ('case', 4)),
+    'sport_int_memoire': (_SP('58 (4)'), ('case', 3)), 'sport_int_telescope': (_SP('58 (4)'), ('case', 4)), 'sport_int_formes': (_SP('58 (4)'), ('case', 6)),
+    'sport_def_boucliers': (_SP('58 (5)'), ('case', 0)), 'sport_def_mannequin_bois': (_SP('58 (5)'), ('case', 5)),
+    'sport_feu_anneau': (_SP('58 (6)'), ('case', 4)),
+    'sport_vit_haies': (_SP('59'), ('case', 0)), 'sport_vit_slalom': (_SP('59'), ('case', 1)),
+})
 # taille maximale de la copie (plus grand côté) pour les grands objets des planches ; sinon 160 px
 GRAND = {'plage_palmier': 220, 'plage_palmier_courbe': 220, 'plage_palmier_double': 220, 'plage_arche': 200, 'mont_sapin': 220, 'mont_grotte': 200, 'ville_fontaine_etages': 200, 'ville_fontaine_vasque': 200, 'ville_fontaine_octogone': 200}
+GRAND.update({n: 200 for n in COMMUN if n.startswith('sport_')})   # (nets aussi quand la séance zoome sur le poste)
 SOLS_COMMUN = {'herbe_claire', 'herbe_verte', 'sable_terre', 'herbe_seche', 'herbe_fleurie', 'herbe_dense', 'terre_claire', 'herbe_haute', 'herbe_terre', 'sable_dunes',
                'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'}
 
@@ -360,8 +377,58 @@ def grille(f, cols, rows, k, clair=False):
     return out.crop(box) if box else out
 
 
+def cases(f, cols=5, rows=2):
+    """Planche rangée en grille (cols x rows), un objet par case : chaque morceau (fond vert enlevé) va à la case de son
+    centre (un objet qui déborde sur sa voisine reste entier, un objet en plusieurs morceaux est réuni) ; deux objets
+    collés (boîte bien trop large) sont coupés à la colonne la plus vide. -> (image RGBA, étiquettes, [(boîte, morceaux)])"""
+    if ('cases', f) in _PLANCHES: return _PLANCHES[('cases', f)]
+    import numpy as np
+    from scipy import ndimage
+    a = np.array(Image.open(f).convert('RGB')).astype(int)
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    obj = ndimage.binary_opening(~((g > 150) & (g - np.maximum(r, b) > 70)), iterations=1)
+    lab, n = ndimage.label(obj)
+    H, W = obj.shape
+    aires = ndimage.sum(obj, lab, range(1, n + 1)); centres = ndimage.center_of_mass(obj, lab, range(1, n + 1))
+    case = lambda cy, cx: int(min(rows - 1, cy // (H / rows))) * cols + int(min(cols - 1, cx // (W / cols)))
+    par = {}
+    for i in range(n):
+        if aires[i] >= 20: par.setdefault(case(*centres[i]), []).append(i + 1)
+    # deux objets collés : la case qui a tout pris est coupée à la colonne la plus vide de son milieu, l'autre moitié va
+    # à sa voisine restée vide
+    for k in range(cols * rows):
+        ids = par.get(k, [])
+        if not ids: continue
+        m = np.isin(lab, ids); xs = np.where(m.any(0))[0]
+        if xs[-1] - xs[0] < (W / cols) * 1.6: continue
+        prof = m[:, xs[0]:xs[-1]].sum(0); a0, a1 = int(len(prof) * 0.35), int(len(prof) * 0.65)
+        cut = xs[0] + a0 + int(np.argmin(prof[a0:a1]))
+        voisine = k + 1 if (k % cols) < cols - 1 and cut > (k % cols + 1) * W / cols - W / cols / 2 else k - 1
+        nouv = lab.max() + 1
+        droite = m & (np.arange(W)[None, :] >= cut) if voisine > k else m & (np.arange(W)[None, :] < cut)
+        lab = np.where(droite, nouv, lab)
+        par.setdefault(voisine, []).append(nouv)
+    res = []
+    for k in range(cols * rows):
+        ids = par.get(k, [])
+        if not ids: res.append(None); continue
+        m = np.isin(lab, ids)
+        ys, xs = np.where(m.any(1))[0], np.where(m.any(0))[0]
+        res.append(((ys[0], xs[0], ys[-1] + 1, xs[-1] + 1), ids))
+    bord = ndimage.binary_dilation(~obj, iterations=3) & obj
+    gmax = np.maximum(r, b) + 8
+    rgba = np.dstack([r, np.where(bord & (g > gmax), gmax, g), b, np.where(obj, 255, 0)]).clip(0, 255).astype('uint8')
+    _PLANCHES[('cases', f)] = (rgba, lab, res)
+    return _PLANCHES[('cases', f)]
+
+
 def morceau(f, k):
     if isinstance(k, tuple) and k[0] == 'panneau': return panneau(f, k[1])[k[2]]
+    if isinstance(k, tuple) and k[0] == 'case':   # (seulement les morceaux de cet objet : pas ce qui déborde d'une voisine)
+        import numpy as np
+        rgba, lab, res = cases(f); (y0, x0, y1, x1), ids = res[k[1]]
+        a = rgba[y0:y1, x0:x1].copy(); a[..., 3] = np.where(np.isin(lab[y0:y1, x0:x1], ids), a[..., 3], 0)
+        return Image.fromarray(a, 'RGBA')
     if isinstance(k, tuple) and k[0] in ('grille', 'grille_clair'): return grille(f, k[1], k[2], k[3], k[0] == 'grille_clair')
     im, ordre = planche(f)
     ks = k if isinstance(k, list) else [k]

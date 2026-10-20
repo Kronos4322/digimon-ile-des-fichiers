@@ -75,7 +75,8 @@
     if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('10px "DotGothic16"'), tex]).then(go, go); else tex.then(go, go);
     return;
   }
-  const boot = () => { Game.push(new DW.TitleScene()); DW.start(); };
+  // (les planches du personnage du joueur se chargent dès l'écran titre : la création du personnage les a tout de suite)
+  const boot = () => { if (DW.Perso) DW.Perso.charger(); Game.push(new DW.TitleScene()); DW.start(); };
   if (document.fonts && document.fonts.load) {
     // (l'écran titre n'attend que les polices, au plus 1,5 s ; les images des décors arrivent pendant ce temps)
     Promise.race([Promise.all([document.fonts.load('10px "DotGothic16"'), document.fonts.load('28px "Press Start 2P"')]), new Promise(r => setTimeout(r, 1500))]).then(boot, boot);
