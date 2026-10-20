@@ -158,8 +158,11 @@
       if (this.flash > 0) { c.fillStyle = `rgba(240,245,255,${Math.min(0.92, this.flash)})`; c.fillRect(0, 0, W, H); }
     },
 
-    // ------------------------------------------------------------ herbe jaunie (canicule, et surtout sécheresse)
-    _dry: null,
+    // ------------------------------------------------------------ sol de saison : herbe jaunie (canicule, et surtout sécheresse),
+    // neige, fleurs du printemps, fleurs fanées. Calculé une fois par carte et par état (sols : sur le sol de la carte) ;
+    // un nouvel état (palier de neige, retour de la pluie...) se calcule par tranches de lignes, quelques ms par image,
+    // l'ancien restant à l'écran ; le premier (entrée sur la carte, sous l'écran noir) d'un bloc
+    sols: new WeakMap(),
     ground(ow) {
       const g = ow.gfx, w = T.weather(), drought = T.drought(), st = DW.state;
       const temperate = ['forest', 'village', 'beach'].includes(ow.map.climate || 'village');
@@ -170,41 +173,58 @@
       const snow = temperate ? Math.round((st.snow || 0) * 10) / 10 : 0, bloom = temperate && T.season() === 0 ? Math.round((st.bloom || 0) * 5) / 5 : 0;
       const k = w === 'heat' || drought ? (drought ? 0.85 : 0.45) : 0;
       if (ow.map.indoor || (!k && snow < 0.1 && bloom < 0.2 && !fmode)) return g.ground;
-      const key = [ow.map.id, ow.map.version || '', k, snow, bloom, fmode].join('|');
-      if (this._dry && this._dry.key === key && this._dry.src === g.ground) return this._dry.cv;
-      const src = g.ground, kk = src._k || 1, cv = document.createElement('canvas');
+      const key = [k, snow, bloom, fmode].join('|'), src = g.ground;
+      let E = this.sols.get(src);
+      if (!E) this.sols.set(src, E = { key: null, cv: null, job: null });
+      if (E.key === key) return E.cv;
+      if (!E.job || E.job.key !== key) E.job = this.solTravail(src, g.flowers, key, k, snow, bloom, fmode);
+      this.solAvance(E.job, E.cv ? 3 : Infinity);
+      if (E.job.fini) { E.key = key; E.cv = E.job.cv; E.job = null; }
+      return E.cv || src;
+    },
+    solTravail(src, flowers, key, k, snow, bloom, fmode) {
+      const cv = document.createElement('canvas');
       cv.width = src.width; cv.height = src.height; cv._k = src._k;
       const x = cv.getContext('2d'); Art.drawRaw(x, src, 0, 0);
-      const im = x.getImageData(0, 0, cv.width, cv.height), d = im.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i], gg = d[i + 1], b = d[i + 2];
-        const grass = gg > r * 1.04 && gg > b * 1.12, water = b > r * 1.15 && b > gg * 1.02;
-        if (grass && k) {   // pixel « herbe » : vert dominant → paille
-          const nr = gg * 0.98 + r * 0.12, ng = gg * 0.84 + r * 0.04, nb = b * 0.55;
-          d[i] = r + (nr - r) * k; d[i + 1] = gg + (ng - gg) * k; d[i + 2] = b + (nb - b) * k;
+      const im = x.getImageData(0, 0, cv.width, cv.height);
+      return { key, cv, x, im, y: 0, k, snow, bloom, fmode, flowers, kk: src._k || 1, fini: false };
+    },
+    // avance le calcul d'un sol de saison (ms : temps donné à cette image)
+    solAvance(J, ms) {
+      const t0 = performance.now(), d = J.im.data, W4 = J.cv.width * 4, { k, snow } = J;
+      while (J.y < J.cv.height) {
+        const fin = Math.min(d.length, (J.y + 8) * W4);   // (8 lignes à la fois)
+        for (let i = J.y * W4; i < fin; i += 4) {
+          const r = d[i], gg = d[i + 1], b = d[i + 2];
+          const grass = gg > r * 1.04 && gg > b * 1.12, water = b > r * 1.15 && b > gg * 1.02;
+          if (grass && k) {   // pixel « herbe » : vert dominant → paille
+            const nr = gg * 0.98 + r * 0.12, ng = gg * 0.84 + r * 0.04, nb = b * 0.55;
+            d[i] = r + (nr - r) * k; d[i + 1] = gg + (ng - gg) * k; d[i + 2] = b + (nb - b) * k;
+          }
+          if (snow >= 0.1 && !water) {   // NEIGE (sauf sur l'eau) : le relief reste — creux bleutés, bosses blanches au soleil
+            const r0 = d[i], g0 = d[i + 1], b0 = d[i + 2], l = (r0 + g0 + b0) / 3;
+            const dirt = r0 > g0 * 1.05 && r0 > b0 * 1.25;   // chemins : neige tassée, on devine encore la piste
+            const cov = snow * (dirt ? 0.58 : 0.94) * Math.min(1, Math.max(0.32, (l - 18) / 115));   // sous-bois sombre : un peu moins couvert
+            const t = Math.min(1, Math.max(0, (l - 35) / 150));
+            d[i] = r0 + (170 + t * 80 - r0) * cov; d[i + 1] = g0 + (188 + t * 64 - g0) * cov; d[i + 2] = b0 + (224 + t * 31 - b0) * cov;
+          }
         }
-        if (snow >= 0.1 && !water) {   // NEIGE (sauf sur l'eau) : le relief reste — creux bleutés, bosses blanches au soleil
-          const r0 = d[i], g0 = d[i + 1], b0 = d[i + 2], l = (r0 + g0 + b0) / 3;
-          const dirt = r0 > g0 * 1.05 && r0 > b0 * 1.25;   // chemins : neige tassée, on devine encore la piste
-          const cov = snow * (dirt ? 0.58 : 0.94) * Math.min(1, Math.max(0.32, (l - 18) / 115));   // sous-bois sombre : un peu moins couvert
-          const t = Math.min(1, Math.max(0, (l - 35) / 150));
-          d[i] = r0 + (170 + t * 80 - r0) * cov; d[i + 1] = g0 + (188 + t * 64 - g0) * cov; d[i + 2] = b0 + (224 + t * 31 - b0) * cov;
-        }
+        J.y += 8;
+        if (performance.now() - t0 > ms) return;
       }
-      if (fmode) this.fadeFlowers(d, cv.width, cv.height, g.flowers, fmode, snow);
+      if (J.fmode) this.fadeFlowers(d, J.cv.width, J.cv.height, J.flowers, J.fmode, snow);
       // FLEURS du printemps : après les pluies douces, l'herbe se couvre de petites fleurs
-      if (bloom >= 0.2) {
-        const FL = [[255, 140, 190], [255, 230, 90], [250, 250, 255], [190, 140, 255], [255, 120, 90]], px = 2 * kk, Wd = cv.width;
-        for (let y = 0; y < cv.height - px; y += 5 * kk) for (let x = 0; x < Wd - px; x += 5 * kk) {
-          const h = Art.hash(x, y, 91); if (h > bloom * 0.09) continue;
+      if (J.bloom >= 0.2) {
+        const FL = [[255, 140, 190], [255, 230, 90], [250, 250, 255], [190, 140, 255], [255, 120, 90]], kk = J.kk, px = 2 * kk, Wd = J.cv.width;
+        for (let y = 0; y < J.cv.height - px; y += 5 * kk) for (let x = 0; x < Wd - px; x += 5 * kk) {
+          const h = Art.hash(x, y, 91); if (h > J.bloom * 0.09) continue;
           const i0 = (y * Wd + x) * 4; if (!(d[i0 + 1] > d[i0] * 1.04 && d[i0 + 1] > d[i0 + 2] * 1.12)) continue;
           const col = FL[Math.floor(Art.hash(x, y, 92) * FL.length)];
           for (let yy = 0; yy < px; yy++) for (let xx = 0; xx < px; xx++) { const j = ((y + yy) * Wd + x + xx) * 4; d[j] = col[0]; d[j + 1] = col[1]; d[j + 2] = col[2]; }
         }
       }
-      x.putImageData(im, 0, 0);
-      this._dry = { key, src, cv };
-      return cv;
+      J.x.putImageData(J.im, 0, 0);
+      J.fini = true;
     },
     // fleurs peintes au sol (croix de 5 pixels + tige) : en automne la moitié fane, les autres deviennent
     // des colchiques et des asters ; en hiver elles disparaissent, quelques perce-neige les remplacent

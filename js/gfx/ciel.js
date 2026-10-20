@@ -32,7 +32,7 @@
       lx.fillRect(0, 0, W, H);
       if (d > 0.15 && lights) {
         lx.globalCompositeOperation = 'lighter';
-        for (const L of lights) lx.drawImage(glow(L.r, 'rgba(255,240,210,0.9)'), Math.round(L.x - L.r), Math.round(L.y - L.r));
+        for (const L of lights) { const r = Math.round(L.r); lx.drawImage(glow(r, 'rgba(255,240,210,0.9)'), Math.round(L.x - r), Math.round(L.y - r)); }
       }
       c.save(); c.globalCompositeOperation = 'multiply'; c.drawImage(lightCv, 0, 0); c.restore();
       if (d > 0.25 && lights) {
@@ -64,9 +64,8 @@
           d.y += d.v * fast * dt; d.x -= d.v * (w === 'storm' ? 0.55 : 0.25) * dt;
           if (d.y > H * (0.3 + (i % 7) / 10)) { if (Math.random() < 0.5) this.splash.push({ x: d.x, y: d.y, t: 0 }); this.drops[i] = this.drop(false); }
         }
-        if (w === 'rain' && Math.random() < dt * 0.04) { this.flash = 1; this.bolt = null; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }   // (l'orage : gfx/meteo.js)
+        if (w === 'rain' && Math.random() < dt * 0.04) { this.flash = 1; DW.wait(0.3).then(() => DW.Audio.sfx('thunder')); }   // (l'orage et ses éclairs : gfx/meteo.js)
       }
-      if (this.bolt) { this.bolt.t -= dt; if (this.bolt.t <= 0) this.bolt = null; }
       if (w === 'snow' || w === 'blizzard') for (let i = 0; i < this.flakes.length; i++) {
         const f = this.flakes[i], b = w === 'blizzard';
         f.y += f.v * (b ? 2.2 : 1) * dt; f.x += (b ? -120 : Math.sin(this.t * 1.4 + f.ph) * 10 - 6) * dt;
@@ -91,8 +90,6 @@
         c.strokeStyle = 'rgba(210,225,255,0.5)';
         for (const s of this.splash) { c.beginPath(); c.ellipse(s.x, s.y, 1 + s.t * 10, 0.5 + s.t * 3, 0, 0, 7); c.stroke(); }
         if (this.flash > 0) { c.fillStyle = `rgba(230,240,255,${this.flash * 0.5})`; c.fillRect(0, 0, W, H); }
-        // éclair zigzag pendant l'orage
-        if (this.bolt) { c.strokeStyle = 'rgba(255,255,230,0.95)'; c.lineWidth = 1.6; c.beginPath(); let bx = this.bolt.x, by = 0; c.moveTo(bx, by); while (by < H * 0.6) { by += 14 + Math.random() * 10; bx += (Math.random() - 0.5) * 26; c.lineTo(bx, by); } c.stroke(); }
       } else if (w === 'snow' || w === 'blizzard') {
         c.fillStyle = 'rgba(255,255,255,0.92)';
         if (w === 'blizzard') { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 1; c.beginPath(); for (const f of this.flakes) { c.moveTo(f.x, f.y); c.lineTo(f.x + 6, f.y - 2); } c.stroke(); }

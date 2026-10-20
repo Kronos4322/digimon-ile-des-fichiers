@@ -323,8 +323,8 @@
         else { x.fillStyle = 'rgba(255,200,80,0.9)'; for (let e = 0; e < 5; e++) { const an = e / 5 * TAU + q, d = (life - 0.75) * 30; x.beginPath(); x.arc(bx + Math.cos(an) * d, by + Math.sin(an) * d * 0.5 - (life - 0.75) * 20, 0.8, 0, TAU); x.fill(); } }
       }
     };
-    // FORME DU TROU au pixel (ne change pas d'une image de l'animation à l'autre) : calculée une fois pour les 6 images,
-    // oubliée après la dernière ; S : distance au bord (1 = bord), A : angle, S2 : même chose pour le fond du trou
+    // FORME DU TROU au pixel (ne change pas d'une image de l'animation à l'autre) : calculée une fois pour les 6 images de
+    // la lave dessinée, oubliée après la dernière ; S : distance au bord (1 = bord), A : angle, S2 : même chose pour le fond
     let FORME = null;
     const forme = (Wd, Hd, R) => {
       if (FORME && FORME.Wd === Wd && FORME.Hd === Hd) return FORME;
@@ -341,9 +341,9 @@
     def('bouchelave', { w: 336, h: 144, n: 1, frames: 6, fps: 5, paint(x, v, f = 0) {
       const R = 2, Wd = this.w * R, Hd = this.h * R, cv = Art.canvas(Wd, Hd), g = cv.getContext('2d'), img = g.createImageData(Wd, Hd), D = img.data;
       const ph = f / 6 * TAU, ox = Math.cos(ph) * 7, oy = Math.sin(ph) * 3.5, fl = 0.85 + 0.15 * Math.sin(ph * 2);
-      const TX = DW.Textures, LAV = TX && ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => TX.pixels('volcan/' + n)).filter(Boolean);   // (images dessinées)
-      if (LAV && LAV.length) {   // la lave dessinée, animée (plusieurs images) ou qui dérive doucement (une seule)
-        const P = LAV[f % LAV.length], dx = LAV.length === 1 ? ox : 0, dy = LAV.length === 1 ? oy : 0, S = forme(Wd, Hd, R).S;
+      const TX = DW.Textures, P = TX && TX.pixels('volcan/lave');   // (image dessinée)
+      if (P) {   // la lave dessinée, qui dérive doucement d'une image à l'autre
+        const dx = ox, dy = oy, S = forme(Wd, Hd, R).S;
         for (let j = 0; j < Hd; j++) for (let i = 0; i < Wd; i++) {
           if (S[j * Wd + i] >= 1.14) continue;
           const px = (i + 0.5) / R, py = (j + 0.5) / R;

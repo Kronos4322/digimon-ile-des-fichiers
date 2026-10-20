@@ -84,8 +84,7 @@
       place('crib', 0, 120, 112); place('crib', 1, 150, 112); place('block', 0, 200, 114); place('block', 2, 214, 116);
       place('candytree', 0, -4, 230, 2); place('candytree', 2, W + 4, 224, 2);
     }
-    // nuages
-    return (bgCache[type] = cv);
+    return (bgCache[key] = cv);
   };
   World.platform = (c, key, x, y, rx, ry) => {
     const [type, theme] = key.split('@'), TH = theme && World.THEMES[theme];

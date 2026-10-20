@@ -81,13 +81,16 @@
     // TEXTURES DESSINÉES (gfx/textures.js) : sol, dessus des terrasses, falaises, escaliers, lave (null = dessin par code)
     const TX = DW.Textures && (map.textures || DW.Textures.themeDe(map)) ? DW.Textures : null, txp = n => (TX && map.textures ? TX.pixels(map.textures + '/' + n) : null);
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
-    const TX_LAVE = ['lave', 'lave_2', 'lave_3', 'lave_4'].map(n => txp(n)).filter(Boolean);
+    const TX_LAVE = txp('lave');
     const sol = r => (TX ? TX.sol(map, r) : null);
-    const TX_HERBE = sol('herbe'), TX_HSECHE = sol('herbe_seche'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves'), TX_SABLE2 = sol('sable_taches');   // (sable_taches : un second sable en grandes taches, ex. coquillages sur la plage)
-    // herbe dessinée (l'herbe sèche sur les cases « j ») ; l'ombre des arbres et des falaises reste par-dessus
+    const TX_HERBE = sol('herbe'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves');
+    // herbe dessinée ; l'ombre des arbres et des falaises reste par-dessus
     // (la couleur est écrite dans HC, réutilisé : à lire aussitôt ; mêmes calculs que TX.lit et Art.mix)
     const texO = (P, x, y) => { const X = ((Math.floor(x) % P.w) + P.w) % P.w, Y = ((Math.floor(y) % P.h) + P.h) % P.h; return (Y * P.w + X) * 4; };
     const HC = [0, 0, 0, 255];
+    // pixel d'une image de sol, écrit dans TC (réutilisé, à lire aussitôt : aucun tableau neuf par pixel ; comme TX.lit)
+    const TC = [0, 0, 0, 255];
+    const texel = (P, x, y) => { const q = texO(P, x, y), d = P.d; TC[0] = d[q]; TC[1] = d[q + 1]; TC[2] = d[q + 2]; TC[3] = d[q + 3]; return TC; };
     // SOLS SELON L'ALTITUDE (map.solsNiveau, ex. le volcan : herbe de montagne puis terre sèche en montant ; rocaille en
     // gravier puis en roche craquelée) : une image commune par niveau de relief, null = celle de la carte
     // (un niveau : un nom, ou [sol, sol des taches] ; « volcan:nom » = image du dossier du volcan, sinon dossier commun)
@@ -108,10 +111,10 @@
       NAT[0] = r * k; NAT[1] = g * k; NAT[2] = b * k; return NAT;
     };
     const herbeTx = (tx, ty, px, py, sh, en, ed) => {
-      let P = map.rows[ty][tx] === 'j' && TX_HSECHE ? TX_HSECHE : TX_HERBE || TX_HSECHE, r, g, b;
+      let r, g, b;
       const Q = HERBE_NIV && HERBE_NIV[ALTP ? ALTP[py * GW + px] : altCase(tx, ty)];
       if (Q) { solNaturel(Q[0], Q[1], px, py); r = NAT[0]; g = NAT[1]; b = NAT[2]; }
-      else { const q = texO(P, px, py), d = P.d; r = d[q]; g = d[q + 1]; b = d[q + 2]; }
+      else { const q = texO(TX_HERBE, px, py), d = TX_HERBE.d; r = d[q]; g = d[q + 1]; b = d[q + 2]; }
       if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) { const q2 = texO(TX_CHEMIN, px, py), d2 = TX_CHEMIN.d; r = r + (d2[q2] - r) * 0.55; g = g + (d2[q2 + 1] - g) * 0.55; b = b + (d2[q2 + 2] - b) * 0.55; }   // (bord de chemin)
       const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (24 - r) * k; g = g + (50 - g) * k; b = b + (60 - b) * k; }
       HC[0] = r; HC[1] = g; HC[2] = b; return HC;
@@ -464,13 +467,14 @@
       // (les bords mouillés du sable et les bords de pelouse gardent le chemin normal, plus bas)
       if (TX) {
         let tc = null;
-        if (t === TER.grass && (TX_HERBE || TX_HSECHE)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
+        if (t === TER.grass && TX_HERBE) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
         else if (t === TER.lawn && TX_HERBE && !(LUSH && en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
-        else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) tc = TX_SABLE2 ? solNaturel(TX_SABLE, TX_SABLE2, px, py).slice() : TX.lit(TX_SABLE, px, py);
+        else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) tc = texel(TX_SABLE, px, py);
         else if (t === TER.dirt && TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {
-          tc = TX.lit(TX_CHEMIN, px, py);
-          if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) tc = Art.mix(tc, TX.lit(TX_HERBE, px, py), 0.8);
-          if (ed <= 4 && en === TER.grass) tc = Art.mix(tc, [30, 24, 14], 0.06 * (5 - ed));
+          tc = texel(TX_CHEMIN, px, py);
+          // (mélanges écrits en clair : mêmes calculs que Art.mix)
+          if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) { const q = texO(TX_HERBE, px, py), d = TX_HERBE.d; tc[0] += (d[q] - tc[0]) * 0.8; tc[1] += (d[q + 1] - tc[1]) * 0.8; tc[2] += (d[q + 2] - tc[2]) * 0.8; }
+          if (ed <= 4 && en === TER.grass) { const k = 0.06 * (5 - ed); tc[0] += (30 - tc[0]) * k; tc[1] += (24 - tc[1]) * k; tc[2] += (14 - tc[2]) * k; }
         }
         if (tc) {
           if (LUSH) { const de = Math.min(EDGE.left ? 999 : px, EDGE.up ? 999 : py, EDGE.right ? 999 : GW - 1 - px, EDGE.down ? 999 : GH - 1 - py); if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; putD(j, tc); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; } }
@@ -486,7 +490,6 @@
           const cool = Math.min(0.5, (p5 < 0.42 ? (0.42 - p5) * 1.2 : 0) + sh * 0.035);
           if (cool > 0) { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; }   // ombre bleutée
         }
-        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // (image dessinée : gfx/textures.js)
       } else if (t === TER.dirt && LUSH) {
         // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre
         col = lerpPal(DIRT, lushDirtV(px, py, i) - (en === TER.grass && ed <= 4 ? (5 - ed) * 0.14 : 0));
@@ -496,11 +499,6 @@
           col = [col[0] + (gc[0] - col[0]) * k, col[1] + (gc[1] - col[1]) * k, col[2] + (gc[2] - col[2]) * k];
         }
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.012) col = Art.mix(Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]), col, 0.45);   // quelques feuilles mortes, fondues dans la terre
-        if (TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
-          col = TX.lit(TX_CHEMIN, px, py);
-          if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) col = Art.mix(col, TX.lit(TX_HERBE, px, py), 0.8);
-          if (ed <= 4 && en === TER.grass) col = Art.mix(col, [30, 24, 14], 0.06 * (5 - ed));   // (un peu creusé au bord)
-        }
         if (SOLKP && SOLKP[i]) col = solVar(col, SOLKP[i], px, py);
         else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.lawn && LUSH) {
@@ -508,14 +506,12 @@
         if (en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2 && hash(px, py, 315) < (3 - ed) / 4) col = lerpPal(SAND, 3.4 + (hash(px, py, 316) - 0.5));
         else col = lerpPal(PAL.lawn, lushGrassV(px, py, i, tx, ty) + 0.2);
         if (hash(px, py, 13) < 0.005) col = Art.hex(['#ffb6d6', '#fff0a0', '#d8c0ff', '#ffffff'][Math.floor(hash(px, py, 14) * 4)]);
-        if (TX_HERBE && !(en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2)) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // pelouse : l'herbe dessinée (gfx/textures.js)
       } else if (t === TER.grass) {
         let v = 2.4 + (G5(px, py) - 0.5) * 3 + (noise(px * 0.3, py * 0.3, 6) - 0.5) * 1.4 + b * 0.8;
         if (en !== TER.grass && en !== TER.canopy && en !== 255) { if (ed === 1) v = 0.2; else if (ed === 2) v -= 1; }
         v -= SH[i] * 0.22;
         if (tallAt(tx, ty)) v -= 1.2;
         col = GRASS[DW.clamp(Math.round(v), 0, 5)];
-        if (TX_HERBE || TX_HSECHE) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // (image dessinée : gfx/textures.js)
         if (map.ambient === 'forest' && SH[i] > 2 && hash(px >> 1, py >> 1, 90) < 0.02) col = Art.hex(['#c8a040', '#a8c050', '#d08a3a'][Math.floor(hash(px, py, 91) * 3)]);
       } else if (t === TER.dirt) {
         let v = 3 + (D7(px, py) - 0.5) * 2.4 + b * 0.8;
@@ -525,11 +521,6 @@
         v -= SH[i] * 0.2;
         col = DIRT[DW.clamp(Math.round(v), 0, 5)];
         if (map.ambient === 'forest' && hash(px >> 1, py >> 1, 92) < 0.06) col = Art.hex(LITTER[Math.floor(hash(px >> 1, py >> 1, 93) * LITTER.length)]);
-        if (TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {   // terre et sentiers (image dessinée), l'herbe déborde sur les bords
-          col = TX.lit(TX_CHEMIN, px, py);
-          if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) col = Art.mix(col, TX.lit(TX_HERBE, px, py), 0.8);
-          if (ed <= 4 && en === TER.grass) col = Art.mix(col, [30, 24, 14], 0.06 * (5 - ed));   // (un peu creusé au bord)
-        }
         if (SOLKP && SOLKP[i]) col = solVar(col, SOLKP[i], px, py);
         else if (TX_CENDRES && altCase(tx, ty) >= 3) col = Art.mix(TX.lit(altCase(tx, ty) >= 4 ? TX_CENDRES : TX_DESSUS || TX_CENDRES, px + 31, py + 17), [150, 120, 96], 0.12);   // sentier en hauteur : sol volcanique (image dessinée) ; en bas, la terre
       } else if (t === TER.sand) {
@@ -539,7 +530,7 @@
         v -= SH[i] * 0.2;
         if (en === TER.water && ed <= 9) { const wv = lerpPal(WET, v * 0.5 + ed * 0.35 - 0.6), dry = SAND[DW.clamp(Math.round(v), 0, 5)], k = ed <= 5 ? 0 : (ed - 5) / 4; col = [wv[0] + (dry[0] - wv[0]) * k, wv[1] + (dry[1] - wv[1]) * k, wv[2] + (dry[2] - wv[2]) * k]; }   // sable mouillé qui sèche en s'éloignant de l'eau
         else col = SAND[DW.clamp(Math.round(v), 0, 5)];
-        if (TX_SABLE && !(en === TER.water && ed <= 5)) { const s2 = TX_SABLE2 ? solNaturel(TX_SABLE, TX_SABLE2, px, py).slice() : TX.lit(TX_SABLE, px, py); col = en === TER.water && ed <= 9 ? Art.mix(col, s2, (ed - 5) / 4) : s2; }   // sable dessiné (le bord mouillé reste)
+        if (TX_SABLE && ed > 5) col = Art.mix(col, TX.lit(TX_SABLE, px, py), (ed - 5) / 4);   // sable dessiné : le bord mouillé sèche en s'éloignant de l'eau
       } else if (t === TER.lawn) {
         let v = 3 + (L12(px, py) - 0.5) * 2 + b * 0.6;
         if (ed === 1 && en !== TER.lawn && en !== 255) v = 1;
@@ -548,7 +539,6 @@
         col = PAL.lawn[DW.clamp(Math.round(v), 0, 5)];
         const h = hash(px, py, 13);
         if (h < 0.006) col = Art.hex(['#ffb6d6', '#fff0a0', '#d8c0ff', '#ffffff'][Math.floor(hash(px, py, 14) * 4)]);
-        if (TX_HERBE) col = herbeTx(tx, ty, px, py, SH[i], en, ed);   // pelouse : l'herbe dessinée (gfx/textures.js)
       } else if (t === TER.stone) {
         const row = Math.floor(py / 6), bx = Math.floor((px + (row % 2) * 4) / 8);
         const ix = (px + (row % 2) * 4) % 8, iy = py % 6;
@@ -697,26 +687,13 @@
           col = GRASS[DW.clamp(Math.round(v), 0, 4)];
         }
       } else if (t === TER.stairs) {
-        // MARCHES DE PIERRE : dalles taillées (dessus clair et chaud, contremarche sombre et froide), joints,
-        // usure au milieu, mousse dans les coins, murets de falaise de chaque côté
+        // MARCHES DE PIERRE, dans la roche de la paroi : dessus clair, contremarche sombre, joints, murets de falaise de
+        // chaque côté (l'escalier dessiné, une image, est posé plus haut : ESCA)
         const s = ly % 4, slab = Math.floor((px + (Math.floor(py / 4) & 1) * 5) / 9), tone = 0.9 + hash(slab, py >> 2, 26) * 0.2;
-        let c = s === 0 ? [236 * tone, 220 * tone, 186 * tone] : s === 3 ? [96, 86, 82] : [196 * tone, 178 * tone, 146 * tone];
-        if (s === 2) c = Art.mix(c, [120, 108, 96], 0.3);
-        if ((px + (Math.floor(py / 4) & 1) * 5) % 9 === 0 && s !== 3) c = Art.mix(c, [90, 80, 70], 0.55);           // joints
-        if (lx >= 5 && lx <= 10 && s === 0) c = Art.mix(c, [255, 246, 220], 0.25);                                  // usure (plus clair au milieu)
-        if ((lx <= 3 || lx >= 12) && s === 3 && hash(px, py, 27) < 0.5) c = [74, 128, 64];                         // mousse
-        { const R0 = ROCK[2], R1 = ROCK[6]; c = s === 3 ? Art.mix(ROCK[1], [0, 0, 0], 0.1) : Art.mix(R1, R0, (s === 2 ? 0.35 : 0.1) + (1 - tone) * 2); if ((px + (Math.floor(py / 4) & 1) * 5) % 9 === 0 && s !== 3) c = ROCK[2]; }
+        let c = s === 3 ? Art.mix(ROCK[1], [0, 0, 0], 0.1) : Art.mix(ROCK[6], ROCK[2], (s === 2 ? 0.35 : 0.1) + (1 - tone) * 2);
+        if ((px + (Math.floor(py / 4) & 1) * 5) % 9 === 0 && s !== 3) c = ROCK[2];                                     // joints
         if (lx < 2 || lx > 13) c = Art.mix(ROCK[lx < 2 ? 5 : 2], [0, 0, 0], lx === 0 || lx === 15 ? 0.35 : 0);    // murets (même roche que la paroi)
         col = c;
-        if (TX_ESC) {
-          let x0 = tx, y0 = ty, x1 = tx, y1 = ty;
-          while (x0 > 0 && tAt(x0 - 1, ty) === TER.stairs) x0--; while (x1 < map.w - 1 && tAt(x1 + 1, ty) === TER.stairs) x1++;
-          while (y0 > 0 && tAt(tx, y0 - 1) === TER.stairs) y0--; while (y1 < map.h - 1 && tAt(tx, y1 + 1) === TER.stairs) y1++;
-          const EH = TX_ESC.h, Hs = (y1 - y0 + 1) * 16, ys = (ty - y0) * 16 + ly, yt = Hs <= EH ? ys / Hs * EH : ys < 16 ? ys : ys >= Hs - 16 ? EH - (Hs - ys) : 16 + ((ys - 16) % (EH - 32));
-          const e = TX.lit(TX_ESC, ((tx - x0) * 16 + lx) / ((x1 - x0 + 1) * 16) * TX_ESC.w, yt), fond = TX_DESSUS || TX_CENDRES;
-          if (fond) col = TX.lit(fond, px, py);
-          if (e[3] > 40) col = e[3] > 230 ? e : Art.mix(col, e, e[3] / 255);
-        }
       } else if (t === TER.bridge && !DOCK) {
         // PONT DE PIERRE (rivières, lacs) : tablier de dalles taillées posées en quinconce, chacune éclairée en haut
         // à gauche, joints sombres, usure claire au milieu, mousse dans les joints ; PARAPETS sur les bords
@@ -1202,7 +1179,7 @@
       const MER = !!(map.mer || map.climate === 'beach');
       const eauImage = (f, W8, ka, kb) => {
         const ph = f / NF, a = ph * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a), EX = World.EAUX;
-        const LV = TX_LAVE.length ? TX_LAVE[f % TX_LAVE.length] : null, dec = TX_LAVE.length === 1 ? f * 2 : 0;
+        const LV = TX_LAVE, dec = TX_LAVE ? f * 2 : 0;   // (la lave dessinée dérive de 2 pixels par image)
         for (let k = ka; k < kb; k++) {
           const i = WI[k], px = i % GW, py = (i / GW) | 0, ed = ED[i], en = EN[i], o = OUT[k], k1 = EAUX ? K1[k] : 0;
           // EAU PEINTE : profondeur en dégradé continu, réseau de reflets doux (caustiques), houle en longues lignes,
