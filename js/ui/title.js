@@ -7,11 +7,17 @@
 //     héros et partenaire au premier plan, oiseaux, Birdramon, données qui montent
 //  3) logo qui arrive avec un choc lumineux, reflet qui balaie l'écusson
 //  4) menu qui glisse ; transition « numérique » en cases de données
+//  Le panorama et le logo sont l'image PEINTE du joueur dès qu'elle est chargée (maquette du dossier « Générique,
+//  introduction » : assets/intro/jeu/titre.webp) — reflets sur la mer, éclat sur le logo ; avant, le décor par le code.
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
   const W = DW.W, H = DW.H;
   const HZ = 152; // ligne d'horizon (mer)
+  // l'image peinte de l'écran titre (chargée tout de suite, à part des décors : l'écran titre n'attend pas)
+  const FOND = typeof Image !== 'undefined' ? new Image() : null;
+  if (FOND) FOND.src = 'assets/intro/jeu/titre.webp' + DW.versionImage('intro/jeu/titre.webp');
+  const fondPret = () => !!(FOND && FOND.complete && FOND.naturalWidth);
 
   // ------------------------------------------------------------ couches du décor (rendues une fois)
   const cache = {};
@@ -461,26 +467,33 @@
     drawMenu(c) {
       const t = this.t, k = this.menuIn.v, e = 1 - Math.pow(1 - k, 3);
       if (this.phase === 'press') {
-        if (this.logoIn.v > 0.9 && Math.floor(t * 2) % 2 === 0) UI.text(c, 'APPUIE SUR ESPACE', W / 2, 168, { size: 11, align: 'center', color: '#ffffff' });
+        // (sur l'image peinte : à la place de son « appuie sur espace », un bandeau entre deux traits, comme sur la maquette)
+        const y = fondPret() ? 152 : 168;
+        if (fondPret() && this.logoIn.v > 0.9) {
+          c.fillStyle = 'rgba(14,10,40,0.62)'; c.fillRect(48, y - 11, W - 96, 15);
+          c.fillStyle = 'rgba(160,210,255,0.85)'; c.fillRect(56, y - 4, 26, 1); c.fillRect(W - 82, y - 4, 26, 1);
+        }
+        if (this.logoIn.v > 0.9 && Math.floor(t * 2) % 2 === 0) UI.text(c, 'APPUIE SUR ESPACE', W / 2, y, { size: 11, align: 'center', color: '#ffffff' });
         return;
       }
-      const bw = 132, bx = (this.info ? 14 : W / 2 - bw / 2), by = 146 + (1 - e) * 100;
+      // (sur l'image peinte, le menu passe au-dessus du héros et d'Agumon)
+      const bw = 132, bx = (this.info ? 14 : W / 2 - bw / 2), by = (fondPret() ? 104 : 146) + (1 - e) * 100;
       UI.box(c, bx, by, bw, this.opts.length * 16 + 10);
       this.opts.forEach((o, i) => UI.text(c, o, bx + 22, by + 16 + i * 16, { size: 10, color: i === this.i ? '#ffe070' : '#bfeaf6' }));
       UI.cursor(c, bx + 9, by + 12.5 + this.i * 16, t);
       if (this.info) {
-        const I = this.info, px = 154 + (1 - e) * 180;
-        UI.box(c, px, 140, W - 154 - 8, 52, this.i === 1 ? 'dwsel' : 'dw');
-        UI.text(c, I.name, px + 8, 154, { size: 10, color: '#ffe070' });
+        const I = this.info, px = 154 + (1 - e) * 180, oy = fondPret() ? -36 : 0;
+        UI.box(c, px, 140 + oy, W - 154 - 8, 52, this.i === 1 ? 'dwsel' : 'dw');
+        UI.text(c, I.name, px + 8, 154 + oy, { size: 10, color: '#ffe070' });
         // (colonne de droite réservée au partenaire : le texte ne passe plus dessous)
         const pw = W - 154 - 8, cut = (txt, n) => (txt.length > n ? txt.slice(0, n - 1) + '…' : txt);
-        UI.text(c, cut(I.place, 24), px + 8, 167, { size: 8 });
+        UI.text(c, cut(I.place, 24), px + 8, 167 + oy, { size: 8 });
         const m = Math.floor(I.time / 60);
-        UI.text(c, `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}  ·  Jour ${I.day}  ·  Dex ${I.dex}`, px + 8, 180, { size: 7, color: '#8ae0f0' });
+        UI.text(c, `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}  ·  Jour ${I.day}  ·  Dex ${I.dex}`, px + 8, 180 + oy, { size: 7, color: '#8ae0f0' });
         if (I.partner && DW.SPECIES[I.partner]) {
           const spr = DW.Sprites.ow(I.partner), k = Math.min(1, 26 / spr.h, 26 / spr.w);
-          DW.Sprites.draw(c, spr, px + pw - 18, 187, { frame: Math.floor(t * 2), scale: k });
-          UI.text(c, `N.${I.level}`, px + pw - 8, 154, { size: 8, align: 'right', color: '#8ae0f0' });
+          DW.Sprites.draw(c, spr, px + pw - 18, 187 + oy, { frame: Math.floor(t * 2), scale: k });
+          UI.text(c, `N.${I.level}`, px + pw - 8, 154 + oy, { size: 8, align: 'right', color: '#8ae0f0' });
         }
       }
     }
@@ -497,11 +510,30 @@
       }
       if (w.t > 1.05) { c.fillStyle = `rgba(255,255,255,${Math.min(1, (w.t - 1.05) * 5)})`; c.fillRect(0, 0, W, H); }
     }
+    // l'image peinte (maquette du joueur) : légère respiration, reflets qui scintillent sur la mer, éclat qui balaie le logo
+    drawFond(c) {
+      const t = this.t, k = 1 + (Math.sin(t * 0.12) + 1) * 0.012, e = Math.min(1, this.logoIn.v * 1.5);
+      c.save(); c.imageSmoothingEnabled = true; c.translate(W / 2, H * 0.62); c.scale(k, k); c.drawImage(FOND, -W / 2, -H * 0.62, W, H); c.restore();
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 26; i++) {   // reflets sur la mer
+        const x = (i * 53 + Math.sin(t * 0.3 + i) * 6) % W, y = 166 + (i * 29 % 30), a = Math.max(0, Math.sin(t * 2.2 + i * 1.7));
+        c.fillStyle = `rgba(255,${200 + (i % 3) * 20},150,${(0.35 * a).toFixed(2)})`; c.fillRect(Math.round(x), y, 2 + (i % 3), 1);
+      }
+      const sw = (t * 0.35) % 1.6;   // éclat qui traverse le logo
+      if (sw < 1 && e > 0.5) {
+        const x = 70 + sw * 200, g = c.createLinearGradient(x - 18, 0, x + 18, 0);
+        g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,250,220,0.32)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        c.fillStyle = g; c.fillRect(70, 14, 180, 52);
+      }
+      c.restore();
+      // (le logo peint apparaît avec le choc lumineux : avant, l'écran est plus sombre)
+      if (e < 1) { c.fillStyle = `rgba(6,4,20,${(0.55 * (1 - e)).toFixed(2)})`; c.fillRect(0, 0, W, H); }
+    }
     draw(c) {
       if (this.phase === 'boot') { this.drawBoot(c); return; }
-      this.drawScene(c);
+      if (fondPret()) this.drawFond(c); else this.drawScene(c);
       for (let y = 0; y < H; y += 2) { c.fillStyle = 'rgba(0,0,0,0.07)'; c.fillRect(0, y, W, 1); }
-      this.drawLogo(c);
+      if (!fondPret()) this.drawLogo(c);
       this.drawMenu(c);
       UI.text(c, 'Jeu de fan non officiel — Digimon © Bandai / Toei Animation', W / 2, 236, { size: 7, align: 'center', color: '#c8b8e0' });
       if (this.flashA > 0) { c.fillStyle = `rgba(255,255,255,${Math.min(1, this.flashA)})`; c.fillRect(0, 0, W, H); }

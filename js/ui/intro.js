@@ -1,8 +1,8 @@
 'use strict';
 // =====================================================================
-//  INTRODUCTION : choix du DigiSélectionné, le camp d'été sous la neige,
-//  le Digivice qui tombe du ciel, le tunnel numérique, la chute vers
-//  l'Île des Fichiers, puis le réveil chez Jijimon
+//  INTRODUCTION : choix du DigiSélectionné, le feu de camp des huit enfants (image peinte du joueur), le camp d'été
+//  sous la neige, la pluie de Digivices (image peinte), le Digivice aux pieds du héros, le tunnel numérique, la chute
+//  vers l'Île des Fichiers (la suite se joue dans la forêt : game/debut.js)
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
@@ -15,6 +15,11 @@
   // « Générique, introduction ») ; le petit sprite de marche reprend ses couleurs
   // Haut/Bas : ligne   Gauche/Droite : choix   ESPACE : valider (sur « C'est moi ! »)
   const FOREST = [110, 44];   // la forêt sur la carte de l'île (DW.islandImage) : là où tombe le héros
+  // MAQUETTES PEINTES du joueur (dossier « Générique, introduction » : assets/intro/jeu) : le feu de camp des huit enfants
+  // et les lumières qui tombent du ciel ; chargées tout de suite (sinon : le camp dessiné par le code)
+  const PEINT = {};
+  if (typeof Image !== 'undefined') for (const n of ['camp', 'digivices']) { const im = new Image(); im.src = `assets/intro/jeu/${n}.webp${DW.versionImage(`intro/jeu/${n}.webp`)}`; PEINT[n] = im; }
+  const peint = n => (PEINT[n] && PEINT[n].complete && PEINT[n].naturalWidth ? PEINT[n] : null);
   // fond « numérique » : dégradé bleu nuit, quadrillage léger, pistes de circuit qui s'allument, cadre
   function fondTech(c, t) {
     const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#04102a'); g.addColorStop(1, '#0a2c5c');
@@ -164,19 +169,27 @@
       Audio.play('village');
       await DW.fade(0, 0.8);
       DW.tween(this.bars, { v: 1 }, 1);
+      // (le feu de camp peint, s'il est chargé ; ses légendes en haut : les enfants sont en bas de l'image)
+      if (peint('camp')) { this.mode = 'campPeint'; this.capHaut = true; }
       await this.show("Été. Un camp de vacances au cœur des montagnes.");
       await this.show(`Huit enfants autour du feu : toi, ${st.name}... et sept autres.`, 2.6);
+      if (this.mode === 'campPeint') { this.cut('camp', 1.2); this.capHaut = false; await DW.wait(0.6); }
       this.snowOn = true;
       await this.show("Soudain... il se met à neiger, en plein mois d'août.");
       DW.tween(this.aurora, { v: 1 }, 2.5);
       await this.show('Une aurore étrange illumine le ciel.');
-      // 3) huit Digivices tombent du ciel, un pour chaque enfant
+      // 3) huit Digivices tombent du ciel, un pour chaque enfant (la pluie de lumières peinte, puis au pied du héros)
+      if (peint('digivices')) {
+        this.cut('pluiePeint', 1.0); this.capHaut = true; Audio.sfx('swoosh');
+        await this.show('Puis, des lumières tombent du ciel... des Digivices !', 2.8);
+        this.cut('camp', 0.8); this.capHaut = false; await DW.wait(0.5);
+      }
       this.dv.on = true; Audio.sfx('capsule');
       await DW.tween(this.dv, { y: 194 }, 1.3, t => t * t);
       this.dv.landed = true; Audio.sfx('hit'); this.flash = 1;
       await DW.wait(0.4);
       this.heroDir = 'up';   // le héros reste de dos : c'est toi
-      await this.show('De petits objets lumineux tombent du ciel, un aux pieds de chaque enfant : des Digivices !');
+      await this.show(peint('digivices') ? "L'une des lumières tombe juste à tes pieds... Un Digivice ! Il y en a un pour chaque enfant." : 'De petits objets lumineux tombent du ciel, un aux pieds de chaque enfant : des Digivices !');
       // 4) ils s'illuminent et emportent tout le monde
       DW.tween(this.dv, { glow: 1 }, 1.2);
       Audio.sfx('evolve');
@@ -470,9 +483,39 @@
       c.restore();
     }
 
+    // ---------------------------------------------------------- scènes peintes (maquettes du joueur)
+    // le feu de camp : l'image avance doucement, le feu vacille (lueur et étincelles), les étoiles scintillent
+    drawCampPeint(c) {
+      const t = this.t, im = peint('camp'); if (!im) { this.drawCamp(c); return; }
+      const k = 1.02 + Math.min(1, t / 14) * 0.05;
+      c.save(); c.imageSmoothingEnabled = true; c.translate(W * 0.52, H * 0.78); c.scale(k, k); c.drawImage(im, -W * 0.52, -H * 0.78, W, H); c.restore();
+      c.save(); c.globalCompositeOperation = 'lighter';
+      const fx = 160, fy = 200, fl = 0.75 + Math.sin(t * 9) * 0.12 + Math.sin(t * 23) * 0.08;   // le feu (au milieu des enfants)
+      const g = c.createRadialGradient(fx, fy, 2, fx, fy, 62 * fl); g.addColorStop(0, 'rgba(255,170,70,0.38)'); g.addColorStop(1, 'rgba(255,90,20,0)');
+      c.fillStyle = g; c.fillRect(fx - 70, fy - 70, 140, 140);
+      for (let i = 0; i < 9; i++) { const p = ((t * 0.6 + i / 9) % 1), x = fx + Math.sin(i * 2.3 + t * 2) * 8 * p, y = fy - 6 - p * 46; c.fillStyle = `rgba(255,${180 + i * 6},90,${(0.8 * (1 - p)).toFixed(2)})`; c.fillRect(Math.round(x), Math.round(y), 1, 1); }
+      for (const s of this.stars) { const a = Math.max(0, Math.sin(t * 1.6 + s.p * 3)); if (a > 0.82) { c.fillStyle = `rgba(255,255,240,${((a - 0.82) * 3).toFixed(2)})`; c.fillRect(Math.round(s.x), Math.round(s.y * 0.7), 1, 1); } }
+      c.restore();
+    }
+    // la pluie de lumières : l'image descend lentement (on regarde le ciel puis le camp), les traînées de lumière pulsent
+    drawPluiePeint(c) {
+      const t = this.t, im = peint('digivices'); if (!im) { this.drawCamp(c); return; }
+      const k = 1.03 + Math.min(1, t / 20) * 0.03;
+      c.save(); c.imageSmoothingEnabled = true; c.translate(W / 2, H / 2); c.scale(k, k); c.drawImage(im, -W / 2, -H / 2, W, H); c.restore();
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (const [x0, y0] of [[39, 76], [83, 51], [116, 91], [161, 119], [228, 67], [266, 105], [290, 60]]) {   // (les Digivices de l'image)
+        const x = W / 2 + (x0 - W / 2) * k, y = H / 2 + (y0 - H / 2) * k, a = 0.25 + Math.max(0, Math.sin(t * 3 + x)) * 0.35, g = c.createRadialGradient(x, y, 1, x, y, 16);
+        g.addColorStop(0, `rgba(170,230,255,${a.toFixed(2)})`); g.addColorStop(1, 'rgba(120,200,255,0)');
+        c.fillStyle = g; c.fillRect(x - 16, y - 16, 32, 32);
+      }
+      c.restore();
+    }
+
     draw(c) {
       if (this.mode === 'black') { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); return; }
-      if (this.mode === 'camp') {
+      if (this.mode === 'campPeint') this.drawCampPeint(c);
+      else if (this.mode === 'pluiePeint') this.drawPluiePeint(c);
+      else if (this.mode === 'camp') {
         if (this.pix.v > 0) {
           // le camp se décompose en pixels avant le passage dans le Digimonde
           const bc = this.buf.getContext('2d'); this.drawCamp(bc);
@@ -491,7 +534,8 @@
       c.fillStyle = '#000'; c.fillRect(0, 0, W, bh); c.fillRect(0, H - bh, W, bh);
       if (this.cap.a > 0) {
         c.globalAlpha = this.cap.a;
-        const ls = UI.wrap(c, this.line, 296, 9).slice(0, 2), y0 = H - 26 - (ls.length - 1) * 12;
+        // (scènes peintes : la légende en haut, les enfants sont en bas de l'image)
+        const ls = UI.wrap(c, this.line, 296, 9).slice(0, 2), y0 = this.capHaut ? 38 : H - 26 - (ls.length - 1) * 12;
         c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillRect(0, y0 - 12, W, ls.length * 12 + 7);
         ls.forEach((l, i) => UI.text(c, l, W / 2, y0 + i * 12, { size: 9, align: 'center' }));
         c.globalAlpha = 1;

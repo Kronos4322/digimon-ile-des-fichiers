@@ -645,12 +645,56 @@ def optimiser_grotte():
             print('grotte/%-20s -> %4dx%-4d  %4d Ko%s' % (nom, out.width, out.height, os.path.getsize(cible) // 1024, ' (sol)' if nom in GROTTE_SOLS else ''))
 
 
+# ---------------------------------------------------------------- GÉNÉRIQUE ET INTRODUCTION (dossier du joueur « Générique,
+# introduction » : maquettes peintes en 1280 x 720, commandes tactiles dessinées sur les côtés) : seule la zone de jeu est
+# gardée (4:3), sans les boutons ni la légende -> assets/intro/jeu/<nom>.webp, 640 x 480 (2 fois l'écran du jeu).
+# titre : le coucher de soleil sur l'île, le héros et Agumon, le logo (l'« APPUIS SUR ESPACE » peint est effacé : le jeu
+# écrit le sien) ; camp : les huit enfants autour du feu ; digivices : les lumières qui tombent du ciel sur le camp
+_GI = 'Générique, introduction/photo_2026-10-19_'
+# (titre : toute la hauteur, pour garder le logo entier et le héros jusqu'aux pieds ; les morceaux de boutons tactiles qui
+#  débordent dans la zone de jeu sont recouverts d'un morceau de décor voisin : [zone, décalage de la source])
+INTRO = {
+    'titre': (_GI + '07-30-11.jpg', (160, 0, 1120, 720), [((0, 48, 104, 126), (0, 80)), ((856, 48, 960, 126), (0, 80)), ((0, 470, 62, 668), (64, 0)),
+              ((892, 556, 960, 672), (-70, 0)), ((300, 436, 660, 482), None)]),
+    'camp': (_GI + '18-15-23 (2).jpg', (230, 0, 1048, 613), None),
+    'digivices': (_GI + '18-15-23 (3).jpg', (235, 0, 1035, 600), None),
+}
+
+
+def optimiser_intro():
+    import numpy as np
+    dst = os.path.join(RACINE, 'intro', 'jeu'); os.makedirs(dst, exist_ok=True)
+    for nom, (rel, boite, efface) in INTRO.items():
+        f = os.path.join(SOURCE_COMMUN, rel); cible = os.path.join(dst, nom + '.webp')
+        if not os.path.exists(f):
+            print('absent :', rel); continue
+        if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
+        im = Image.open(f).convert('RGB').crop(boite)
+        if efface:
+            a = np.array(im).astype(float)
+            for (x0, y0, x1, y1), dec in efface:
+                if dec is None:   # (texte peint : chaque colonne fondue entre la rangée du dessus et celle du dessous)
+                    for y in range(y0, y1): t = (y - y0) / (y1 - y0); a[y, x0:x1] = a[y0 - 1, x0:x1] * (1 - t) + a[y1, x0:x1] * t
+                    continue
+                # (morceau de bouton : recouvert du décor voisin, fondu sur 10 px au bord intérieur de la zone)
+                dx, dy = dec; src = a[y0 + dy:y1 + dy, x0 + dx:x1 + dx].copy()
+                h, w = src.shape[:2]; yy, xx = np.mgrid[0:h, 0:w]
+                bord = np.minimum.reduce([xx if x0 > 0 else np.full_like(xx, 99), (w - 1 - xx) if x1 < a.shape[1] else np.full_like(xx, 99),
+                                          yy if y0 > 0 else np.full_like(yy, 99), (h - 1 - yy) if y1 < a.shape[0] else np.full_like(yy, 99)])
+                k = np.clip(bord / 10, 0, 1)[..., None]
+                a[y0:y1, x0:x1] = src * k + a[y0:y1, x0:x1] * (1 - k)
+            im = Image.fromarray(a.clip(0, 255).astype('uint8'))
+        out = im.resize((640, 480), Image.LANCZOS); out.save(cible, 'WEBP', quality=88, method=4)
+        print('intro/%-12s -> 640x480  %4d Ko' % (nom, os.path.getsize(cible) // 1024))
+
+
 if __name__ == '__main__':
     # (les options --numeros et --tout ne sont pas des dossiers)
-    for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon', 'grotte']):
+    for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon', 'grotte', 'intro']):
         if d == 'commun': optimiser_commun()
         elif d == 'digimon': optimiser_digimon()
         elif d == 'grotte': optimiser_grotte()
+        elif d == 'intro': optimiser_intro()
         else: optimiser(d)
     # empreintes des fichiers servis (dev/versions.py : le téléphone reprend une image changée)
     import versions; versions.ecrire()
