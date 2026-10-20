@@ -103,7 +103,13 @@
     const cle = p.r.join(','); if (paires[cle]) return paires[cle];
     const cv = piece('chaus', p), w = cv.width, h = cv.height;
     const S = deuxPlus(opaques(cv, h - 4)), coupe = S.length === 2 ? Math.round((S[0][1] + S[1][0]) / 2) : Math.round(w / 2);
-    const moitie = (x0, x1, s) => { const c = DW.Art.canvas(x1 - x0, h); c.getContext('2d').drawImage(cv, x0, 0, x1 - x0, h, 0, 0, x1 - x0, h); return { cv: c, x: s ? (s[0] + s[1]) / 2 - x0 : (x1 - x0) / 2, w: s ? s[1] - s[0] + 1 : x1 - x0 }; };
+    // (large : la plus grande largeur de la chaussure, tige de botte comprise)
+    const moitie = (x0, x1, s) => {
+      const c = DW.Art.canvas(x1 - x0, h), cc = c.getContext('2d'); cc.drawImage(cv, x0, 0, x1 - x0, h, 0, 0, x1 - x0, h);
+      const d = cc.getImageData(0, 0, x1 - x0, h).data; let a = x1 - x0, b = -1;
+      for (let y = 0; y < h; y++) for (let x = 0; x < x1 - x0; x++) if (d[(y * (x1 - x0) + x) * 4 + 3] > 100) { if (x < a) a = x; if (x > b) b = x; }
+      return { cv: c, x: s ? (s[0] + s[1]) / 2 - x0 : (x1 - x0) / 2, w: s ? s[1] - s[0] + 1 : x1 - x0, large: b >= a ? b - a + 1 : x1 - x0 };
+    };
     return (paires[cle] = [moitie(0, coupe, S[0]), moitie(coupe, w, S[1])]);
   }
 
@@ -129,9 +135,11 @@
       if (g) pose('bas_f', K.bas_f[ch.bas], 0, pieds, true); else pose('bas_g', K.bas_g[ch.bas], 0, K.taille - 2, true);
     }
     if (ch.chaus >= 0 && chausses(g)) {
-      const P = piedsDe(g ? 'corps_f' : 'corps_g', B), S = paire(K.chaus[ch.chaus]);
+      // chaque chaussure sous sa jambe, à la largeur du pied ; jamais plus large que la place entre les deux pieds (sinon les
+      // bottes et les baskets montantes se touchaient au milieu, collées en un seul bloc)
+      const P = piedsDe(g ? 'corps_f' : 'corps_g', B), S = paire(K.chaus[ch.chaus]), ecart = Math.abs(P[1].x - P[0].x);
       for (let i = 0; i < 2; i++) {
-        const s = S[i], k = P[i].w * LARGEUR_PIED / s.w, W = s.cv.width * k, Hs = s.cv.height * k;
+        const s = S[i], k = Math.min(P[i].w * LARGEUR_PIED / s.w, (ecart - 4) / s.large), W = s.cv.width * k, Hs = s.cv.height * k;
         c.drawImage(s.cv, X0 + P[i].x - s.x * k, Y0 + pieds + 3 - Hs, W, Hs);
       }
     }
