@@ -1,54 +1,22 @@
 'use strict';
 // =====================================================================
-//  VILLE DES FICHIERS — bâtiments, chantiers et petit mobilier urbain
+//  VILLE DES FICHIERS — bâtiments et petit mobilier urbain
 //  (s'ajoutent à World.OBJ ; même moteur de volumes que objects.js)
 //  lights : fenêtres éclairées la nuit [x, y, rayon] (repère du sprite)
 //  smoke  : sortie de cheminée [x, y]
 // =====================================================================
 (function () {
-  // TAUDIS : planches disjointes, toit de tôle rapiécé, fenêtre condamnée, porte bancale (au centre cx)
-  DW.World = DW.World || {};
-  DW.World.drawShack = (d, W, H, cx) => {
-    const k = W / 184, y0 = H * 0.36, wy = H * 0.9;
-    d.ell(cx, H - 3, W * 0.45, 3.4, '#2a2018', 0, { flat: true });
-    // murs de planches grises, de travers
-    d.rect(W * 0.12, y0, W * 0.76, wy - y0, '#8a7a62', { tex: 0.35 });
-    for (let x = W * 0.12; x < W * 0.88; x += 7 * k + 3) d.deco.line(x, y0 + 2, x + (x % 3 - 1), wy, 0.9, '#5a4a36');
-    for (const [x, y, w, c] of [[0.2, 0.55, 0.12, '#a08a62'], [0.62, 0.66, 0.1, '#7a6a52'], [0.3, 0.75, 0.08, '#9a8460']]) d.deco.rect(W * x, H * y, W * w, H * 0.06, c);
-    // porte bancale
-    d.rect(cx - W * 0.09, H * 0.58, W * 0.18, wy - H * 0.58, '#5a4030', { tex: 0.3 });
-    d.deco.line(cx - W * 0.09, H * 0.66, cx + W * 0.09, H * 0.64, 1, '#3a2a1e'); d.deco.line(cx - W * 0.09, H * 0.8, cx + W * 0.09, H * 0.78, 1, '#3a2a1e');
-    // fenêtre condamnée par deux planches
-    d.deco.rect(W * 0.22, H * 0.5, W * 0.12, H * 0.13, '#2a2a30');
-    d.deco.line(W * 0.21, H * 0.49, W * 0.35, H * 0.64, 1.6, '#a08a62'); d.deco.line(W * 0.35, H * 0.49, W * 0.21, H * 0.64, 1.6, '#a08a62');
-    d.deco.rect(W * 0.68, H * 0.5, W * 0.1, H * 0.1, '#7aa0b0'); d.deco.line(W * 0.68, H * 0.5, W * 0.78, H * 0.6, 0.7, '#ffffff');
-    // toit de tôle rouillée rapiécée
-    d.poly([[W * 0.04, y0 + 2], [W * 0.2, H * 0.1], [W * 0.82, H * 0.08], [W * 0.96, y0 + 4]], '#8a6a52', { tex: 0.3 });
-    for (let x = W * 0.08; x < W * 0.94; x += 6 * k + 3) d.deco.line(x, y0 + 2, x + W * 0.04, H * 0.1, 0.7, '#6a4e3a');
-    d.deco.rect(W * 0.3, H * 0.16, W * 0.14, H * 0.08, '#a85a3a'); d.deco.rect(W * 0.6, H * 0.2, W * 0.12, H * 0.07, '#6a7a82');
-    // tas de bois et seau
-    d.rect(W * 0.86, wy - H * 0.08, W * 0.1, H * 0.08, '#7a5a3a', { tex: 0.4 });
-    d.rect(W * 0.04, wy - H * 0.07, W * 0.05, H * 0.07, '#7a8088', { round: 0.3 });
-  };
   const OBJ = DW.World.OBJ;
-  const WOOD = '#8a5a32', WOOD_D = '#5a3a1e';
-
-  // rangées de tuiles / chaume sur un toit
-  const rows = (d, x0, x1, y0, y1, step, col, bend = 4) => {
-    for (let y = y0; y <= y1; y += step) d.deco.curve([[x0, y], [(x0 + x1) / 2, y - bend], [x1, y]], 0.9, col);
-  };
 
   Object.assign(OBJ, {
-    // ---------------------------------------------------------- maison de Jijimon : grande maison (remplit sa parcelle, toit visible en entier)
-    // soubassement de pierre, colombages, porte en arche au centre (la porte de la carte), fenêtres à volets
-    // et jardinières, lanternes, enseigne, grand toit de tuiles rouges à deux lucarnes, cheminée, parabole, lierre
-    // cabane du joueur au début (taudis), même dessin en plus petit
-    shack: { w: 80, h: 70, n: 1, draw(d) { DW.World.drawShack(d, 80, 70, 40); } },
-    // maison de Jijimon : 0 = taudis (ville en ruines), 1 = rénovée, 2 = cossue (fanions dorés, massifs)
+    // ---------------------------------------------------------- cabane du joueur au début (taudis) : peinte (gfx/maisons.js)
+    shack: { w: 80, h: 70, n: 1 },
+    // ---------------------------------------------------------- maison de Jijimon : 0 = taudis (ville en ruines, peint : gfx/maisons.js),
+    // 1 = rénovée, 2 = cossue (fanions dorés, massifs) : grande maison qui remplit sa parcelle, toit visible en entier ;
+    // soubassement de pierre, colombages, porte en arche au centre (la porte de la carte), fenêtres à volets et
+    // jardinières, lanternes, enseigne, grand toit de tuiles rouges à deux lucarnes, cheminée, parabole, lierre
     jhouse: { w: 184, h: 118, n: 3, lights: [[60, 82, 18], [124, 82, 18], [92, 74, 20], [52, 34, 12], [132, 34, 12]], smoke: [152, 6], draw(d, v) {
-      if (v === 0) { DW.World.drawShack(d, 184, 118, 92); return; }
       const Wl = '#ecdcb8', Tb = '#7a4a28', St = '#a8a296', Sd = '#7a7468', R = '#c84a32', Rd = '#9a3424', Rl = '#e06a4a';
-      d.ell(92, 115, 88, 4, '#3a2a18', 0, { flat: true });
       // terrasse en bois, marches
       d.rect(14, 102, 156, 12, '#b8844c', { round: 0.06, tex: 0.3 });
       for (let x = 20; x < 168; x += 9) d.deco.line(x, 103, x, 114, 0.7, '#7a5028');
@@ -103,104 +71,16 @@
       }
     } },
     // ---------------------------------------------------------- Bazar de Gotsumon (5×3)
-    bazar: { w: 100, h: 92, n: 1, lights: [[50, 62, 26]], draw(d) {
-      d.ell(50, 89, 46, 3.4, '#3a2a18', 0, { flat: true });
-      // murs de pierre
-      d.rect(8, 40, 84, 48, '#b8ae9e', { round: 0.1, tex: 0.25 });
-      for (let y = 46; y < 88; y += 7) for (let x = 8 + ((y / 7) % 2) * 6; x < 92; x += 12) d.deco.rect(x, y, 0.8, 7, '#8a8070');
-      for (let y = 46; y < 88; y += 7) d.deco.line(8, y, 92, y, 0.8, '#8a8070');
-      // intérieur et étagères
-      d.deco.rect(16, 54, 68, 22, '#3a2412');
-      for (const y of [60, 67]) d.deco.line(16, y, 84, y, 1, '#7a5030');
-      [[20, 58, '#ff7a5a'], [26, 58, '#5ab8f0'], [32, 58, '#4ac878'], [64, 58, '#ffd04a'], [70, 58, '#b48aff'], [76, 58, '#ff7a5a'], [22, 65, '#e8e0d0'], [30, 65, '#e8e0d0'], [68, 65, '#5ab8f0'], [76, 65, '#4ac878']]
-        .forEach(([x, y, c]) => { d.deco.rect(x - 1.6, y - 3.6, 3.2, 3.8, c); d.deco.rect(x - 0.6, y - 4.6, 1.2, 1.2, '#e8e0d0'); });
-      // comptoir et marchandises
-      d.rect(12, 72, 76, 15, '#a86e3a', { round: 0.15, tex: 0.25 });
-      for (let x = 20; x < 88; x += 10) d.deco.line(x, 74, x, 87, 0.8, '#6a4222');
-      d.deco.rect(12, 72, 76, 2, '#c8905a');
-      d.ell(24, 69, 5, 3, '#b04a2a'); d.deco.circ(20, 68, 1.2, '#fff4e0', { unlit: true }); d.deco.ell(25, 68, 2, 1, '#d86a4a');
-      d.ell(36, 69.5, 5, 2.6, '#b04a2a'); d.deco.circ(32, 69, 1.2, '#fff4e0', { unlit: true });
-      for (const [x, c] of [[52, '#e84040'], [59, '#e84040'], [66, '#3a8ae8']]) { d.circ(x, 69, 3.2, '#f4f0ea'); d.deco.ell(x, 67.6, 3, 1.6, c); d.deco.line(x - 3, 69, x + 3, 69, 0.6, '#2a2a3a'); }
-      d.rect(74, 64, 5, 8, '#5ab8f0', { round: 0.4, shiny: true }); d.rect(80, 65, 5, 7, '#4ac878', { round: 0.4, shiny: true });
-      // auvent rayé festonné
-      d.poly([[6, 56], [10, 44], [90, 44], [94, 56]], '#e04848', { shiny: true });
-      for (let x = 10; x < 90; x += 10) d.deco.poly([[x, 44], [x + 5, 44], [x + 5.8, 56], [x - 0.6, 56]], '#fff4ea');
-      for (let x = 8; x < 94; x += 5) d.ell(x + 2.5, 56.5, 2.6, 2, ((x - 8) / 5) % 2 ? '#fff4ea' : '#e04848', 0, { noshadow: true });
-      // toit de tuiles
-      d.blob([[0, 46], [10, 26], [50, 12], [90, 26], [100, 46], [50, 42]], '#b8583a', { tex: 0.2 });
-      rows(d, 6, 94, 24, 42, 5, '#8a3a24', 6);
-      d.deco.curve([[2, 45], [50, 40], [98, 45]], 1.4, '#7a2a18');
-      // enseigne (viande) et caisses
-      d.rect(34, 24, 32, 14, '#c89858', { round: 0.3, tex: 0.25 });
-      d.deco.rect(35, 25, 30, 1.4, '#e8c080');
-      d.ell(50, 31, 7, 4, '#b04a2a'); d.deco.circ(44, 30, 1.6, '#fff4e0', { unlit: true }); d.deco.circ(44, 32.6, 1.4, '#fff4e0', { unlit: true }); d.deco.ell(51, 30, 3, 1.4, '#e07a5a');
-      d.rect(0, 74, 12, 13, '#b8844c', { round: 0.15, tex: 0.3 }); d.deco.line(0, 74, 12, 87, 0.8, '#7a5028'); d.deco.line(12, 74, 0, 87, 0.8, '#7a5028');
-      d.ell(94, 80, 6, 8, '#9a6a3c', 0, { tex: 0.25 }); d.deco.line(88.4, 76, 99.6, 76, 0.9, '#5a5a62'); d.deco.line(88.4, 84, 99.6, 84, 0.9, '#5a5a62');
-    } },
+    bazar: { w: 100, h: 92, n: 1, lights: [[50, 62, 26]] },   // (forme 0 : façade peinte, gfx/facades.js ; agrandie : gfx/grandir.js)
 
     // ---------------------------------------------------------- Dojo d'Elecmon (5×3)
-    dojo: { w: 108, h: 96, n: 1, lights: [[54, 70, 24], [20, 54, 10], [88, 54, 10]], draw(d) {
-      d.ell(54, 93, 50, 3.4, '#3a2a18', 0, { flat: true });
-      // plancher surélevé et marches
-      d.rect(8, 78, 92, 12, '#9a6a3a', { round: 0.1, tex: 0.25 });
-      for (let x = 14; x < 100; x += 8) d.deco.line(x, 80, x, 90, 0.7, '#6a4222');
-      d.rect(42, 86, 24, 8, '#b8844c', { round: 0.1 }); d.deco.line(42, 90, 66, 90, 0.8, '#7a5028');
-      // murs blancs à poteaux sombres
-      d.rect(14, 46, 80, 34, '#f2ecdc', { round: 0.05 });
-      for (const x of [14, 30, 78, 93]) d.deco.rect(x - 1.5, 46, 3.5, 34, '#4a2e1a');
-      d.deco.rect(14, 46, 80, 3, '#4a2e1a'); d.deco.rect(14, 62, 16, 2, '#4a2e1a'); d.deco.rect(78, 62, 16, 2, '#4a2e1a');
-      // portes coulissantes (shoji)
-      d.deco.rect(34, 52, 40, 27, '#5a3a1e');
-      d.deco.rect(35.5, 53.5, 18, 24, '#fbf4e0', { unlit: true }); d.deco.rect(54.5, 53.5, 18, 24, '#fbf4e0', { unlit: true });
-      for (let k = 0; k < 2; k++) { const x0 = 35.5 + k * 19; for (let x = x0 + 4.5; x < x0 + 18; x += 4.5) d.deco.line(x, 53.5, x, 77.5, 0.6, '#8a6a4a'); for (let y = 59.5; y < 77; y += 6) d.deco.line(x0, y, x0 + 18, y, 0.6, '#8a6a4a'); }
-      // emblème éclair
-      d.circ(54, 66, 6, '#e04040');
-      d.deco.poly([[55, 60.5], [50.5, 67], [54, 67], [52.5, 71.5], [57.5, 64.5], [54, 64.5]], '#ffe040', { unlit: true });
-      // toit à deux pans recourbés
-      d.blob([[-2, 52], [6, 44], [30, 36], [54, 32], [78, 36], [102, 44], [110, 52], [54, 48]], '#3e4a80', { shiny: true });
-      rows(d, 6, 102, 38, 48, 4, '#262e5a', 4);
-      d.deco.curve([[-1, 51], [54, 46], [109, 51]], 1.4, '#1e2448');
-      d.blob([[16, 36], [24, 22], [54, 12], [84, 22], [92, 36], [54, 33]], '#4a5890', { shiny: true });
-      rows(d, 22, 86, 20, 32, 4, '#2e386a', 4);
-      d.rect(30, 10, 48, 4, '#2a3260', { round: 0.4 });
-      d.deco.circ(29, 12, 2.6, '#e8c040', { unlit: true }); d.deco.circ(79, 12, 2.6, '#e8c040', { unlit: true });
-      // lanternes rouges
-      for (const x of [20, 88]) { d.deco.line(x, 47, x, 50, 0.6, '#2a1a10'); d.ell(x, 54, 4, 5, '#e04838', 0, { shiny: true }); d.deco.line(x - 3.6, 54, x + 3.6, 54, 0.6, '#8a2418'); d.deco.rect(x - 1.5, 48.6, 3, 1.4, '#2a1a10'); }
-      // bannières
-      for (const x of [4, 104]) { d.tube([[x, 92], [x, 40]], 2, 1.6, '#5a3a22'); d.rect(x - (x < 50 ? -1 : 9), 42, 8, 20, '#e04040', { round: 0.1 }); d.deco.poly([[x - (x < 50 ? -5 : 5) + 0.5, 46], [x - (x < 50 ? -5 : 5) - 2, 52], [x - (x < 50 ? -5 : 5) + 1, 52], [x - (x < 50 ? -5 : 5) - 1, 57], [x - (x < 50 ? -5 : 5) + 2.5, 50.5], [x - (x < 50 ? -5 : 5) - 0.5, 50.5]], '#ffe040', { unlit: true }); }
-    } },
+    dojo: { w: 108, h: 96, n: 1, lights: [[54, 70, 24], [20, 54, 10], [88, 54, 10]] },   // (forme 0 : façade peinte, gfx/facades.js ; agrandie : gfx/grandir.js)
 
     // ---------------------------------------------------------- Restaurant de Mushroomon (5×3)
-    restaurant: { w: 100, h: 104, n: 1, lights: [[34, 72, 18], [72, 72, 18], [52, 50, 14]], smoke: [80, 6], draw(d) {
-      d.ell(50, 101, 46, 3.4, '#3a2a18', 0, { flat: true });
-      // terrasse : petite table et tabourets
-      d.ell(88, 92, 7, 3, '#c07830'); d.tube([[88, 100], [88, 93]], 2, 2, WOOD_D);
-      d.ell(80, 99, 3, 2, '#e05a5a'); d.ell(96, 99, 3, 2, '#e05a5a');
-      d.ell(86, 90, 2, 1.2, '#f8f0e0'); d.ell(90, 90.5, 1.6, 1, '#e8c060');
-      // ardoise du menu
-      d.rect(3, 80, 13, 16, '#2a3030', { round: 0.15 }); d.deco.rect(2, 79, 15, 2, WOOD); d.tube([[5, 100], [6, 95]], 1.6, 1.6, WOOD_D); d.tube([[14, 100], [13, 95]], 1.6, 1.6, WOOD_D);
-      for (const y of [84, 88, 92]) d.deco.line(5.5, y, 13.5, y, 0.7, '#e8f0e8');
-      // pied du champignon
-      d.blob([[22, 100], [24, 70], [28, 50], [72, 50], [76, 70], [78, 100]], '#f4ead2', { tex: 0.12 });
-      d.deco.ell(50, 100, 28, 3, '#d8c8a8');
-      // porte et fenêtres rondes
-      d.deco.ell(50, 82, 9, 9, '#6a3a1a'); d.deco.rect(41, 82, 18, 18, '#6a3a1a'); d.deco.line(50, 74, 50, 100, 0.8, '#4a2410');
-      d.deco.circ(55, 90, 1.1, '#f0c040', { unlit: true });
-      for (const x of [34, 66]) { d.deco.circ(x, 72, 6, '#8a5a2a'); d.deco.circ(x, 72, 4.6, '#ffd88a'); d.deco.circ(x - 1.4, 70.6, 1.6, '#fff4d0', { unlit: true }); d.deco.line(x - 4.6, 72, x + 4.6, 72, 0.7, '#8a5a2a'); }
-      // chapeau
-      d.ell(50, 58, 40, 6, '#c8a8d8');
-      for (let x = 16; x <= 84; x += 5) d.deco.line(x, 55, 50 + (x - 50) * 0.6, 62, 0.6, '#9a7aaa');
-      d.blob([[2, 54], [6, 34], [22, 14], [50, 6], [78, 14], [94, 34], [98, 54], [50, 60]], '#9a54c8', { shiny: true });
-      for (const [x, y, r] of [[22, 30, 7], [50, 18, 8], [76, 32, 6.5], [36, 46, 5], [66, 48, 5.5], [10, 46, 3.5], [90, 48, 3.5], [58, 34, 3.5]]) d.ell(x, y, r, r * 0.85, '#f2e0ff', 0, { noshadow: true });
-      // cheminée et enseigne
-      d.rect(76, 4, 8, 16, '#7a6a72', { round: 0.4, far: true }); d.deco.rect(75, 4, 10, 2.6, '#4a3a42');
-      d.rect(34, 60, 32, 10, '#c07830', { round: 0.3 });
-      d.ell(44, 65, 3.4, 2, '#f8f0e0'); d.deco.line(52, 61.6, 52, 68.4, 0.9, '#f8f0e0'); d.deco.line(56, 61.6, 56, 68.4, 0.9, '#f8f0e0'); d.deco.line(51, 62, 51, 64, 0.6, '#f8f0e0'); d.deco.line(53, 62, 53, 64, 0.6, '#f8f0e0');
-    } },
+    restaurant: { w: 100, h: 104, n: 1, lights: [[34, 72, 18], [72, 72, 18], [52, 50, 14]], smoke: [80, 6] },   // (forme 0 : façade peinte, gfx/facades.js ; agrandie : gfx/grandir.js)
 
     // ---------------------------------------------------------- Jardin de Yokomon : serre fleurie (5×3)
     garden: { w: 100, h: 90, n: 1, lights: [[50, 58, 26]], draw(d) {
-      d.ell(50, 87, 46, 3.4, '#3a2a18', 0, { flat: true });
       // muret
       d.rect(6, 72, 88, 15, '#c8b8a0', { round: 0.2, tex: 0.25 });
       for (let x = 10; x < 92; x += 10) d.deco.line(x, 74, x, 86, 0.7, '#9a8a74');
@@ -260,7 +140,6 @@
     // corde effilochée sans seau, toit abîmé, mousse sèche)
     well: { w: 30, h: 40, n: 2, draw: DW.World.secours.pierre(30, 40) },
     crates: { w: 18, h: 24, n: 2, draw: DW.World.secours.boite(18, 24) },
-    planter: { w: 14, h: 20, n: 2, draw: DW.World.secours.buisson(14, 20) },
     mailbox: { w: 12, h: 24, n: 1, draw: DW.World.secours.boite(12, 24) },
     bunting: { w: v => v * 16, h: 18, n: 1, draw(d, v) {
       const W = v * 16, cols = ['#e04848', '#ffd040', '#3a8ae8', '#4ac878', '#ff8ac0'];

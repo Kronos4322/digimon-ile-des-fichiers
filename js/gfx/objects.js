@@ -60,7 +60,7 @@
   // DESSINS DE SECOURS des décors remplacés par les images du joueur (gfx/textures.js) : ils ne servent que si une image
   // ne se charge pas (réseau coupé...) ; volontairement simples. (w, h) = la boîte de l'objet
   World.secours = {
-    arbre: (w, h) => d => { d.ell(w / 2, h - 2, w * 0.26, 2, '#3a2614', 0, { flat: true }); d.tube([[w / 2, h - 1], [w / 2, h * 0.5]], w * 0.16, w * 0.12, '#6e4a2a'); d.circ(w / 2, h * 0.36, Math.min(w * 0.42, h * 0.34), '#3e8a3c', { tex: 0.5, texSize: 1 }); },
+    arbre: (w, h) => d => { d.tube([[w / 2, h - 1], [w / 2, h * 0.5]], w * 0.16, w * 0.12, '#6e4a2a'); d.circ(w / 2, h * 0.36, Math.min(w * 0.42, h * 0.34), '#3e8a3c', { tex: 0.5, texSize: 1 }); },
     buisson: (w, h) => d => d.circ(w / 2, h * 0.58, Math.min(w, h) * 0.42, '#3e8a3c', { tex: 0.5, texSize: 1 }),
     plante: (w, h) => d => { for (let i = -2; i <= 2; i++) d.tube([[w / 2, h - 1], [w / 2 + i * w * 0.18, h * 0.25]], 2.4, 0.8, '#3e9a40'); },
     champignon: (w, h) => d => { d.tube([[w / 2, h - 1], [w / 2, h * 0.45]], w * 0.18, w * 0.15, '#eee8dc'); d.ell(w / 2, h * 0.4, w * 0.4, h * 0.2, '#c8402a'); },
@@ -83,7 +83,6 @@
     mossrock: { w: 24, h: 20, n: 2, draw: SECOURS.rocher(24, 20) },
     hollowlog: { w: 36, h: 18, n: 1, draw: SECOURS.bois(36, 18) },
     dummy: { w: 20, h: 30, n: 1, draw(d) {
-      d.ell(10, 28, 8, 2, '#4a3018', 0, { flat: true });
       d.tube([[10, 29], [10, 8]], 3, 2.6, '#8a5a32', { tex: 0.3 });
       d.tube([[3, 12], [17, 12]], 2, 2, '#8a5a32');
       d.blob([[5, 13], [15, 13], [16, 24], [10, 27], [4, 24]], '#e2c46a', { tex: 0.35, texSize: 1 });
@@ -91,63 +90,10 @@
       d.deco.circ(10, 19.5, 2.6, '#ffffff'); d.deco.circ(10, 19.5, 1.6, '#e04040'); d.deco.circ(10, 19.5, 0.6, '#ffffff', { unlit: true });
       d.circ(10, 6, 4, '#e2c46a', { tex: 0.35, texSize: 1 });
     } },
-    // ---------------- Ville des Fichiers
-    jhouse: { w: 80, h: 78, n: 1, draw(d) {
-      const Lg = '#a0703c', Ld = '#7a5028', St = '#d8b45a';
-      d.rect(8, 40, 64, 36, Lg, { round: 0.15, tex: 0.2 });
-      for (let y = 44; y < 76; y += 5) d.deco.line(8, y, 72, y, 0.8, Ld);
-      d.deco.ell(40, 66, 8, 10, '#3a2412'); d.deco.rect(32, 66, 16, 10, '#3a2412');
-      d.deco.circ(45, 68, 0.9, '#f0c040', { unlit: true });
-      d.deco.rect(15, 50, 10, 8, '#3a2412'); d.deco.rect(16, 51, 8, 6, '#8ad0f0'); d.deco.line(20, 51, 20, 57, 0.6, '#3a2412');
-      d.deco.rect(55, 50, 10, 8, '#3a2412'); d.deco.rect(56, 51, 8, 6, '#ffd88a'); d.deco.line(60, 51, 60, 57, 0.6, '#3a2412');
-      d.rect(58, 6, 9, 22, '#8a8a90', { round: 0.3, tex: 0.3 });
-      d.blob([[0, 46], [6, 30], [20, 14], [40, 6], [60, 14], [74, 30], [80, 46], [40, 44]], St, { tex: 0.45, texSize: 1 });
-      d.deco.curve([[6, 40], [40, 36], [74, 40]], 1, '#a88a3a'); d.deco.curve([[14, 28], [40, 22], [66, 28]], 1, '#a88a3a');
-      d.deco.circ(40, 26, 4, '#f8f0d0'); d.deco.circ(40, 26, 2.4, '#e05a3a');
-      d.rect(34, 34, 12, 4, '#7a5028', { round: 0.4 });
-    } },
-    bazar: { w: 58, h: 62, n: 1, draw(d) {
-      d.rect(5, 26, 48, 34, '#c09060', { round: 0.15, tex: 0.25 });
-      for (let x = 9; x < 53; x += 6) d.deco.line(x, 26, x, 60, 0.7, '#8a6038');
-      d.deco.rect(12, 42, 34, 18, '#3a2412');
-      d.rect(8, 44, 42, 8, '#9a6a3c', { round: 0.3 });
-      d.ell(16, 42, 4, 2.4, '#b04a2a'); d.ell(26, 42, 4, 2.4, '#b04a2a'); d.ell(36, 42.4, 3, 3, '#5ab8f0', 0, { shiny: true }); d.ell(44, 42, 3, 2.6, '#4ac878', 0, { shiny: true });
-      d.poly([[0, 32], [4, 22], [54, 22], [58, 32]], '#e04848', { shiny: true });
-      for (let x = 6; x < 54; x += 9) d.deco.poly([[x, 22], [x + 4.5, 22], [x + 5.5, 32], [x - 0.5, 32]], '#ffffff');
-      d.blob([[2, 24], [10, 6], [29, 1], [48, 6], [56, 24]], '#8a5a3a', { tex: 0.3 });
-      d.deco.rect(20, 10, 18, 7, '#f0d890'); d.deco.circ(25, 13.5, 2, '#b04a2a'); d.deco.circ(33, 13.5, 2, '#3a8ae8');
-    } },
-    dojo: { w: 62, h: 62, n: 1, draw(d) {
-      d.rect(6, 28, 50, 32, '#d8c8a0', { round: 0.1 });
-      for (let x = 6; x <= 56; x += 10) d.deco.rect(x, 28, 2.4, 32, '#5a3a22');
-      d.deco.rect(24, 40, 14, 20, '#3a2412');
-      d.blob([[0, 32], [6, 22], [31, 12], [56, 22], [62, 32], [31, 28]], '#4a4a78', { shiny: true });
-      d.blob([[8, 20], [14, 10], [31, 3], [48, 10], [54, 20], [31, 16]], '#5a5a8a', { shiny: true });
-      d.deco.line(10, 26, 52, 26, 0.8, '#2a2a4a');
-      d.rect(26, 30, 10, 8, '#e04040', { round: 0.3 });
-      d.deco.circ(31, 34, 2.2, '#ffffff', { unlit: true });
-    } },
-    restaurant: { w: 58, h: 64, n: 1, draw(d) {
-      d.rect(10, 32, 38, 30, '#f2e6c8', { round: 0.3 });
-      d.deco.ell(29, 54, 6, 8, '#6a3a1a'); d.deco.rect(23, 54, 12, 8, '#6a3a1a');
-      d.deco.ell(17, 44, 4, 4, '#ffd88a'); d.deco.ell(41, 44, 4, 4, '#ffd88a');
-      d.ell(29, 24, 29, 18, '#8e4cba', 0, { shiny: true });
-      d.ell(29, 34, 24, 4, '#6a3092');
-      d.deco.circ(16, 18, 4, '#e8d0fa'); d.deco.circ(30, 12, 4.6, '#e8d0fa'); d.deco.circ(44, 20, 3.6, '#e8d0fa'); d.deco.circ(22, 28, 2.4, '#e8d0fa');
-      d.deco.rect(20, 36, 18, 5, '#c07830'); d.deco.ell(29, 38.5, 3, 1.6, '#f8f0e0');
-    } },
-    garden: { w: 58, h: 58, n: 1, draw(d) {
-      d.rect(8, 28, 42, 28, '#f6ead8', { round: 0.2 });
-      d.deco.ell(29, 48, 6, 8, '#9a5a3a'); d.deco.rect(23, 48, 12, 8, '#9a5a3a');
-      d.deco.circ(16, 40, 4, '#a8dcff'); d.deco.circ(42, 40, 4, '#a8dcff');
-      d.blob([[2, 32], [8, 16], [29, 4], [50, 16], [56, 32], [29, 30]], '#5ab05a', { tex: 0.4, texSize: 1 });
-      [[12, 22], [22, 14], [34, 12], [44, 22], [28, 24], [18, 28], [40, 28]].forEach(([x, y], i) => d.deco.circ(x, y, 2, ['#ff8ac0', '#fff070', '#ffffff', '#b48aff'][i % 4], { unlit: true }));
-    } },
     lamp: { w: 12, h: 32, n: 1, draw: SECOURS.pierre(12, 32) },
-    // distributeur (Digimon World 1) : 0 PV (vert), 1 PM (bleu), 2 nourriture (orange) ; grand, coloré, éclairé la nuit
+    // distributeur (Digimon World 1) : 0 PV, 1 PM, 2 nourriture (images rouge, bleue, blanche : gfx/textures.js) ; éclairé la nuit
     vending: { w: 26, h: 44, n: 3, lights: [[13, 16, 22]], draw: SECOURS.boite(26, 44) },
     weights: { w: 26, h: 22, n: 1, draw(d) {
-      d.ell(13, 20, 11, 2.4, '#4a3a2a', 0, { flat: true });
       d.tube([[5, 13], [21, 13]], 2.4, 2.4, '#8a5a32');
       d.blob([[0, 19], [1, 8], [6, 5], [10, 9], [10, 19]], '#9a948a', { tex: 0.35, texSize: 1 });
       d.blob([[16, 19], [16, 9], [20, 5], [25, 8], [26, 19]], '#8a847a', { tex: 0.35, texSize: 1 });
@@ -163,11 +109,10 @@
       d.rect(2, 4, 18, 4, '#e04848', { round: 0.4 });
       d.deco.rect(6, 4.6, 3, 2.8, '#ffffff'); d.deco.rect(13, 4.6, 3, 2.8, '#ffffff');
     } },
-    // cristal de données (poste PM) : un grand cristal bleu qui flotte au-dessus d'un socle de pierre
+    // cristal de données (poste PM ; image : gfx/textures.js)
     datacrystal: { w: 30, h: 44, n: 1, lights: [[15, 16, 16]], draw: SECOURS.pierre(30, 44) },
     shrine: { w: 28, h: 26, n: 1, draw: SECOURS.pierre(28, 26) },
     toiletroom: { w: 34, h: 40, n: 1, lights: [[17, 12, 14]], draw(d) {
-      d.ell(17, 38, 15, 2.4, '#3a2a1a', 0, { flat: true });
       // dalle et mur du fond
       d.rect(2, 30, 30, 8, '#a8a296', { round: 0.15, tex: 0.3 });
       d.rect(4, 12, 26, 20, '#d8d0c0', { round: 0.05, tex: 0.12 });
@@ -186,36 +131,17 @@
       d.deco.rect(0, 10, 34, 2, '#c84a3a');
       d.deco.rect(13, 6, 8, 4, '#3a68a8'); DW.World.signText && DW.World.signText(d, 'WC', 14, 7, '#ffffff', 0.6);
     } },
-    // toilettes publiques : jolie cabane de bois (toit de tuiles, porte au cœur, jardinière, enseigne WC, lanterne)
+    // toilettes publiques (image : gfx/textures.js)
     toilet: { w: 36, h: 46, n: 1, lights: [[30, 18, 12]], draw: SECOURS.boite(36, 46) },
     bench: { w: 22, h: 14, n: 1, draw: SECOURS.bois(22, 14) },
-    flag: { w: 16, h: 34, n: 2, draw(d, v) {
-      d.tube([[4, 33], [4, 2]], 1.8, 1.6, '#c8c0b0', { shiny: true });
-      d.poly([[5, 3], [15, 6], [5, 12]], v ? '#3a8ae8' : '#f8a830', { shiny: true });
-      d.deco.circ(8, 7, 1.4, '#ffffff', { unlit: true });
-    } },
+    flag: { w: 16, h: 34, n: 2 },   // (peint : gfx/peints.js)
     barrel: { w: 16, h: 18, n: 2, draw: SECOURS.bois(16, 18) },
     bush: { w: 22, h: 18, n: 2, draw: SECOURS.buisson(22, 18) },
     rock: { w: 20, h: 16, n: 2, draw: SECOURS.rocher(20, 16) },
     palm: { w: 44, h: 60, n: 2, draw: SECOURS.arbre(44, 60) },
     // cabine téléphonique de la plage (épisode 2 de l'animé) : grande cabine vitrée, toit bleu « TEL », combiné vert
-    booth: { w: 30, h: 58, n: 1, draw(d) {
-      d.ell(15, 56, 13, 2.4, '#7a6a4a', 0, { flat: true });
-      d.rect(3, 50, 24, 6, '#9aa0aa', { round: 0.2 });                               // socle de béton
-      d.rect(4, 14, 22, 38, '#e8ecf2', { round: 0.08, shiny: true });              // cadre
-      d.deco.rect(6.5, 17, 17, 31, '#7ccaf0');                                       // vitres
-      d.deco.rect(6.5, 17, 5, 31, '#b8e8ff'); d.deco.line(15, 17, 15, 48, 0.8, '#d8e0ea');
-      d.deco.line(6.5, 32, 23.5, 32, 0.8, '#d8e0ea');
-      d.deco.rect(16.5, 22, 5.4, 9, '#3aa060');                                      // téléphone vert
-      d.deco.rect(17.2, 23, 4, 2.4, '#c8f0d0', { unlit: true });
-      d.deco.rect(15.6, 24, 1.4, 6, '#1a5a30'); d.deco.curve([[16.3, 30], [15, 34], [18, 36]], 0.5, '#1a1a1a');
-      d.deco.rect(16, 18.4, 7, 1.4, '#ff7a3a', { unlit: true });                    // voyant
-      d.rect(2, 7, 26, 8, '#3f72cc', { round: 0.35, shiny: true });                  // toit
-      d.deco.rect(7, 8.4, 16, 6, '#ffffff', { unlit: true });
-      const W = DW.World.signText; if (W) W(d, 'TEL', 9, 9, '#2a5ab8', 1);   // lettres de 3×5 pixels
-      d.rect(13, 2, 4, 6, '#3f72cc', { round: 0.4 }); d.deco.circ(15, 3.4, 1.2, '#ffe060', { unlit: true });
-    } },
-    // panneau : grand, bien visible (planche claire bordée, petit toit, deux poteaux)
+    booth: { w: 30, h: 58, n: 1 },   // (peinte : gfx/peints.js)
+    // panneau (image : gfx/textures.js)
     sign: { w: 28, h: 32, n: 1, draw: SECOURS.pierre(28, 32) },
     spring: { w: 30, h: 22, n: 1, draw: SECOURS.pierre(30, 22) },
     log: { w: 32, h: 16, n: 1, draw: SECOURS.bois(32, 16) },
@@ -270,10 +196,11 @@
   for (const k of ['rock', 'boulder', 'mossrock', 'icerock', 'lavarock', 'searock', 'basalt', 'crystal', 'stalagmite', 'icecrystal', 'termite', 'log', 'hollowlog', 'stump']) OBJ_SCALE[k] = 1.3;
   World.OBJ_SCALE = OBJ_SCALE;
   // TAILLE DES BÂTIMENTS (règle du joueur) : hauteur VISIBLE en hauteurs de héros (34,5 px) — maisons, boutiques et
-  // bâtiments 3 fois le héros, maisons des villages de bébés 2,5 fois, toilettes 2 fois. L'échelle de chaque dessin est
-  // calculée une fois, d'après sa vraie hauteur (variante 0), et vaut pour toutes ses variantes (les formes agrandies
-  // de la ville restent plus grandes que la première). Posé en bas, centré : la porte reste au même endroit.
-  const HEROS_VISIBLE = 34.5;
+  // bâtiments 3 fois le héros, maisons des villages de bébés 2,5 fois (les toilettes, une image : HAUTEUR de gfx/textures.js).
+  // L'échelle de chaque dessin est calculée une fois, d'après sa vraie hauteur (variante 0), et vaut pour toutes ses
+  // variantes (les formes agrandies de la ville restent plus grandes que la première). Posé en bas, centré : la porte
+  // reste au même endroit.
+  const HEROS_VISIBLE = World.HEROS_VISIBLE = 34.5;
   const TAILLE_HEROS = World.TAILLE_HEROS = {};
   for (const k of ['jhouse', 'bazar', 'dojo', 'restaurant', 'garden', 'homepalace', 'shack', 'cottage', 'townhouse', 'apartment', 'shopfront',
     'bakery', 'patisserie', 'bank', 'poste', 'ecole', 'gymnase', 'barn', 'greenhouse', 'windmill', 'chalet', 'wcabin', 'chapel', 'lighthouse',
@@ -292,7 +219,6 @@
     oublier(kind);   // (rendus à l'échelle 1 jetés)
     o.scale = o._echelle = vh > 0 ? cible * HEROS_VISIBLE / vh : 1;
   }
-  World.echelleBatiment = echelleBatiment;
   const objSize = (kind, v) => { const o = OBJ[kind], S = o.scale || OBJ_SCALE[kind] || 1;
     const w = typeof o.w === 'function' ? o.w(v) : o.w, h = typeof o.h === 'function' ? o.h(v) : o.h;   // taille fixe, ou selon la variante (clôture de v cases)
     return { w, h, W: Math.round(w * S), H: Math.round(h * S) }; };

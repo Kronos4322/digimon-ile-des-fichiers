@@ -107,17 +107,11 @@
       x.restore();
     }
   };
+  // l'arbre lui-même : l'image du joueur (gfx/textures.js) ; ici son secours, si l'image manque : tronc et couronne simples
   OBJ.grandarbre.paint = (x, v) => {
-    x.fillStyle = 'rgba(14,26,16,0.4)'; x.beginPath(); x.ellipse(66, 146, 60, 5, 0, 0, 7); x.fill();
-    // tronc massif, racines puissantes (gfx/pinceau.js)
-    P.trunk(x, { cx: 66, top: 54, base: 146, w: 30, seed: 9, roots: 6, bark: '#6a4626' });
+    x.fillStyle = '#6a4626'; x.fillRect(51, 54, 30, 92);
+    x.fillStyle = '#3f9a40'; x.beginPath(); x.ellipse(66, 44, 50, 30, 0, 0, 7); x.fill();
     porteGrandArbre(x, v);
-    // ombre du feuillage sur le haut du tronc, puis la couronne immense
-    const sg = x.createLinearGradient(0, 56, 0, 76); sg.addColorStop(0, 'rgba(6,18,20,0.8)'); sg.addColorStop(1, 'rgba(6,18,20,0)'); x.fillStyle = sg; x.fillRect(44, 56, 46, 20);
-    P.crown(x, { seed: 777, cx: 66, cy: 44, rx: 50, ry: 30, P: ['#3f9a40', '#226230', '#7cc858'], n: 60, touches: 700, leaf: 1.5 });
-    // lianes qui pendent
-    x.strokeStyle = '#3a7a2a'; x.lineWidth = 1.1;
-    for (const lx of [24, 48, 86, 108]) { x.beginPath(); x.moveTo(lx, 62); x.quadraticCurveTo(lx + 4, 80, lx - 1, 96); x.stroke(); x.fillStyle = '#5aa844'; for (let k = 0; k < 4; k++) { x.beginPath(); x.ellipse(lx + 1, 68 + k * 7, 1.6, 0.8, 0.5, 0, 7); x.fill(); } }
   };
 
 

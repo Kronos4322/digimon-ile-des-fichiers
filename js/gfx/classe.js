@@ -7,7 +7,6 @@
   const OBJ = DW.World.OBJ;
   Object.assign(OBJ, {
     ecole: { w: 76, h: 74, n: 1, lights: [[38, 50, 16]], draw(d) {
-      d.ell(38, 72, 36, 3, '#2a2418', 0, { flat: true });
       d.rect(6, 34, 64, 38, '#d8b878', { round: 0.04, tex: 0.25 });
       for (let y = 38; y < 72; y += 5) d.deco.line(6, y, 70, y, 0.6, '#b8945a');
       d.deco.rect(30, 48, 16, 24, '#7a4a28'); d.deco.rect(31.5, 49.5, 13, 22, '#9a6038'); d.deco.circ(42, 60, 1, '#f0d070');   // porte
@@ -22,7 +21,6 @@
     // gymnase (4×2) : salle de sport au toit arrondi, murs bleu acier, grandes portes, fenêtres hautes, enseigne
     // v0 : ouvert ; v1 : fermé (planches clouées en travers des portes, panneau « FERMÉ ») tant que Leomon n'est pas revenu
     gymnase: { w: 76, h: 74, n: 2, lights: [[38, 54, 16]], draw(d, v) {
-      d.ell(38, 72, 36, 3, '#1a2028', 0, { flat: true });
       d.rect(4, 30, 68, 42, '#7a92b0', { round: 0.04, tex: 0.2 });
       for (let x = 10; x < 70; x += 8) d.deco.line(x, 32, x, 71, 0.6, '#6a809c');           // bardage
       d.deco.rect(4, 64, 68, 8, '#5a6a80');                                                    // soubassement
@@ -48,7 +46,6 @@
       d.rect(6, 30, 44, 3, '#a07a4a');
     } },
     pupitre: { w: 22, h: 24, n: 2, draw(d, v) {
-      d.ell(11, 22, 9, 1.8, '#2a2418', 0, { flat: true });
       d.tube([[4, 22], [4, 12]], 1.2, 1.2, '#5a4a3a'); d.tube([[18, 22], [18, 12]], 1.2, 1.2, '#5a4a3a');
       d.rect(1, 9, 20, 5, '#c89a5a', { round: 0.2, tex: 0.2 });
       d.deco.rect(5, 9.6, 6, 3.6, v ? '#e84a4a' : '#4a8ae8'); d.deco.rect(12, 10, 5, 1, '#3a3a3a');   // cahier, crayon

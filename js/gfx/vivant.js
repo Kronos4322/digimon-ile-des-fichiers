@@ -22,7 +22,7 @@
     init(ow) {
       ow.viv = { fish: null, fishT: 2 + Math.random() * 3, flies: [], bugs: [] };
       const se = DW.Time.season();
-      // papillons (printemps, été) ; lucioles (été, nuit)
+      // papillons (7 au printemps et en été, 3 en automne, aucun en hiver) ; lucioles (l'été, la nuit)
       const n = ow.map.indoor ? 0 : se === 3 ? 0 : se === 2 ? 3 : 7;
       for (let i = 0; i < n; i++) ow.viv.bugs.push({ x: Math.random() * ow.map.w * TS, y: Math.random() * ow.map.h * TS, ph: Math.random() * 6, c: ['#ffffff', '#ffe070', '#ff9ac8', '#9ad0ff', '#ffb050'][i % 5], vx: 0, vy: 0 });
       if (!ow.map.indoor && se === 1) for (let i = 0; i < 18; i++) ow.viv.flies.push({ x: Math.random() * ow.map.w * TS, y: Math.random() * ow.map.h * TS, ph: Math.random() * 6 });

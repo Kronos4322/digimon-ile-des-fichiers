@@ -6,7 +6,7 @@
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
-  const shade = (c, k) => { const a = DW.Art.hex(c), b = k < 0 ? [0, 0, 0] : [255, 255, 255]; return '#' + DW.Art.mix(a, b, Math.abs(k)).map(x => Math.round(x).toString(16).padStart(2, '0')).join(''); };
+  const shade = DW.World.Paint.shade;
 
   Object.assign(OBJ, {
     // ---------------------------------------------------------- montagne
@@ -264,12 +264,12 @@
     sewer: { grass: ['#2e3436', '#363e40', '#40484a', '#4a5456', '#566062', '#646e70'], canopy: ['#0e1214', '#161c1e', '#20282a', '#2a3436', '#364244', '#445254'], canopyStyle: 'rock',
       dirt: ['#262a2c', '#2e3436', '#383e40', '#42484a', '#4c5254', '#585e60'], water: ['#a8d890', '#86c070', '#66a656', '#4e8c44', '#3c7236', '#2e5a2a', '#22441e'], foam: ['#d8f0b0', '#b0d888'],
       tall: ['#2a3a2a', '#4a5a3a', '#7a8a5a'], trees: [[0, 1]], objMap: { tree: 'tank', bush: 'scrap', mossrock: 'crates', fern: 'pebbles', glowshroom: 'glowshroom', hollowlog: 'scrap', stump: 'scrap' }, trees2: [[0, 1], [2, 1]],
-      litter: ['#5a6a3a', '#3a3a3a'], particle: 'drip', leaves: ['#a0d0a0'], noFlowers: true, noFlies: true, noRays: true, vignette: 'rgba(0,10,0,0.7)', sky: ['#1a2220', '#3a4a40'], marks: ['tank', 'scrap'] },
+      litter: ['#5a6a3a', '#3a3a3a'], particle: 'drip', leaves: ['#a0d0a0'], noFlowers: true, noFlies: true, sky: ['#1a2220', '#3a4a40'], marks: ['tank', 'scrap'] },
     // grotte de glace (Plage Secrète)
     icecave: { grass: ['#5a6a86', '#68789a', '#7888aa', '#8a9aba', '#9eaecc', '#b4c4dc'], canopy: ['#141c30', '#1e2a44', '#2a3a5a', '#3a4e74', '#506890', '#6c88b0'], canopyStyle: 'rock',
       dirt: ['#4a5670', '#566482', '#647294', '#7482a6', '#8492b4', '#96a4c4'], water: ['#f2fbff', '#d4f0fc', '#b4e2f6', '#94d0f0', '#74bae6', '#5aa0d8', '#4484c4'], foam: ['#ffffff', '#e4f6ff'],
       tall: ['#6a7a9a', '#9aaacc', '#e0eaff'], trees: [[0, 1]], objMap: { tree: 'icepillar', bush: 'icerock', mossrock: 'icecrystal', fern: 'icecrystal', glowshroom: 'icecrystal', hollowlog: 'icerock', stump: 'icerock' }, trees2: [[0, 1], [1, 1]],
-      litter: ['#ffffff'], particle: 'snow', leaves: ['#ffffff'], sparkle: ['#ffffff', '#d0f0ff'], noFlowers: true, noFlies: true, noRays: true, vignette: 'rgba(0,10,40,0.6)', sky: ['#1a2a4a', '#4a6a9a'], marks: ['icecrystal', 'icerock'] },
+      litter: ['#ffffff'], particle: 'snow', leaves: ['#ffffff'], sparkle: ['#ffffff', '#d0f0ff'], noFlowers: true, noFlies: true, sky: ['#1a2a4a', '#4a6a9a'], marks: ['icecrystal', 'icerock'] },
   });
 
   // ------------------------------------------------------------ légende (petits repères)

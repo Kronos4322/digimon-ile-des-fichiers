@@ -29,7 +29,7 @@
   };
   const bottle = (x, cx, by, col, s) => {
     x.fillStyle = '#c8c0b0'; x.fillRect(cx - 0.8 * s, by - 7.5 * s, 1.6 * s, 1.6 * s);
-    const g = x.createLinearGradient(cx - 2.2 * s, 0, cx + 2.2 * s, 0); g.addColorStop(0, mix(col, '#ffffff', 0.5) ? rgb(mix(col, '#ffffff', 0.45)) : col); g.addColorStop(0.5, col); g.addColorStop(1, rgb(mix(col, INK, 0.45)));
+    const g = x.createLinearGradient(cx - 2.2 * s, 0, cx + 2.2 * s, 0); g.addColorStop(0, rgb(mix(col, '#ffffff', 0.45))); g.addColorStop(0.5, col); g.addColorStop(1, rgb(mix(col, INK, 0.45)));
     x.fillStyle = g; rr(x, cx - 2.2 * s, by - 6 * s, 4.4 * s, 6 * s, 1.4 * s); x.fill();
     x.fillStyle = 'rgba(255,255,255,0.6)'; x.fillRect(cx - 1.4 * s, by - 5 * s, 0.7 * s, 3 * s);
   };

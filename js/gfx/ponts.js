@@ -1,9 +1,10 @@
 'use strict';
 // =====================================================================
-//  PONTS DE PIERRE PEINTS — un calque haute définition posé sur l'eau, sous les personnages
-//  (gfx/terrain.js le prépare avec la carte, game/overworld.js le dessine juste après l'eau).
-//  Chaque pont est peint EN ENTIER (pas case par case), au même pinceau que le décor :
-//  lumière chaude en haut à gauche, ombres froides, contour discret.
+//  PONTS — redressés et raccordés à la terre (World.fixBridges ; World.prolongerPonts pour un pont peint dans l'atelier),
+//  puis PEINTS sur un calque haute définition posé sur l'eau, sous les personnages (gfx/terrain.js le prépare avec la
+//  carte, game/overworld.js le dessine juste après l'eau). Chaque pont est peint EN ENTIER (pas case par case), au même
+//  pinceau que le décor : lumière chaude en haut à gauche, ombres froides, contour discret. Style (World.styleDePont :
+//  choisi dans l'atelier, sinon selon la région) : bois, tronc couché, corde, ou PIERRE :
 //  - tablier de grandes dalles irrégulières, allée plus claire usée au milieu, mousse dans les joints ;
 //  - parapets : chaperon clair, face intérieure ombrée qui projette son ombre sur le tablier ;
 //    piliers carrés aux extrémités et au-dessus de chaque pile ;
@@ -14,7 +15,7 @@
 // =====================================================================
 (function () {
   const Art = DW.Art, hash = Art.hash, TS = 16, K = 2;   // calque peint 2 fois plus fin que le sol
-  const mix = (a, b, t) => Art.mix(a, b, t), rgb = (c, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+  const mix = Art.mix, rgb = DW.World.Paint.rgb;
   const DECK = [192, 176, 146], ASH = [206, 198, 180], WALL = [158, 150, 136], LITE = [246, 238, 216], INK = [42, 38, 44], COOL = [26, 46, 70], MOSS = [92, 130, 66];
   const rr = (x, x0, y0, w, h, r) => { x.beginPath(); x.moveTo(x0 + r, y0); x.arcTo(x0 + w, y0, x0 + w, y0 + h, r); x.arcTo(x0 + w, y0 + h, x0, y0 + h, r); x.arcTo(x0, y0 + h, x0, y0, r); x.arcTo(x0, y0, x0 + w, y0, r); x.closePath(); };
 
@@ -124,8 +125,9 @@
 
   // extrémité d'un pont sur la terre ferme : une plage de terre battue qui se fond dans l'herbe (taches irrégulières),
   // des cailloux, et une marche de seuil en pierre au bout du tablier. (cx, cy) = milieu du bout ; (dx, dy) = vers la terre
-  function apron(x, cx, cy, dx, dy, half, seed, dirt, film) {
-    const D = dirt || [150, 118, 80];
+  const TERRE = [150, 118, 80];
+  function apron(x, cx, cy, dx, dy, half, seed, film) {
+    const D = TERRE;
     if (film) {   // (après le tablier) la terre rapportée par les pieds sur le bout du pont
       const g = dx ? x.createLinearGradient(cx, 0, cx - dx * 12, 0) : x.createLinearGradient(0, cy, 0, cy - dy * 12); g.addColorStop(0, rgb(D, 0.55)); g.addColorStop(0.5, rgb(D, 0.2)); g.addColorStop(1, rgb(D, 0));
       x.fillStyle = g; if (dx) x.fillRect(Math.min(cx, cx - dx * 12), cy - half + 3, 12, half * 2 - 6); else x.fillRect(cx - half + 3, Math.min(cy, cy - dy * 12), half * 2 - 6, 12);
@@ -427,8 +429,8 @@
       const style = DW.World.styleDePont(map);
       if (style !== 'pierre') {   // pont de bois, tronc couché ou pont de corde : on marche sur toute sa largeur
         const land0 = (tx, ty) => !isB(tx, ty) && !isWater(tx, ty);
-        if (hz) { for (const [ex, dx] of [[X0, -1], [X1, 1]]) if (land0(dx < 0 ? c.x0 - 1 : c.x1 + 1, Math.round((c.y0 + c.y1) / 2))) apron(x, ex, (Y0 + Y1) / 2, dx, 0, (Y1 - Y0) / 2, seed + 400 + dx, map.dirtCol); }
-        else { for (const [ey, dy] of [[Y0, -1], [Y1, 1]]) if (land0(Math.round((c.x0 + c.x1) / 2), dy < 0 ? c.y0 - 1 : c.y1 + 1)) apron(x, (X0 + X1) / 2, ey, 0, dy, (X1 - X0) / 2, seed + 420 + dy, map.dirtCol); }
+        if (hz) { for (const [ex, dx] of [[X0, -1], [X1, 1]]) if (land0(dx < 0 ? c.x0 - 1 : c.x1 + 1, Math.round((c.y0 + c.y1) / 2))) apron(x, ex, (Y0 + Y1) / 2, dx, 0, (Y1 - Y0) / 2, seed + 400 + dx); }
+        else { for (const [ey, dy] of [[Y0, -1], [Y1, 1]]) if (land0(Math.round((c.x0 + c.x1) / 2), dy < 0 ? c.y0 - 1 : c.y1 + 1)) apron(x, (X0 + X1) / 2, ey, 0, dy, (X1 - X0) / 2, seed + 420 + dy); }
         (style === 'bois' ? pontBois : style === 'tronc' ? pontTronc : pontCorde)(x, X0, Y0, X1, Y1, hz, seed);
         continue;
       }
@@ -438,9 +440,9 @@
       const ends = [];
       if (hz) { if (land(c.x0 - 1, Math.round((c.y0 + c.y1) / 2))) ends.push([X0, midY, -1, 0, (Y1 - Y0) / 2, 400]); if (land(c.x1 + 1, Math.round((c.y0 + c.y1) / 2))) ends.push([X1, midY, 1, 0, (Y1 - Y0) / 2, 410]); }
       else { if (land(Math.round((c.x0 + c.x1) / 2), c.y0 - 1)) ends.push([midX, Y0, 0, -1, (X1 - X0) / 2, 420]); if (land(Math.round((c.x0 + c.x1) / 2), c.y1 + 1)) ends.push([midX, Y1, 0, 1, (X1 - X0) / 2, 430]); }
-      for (const e of ends) apron(x, e[0], e[1], e[2], e[3], e[4], seed + e[5], map.dirtCol);
-      const film = () => { for (const e of ends) apron(x, e[0], e[1], e[2], e[3], e[4], seed + e[5], map.dirtCol, true); };
-      // parapets bloquants quand le pont fait au moins 3 cases de large
+      for (const e of ends) apron(x, e[0], e[1], e[2], e[3], e[4], seed + e[5]);
+      const film = () => { for (const e of ends) apron(x, e[0], e[1], e[2], e[3], e[4], seed + e[5], true); };
+      // parapets bloquants quand le pont fait au moins 4 cases de large
       if (hz && c.y1 - c.y0 >= 3) for (let tx = c.x0; tx <= c.x1; tx++) walls.push(tx + ',' + c.y0, tx + ',' + c.y1);
       if (!hz && c.x1 - c.x0 >= 3) for (let ty = c.y0; ty <= c.y1; ty++) walls.push(c.x0 + ',' + ty, c.x1 + ',' + ty);
       if (hz) {

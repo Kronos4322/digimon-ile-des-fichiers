@@ -10,7 +10,6 @@
     // ------------------------------------------------------------ cabane de toilettes (3 × 2 cases)
     wcabin: { w: 60, h: 74, n: 2, lights: [[47, 40, 22, 'rgba(255,220,140,0.55)']], draw(d, v) {
       const wood = v ? '#8a6a8a' : '#a87a4a', woodD = v ? '#5e465e' : '#7a5230', roof = v ? '#3a6aa8' : '#b84a3a', roofD = v ? '#24467a' : '#7e2e24';
-      d.ell(30, 72, 28, 3, '#1a1408', 0, { flat: true });
       // dalle et marche
       d.rect(6, 64, 48, 8, '#a8a090', { round: 0.2, tex: 0.3 });
       d.rect(20, 66, 20, 5, '#bab2a2', { round: 0.3 });
@@ -55,7 +54,6 @@
   });
   // façade de boutique : murs, toit, auvent rayé, vitrines, porte, enseigne
   function shopHouse(d, wall, roof, roofD, label, awning) {
-    d.ell(46, 98, 44, 3, '#1a1408', 0, { flat: true });
     d.rect(6, 40, 80, 58, wall, { round: 0.03, tex: 0.15 });
     for (let y = 46; y < 96; y += 6) d.deco.line(6, y, 86, y, 0.4, 'rgba(0,0,0,0.08)');
     d.poly([[0, 44], [46, 8], [92, 44]], roof, { shiny: true });

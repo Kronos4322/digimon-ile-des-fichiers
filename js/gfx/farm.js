@@ -50,7 +50,6 @@
     } },
     producestand: { w: 64, h: 56, n: 1, draw: DW.World.secours.boite(64, 56) },
     greenhouse: { w: 86, h: 70, n: 1, draw(d) {
-      d.ell(43, 68, 40, 3, '#1a2a14', 0, { flat: true });
       d.rect(4, 26, 78, 42, '#8ec8c0', { round: 0.04, shiny: true }); d.deco.rect(6, 46, 74, 20, '#5a9a6a');
       d.poly([[2, 28], [43, 4], [84, 28]], '#b8e4e0', { shiny: true }); d.deco.poly([[20, 22], [43, 9], [50, 13], [27, 26]], '#e8f8f6');
       for (let x = 4; x <= 82; x += 13) d.deco.line(x, 26, x, 68, 0.8, '#3a5a54');

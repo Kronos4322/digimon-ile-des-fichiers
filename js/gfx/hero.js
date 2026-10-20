@@ -1,8 +1,8 @@
 'use strict';
 // =====================================================================
-//  HÉROS : rendu en volume (28x36, proportions façon Digimon World 1), 4 directions × 4 temps de marche
-//  Sept DigiDestinés au choix (inspirés de la saison 1) : coiffure, couvre-chef,
-//  haut, bas, chaussures et gants paramétrés par DW.HEROES
+//  HÉROS : rendu en volume (28x36, proportions façon Digimon World 1), 8 directions × 4 temps de marche
+//  Les sept enfants de l'animé (DW.HEROES : personnages de l'histoire) et le héros du joueur (« perso » : aux couleurs
+//  de son personnage assemblé, gfx/persos.js) : coiffure, couvre-chef, haut, bas, chaussures et gants paramétrés
 // =====================================================================
 (function () {
   const Art = DW.Art;
@@ -42,7 +42,6 @@
   // choix proposés à la création
   DW.LOOK_OPTS = {
     style: [['Garçon (court)', { style: 'short', bottom: 'shorts' }], ['Garçon (en bataille)', { style: 'spiky', bottom: 'pants' }], ['Fille (carré)', { style: 'bob', bottom: 'skirt' }], ['Fille (longs)', { style: 'long', bottom: 'pants' }]],
-    gender: ['Garçon', 'Fille'],
     // allures proposées selon le genre choisi
     styles: [
       [['Cheveux courts, short', { style: 'short', bottom: 'shorts' }], ['Cheveux courts, pantalon', { style: 'short', bottom: 'pants' }], ['En bataille, short', { style: 'spiky', bottom: 'shorts' }], ['En bataille, pantalon', { style: 'spiky', bottom: 'pants' }],
@@ -535,5 +534,4 @@
     }
     return (cache[key] = spr);
   };
-  // portrait en pied, de face, rendu k fois plus fin (menu, fiche du DigiSélectionné)
 })();

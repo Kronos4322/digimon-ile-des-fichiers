@@ -4,7 +4,8 @@
 //  Thème « desert » : terre sèche pâle, herbes grises, ciel immense ; poteaux télégraphiques penchés
 //  et panneaux routiers plantés au milieu de nulle part ; huttes de chaume rondes des Yokomon,
 //  fontaine de pierre (à sec tant que Meramon brûle tout), épave de bateau au fond du lac asséché.
-//  Tous peints au pinceau HD (o.paint), lumière en haut à gauche comme le reste du décor.
+//  Peints au pinceau HD (o.paint), lumière en haut à gauche comme le reste du décor ; les panneaux routiers sont
+//  l'image du joueur (gfx/textures.js).
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ, TH = DW.World.THEMES, hash = DW.Art.hash;
@@ -21,14 +22,14 @@
       cliff: ['#5a4e3c', '#6c5e48', '#807056', '#948466', '#a89878', '#bcae8e'], tall: ['#7a7a5a', '#a4a27e', '#d0ceaa'], trees: [[0, 1]],
       rock: ['#4a2e1e', '#623c26', '#7c4e30', '#96623c', '#b07a4a', '#c8945c', '#dcae72', '#ecc890'],
       objMap: { bush: 'drybush', mossrock: 'boulder', fern: 'drybush', glowshroom: 'drybush', hollowlog: 'boulder', stump: 'drybush' }, trees2: [[0, 1]],
-      litter: ['#c8c0a0', '#8a8466'], particle: 'dust', leaves: ['#d8d0b0', '#b8b090'], noFlowers: true, noFlies: true, sky: ['#5aa8f0', '#f4f6ff'], marks: ['telpole', 'roadsign'], vignette: 'rgba(80,70,40,0.22)' },
+      litter: ['#c8c0a0', '#8a8466'], particle: 'dust', leaves: ['#d8d0b0', '#b8b090'], noFlowers: true, noFlies: true, sky: ['#5aa8f0', '#f4f6ff'], marks: ['telpole', 'roadsign'] },
     // village des Yokomon : terre battue claire, herbe rase verte (les Yokomon entretiennent leurs fleurs)
     yokovillage: { grass: GREEN, canopy: LEAF, dirt: DIRT, sand: SAND, tall: ['#4a7a2a', '#7aaa4a', '#b4dc84'], trees: [[0, 1]], trees2: [[0, 1], [1, 1]],
-      litter: ['#e0d8b8', '#7a9a4a'], particle: 'petals', leaves: ['#5a8ae0', '#f0a0c8', '#ffe070'], sky: ['#5aa8f0', '#f4f6ff'], vignette: 'rgba(60,50,20,0.15)' },
+      litter: ['#e0d8b8', '#7a9a4a'], particle: 'petals', leaves: ['#5a8ae0', '#f0a0c8', '#ffe070'], sky: ['#5aa8f0', '#f4f6ff'] },
     // Mont Miharashi : pentes vertes en terrasses (comme dans l'anime), roche brune, braises au sommet
     miharashi: { rock: ['#2e2a24', '#423a30', '#584c3c', '#6e5e4a', '#86725a', '#a08a6c', '#b8a282', '#d0bc9c'], grass: GREEN, canopy: LEAF, sand: SAND,
       dirt: DIRT, cliff: ['#3a4a2a', '#4a5a34', '#5a6c3e', '#6c7e4a', '#809258', '#94a66a'],
-      tall: ['#3a6a2a', '#5a9a3a', '#a4d474'], trees: [[0, 1]], trees2: [[0, 1], [1, 1]], litter: ['#8aa860', '#5a7a3a'], particle: 'ember', leaves: ['#ffb040', '#ff7020'], sky: ['#6ab0f0', '#fff0e0'], vignette: 'rgba(40,20,0,0.2)' },
+      tall: ['#3a6a2a', '#5a9a3a', '#a4d474'], trees: [[0, 1]], trees2: [[0, 1], [1, 1]], litter: ['#8aa860', '#5a7a3a'], particle: 'ember', leaves: ['#ffb040', '#ff7020'], sky: ['#6ab0f0', '#fff0e0'] },
   });
 
   // ------------------------------------------------------------ petits outils de pinceau
@@ -69,32 +70,8 @@
       if (v > 1) { x.beginPath(); x.moveTo(tx + 6, 6); x.quadraticCurveTo(tx + 9, 12, tx + 7, 17); x.stroke(); }
     } };
 
-  // ------------------------------------------------------------ panneaux routiers (v : sens interdit, cédez le passage, flèche gauche, flèche droite)
-  OBJ.roadsign = { w: 18, h: 36, n: 4, scale: 1.3, draw: draw0(18, 36, '#8a8a90'),
-    paint(x, v) {
-      shadow(x, 10, 34.5, 4, 1.2, 0.28);
-      x.fillStyle = lin(x, 8, 0, 10.5, 0, [[0, '#e0e2e8'], [0.5, '#9a9ca6'], [1, '#5c5e66']]); x.fillRect(8, 12, 2.4, 23);
-      x.strokeStyle = 'rgba(40,40,50,0.6)'; x.lineWidth = 0.4; x.strokeRect(8, 12, 2.4, 23);
-      const cx = 9.2, cy = 8.5;
-      if (v === 0) {   // sens interdit
-        x.fillStyle = '#8a1010'; x.beginPath(); x.arc(cx, cy, 7.4, 0, 7); x.fill();
-        x.fillStyle = lin(x, cx - 7, cy - 7, cx + 7, cy + 7, [[0, '#ff6a5a'], [0.5, '#e02a24'], [1, '#a81414']]); x.beginPath(); x.arc(cx, cy, 6.8, 0, 7); x.fill();
-        x.fillStyle = '#f8f6f0'; x.fillRect(cx - 4.8, cy - 1.2, 9.6, 2.4);
-        x.fillStyle = 'rgba(255,255,255,0.35)'; x.beginPath(); x.ellipse(cx - 2.6, cy - 3.6, 2.6, 1.2, -0.5, 0, 7); x.fill();
-      } else if (v === 1) {   // cédez le passage (triangle pointe en bas)
-        const T = s => { x.beginPath(); x.moveTo(cx - s, cy - s * 0.8); x.lineTo(cx + s, cy - s * 0.8); x.lineTo(cx, cy + s * 0.95); x.closePath(); };
-        x.fillStyle = '#b01818'; T(8); x.fill(); x.fillStyle = '#f8f6f0'; T(5.2); x.fill();
-        x.strokeStyle = 'rgba(60,10,10,0.7)'; x.lineWidth = 0.5; T(8); x.stroke();
-      } else {   // flèches bleues
-        const d = v === 2 ? -1 : 1;
-        x.fillStyle = '#1a3a7a'; x.fillRect(cx - 8.6, cy - 4.6, 17.2, 9.2);
-        x.fillStyle = lin(x, 0, cy - 4, 0, cy + 4, [[0, '#5a8ae0'], [1, '#2a58b0']]); x.fillRect(cx - 8, cy - 4, 16, 8);
-        x.fillStyle = '#f4f6fa'; x.beginPath();
-        x.moveTo(cx + d * 6, cy); x.lineTo(cx + d * 1.5, cy - 3.2); x.lineTo(cx + d * 1.5, cy - 1.2); x.lineTo(cx - d * 6, cy - 1.2);
-        x.lineTo(cx - d * 6, cy + 1.2); x.lineTo(cx + d * 1.5, cy + 1.2); x.lineTo(cx + d * 1.5, cy + 3.2); x.closePath(); x.fill();
-        x.fillStyle = 'rgba(255,255,255,0.25)'; x.fillRect(cx - 8, cy - 4, 16, 1.4);
-      }
-    } };
+  // ------------------------------------------------------------ panneaux routiers (image du joueur : gfx/textures.js ; ici leur secours)
+  OBJ.roadsign = { w: 18, h: 36, n: 4, scale: 1.3, draw: draw0(18, 36, '#8a8a90') };
 
   // ------------------------------------------------------------ hutte de chaume ronde des Yokomon (v : 0 paille grise, 1 paille blonde, 2 roussie par Meramon)
   OBJ.yokohut = { w: 64, h: 58, n: 3, draw: draw0(64, 58, '#8a8676'),

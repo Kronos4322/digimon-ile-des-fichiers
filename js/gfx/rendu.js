@@ -10,7 +10,7 @@
 (function () {
   const W = DW.W, H = DW.H, TAU = Math.PI * 2;
   const hash = DW.Art.hash;
-  const cv = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  const cv = DW.Art.canvas;
 
   // ------------------------------------------------------------ ambiances (choisies d'après la carte)
   // light : couleur de la lumière (haut-gauche) ; shade : couleur des ombres (bas-droite) ; k : force de l'étalonnage
@@ -25,7 +25,6 @@
     cave:    { light: '#a8d8ff', shade: '#120a2a', k: 0.4, bloom: '#c8e8ff', rays: 0 },
   };
   function moodOf(map) {
-    if (map.mood && MOODS[map.mood]) return MOODS[map.mood];
     if (map.indoor) return map.dark && map.dark.d > 0.3 ? MOODS.cave : MOODS.home;
     if (map.climate === 'snow') return MOODS.snow;
     if (map.climate === 'volcano') return MOODS.volcano;
@@ -181,7 +180,7 @@
 
   // ------------------------------------------------------------ passes appelées par Overworld.draw
   DW.Rendu = {
-    MOODS, moodOf, mirror, cast,
+    mirror, cast,
     // sous les objets : ombres de contact
     contact(ow, c, x0, x1, y0, y1) { if (ow.gfx && ow.gfx.objs) drawContact(c, ow.gfx.objs, x0, x1, y0, y1, ow.map.indoor); },
     // après le décor (écran) : rais de lumière

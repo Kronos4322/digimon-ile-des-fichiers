@@ -4,7 +4,7 @@
 //  (inspirés de Digimon World 1 et de la saison 1 de Digimon Adventure)
 //  Un thème peut remplacer : couleurs de l'herbe / terre / sable / eau / falaises / canopée,
 //  style de canopée (rock = masse rocheuse), objets (objMap : arbre → sapin, buisson → rocher...),
-//  particules (snow, ember, ash, dust, drip), teinte et vignette, ciel et repères des combats.
+//  particules (snow, ember, ash, dust, drip), teinte de l'écran (tint), ciel et repères des combats.
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ, TH = DW.World.THEMES;
@@ -22,68 +22,68 @@
     summit: { grass: ['#9aaac4', '#b0bed6', '#c6d2e6', '#dae4f2', '#ecf2fa', '#ffffff'], canopy: ['#2e3448', '#3e4660', '#525c7a', '#6c7896', '#8c98b4', '#b4c0d8'], canopyStyle: 'rock',
       dirt: ['#5e6880', '#707a92', '#8490a6', '#9aa4b8', '#b0b8ca', '#c8cfdc'], cliff: ['#3e4458', '#4e566c', '#626a82', '#7a849a', '#949eb2', '#b4bcce'], water: ICE, foam: ['#ffffff', '#e4f6ff'],
       tall: ['#8090b0', '#b8c6dc', '#ffffff'], trees: [[0, 1]], objMap: { tree: 'pine', bush: 'snowbush', mossrock: 'icerock', fern: 'icecrystal', glowshroom: 'icecrystal', hollowlog: 'icerock', stump: 'icerock' }, trees2: [[1, 4], [2, 1]],
-      litter: ['#ffffff', '#d8e4f4'], particle: 'snow', leaves: ['#ffffff'], sparkle: ['#ffffff', '#e0f4ff', '#c8e8ff'], noFlowers: true, noFlies: true, sky: ['#8aa8d8', '#f0f6ff'], marks: ['blackgear', 'icerock'], vignette: 'rgba(20,30,60,0.35)' },
+      litter: ['#ffffff', '#d8e4f4'], particle: 'snow', leaves: ['#ffffff'], sparkle: ['#ffffff', '#e0f4ff', '#c8e8ff'], noFlowers: true, noFlies: true, sky: ['#8aa8d8', '#f0f6ff'], marks: ['blackgear', 'icerock'] },
     // grottes : sol sombre, parois rocheuses, gouttes
     cave: { grass: ['#2a2420', '#332b25', '#3d342c', '#483d33', '#54473b', '#625446'], canopy: ['#0a080e', '#141118', '#1e1a24', '#2a2432', '#383040', '#483e52'], canopyStyle: 'rock',
       dirt: ['#1e1814', '#28201a', '#322820', '#3e3228', '#4a3c30', '#58483a'], cliff: ['#16121a', '#221c28', '#2e2636', '#3c3246', '#4c4058', '#5e506c'], water: ['#6ab0d8', '#4a90c0', '#3474a8', '#265c90', '#1c4878', '#143660', '#0e264a'],
       tall: ['#2a3a2a', '#3e5a40', '#6a8a64'], trees: [[0, 1]], objMap: { tree: 'stalagmite', bush: 'boulder', mossrock: 'crystal', fern: 'pebbles', glowshroom: 'crystal', hollowlog: 'boulder', stump: 'stalagmite' }, trees2: [[0, 2], [1, 2], [2, 1]],
-      litter: ['#5a4a3a', '#3a2e24'], particle: 'drip', leaves: ['#a0c8ff'], noFlowers: true, noFlies: true, noRays: true, vignette: 'rgba(0,0,0,0.75)', sky: ['#1a1620', '#3a3040'], marks: ['crystal', 'stalagmite'] },
+      litter: ['#5a4a3a', '#3a2e24'], particle: 'drip', leaves: ['#a0c8ff'], noFlowers: true, noFlies: true, sky: ['#1a1620', '#3a3040'], marks: ['crystal', 'stalagmite'] },
     // grotte de lave
     lavacave: { grass: ['#2c1e1a', '#36241e', '#422a22', '#4e3226', '#5c3a2a', '#6a442e'], canopy: ['#0e0606', '#1a0c0a', '#28120e', '#381a12', '#4a2418', '#5e3020'], canopyStyle: 'rock',
       dirt: ['#24140e', '#301a12', '#3c2016', '#48281a', '#56301e', '#663a24'], cliff: ['#1a0e0c', '#2a1612', '#3a1e16', '#4c281c', '#603424', '#76422e'], water: LAVA, foam: ['#fffbe0', '#ffe070'],
       tall: ['#3a2a1a', '#5a3a22', '#8a5a2a'], trees: [[0, 1]], objMap: { tree: 'stalagmite', bush: 'lavarock', mossrock: 'lavarock', fern: 'pebbles', glowshroom: 'crystal', hollowlog: 'lavarock', stump: 'stalagmite' }, trees2: [[0, 1], [2, 1]],
-      litter: ['#8a3a1a', '#3a1a10'], particle: 'ember', leaves: ['#ffb040', '#ff7020', '#ffe080'], noFlowers: true, noFlies: true, noRays: true, tint: 'rgba(255,90,20,0.07)', vignette: 'rgba(20,0,0,0.75)', sky: ['#3a0a04', '#a03010'], marks: ['lavarock', 'stalagmite'] },
+      litter: ['#8a3a1a', '#3a1a10'], particle: 'ember', leaves: ['#ffb040', '#ff7020', '#ffe080'], noFlowers: true, noFlies: true, tint: 'rgba(255,90,20,0.07)', sky: ['#3a0a04', '#a03010'], marks: ['lavarock', 'stalagmite'] },
     // Mont Panorama : volcan, cendres, coulées de lave
     volcano: { grass: ['#3a302c', '#463a34', '#54463e', '#64544a', '#766456', '#8a7864'], canopy: ['#1a1210', '#261a16', '#34241e', '#463028', '#5a3e32', '#72503e'], canopyStyle: 'rock',
       dirt: ['#3a2218', '#4c2c1e', '#5e3826', '#72462e', '#885638', '#9e6a46'], cliff: ['#2a1c18', '#3a2620', '#4c322a', '#604036', '#765044', '#8e6454'], water: LAVA, foam: ['#fffbe0', '#ffe070'],
       tall: ['#4a3a2a', '#7a6040', '#b89a60'], trees: [[0, 1]], objMap: { tree: 'pine', bush: 'lavarock', mossrock: 'lavarock', fern: 'steamvent', glowshroom: 'steamvent', hollowlog: 'lavarock', stump: 'lavarock' }, trees2: [[2, 1]],
-      litter: ['#2a2420', '#6a5a4a'], particle: 'ember', leaves: ['#ffb040', '#ff7020', '#ffe080'], noFlowers: true, noFlies: true, tint: 'rgba(255,100,40,0.05)', vignette: 'rgba(40,10,0,0.45)', sky: ['#a8502e', '#f4b878'], marks: ['steamvent', 'lavarock'] },
+      litter: ['#2a2420', '#6a5a4a'], particle: 'ember', leaves: ['#ffb040', '#ff7020', '#ffe080'], noFlowers: true, noFlies: true, tint: 'rgba(255,100,40,0.05)', sky: ['#a8502e', '#f4b878'], marks: ['steamvent', 'lavarock'] },
     // Savane des Engrenages
     savanna: { grass: ['#8a7830', '#9e8a38', '#b49e44', '#c8b252', '#d8c464', '#e8d67e'], canopy: ['#3a3618', '#4a461e', '#5c5824', '#6e6a2c', '#828036', '#9a9644'],
       dirt: ['#7a4020', '#965228', '#ae6634', '#c27c42', '#d69656', '#e6b070'], tall: ['#8a7020', '#c8a440', '#f2de84'], trees: [[0, 1]],
       objMap: { tree: 'acacia', bush: 'drybush', mossrock: 'termite', glowshroom: 'drybush', hollowlog: 'boulder', stump: 'drybush' }, trees2: [[0, 2], [1, 1]],
-      litter: ['#c8a050', '#8a6a30', '#e0c880'], particle: 'dust', leaves: ['#d8c088', '#b89a60'], noFlies: false, sky: ['#5aa0e6', '#fae8b4'], marks: ['halfgear', 'termite'], vignette: 'rgba(60,30,0,0.35)' },
+      litter: ['#c8a050', '#8a6a30', '#e0c880'], particle: 'dust', leaves: ['#d8c088', '#b89a60'], noFlies: false, sky: ['#5aa0e6', '#fae8b4'], marks: ['halfgear', 'termite'] },
     // Ville-Usine : bitume, cuves, fumées
     factory: { grass: ['#3a3e36', '#454a40', '#51564a', '#5d6254', '#6a6e5e', '#787c6a'], canopy: ['#1a1c22', '#262830', '#33363e', '#42464e', '#545860', '#6a6e76'], canopyStyle: 'rock',
       dirt: ['#2a2a2e', '#343438', '#3e3e44', '#4a4a50', '#56565c', '#64646a'], tall: ['#3a4030', '#5a6040', '#8a9060'], trees: [[0, 1]],
       objMap: { tree: 'tank', bush: 'crates', mossrock: 'scrap', glowshroom: 'scrap', fern: 'pebbles', hollowlog: 'scrap', stump: 'scrap' }, trees2: [[0, 2], [1, 1], [2, 1]],
-      litter: ['#5a5040', '#2a2a2a', '#8a7a50'], particle: 'ash', leaves: ['#4a4a4a', '#6a6a6a'], noFlowers: true, noFlies: true, tint: 'rgba(130,120,80,0.06)', vignette: 'rgba(20,20,10,0.45)', sky: ['#7a8898', '#d8d2b8'], marks: ['tank', 'scrap'] },
+      litter: ['#5a5040', '#2a2a2a', '#8a7a50'], particle: 'ash', leaves: ['#4a4a4a', '#6a6a6a'], noFlowers: true, noFlies: true, tint: 'rgba(130,120,80,0.06)', sky: ['#7a8898', '#d8d2b8'], marks: ['tank', 'scrap'] },
     // Montagne d'Ordures
     trash: { grass: ['#4a3e2c', '#564832', '#62523a', '#705e42', '#7e6a4c', '#8e7a58'], canopy: ['#241a12', '#34261a', '#463422', '#5a442c', '#705638', '#886a46'], canopyStyle: 'rock',
       dirt: ['#3a3024', '#463a2c', '#544634', '#62523e', '#725e48', '#826c54'], tall: ['#4a4a2a', '#6a6a3a', '#9a9a5a'], trees: [[0, 1]],
       objMap: { tree: 'junkpile', bush: 'scrap', mossrock: 'scrap', glowshroom: 'scrap', fern: 'pebbles', hollowlog: 'scrap', stump: 'scrap' }, trees2: [[0, 1], [1, 1]],
-      litter: ['#8a8a8a', '#c8402a', '#3a6ac8', '#e0c040'], particle: 'ash', leaves: ['#6a5a4a', '#8a7a5a'], noFlowers: true, noFlies: true, sky: ['#9aa07a', '#e4dcae'], marks: ['junkpile', 'scrap'], vignette: 'rgba(30,20,0,0.4)' },
+      litter: ['#8a8a8a', '#c8402a', '#3a6ac8', '#e0c040'], particle: 'ash', leaves: ['#6a5a4a', '#8a7a5a'], noFlowers: true, noFlies: true, sky: ['#9aa07a', '#e4dcae'], marks: ['junkpile', 'scrap'] },
     // Bois Brumeux : brouillard épais permanent
     fog: { grass: ['#2a4038', '#324a40', '#3c564a', '#486454', '#567260', '#68826e'], canopy: ['#0c1a18', '#132420', '#1a2e2a', '#223a34', '#2c4840', '#3a5850'],
       tall: ['#2a4a40', '#4a7062', '#8ab0a0'], trees: [[2, 2], [5, 1], [1, 1]], objMap: { glowshroom: 'glowshroom' }, litter: ['#6a7a6a', '#4a5a4a'], particle: 'mist', leaves: ['#e0f0ee', '#c8e0dc'], mist: true,
-      noFlies: true, tint: 'rgba(210,230,230,0.16)', vignette: 'rgba(20,40,40,0.45)', sky: ['#9ab4b4', '#e0ecea'], marks: ['deadtree', 'stonelantern'] },
+      noFlies: true, tint: 'rgba(210,230,230,0.16)', sky: ['#9ab4b4', '#e0ecea'], marks: ['deadtree', 'stonelantern'] },
     // Ville des Jouets
     // Village des Bébés : lisière de nuages pastel (rose, menthe, lilas), pétales, lumière douce
     nursery: { grass: ['#5cae6e', '#6ec07c', '#84d08e', '#9edca2', '#bae8b8', '#d6f4d0'], canopy: ['#c87aa8', '#d890bc', '#e6a8ce', '#f0c0dc', '#f8d6ea', '#fdeaf4'],
       tall: ['#6aa880', '#9ad8a8', '#ffd6ea'], trees: [[0, 1]], objMap: { tree: 'candytree', bush: 'block' }, trees2: [[0, 1], [1, 1], [2, 1]],
-      litter: ['#ff9ac0', '#9ad0ff', '#ffe080'], particle: 'petals', leaves: ['#ffb0d0', '#b0dcff', '#fff0a0', '#c8f0b0'], sky: ['#a8dcff', '#fff4fa'], marks: ['toyball'], vignette: 'rgba(200,120,170,0.18)' },
+      litter: ['#ff9ac0', '#9ad0ff', '#ffe080'], particle: 'petals', leaves: ['#ffb0d0', '#b0dcff', '#fff0a0', '#c8f0b0'], sky: ['#a8dcff', '#fff4fa'], marks: ['toyball'] },
     toy: { grass: ['#4cae5e', '#5ebe6c', '#74cc7c', '#8cd88e', '#a8e4a6', '#c8f0c2'], canopy: ['#a8508a', '#c066a0', '#d482b6', '#e4a0ca', '#f0bede', '#fadcee'],
       tall: ['#4a9a6a', '#7ac896', '#c4f4d8'], trees: [[0, 1]], objMap: { tree: 'candytree', bush: 'block', mossrock: 'toyball', glowshroom: 'toyball', hollowlog: 'block', stump: 'block' }, trees2: [[0, 1], [1, 1], [2, 1]],
-      litter: ['#ff5a7a', '#5ab0ff', '#ffd040'], particle: 'petals', leaves: ['#ff7aa8', '#7ac8ff', '#ffe060', '#a8f070'], sky: ['#80c8ff', '#fff0fa'], marks: ['jackbox', 'toyball'], vignette: 'rgba(120,40,100,0.25)' },
+      litter: ['#ff5a7a', '#5ab0ff', '#ffd040'], particle: 'petals', leaves: ['#ff7aa8', '#7ac8ff', '#ffe060', '#a8f070'], sky: ['#80c8ff', '#fff0fa'], marks: ['jackbox', 'toyball'] },
     // Terre Gelée : forêt enneigée
     snow: { grass: ['#a4b4cc', '#b8c6dc', '#ccd8ea', '#dee8f4', '#eef4fb', '#ffffff'], canopy: ['#1e3a48', '#2a4c5c', '#3c6272', '#58808e', '#88aab4', '#c8dce4'],
       dirt: ['#6a7690', '#7c88a0', '#909cb2', '#a6b0c4', '#bcc4d4', '#d2d8e4'], cliff: ['#46506a', '#58627c', '#6c7690', '#848ea6', '#9ea8bc', '#bcc4d4'], water: ICE, foam: ['#ffffff', '#e4f6ff'],
       tall: ['#8a9ab4', '#c4d0e4', '#ffffff'], trees: [[0, 1]], objMap: { tree: 'pine', bush: 'snowbush', mossrock: 'icerock', fern: 'icecrystal', glowshroom: 'snowman', hollowlog: 'icerock', stump: 'icerock' }, trees2: [[1, 6], [0, 1]],
-      litter: ['#ffffff'], particle: 'snow', leaves: ['#ffffff'], sparkle: ['#ffffff', '#e0f4ff', '#c8e8ff'], noFlowers: true, noFlies: true, sky: ['#9ab8e0', '#f4f8ff'], marks: ['snowman', 'icerock'], vignette: 'rgba(30,50,90,0.3)' },
+      litter: ['#ffffff'], particle: 'snow', leaves: ['#ffffff'], sparkle: ['#ffffff', '#e0f4ff', '#c8e8ff'], noFlowers: true, noFlies: true, sky: ['#9ab8e0', '#f4f8ff'], marks: ['snowman', 'icerock'] },
     // Grand Canyon : roche rouge, cactus, aiguilles
     canyon: { grass: ['#a05a30', '#b06838', '#c07a44', '#ce8c52', '#dca064', '#e8b67e'], canopy: ['#3a180e', '#552614', '#70361e', '#8a4828', '#a65c36', '#c27848'], canopyStyle: 'rock',
       dirt: ['#7a4024', '#8e4e2c', '#a25e36', '#b67042', '#c8844e', '#da9a62'], cliff: ['#4a2014', '#62301c', '#7c4026', '#965232', '#b06640', '#c87e52'], sand: ['#c08050', '#d09460', '#dea870', '#eabc84', '#f2ce9a', '#f8e0b4'],
       tall: ['#8a6a30', '#b89040', '#e0c070'], trees: [[0, 1]], objMap: { tree: 'spire', bush: 'cactus', mossrock: 'skullrock', fern: 'drybush', glowshroom: 'cactus', hollowlog: 'boulder', stump: 'drybush' }, trees2: [[0, 2], [1, 2], [2, 1]],
-      litter: ['#e0b070', '#8a4a2a'], particle: 'dust', leaves: ['#e8c090', '#c89a6a'], noFlowers: true, noFlies: true, sky: ['#e0904a', '#fae0ae'], marks: ['spire', 'skullrock'], vignette: 'rgba(60,20,0,0.4)' },
+      litter: ['#e0b070', '#8a4a2a'], particle: 'dust', leaves: ['#e8c090', '#c89a6a'], noFlowers: true, noFlies: true, sky: ['#e0904a', '#fae0ae'], marks: ['spire', 'skullrock'] },
     // Région des Dinosaures : fougères géantes, cycas, ossements
     dino: { grass: ['#2c5622', '#366628', '#427830', '#4e8a38', '#5e9c42', '#74b052'], canopy: ['#0e2410', '#163416', '#1e461c', '#285a24', '#346e2c', '#448236'],
       dirt: ['#5a4024', '#6e4e2c', '#826036', '#967242', '#aa864e', '#c09c62'], tall: ['#2a5a1a', '#4a8a2a', '#8ac050'], trees: [[0, 1]],
       objMap: { tree: 'cycad', bush: 'bigfern', mossrock: 'amber', glowshroom: 'bones', hollowlog: 'bones', stump: 'bigfern' }, trees2: [[0, 2], [1, 1]],
-      litter: ['#a08040', '#d0c090'], particle: 'spores', leaves: ['#d8f0a0', '#fff0c0'], sky: ['#d89a5a', '#f8e2a8'], marks: ['bones', 'smallvolcano'], vignette: 'rgba(40,30,0,0.4)' },
+      litter: ['#a08040', '#d0c090'], particle: 'spores', leaves: ['#d8f0a0', '#fff0c0'], sky: ['#d89a5a', '#f8e2a8'], marks: ['bones', 'smallvolcano'] },
     // Jungle Tropicale
     jungle: { grass: ['#1c5626', '#246a32', '#2e803e', '#3a964a', '#4aaa56', '#62be66'], canopy: ['#06200e', '#0c3016', '#14421e', '#1c5628', '#266a32', '#34803e'],
       tall: ['#1a5a2a', '#3a9a4a', '#8ad870'], trees: [[0, 1]], objMap: { tree: 'jungletree', bush: 'junglebush', mossrock: 'mossrock', glowshroom: 'junglebush', hollowlog: 'hollowlog' }, trees2: [[0, 2], [1, 2], [2, 1]],
-      litter: ['#c86a2a', '#e0b040', '#5a8a2a'], particle: 'spores', leaves: ['#c0ff90', '#fff6a0'], sky: ['#4aa8d0', '#e0f8d8'], marks: ['totem', 'junglebush'], vignette: 'rgba(0,30,10,0.55)' },
+      litter: ['#c86a2a', '#e0b040', '#5a8a2a'], particle: 'spores', leaves: ['#c0ff90', '#fff6a0'], sky: ['#4aa8d0', '#e0f8d8'], marks: ['totem', 'junglebush'] },
     // Mangrove : eau verte, racines, cabanes sur pilotis
     mangrove: { grass: ['#3a5a2a', '#466a30', '#527a38', '#608a40', '#709a4a', '#84ac58'], canopy: ['#0e2a1a', '#163a22', '#1e4c2c', '#285e36', '#327242', '#40864e'],
       water: ['#9ad8c0', '#72c2a8', '#52aa92', '#3e927e', '#307a6a', '#246256', '#1a4a42'], sand: ['#8a7a50', '#9e8c5c', '#b29e6a', '#c4b07a', '#d4c28c', '#e2d4a2'],
@@ -93,12 +93,12 @@
     swamp: { grass: ['#28381c', '#324422', '#3c5028', '#485e30', '#566c38', '#667c42'], canopy: ['#0e180a', '#16220e', '#1e2e14', '#283c1a', '#344a22', '#425a2c'],
       water: ['#9aaa6a', '#7e9452', '#667e40', '#526a32', '#425828', '#34461e', '#283616'], foam: ['#c8d890', '#a8bc74'],
       tall: ['#3a4a22', '#6a7a3a', '#a8b060'], trees: [[0, 1]], objMap: { tree: 'swamptree', bush: 'reeds', mossrock: 'mossrock', glowshroom: 'glowshroom', stump: 'reeds' }, trees2: [[0, 1], [1, 1]],
-      litter: ['#5a5a2a', '#3a3a1a'], particle: 'mist', leaves: ['#c8e0a0', '#e0f0c0'], mist: true, noFlies: true, tint: 'rgba(120,150,60,0.07)', vignette: 'rgba(10,20,0,0.55)', sky: ['#8a9a70', '#d8dcb8'], marks: ['frogstatue', 'reeds'] },
+      litter: ['#5a5a2a', '#3a3a1a'], particle: 'mist', leaves: ['#c8e0a0', '#e0f0c0'], mist: true, noFlies: true, tint: 'rgba(120,150,60,0.07)', sky: ['#8a9a70', '#d8dcb8'], marks: ['frogstatue', 'reeds'] },
     // Cimetière d'Overdell : éternel crépuscule violet
     cemetery: { grass: ['#262a28', '#2e3430', '#383e38', '#424a42', '#4e564c', '#5a6458'], canopy: ['#0a0810', '#120e18', '#1a1422', '#221a2c', '#2c2238', '#382c46'],
       dirt: ['#2a2420', '#342c26', '#3e352e', '#4a4036', '#564a3e', '#625446'], tall: ['#2a3028', '#4a5444', '#7a8a70'], trees: [[0, 1]],
       objMap: { tree: 'deadtree', bush: 'tombstone', mossrock: 'tombstone', glowshroom: 'jacklantern', hollowlog: 'tombstone', stump: 'tombstone', fern: 'pebbles' }, trees2: [[0, 1], [1, 1]],
-      litter: ['#4a3a2a', '#2a2420'], particle: 'mist', leaves: ['#b8a8d8', '#d8d0ff'], mist: true, noFlowers: true, noFlies: true, noRays: true, tint: 'rgba(90,60,140,0.12)', vignette: 'rgba(20,0,30,0.65)', sky: ['#2a1e4a', '#7a5a8a'], marks: ['tombstone', 'jacklantern'] },
+      litter: ['#4a3a2a', '#2a2420'], particle: 'mist', leaves: ['#b8a8d8', '#d8d0ff'], mist: true, noFlowers: true, noFlies: true, tint: 'rgba(90,60,140,0.12)', sky: ['#2a1e4a', '#7a5a8a'], marks: ['tombstone', 'jacklantern'] },
     // Pays des Scarabées : forêt ancienne de souches géantes
     beetle: { grass: ['#3a6424', '#46722a', '#528232', '#60923a', '#70a444', '#86b654'], canopy: ['#102a0c', '#183a12', '#204c18', '#2a5e20', '#366e28', '#448234'],
       tall: ['#2a5a1a', '#5a9a3a', '#a8d870'], trees: [[3, 3], [4, 2], [1, 1]], objMap: { mossrock: 'giantstump', glowshroom: 'honeycomb', hollowlog: 'hollowlog' },
@@ -106,8 +106,7 @@
   });
 
   // ------------------------------------------------------------ outils
-  const shade = (c, k) => { const a = DW.Art.hex(c), b = k < 0 ? [0, 0, 0] : [255, 255, 255]; return '#' + DW.Art.mix(a, b, Math.abs(k)).map(x => Math.round(x).toString(16).padStart(2, '0')).join(''); };
-  const ground = (d, x, y, rx, col = '#000000') => d.ell(x, y, rx, rx * 0.26, col, 0, { flat: true, noshadow: true });
+  const shade = DW.World.Paint.shade;
 
   Object.assign(OBJ, {
     // ---------------------------------------------------------- végétation des biomes
@@ -132,7 +131,6 @@
       if (v !== 1) { d.tube([[10, 22], [16, 21], [16, 14]], 3.4, 3, G); }
       d.deco.line(9, 8 + v * 3, 9, 28, 0.6, Gl); d.deco.line(11.6, 9 + v * 3, 11.6, 28, 0.6, '#2e6a2a');
       if (v === 0) d.deco.circ(10, 6, 1.6, '#ff6a8a');
-      ground(d, 10, 29, 6);
     } },
     // crâne de pierre géant (canyon)
     skullrock: { w: 30, h: 24, n: 1, draw(d) {
@@ -163,7 +161,7 @@
       d.poly(pts, C[0], { shiny: true, tex: 0.25 });
       d.deco.ell(22, 29, 13, 13, C[1]); d.deco.ell(22, 29, 5, 5, C[2]);
       for (let i = 0; i < 4; i++) { const a = Math.PI * (1.15 + i * 0.23); d.deco.line(22 + Math.cos(a) * 5, 29 + Math.sin(a) * 5, 22 + Math.cos(a) * 12, 29 + Math.sin(a) * 12, 1.4, C[2]); }
-      ground(d, 22, 29, 20, '#3a2a10');
+      d.ell(22, 29, 20, 5.2, '#3a2a10', 0, { flat: true, noshadow: true });   // (le sol où la roue est plantée)
     } },
     // engrenage noir de Devimon planté dans la roche (saison 1)
     blackgear: { w: 34, h: 40, n: 1, draw(d) {
@@ -181,7 +179,7 @@
       d.blob([[3, 9], [8, 3.6], [15, 4], [19, 8], [12, 8.6]], '#f4f8ff');
       d.deco.ell(9, 6, 3, 1, '#ffffff');
     } },
-    icerock: { w: 22, h: 22, n: 2, lights: [], draw(d, v) {
+    icerock: { w: 22, h: 22, n: 2, draw(d, v) {
       d.poly([[2, 21], [4, 10], [9, 4], [15, 6], [20, 13], [20, 21]], v ? '#9ad0ec' : '#b4dcf0', { shiny: true });
       d.deco.poly([[6, 12], [9, 5], [12, 7], [9, 14]], '#ffffff');
       d.deco.line(13, 9, 16, 19, 0.6, '#6aa8d0');
@@ -228,12 +226,9 @@
       const C = [['#4a3e36', '#6a5a4c'], ['#3e3a4a', '#5e586e'], ['#5a4030', '#7e5a40']][v];
       d.poly([[2, 33], [6, 18], [8, 4 + v * 4], [10, 14], [13, 8 + v * 2], [16, 33]], C[0], { tex: 0.35 });
       d.deco.line(7, 10 + v * 4, 6, 30, 0.8, C[1]);
-      d.ell(9, 33, 8, 2, shade(C[0], -0.3), 0, { flat: true });
     } },
     crystal: { w: 20, h: 26, n: 3, lights: [[10, 12, 26, 'rgba(170,140,255,0.6)']], draw: DW.World.secours.pierre(20, 26) },
-    pebbles: { w: 14, h: 8, n: 2, draw(d, v) {
-      d.ell(4, 6, 2.6, 1.6, v ? '#6a6058' : '#5a5650'); d.ell(9, 5.6, 2, 1.4, v ? '#7a7066' : '#6a6660'); d.ell(11.6, 7, 1.4, 0.9, '#4a4640');
-    } },
+    pebbles: { w: 14, h: 8, n: 2 },   // (peints : gfx/peints.js)
     lavarock: { w: 22, h: 18, n: 2, lights: [[11, 12, 18, 'rgba(255,120,40,0.5)']], draw(d, v) {
       d.blob([[2, 17], [3, 9], [9, 4], [16, 5], [20, 11], [20, 17]], v ? '#2a1e1c' : '#1e1616', { tex: 0.4 });
       d.deco.curve([[5, 14], [9, 10], [13, 12], [17, 8]], 1, '#ff7a20', { unlit: true });
@@ -258,7 +253,6 @@
       d.deco.rect(6, 12, 2, 26, shade(C[0], 0.3));
       d.tube([[27, 30], [30, 30]], 2, 2, '#5a5a62');
       if (v === 0) d.deco.rect(12, 22, 8, 5, '#f0c020');
-      ground(d, 15, 40, 13);
     } },
     chimney: { w: 22, h: 58, n: 1, smoke: [11, 2], draw(d) {
       d.rect(6, 4, 10, 52, '#8a4a3a', { tex: 0.35 });
@@ -417,7 +411,6 @@
       if (v === 2) { d.rect(7, 4, 4, 18, S, { tex: 0.3 }); d.rect(2, 8, 14, 4, S, { tex: 0.3 }); }
       else { d.rect(3, 8, 12, 15, S, { tex: 0.35 }); d.ell(9, 8, 6, 5, S, 0, { tex: 0.35 }); d.deco.line(6, 12, 12, 12, 0.6, '#3a3a44'); d.deco.line(7, 15, 11, 15, 0.6, '#3a3a44'); }
       if (v === 1) d.deco.ell(6, 19, 3, 2, '#4a6a3a');
-      d.ell(9, 23, 7, 1.6, '#3a3a2a', 0, { flat: true });
     } },
     jacklantern: { w: 16, h: 14, n: 1, lights: [[8, 8, 22, 'rgba(255,150,40,0.6)']], draw(d) {
       d.ell(8, 8.6, 7, 5.4, '#e0761a', 0, { shiny: true });
@@ -483,10 +476,7 @@
       d.tube([[36, 8], [36, 2], [44, -2]], 0.8, 0.6, '#3a3a40');
       d.deco.ell(20, 34, 6, 1.6, '#6a8a4a');
     } },
-    dock: { w: 32, h: 20, n: 1, draw(d) {
-      d.rect(1, 4, 30, 10, '#9a6a3a', { tex: 0.3 }); for (let x = 4; x < 31; x += 5) d.deco.line(x, 4, x, 14, 0.6, '#5a3a1a');
-      for (const x of [3, 15, 28]) d.tube([[x, 13], [x, 19]], 2, 2, '#5a3a1a');
-    } },
+    dock: { w: 32, h: 20, n: 1 },   // (peint : gfx/peints.js)
     // entrée de grotte creusée dans la roche (posée en fond, on passe dessous)
     cavemouth: { w: 64, h: 44, n: 2, draw(d, v) {
       const R = v ? ['#3a2a22', '#5a4436'] : ['#3a3a42', '#5e5e68'];

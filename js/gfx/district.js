@@ -20,7 +20,6 @@
     // ---------------------------------------------------------- moulin à vent (ailes qui tournent)
     // v0 : à l'abandon (ailes déchirées, immobiles)  v1 : en marche
     windmill: { w: 76, h: 112, n: 2, frames: 6, fps: 5, lights: [[38, 70, 16]], draw(d, v, f) {
-      d.ell(38, 108, 26, 4, '#3a2a18', 0, { flat: true });
       d.rect(16, 96, 44, 12, '#a8a296', { round: 0.2, tex: 0.35 });
       d.poly([[20, 100], [26, 46], [50, 46], [56, 100]], '#eadcb6', { tex: 0.15 });
       for (let y = 54; y < 100; y += 7) d.deco.line(20 + (100 - y) * 0.11, y, 56 - (100 - y) * 0.11, y, 0.7, '#c8b48a');
@@ -75,7 +74,6 @@
     } },
     // ---------------------------------------------------------- grange de Palmon (5×3)
     barn: { w: 104, h: 100, n: 1, lights: [[52, 46, 18]], draw(d) {
-      d.ell(52, 97, 48, 3.4, '#3a2a18', 0, { flat: true });
       d.rect(8, 46, 88, 50, '#b8483a', { round: 0.05, tex: 0.25 });
       for (let x = 12; x < 96; x += 6) d.deco.line(x, 48, x, 96, 0.7, '#8a3428');
       // grandes portes en croix
@@ -108,7 +106,6 @@
     } },
     // cabane à outils de Tanemon (2×2)
     shed: { w: 42, h: 44, n: 1, draw(d) {
-      d.ell(21, 42, 19, 2.6, '#3a2a18', 0, { flat: true });
       d.rect(4, 18, 34, 24, '#a87442', { round: 0.06, tex: 0.3 });
       for (let x = 8; x < 38; x += 5) d.deco.line(x, 19, x, 42, 0.7, '#7a5028');
       d.deco.rect(15, 26, 12, 16, '#5a3418'); d.deco.line(15, 26, 27, 42, 0.8, '#8a5a30'); d.deco.line(27, 26, 15, 42, 0.8, '#8a5a30');
@@ -120,7 +117,6 @@
     } },
     // Banque (5×3) : gros coffre noir aux planches croisées, enseigne jaune (comme l'Item Bank de Digimon World)
     bank: { w: 92, h: 96, n: 1, lights: [[46, 30, 24]], draw(d) {
-      d.ell(46, 93, 42, 3.4, '#1a1a1a', 0, { flat: true });
       d.rect(6, 12, 80, 80, '#2e2e34', { round: 0.03, tex: 0.12 });
       d.deco.rect(6, 12, 80, 4, '#46464e');
       d.deco.line(8, 16, 84, 44, 2.2, '#1e1e24'); d.deco.line(84, 16, 8, 44, 2.2, '#1e1e24');
@@ -139,7 +135,6 @@
     // ---------------------------------------------------------- Terrain d'entraînement
     // panneau de poste (comme Digimon World) : v0 PV cœur, v1 Attaque soleil, v2 Défense bouclier, v3 Vitesse chevrons, v4 Intelligence œil
     stationsign: { w: 24, h: 30, n: 7, draw(d, v) {
-      d.ell(12, 29, 8, 1.6, '#1a1a1a', 0, { flat: true });
       d.tube([[5, 29], [5, 14]], 2, 2, '#4a3a2e'); d.tube([[19, 29], [19, 14]], 2, 2, '#4a3a2e');
       d.rect(0, 1, 24, 18, '#f0e6c8', { round: 0.1 });   // cadre clair : il se voit de loin
       d.rect(1.5, 2.5, 21, 15, '#2a2a30', { round: 0.08 });
@@ -155,7 +150,6 @@
     } },
     // sac de frappe rouge suspendu à un portique
     punchbag: { w: 26, h: 40, n: 1, draw(d) {
-      d.ell(13, 38, 11, 2, '#2a1a10', 0, { flat: true });
       d.tube([[3, 39], [3, 4]], 2.4, 2, '#5a4a3a'); d.tube([[23, 39], [23, 4]], 2.4, 2, '#5a4a3a'); d.tube([[2, 4], [24, 4]], 2, 2, '#6a5a4a');
       d.deco.line(13, 4, 13, 9, 0.8, '#c8c0b0');
       d.rect(7, 9, 12, 22, '#c83a2e', { round: 0.5, shiny: true });
@@ -163,7 +157,6 @@
     } },
     // gros rocher peint de signes rouges (Endurance)
     kanjirock: { w: 44, h: 38, n: 1, draw(d) {
-      d.ell(22, 36, 20, 2.6, '#2a1a10', 0, { flat: true });
       d.blob([[2, 36], [3, 18], [12, 5], [26, 3], [38, 10], [42, 24], [41, 36]], '#9a948c', { tex: 0.4, texSize: 1 });
       d.deco.line(14, 12, 24, 12, 1.6, '#d02a2a', { unlit: true }); d.deco.line(19, 10, 17, 28, 1.6, '#d02a2a', { unlit: true }); d.deco.line(12, 20, 26, 22, 1.6, '#d02a2a', { unlit: true });
       d.deco.line(28, 14, 34, 16, 1.4, '#d02a2a', { unlit: true }); d.deco.line(31, 12, 30, 28, 1.4, '#d02a2a', { unlit: true }); d.deco.line(27, 24, 35, 27, 1.4, '#d02a2a', { unlit: true });
@@ -185,7 +178,6 @@
     } },
     // torche : vasque en fer et vraie flamme (animée par l'ambiance)
     torch: { w: 16, h: 40, n: 1, fire: [8, 10], lights: [[8, 8, 44]], draw(d) {
-      d.ell(8, 38, 6, 1.8, '#2a2a2a', 0, { flat: true });
       d.rect(3, 32, 10, 6, '#8a847a', { round: 0.3, tex: 0.3 });
       d.tube([[8, 33], [8, 15]], 3, 2.4, '#5a4a3a');
       d.poly([[1, 9], [15, 9], [12, 16], [4, 16]], '#4a4a52', { shiny: true });
@@ -193,7 +185,6 @@
       d.ell(8, 8, 5, 2.4, '#ff7a20', 0, { unlit: true, noline: true }); d.ell(8, 6, 3, 3, '#ffd060', 0, { unlit: true, noline: true });
     } },
     shieldrack: { w: 26, h: 30, n: 1, draw(d) {
-      d.ell(13, 28, 11, 2, '#3a2a18', 0, { flat: true });
       d.tube([[3, 29], [3, 6]], 2, 2, '#8a5a32'); d.tube([[23, 29], [23, 6]], 2, 2, '#8a5a32'); d.tube([[2, 8], [24, 8]], 2, 2, '#9a6a3a');
       for (const [x, c] of [[7, '#c84838'], [13, '#3a6ac8'], [19, '#c8a040']]) { d.circ(x, 17, 5, c, { shiny: true }); d.deco.circ(x, 17, 2.4, '#e8e0d0'); d.deco.circ(x, 17, 1, c); }
       d.deco.line(15, 13, 18, 18, 0.8, '#2a2a3a');
@@ -222,31 +213,8 @@
     giantshroom: { w: 42, h: 58, n: 2, lights: [[21, 20, 36]], draw: DW.World.secours.champignon(42, 58) },
     // arbre mort tordu (Lisière du Ravin)
     deadtree: { w: 36, h: 46, n: 2, draw: DW.World.secours.arbre(36, 46) },
-    haybale: { w: 22, h: 18, n: 1, draw(d) {
-      d.ell(11, 16, 10, 2, '#4a3a1a', 0, { flat: true });
-      d.rect(1, 4, 20, 12, '#e8c860', { round: 0.6, tex: 0.5 });
-      d.deco.ell(4, 10, 3, 5.4, '#d8a840'); d.deco.ell(4, 10, 1.6, 3, '#c89030');
-      d.deco.line(10, 4, 10, 16, 0.7, '#a87a30');
-    } },
     // ---------------------------------------------------------- Poste de Biyomon (5×3)
-    poste: { w: 100, h: 98, n: 1, lights: [[30, 70, 16], [70, 70, 16]], draw(d) {
-      d.ell(50, 95, 46, 3.4, '#3a2a18', 0, { flat: true });
-      d.rect(10, 48, 80, 46, '#f2e6cc', { round: 0.08, tex: 0.1 });
-      d.deco.rect(10, 84, 80, 10, '#c8b08a');
-      d.deco.ell(50, 72, 9, 8, '#4a6aa8'); d.deco.rect(41, 72, 18, 22, '#4a6aa8'); d.deco.line(50, 64, 50, 94, 0.8, '#2a3a6a');
-      d.deco.circ(55, 82, 1.1, '#f0c040', { unlit: true });
-      for (const x of [24, 70]) { d.deco.rect(x - 1.5, 62.5, 15, 13, '#2a3a6a'); d.deco.rect(x, 64, 12, 10, '#ffe8a8'); d.deco.line(x + 6, 64, x + 6, 74, 0.8, '#2a3a6a'); }
-      d.blob([[0, 52], [8, 34], [50, 18], [92, 34], [100, 52], [50, 48]], '#3a6ac8', { shiny: true });
-      for (let y = 30; y < 50; y += 5) d.deco.curve([[6, y + 4], [50, y - 10], [94, y + 4]], 0.8, '#2a4a98');
-      // tourelle-nichoir
-      d.rect(62, 4, 18, 26, '#f2e6cc', { round: 0.2 }); d.deco.circ(71, 16, 4, '#2a1a10');
-      d.poly([[58, 6], [71, -2], [84, 6]], '#e85a5a', { shiny: true });
-      // enseigne lettre
-      d.rect(30, 36, 26, 14, '#e85a5a', { round: 0.25 });
-      d.deco.rect(35, 39, 16, 9, '#f8f0e0'); d.deco.poly([[35, 39], [43, 44.4], [51, 39]], '#c8b8a0');
-      // boîte aux lettres
-      d.rect(90, 70, 8, 12, '#e85a5a', { round: 0.4, shiny: true }); d.tube([[94, 94], [94, 82]], 2, 2, WOOD_D); d.deco.rect(91.5, 73, 5, 1, '#3a1a10');
-    } },
+    poste: { w: 100, h: 98, n: 1, lights: [[30, 70, 16], [70, 70, 16]] },   // (peinte : gfx/facades.js)
     // ---------------------------------------------------------- ponton de pêche de Gomamon (posé sur le pont)
     fishing: { w: 24, h: 30, n: 1, draw(d) {
       d.tube([[4, 28], [20, 2]], 1.4, 0.8, WOOD_D);
@@ -260,7 +228,6 @@
     kiosk: { w: 60, h: 66, n: 16, draw(d, v) {
       const COL = ['#e84a5a', '#4a8ad8', '#e8682a', '#6ac8e8', '#c8a030', '#5a7ab8', '#4aa05a', '#5a4a9a', '#9a7a5a', '#e8a040', '#ff7ab0', '#3ab8a0', '#d8b828', '#c85aa8', '#c84a3a', '#5a9ae0'];
       const c = COL[v], cd = shadeK(c, -0.25);
-      d.ell(30, 63, 27, 2.6, '#2a2018', 0, { flat: true });
       // poteaux et fond
       d.tube([[7, 62], [7, 20]], 1.6, 1.4, WOOD_D); d.tube([[53, 62], [53, 20]], 1.6, 1.4, WOOD_D);
       d.rect(9, 26, 42, 16, '#e8dcc0', { round: 0.05, far: true, tex: 0.15 });

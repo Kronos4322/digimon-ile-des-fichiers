@@ -10,7 +10,7 @@
   DW.World.sandTheme = () => {
     const T = DW.World.THEMES;
     if (!T || T.sandtemple || !T.canyon) return;
-    T.sandtemple = { ...T.canyon, vignette: 'rgba(16,8,0,0.72)', particle: 'dust', sky: ['#2a1a0c', '#5a3a1c'], noRays: true,
+    T.sandtemple = { ...T.canyon, particle: 'dust', sky: ['#2a1a0c', '#5a3a1c'],
       grass: ['#8e6c40', '#9c7a4a', '#ab8956', '#ba9862', '#c8a872', '#d6b884'], dirt: ['#7a5a34', '#88683e', '#967648', '#a48452', '#b2925e', '#c0a06a'],
       canopy: ['#2a1a0e', '#3e2814', '#54381c', '#6a4a26', '#826032', '#9a7840'], tall: ['#a88a50', '#c8a868', '#e8cc8c'],
       objMap: { ...T.canyon.objMap, tree: 'spire', bush: 'boulder', fern: 'pebbles' } };
@@ -27,7 +27,6 @@
   } };
   // pilier de temple : colonne de grès, bandes de hiéroglyphes, chapiteau en lotus
   DW.World.OBJ.templepillar = { w: 22, h: 52, n: 2, draw(d, v) {
-    d.ell(11, 51, 9, 2, '#1a1008', 0, { flat: true });
     d.rect(2, 44, 18, 7, '#b8945a', { round: 0.15, tex: 0.3 });
     d.tube([[11, 46], [11, 12]], 7, 6.4, v ? '#c8a66e' : '#d2b27a', { tex: 0.25 });
     for (const y of [16, 26, 36]) { d.deco.rect(5, y, 12, 5, '#a8844e'); for (let k = 0; k < 4; k++) d.deco.rect(6.5 + k * 2.8, y + 1.4, 1.4, 2.2, ['#3a6ab0', '#c84a2a', '#2a8a6a', '#1a1a1a'][(k + y) % 4]); }
@@ -38,7 +37,6 @@
   // v0 : vers les profondeurs (marches qui descendent dans le noir, lueur rouge) ; v1 : vers la surface (lumière du jour)
   DW.World.OBJ.templegate = { w: 56, h: 66, n: 2, lights: [[28, 44, 30]], draw(d, v) {
     const S = '#c8a66e', Sd = '#9a7a46', Sl = '#e2c48a';
-    d.ell(28, 64, 24, 2.6, '#140a04', 0, { flat: true });
     // massif de pierre autour de la porte
     d.rect(2, 10, 52, 54, Sd, { round: 0.06, tex: 0.35 });
     // piliers
@@ -58,19 +56,16 @@
     // jarre canope (couvercle en tête de Digimon)
     urn: { w: 16, h: 24, n: 3, draw(d, v) {
       const c = ['#c8783a', '#3a7a8a', '#b8a070'][v];
-      d.ell(8, 23, 6, 1.6, '#1a1008', 0, { flat: true });
       d.ell(8, 15, 6, 7.5, c, 0, { shiny: true, tex: 0.2 }); d.deco.rect(3, 12, 10, 2, '#e8c860');
       d.ell(8, 6, 4, 3.4, ['#e8a020', '#5ab0c8', '#d8c090'][v], 0, { shiny: true }); d.deco.circ(6.6, 5.6, 0.7, '#1a1a1a'); d.deco.circ(9.4, 5.6, 0.7, '#1a1a1a');
     } },
     // pilier brisé, tronçon couché à côté
     brokenpillar: { w: 30, h: 30, n: 1, draw(d) {
-      d.ell(15, 28, 13, 2.2, '#1a1008', 0, { flat: true });
       d.tube([[9, 28], [9, 12]], 7, 6.4, '#c8a66e', { tex: 0.3 }); d.poly([[2, 13], [16, 9], [14, 15], [4, 16]], '#d8b880');
       d.tube([[16, 26], [28, 23]], 5, 5, '#b8945a', { tex: 0.3 }); d.deco.rect(5, 18, 8, 3, '#a8844e');
     } },
     // statue assise de gardien à tête de coquillage
     shellstatue: { w: 32, h: 50, n: 2, draw(d, v) {
-      d.ell(16, 49, 14, 2.4, '#1a1008', 0, { flat: true });
       d.rect(3, 38, 26, 11, '#b8945a', { round: 0.1, tex: 0.3 });
       d.rect(8, 22, 16, 17, '#c8a66e', { round: 0.25, tex: 0.25 });
       d.tube([[10, 36], [10, 30]], 3, 3, '#d2b27a'); d.tube([[22, 36], [22, 30]], 3, 3, '#d2b27a');
@@ -92,7 +87,6 @@
     } },
     // PRISON de Tai : fond (paroi de corail, chaînes, toit en coquille) et grille de corail au premier plan
     cageback: { w: 76, h: 62, n: 2, lights: [[38, 30, 26]], draw(d, v) {
-      d.ell(38, 60, 34, 3, '#0a0604', 0, { flat: true });
       d.rect(4, 18, 68, 42, '#5a3a2a', { round: 0.1, tex: 0.4 });
       for (let k = 0; k < 7; k++) d.deco.ell(10 + k * 9.5, 26 + (k % 2) * 8, 3.2, 2.2, ['#e86a7a', '#f0a0b0', '#d84a5a'][k % 3]);
       // toit : grande coquille rose

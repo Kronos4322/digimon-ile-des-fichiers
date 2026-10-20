@@ -68,7 +68,7 @@
   // ------------------------------------------------------------ préparation d'une carte
   // Générateur : rend la main régulièrement (yield) pour pouvoir préparer une carte
   // par petites tranches pendant le jeu (cartes voisines préparées à l'avance).
-  const NATURAL = new Set(['tree', 'bush', 'rock', 'boulder', 'mossrock', 'fern', 'stump', 'log', 'hollowlog', 'palm', 'bigtree', 'pine', 'flowers']);
+  const NATURAL = new Set(['tree', 'bush', 'rock', 'boulder', 'mossrock', 'fern', 'stump', 'log', 'hollowlog', 'palm', 'bigtree']);
   function* prep(map) {
     if (World.fixBridges) World.fixBridges(map);   // ponts utiles redressés, ponts inutiles enlevés (gfx/ponts.js)
     if (!map.rows && map.build) map.build();
@@ -1175,7 +1175,6 @@
       const NF = 8, frames = water.frames;
       const FOAM = Art.hex(TH && TH.foam ? TH.foam[0] : '#f4feff'), FOAM2 = Art.hex(TH && TH.foam ? TH.foam[1] : '#c4f2f8'), WHITE = Art.hex(TH && TH.foam ? TH.foam[0] : '#ffffff');
       // (couleurs en variables r, g, b et mélanges écrits en clair : mêmes calculs que Art.mix, sans tableau par pixel)
-      const texO = (P, x, y) => { const X = ((Math.floor(x) % P.w) + P.w) % P.w, Y = ((Math.floor(y) % P.h) + P.h) % P.h; return (Y * P.w + X) * 4; };
       const MER = !!(map.mer || map.climate === 'beach');
       const eauImage = (f, W8, ka, kb) => {
         const ph = f / NF, a = ph * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a), EX = World.EAUX;

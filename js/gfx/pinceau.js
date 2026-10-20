@@ -10,6 +10,8 @@
   const Art = DW.Art, hash = Art.hash;
   const hex = c => Art.hex(c), rgb = (a, al = 1) => `rgba(${a[0] | 0},${a[1] | 0},${a[2] | 0},${al})`;
   const mix = (a, b, t) => Art.mix(typeof a === 'string' ? hex(a) : a, typeof b === 'string' ? hex(b) : b, t);
+  // couleur éclaircie (k > 0, vers le blanc) ou assombrie (k < 0, vers le noir), en '#rrggbb'
+  const shade = (c, k) => '#' + Art.mix(hex(c), k < 0 ? [0, 0, 0] : [255, 255, 255], Math.abs(k)).map(x => Math.round(x).toString(16).padStart(2, '0')).join('');
   const COOL = '#0c2a3a', WARM = '#fff0a8', INK = '#0a1a14';
   const LX = -0.6, LY = -0.8;   // direction de la lumière (haut-gauche)
 
@@ -123,10 +125,7 @@
     x.restore();
   }
 
-  // ------------------------------------------------------------ palettes des variantes [feuillage, ombre, lumière]
-
-  // pinceaux partagés avec les autres dessins peints (gfx/peints.js)
-  DW.World.Paint = { crown, trunk, rgb, mix, hex, COOL, WARM, INK };
-
-  // les arbres feuillus passent au pinceau ; les variantes nues gardent leur ancien dessin (draw)
+  // pinceaux partagés avec les autres dessins peints (peints.js, premium.js, maisons.js, facades.js...) et quelques
+  // outils de couleur (ponts.js, biomes.js, sites.js)
+  DW.World.Paint = { crown, trunk, rgb, mix, hex, shade, COOL, WARM, INK };
 })();

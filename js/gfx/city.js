@@ -34,7 +34,6 @@
     cottage: { w: 66, h: 80, n: 4, lights: [[18, 54, 12], [46, 50, 10]], smoke: [50, 6], draw(d, v) {
       const [plaster, beam, roofType, roof, doorc] = [['#f0e2c0', '#7a5030', 'thatch', '#d8b058', '#8a5a32'], ['#f4f0e6', '#5a3a26', 'tiles', '#c8503a', '#5a7a3a'],
         ['#ecd8b0', '#6a4a2a', 'slate', '#4a6488', '#a8502e'], ['#d8d0c0', '#5a4a3a', 'moss', '#5a8a3e', '#6a4a8a']][v];
-      d.ell(33, 78, 31, 2.6, '#2a2018', 0, { flat: true });
       // soubassement de pierres
       d.rect(5, 66, 56, 11, '#a8a090', { round: 0.15, tex: 0.35 });
       for (let x = 7; x < 60; x += 7) d.deco.ell(x, 71 + ((x / 7) % 2) * 2, 3, 2, '#8a8270');
@@ -79,7 +78,6 @@
     townhouse: { w: 64, h: 78, n: 4, lights: [[16, 52, 12], [48, 52, 12], [32, 30, 10]], smoke: [48, 4], draw(d, v) {
       const [wall, roof, trim, doorc] = [['#f4e4c8', '#c8503a', '#ffffff', '#4a7ac8'], ['#d8ecf0', '#3a6aa8', '#ffffff', '#c84a4a'],
         ['#f8d8d8', '#8a4a8a', '#fff4f4', '#4a9a5a'], ['#e8f0d0', '#4a8a4a', '#ffffff', '#c8903a']][v];
-      d.ell(32, 76, 30, 2.6, '#2a2018', 0, { flat: true });
       d.rect(5, 36, 54, 40, wall, { round: 0.05, tex: 0.12 });
       d.deco.rect(5, 70, 54, 6, shade(wall, -0.18));
       for (const x of [5, 57]) d.deco.rect(x, 36, 2, 40, trim);
@@ -101,7 +99,6 @@
     // ---------------------------------------------------------- immeuble (5×3) : 3 étages, fenêtres allumées la nuit
     apartment: { w: 82, h: 118, n: 2, lights: [[18, 40, 9], [41, 40, 9], [64, 40, 9], [18, 64, 9], [41, 64, 9], [64, 64, 9], [18, 88, 9], [64, 88, 9]], draw(d, v) {
       const [wall, band, roof] = [['#e0d0c0', '#a86a50', '#5a5a6a'], ['#c8d4e0', '#4a6a90', '#4a4a5a']][v];
-      d.ell(41, 116, 40, 3, '#2a2018', 0, { flat: true });
       d.rect(4, 22, 74, 94, wall, { round: 0.03, tex: 0.12 });
       for (const y of [48, 72, 96]) d.deco.rect(4, y, 74, 3, band);
       d.rect(1, 14, 80, 10, roof, { round: 0.2 }); d.deco.rect(1, 22, 80, 2, shade(roof, -0.3));
@@ -120,7 +117,6 @@
     // ---------------------------------------------------------- boutique à auvent (4×3) : enseigne à icône
     shopfront: { w: 64, h: 76, n: 4, lights: [[32, 52, 22]], draw(d, v) {
       const [wall, awn, icon] = [['#f4e8d0', '#e85a5a', 'meat'], ['#e0ecf8', '#4a8ad8', 'potion'], ['#f8f0d8', '#4ab060', 'flower'], ['#f0e0f0', '#a86ad8', 'star']][v];
-      d.ell(32, 74, 30, 2.6, '#2a2018', 0, { flat: true });
       d.rect(4, 22, 56, 52, wall, { round: 0.04, tex: 0.12 });
       d.rect(2, 14, 60, 10, shade(wall, -0.25), { round: 0.2 });
       // enseigne
@@ -144,7 +140,6 @@
     } },
     // ---------------------------------------------------------- tour de l'horloge (3×2)
     clocktower: { w: 50, h: 128, n: 1, frames: 2, fps: 1, lights: [[25, 30, 18, 'rgba(255,240,180,0.6)']], draw(d, v, f = 0) {
-      d.ell(25, 126, 24, 2.6, '#2a2018', 0, { flat: true });
       d.rect(4, 96, 42, 30, '#c8beb0', { round: 0.05, tex: 0.25 });
       d.rect(9, 18, 32, 80, '#e0d4c0', { round: 0.03, tex: 0.18 });
       for (let y = 26; y < 96; y += 8) d.deco.line(9, y, 41, y, 0.6, '#b8ab98');
@@ -160,7 +155,6 @@
     // ---------------------------------------------------------- tour de données (3×2) façon Digimon World 2003
     datatower: { w: 50, h: 132, n: 2, frames: 4, fps: 3, lights: [[25, 40, 20, 'rgba(90,255,200,0.55)'], [25, 90, 14, 'rgba(90,200,255,0.5)']], draw(d, v, f = 0) {
       const [metal, glow] = [['#7a8494', '#3af0b0'], ['#8a7a94', '#ff6ae0']][v];
-      d.ell(25, 130, 24, 2.6, '#1a1a22', 0, { flat: true });
       d.rect(6, 104, 38, 26, shade(metal, -0.15), { round: 0.08, tex: 0.2 });
       d.poly([[12, 106], [16, 20], [34, 20], [38, 106]], metal, { shiny: true });
       for (let y = 30; y < 104; y += 10) { d.deco.line(14.5 - (y - 20) * 0.047 + 2, y, 35.5 + (y - 20) * 0.047 - 2, y, 0.8, shade(metal, -0.35)); }
@@ -174,7 +168,6 @@
     // ---------------------------------------------------------- statue de Digimon sur socle (2×1)
     digistatue: { w: 36, h: 56, n: 2, draw(d, v) {
       const stone = ['#d8d0c4', '#c8b070'][v];
-      d.ell(18, 54, 17, 2.4, '#2a2018', 0, { flat: true });
       d.rect(4, 40, 28, 14, shade(stone, -0.1), { round: 0.06, tex: 0.25 }); d.rect(2, 38, 32, 4, stone, { round: 0.3 });
       d.deco.rect(10, 45, 16, 4, shade(stone, -0.3));
       // silhouette de petit dinosaure (façon Agumon)

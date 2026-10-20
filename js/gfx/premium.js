@@ -96,19 +96,6 @@
     poly(darkSide, mid); x.fillStyle = rgb(mix(C, COOL, 0.32)); x.fill();
     x.strokeStyle = rgb(mix(C, WARM, 0.5), 0.8); x.lineWidth = 0.4; x.beginPath(); mid.slice(0, 9).forEach((p, k) => (k ? x.lineTo(...p) : x.moveTo(...p))); x.stroke();
   }
-  // PALME DÉCOUPÉE : longue feuille arquée en lobes (encoches), face du dessus claire, dessous sombre, nervure claire
-  function palme(x, bx, by, ang, len, wid, droop, col, seed) {
-    const C = hex(col), N = 22, pts = [];
-    for (let k = 0; k <= N; k++) { const t = k / N; pts.push([bx + Math.cos(ang) * len * t, by + Math.sin(ang) * len * t + droop * len * t * t]); }
-    const nrm = k => { const a = pts[Math.max(0, k - 1)], b = pts[Math.min(N, k + 1)], d = Math.atan2(b[1] - a[1], b[0] - a[0]); return [-Math.sin(d), Math.cos(d)]; };
-    const edge = side => pts.map((p, k) => { const t = k / N, notch = (k % 3 === 0 && k > 1 && k < N - 1) ? 0.35 : 1, w = Math.sin(Math.PI * Math.min(1, t * 1.15)) * wid * notch * (side > 0 ? 1.1 : 0.8); const [nx, ny] = nrm(k); return [p[0] + nx * w * side, p[1] + ny * w * side + (side > 0 ? w * 0.25 : 0)]; });
-    const A = edge(1), B = edge(-1);
-    const poly = (U, V) => { x.beginPath(); U.forEach((p, k) => (k ? x.lineTo(...p) : x.moveTo(...p))); for (let k = V.length - 1; k >= 0; k--) x.lineTo(...V[k]); x.closePath(); };
-    poly(A, B); x.strokeStyle = rgb(mix(C, INK, 0.6)); x.lineWidth = 1; x.stroke();
-    poly(A, pts); x.fillStyle = rgb(mix(C, COOL, 0.3)); x.fill();          // dessous (vers le bas) : ombre
-    poly(B, pts); x.fillStyle = rgb(mix(C, WARM, 0.28)); x.fill();          // dessus : lumière
-    x.strokeStyle = rgb(mix(C, '#f0f0a0', 0.55)); x.lineWidth = 0.6; x.beginPath(); pts.slice(0, N - 2).forEach((p, k) => (k ? x.lineTo(...p) : x.moveTo(...p))); x.stroke();
-  }
   const def = (k, o) => { OBJ[k] = { n: 1, noOutline: true, ...o }; OBJ[k].draw = d => d.rect(0, 0, 1, 1, '#000');   // (« draw » de secours : jamais utilisé, le dessin passe par « paint »)
   };
 
@@ -439,60 +426,10 @@
     x.strokeStyle = 'rgba(200,240,255,0.6)'; x.lineWidth = 0.6; x.beginPath(); for (let k = 0; k <= 26; k++) { const px = 5 + k, py = 27.4 + Math.sin(k * 0.7 + 1) * 0.4; k ? x.lineTo(px, py) : x.moveTo(px, py); } x.stroke();
   } });
 
-  // COQUILLAGES (sur le sable, on marche dessus) : v 0 coquilles Saint-Jacques, v 1 conques et bigorneaux,
-  // v 2 étoiles de mer et petits galets
-  def('coquillages', { w: 26, h: 12, n: 3, plat: true, paint(x, v) {
-    const spot = (i, k) => [3 + hash(v, i, 191 + k) * 20, 3 + hash(v, i, 194 + k) * 6];
-    for (let i = 0; i < 5; i++) {
-      const [px, py] = spot(i, 0);
-      x.fillStyle = 'rgba(80,60,30,0.25)'; x.beginPath(); x.ellipse(px + 0.4, py + 1, 2, 0.8, 0, 0, TAU); x.fill();
-      if (v === 0) {   // éventail strié
-        const C = hex(['#f4d0b0', '#f8e8d0', '#e8a888'][i % 3]); x.fillStyle = rgb(C); x.beginPath(); x.moveTo(px, py + 1.2); x.arc(px, py + 1.2, 2.2, Math.PI * 1.1, Math.PI * 1.9); x.closePath(); x.fill();
-        x.strokeStyle = rgb(mix(C, INK, 0.3), 0.6); x.lineWidth = 0.3; for (let k = 0; k < 5; k++) { const b = Math.PI * (1.15 + k * 0.15); x.beginPath(); x.moveTo(px, py + 1.2); x.lineTo(px + Math.cos(b) * 2.1, py + 1.2 + Math.sin(b) * 2.1); x.stroke(); }
-      } else if (v === 1) {   // conque spiralée
-        x.fillStyle = '#f0dcc0'; x.beginPath(); x.ellipse(px, py, 2.2, 1.2, 0.5, 0, TAU); x.fill(); x.fillStyle = '#e89a8a'; x.beginPath(); x.ellipse(px + 0.6, py + 0.2, 1, 0.5, 0.5, 0, TAU); x.fill();
-        x.strokeStyle = 'rgba(120,80,50,0.6)'; x.lineWidth = 0.3; x.beginPath(); x.arc(px - 0.8, py - 0.3, 0.7, 0, 5); x.stroke();
-      } else {   // étoile de mer à 5 branches
-        const C = hex(['#f08040', '#e85a6a', '#f0b040'][i % 3]); x.fillStyle = rgb(C); x.beginPath();
-        for (let k = 0; k < 10; k++) { const b = k / 10 * TAU - Math.PI / 2, r = k % 2 ? 0.8 : 2.4; x.lineTo(px + Math.cos(b) * r, py + Math.sin(b) * r * 0.8); } x.closePath(); x.fill();
-        x.fillStyle = rgb(mix(C, '#ffffff', 0.5)); x.fillRect(px - 0.3, py - 0.3, 0.6, 0.6);
-      }
-    }
-  } });
-
-  // OYATS (herbes des dunes) : touffes de longues lames pâles qui ploient au vent, épis ; v 1 plus haute et dorée
-  def('oyats', { w: 26, h: 24, n: 2, scale: 1.15, paint(x, v) {
-    contact(x, 13, 22.5, 8, 1.4, 0.18);
-    const C = hex(v ? '#c8b060' : '#9ab060'), n = v ? 22 : 18;
-    for (let i = 0; i < n; i++) {
-      const t = i / (n - 1), x0 = 13 + (t - 0.5) * 8, len = (v ? 18 : 14) * (0.6 + hash(v, i, 201) * 0.4), bend = 3 + hash(v, i, 202) * 4;
-      const ex = x0 + (t - 0.5) * 6 + bend, ey = 22 - len, L = 0.3 + (1 - t) * 0.5;
-      x.strokeStyle = rgb(mix(mix(C, COOL, 0.25), mix(C, WARM, 0.45), L)); x.lineWidth = 0.75;
-      x.beginPath(); x.moveTo(x0, 22); x.quadraticCurveTo(x0 + (t - 0.5) * 2, 22 - len * 0.6, ex, ey); x.stroke();
-      if (i % 4 === 0) { x.fillStyle = rgb(mix(C, '#f0e0a0', 0.5)); x.beginPath(); x.ellipse(ex, ey + 1.5, 0.7, 2, 0.4, 0, TAU); x.fill(); }
-    }
-  } });
-
-  // COCOTIER PENCHÉ : tronc annelé courbé vers la mer, couronne de longues palmes retombantes, noix de coco ;
-  // v 1 : plus haut, penché de l'autre côté, palmes plus échevelées
-  def('cocotier', { w: 54, h: 64, n: 2, scale: 1.5, big: true, paint(x, v) {
-    const s = v ? -1 : 1, B = hex('#8a6a44'), base = [27 - s * 8, 61], top = [27 + s * (v ? 9 : 7), v ? 12 : 16];
-    contact(x, base[0], 61.5, 7, 1.8, 0.28);
-    const pt = t => [base[0] + (top[0] - base[0]) * t + s * Math.sin(t * Math.PI) * 4, base[1] + (top[1] - base[1]) * t];
-    for (let k = 0; k <= 24; k++) {   // tronc en anneaux
-      const t = k / 24, [px, py] = pt(t), r = 3.2 - t * 1.2;
-      x.fillStyle = rgb(mix(B, INK, 0.5)); x.beginPath(); x.ellipse(px + 0.4, py + 0.3, r + 0.5, 1.6, 0, 0, TAU); x.fill();
-      const g = x.createLinearGradient(px - r, 0, px + r, 0); g.addColorStop(0, rgb(mix(B, '#f0d0a0', 0.45))); g.addColorStop(0.5, rgb(B)); g.addColorStop(1, rgb(mix(B, COOL, 0.45)));
-      x.fillStyle = g; x.beginPath(); x.ellipse(px, py, r, 1.4, 0, 0, TAU); x.fill();
-    }
-    const [cx, cy] = pt(1);
-    const cocos = () => { for (let i = 0; i < 4; i++) { const px = cx - 2.4 + (i % 3) * 2.2, py = cy + 2.6 + (i > 2 ? 1.6 : 0); x.fillStyle = '#2a1a0c'; x.beginPath(); x.arc(px + 0.3, py + 0.3, 2, 0, TAU); x.fill(); x.fillStyle = '#6a4626'; x.beginPath(); x.arc(px, py, 1.7, 0, TAU); x.fill(); x.fillStyle = '#b08850'; x.beginPath(); x.arc(px - 0.6, py - 0.6, 0.6, 0, TAU); x.fill(); } };
-    // palmes : d'abord celles du fond (vers le haut, plus sombres), puis celles qui retombent vers nous
-    const F = (v ? [[-2.9, 18, 0.55], [-2.3, 16, 0.3], [-1.75, 14, 0.15], [-1.25, 15, 0.2], [-0.65, 17, 0.35], [-0.1, 19, 0.6], [0.55, 15, 0.9], [2.6, 15, 0.9]]
-      : [[-3.0, 17, 0.6], [-2.4, 16, 0.35], [-1.85, 14, 0.15], [-1.3, 14, 0.15], [-0.75, 16, 0.3], [-0.15, 18, 0.55], [0.5, 15, 0.85], [2.7, 15, 0.85]]).map(([a, l, d], i) => [a + (hash(v, i, 211) - 0.5) * 0.15, l, d, i]);
-    F.sort((p, q) => Math.sin(p[0]) - Math.sin(q[0]));
-    F.forEach(([a, len, droop, i], n) => { const back = Math.sin(a) < -0.5; palme(x, cx, cy, a, len, 3.4, droop * 0.9, back ? '#2e7a2c' : i % 2 ? '#3e9a30' : '#48a838', 7 + i); if (n === F.length - 3) cocos(); });
-  } });
+  // plage : coquillages, oyats (herbes des dunes), cocotiers penchés — images du joueur (gfx/textures.js) ; ici leur secours
+  OBJ.coquillages = { w: 26, h: 12, n: 3, plat: true, noOutline: true, draw: DW.World.secours.pierre(26, 12) };
+  OBJ.oyats = { w: 26, h: 24, n: 2, scale: 1.15, noOutline: true, draw: DW.World.secours.plante(26, 24) };
+  OBJ.cocotier = { w: 54, h: 64, n: 2, scale: 1.5, big: true, noOutline: true, draw: DW.World.secours.arbre(54, 64) };
 
   // CORAUX (dans l'eau claire du lagon) : v 0 corail branchu rouge, v 1 corail cerveau rose, v 2 gorgone violette
   def('corail', { w: 30, h: 24, n: 3, paint(x, v) {

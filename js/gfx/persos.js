@@ -48,7 +48,7 @@
   }
 
   // ------------------------------------------------------------ pièces (découpées dans leur planche ; peau à la teinte du corps)
-  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const hex = DW.Art.hex;
   const pieces = {};
   function piece(cat, p, peau) {
     const cle = cat + ':' + p.r.join(',') + ':' + (peau || '');

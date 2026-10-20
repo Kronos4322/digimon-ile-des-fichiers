@@ -24,7 +24,6 @@
   // ------------------------------------------------------------ objets : feu de camp, « feuille rouge » (bout de la queue de Seadramon)
   Object.assign(DW.World.OBJ, {
     campfire: { w: 24, h: 20, n: 1, fire: [12, 9], lights: [[12, 9, 64]], draw(d) {
-      d.ell(12, 16, 11, 3.4, '#3a3630', 0, { flat: true });
       for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; d.ell(12 + Math.cos(a) * 9, 15 + Math.sin(a) * 3, 2.4, 1.8, ['#8a847a', '#7a746a', '#9a948a'][i % 3], 0, { tex: 0.3 }); }
       d.tube([[5, 15], [19, 11]], 1.6, 1.4, '#6a4424'); d.tube([[5, 11], [19, 15]], 1.6, 1.4, '#7a4e2a');
       d.ell(12, 12, 5, 2, '#ff7a20', 0, { unlit: true, noline: true }); d.ell(12, 10, 3, 3, '#ffd060', 0, { unlit: true, noline: true });

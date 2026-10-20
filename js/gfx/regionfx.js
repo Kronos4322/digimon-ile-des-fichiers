@@ -2,7 +2,7 @@
 // =====================================================================
 //  AMBIANCES DE RÉGION (au-dessus du décor, autour de la caméra) :
 //    marais : bulles qui remontent, feux follets verts la nuit     volcan : braises et cendres
-//    neige / sommet : scintillements au sol et poudreuse            cimetière : feux follets bleus, chauves-souris
+//    neige / sommet : scintillements au sol                         cimetière : feux follets bleus, chauves-souris
 //    usine / décharge / égouts : étincelles et vapeur               plage : mouettes, écume qui brille
 //    jungle / dinosaures : papillons tropicaux, feuilles qui tombent   jouets : confettis et étoiles
 //    brume : nappes de brouillard        canyon / savane : tourbillons de poussière

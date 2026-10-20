@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  MONDE — ambiances (lumière, particules, vignettage) par type de zone
+//  MONDE — ambiances (lumières, particules, fumées, crabes) par type de zone ; le vignettage : gfx/rendu.js
 // =====================================================================
 (function () {
   const Art = DW.Art, hash = Art.hash;
@@ -77,7 +77,7 @@
         else { p.y += p.vy * dt; p.x += Math.sin(this.t * 1.5 + p.ph) * 6 * dt; if (p.y < -8) this.p[i] = this.spawn(false); }
       }
       for (const s of this.springs) if (Math.random() < dt * 6) this.digits.push({ x: s.x + (Math.random() - 0.5) * 18, y: s.y - 8, life: 1.4, v: Math.random() < 0.5 ? '0' : '1' });
-      // fumée des cheminées (plus discrète la nuit) et étincelles du feu
+      // crabes qui trottinent ; fumée des cheminées, gouttes des jets d'eau et étincelles des feux
       for (const cr of this.crabs) {
         const k = Math.sin(this.t * 0.5 + cr.ph);
         if (Math.abs(k) > 0.3) cr.x += Math.sign(k) * 9 * dt;

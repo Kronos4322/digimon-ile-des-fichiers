@@ -48,7 +48,6 @@
     // ---------------------------------------------------------- portail ancien gravé (pièce maîtresse d'une région, 5×4)
     crestgate: { w: 92, h: 92, n: 7, draw(d, v) {
       const k = KEYS[v], c = col(k), S = '#8a8478', Sd = '#5e5850', Sl = '#b4ac9e', Ivy = '#3e8a3a';
-      d.ell(46, 88, 42, 4, '#2a2418', 0, { flat: true });
       d.rect(4, 70, 84, 16, Sd, { round: 0.1, tex: 0.4 });                            // marches
       d.deco.rect(4, 70, 84, 2, Sl);
       d.rect(8, 18, 18, 56, S, { round: 0.08, tex: 0.4 }); d.rect(66, 18, 18, 56, S, { round: 0.08, tex: 0.4 });   // piliers
@@ -63,7 +62,6 @@
     // ---------------------------------------------------------- piédestal de l'écusson (dans le sanctuaire)
     pedestal: { w: 30, h: 46, n: 7, lights: [[15, 12, 18]], draw(d, v) {
       const k = KEYS[v], c = col(k);
-      d.ell(15, 44, 13, 2.4, '#1a1418', 0, { flat: true });
       d.rect(5, 34, 20, 10, '#8a8478', { round: 0.15, tex: 0.3 });
       d.rect(9, 20, 12, 16, '#9a948a', { round: 0.1, tex: 0.3 });
       d.rect(4, 17, 22, 5, '#b4ac9e', { round: 0.3 });
@@ -73,7 +71,6 @@
     } },
     // ---------------------------------------------------------- vasque de pierre : v0 éteinte, v1 allumée
     brazier: { w: 22, h: 34, n: 2, lights: [[11, 8, 22]], draw(d, v) {
-      d.ell(11, 32, 9, 2, '#1a1418', 0, { flat: true });
       d.tube([[11, 32], [11, 18]], 3, 2.4, '#7a746a');
       d.ell(11, 17, 9, 3.4, '#8a8478', 0, { shiny: true }); d.deco.ell(11, 16, 7, 2, '#2a2420');
       if (v) {

@@ -21,7 +21,6 @@
     }
   }
   // ------------------------------------------------------------ petits éléments communs
-  const ground = (d, rx = 72) => d.ell(CX, H - 2, rx, 4, '#3a2a18', 0, { flat: true });
   function windowRow(d, x0, x1, y, w, h, step, glass, frame) {
     for (let x = x0; x + w <= x1; x += step) {
       d.deco.rect(x - 1, y - 1, w + 2, h + 2, frame);
@@ -55,7 +54,6 @@
   const BAZAR = {
     // Grand Bazar : deux niveaux, grandes vitrines sous un auvent rayé, balcon de bois, toit de tuiles, enseigne
     1(d) {
-      ground(d, 66);
       d.rect(14, 44, 122, 80, '#c8bca8', { round: 0.04, tex: 0.25 });
       for (let y = 50; y < 122; y += 7) d.deco.line(14, y, 136, y, 0.6, '#9a8e7c');
       windowRow(d, 22, 132, 52, 14, 14, 22, '#f4e0b0', '#6a4a2a');
@@ -75,7 +73,6 @@
     },
     // Centre commercial : grande façade vitrée, toit-terrasse, grande enseigne lumineuse, portes coulissantes, drapeaux
     2(d) {
-      ground(d, 74);
       d.rect(4, 30, 142, 94, '#e8e8f0', { round: 0.03 });
       d.rect(4, 26, 142, 8, '#b8bcc8'); d.deco.line(4, 34, 146, 34, 1, '#8a8e9a');
       for (let r = 0; r < 2; r++) for (let x = 10; x < 142; x += 22) {
@@ -98,7 +95,6 @@
   const RESTO = {
     // Grand Restaurant : une maison-champignon à étage, chapeau géant à pois, terrasses avec parasols
     1(d) {
-      ground(d, 68);
       for (const x of [20, 130]) { d.ell(x, 108, 14, 4, '#b04a3a', 0); d.deco.ell(x, 107, 9, 2.4, '#ffffff'); d.tube([[x, 108], [x, 122]], 1, 1, '#5a3a20'); d.rect(x - 9, 116, 18, 3, '#e8dcc8', { round: 0.4 }); d.rect(x - 7, 119, 2, 5, '#6a4a2a'); d.rect(x + 5, 119, 2, 5, '#6a4a2a'); }
       d.rect(36, 60, 78, 64, '#f4ead8', { round: 0.2, tex: 0.15 });
       windowRow(d, 44, 112, 70, 12, 14, 20, '#ffd890', '#8a5a3a');
@@ -111,7 +107,6 @@
     },
     // Restaurant gastronomique : bâtiment élégant à arcades, auvents verts, terrasse, dôme-champignon au sommet
     2(d) {
-      ground(d, 74);
       d.rect(6, 46, 138, 78, '#f4ecdc', { round: 0.03, tex: 0.15 });
       d.rect(4, 42, 142, 6, '#c8b898');
       for (let x = 14; x < 140; x += 22) { d.deco.rect(x, 56, 14, 18, '#ffd890'); d.deco.ell(x + 7, 56, 7, 5, '#ffd890'); d.deco.line(x + 7, 52, x + 7, 74, 0.7, '#8a6a4a'); }
@@ -129,7 +124,6 @@
   const DOJO = {
     // Grand Dojo : grand hall de bois, toits incurvés sur deux niveaux, véranda, lanternes
     1(d) {
-      ground(d, 70);
       d.rect(14, 64, 122, 60, '#f0e6d0', { round: 0.03 });
       for (let x = 14; x <= 136; x += 20) d.rect(x - 1.5, 64, 3, 60, '#5a3a20');
       for (let x = 18; x < 132; x += 20) if (Math.abs(x + 8 - CX) > 12) { d.deco.rect(x, 72, 16, 40, '#fbf6e8'); for (let y = 80; y < 112; y += 8) d.deco.line(x, y, x + 16, y, 0.5, '#c8b898'); d.deco.line(x + 8, 72, x + 8, 112, 0.5, '#c8b898'); }
@@ -143,7 +137,6 @@
     },
     // Dojo complet : pagode centrale à trois toits, deux pavillons, lanternes
     2(d) {
-      ground(d, 74);
       for (const x0 of [4, 106]) {
         d.rect(x0, 78, 40, 46, '#f0e6d0'); d.deco.rect(x0 + 6, 88, 28, 24, '#fbf6e8'); d.deco.line(x0 + 20, 88, x0 + 20, 112, 0.6, '#c8b898');
         d.poly([[x0 - 4, 80], [x0 + 6, 66], [x0 + 34, 66], [x0 + 44, 80]], '#3a4a7a', { tex: 0.15 }); d.deco.line(x0 - 4, 80, x0 + 44, 80, 1.2, '#2a3458');
@@ -166,7 +159,6 @@
   const GARDEN = {
     // Grande serre : longue serre de verre à toit arrondi, plates-bandes devant
     1(d) {
-      ground(d, 70);
       d.rect(10, 60, 130, 62, '#c8f0e0', { round: 0.04 });
       d.blob([[10, 62], [20, 38], [75, 24], [130, 38], [140, 62]], '#d8f8ec', { shiny: true });
       for (let x = 22; x < 132; x += 16) { d.deco.line(x, 60, x, 122, 1, '#7ab8a0'); d.deco.curve([[x, 60], [x + (CX - x) * 0.1, 36]], 1, '#7ab8a0'); }
@@ -178,7 +170,6 @@
     },
     // Jardins maraîchers : grand dôme de verre central, deux ailes vitrées, potagers devant
     2(d) {
-      ground(d, 74);
       for (const x0 of [2, 98]) {
         d.rect(x0, 70, 50, 52, '#c8f0e0'); d.blob([[x0, 72], [x0 + 8, 58], [x0 + 42, 58], [x0 + 50, 72]], '#d8f8ec', { shiny: true });
         for (let x = x0 + 8; x < x0 + 50; x += 10) d.deco.line(x, 60, x, 122, 0.9, '#7ab8a0');
@@ -212,7 +203,6 @@
 
   // ------------------------------------------------------------ ta maison : manoir (v 0), puis palais (v 1)
   OBJ.homepalace = { w: W, h: H, n: 2, lights: [[40, 96, 14], [110, 96, 14], [75, 70, 16]], draw(d, v = 0) {
-    ground(d, 72);
     const wall = '#f4ead8', roof = '#3a5a9a', roofD = '#2a3a6a', glass = '#ffe8a0', frame = '#7a5a3a';
     if (!v) {
       // manoir : corps central à étage et deux ailes, toits d'ardoise, cheminées, porche à colonnes

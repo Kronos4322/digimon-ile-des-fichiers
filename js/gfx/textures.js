@@ -17,7 +17,7 @@
     'sable_dunes', 'terre_brune', 'terre_sombre', 'sable_plage', 'terre_savane', 'terre_cailloux', 'terre_craquelee', 'sable_desert', 'eau_mer', 'eau_douce'];
   const LISTE = {
     commun: [...SOLS, 'arbre_sapin', 'arbre_cerisier', 'arbre_chene_clair', 'arbre_saule', 'arbre_mauve', 'arbre_chene', 'arbre_vert', 'arbre_vert_vif', 'arbre_bouleau',
-      'arbre_fleurs', 'arbre_automne_brun', 'arbre_erable_orange', 'arbre_erable_rouge', 'arbre_mi_automne', 'arbre_bouleau_automne', 'arbre_mi_automne', 'arbre_chene_automne', 'arbre_neige_tordu', 'arbre_neige_bouleau', 'arbre_neige_rond', 'arbre_neige_chene',
+      'arbre_fleurs', 'arbre_automne_brun', 'arbre_erable_orange', 'arbre_erable_rouge', 'arbre_mi_automne', 'arbre_bouleau_automne', 'arbre_chene_automne', 'arbre_neige_tordu', 'arbre_neige_bouleau', 'arbre_neige_rond', 'arbre_neige_chene',
       'arbre_neige_sapin', 'arbre_neige_sapin3', 'arbre_neige_nu',
       'buisson', 'buisson_baies', 'buisson_baies2', 'buisson_fleuri', 'amanites', 'fougere_1', 'fougere_2', 'rocher_mousse', 'souche', 'tronc_couche', 'racines',
       'panneau', 'monolithe', 'sanctuaire', 'totem', 'fleur_cristal', 'cristaux', 'source',
@@ -69,7 +69,8 @@
   };
   // objets du jeu remplacés par une image (par dossier) : un nom, ou plusieurs (variante choisie selon la case)
   // ARBRES DU JEU dessinés avec les images du dossier commun : [type][variante] -> image (variantes de OBJ.tree : 0-2 verts,
-  // 3 chêne, 4 bouleau, 5-7 automne, 8 vert profond, 9 moussu, 10-11 hiver, 12-13 en fleurs, 14 nu, 15 nu enneigé ;
+  // 3 chêne, 4 bouleau, 5-7 automne, 8 vert profond, 9 moussu, 10-11 hiver, 12-13 en fleurs, 14 sans feuilles vertes (feuillage
+  // brun : pas d'image d'arbre nu sans neige), 15 nu enneigé ;
   // chêne et bouleau : 0 été, 1 automne, 2 nu, 3 nu enneigé ; sapin : 0-2, 3 enneigé — gfx/meteo.js choisit selon la saison)
   const ARBRES = {
     tree: ['arbre_vert', 'arbre_vert_vif', 'arbre_chene_clair', 'arbre_chene', 'arbre_bouleau', 'arbre_erable_orange', 'arbre_erable_rouge', 'arbre_mi_automne',
@@ -77,8 +78,7 @@
     oak: ['arbre_chene', 'arbre_chene_automne', 'arbre_automne_brun', 'arbre_neige_chene'],
     birch: ['arbre_bouleau', 'arbre_bouleau_automne', 'arbre_automne_brun', 'arbre_neige_bouleau'],
     pine: ['mont_sapin', 'arbre_sapin', 'mont_sapin', 'arbre_neige_sapin'],
-    // (le joueur veut SES arbres partout : toutes les autres espèces d'arbres du jeu prennent l'image la plus proche ;
-    //  seuls les palmiers et cocotiers restent, faute d'image)
+    // (le joueur veut SES arbres partout : toutes les autres espèces d'arbres du jeu prennent l'image la plus proche)
     saule: ['arbre_saule'], pintordu: ['arbre_sapin'], bigtree: ['arbre_chene', 'arbre_chene_clair'],
     jungletree: ['arbre_vert', 'arbre_chene', 'arbre_vert_vif'], cycad: ['arbre_vert_vif', 'arbre_vert'], mangrove: ['arbre_saule'], swamptree: ['arbre_saule'],
     acacia: ['arbre_chene_clair', 'arbre_mi_automne'], baobab: ['arbre_chene'], deadtree: ['arbre_automne_brun', 'arbre_neige_tordu'],
@@ -102,7 +102,7 @@
     floorlamp: ['maison_lampadaire'], frame: ['maison_tableau'], stool: ['maison_tabouret'], shelf: ['maison_etagere_murale'],
     sidetable: ['maison_chevet'], plant: ['maison_plante', 'maison_vase_fleurs'], fridge: ['maison_frigo'],
     // mobilier extérieur : les distributeurs gardent leur couleur selon leur rôle (0 soins PV : rouge, 1 PM : bleu, 2 nourriture :
-    // blanc) ; le panneau d'affichage de la ville et les stands des recrues gardent leur dessin (leurs variantes ont un sens)
+    // blanc) ; les stands des recrues gardent leur dessin (leurs variantes ont un sens)
     crates: ['ext_caisse', 'ext_caisse2'], vending: ['ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc'], mailbox: ['ext_boite_lettres'], toilet: ['ext_toilettes'],
     planter: ['ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose'], marketstall: ['ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain'],
     stall: ['ext_etal_pain'], producestand: ['ext_etal_fruits'],
@@ -119,7 +119,7 @@
   };
   // TAILLES : hauteur de chaque décor dessiné, en HAUTEURS DE HÉROS (le héros : 34 px du jeu) ; le joueur : « les arbres
   // doivent être 3 fois plus grands que le personnage »
-  const HEROS = 34.5;   // hauteur visible du héros (sprite de marche), en pixels du jeu
+  const HEROS = DW.World.HEROS_VISIBLE;   // hauteur visible du héros (sprite de marche), en pixels du jeu
   const HAUTEUR = {
     // (règle du joueur : TOUS les arbres font 3 fois la hauteur du héros, quelle que soit l'espèce)
     tree: 3, oak: 3, birch: 3, pine: 3, saule: 3, pintordu: 3, bigtree: 3, jungletree: 3, cycad: 3, mangrove: 3, swamptree: 3, acacia: 3, baobab: 3, deadtree: 3, candytree: 3,
