@@ -157,7 +157,7 @@
     'ui/intro.js': '919e3315',
     'ui/touch.js': '59197a5b',
     'maps/common.js': '3abc309b',
-    'maps/retouches.js': '04372ee2',
+    'maps/retouches.js': '1d7cbe5a',
     'maps/puzzle.js': 'f06fe783',
     'maps/decor.js': '32b94d69',
     'maps/palais.js': '6daab73d',
@@ -208,7 +208,7 @@
   const PAQUETS = [
     { f: '../paquets/jeu-1.js', v: 'dd5362c8' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: 'bd3ed567' },
+    { f: '../paquets/jeu-2.js', v: '15cc2f5f' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

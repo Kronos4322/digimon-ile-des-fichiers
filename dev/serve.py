@@ -3,17 +3,30 @@
 #                                (utilisé par dev/captures.js pour la galerie de captures d'écran)
 # ATELIER DES CARTES (dossier dev/editeur/, seulement sur ce PC : le serveur n'écoute que 127.0.0.1)
 # POST /dev/retouches            : réécrit js/maps/retouches_donnees.js (les cartes retouchées) ; copie de sûreté
-#                                  de l'ancienne version dans dev/editeur/sauvegardes/
+#                                  de l'ancienne version dans dev/editeur/sauvegardes/. En-tête X-Version : la version
+#                                  sur laquelle l'atelier a travaillé ; si le fichier a changé depuis (autre onglet, autre
+#                                  serveur, correction à la main), REFUS (409) : rien n'est écrasé. Écriture sous verrou,
+#                                  d'un seul coup (fichier temporaire puis remplacement) ; réponse « ok <nouvelle version> »
+# GET  /dev/retouches_version    : la version actuelle de ce fichier (empreinte de son contenu)
 # GET  /dev/retouches_validees   : la dernière version VALIDÉE de ce fichier (celle du dernier commit) : l'atelier
 #                                  compare avec elle pour lister ce qui reste à faire valider
 # POST /dev/validation?name=...  : le rapport « à valider » (a_valider.md) et ses images avant / après, dans
 #                                  dev/editeur/validation/ ; POST /dev/validation?vider=1 : on repart d'un dossier vide
 # (pas de publication directe : Claude relit le rapport, vérifie les cartes, puis met en ligne)
-import http.server, os, sys, re, urllib.parse, shutil, subprocess, time
+import hashlib, http.server, os, sys, re, threading, urllib.parse, shutil, subprocess, time
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 RET = os.path.join(ROOT, 'js', 'maps', 'retouches_donnees.js')
 VALIDATION = os.path.join(ROOT, 'dev', 'editeur', 'validation')
+VERROU = threading.Lock()   # (deux enregistrements rapprochés ne s'entremêlent pas)
+
+
+def version_retouches():
+    try:
+        with open(RET, 'rb') as f:
+            return hashlib.sha256(f.read()).hexdigest()[:16]
+    except OSError:
+        return ''
 
 class NoCache(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -30,6 +43,8 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
+        if urllib.parse.urlparse(self.path).path == '/dev/retouches_version':
+            return self.reply(200, version_retouches())
         if urllib.parse.urlparse(self.path).path == '/dev/retouches_validees':
             r = subprocess.run(['git', 'show', 'HEAD:js/maps/retouches_donnees.js'], cwd=ROOT, capture_output=True)
             return self.reply(200, r.stdout.decode('utf-8', errors='replace') if r.returncode == 0 else '')
@@ -44,19 +59,25 @@ class NoCache(http.server.SimpleHTTPRequestHandler):
             txt = data.decode('utf-8')
             if not txt.lstrip().startswith("'use strict';") or 'DW.RETOUCHES = ' not in txt:
                 return self.reply(400, 'contenu inattendu')
-            if os.path.exists(RET):
-                out = os.path.join(ROOT, 'dev', 'editeur', 'sauvegardes')
-                os.makedirs(out, exist_ok=True)
-                old = sorted(f for f in os.listdir(out) if f.startswith('retouches_'))
-                # (une copie au plus toutes les 5 minutes : la sauvegarde automatique ne noie pas les anciennes versions)
-                if not old or time.time() - os.path.getmtime(os.path.join(out, old[-1])) > 300:
-                    shutil.copy(RET, os.path.join(out, time.strftime('retouches_%Y%m%d_%H%M%S.js')))
-                old = sorted(f for f in os.listdir(out) if f.startswith('retouches_'))
-                for f in old[:-40]:   # on garde les 40 dernières versions
-                    os.remove(os.path.join(out, f))
-            with open(RET, 'w', encoding='utf-8', newline='\n') as f:
-                f.write(txt.replace('\r\n', '\n'))
-            return self.reply(200, 'ok')
+            with VERROU:
+                base = self.headers.get('X-Version')
+                if base is not None and base != version_retouches():
+                    return self.reply(409, 'le fichier des retouches a changé ailleurs depuis le chargement de l’atelier')
+                if os.path.exists(RET):
+                    out = os.path.join(ROOT, 'dev', 'editeur', 'sauvegardes')
+                    os.makedirs(out, exist_ok=True)
+                    old = sorted(f for f in os.listdir(out) if f.startswith('retouches_'))
+                    # (une copie au plus toutes les 5 minutes : la sauvegarde automatique ne noie pas les anciennes versions)
+                    if not old or time.time() - os.path.getmtime(os.path.join(out, old[-1])) > 300:
+                        shutil.copy(RET, os.path.join(out, time.strftime('retouches_%Y%m%d_%H%M%S.js')))
+                    old = sorted(f for f in os.listdir(out) if f.startswith('retouches_'))
+                    for f in old[:-60]:   # on garde les 60 dernières versions
+                        os.remove(os.path.join(out, f))
+                tmp = RET + '.tmp'
+                with open(tmp, 'w', encoding='utf-8', newline='\n') as f:
+                    f.write(txt.replace('\r\n', '\n'))
+                os.replace(tmp, RET)
+                return self.reply(200, 'ok ' + version_retouches())
         if url.path == '/dev/validation':
             os.makedirs(VALIDATION, exist_ok=True)
             if query.get('vider'):

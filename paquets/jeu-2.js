@@ -20,12 +20,12 @@
     de: id => (DW.RETOUCHES && DW.RETOUCHES.cartes && DW.RETOUCHES.cartes[id]) || null,
     cle: o => o.kind + '@' + o.x + ',' + o.y,
     // la carte avant retouches (l'éditeur repart de là à chaque modification)
-    base(m) { return { rows: m._baseRows || m.rows, objects: m._baseObjects || m.objects || [], alt: m._baseAlt !== undefined ? m._baseAlt : m.alt, theme: m._baseTheme !== undefined ? m._baseTheme : m.theme, warps: m._baseWarps || m.warps || [], doors: m._baseDoors || m.doors || [] }; },
+    base(m) { return { rows: m._baseRows || m.rows, objects: m._baseObjects || m.objects || [], alt: m._baseAlt !== undefined ? m._baseAlt || undefined : m.alt, theme: m._baseTheme !== undefined ? m._baseTheme : m.theme, warps: m._baseWarps || m.warps || [], doors: m._baseDoors || m.doors || [] }; },
     cleSortie: (w, porte) => (porte ? 'd:' : 'w:') + w.to + '@' + w.x + ',' + w.y,
     appliquer(m, id, force) {
       const T = R.de(id);
       if (!m.rows || (!T && !m._baseRows) || (!force && m._retFor === m.rows)) return;
-      if (m._retFor !== m.rows) { m._baseSigns = { ...(m.signs || {}) }; m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed && !o.decor); m._baseAlt = m.alt; m._baseTheme = m.theme; m._baseWarps = (m.warps || []).filter(w => !w.ed); m._baseDoors = (m.doors || []).filter(d => !d.ed); }
+      if (m._retFor !== m.rows) { m._baseSigns = { ...(m.signs || {}) }; m._baseRows = m.rows; m._baseObjects = (m.objects || []).filter(o => !o.ed && !o.decor); m._baseAlt = m.alt || null; m._baseAltBord = !!m.altBord; m._baseTheme = m.theme; m._baseWarps = (m.warps || []).filter(w => !w.ed); m._baseDoors = (m.doors || []).filter(d => !d.ed); }
       const B = R.base(m);
       m.theme = T && T.theme ? T.theme : B.theme;
       if (T && T.ambient) m.ambient = T.ambient;
@@ -37,7 +37,8 @@
       if (m._baseDress === undefined) m._baseDress = m.dress === undefined ? null : m.dress;
       m.dress = T && T.decorAuto === false ? false : m._baseDress === null ? undefined : m._baseDress;
       const W = B.rows[0].length, H = B.rows.length, g = B.rows.map(r => [...r]);
-      m.alt = B.alt;
+      // (null : la carte n'avait pas de relief généré ; sinon, après « Annuler », l'atelier gardait le relief retouché comme base)
+      m.alt = B.alt; if (m._baseAltBord !== undefined) m.altBord = m._baseAltBord;
       if (T && T.niveaux && Object.keys(T.niveaux).length) relief(g, m, W, H, T.niveaux, B.alt);
       if (T) for (const k in T.cases || {}) { const [x, y] = k.split(',').map(Number); if (g[y] && x < W) g[y][x] = T.cases[k]; }
       if (m.alt && T && T.cases) for (const k in T.cases) if (T.cases[k] === STAIR) { const [x, y] = k.split(',').map(Number); m.alt[y * W + x] = DW.Relief.PASS; }
