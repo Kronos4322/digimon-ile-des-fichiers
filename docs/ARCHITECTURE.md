@@ -82,6 +82,13 @@ sinon la génération et le décor se refont par-dessus à la visite suivante.
 chaque carte exactement comme le jeu et enregistre tout dans `js/maps/retouches_donnees.js`. Le panneau « À valider »
 compare avec la dernière version validée (le dernier commit) ; « Faire valider » écrit `dev/editeur/validation/a_valider.md`
 et des images avant / après : Claude vérifie les cartes (`dev/check.html?seul=...`) puis met en ligne.
+- Enregistrement sûr : l'atelier envoie la version du fichier sur laquelle il travaille (`X-Version`) ; si le fichier a
+  changé ailleurs (autre onglet, autre serveur, correction à la main), `dev/serve.py` refuse (409) et l'atelier demande
+  de recharger la page. Pendant « Faire valider », l'atelier est bloqué (il remplace un instant `DW.RETOUCHES`).
+- Une sortie ou un objet DU JEU modifié dans l'atelier devient un ajout qui garde la clé de l'original (`reprend`) :
+  `maps/retouches.js` lui rend sa condition d'histoire (une règle de chapitre s'y ajoute) ou ses actions (panneaux-
+  fonctions recopiés à sa nouvelle place). La gomme épargne les objets porteurs d'actions ; les cabines de la plage
+  (énigme de Shellmon, repérées par leur colonne) ne se repeignent pas.
 
 ## Les images du créateur
 Les décors (sols, arbres, buissons, rochers, fleurs, mobilier, meubles, plage, montagne, volcan) et une partie des Digimon
@@ -173,7 +180,20 @@ Au début, aucun Digimon ne dépasse le stade **Champion** : chaque Ultime deman
 
 ## Combats (game/battle.js, ui/battleui.js)
 Tous les combats se jouent au tour par tour : le joueur choisit chaque technique ; effets d'élément à chaque impact
-(`game/fxelem.js`), animations des techniques (`game/fx.js`), allié automatique (`o.ally`). Équilibrage : `DW.BALANCE`.
+(`game/fxelem.js`), animations des techniques (`game/fx.js`), allié automatique (`o.ally`, dessiné à côté du
+partenaire : `drawAlly`). Équilibrage : `DW.BALANCE`.
+- Fond du combat (`gfx/battlebg.js`, clé « type@thème ») choisi par `Overworld.battleKey` : `mont` s'il y a de la lave
+  sur la carte (sommet du Mont Miharashi), `desert` au Désert des Poteaux, `lac` sur toute la région du Grand Lac et
+  au bord de l'eau ailleurs, sinon `foret` ; `plage` et `village` pour leurs cartes. Chaque type a son animation
+  (`drawBg` : vagues, rayons, reflets, braises, poussière).
+- Ne jamais attendre (`await`) une animation (`DW.tween`) dans la logique d'un combat ou d'une scène testée : les tests
+  n'ont pas de boucle de jeu (la suite échoue alors avec « arrêtée avant la fin »).
+
+## Digimon : parcours, lignées, dessins
+- Chaque Digimon garde son parcours (`m.parcours`, sauvegardé) : `DW.Evo.prev1` (forme précédente) et `DW.Evo.bebe`
+  (bébé de la lignée) le suivent ; sans passé connu, la forme dont il est l'évolution principale (les lignées de l'animé).
+- Dessins par code : repère 64×64 ; ceux qui dépassaient sont recadrés (`CADRE` dans `gfx/sprites.js`, mesuré par
+  `DW.Sprites.mesurerCadres()` dans la console : à relancer si un dessin change).
 
 ## Monde vivant
 Calendrier de 12 mois × 10 jours, 4 saisons ; météo par climat et par saison avec orages, tempêtes, canicules et
@@ -190,7 +210,8 @@ sécheresses (`engine/time.js`, rendu `gfx/ciel.js` et `gfx/meteo.js`). Décor v
 - À l'installation, le service worker range la page, les scripts et les images : le jeu installé s'ouvre hors ligne.
 
 ## Outils (`dev/`)
-- `node dev/tests.js` : tests de la logique, sans navigateur (`PILE=1` pour le détail d'une erreur).
+- `node dev/tests.js` : tests de la logique, sans navigateur (`PILE=1` pour le détail d'une erreur, `SEUL=texte` pour
+  ne lancer que certains tests ; un arrêt avant la fin compte comme un échec).
 - `python dev/versions.py` (`--verifier`) : empreintes des scripts et des images (voir « Publication »).
 - `python dev/serve.py 8766` : serveur local sans cache (et services de l'atelier des cartes).
 - `dev/check.html` (+ `checkmaps.js`) : toutes les cartes (sorties, arrivées, portes, panneaux, personnages accessibles,
