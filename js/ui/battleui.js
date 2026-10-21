@@ -48,6 +48,13 @@
       DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12);
       DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14);
     },
+    // l'ALLIÉ (l'enfant délivré et son Digimon : game/battle.js, allyTurn) : à côté du partenaire, un peu en retrait
+    drawAlly(c) {
+      const A = this.allyMon; if (!A || !(this.allyA > 0)) return;
+      const spr = DW.Sprites.battle(A.sp), k = Math.min(0.95, 62 / spr.h), x = POS.p.x + 46, y = POS.p.y - 13 - (this.allyJump || 0);
+      c.save(); c.globalAlpha = this.allyA * 0.3; c.fillStyle = '#000'; c.beginPath(); c.ellipse(x, POS.p.y - 12, 18, 4, 0, 0, 7); c.fill(); c.restore();
+      DW.Sprites.draw(c, spr, x, y, { scale: k, frame: Math.floor(this.t * 4 + 1), alpha: this.allyA });
+    },
     drawMon(c, side) {
       const s = this.spr[side], m = this.mon(side);
       if (!s.vis || !m) return;
@@ -167,6 +174,7 @@
       c.save(); c.translate(sx, 0);
       this.drawBg(c);
       this.drawMon(c, 'e');
+      this.drawAlly(c);
       this.drawMon(c, 'p');
       for (const f of this.fx) {
         if (f.t < 0) continue;

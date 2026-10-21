@@ -505,12 +505,18 @@ test("poids : un repas fait grossir, un combat fait à peine maigrir (on peut at
   yes(f0 - m.fat <= 1.01, 'vingt combats font trop maigrir');
 });
 
+// (une attente qui ne se termine jamais — une animation attendue sans boucle de jeu — vidait la file de Node : la suite
+//  s'arrêtait en silence avec le code 0, comme une réussite)
+let enCours = null, fini = false;
+process.on('exit', () => { if (!fini) { console.log(`  ÉCHEC  ${enCours || '(avant le premier test)'}\n        la suite s'est arrêtée avant la fin : une attente qui ne se termine jamais (animation attendue, promesse jamais résolue)`); process.exitCode = 1; } });
 (async () => {
   for (const [name, fn] of tests) {
     if (process.env.SEUL && !name.includes(process.env.SEUL)) continue;   // SEUL=texte : seulement les tests dont le nom le contient
+    enCours = name;
     const t0 = Date.now(); try { await fn(); ok++; console.log('  OK  ' + name + '  (' + ((Date.now() - t0) / 1000).toFixed(1) + ' s)'); }
     catch (e) { ko++; console.log('  ÉCHEC  ' + name + '\n        ' + (e && e.message) + (process.env.PILE ? '\n' + e.stack : '')); }   // PILE=1 : détail de l'erreur
   }
+  fini = true;
   console.log(`\n${ok} réussi(s), ${ko} échoué(s)`);
   process.exit(ko ? 1 : 0);
 })();

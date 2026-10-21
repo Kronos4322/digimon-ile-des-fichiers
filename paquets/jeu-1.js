@@ -18904,12 +18904,14 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         if (C.from && C.from !== C.sp) await DW.Game.push(new DW.EvolutionScene(new DW.Digimon(C.from, C.lvl), C.sp, { story: true }));
         Audio.play(this.o.music || 'boss');
         this.allyMon = new DW.Digimon(C.sp, C.lvl); this.allyN = 0; DW.state.seen[C.sp] = true;
+        this.allyA = 0; DW.tween(this, { allyA: 1 }, 0.5);   // (il apparaît à côté du partenaire : ui/battleui.js, drawAlly)
         await this.msg(`${this.allyMon.name} se bat à tes côtés !`);
         return null;
       }
       const mv = DW.MOVES[C.move] || { name: 'Attaque', type: 'Feu' }, big = ++this.allyN % 3 === 0;
       const dmg = Math.max(1, Math.round(E.maxHp * (big ? 0.12 : 0.07) * (0.85 + Math.random() * 0.3)));
       await this.msg(`${this.allyMon.name} utilise ${mv.name} !`, 0.7);
+      DW.tween(this, { allyJump: 7 }, 0.12).then(() => DW.tween(this, { allyJump: 0 }, 0.2));   // (un bond vers l'ennemi, sans attendre)
       Audio.sfx(big ? 'super' : 'hit'); this.sparkle('e', '#ffb060');
       await this.applyDamage('e', dmg);
       return this.checkFaints();
@@ -21567,6 +21569,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12);
       DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14);
     },
+    // l'ALLIÉ (l'enfant délivré et son Digimon : game/battle.js, allyTurn) : à côté du partenaire, un peu en retrait
+    drawAlly(c) {
+      const A = this.allyMon; if (!A || !(this.allyA > 0)) return;
+      const spr = DW.Sprites.battle(A.sp), k = Math.min(0.95, 62 / spr.h), x = POS.p.x + 46, y = POS.p.y - 13 - (this.allyJump || 0);
+      c.save(); c.globalAlpha = this.allyA * 0.3; c.fillStyle = '#000'; c.beginPath(); c.ellipse(x, POS.p.y - 12, 18, 4, 0, 0, 7); c.fill(); c.restore();
+      DW.Sprites.draw(c, spr, x, y, { scale: k, frame: Math.floor(this.t * 4 + 1), alpha: this.allyA });
+    },
     drawMon(c, side) {
       const s = this.spr[side], m = this.mon(side);
       if (!s.vis || !m) return;
@@ -21686,6 +21695,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       c.save(); c.translate(sx, 0);
       this.drawBg(c);
       this.drawMon(c, 'e');
+      this.drawAlly(c);
       this.drawMon(c, 'p');
       for (const f of this.fx) {
         if (f.t < 0) continue;

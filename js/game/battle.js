@@ -265,12 +265,14 @@
         if (C.from && C.from !== C.sp) await DW.Game.push(new DW.EvolutionScene(new DW.Digimon(C.from, C.lvl), C.sp, { story: true }));
         Audio.play(this.o.music || 'boss');
         this.allyMon = new DW.Digimon(C.sp, C.lvl); this.allyN = 0; DW.state.seen[C.sp] = true;
+        this.allyA = 0; DW.tween(this, { allyA: 1 }, 0.5);   // (il apparaît à côté du partenaire : ui/battleui.js, drawAlly)
         await this.msg(`${this.allyMon.name} se bat à tes côtés !`);
         return null;
       }
       const mv = DW.MOVES[C.move] || { name: 'Attaque', type: 'Feu' }, big = ++this.allyN % 3 === 0;
       const dmg = Math.max(1, Math.round(E.maxHp * (big ? 0.12 : 0.07) * (0.85 + Math.random() * 0.3)));
       await this.msg(`${this.allyMon.name} utilise ${mv.name} !`, 0.7);
+      DW.tween(this, { allyJump: 7 }, 0.12).then(() => DW.tween(this, { allyJump: 0 }, 0.2));   // (un bond vers l'ennemi, sans attendre)
       Audio.sfx(big ? 'super' : 'hit'); this.sparkle('e', '#ffb060');
       await this.applyDamage('e', dmg);
       return this.checkFaints();
