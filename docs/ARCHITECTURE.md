@@ -5,27 +5,43 @@ scripts dans l'ordre. Chaque fichier est une fonction auto-exécutée `(function
 fournit dans l'objet global **`DW`** (ex. `DW.Sprites`, `DW.MAPS`, `DW.BattleScene`). L'en-tête de chaque fichier dit ce
 qu'il contient : c'est la référence, ce document en donne la carte.
 
+## Lancer le jeu
+- **Jouer** (PC) : `JOUER.bat`, à la racine. Il ouvre le jeu EN LIGNE (https://kronos4322.github.io/digimon-ile-des-fichiers/,
+  la version de référence, PC et téléphone) dans une fenêtre d'application : Chrome (`--app=`), sinon Edge, sinon le
+  navigateur par défaut ; sa console se referme aussitôt. Au premier lancement, il pose un raccourci « Digimon » sur le
+  Bureau (cible : le navigateur en `--app=`, icône `.ico` faite depuis `assets/icons/icon-512.png`), une seule fois :
+  la marque `%LOCALAPPDATA%\Digimon Ile des Fichiers\raccourci.txt` s'en souvient (l'effacer pour le reposer).
+  Le fichier reste en ASCII et en LF : avec un caractère accentué, cmd le lit de travers quand la console est en UTF-8.
+- **Jamais** `index.html` ouvert comme un fichier (`file://`) : le navigateur y interdit `getImageData` sur les images
+  du jeu (personnage invisible, décors cassés). Le script en tête d'`index.html` renvoie alors vers le jeu en ligne.
+- **Essayer une modification avant de la publier** : `python dev/serve.py 8766`, puis http://localhost:8766 (scripts un
+  par un, erreurs lisibles ; `?paquets=1` pour essayer les paquets du site en ligne).
+- **Tester** : `node dev/tests.js`, puis `dev/check.html` si une carte a changé (voir « Outils »).
+
 ## Arborescence
 
 | Dossier | Rôle | Fichiers |
 |---|---|---|
-| `index.html` | Page : canvas + `js/scripts.js` (installation, plein écran) | |
-| `js/scripts.js` | **Liste unique des scripts**, dans l'ordre de chargement (jeu, `dev/check.html`, `dev/gallery.html`, atelier des cartes, tests) | |
+| `JOUER.bat` | Lanceur Windows du jeu en ligne (voir « Lancer le jeu ») ; l'atelier a le sien (`dev/editeur/LANCER_ATELIER.bat`) | |
+| `index.html` | Page : canvas, bouton « Installer le jeu », `js/scripts.js` ; renvoi de `file://` vers le jeu en ligne, service worker, installation, plein écran | |
+| `manifest.webmanifest`, `sw.js` | Application installable ; service worker (lancement rapide et hors ligne : voir « Publication ») | |
+| `js/scripts.js` | **Liste unique des scripts**, dans l'ordre de chargement (jeu, `dev/check.html`, `dev/gallery.html`, atelier des cartes, tests) ; empreintes et paquets (`dev/versions.py`) | |
 | `js/main.js` | Démarrage : écran titre tout de suite, écran de chargement si on lance la partie avant la fin des images, mode essai de l'atelier (`?essai=carte,x,y`) | |
 | `js/engine/` | Moteur, indépendant du jeu | `core.js` (canvas, utilitaires, timers, fondu, scènes, boucle), `input.js` (clavier, manette, tactile ; actions tenues par des « sources »), `audio.js` (bruitages et musiques chiptune), `art.js` (rendu des volumes « pré-rendu 3D »), `time.js` (horloge, calendrier, saisons, simulation de la météo) |
 | `js/ui/` | Écrans et interface | `widgets.js`, `dialog.js`, `menus.js` (Digivice, équipe, DigiDex, options), `sac.js` (sac, banque, coffre, frigo), `boutique.js`, `nom.js`, `status.js` (fiche Digimon), `evotable.js`, `learn.js` (oublier une technique), `battleui.js` (affichage du combat), `hatch.js` (œufs, éclosion), `renaissance.js`, `farm.js` (DigiFerme), `worldmap.js`, `title.js` (écran titre, emplacements), `intro.js` (« Qui es-tu ? », cinématique d'ouverture), `touch.js` (commandes tactiles) |
-| `js/data/` | Données pures | `types.js`, `moves.js`, `species.js` + `species2.js` + `species3.js`, `lignees.js`, `evolutions.js`, `ecussons.js`, `techniques_classe.js`, `techniques_elements.js`, `items.js` (catalogue de Digimon World 1, boutiques), `equipements.js`, `music.js` + `musiques_regions.js`, `flags.js` (liste officielle des drapeaux) |
+| `js/data/` | Données pures | `versions_images.js` (empreintes des images, fabriqué par `dev/versions.py`), `types.js`, `moves.js`, `species.js` + `species2.js` + `species3.js`, `lignees.js`, `evolutions.js`, `ecussons.js`, `techniques_classe.js`, `techniques_elements.js`, `items.js` (catalogue de Digimon World 1, boutiques), `equipements.js`, `music.js` + `musiques_regions.js`, `flags.js` (liste officielle des drapeaux) |
 | `js/gfx/` | Graphismes | voir ci-dessous |
 | `js/game/` | Logique de jeu | voir ci-dessous |
 | `js/maps/` | Cartes et scénario | voir ci-dessous |
-| `assets/` | Images, polices, icônes | `commun/jeu/` et `volcan/jeu/` (copies allégées des images du créateur, faites par `dev/optimiser_textures.py`), `grotte/jeu/`, `bebe/jeu/`, `desert/jeu/` (grotte de Shellmon, villages de bébés, désert : WebP, chargés après le démarrage), `intro/jeu/` (écran titre et introduction peints), `commun/kit/` (kit du personnage, `dev/kit_persos.py`), `ASSETS - Digimon/` et `volcan/*.png` (originaux : sur le PC du créateur seulement, hors GitHub), `css/`, `fonts/` (licence SIL OFL), `icons/` |
+| `assets/` | Images, polices, icônes, style de la page | `commun/jeu/` et `volcan/jeu/` (copies allégées des images du créateur, faites par `dev/optimiser_textures.py`), `grotte/jeu/`, `bebe/jeu/`, `desert/jeu/` (grotte de Shellmon, villages de bébés, désert : WebP, chargés après le démarrage), `intro/jeu/` (écran titre et introduction peints), `commun/kit/` (kit du personnage, `dev/kit_persos.py`), `ASSETS - Digimon/` et `volcan/*.png` (originaux : sur le PC du créateur seulement, hors GitHub), `css/style.css` (page du jeu : polices, canvas, bouton d'installation), `fonts/` (licence SIL OFL), `icons/` (icônes de l'application et du raccourci de `JOUER.bat`) |
+| `paquets/` | Scripts du jeu réunis pour le site en ligne (`jeu-1.js`, `jeu-2.js`), fabriqués par `dev/versions.py` : ne jamais les modifier à la main | |
 | `dev/` | Outils (jamais chargés par le jeu) | voir « Outils » |
-| `docs/` | Documentation | ce fichier, `ZONES_DW1.md` (recherches sur Digimon World 1) |
+| `docs/` | Documentation | ce fichier, `ZONES_DW1.md` (recherches sur Digimon World 1), `RAPPORT_GAMMA.md` et `audits_gamma/` (mission GAMMA, nuit du 20 au 21 octobre 2026 : audit, fait / à faire), `Digimon_par_chapitre.xlsx` (Digimon de chaque chapitre) |
 
 **`js/gfx/`** — `sprites.js` (cache et respiration des Digimon ; ceux qui ont des images du créateur, table `IMAGES`, les
 prennent : vues combat, profil, face, dos), `digimon/*.js` (un dessin par espèce pour les autres : les bébés sont tous des images du créateur ;
 `entrainement.js`, `disciples.js`, `champions.js`, `ultimes.js`, `ultimes2.js`, `ile.js`, `chapitre3.js`, lignées détaillées
-`agumon.js`, `gabumon.js`, `lignees.js`, vues de face / de dos `vues.js`), `hero.js` (sprite de marche du joueur et des
+`agumon.js`, `gabumon.js`, `lignees.js`, `lignees2.js`, `kari.js`, vues de face / de dos `vues.js`), `hero.js` (sprite de marche du joueur et des
 enfants de l'histoire `DW.HEROES`), `persos.js` + `kit_donnees.js` (personnage assemblé avec le kit du créateur), `icons.js`,
 **`objects.js`** (légende des cartes `World.CH`, objets `World.OBJ`, dessins de secours `World.secours`, échelle des décors
 et des bâtiments, `World.obj`), **`textures.js`** (les images du créateur : sols par thème, arbres et décors qui remplacent
@@ -42,19 +58,22 @@ combat), `ciel.js` (jour, nuit, météo à l'écran), `meteo.js` (orages, tempê
 élevage : `care.js` (faim, toilettes), `life.js` (vie façon Digimon World 1 : durée de vie, sommeil, maladie, discipline,
 corpulence), `companion.js` (le partenaire sur la carte), entraînement : `training.js`, `trainfield.js` (séance sur le poste
 même), `trainingames.js` (mini-jeux d'entraînement), monde : `calendrier.js`, `abri.js` (orages), `paysage.js` (échanges avec
-le décor), `sol.js` (trouvailles au sol), `wild.js` (Digimon sauvages visibles), `lave.js` (dangers volcaniques), ville :
+le décor), `sol.js` (trouvailles au sol), `wild.js` (Digimon sauvages visibles), `lave.js` (dangers volcaniques),
+`perils.js` (périls des souterrains du Mont Miharashi : éboulis, chauves-souris, tombeaux en flammes), ville :
 `town.js` (recrues, niveau), `collab.js`, `services.js`, `requests.js`, `cuisine.js`, activités : `activities.js` (tournois,
 curling, trésor, pêche, cartes), `peche.js`, `minijeux.js`, combat : `battle.js` (tour par tour), `fx.js` (animations des
 techniques), `fxelem.js` (effets d'élément), `evolution.js` (séquence de Digivolution), histoire : `story.js` (Engrenages
 Noirs), `guide.js` (Jijimon), `debut.js` (début joué dans la forêt), `chapitre1.js`, `cine_shellmon.js`, `chapitre2.js`,
-`chapitre3.js`, `trophees.js`, et **`overworld.js`** (exploration ; `DW.preparerCarte` : une carte prête à jouer).
+`chapitre3.js`, `quetes.js` (quêtes annexes), `trophees.js`, et **`overworld.js`** (exploration ; `DW.preparerCarte` : une
+carte prête à jouer).
 
 **`js/maps/`** — `common.js` (`DW.getMap`, outils `DW.MapKit` : `paint`, `forestGen`, `zoomMap`, `zpt`, `freeNear`,
 `changerLignes`...), `puzzle.js` (le monde en pièces de 96 × 72 cases reliées par leurs bords), `monde.js` (grille du monde,
 voisines), `relief.js` (relief en niveaux), `retouches.js` + `retouches_donnees.js` (retouches de l'atelier des cartes),
 `decor.js` (décor en kits et lieu marquant), `distrib.js` (distributeurs, panneaux au bord des chemins), cartes :
 `foret.js`, `plage.js`, `rivage.js`, `village.js`, `quartiers.js`, `champs.js`, `gym.js`, `gymnase.js`, `classe.js`,
-`berceau.js`, `yokomon.js`, `souterrain.js`, `miharashi.js` (chapitre 3), `regions.js` (16 régions de 10 sous-zones),
+`berceau.js`, `yokomon.js`, `souterrain.js`, `miharashi.js` (chapitre 3), `sous_volcan.js` (la grotte de Sora sous le Mont
+Miharashi, chapitre 3), `regions.js` (16 régions de 10 sous-zones),
 intérieurs : `maison.js`, `joueur.js`, `interieurs.js`, `grandir.js` (bâtiments qui grandissent), `palais.js`, donjons :
 `donjons.js` + `enigmes.js`, boss : `kuwagamon.js`, `antre.js` (Shellmon).
 
@@ -210,24 +229,48 @@ sécheresses (`engine/time.js`, rendu `gfx/ciel.js` et `gfx/meteo.js`). Décor v
   **empreinte** : le jeu les demande avec `?v=<empreinte>`. `sw.js` les sert depuis son cache sans rien redemander au
   serveur tant qu'ils n'ont pas changé ; un fichier modifié change d'adresse (jamais de vieille version). La page,
   `js/scripts.js`, les polices et `js/maps/retouches_donnees.js` (écrit par l'atelier) restent « réseau d'abord ».
-- **Avant chaque commit** : `python dev/versions.py` (les tests refusent une empreinte périmée) ; **après le commit** :
-  `python dev/versions.py --verifier` (chaque empreinte du commit correspond-elle au fichier du commit ?), puis `git push`.
+- **Paquets du site en ligne** : en ligne, `js/scripts.js` charge les scripts réunis en quelques fichiers
+  (`paquets/jeu-<n>.js`, bloc `PAQUETS`, coupés aux retouches de l'atelier qui restent à part) : une demande au lieu
+  de 160. En local (`localhost`) et dans les pages de `dev/`, les scripts un par un (erreurs lisibles ; `?paquets=1`
+  pour essayer les paquets). `dev/versions.py` les refait ; les tests vérifient qu'ils sont à jour.
+- **Avant chaque commit** : `python dev/versions.py` (les tests refusent une empreinte ou un paquet périmé) ; **après le
+  commit** : `python dev/versions.py --verifier` (chaque empreinte du commit correspond-elle au fichier du commit ?),
+  puis `git push`.
 - À l'installation, le service worker range la page, les scripts et les images : le jeu installé s'ouvre hors ligne.
 
 ## Outils (`dev/`)
+Jamais chargés par le jeu. Les pages et les outils de console demandent le serveur local (`python dev/serve.py 8766`).
+
+**Vérifier**
 - `node dev/tests.js` : tests de la logique, sans navigateur (`PILE=1` pour le détail d'une erreur, `SEUL=texte` pour
-  ne lancer que certains tests ; un arrêt avant la fin compte comme un échec).
-- `python dev/versions.py` (`--verifier`) : empreintes des scripts et des images (voir « Publication »).
-- `python dev/serve.py 8766` : serveur local sans cache (et services de l'atelier des cartes).
+  ne lancer que certains tests ; un arrêt avant la fin compte comme un échec). Il charge aussi `geographie.js` et
+  `assemblage.js` (géographie du monde des chapitres 1 à 3).
 - `dev/check.html` (+ `checkmaps.js`) : toutes les cartes (sorties, arrivées, portes, panneaux, personnages accessibles,
-  décor compris) et l'arbre des Digivolutions ; `?seul=carte1,carte2`.
-- `dev/empreintes.js` : empreinte des pixels de chaque dessin ; `Empreintes.base()` avant un nettoyage,
+  décor compris) et l'arbre des Digivolutions ; `?seul=carte1,carte2` ; résultat aussi dans `window.CHECK_RESULT`.
+- `dev/gallery.html` (+ `gallery.js`) : sprites des Digimon (`?sp=agumon,greymon`, vide : tous), du héros (`?hero`),
+  icônes des objets (`?icons`). Style des deux pages : `dev/pages.css`.
+
+**Publier et servir**
+- `python dev/versions.py` (`--verifier`) : empreintes des scripts et des images, paquets (voir « Publication »).
+- `python dev/serve.py [port]` : serveur local sans cache ; enregistre les captures (`POST /dev/save` → `dev/captures/`)
+  et sert l'atelier des cartes (port 8765, `dev/editeur/LANCER_ATELIER.bat`).
+
+**Outils de console** — à charger dans la page du jeu (ou d'une page de `dev/`) servie par `dev/serve.py` :
+`const s = document.createElement('script'); s.src = 'dev/shots.js'; document.head.appendChild(s);` (l'en-tête de
+chaque fichier dit comment s'en servir). Les captures vont dans `dev/captures/` (hors Git).
+- `shots.js` : la base des captures (`DEV.map`, `DEV.town`, `DEV.grid`, `DEV.sheet`), à charger avant les suivants ;
+  `captures.js` (galerie de toutes les images du jeu), `avantapres.js` (mêmes vues avant / après un changement),
+  `guide.js` (lieu avec des repères numérotés, pour les guides du joueur en PDF).
+- Vues d'ensemble : `islandmap.js` (toute l'île selon ses passages), `domaine.js` (une région, cartes côte à côte),
+  `assemblage.js` (cartes collées à leur vraie place dans la grille du monde, `maps/monde.js`).
+- Cohérence des cartes : `geographie.js` (ruptures aux frontières ; aussi le bouton « Diagnostic » de l'atelier),
+  `liens.js` (sorties et retours entre cartes extérieures).
+- `empreintes.js` : empreinte des pixels de chaque dessin ; `Empreintes.base()` avant un nettoyage,
   `Empreintes.compare()` après : rien ne doit changer à l'écran.
-- `dev/gallery.html` (sprites), `dev/textfit.js` (textes qui débordent), `dev/shots.js`, `dev/captures.js`,
-  `dev/avantapres.js` (captures), `dev/islandmap.js`, `dev/plan.js`, `dev/domaine.js`, `dev/assemblage.js` (vues
-  d'ensemble), `dev/geographie.js` et `dev/liens.js` (cohérence des liens entre cartes), `dev/guide.js` (guides du
-  joueur en PDF), `dev/playtest.js` (partie jouée automatiquement), `dev/optimiser_textures.py` et `dev/kit_persos.py`
-  (images du créateur).
+- `textfit.js` (textes qui débordent de leur cadre), `playtest.js` (partie du chapitre 1 jouée automatiquement).
+
+**Images du créateur** : `python dev/optimiser_textures.py` (copies allégées, découpe des planches de Digimon) et
+`python dev/kit_persos.py` (kit d'habillage du personnage, `gfx/kit_donnees.js`).
 
 ## Conventions
 - Textes du jeu et commentaires en français ; fichiers en UTF-8, fins de ligne LF (les tests le vérifient).
