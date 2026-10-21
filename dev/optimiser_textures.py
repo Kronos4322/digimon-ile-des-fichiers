@@ -12,7 +12,7 @@ PLANCHES (plusieurs objets par image, sur fond vert) : une entrée (fichier, num
 planche, dans l'ordre de lecture (rangées de haut en bas, puis de gauche à droite) ; (fichier, [a, b]) réunit deux
 morceaux. Le fond vert est enlevé et le liseré vert des bords neutralisé (numpy et scipy nécessaires).
 """
-import os, sys
+import glob, os, sys
 from PIL import Image
 
 RACINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
@@ -71,6 +71,10 @@ def optimiser(dossier):
 # fond noir enlevé, recadrés, posés dans le cadre des arbres du jeu (36 x 46, agrandi 1,55 fois en jeu).
 # (le dossier est rangé dans le jeu : assets/ASSETS - Digimon ; ses originaux ne vont pas sur GitHub, seules les copies jeu/)
 SOURCE_COMMUN = os.path.join(RACINE, 'ASSETS - Digimon')
+# Le dossier commun (arbres, décors, Digimon...) : les copies de travail en PNG restent sur le PC du créateur
+# (dev/cache/commun, jamais publié) ; le jeu reçoit des WebP, 4 fois plus légers (publier_commun : avant, 16 Mo de PNG à
+# télécharger, et le « Chargement des décors » durait sur un PC lent ou une connexion faible)
+MAITRES_COMMUN = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache', 'commun')
 H = 'Texture herbe/'; S = 'Sables et terre/'; E = 'eau/'; A = 'Arbres/'
 COMMUN = {
     # sols (128 x 128 px du jeu = 8 x 8 cases)
@@ -444,7 +448,7 @@ def morceau(f, k):
 def optimiser_commun():
     if not os.path.isdir(SOURCE_COMMUN):
         print('dossier introuvable :', SOURCE_COMMUN); return
-    dst = os.path.join(RACINE, 'commun', 'jeu'); os.makedirs(dst, exist_ok=True)
+    dst = MAITRES_COMMUN; os.makedirs(dst, exist_ok=True)
     for nom, rel in COMMUN.items():
         part = None
         if isinstance(rel, tuple): rel, part = rel
@@ -609,7 +613,7 @@ def numeroter_digimon():
 def optimiser_digimon():
     if '--numeros' in sys.argv: return numeroter_digimon()
     src = os.path.join(SOURCE_COMMUN, 'Digimon')
-    dst = os.path.join(RACINE, 'commun', 'jeu'); os.makedirs(dst, exist_ok=True)
+    dst = MAITRES_COMMUN; os.makedirs(dst, exist_ok=True)
     for sp, (fichier, vues, *haut) in DIGIMON.items():
         haut = haut[0] if haut else HAUT_DIGIMON
         f = os.path.join(src, fichier)
@@ -783,6 +787,25 @@ def optimiser_intro():
         print('intro/%-12s -> 640x480  %4d Ko' % (nom, os.path.getsize(cible) // 1024))
 
 
+# les copies publiées du dossier commun : chaque PNG de travail (dev/cache/commun) devient un WebP dans assets/commun/jeu
+# (les Digimon en pixel art restent nets : WebP sans perte) ; un ancien PNG publié à côté est retiré
+PIXEL_ART = ('digi_botamon_', 'digi_pichimon_', 'digi_yukimibotamon_')
+
+
+def publier_commun():
+    dst = os.path.join(RACINE, 'commun', 'jeu'); os.makedirs(dst, exist_ok=True)
+    n = 0
+    for f in sorted(glob.glob(os.path.join(MAITRES_COMMUN, '*.png'))):
+        nom = os.path.basename(f)[:-4]; cible = os.path.join(dst, nom + '.webp')
+        if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
+        im = Image.open(f)
+        if nom.startswith(PIXEL_ART): im.save(cible, 'WEBP', lossless=True, method=4)
+        else: im.save(cible, 'WEBP', quality=90, method=4, alpha_quality=100)
+        if os.path.exists(os.path.join(dst, nom + '.png')): os.remove(os.path.join(dst, nom + '.png'))
+        n += 1
+    if n: print('commun : %d WebP publiés' % n)
+
+
 if __name__ == '__main__':
     # (les options --numeros et --tout ne sont pas des dossiers)
     for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon', 'intro', *DOSSIERS_PLANCHES]):
@@ -791,5 +814,6 @@ if __name__ == '__main__':
         elif d in DOSSIERS_PLANCHES: optimiser_planches(d)
         elif d == 'intro': optimiser_intro()
         else: optimiser(d)
+    publier_commun()
     # empreintes des fichiers servis (dev/versions.py : le téléphone reprend une image changée)
     import versions; versions.ecrire()

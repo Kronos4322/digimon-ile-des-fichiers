@@ -49,7 +49,7 @@
     'engine/art.js': '2890e257',
     'ui/widgets.js': 'f4b99472',
     'ui/dialog.js': '337e232b',
-    'data/versions_images.js': 'ce9cd344',
+    'data/versions_images.js': 'c95c0130',
     'data/types.js': '1b5d67d8',
     'data/moves.js': '092bf379',
     'data/species.js': '6555489a',
@@ -65,7 +65,7 @@
     'data/music.js': '6584c982',
     'data/musiques_regions.js': 'edbbfa0e',
     'data/flags.js': 'a69bc7b9',
-    'gfx/sprites.js': '07c0aa80',
+    'gfx/sprites.js': 'b560872c',
     'gfx/digimon/entrainement.js': 'f571aac8',
     'gfx/digimon/disciples.js': '9b525fb8',
     'gfx/digimon/ultimes.js': '49f161de',
@@ -81,7 +81,7 @@
     'gfx/hero.js': 'da317920',
     'gfx/icons.js': '70d20de6',
     'gfx/objects.js': '6f51a981',
-    'gfx/textures.js': '120f611c',
+    'gfx/textures.js': 'cf6d0c5f',
     'gfx/kit_donnees.js': '0daf2d7f',
     'gfx/persos.js': '1042b43d',
     'gfx/pinceau.js': '7c091b01',
@@ -208,7 +208,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '761d7d94' },
+    { f: '../paquets/jeu-1.js', v: 'e72391bf' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '692b2377' },
   ];   // (fin des paquets)

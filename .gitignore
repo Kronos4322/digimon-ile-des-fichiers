@@ -1,5 +1,7 @@
 # Captures générées automatiquement (dev/captures.js, dev/islandmap.js) : régénérables
 dev/captures/
+# Copies de travail en PNG des images du dossier commun (dev/optimiser_textures.py : le jeu reçoit des WebP)
+dev/cache/
 # Fichiers système
 Thumbs.db
 desktop.ini

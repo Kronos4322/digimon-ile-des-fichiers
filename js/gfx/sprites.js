@@ -2,7 +2,7 @@
 // =====================================================================
 //  SPRITES : rendu et cache des Digimon (respiration, poses de combat)
 //  Deux sources : les IMAGES dessinées par le joueur (ses planches, découpées par dev/optimiser_textures.py en
-//  assets/commun/jeu/digi_<espèce>_<vue>.png, chargées par gfx/textures.js) et, pour les autres espèces, le dessin
+//  assets/commun/jeu/digi_<espèce>_<vue>.webp, chargées par gfx/textures.js) et, pour les autres espèces, le dessin
 //  par code (js/gfx/digimon/*.js) : repère 64x64, Digimon tourné vers la DROITE, sol à y≈62 ;
 //  d.xxx = volume ; d.deco.xxx = décalcomanie (motif peint sur le volume).
 // =====================================================================

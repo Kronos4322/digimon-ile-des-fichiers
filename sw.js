@@ -6,7 +6,9 @@
 //    un fichier modifié a une autre adresse : il est téléchargé, l'ancienne version est retirée du cache
 //  - le reste (la page, la liste des scripts js/scripts.js, les polices) : réseau d'abord — chaque mise à jour publiée
 //    est prise dès qu'on est en ligne ; sans réseau (ou réseau bloqué plus de 6 s), la dernière version gardée en cache
-//  - à l'installation : la page, les scripts et les images sont rangés dans le cache (hors ligne dès le lancement suivant)
+//  - à l'installation : la page et les scripts sont rangés dans le cache ; les images, au fur et à mesure que le jeu les
+//    demande (avant, toutes étaient retéléchargées en même temps que le jeu chargeait les siennes : le premier lancement
+//    après une mise à jour durait deux fois plus longtemps) ; les anciennes versions sont retirées
 //  - le serveur du site (GitHub Pages) NE TIENT PAS COMPTE de « ?v= » : pendant les 10 minutes qui suivent une mise à jour,
 //    il peut encore servir l'ancien fichier à la nouvelle adresse (vérifié le 21/10). Un fichier téléchargé n'est donc
 //    gardé que si son contenu a bien l'empreinte attendue (SHA-256, comme dev/versions.py) ; sinon il est redemandé, et
@@ -32,9 +34,9 @@ self.addEventListener('install', e => e.waitUntil((async () => {
   try {
     const cache = await caches.open(CACHE), { pages, versionnes } = await fichiersDuJeu();
     await Promise.allSettled(pages.map(u => cache.add(new Request(u, { cache: 'no-cache' }))));
-    // scripts et images : seulement ceux qui manquent (8 à la fois) ; les anciennes versions sont retirées
+    // les scripts qui manquent (les images : à la demande) ; les versions qui ne servent plus sont retirées
     const garde = new Set(versionnes), manque = [];
-    for (const u of versionnes) if (!(await cache.match(u))) manque.push(u);
+    for (const u of versionnes) if (/\.js\?v=/.test(u) && !(await cache.match(u))) manque.push(u);
     const ouvrier = async () => { while (manque.length) { const u = manque.shift(); try { const { res, bon } = await telecharge(u); if (bon) await cache.put(u, res); } catch (err) { /* plus tard */ } } };
     await Promise.all([1, 2, 3, 4, 5, 6, 7, 8].map(ouvrier));
     for (const req of await cache.keys()) if (new URL(req.url).searchParams.has('v') && !garde.has(req.url)) await cache.delete(req);
