@@ -1,0 +1,8 @@
+{
+  "name": "digimon-parcours-e2e",
+  "private": true,
+  "description": "Parcours de joueur automatisés (Playwright, avec le Chrome installé sur le PC) : node dev/e2e/parcours.js",
+  "dependencies": {
+    "playwright-core": "1.48.2"
+  }
+}
