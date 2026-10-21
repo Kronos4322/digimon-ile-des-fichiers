@@ -7,6 +7,10 @@
 //  - le reste (la page, la liste des scripts js/scripts.js, les polices) : réseau d'abord — chaque mise à jour publiée
 //    est prise dès qu'on est en ligne ; sans réseau (ou réseau bloqué plus de 6 s), la dernière version gardée en cache
 //  - à l'installation : la page, les scripts et les images sont rangés dans le cache (hors ligne dès le lancement suivant)
+//  - le serveur du site (GitHub Pages) NE TIENT PAS COMPTE de « ?v= » : pendant les 10 minutes qui suivent une mise à jour,
+//    il peut encore servir l'ancien fichier à la nouvelle adresse (vérifié le 21/10). Un fichier téléchargé n'est donc
+//    gardé que si son contenu a bien l'empreinte attendue (SHA-256, comme dev/versions.py) ; sinon il est redemandé, et
+//    au pire servi sans être gardé (il sera repris au lancement suivant) — avant, l'ancienne version restait pour toujours
 // =====================================================================
 // (un seul cache, gardé d'une version du jeu à l'autre : rien n'est retéléchargé pour rien ; son nom change seulement pour
 //  repartir d'un cache neuf partout — 21/10 : un joueur restait bloqué au camp, sans la création du personnage)
@@ -31,7 +35,7 @@ self.addEventListener('install', e => e.waitUntil((async () => {
     // scripts et images : seulement ceux qui manquent (8 à la fois) ; les anciennes versions sont retirées
     const garde = new Set(versionnes), manque = [];
     for (const u of versionnes) if (!(await cache.match(u))) manque.push(u);
-    const ouvrier = async () => { while (manque.length) { const u = manque.shift(); try { const r = await fetch(u); if (r.ok) await cache.put(u, r); } catch (err) { /* plus tard */ } } };
+    const ouvrier = async () => { while (manque.length) { const u = manque.shift(); try { const { res, bon } = await telecharge(u); if (bon) await cache.put(u, res); } catch (err) { /* plus tard */ } } };
     await Promise.all([1, 2, 3, 4, 5, 6, 7, 8].map(ouvrier));
     for (const req of await cache.keys()) if (new URL(req.url).searchParams.has('v') && !garde.has(req.url)) await cache.delete(req);
   } catch (err) { /* hors ligne : les fichiers seront rangés au fil des lancements */ }
@@ -48,11 +52,30 @@ self.addEventListener('fetch', e => {
   e.respondWith(url.searchParams.has('v') ? versionne(req, url) : reseauDabord(req));
 });
 
+// l'empreinte d'un contenu : les 8 premiers caractères de son SHA-256 (dev/versions.py)
+async function empreinte(buf) {
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', buf));
+  return Array.from(h.slice(0, 4), b => b.toString(16).padStart(2, '0')).join('');
+}
+// télécharge un fichier versionné et vérifie son contenu : { res, bon } (bon : c'est la version demandée, on peut la garder)
+async function telecharge(u) {
+  const v = new URL(u).searchParams.get('v');
+  let res = null;
+  for (let essai = 0; essai < 3; essai++) {
+    if (essai) await new Promise(r => setTimeout(r, 1500 * essai));
+    res = await fetch(u, { cache: essai ? 'reload' : 'default' });
+    if (!res.ok) return { res, bon: false };
+    if (!v || !(self.crypto && crypto.subtle)) return { res, bon: true };
+    if ((await empreinte(await res.clone().arrayBuffer())) === v) return { res, bon: true };
+  }
+  return { res, bon: false };   // (encore l'ancienne version sur le serveur : servie cette fois, pas gardée)
+}
+
 async function versionne(req, url) {
   const cache = await caches.open(CACHE), hit = await cache.match(req);
   if (hit) return hit;
-  const res = await fetch(req);
-  if (res.ok) {
+  const { res, bon } = await telecharge(req.url);
+  if (bon) {
     await cache.put(req, res.clone());
     // (l'ancienne version de ce fichier n'a plus d'usage)
     for (const k of await cache.keys()) { const u = new URL(k.url); if (u.pathname === url.pathname && u.search !== url.search) await cache.delete(k); }

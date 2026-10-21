@@ -1242,648 +1242,648 @@ window.DW = window.DW || {};
 //  sans la redemander tant qu'elle n'a pas changé. Les tests (dev/tests.js) vérifient que les empreintes sont à jour.
 // =====================================================================
 DW.VERSIONS_IMAGES = {
-  "bebe/jeu/anneaux.webp": "f8dcea4f",
-  "bebe/jeu/arche_fleurs.webp": "d16c8987",
-  "bebe/jeu/arche_lierre.webp": "cddf3c68",
-  "bebe/jeu/arche_papillon.webp": "df3e4f02",
-  "bebe/jeu/armoire_soins.webp": "8552cf8e",
-  "bebe/jeu/bac_sable.webp": "cab59de0",
-  "bebe/jeu/balancoire.webp": "cf96961a",
-  "bebe/jeu/ballons.webp": "d2f46173",
-  "bebe/jeu/banc.webp": "4f09bded",
-  "bebe/jeu/banc_camp.webp": "49346375",
-  "bebe/jeu/barriere.webp": "88e0c13e",
-  "bebe/jeu/barriere_corde.webp": "ae4ded21",
-  "bebe/jeu/barriere_fleurs.webp": "b75d4f10",
-  "bebe/jeu/bassin_source.webp": "001bc14c",
-  "bebe/jeu/berceau.webp": "8a3b8e8f",
-  "bebe/jeu/boite_lettres.webp": "8fc466b8",
-  "bebe/jeu/borne.webp": "79644c96",
-  "bebe/jeu/buisson_fleurs.webp": "79167716",
-  "bebe/jeu/carillon.webp": "ef436eac",
-  "bebe/jeu/cartons.webp": "e8c53087",
-  "bebe/jeu/chaise_haute.webp": "868260bd",
-  "bebe/jeu/champignon_geant.webp": "5062c77e",
-  "bebe/jeu/chariot.webp": "869e29c1",
-  "bebe/jeu/coffre.webp": "d76dbe38",
-  "bebe/jeu/coussins.webp": "8e4239b4",
-  "bebe/jeu/couveuse.webp": "3ad4b00b",
-  "bebe/jeu/cubes.webp": "bbd0bc86",
-  "bebe/jeu/distributeur.webp": "932bd9de",
-  "bebe/jeu/dome_bulles.webp": "5f17a645",
-  "bebe/jeu/dome_grimpe.webp": "40354b00",
-  "bebe/jeu/escalier_bois.webp": "c8e069a5",
-  "bebe/jeu/estrade.webp": "b5ce95db",
-  "bebe/jeu/etagere_biberons.webp": "2fa0839b",
-  "bebe/jeu/etagere_jouets.webp": "2e801dac",
-  "bebe/jeu/fanions.webp": "18b34e5a",
-  "bebe/jeu/feu_camp.webp": "f86aa7b9",
-  "bebe/jeu/fontaine_bulles.webp": "7c5092be",
-  "bebe/jeu/fontaine_oeuf.webp": "f4556ba2",
-  "bebe/jeu/gamelles.webp": "97975c8d",
-  "bebe/jeu/garde_manger.webp": "a7a81e7a",
-  "bebe/jeu/guirlande.webp": "ff7421bc",
-  "bebe/jeu/haie.webp": "8faefb9e",
-  "bebe/jeu/hochet.webp": "24aa5976",
-  "bebe/jeu/jardiniere.webp": "9dc9ee8f",
-  "bebe/jeu/jeu_ressort.webp": "3524199e",
-  "bebe/jeu/kiosque_livres.webp": "1f42d56b",
-  "bebe/jeu/lampadaire.webp": "b6c455dc",
-  "bebe/jeu/lampe_etoile.webp": "e1d374f9",
-  "bebe/jeu/lampe_fleur.webp": "112c4f43",
-  "bebe/jeu/lanterne_branche.webp": "e52c102c",
-  "bebe/jeu/lanterne_camp.webp": "2dff7a07",
-  "bebe/jeu/lanterne_coeur.webp": "d13a9c1f",
-  "bebe/jeu/lit_barreaux.webp": "ae359731",
-  "bebe/jeu/lit_cocon.webp": "d5be7c74",
-  "bebe/jeu/maison_bois.webp": "d83337b9",
-  "bebe/jeu/maison_champignon.webp": "ee81b2c0",
-  "bebe/jeu/maison_coquillage.webp": "c7dcf692",
-  "bebe/jeu/maison_coussin.webp": "9dbf314e",
-  "bebe/jeu/maison_cubes.webp": "ddb6bd4d",
-  "bebe/jeu/maison_escargot.webp": "d5eeef55",
-  "bebe/jeu/maison_fleur.webp": "b5cdbf53",
-  "bebe/jeu/maison_mousse.webp": "07ffd2aa",
-  "bebe/jeu/maison_nid.webp": "30f7ab55",
-  "bebe/jeu/maison_nuage.webp": "2cf1ec2b",
-  "bebe/jeu/maison_oeuf.webp": "a2f1fbe5",
-  "bebe/jeu/manege.webp": "dfd634a9",
-  "bebe/jeu/mare_cascade.webp": "85804874",
-  "bebe/jeu/mobile.webp": "2e7cd327",
-  "bebe/jeu/moulin.webp": "7a9b6c90",
-  "bebe/jeu/moulinets.webp": "10b03334",
-  "bebe/jeu/nid_oeufs.webp": "6d08b491",
-  "bebe/jeu/observatoire.webp": "cdb5d951",
-  "bebe/jeu/oeufs.webp": "fc97e8fd",
-  "bebe/jeu/panier_balles.webp": "ad213ff1",
-  "bebe/jeu/panier_linge.webp": "5e333775",
-  "bebe/jeu/panneau_affichage.webp": "66351a4b",
-  "bebe/jeu/panneau_meteo.webp": "044b99ad",
-  "bebe/jeu/pas_japonais.webp": "203d1b63",
-  "bebe/jeu/passerelle.webp": "fb51e081",
-  "bebe/jeu/pavillon_fleur.webp": "00fb13e1",
-  "bebe/jeu/peluche.webp": "d8897a5b",
-  "bebe/jeu/pont_bois.webp": "f672f202",
-  "bebe/jeu/portail.webp": "0b9ef452",
-  "bebe/jeu/portillon.webp": "42d38805",
-  "bebe/jeu/poteau_camp.webp": "7b2122ba",
-  "bebe/jeu/poteau_indicateur.webp": "070ac50b",
-  "bebe/jeu/poubelle.webp": "69e0ef81",
-  "bebe/jeu/scene_musique.webp": "98309e39",
-  "bebe/jeu/souche_musique.webp": "0d0989e7",
-  "bebe/jeu/statue_oeuf.webp": "208ed6cb",
-  "bebe/jeu/table.webp": "8547c0d5",
-  "bebe/jeu/table_camp.webp": "2717ba5d",
-  "bebe/jeu/table_langer.webp": "520e092f",
-  "bebe/jeu/tabouret.webp": "e2649e8d",
-  "bebe/jeu/tambour.webp": "6d81ae72",
-  "bebe/jeu/tape_cul.webp": "55b3b5a0",
-  "bebe/jeu/tapis_patchwork.webp": "6aa826fc",
-  "bebe/jeu/tente_brulee.webp": "93e891f2",
-  "bebe/jeu/tipi.webp": "0a7e52d4",
-  "bebe/jeu/toboggan.webp": "b4db7672",
-  "bebe/jeu/toupie.webp": "afde6f2f",
-  "bebe/jeu/tourniquet.webp": "90658c33",
-  "bebe/jeu/train.webp": "6df12598",
-  "bebe/jeu/trampoline.webp": "3462ac91",
-  "bebe/jeu/trefles.webp": "40894760",
-  "bebe/jeu/tunnel.webp": "30ad91c7",
-  "bebe/jeu/xylophone.webp": "94148d4e",
-  "commun/jeu/amanites.png": "9e3e5b32",
-  "commun/jeu/amanites2.png": "e0e8ebbf",
-  "commun/jeu/arbre_automne_brun.png": "86bc2c65",
-  "commun/jeu/arbre_bouleau.png": "1eb5e450",
-  "commun/jeu/arbre_bouleau_automne.png": "72fa06c9",
-  "commun/jeu/arbre_cerisier.png": "93ca2cbf",
-  "commun/jeu/arbre_chene.png": "1a800c3d",
-  "commun/jeu/arbre_chene_automne.png": "9d77d6e7",
-  "commun/jeu/arbre_chene_clair.png": "61677580",
-  "commun/jeu/arbre_erable_orange.png": "e755a534",
-  "commun/jeu/arbre_erable_rouge.png": "e7b43f01",
-  "commun/jeu/arbre_fleurs.png": "731903cd",
-  "commun/jeu/arbre_mauve.png": "79e02d5d",
-  "commun/jeu/arbre_mi_automne.png": "fd27c54d",
-  "commun/jeu/arbre_neige_bouleau.png": "fb228826",
-  "commun/jeu/arbre_neige_chene.png": "aa87d76c",
-  "commun/jeu/arbre_neige_nu.png": "a0158051",
-  "commun/jeu/arbre_neige_rond.png": "0cbf3f57",
-  "commun/jeu/arbre_neige_sapin.png": "92743e8f",
-  "commun/jeu/arbre_neige_sapin3.png": "e72fa836",
-  "commun/jeu/arbre_neige_tordu.png": "fce4fbc3",
-  "commun/jeu/arbre_sapin.png": "c84d933c",
-  "commun/jeu/arbre_saule.png": "460f4893",
-  "commun/jeu/arbre_vert.png": "4e095d90",
-  "commun/jeu/arbre_vert_vif.png": "6823fe64",
-  "commun/jeu/banc_courbe.png": "7fbb26a7",
-  "commun/jeu/banc_dossier.png": "57223f8c",
-  "commun/jeu/banc_mousse.png": "407dc0e8",
-  "commun/jeu/banc_rondin.png": "b7830f3f",
-  "commun/jeu/banc_simple.png": "f3c4839e",
-  "commun/jeu/borne_bleue.png": "e05df9be",
-  "commun/jeu/borne_rouge.png": "b833cb2c",
-  "commun/jeu/buisson.png": "e67e0301",
-  "commun/jeu/buisson_baies.png": "ad4cf1e0",
-  "commun/jeu/buisson_baies2.png": "b71c68fc",
-  "commun/jeu/buisson_fleuri.png": "455e48fe",
-  "commun/jeu/cairn.png": "b8e852ce",
-  "commun/jeu/cepes.png": "6c61f6d6",
-  "commun/jeu/champi_blancs.png": "e031208a",
-  "commun/jeu/champi_bleu.png": "3ecb21d6",
-  "commun/jeu/champi_vert.png": "e47be049",
-  "commun/jeu/champi_violet.png": "31700590",
-  "commun/jeu/cristaux.png": "a3de54f7",
-  "commun/jeu/dalle_runique.png": "d5c0f67e",
-  "commun/jeu/digi_betamon_combat.png": "a9072a8f",
-  "commun/jeu/digi_betamon_dos.png": "76980666",
-  "commun/jeu/digi_betamon_face.png": "845e711d",
-  "commun/jeu/digi_betamon_profil.png": "d49142cd",
-  "commun/jeu/digi_botamon_combat.png": "4acc222d",
-  "commun/jeu/digi_botamon_dos.png": "007d8171",
-  "commun/jeu/digi_botamon_face.png": "349b5288",
-  "commun/jeu/digi_botamon_profil.png": "20d7f557",
-  "commun/jeu/digi_bukamon_combat.png": "63df925d",
-  "commun/jeu/digi_bukamon_dos.png": "9648f990",
-  "commun/jeu/digi_bukamon_face.png": "2b5127cc",
-  "commun/jeu/digi_bukamon_profil.png": "9bae3e38",
-  "commun/jeu/digi_elecmon_combat.png": "7e0d072e",
-  "commun/jeu/digi_elecmon_dos.png": "b54a1dfd",
-  "commun/jeu/digi_elecmon_face.png": "0b434f40",
-  "commun/jeu/digi_elecmon_profil.png": "f23b21d5",
-  "commun/jeu/digi_koromon_combat.png": "bd66bbbc",
-  "commun/jeu/digi_koromon_dos.png": "4d959bd2",
-  "commun/jeu/digi_koromon_face.png": "8ed57d99",
-  "commun/jeu/digi_koromon_profil.png": "fdbafe81",
-  "commun/jeu/digi_kuwagamon_combat.png": "5ec78a85",
-  "commun/jeu/digi_kuwagamon_dos.png": "fef85a03",
-  "commun/jeu/digi_kuwagamon_face.png": "f4eb75a6",
-  "commun/jeu/digi_kuwagamon_profil.png": "a206abf3",
-  "commun/jeu/digi_mushroomon_combat.png": "a7acbed1",
-  "commun/jeu/digi_mushroomon_dos.png": "0c1cac02",
-  "commun/jeu/digi_mushroomon_face.png": "c88804e5",
-  "commun/jeu/digi_mushroomon_profil.png": "a70c2761",
-  "commun/jeu/digi_nyokimon_combat.png": "ca24824e",
-  "commun/jeu/digi_nyokimon_dos.png": "668867a0",
-  "commun/jeu/digi_nyokimon_face.png": "129fbe26",
-  "commun/jeu/digi_nyokimon_profil.png": "b7abd10d",
-  "commun/jeu/digi_pabumon_combat.png": "32a3ddef",
-  "commun/jeu/digi_pabumon_dos.png": "78adb735",
-  "commun/jeu/digi_pabumon_face.png": "57633a65",
-  "commun/jeu/digi_pabumon_profil.png": "8c8f8025",
-  "commun/jeu/digi_palmon_combat.png": "851a2ef9",
-  "commun/jeu/digi_palmon_dos.png": "20c7cc9a",
-  "commun/jeu/digi_palmon_face.png": "a5eaa2d9",
-  "commun/jeu/digi_palmon_profil.png": "02aa0995",
-  "commun/jeu/digi_pichimon_combat.png": "aee495c4",
-  "commun/jeu/digi_pichimon_dos.png": "f5a93cdd",
-  "commun/jeu/digi_pichimon_face.png": "06f0523e",
-  "commun/jeu/digi_pichimon_profil.png": "de061c74",
-  "commun/jeu/digi_poyomon_combat.png": "3ac2ae71",
-  "commun/jeu/digi_poyomon_dos.png": "c3457c81",
-  "commun/jeu/digi_poyomon_face.png": "40d3d895",
-  "commun/jeu/digi_poyomon_profil.png": "e5f32d35",
-  "commun/jeu/digi_punimon_combat.png": "76e3a2d7",
-  "commun/jeu/digi_punimon_dos.png": "29b8b0fa",
-  "commun/jeu/digi_punimon_face.png": "33416133",
-  "commun/jeu/digi_punimon_profil.png": "d3cb1fab",
-  "commun/jeu/digi_shellmon_combat.png": "b37cdeba",
-  "commun/jeu/digi_shellmon_dos.png": "0d16da8c",
-  "commun/jeu/digi_shellmon_face.png": "22872c82",
-  "commun/jeu/digi_shellmon_profil.png": "133647c5",
-  "commun/jeu/digi_tsunomon_combat.png": "fce79c34",
-  "commun/jeu/digi_tsunomon_dos.png": "96b0929a",
-  "commun/jeu/digi_tsunomon_face.png": "0d8088da",
-  "commun/jeu/digi_tsunomon_profil.png": "7c42589e",
-  "commun/jeu/digi_whamon_combat.png": "dd995b86",
-  "commun/jeu/digi_whamon_dos.png": "a3aab219",
-  "commun/jeu/digi_whamon_face.png": "ba7e3906",
-  "commun/jeu/digi_whamon_profil.png": "4b3dda0b",
-  "commun/jeu/digi_yukimibotamon_combat.png": "28e50d32",
-  "commun/jeu/digi_yukimibotamon_dos.png": "a830ad57",
-  "commun/jeu/digi_yukimibotamon_face.png": "2566c46c",
-  "commun/jeu/digi_yukimibotamon_profil.png": "a80c406e",
-  "commun/jeu/digi_yuramon_combat.png": "85ae15b7",
-  "commun/jeu/digi_yuramon_dos.png": "a71e8524",
-  "commun/jeu/digi_yuramon_face.png": "13b18ef2",
-  "commun/jeu/digi_yuramon_profil.png": "437e07a7",
-  "commun/jeu/eau_douce.png": "19a60f73",
-  "commun/jeu/eau_mer.png": "9d479dd7",
-  "commun/jeu/eboulis.png": "711cdeb9",
-  "commun/jeu/ext_boite_lettres.png": "9ff5f55c",
-  "commun/jeu/ext_caisse.png": "b43da4e7",
-  "commun/jeu/ext_caisse2.png": "f8fa00c8",
-  "commun/jeu/ext_distrib_blanc.png": "2de170e8",
-  "commun/jeu/ext_distrib_bleu.png": "71fabe2c",
-  "commun/jeu/ext_distrib_rouge.png": "3cff4a4b",
-  "commun/jeu/ext_etal_fruits.png": "d779327d",
-  "commun/jeu/ext_etal_legumes.png": "31e7eab3",
-  "commun/jeu/ext_etal_pain.png": "54bb7d97",
-  "commun/jeu/ext_jardiniere_blanche.png": "299740f8",
-  "commun/jeu/ext_jardiniere_rose.png": "6ed38501",
-  "commun/jeu/ext_jardiniere_verte.png": "871bda78",
-  "commun/jeu/ext_panneau.png": "f851e824",
-  "commun/jeu/ext_puits.png": "acc3ad99",
-  "commun/jeu/fleur_1.png": "66e64d44",
-  "commun/jeu/fleur_10.png": "9e82224c",
-  "commun/jeu/fleur_2.png": "47b3e844",
-  "commun/jeu/fleur_3.png": "4d90aa23",
-  "commun/jeu/fleur_4.png": "68caddda",
-  "commun/jeu/fleur_5.png": "51ba9703",
-  "commun/jeu/fleur_6.png": "12b35cc9",
-  "commun/jeu/fleur_7.png": "587a6fb8",
-  "commun/jeu/fleur_8.png": "efb9723d",
-  "commun/jeu/fleur_9.png": "c90e8388",
-  "commun/jeu/fleur_cristal.png": "69feba13",
-  "commun/jeu/fougere_1.png": "0a75a92f",
-  "commun/jeu/fougere_2.png": "1aab84dc",
-  "commun/jeu/girolles.png": "a4be6f97",
-  "commun/jeu/herbe_claire.png": "b3f2c6f1",
-  "commun/jeu/herbe_dense.png": "7424c4c0",
-  "commun/jeu/herbe_fleurie.png": "8fe32882",
-  "commun/jeu/herbe_haute.png": "5da9b9f7",
-  "commun/jeu/herbe_seche.png": "10401a2c",
-  "commun/jeu/herbe_terre.png": "386a8ec6",
-  "commun/jeu/herbe_verte.png": "a09b2b2d",
-  "commun/jeu/lanterne_pierre.png": "45a9a157",
-  "commun/jeu/maison_aquarium.png": "48a07a1a",
-  "commun/jeu/maison_armoire.png": "570524eb",
-  "commun/jeu/maison_bibliotheque.png": "343867b4",
-  "commun/jeu/maison_bibliotheque_basse.png": "ea00dbbf",
-  "commun/jeu/maison_bureau.png": "8e839c3a",
-  "commun/jeu/maison_chevet.png": "b122bdde",
-  "commun/jeu/maison_coffre_jouets.png": "4a6108f4",
-  "commun/jeu/maison_coussins.png": "47484259",
-  "commun/jeu/maison_cuisiniere.png": "be3b4fd9",
-  "commun/jeu/maison_etagere_murale.png": "f1957c2b",
-  "commun/jeu/maison_frigo.png": "53e2a6bc",
-  "commun/jeu/maison_lampadaire.png": "ae3b9035",
-  "commun/jeu/maison_lit.png": "4be68641",
-  "commun/jeu/maison_ordinateur.png": "47cf11f4",
-  "commun/jeu/maison_plante.png": "f3d3bbae",
-  "commun/jeu/maison_tableau.png": "db4da220",
-  "commun/jeu/maison_tabouret.png": "3c8fd0eb",
-  "commun/jeu/maison_tapis.png": "2737248d",
-  "commun/jeu/maison_tonneau.png": "badc3d53",
-  "commun/jeu/maison_vase_fleurs.png": "07942a57",
-  "commun/jeu/monolithe.png": "1414f70e",
-  "commun/jeu/mont_aiguille.png": "6f4157cc",
-  "commun/jeu/mont_arbuste_sec.png": "bfe9cfe2",
-  "commun/jeu/mont_buisson.png": "ebdfcbdb",
-  "commun/jeu/mont_buisson_baies.png": "91cb2df8",
-  "commun/jeu/mont_cairn.png": "929f4f25",
-  "commun/jeu/mont_eboulis.png": "b9c349dc",
-  "commun/jeu/mont_eboulis_gros.png": "edab0c5c",
-  "commun/jeu/mont_edelweiss.png": "093f73f3",
-  "commun/jeu/mont_fleurs_violettes.png": "cee82031",
-  "commun/jeu/mont_gravier.png": "66328cd2",
-  "commun/jeu/mont_gros_rocher.png": "b13c2ae5",
-  "commun/jeu/mont_grotte.png": "73852e06",
-  "commun/jeu/mont_herbe_alpine.png": "5bd35532",
-  "commun/jeu/mont_herbe_rousse.png": "46d58e71",
-  "commun/jeu/mont_herbes_hautes.png": "a704c9fa",
-  "commun/jeu/mont_herbes_seches.png": "91309d80",
-  "commun/jeu/mont_petit_rocher.png": "d2be0666",
-  "commun/jeu/mont_rocher.png": "19ee56f4",
-  "commun/jeu/mont_rocher_mousse.png": "b4cb5027",
-  "commun/jeu/mont_sapin.png": "a669061c",
-  "commun/jeu/mont_terre_seche.png": "9ab9d7e7",
-  "commun/jeu/panneau.png": "d9f5dea2",
-  "commun/jeu/pierre_runique.png": "4fd392f5",
-  "commun/jeu/plage_arche.png": "a3fa4878",
-  "commun/jeu/plage_barque.png": "4829239a",
-  "commun/jeu/plage_bois_flotte.png": "3de35dab",
-  "commun/jeu/plage_bois_flotte2.png": "1311c8e3",
-  "commun/jeu/plage_borne.png": "c648374e",
-  "commun/jeu/plage_chateau.png": "795b5bcb",
-  "commun/jeu/plage_conque.png": "febcf711",
-  "commun/jeu/plage_coquille.png": "fd23bf8c",
-  "commun/jeu/plage_escargot.png": "2e78f704",
-  "commun/jeu/plage_etoile.png": "b5e92976",
-  "commun/jeu/plage_herbe_dune.png": "b43db2df",
-  "commun/jeu/plage_herbe_seche.png": "dbe6fa0e",
-  "commun/jeu/plage_mare.png": "d287b189",
-  "commun/jeu/plage_palmier.png": "970fdda5",
-  "commun/jeu/plage_palmier_courbe.png": "2b9c2a8d",
-  "commun/jeu/plage_palmier_double.png": "91531661",
-  "commun/jeu/plage_pile_rochers.png": "9978fb0d",
-  "commun/jeu/plage_radeau.png": "7f7ed3a8",
-  "commun/jeu/plage_rocher.png": "ba50cd3e",
-  "commun/jeu/plage_rochers.png": "1bc77a8b",
-  "commun/jeu/plage_sable.png": "2eb67d92",
-  "commun/jeu/racines.png": "c52f96c5",
-  "commun/jeu/rocher_mousse.png": "f28e62ad",
-  "commun/jeu/rond_sorcieres.png": "4a871e66",
-  "commun/jeu/sable_desert.png": "e514945e",
-  "commun/jeu/sable_dunes.png": "93737a1b",
-  "commun/jeu/sable_plage.png": "6808c499",
-  "commun/jeu/sable_terre.png": "df155832",
-  "commun/jeu/sanctuaire.png": "7a1910e5",
-  "commun/jeu/souche.png": "99d8ce5d",
-  "commun/jeu/souche_champignons.png": "325a6d28",
-  "commun/jeu/source.png": "b093887f",
-  "commun/jeu/sport_bobine_foudre.png": "cba221cd",
-  "commun/jeu/sport_def_boucliers.png": "5f70f5b6",
-  "commun/jeu/sport_def_mannequin_bois.png": "63fcc21d",
-  "commun/jeu/sport_eau_cascade.png": "11447b1f",
-  "commun/jeu/sport_epouvantail.png": "30bd803e",
-  "commun/jeu/sport_feu_anneau.png": "4c713d54",
-  "commun/jeu/sport_glace_bain.png": "9601b038",
-  "commun/jeu/sport_int_formes.png": "6761aede",
-  "commun/jeu/sport_int_memoire.png": "ca94f24e",
-  "commun/jeu/sport_int_telescope.png": "17afc401",
-  "commun/jeu/sport_mannequin_cible.png": "ef79fa27",
-  "commun/jeu/sport_mur_soleil.png": "cc10ad31",
-  "commun/jeu/sport_pilier_cristal.png": "57741302",
-  "commun/jeu/sport_pneus.png": "bd9f74c3",
-  "commun/jeu/sport_portail_ombre.png": "6ce4b7ee",
-  "commun/jeu/sport_portail_vent.png": "cf220824",
-  "commun/jeu/sport_rocher_socle.png": "baf3bb91",
-  "commun/jeu/sport_rocher_suspendu.png": "c2d08c0a",
-  "commun/jeu/sport_sac_frappe.png": "55180ce0",
-  "commun/jeu/sport_traineau.png": "3f5749b5",
-  "commun/jeu/sport_vit_haies.png": "0aa0c929",
-  "commun/jeu/sport_vit_slalom.png": "5638a5b1",
-  "commun/jeu/table_banquet.png": "d1eb7aec",
-  "commun/jeu/table_pique_nique.png": "37529036",
-  "commun/jeu/table_rect.png": "cb0c4daa",
-  "commun/jeu/table_ronde.png": "176d7564",
-  "commun/jeu/table_souche.png": "6e1122aa",
-  "commun/jeu/terre_brune.png": "e76b6706",
-  "commun/jeu/terre_cailloux.png": "bbcf49ea",
-  "commun/jeu/terre_claire.png": "373f823f",
-  "commun/jeu/terre_craquelee.png": "f135381f",
-  "commun/jeu/terre_savane.png": "badfbe80",
-  "commun/jeu/terre_sombre.png": "a00196a8",
-  "commun/jeu/toilettes.png": "2f571478",
-  "commun/jeu/totem.png": "b58cc91f",
-  "commun/jeu/tronc_couche.png": "60f5190e",
-  "commun/jeu/tuyau.png": "3c8658a1",
-  "commun/jeu/ville_buis.png": "f82a228b",
-  "commun/jeu/ville_fontaine_etages.png": "37cf6612",
-  "commun/jeu/ville_fontaine_octogone.png": "d6fdeef1",
-  "commun/jeu/ville_fontaine_vasque.png": "9fe55a02",
-  "commun/jeu/ville_lampadaire_noir.png": "6e22d9e5",
-  "commun/jeu/ville_paves.png": "f7aa9f83",
-  "commun/jeu/ville_pot_arbuste.png": "89c97e52",
-  "commun/jeu/ville_puits_treuil.png": "b988422f",
-  "commun/jeu/ville_sacs.png": "b8750e8a",
-  "commun/jeu/ville_tonneaux.png": "3542c8c7",
-  "commun/kit/acc.png": "6dc03035",
-  "commun/kit/bas_f.png": "638eae69",
-  "commun/kit/bas_g.png": "daf31366",
-  "commun/kit/chapeau.png": "4099a334",
-  "commun/kit/chaus.png": "9782a0a4",
-  "commun/kit/corps_f.png": "7bfb9f01",
-  "commun/kit/corps_g.png": "2a0ea461",
-  "commun/kit/ensemble.png": "9b78ae1e",
-  "commun/kit/haut.png": "d8ecbdd4",
-  "commun/kit/sac.png": "a1b67b53",
-  "commun/kit/tete_f.png": "190c5048",
-  "commun/kit/tete_g.png": "24f3c9b1",
-  "desert/jeu/antenne.webp": "7ca999be",
-  "desert/jeu/arbre_mort.webp": "1bdd8066",
-  "desert/jeu/arbuste_sec.webp": "a95b0d35",
-  "desert/jeu/arche.webp": "ff359725",
-  "desert/jeu/arche_ruine.webp": "d12d595f",
-  "desert/jeu/argile_craquelee.webp": "eab7e268",
-  "desert/jeu/balise.webp": "60dfb955",
-  "desert/jeu/balise_cristal.webp": "2561ca54",
-  "desert/jeu/banniere.webp": "967a6aac",
-  "desert/jeu/barrage.webp": "b6670f54",
-  "desert/jeu/barriere_corde.webp": "e265c9a7",
-  "desert/jeu/bassin.webp": "ab228058",
-  "desert/jeu/bloc_circuits.webp": "dc8a2a82",
-  "desert/jeu/bloc_grave.webp": "86ca8cfc",
-  "desert/jeu/blocs.webp": "2c81d9a5",
-  "desert/jeu/bord_falaise.webp": "1bf29bf1",
-  "desert/jeu/borne_pierre.webp": "0f4270d0",
-  "desert/jeu/borne_rayee.webp": "bec1b712",
-  "desert/jeu/buisson_epineux.webp": "0336d225",
-  "desert/jeu/cactus.webp": "258d26ec",
-  "desert/jeu/cailloux.webp": "ea955c3f",
-  "desert/jeu/caisses.webp": "aab3d1ae",
-  "desert/jeu/caisses_numeriques.webp": "846adcae",
-  "desert/jeu/carte.webp": "4564abba",
-  "desert/jeu/coffre.webp": "28938720",
-  "desert/jeu/colonne.webp": "6823a5fd",
-  "desert/jeu/colonne_brisee.webp": "6de1e699",
-  "desert/jeu/colonne_tombee.webp": "024c283e",
-  "desert/jeu/cristal.webp": "d02ea664",
-  "desert/jeu/dalle.webp": "2f44f8ed",
-  "desert/jeu/dalle_plate.webp": "be8b87aa",
-  "desert/jeu/dalles_ensablees.webp": "55be2398",
-  "desert/jeu/dolmen.webp": "0db7e841",
-  "desert/jeu/dune.webp": "05899c1b",
-  "desert/jeu/eboulis.webp": "9cd7dfbc",
-  "desert/jeu/echelle.webp": "64027468",
-  "desert/jeu/epave_machine.webp": "03334822",
-  "desert/jeu/escalier.webp": "eada9e87",
-  "desert/jeu/etal.webp": "b0ce8409",
-  "desert/jeu/falaise.webp": "d2606d72",
-  "desert/jeu/fosse.webp": "918fab2f",
-  "desert/jeu/foyer.webp": "c56b85a3",
-  "desert/jeu/herbes_seches.webp": "d45e1876",
-  "desert/jeu/jarres.webp": "3d20e947",
-  "desert/jeu/marches.webp": "50ff71bb",
-  "desert/jeu/mur_brise.webp": "b51da32e",
-  "desert/jeu/mur_oeil.webp": "87caf2da",
-  "desert/jeu/mur_ruine.webp": "18d15a95",
-  "desert/jeu/niche_faucon.webp": "29508de7",
-  "desert/jeu/niche_statue.webp": "f8f6c286",
-  "desert/jeu/obelisque.webp": "623f8309",
-  "desert/jeu/obelisque_losange.webp": "1df2599b",
-  "desert/jeu/panneau_danger.webp": "0e137226",
-  "desert/jeu/panneau_ensable.webp": "1905b42b",
-  "desert/jeu/panneau_fleches.webp": "b6b02ced",
-  "desert/jeu/panneau_pierre.webp": "bb0aba6b",
-  "desert/jeu/piedestal.webp": "1c645b43",
-  "desert/jeu/pilier_circuits.webp": "350a5a3f",
-  "desert/jeu/pilier_vasque.webp": "20b7952b",
-  "desert/jeu/pont_casse.webp": "d2b1de9d",
-  "desert/jeu/portail.webp": "6176f0e7",
-  "desert/jeu/porte_ankh.webp": "90fba058",
-  "desert/jeu/porte_cristal.webp": "545bd1a0",
-  "desert/jeu/portique.webp": "249c24f6",
-  "desert/jeu/poteau.webp": "a09fc560",
-  "desert/jeu/poteau_boitier.webp": "89e33d5d",
-  "desert/jeu/poteau_brise.webp": "644fb370",
-  "desert/jeu/poteau_casse.webp": "4dca996f",
-  "desert/jeu/poteau_eclate.webp": "9a7319c0",
-  "desert/jeu/poteau_orbe.webp": "9b3f92a2",
-  "desert/jeu/poteau_penche.webp": "71edfd47",
-  "desert/jeu/poteau_tombe.webp": "3e5fdf13",
-  "desert/jeu/poteau_transfo.webp": "2a6252d1",
-  "desert/jeu/poteaux_cable.webp": "d0ba2d91",
-  "desert/jeu/puits.webp": "6c3de6e5",
-  "desert/jeu/rocher.webp": "cd8820be",
-  "desert/jeu/rocher_ecran.webp": "8f9fbdc3",
-  "desert/jeu/rocher_glitch.webp": "34b6cf13",
-  "desert/jeu/rocher_pointu.webp": "68c1d600",
-  "desert/jeu/sable_cailloux.webp": "5decbb6d",
-  "desert/jeu/sable_graviers.webp": "4e7cf6ea",
-  "desert/jeu/sable_numerique.webp": "9c8dcfcd",
-  "desert/jeu/sable_ondule.webp": "f1cc6826",
-  "desert/jeu/sable_pale.webp": "e51063ae",
-  "desert/jeu/sacs.webp": "1532753b",
-  "desert/jeu/squelette.webp": "d77782db",
-  "desert/jeu/station_meteo.webp": "c9a17687",
-  "desert/jeu/stele_cible.webp": "39fa03c9",
-  "desert/jeu/stele_gravee.webp": "188f7774",
-  "desert/jeu/stele_holo.webp": "0ac5f44d",
-  "desert/jeu/stele_orbe.webp": "86b83a32",
-  "desert/jeu/teleporteur.webp": "0e15a8f4",
-  "desert/jeu/tente.webp": "a5cd76e5",
-  "desert/jeu/tente_dechiree.webp": "93e891f2",
-  "desert/jeu/terre_noire.webp": "688956a0",
-  "desert/jeu/terre_orange.webp": "26191e5e",
-  "desert/jeu/tonneaux.webp": "9a155929",
-  "desert/jeu/tour_antenne.webp": "0080a58b",
-  "desert/jeu/virevoltant.webp": "12e4a942",
-  "grotte/jeu/alcove_sarcophage.webp": "8e56c625",
-  "grotte/jeu/ankh.webp": "f8b1f51d",
-  "grotte/jeu/ankh_lumineux.webp": "3705192b",
-  "grotte/jeu/anubis.webp": "a05a61cb",
-  "grotte/jeu/anubis_geant.webp": "69ab0bb4",
-  "grotte/jeu/arche.webp": "8ad170d2",
-  "grotte/jeu/arche_ruine.webp": "866adf91",
-  "grotte/jeu/autel.webp": "0c0b6c3c",
-  "grotte/jeu/autel_soleil.webp": "a766ceb7",
-  "grotte/jeu/banniere.webp": "b1045c5e",
-  "grotte/jeu/bassin_colonnes.webp": "224b70ca",
-  "grotte/jeu/braises.webp": "15a8b7d4",
-  "grotte/jeu/brasero.webp": "a2eabd07",
-  "grotte/jeu/brasero_anubis.webp": "1e4472be",
-  "grotte/jeu/brasero_colonne.webp": "b21535c2",
-  "grotte/jeu/caisse.webp": "c55455ed",
-  "grotte/jeu/canopes.webp": "699d1673",
-  "grotte/jeu/cascade_roche.webp": "c7fcb03b",
-  "grotte/jeu/cascade_temple.webp": "ee4082c2",
-  "grotte/jeu/champignons.webp": "85a3060a",
-  "grotte/jeu/chemin.webp": "3f84f591",
-  "grotte/jeu/coffre.webp": "04262827",
-  "grotte/jeu/coffre_anubis.webp": "db3c33f7",
-  "grotte/jeu/colonne_cristaux.webp": "a2c5df6b",
-  "grotte/jeu/colonne_moussue.webp": "8134855f",
-  "grotte/jeu/coupe_feu.webp": "931906a6",
-  "grotte/jeu/cristaux.webp": "d5cf8d1a",
-  "grotte/jeu/cristaux_violets.webp": "1ba76c79",
-  "grotte/jeu/dais.webp": "10f71a53",
-  "grotte/jeu/dalle_soleil.webp": "76d3ad09",
-  "grotte/jeu/dalles_fissurees.webp": "1d09d969",
-  "grotte/jeu/eboulis.webp": "61e47fca",
-  "grotte/jeu/entree.webp": "672929db",
-  "grotte/jeu/entree_mousse.webp": "a056ce62",
-  "grotte/jeu/entree_temple.webp": "a14eecb3",
-  "grotte/jeu/escalier.webp": "c8c2359b",
-  "grotte/jeu/escalier_roche.webp": "c56f99c3",
-  "grotte/jeu/flamme_bleue.webp": "827722c5",
-  "grotte/jeu/fleurs_lanternes.webp": "13faad8e",
-  "grotte/jeu/fontaine.webp": "a277fc62",
-  "grotte/jeu/fontaine_lotus.webp": "ea338b90",
-  "grotte/jeu/fresque.webp": "825814ce",
-  "grotte/jeu/frise_murale.webp": "a2564308",
-  "grotte/jeu/gres_aiguilles.webp": "f76028d5",
-  "grotte/jeu/gres_ankh.webp": "247525be",
-  "grotte/jeu/gres_arche.webp": "e74b1290",
-  "grotte/jeu/gres_eboulis.webp": "930dd8cb",
-  "grotte/jeu/gres_entree.webp": "1b1fd862",
-  "grotte/jeu/gres_mur.webp": "0da74351",
-  "grotte/jeu/gres_rochers.webp": "8df94e29",
-  "grotte/jeu/grille.webp": "e98b1017",
-  "grotte/jeu/gue.webp": "6fc20049",
-  "grotte/jeu/herbe.webp": "a97672d3",
-  "grotte/jeu/jarre.webp": "783dba6f",
-  "grotte/jeu/lampe.webp": "604cda3c",
-  "grotte/jeu/lanterne.webp": "d7781a00",
-  "grotte/jeu/mur_blocs.webp": "a2d862b0",
-  "grotte/jeu/mur_brise.webp": "6ef0e515",
-  "grotte/jeu/mur_colonne.webp": "ba0db1fe",
-  "grotte/jeu/mur_ecroule.webp": "70ff7343",
-  "grotte/jeu/mur_fissure.webp": "0989e744",
-  "grotte/jeu/mur_frise.webp": "72ca997b",
-  "grotte/jeu/mur_grave.webp": "e184da46",
-  "grotte/jeu/mur_hieroglyphes.webp": "a406de5f",
-  "grotte/jeu/mur_moussu.webp": "a2cb2ef4",
-  "grotte/jeu/mur_niche.webp": "6e58369d",
-  "grotte/jeu/mur_peint.webp": "4b67aad9",
-  "grotte/jeu/mur_scarabee.webp": "91f2c0f2",
-  "grotte/jeu/mur_soleil.webp": "89ab3564",
-  "grotte/jeu/mur_sombre.webp": "8b454f37",
-  "grotte/jeu/niche.webp": "16565a56",
-  "grotte/jeu/niche_statue.webp": "a84a5bbb",
-  "grotte/jeu/obelisque.webp": "65a449ba",
-  "grotte/jeu/obelisque_bleu.webp": "8da5f2a7",
-  "grotte/jeu/obelisque_cristal.webp": "15bf69cf",
-  "grotte/jeu/offrandes.webp": "e39a2f28",
-  "grotte/jeu/ossements.webp": "1c1fa9fa",
-  "grotte/jeu/panneau.webp": "77b061b9",
-  "grotte/jeu/paves.webp": "d16c14e8",
-  "grotte/jeu/piedestal_orbe.webp": "6e13174b",
-  "grotte/jeu/pierre_runique.webp": "2f0b5fd4",
-  "grotte/jeu/pilier_brise.webp": "c80433ad",
-  "grotte/jeu/pilier_grave.webp": "8f6f93a4",
-  "grotte/jeu/pilier_lotus.webp": "cf440971",
-  "grotte/jeu/pilier_peint.webp": "ea44a644",
-  "grotte/jeu/pilier_roche.webp": "fd1f8b43",
-  "grotte/jeu/portail_roche.webp": "0bb5bd12",
-  "grotte/jeu/porte_anubis.webp": "31c211fa",
-  "grotte/jeu/porte_arche.webp": "b3e07f2a",
-  "grotte/jeu/porte_bannieres.webp": "e3a63135",
-  "grotte/jeu/porte_gardiens.webp": "795b2bc4",
-  "grotte/jeu/porte_grotte.webp": "76a12d26",
-  "grotte/jeu/porte_ruine.webp": "95dc3317",
-  "grotte/jeu/porte_scellee.webp": "591c36b9",
-  "grotte/jeu/porte_temple.webp": "479e75f7",
-  "grotte/jeu/porte_tombeau.webp": "4b40a5d9",
-  "grotte/jeu/porte_torches.webp": "e950291b",
-  "grotte/jeu/portique.webp": "2ef34c3d",
-  "grotte/jeu/rideau.webp": "ef398a75",
-  "grotte/jeu/rocher_mousse.webp": "1293508e",
-  "grotte/jeu/rochers.webp": "1a5a3515",
-  "grotte/jeu/sable.webp": "824ff742",
-  "grotte/jeu/sanctuaire_orbe.webp": "fa15f425",
-  "grotte/jeu/sarcophage.webp": "a8a80bdd",
-  "grotte/jeu/sarcophage_roche.webp": "b0d96b0b",
-  "grotte/jeu/scarabee_or.webp": "c3dd8dbc",
-  "grotte/jeu/socle.webp": "60e0795d",
-  "grotte/jeu/sol_roche.webp": "91c02802",
-  "grotte/jeu/source.webp": "541abc27",
-  "grotte/jeu/source_grotte.webp": "f9a5e175",
-  "grotte/jeu/stalagmite.webp": "7820af4a",
-  "grotte/jeu/stalagmites.webp": "7c9619ca",
-  "grotte/jeu/statue_scarabee.webp": "db9d5363",
-  "grotte/jeu/stele.webp": "ade0ca7f",
-  "grotte/jeu/stele_lumineuse.webp": "874da446",
-  "grotte/jeu/stele_magique.webp": "75fa4fd8",
-  "grotte/jeu/tambour.webp": "56a10620",
-  "grotte/jeu/terre_sombre.webp": "7738ddf0",
-  "grotte/jeu/tombeau.webp": "a9451f6b",
-  "grotte/jeu/tonneau.webp": "ee6916b8",
-  "grotte/jeu/torche.webp": "8c423179",
-  "grotte/jeu/torche_anubis.webp": "51cf7727",
-  "grotte/jeu/torche_murale.webp": "421f5c2c",
-  "grotte/jeu/torche_plantee.webp": "0bda6f82",
-  "grotte/jeu/torche_trepied.webp": "e9e0b156",
-  "grotte/jeu/tresor_sable.webp": "3f06201a",
-  "grotte/jeu/vase.webp": "a5347953",
-  "grotte/jeu/vasque.webp": "4a6cb1bb",
-  "intro/jeu/camp.webp": "f2a345a9",
-  "intro/jeu/digivices.webp": "60e58104",
-  "intro/jeu/titre.webp": "69026e97",
-  "volcan/jeu/cone_lave.png": "51e1572c",
-  "volcan/jeu/dessus_falaise.png": "92f31a57",
-  "volcan/jeu/escalier.png": "93fb79e5",
-  "volcan/jeu/falaise_basalte.png": "d6723d17",
-  "volcan/jeu/fumerolle.png": "abc0a6c4",
-  "volcan/jeu/lave.png": "3c044e4a",
-  "volcan/jeu/paroi_cratere.png": "4e077d87",
-  "volcan/jeu/pic_1.png": "81099023",
-  "volcan/jeu/pic_2.png": "61035aa7",
-  "volcan/jeu/pic_3.png": "e7c688b3",
-  "volcan/jeu/plante_feu_1.png": "91ea4d92",
-  "volcan/jeu/plante_feu_2.png": "726e950b",
-  "volcan/jeu/plante_feu_3.png": "fa66ec3f",
-  "volcan/jeu/rocher_magma.png": "04182011",
-  "volcan/jeu/sol_cendres.png": "e3c0e1d6",
+  "bebe/jeu/anneaux.webp": "075e53ed",
+  "bebe/jeu/arche_fleurs.webp": "a5cd2484",
+  "bebe/jeu/arche_lierre.webp": "de7e830b",
+  "bebe/jeu/arche_papillon.webp": "23206a52",
+  "bebe/jeu/armoire_soins.webp": "4fb86a18",
+  "bebe/jeu/bac_sable.webp": "11aefaf9",
+  "bebe/jeu/balancoire.webp": "cf4a3f71",
+  "bebe/jeu/ballons.webp": "f7533faa",
+  "bebe/jeu/banc.webp": "e5bb64d4",
+  "bebe/jeu/banc_camp.webp": "a9656e34",
+  "bebe/jeu/barriere.webp": "037e21eb",
+  "bebe/jeu/barriere_corde.webp": "bd128f52",
+  "bebe/jeu/barriere_fleurs.webp": "3ad374a8",
+  "bebe/jeu/bassin_source.webp": "e748a48d",
+  "bebe/jeu/berceau.webp": "c22839fd",
+  "bebe/jeu/boite_lettres.webp": "cf2f2c46",
+  "bebe/jeu/borne.webp": "f1e08b82",
+  "bebe/jeu/buisson_fleurs.webp": "c0242da3",
+  "bebe/jeu/carillon.webp": "97830e5f",
+  "bebe/jeu/cartons.webp": "d5187ed4",
+  "bebe/jeu/chaise_haute.webp": "e8cc01ba",
+  "bebe/jeu/champignon_geant.webp": "cde8e811",
+  "bebe/jeu/chariot.webp": "87f779ec",
+  "bebe/jeu/coffre.webp": "0f2ad755",
+  "bebe/jeu/coussins.webp": "3b472ed6",
+  "bebe/jeu/couveuse.webp": "0cb6d345",
+  "bebe/jeu/cubes.webp": "9945c433",
+  "bebe/jeu/distributeur.webp": "7e8547bb",
+  "bebe/jeu/dome_bulles.webp": "e4cba786",
+  "bebe/jeu/dome_grimpe.webp": "0d348a55",
+  "bebe/jeu/escalier_bois.webp": "7bf61bc6",
+  "bebe/jeu/estrade.webp": "e836c555",
+  "bebe/jeu/etagere_biberons.webp": "b8496101",
+  "bebe/jeu/etagere_jouets.webp": "c9dccec9",
+  "bebe/jeu/fanions.webp": "0444aeb1",
+  "bebe/jeu/feu_camp.webp": "78afcb14",
+  "bebe/jeu/fontaine_bulles.webp": "55703939",
+  "bebe/jeu/fontaine_oeuf.webp": "39b8600a",
+  "bebe/jeu/gamelles.webp": "85046140",
+  "bebe/jeu/garde_manger.webp": "ca2c950f",
+  "bebe/jeu/guirlande.webp": "1ec42383",
+  "bebe/jeu/haie.webp": "f86e81bf",
+  "bebe/jeu/hochet.webp": "5c3a0272",
+  "bebe/jeu/jardiniere.webp": "5e79d5c1",
+  "bebe/jeu/jeu_ressort.webp": "ff7d2f1e",
+  "bebe/jeu/kiosque_livres.webp": "d0991227",
+  "bebe/jeu/lampadaire.webp": "cac41b03",
+  "bebe/jeu/lampe_etoile.webp": "c66efe93",
+  "bebe/jeu/lampe_fleur.webp": "225dc51f",
+  "bebe/jeu/lanterne_branche.webp": "2328135d",
+  "bebe/jeu/lanterne_camp.webp": "84e27fa4",
+  "bebe/jeu/lanterne_coeur.webp": "7dcaa940",
+  "bebe/jeu/lit_barreaux.webp": "9453da44",
+  "bebe/jeu/lit_cocon.webp": "0c266b56",
+  "bebe/jeu/maison_bois.webp": "c7a25fcb",
+  "bebe/jeu/maison_champignon.webp": "2ca9ab59",
+  "bebe/jeu/maison_coquillage.webp": "1732462f",
+  "bebe/jeu/maison_coussin.webp": "96402b6f",
+  "bebe/jeu/maison_cubes.webp": "8026653c",
+  "bebe/jeu/maison_escargot.webp": "b9ea26ce",
+  "bebe/jeu/maison_fleur.webp": "8fae18ff",
+  "bebe/jeu/maison_mousse.webp": "e49bdd5e",
+  "bebe/jeu/maison_nid.webp": "93c5cb39",
+  "bebe/jeu/maison_nuage.webp": "d1736569",
+  "bebe/jeu/maison_oeuf.webp": "990f9f76",
+  "bebe/jeu/manege.webp": "eeb2cecf",
+  "bebe/jeu/mare_cascade.webp": "6eabb692",
+  "bebe/jeu/mobile.webp": "c5598371",
+  "bebe/jeu/moulin.webp": "9400161f",
+  "bebe/jeu/moulinets.webp": "79177e6b",
+  "bebe/jeu/nid_oeufs.webp": "e6d3be2b",
+  "bebe/jeu/observatoire.webp": "06cffdf4",
+  "bebe/jeu/oeufs.webp": "5348e0d9",
+  "bebe/jeu/panier_balles.webp": "58b189b4",
+  "bebe/jeu/panier_linge.webp": "21d5e20b",
+  "bebe/jeu/panneau_affichage.webp": "dd01f3fb",
+  "bebe/jeu/panneau_meteo.webp": "af95309b",
+  "bebe/jeu/pas_japonais.webp": "3091c5e6",
+  "bebe/jeu/passerelle.webp": "2a076e79",
+  "bebe/jeu/pavillon_fleur.webp": "7eca3a0d",
+  "bebe/jeu/peluche.webp": "f9ba9c86",
+  "bebe/jeu/pont_bois.webp": "cb878d5c",
+  "bebe/jeu/portail.webp": "6059d7f4",
+  "bebe/jeu/portillon.webp": "e49bf54d",
+  "bebe/jeu/poteau_camp.webp": "e55e9a8b",
+  "bebe/jeu/poteau_indicateur.webp": "d1f53ace",
+  "bebe/jeu/poubelle.webp": "b4ec763c",
+  "bebe/jeu/scene_musique.webp": "677fa420",
+  "bebe/jeu/souche_musique.webp": "8301b139",
+  "bebe/jeu/statue_oeuf.webp": "cfba0fbe",
+  "bebe/jeu/table.webp": "9deb2222",
+  "bebe/jeu/table_camp.webp": "a2bf5ede",
+  "bebe/jeu/table_langer.webp": "a56b6c4e",
+  "bebe/jeu/tabouret.webp": "8a126b99",
+  "bebe/jeu/tambour.webp": "5cf49de3",
+  "bebe/jeu/tape_cul.webp": "bf0b1e60",
+  "bebe/jeu/tapis_patchwork.webp": "a77731be",
+  "bebe/jeu/tente_brulee.webp": "55993584",
+  "bebe/jeu/tipi.webp": "b9c2f7d5",
+  "bebe/jeu/toboggan.webp": "3805db18",
+  "bebe/jeu/toupie.webp": "4bf35041",
+  "bebe/jeu/tourniquet.webp": "f1f11637",
+  "bebe/jeu/train.webp": "e667ebb0",
+  "bebe/jeu/trampoline.webp": "d3e1b183",
+  "bebe/jeu/trefles.webp": "3395da6b",
+  "bebe/jeu/tunnel.webp": "c77e55b7",
+  "bebe/jeu/xylophone.webp": "f0959125",
+  "commun/jeu/amanites.png": "25861f7f",
+  "commun/jeu/amanites2.png": "5fe060dd",
+  "commun/jeu/arbre_automne_brun.png": "f1c5a773",
+  "commun/jeu/arbre_bouleau.png": "c88b4de9",
+  "commun/jeu/arbre_bouleau_automne.png": "92bcb922",
+  "commun/jeu/arbre_cerisier.png": "23141b33",
+  "commun/jeu/arbre_chene.png": "63df3f8a",
+  "commun/jeu/arbre_chene_automne.png": "ecef9e81",
+  "commun/jeu/arbre_chene_clair.png": "f0f53bac",
+  "commun/jeu/arbre_erable_orange.png": "fa303a4d",
+  "commun/jeu/arbre_erable_rouge.png": "915fcd9b",
+  "commun/jeu/arbre_fleurs.png": "858256f6",
+  "commun/jeu/arbre_mauve.png": "09cdbff4",
+  "commun/jeu/arbre_mi_automne.png": "e6891f60",
+  "commun/jeu/arbre_neige_bouleau.png": "ac1ca3b5",
+  "commun/jeu/arbre_neige_chene.png": "20131e42",
+  "commun/jeu/arbre_neige_nu.png": "dc6d581f",
+  "commun/jeu/arbre_neige_rond.png": "fb70e26f",
+  "commun/jeu/arbre_neige_sapin.png": "9bf17e5f",
+  "commun/jeu/arbre_neige_sapin3.png": "ef1e8891",
+  "commun/jeu/arbre_neige_tordu.png": "b75274fc",
+  "commun/jeu/arbre_sapin.png": "c14481bf",
+  "commun/jeu/arbre_saule.png": "283106bb",
+  "commun/jeu/arbre_vert.png": "47dee75b",
+  "commun/jeu/arbre_vert_vif.png": "6fb71ea8",
+  "commun/jeu/banc_courbe.png": "2348bda4",
+  "commun/jeu/banc_dossier.png": "4b879b45",
+  "commun/jeu/banc_mousse.png": "429c6061",
+  "commun/jeu/banc_rondin.png": "f5f17466",
+  "commun/jeu/banc_simple.png": "13959f2b",
+  "commun/jeu/borne_bleue.png": "57667361",
+  "commun/jeu/borne_rouge.png": "d0630ca0",
+  "commun/jeu/buisson.png": "6a44ea70",
+  "commun/jeu/buisson_baies.png": "5af212be",
+  "commun/jeu/buisson_baies2.png": "6e70d15a",
+  "commun/jeu/buisson_fleuri.png": "fc4f2361",
+  "commun/jeu/cairn.png": "b686731c",
+  "commun/jeu/cepes.png": "059b2a5c",
+  "commun/jeu/champi_blancs.png": "d5a9c353",
+  "commun/jeu/champi_bleu.png": "ebc91188",
+  "commun/jeu/champi_vert.png": "9ed75a6b",
+  "commun/jeu/champi_violet.png": "a7632d0a",
+  "commun/jeu/cristaux.png": "4aa85be5",
+  "commun/jeu/dalle_runique.png": "e8c9a2ca",
+  "commun/jeu/digi_betamon_combat.png": "d4333983",
+  "commun/jeu/digi_betamon_dos.png": "b06c581a",
+  "commun/jeu/digi_betamon_face.png": "52ba1a81",
+  "commun/jeu/digi_betamon_profil.png": "07ccfc9a",
+  "commun/jeu/digi_botamon_combat.png": "66450ee5",
+  "commun/jeu/digi_botamon_dos.png": "639f08e5",
+  "commun/jeu/digi_botamon_face.png": "2ade512e",
+  "commun/jeu/digi_botamon_profil.png": "0c70f459",
+  "commun/jeu/digi_bukamon_combat.png": "8626c55c",
+  "commun/jeu/digi_bukamon_dos.png": "3bba2253",
+  "commun/jeu/digi_bukamon_face.png": "fb496dec",
+  "commun/jeu/digi_bukamon_profil.png": "792461bf",
+  "commun/jeu/digi_elecmon_combat.png": "d1788710",
+  "commun/jeu/digi_elecmon_dos.png": "3b435061",
+  "commun/jeu/digi_elecmon_face.png": "e8f3ecbd",
+  "commun/jeu/digi_elecmon_profil.png": "3f40f22d",
+  "commun/jeu/digi_koromon_combat.png": "dc3093c3",
+  "commun/jeu/digi_koromon_dos.png": "33dc0018",
+  "commun/jeu/digi_koromon_face.png": "9a0c31fe",
+  "commun/jeu/digi_koromon_profil.png": "efb42d6c",
+  "commun/jeu/digi_kuwagamon_combat.png": "c9ec2a1f",
+  "commun/jeu/digi_kuwagamon_dos.png": "2c71d428",
+  "commun/jeu/digi_kuwagamon_face.png": "bdbb1b73",
+  "commun/jeu/digi_kuwagamon_profil.png": "90e01703",
+  "commun/jeu/digi_mushroomon_combat.png": "5bcf0c11",
+  "commun/jeu/digi_mushroomon_dos.png": "f2f3a4b5",
+  "commun/jeu/digi_mushroomon_face.png": "c439cd0b",
+  "commun/jeu/digi_mushroomon_profil.png": "98626372",
+  "commun/jeu/digi_nyokimon_combat.png": "1ff3a623",
+  "commun/jeu/digi_nyokimon_dos.png": "1acbfe55",
+  "commun/jeu/digi_nyokimon_face.png": "516658f9",
+  "commun/jeu/digi_nyokimon_profil.png": "7b6b8c52",
+  "commun/jeu/digi_pabumon_combat.png": "966b3192",
+  "commun/jeu/digi_pabumon_dos.png": "1eb37118",
+  "commun/jeu/digi_pabumon_face.png": "c081a250",
+  "commun/jeu/digi_pabumon_profil.png": "8056ddec",
+  "commun/jeu/digi_palmon_combat.png": "a639b756",
+  "commun/jeu/digi_palmon_dos.png": "02373a0c",
+  "commun/jeu/digi_palmon_face.png": "7848a941",
+  "commun/jeu/digi_palmon_profil.png": "d0c081a9",
+  "commun/jeu/digi_pichimon_combat.png": "ff7fc084",
+  "commun/jeu/digi_pichimon_dos.png": "ca7700c2",
+  "commun/jeu/digi_pichimon_face.png": "fd5ee7af",
+  "commun/jeu/digi_pichimon_profil.png": "2c753b90",
+  "commun/jeu/digi_poyomon_combat.png": "23f09322",
+  "commun/jeu/digi_poyomon_dos.png": "3bd0d436",
+  "commun/jeu/digi_poyomon_face.png": "ea211d3f",
+  "commun/jeu/digi_poyomon_profil.png": "25939536",
+  "commun/jeu/digi_punimon_combat.png": "093352e6",
+  "commun/jeu/digi_punimon_dos.png": "0279fdde",
+  "commun/jeu/digi_punimon_face.png": "1cf04c8d",
+  "commun/jeu/digi_punimon_profil.png": "e7b9deff",
+  "commun/jeu/digi_shellmon_combat.png": "5cc1e446",
+  "commun/jeu/digi_shellmon_dos.png": "d2688a5d",
+  "commun/jeu/digi_shellmon_face.png": "b7447d69",
+  "commun/jeu/digi_shellmon_profil.png": "470446ce",
+  "commun/jeu/digi_tsunomon_combat.png": "6e32af91",
+  "commun/jeu/digi_tsunomon_dos.png": "47b10294",
+  "commun/jeu/digi_tsunomon_face.png": "77d6eb2a",
+  "commun/jeu/digi_tsunomon_profil.png": "1ce2a925",
+  "commun/jeu/digi_whamon_combat.png": "8d3480b5",
+  "commun/jeu/digi_whamon_dos.png": "8f34ded1",
+  "commun/jeu/digi_whamon_face.png": "b9e887e9",
+  "commun/jeu/digi_whamon_profil.png": "fd3a395c",
+  "commun/jeu/digi_yukimibotamon_combat.png": "80d98381",
+  "commun/jeu/digi_yukimibotamon_dos.png": "d6897626",
+  "commun/jeu/digi_yukimibotamon_face.png": "091cc224",
+  "commun/jeu/digi_yukimibotamon_profil.png": "7695514b",
+  "commun/jeu/digi_yuramon_combat.png": "ed6318d0",
+  "commun/jeu/digi_yuramon_dos.png": "6d98699b",
+  "commun/jeu/digi_yuramon_face.png": "5b286009",
+  "commun/jeu/digi_yuramon_profil.png": "1db6ea6e",
+  "commun/jeu/eau_douce.png": "87e611e9",
+  "commun/jeu/eau_mer.png": "f5be1a59",
+  "commun/jeu/eboulis.png": "ba3dea2d",
+  "commun/jeu/ext_boite_lettres.png": "6ff21820",
+  "commun/jeu/ext_caisse.png": "910db778",
+  "commun/jeu/ext_caisse2.png": "746672ce",
+  "commun/jeu/ext_distrib_blanc.png": "b0014176",
+  "commun/jeu/ext_distrib_bleu.png": "d5238d8e",
+  "commun/jeu/ext_distrib_rouge.png": "0dbf2e02",
+  "commun/jeu/ext_etal_fruits.png": "1a5f175f",
+  "commun/jeu/ext_etal_legumes.png": "50feb153",
+  "commun/jeu/ext_etal_pain.png": "bc0d0926",
+  "commun/jeu/ext_jardiniere_blanche.png": "983c9d73",
+  "commun/jeu/ext_jardiniere_rose.png": "04f883d5",
+  "commun/jeu/ext_jardiniere_verte.png": "939912e7",
+  "commun/jeu/ext_panneau.png": "9c93a0d0",
+  "commun/jeu/ext_puits.png": "0d8d2be2",
+  "commun/jeu/fleur_1.png": "ede6d269",
+  "commun/jeu/fleur_10.png": "3f4d72b1",
+  "commun/jeu/fleur_2.png": "a7ae0186",
+  "commun/jeu/fleur_3.png": "a87dcf64",
+  "commun/jeu/fleur_4.png": "cb4f0475",
+  "commun/jeu/fleur_5.png": "ac498aca",
+  "commun/jeu/fleur_6.png": "07f5c919",
+  "commun/jeu/fleur_7.png": "fdffacc2",
+  "commun/jeu/fleur_8.png": "483dae92",
+  "commun/jeu/fleur_9.png": "4ab477cc",
+  "commun/jeu/fleur_cristal.png": "8415e62f",
+  "commun/jeu/fougere_1.png": "e831d542",
+  "commun/jeu/fougere_2.png": "160aae10",
+  "commun/jeu/girolles.png": "8066de12",
+  "commun/jeu/herbe_claire.png": "6ccf3202",
+  "commun/jeu/herbe_dense.png": "43509ffb",
+  "commun/jeu/herbe_fleurie.png": "2970ae22",
+  "commun/jeu/herbe_haute.png": "76ff9ffb",
+  "commun/jeu/herbe_seche.png": "41448bde",
+  "commun/jeu/herbe_terre.png": "94a834ba",
+  "commun/jeu/herbe_verte.png": "b209fa8f",
+  "commun/jeu/lanterne_pierre.png": "1d0ad633",
+  "commun/jeu/maison_aquarium.png": "81747db9",
+  "commun/jeu/maison_armoire.png": "4ae9ea50",
+  "commun/jeu/maison_bibliotheque.png": "a2f02c6a",
+  "commun/jeu/maison_bibliotheque_basse.png": "9d800929",
+  "commun/jeu/maison_bureau.png": "d08d6006",
+  "commun/jeu/maison_chevet.png": "dbcd008f",
+  "commun/jeu/maison_coffre_jouets.png": "4c89e782",
+  "commun/jeu/maison_coussins.png": "f5e97981",
+  "commun/jeu/maison_cuisiniere.png": "5be43524",
+  "commun/jeu/maison_etagere_murale.png": "e66ad96b",
+  "commun/jeu/maison_frigo.png": "08ad89ec",
+  "commun/jeu/maison_lampadaire.png": "4d8a3dc6",
+  "commun/jeu/maison_lit.png": "61bd83ed",
+  "commun/jeu/maison_ordinateur.png": "8c5663fe",
+  "commun/jeu/maison_plante.png": "1fecc62f",
+  "commun/jeu/maison_tableau.png": "8aa546df",
+  "commun/jeu/maison_tabouret.png": "4f2323b8",
+  "commun/jeu/maison_tapis.png": "dd79174a",
+  "commun/jeu/maison_tonneau.png": "a9a3a2dd",
+  "commun/jeu/maison_vase_fleurs.png": "c6638e7b",
+  "commun/jeu/monolithe.png": "fdca4a9d",
+  "commun/jeu/mont_aiguille.png": "fcee87a5",
+  "commun/jeu/mont_arbuste_sec.png": "adf33974",
+  "commun/jeu/mont_buisson.png": "18c25a90",
+  "commun/jeu/mont_buisson_baies.png": "1ba4a403",
+  "commun/jeu/mont_cairn.png": "5233c5e6",
+  "commun/jeu/mont_eboulis.png": "d6ee6b5c",
+  "commun/jeu/mont_eboulis_gros.png": "f142a51b",
+  "commun/jeu/mont_edelweiss.png": "774fdd96",
+  "commun/jeu/mont_fleurs_violettes.png": "57e28ac9",
+  "commun/jeu/mont_gravier.png": "44901c58",
+  "commun/jeu/mont_gros_rocher.png": "bf081187",
+  "commun/jeu/mont_grotte.png": "4a3513d0",
+  "commun/jeu/mont_herbe_alpine.png": "48954509",
+  "commun/jeu/mont_herbe_rousse.png": "f148a387",
+  "commun/jeu/mont_herbes_hautes.png": "4e128cc5",
+  "commun/jeu/mont_herbes_seches.png": "decf43cf",
+  "commun/jeu/mont_petit_rocher.png": "fdd732c6",
+  "commun/jeu/mont_rocher.png": "41fbe12d",
+  "commun/jeu/mont_rocher_mousse.png": "247ab9df",
+  "commun/jeu/mont_sapin.png": "663a7d8d",
+  "commun/jeu/mont_terre_seche.png": "f686f4c8",
+  "commun/jeu/panneau.png": "26f56bfd",
+  "commun/jeu/pierre_runique.png": "21f6b6f9",
+  "commun/jeu/plage_arche.png": "66ed4112",
+  "commun/jeu/plage_barque.png": "84db4b1e",
+  "commun/jeu/plage_bois_flotte.png": "7f5c99cf",
+  "commun/jeu/plage_bois_flotte2.png": "8c53d778",
+  "commun/jeu/plage_borne.png": "e20efd63",
+  "commun/jeu/plage_chateau.png": "a7282ae6",
+  "commun/jeu/plage_conque.png": "a4dbcac7",
+  "commun/jeu/plage_coquille.png": "1aaec01e",
+  "commun/jeu/plage_escargot.png": "f46ef43d",
+  "commun/jeu/plage_etoile.png": "882e7dbc",
+  "commun/jeu/plage_herbe_dune.png": "de8bdac5",
+  "commun/jeu/plage_herbe_seche.png": "0c93c46a",
+  "commun/jeu/plage_mare.png": "bb94304a",
+  "commun/jeu/plage_palmier.png": "23ddc754",
+  "commun/jeu/plage_palmier_courbe.png": "36eb732a",
+  "commun/jeu/plage_palmier_double.png": "dc42c5e6",
+  "commun/jeu/plage_pile_rochers.png": "de0eba14",
+  "commun/jeu/plage_radeau.png": "5920d5a9",
+  "commun/jeu/plage_rocher.png": "955de2e9",
+  "commun/jeu/plage_rochers.png": "731dd174",
+  "commun/jeu/plage_sable.png": "ccdf2ed6",
+  "commun/jeu/racines.png": "557c47bd",
+  "commun/jeu/rocher_mousse.png": "090e6c2e",
+  "commun/jeu/rond_sorcieres.png": "45f2383c",
+  "commun/jeu/sable_desert.png": "3f3f5b7f",
+  "commun/jeu/sable_dunes.png": "47ffb471",
+  "commun/jeu/sable_plage.png": "55cd921c",
+  "commun/jeu/sable_terre.png": "dd215a7c",
+  "commun/jeu/sanctuaire.png": "e0ab1da6",
+  "commun/jeu/souche.png": "13a628e3",
+  "commun/jeu/souche_champignons.png": "9da88775",
+  "commun/jeu/source.png": "caa9c339",
+  "commun/jeu/sport_bobine_foudre.png": "123f9f44",
+  "commun/jeu/sport_def_boucliers.png": "45aa5eae",
+  "commun/jeu/sport_def_mannequin_bois.png": "aadc3143",
+  "commun/jeu/sport_eau_cascade.png": "a98953f9",
+  "commun/jeu/sport_epouvantail.png": "49437465",
+  "commun/jeu/sport_feu_anneau.png": "144f8125",
+  "commun/jeu/sport_glace_bain.png": "cf91c515",
+  "commun/jeu/sport_int_formes.png": "ad7e2465",
+  "commun/jeu/sport_int_memoire.png": "acf59e10",
+  "commun/jeu/sport_int_telescope.png": "6af07148",
+  "commun/jeu/sport_mannequin_cible.png": "70a10c11",
+  "commun/jeu/sport_mur_soleil.png": "f7b869cb",
+  "commun/jeu/sport_pilier_cristal.png": "7d687be9",
+  "commun/jeu/sport_pneus.png": "520194a9",
+  "commun/jeu/sport_portail_ombre.png": "1d2101f8",
+  "commun/jeu/sport_portail_vent.png": "c82eb0cf",
+  "commun/jeu/sport_rocher_socle.png": "f55fb4e1",
+  "commun/jeu/sport_rocher_suspendu.png": "52579c60",
+  "commun/jeu/sport_sac_frappe.png": "96b55f02",
+  "commun/jeu/sport_traineau.png": "7ad0f7e7",
+  "commun/jeu/sport_vit_haies.png": "7927c739",
+  "commun/jeu/sport_vit_slalom.png": "b621c23b",
+  "commun/jeu/table_banquet.png": "09f139ac",
+  "commun/jeu/table_pique_nique.png": "fc96f44a",
+  "commun/jeu/table_rect.png": "01a2e0f1",
+  "commun/jeu/table_ronde.png": "e379a47f",
+  "commun/jeu/table_souche.png": "69ede744",
+  "commun/jeu/terre_brune.png": "26f38f00",
+  "commun/jeu/terre_cailloux.png": "3369f298",
+  "commun/jeu/terre_claire.png": "40183bec",
+  "commun/jeu/terre_craquelee.png": "9a46d463",
+  "commun/jeu/terre_savane.png": "ef3e4059",
+  "commun/jeu/terre_sombre.png": "519c870d",
+  "commun/jeu/toilettes.png": "307b21c9",
+  "commun/jeu/totem.png": "0a2c9dcd",
+  "commun/jeu/tronc_couche.png": "a5c3f840",
+  "commun/jeu/tuyau.png": "4895f4e9",
+  "commun/jeu/ville_buis.png": "bce9cff3",
+  "commun/jeu/ville_fontaine_etages.png": "5d626ccc",
+  "commun/jeu/ville_fontaine_octogone.png": "6f1835cf",
+  "commun/jeu/ville_fontaine_vasque.png": "44311ebd",
+  "commun/jeu/ville_lampadaire_noir.png": "1badc14d",
+  "commun/jeu/ville_paves.png": "ce4b1125",
+  "commun/jeu/ville_pot_arbuste.png": "137b715c",
+  "commun/jeu/ville_puits_treuil.png": "80278b7f",
+  "commun/jeu/ville_sacs.png": "8808b6ac",
+  "commun/jeu/ville_tonneaux.png": "388d2cbc",
+  "commun/kit/acc.png": "a3a037bb",
+  "commun/kit/bas_f.png": "68015f0c",
+  "commun/kit/bas_g.png": "71cf79b8",
+  "commun/kit/chapeau.png": "165349af",
+  "commun/kit/chaus.png": "44e2fc8d",
+  "commun/kit/corps_f.png": "9276027b",
+  "commun/kit/corps_g.png": "c20715b7",
+  "commun/kit/ensemble.png": "0470ddaf",
+  "commun/kit/haut.png": "8a0f2d98",
+  "commun/kit/sac.png": "ca76f45d",
+  "commun/kit/tete_f.png": "52215a8d",
+  "commun/kit/tete_g.png": "0fdf0cba",
+  "desert/jeu/antenne.webp": "bfed23d0",
+  "desert/jeu/arbre_mort.webp": "8e8d888b",
+  "desert/jeu/arbuste_sec.webp": "5270a562",
+  "desert/jeu/arche.webp": "f2fcd6bc",
+  "desert/jeu/arche_ruine.webp": "c2fb4e41",
+  "desert/jeu/argile_craquelee.webp": "9f6e9116",
+  "desert/jeu/balise.webp": "b4be1b12",
+  "desert/jeu/balise_cristal.webp": "d46b4206",
+  "desert/jeu/banniere.webp": "29397926",
+  "desert/jeu/barrage.webp": "29e067ae",
+  "desert/jeu/barriere_corde.webp": "0baf7d4d",
+  "desert/jeu/bassin.webp": "52fff23d",
+  "desert/jeu/bloc_circuits.webp": "6ee41636",
+  "desert/jeu/bloc_grave.webp": "dc693888",
+  "desert/jeu/blocs.webp": "4da08c76",
+  "desert/jeu/bord_falaise.webp": "b5b86c68",
+  "desert/jeu/borne_pierre.webp": "51e65e3d",
+  "desert/jeu/borne_rayee.webp": "27b102aa",
+  "desert/jeu/buisson_epineux.webp": "de1d1261",
+  "desert/jeu/cactus.webp": "6c59a4ef",
+  "desert/jeu/cailloux.webp": "4bdf031e",
+  "desert/jeu/caisses.webp": "df31e344",
+  "desert/jeu/caisses_numeriques.webp": "3f8909e5",
+  "desert/jeu/carte.webp": "1faec4d9",
+  "desert/jeu/coffre.webp": "d2513700",
+  "desert/jeu/colonne.webp": "edaddda5",
+  "desert/jeu/colonne_brisee.webp": "bcf9dff9",
+  "desert/jeu/colonne_tombee.webp": "1bd9de7f",
+  "desert/jeu/cristal.webp": "edad5b54",
+  "desert/jeu/dalle.webp": "71fa7481",
+  "desert/jeu/dalle_plate.webp": "7e0f71c5",
+  "desert/jeu/dalles_ensablees.webp": "e8db4a23",
+  "desert/jeu/dolmen.webp": "a9e36a2c",
+  "desert/jeu/dune.webp": "340200db",
+  "desert/jeu/eboulis.webp": "28a0150d",
+  "desert/jeu/echelle.webp": "a58d2231",
+  "desert/jeu/epave_machine.webp": "4d4e60b2",
+  "desert/jeu/escalier.webp": "e11154ef",
+  "desert/jeu/etal.webp": "063d6a72",
+  "desert/jeu/falaise.webp": "71ff98e0",
+  "desert/jeu/fosse.webp": "bff8b31c",
+  "desert/jeu/foyer.webp": "6b4e0d11",
+  "desert/jeu/herbes_seches.webp": "cdfd2a80",
+  "desert/jeu/jarres.webp": "5998ee13",
+  "desert/jeu/marches.webp": "2c169534",
+  "desert/jeu/mur_brise.webp": "62df74e0",
+  "desert/jeu/mur_oeil.webp": "64386de8",
+  "desert/jeu/mur_ruine.webp": "22750e2f",
+  "desert/jeu/niche_faucon.webp": "7abd1cfc",
+  "desert/jeu/niche_statue.webp": "0050988d",
+  "desert/jeu/obelisque.webp": "96771422",
+  "desert/jeu/obelisque_losange.webp": "6ba8f8f0",
+  "desert/jeu/panneau_danger.webp": "c1b82be9",
+  "desert/jeu/panneau_ensable.webp": "0b069ff2",
+  "desert/jeu/panneau_fleches.webp": "cd65ede0",
+  "desert/jeu/panneau_pierre.webp": "08d902fa",
+  "desert/jeu/piedestal.webp": "629217d0",
+  "desert/jeu/pilier_circuits.webp": "e755ec65",
+  "desert/jeu/pilier_vasque.webp": "689eedea",
+  "desert/jeu/pont_casse.webp": "6773d9a2",
+  "desert/jeu/portail.webp": "47360f79",
+  "desert/jeu/porte_ankh.webp": "838a2e38",
+  "desert/jeu/porte_cristal.webp": "fc17564d",
+  "desert/jeu/portique.webp": "c940ea05",
+  "desert/jeu/poteau.webp": "6013f625",
+  "desert/jeu/poteau_boitier.webp": "5751a616",
+  "desert/jeu/poteau_brise.webp": "2619b5b9",
+  "desert/jeu/poteau_casse.webp": "4066338b",
+  "desert/jeu/poteau_eclate.webp": "11236260",
+  "desert/jeu/poteau_orbe.webp": "43d84353",
+  "desert/jeu/poteau_penche.webp": "d14c1389",
+  "desert/jeu/poteau_tombe.webp": "bfad9084",
+  "desert/jeu/poteau_transfo.webp": "96903add",
+  "desert/jeu/poteaux_cable.webp": "c47e4e19",
+  "desert/jeu/puits.webp": "b658edd8",
+  "desert/jeu/rocher.webp": "c1a42f3d",
+  "desert/jeu/rocher_ecran.webp": "2b6567ab",
+  "desert/jeu/rocher_glitch.webp": "ea717021",
+  "desert/jeu/rocher_pointu.webp": "b9483d33",
+  "desert/jeu/sable_cailloux.webp": "cba759eb",
+  "desert/jeu/sable_graviers.webp": "ae83b322",
+  "desert/jeu/sable_numerique.webp": "33ff43d9",
+  "desert/jeu/sable_ondule.webp": "befa3dca",
+  "desert/jeu/sable_pale.webp": "95b170d4",
+  "desert/jeu/sacs.webp": "6da2233c",
+  "desert/jeu/squelette.webp": "48334720",
+  "desert/jeu/station_meteo.webp": "099d33f3",
+  "desert/jeu/stele_cible.webp": "8f19456b",
+  "desert/jeu/stele_gravee.webp": "200b67f0",
+  "desert/jeu/stele_holo.webp": "4cc0933d",
+  "desert/jeu/stele_orbe.webp": "95ba04be",
+  "desert/jeu/teleporteur.webp": "b660105e",
+  "desert/jeu/tente.webp": "ea5e8e95",
+  "desert/jeu/tente_dechiree.webp": "55993584",
+  "desert/jeu/terre_noire.webp": "abe065e8",
+  "desert/jeu/terre_orange.webp": "b782fa40",
+  "desert/jeu/tonneaux.webp": "184784e8",
+  "desert/jeu/tour_antenne.webp": "bb185256",
+  "desert/jeu/virevoltant.webp": "6f7bfe3a",
+  "grotte/jeu/alcove_sarcophage.webp": "1c62c1ee",
+  "grotte/jeu/ankh.webp": "9b8fd017",
+  "grotte/jeu/ankh_lumineux.webp": "67e1398b",
+  "grotte/jeu/anubis.webp": "541253f9",
+  "grotte/jeu/anubis_geant.webp": "b499703e",
+  "grotte/jeu/arche.webp": "db7bdffb",
+  "grotte/jeu/arche_ruine.webp": "6065d82a",
+  "grotte/jeu/autel.webp": "41ed7dbf",
+  "grotte/jeu/autel_soleil.webp": "8303675f",
+  "grotte/jeu/banniere.webp": "3faeb1a3",
+  "grotte/jeu/bassin_colonnes.webp": "dee7aacf",
+  "grotte/jeu/braises.webp": "196129d2",
+  "grotte/jeu/brasero.webp": "04e97a4c",
+  "grotte/jeu/brasero_anubis.webp": "a371e039",
+  "grotte/jeu/brasero_colonne.webp": "94e7b07a",
+  "grotte/jeu/caisse.webp": "eea2e941",
+  "grotte/jeu/canopes.webp": "19755a4b",
+  "grotte/jeu/cascade_roche.webp": "0c723c63",
+  "grotte/jeu/cascade_temple.webp": "e1df1e27",
+  "grotte/jeu/champignons.webp": "e6ccbc74",
+  "grotte/jeu/chemin.webp": "990342f4",
+  "grotte/jeu/coffre.webp": "5db89ed1",
+  "grotte/jeu/coffre_anubis.webp": "9d3b1869",
+  "grotte/jeu/colonne_cristaux.webp": "a8c5317e",
+  "grotte/jeu/colonne_moussue.webp": "d5646f6f",
+  "grotte/jeu/coupe_feu.webp": "7717ea69",
+  "grotte/jeu/cristaux.webp": "556f9bd6",
+  "grotte/jeu/cristaux_violets.webp": "4cfe504e",
+  "grotte/jeu/dais.webp": "0e777593",
+  "grotte/jeu/dalle_soleil.webp": "e8b0f06a",
+  "grotte/jeu/dalles_fissurees.webp": "87f99362",
+  "grotte/jeu/eboulis.webp": "96e98ad7",
+  "grotte/jeu/entree.webp": "d4959a38",
+  "grotte/jeu/entree_mousse.webp": "d7994aa3",
+  "grotte/jeu/entree_temple.webp": "c286282e",
+  "grotte/jeu/escalier.webp": "d218f80d",
+  "grotte/jeu/escalier_roche.webp": "deb81e56",
+  "grotte/jeu/flamme_bleue.webp": "58fce4b1",
+  "grotte/jeu/fleurs_lanternes.webp": "748883a1",
+  "grotte/jeu/fontaine.webp": "5f73a83b",
+  "grotte/jeu/fontaine_lotus.webp": "01144ea9",
+  "grotte/jeu/fresque.webp": "fc411c67",
+  "grotte/jeu/frise_murale.webp": "936da2ca",
+  "grotte/jeu/gres_aiguilles.webp": "b4f70b26",
+  "grotte/jeu/gres_ankh.webp": "9afc79a2",
+  "grotte/jeu/gres_arche.webp": "d4acd865",
+  "grotte/jeu/gres_eboulis.webp": "1f768757",
+  "grotte/jeu/gres_entree.webp": "bc874634",
+  "grotte/jeu/gres_mur.webp": "d1224002",
+  "grotte/jeu/gres_rochers.webp": "40ec4b4a",
+  "grotte/jeu/grille.webp": "22db15a3",
+  "grotte/jeu/gue.webp": "c1104453",
+  "grotte/jeu/herbe.webp": "ef317acd",
+  "grotte/jeu/jarre.webp": "990b3e4a",
+  "grotte/jeu/lampe.webp": "947333c2",
+  "grotte/jeu/lanterne.webp": "5f9673b5",
+  "grotte/jeu/mur_blocs.webp": "dec3b1ed",
+  "grotte/jeu/mur_brise.webp": "4567aafe",
+  "grotte/jeu/mur_colonne.webp": "82fa1b05",
+  "grotte/jeu/mur_ecroule.webp": "f14f9033",
+  "grotte/jeu/mur_fissure.webp": "a2643e34",
+  "grotte/jeu/mur_frise.webp": "035eba5c",
+  "grotte/jeu/mur_grave.webp": "36ef0d8a",
+  "grotte/jeu/mur_hieroglyphes.webp": "bceef47c",
+  "grotte/jeu/mur_moussu.webp": "09713dfd",
+  "grotte/jeu/mur_niche.webp": "982cbbab",
+  "grotte/jeu/mur_peint.webp": "8d275cbe",
+  "grotte/jeu/mur_scarabee.webp": "73c0a6f7",
+  "grotte/jeu/mur_soleil.webp": "46cb7811",
+  "grotte/jeu/mur_sombre.webp": "b4f13880",
+  "grotte/jeu/niche.webp": "7e41d155",
+  "grotte/jeu/niche_statue.webp": "ddc7812a",
+  "grotte/jeu/obelisque.webp": "29edd6c5",
+  "grotte/jeu/obelisque_bleu.webp": "23be1a7a",
+  "grotte/jeu/obelisque_cristal.webp": "5cde5ed8",
+  "grotte/jeu/offrandes.webp": "3c3c3982",
+  "grotte/jeu/ossements.webp": "3362a88d",
+  "grotte/jeu/panneau.webp": "6616285f",
+  "grotte/jeu/paves.webp": "b4122ca4",
+  "grotte/jeu/piedestal_orbe.webp": "7f9b8bfc",
+  "grotte/jeu/pierre_runique.webp": "357224c4",
+  "grotte/jeu/pilier_brise.webp": "1886538c",
+  "grotte/jeu/pilier_grave.webp": "0a023940",
+  "grotte/jeu/pilier_lotus.webp": "e91c81e6",
+  "grotte/jeu/pilier_peint.webp": "68d24913",
+  "grotte/jeu/pilier_roche.webp": "82c12189",
+  "grotte/jeu/portail_roche.webp": "1eda12fa",
+  "grotte/jeu/porte_anubis.webp": "722da765",
+  "grotte/jeu/porte_arche.webp": "5afc8e27",
+  "grotte/jeu/porte_bannieres.webp": "acba6f6f",
+  "grotte/jeu/porte_gardiens.webp": "66122213",
+  "grotte/jeu/porte_grotte.webp": "2c235def",
+  "grotte/jeu/porte_ruine.webp": "13b7ae53",
+  "grotte/jeu/porte_scellee.webp": "eddaa6f8",
+  "grotte/jeu/porte_temple.webp": "bd5009ac",
+  "grotte/jeu/porte_tombeau.webp": "f9a08b44",
+  "grotte/jeu/porte_torches.webp": "077cd629",
+  "grotte/jeu/portique.webp": "463b4d01",
+  "grotte/jeu/rideau.webp": "aada59ab",
+  "grotte/jeu/rocher_mousse.webp": "1622591f",
+  "grotte/jeu/rochers.webp": "68420373",
+  "grotte/jeu/sable.webp": "72790e0e",
+  "grotte/jeu/sanctuaire_orbe.webp": "98c568b5",
+  "grotte/jeu/sarcophage.webp": "9463a0ab",
+  "grotte/jeu/sarcophage_roche.webp": "a23b6d5c",
+  "grotte/jeu/scarabee_or.webp": "e02fae38",
+  "grotte/jeu/socle.webp": "684f09ef",
+  "grotte/jeu/sol_roche.webp": "3ba436ba",
+  "grotte/jeu/source.webp": "23418726",
+  "grotte/jeu/source_grotte.webp": "806d50c1",
+  "grotte/jeu/stalagmite.webp": "14a032ef",
+  "grotte/jeu/stalagmites.webp": "a681dabe",
+  "grotte/jeu/statue_scarabee.webp": "86417b5a",
+  "grotte/jeu/stele.webp": "54516b4c",
+  "grotte/jeu/stele_lumineuse.webp": "787dd9dc",
+  "grotte/jeu/stele_magique.webp": "134934df",
+  "grotte/jeu/tambour.webp": "e324b731",
+  "grotte/jeu/terre_sombre.webp": "24a08415",
+  "grotte/jeu/tombeau.webp": "c1f50c61",
+  "grotte/jeu/tonneau.webp": "25f41604",
+  "grotte/jeu/torche.webp": "f3de6339",
+  "grotte/jeu/torche_anubis.webp": "a377c234",
+  "grotte/jeu/torche_murale.webp": "a458c045",
+  "grotte/jeu/torche_plantee.webp": "bf1a99fb",
+  "grotte/jeu/torche_trepied.webp": "31e46946",
+  "grotte/jeu/tresor_sable.webp": "11b0847b",
+  "grotte/jeu/vase.webp": "3cc32acd",
+  "grotte/jeu/vasque.webp": "787f276c",
+  "intro/jeu/camp.webp": "5c8fe64c",
+  "intro/jeu/digivices.webp": "a36c8fd7",
+  "intro/jeu/titre.webp": "f2c8c2cb",
+  "volcan/jeu/cone_lave.png": "d1958aa0",
+  "volcan/jeu/dessus_falaise.png": "c0960a6f",
+  "volcan/jeu/escalier.png": "2402aa8d",
+  "volcan/jeu/falaise_basalte.png": "811801fc",
+  "volcan/jeu/fumerolle.png": "f95561b7",
+  "volcan/jeu/lave.png": "f825ca61",
+  "volcan/jeu/paroi_cratere.png": "bae95616",
+  "volcan/jeu/pic_1.png": "053fa1c5",
+  "volcan/jeu/pic_2.png": "babb4d97",
+  "volcan/jeu/pic_3.png": "c0af2f68",
+  "volcan/jeu/plante_feu_1.png": "103ab28a",
+  "volcan/jeu/plante_feu_2.png": "a0e55501",
+  "volcan/jeu/plante_feu_3.png": "d70737e4",
+  "volcan/jeu/rocher_magma.png": "ad612a12",
+  "volcan/jeu/sol_cendres.png": "8a2df5bb",
 };
 // suffixe d'adresse d'une image (chemin sous assets/, ex. 'commun/jeu/herbe_verte.png')
 DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IMAGES[chemin] : '');
@@ -4766,6 +4766,740 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
 })();
 ;
 
+// ===== js/gfx/digimon/kari.js
+'use strict';
+// =====================================================================
+//  DESSINS — LIGNÉE DE KARI (saison 1) : Nyaromon → Salamon (Plotmon) → Gatomon (Tailmon) → Angewomon
+//  → Ophanimon / Magnadramon (Holydramon), d'après les modèles officiels (proportions et couleurs, rien n'est copié).
+//  Repère 64x64, tourné vers la DROITE, sol à y≈62.
+//  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
+//  Nyaromon, Salamon et Gatomon ont aussi une vue de face et de dos (sur la carte, comme gfx/digimon/vues.js) ;
+//  les six ont un réglage de poses de combat (rien ne sort du cadre quand ils penchent).
+// =====================================================================
+(function () {
+  // lissage d'une ligne brisée (Chaikin) : queues et corps sans angles
+  const smooth = (pts, n = 3) => { for (let k = 0; k < n; k++) { const o = [pts[0]]; for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]]; o.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]); } o.push(pts[pts.length - 1]); pts = o; } return pts; };
+  // point et direction à la fraction t (0..1) de la longueur d'une ligne brisée
+  const at = (pts, t) => {
+    const seg = []; let L = 0;
+    for (let i = 0; i < pts.length - 1; i++) { const l = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]); seg.push(l); L += l; }
+    let s = Math.max(0, Math.min(1, t)) * L;
+    for (let i = 0; i < seg.length; i++) {
+      if (s <= seg[i] || i === seg.length - 1) {
+        const l = seg[i] || 1, u = Math.min(1, s / l), a = pts[i], b = pts[i + 1];
+        return { x: a[0] + (b[0] - a[0]) * u, y: a[1] + (b[1] - a[1]) * u, dx: (b[0] - a[0]) / l, dy: (b[1] - a[1]) / l };
+      }
+      s -= seg[i];
+    }
+  };
+  // morceau d'une ligne brisée, entre les fractions t0 et t1
+  const part = (pts, t0, t1, n = 8) => Array.from({ length: n + 1 }, (_, i) => { const p = at(pts, t0 + (t1 - t0) * i / n); return [p.x, p.y]; });
+  // rayure en travers d'une queue (à la fraction t de son tracé)
+  const band = (d, pts, t, w, len, col, o) => { const p = at(pts, t); d.deco.line(p.x - p.dy * len / 2, p.y + p.dx * len / 2, p.x + p.dy * len / 2, p.y - p.dx * len / 2, w, col, o); };
+  // touffe en mèches (bout des oreilles et de la queue de Gatomon, de la queue de Magnadramon) : n mèches fines qui
+  // partent d'une base étalée (largeur o.base) vers l'angle a, la mèche du milieu la plus longue, celles du bord
+  // recourbées vers l'extérieur
+  const tuft = (d, x, y, a, len, n, spread, col, o = {}) => {
+    const bw = o.base != null ? o.base : 2.4, px = -Math.sin(a), py = Math.cos(a);
+    if (o.knot) d.ell(x, y, bw * 0.75, bw * 0.6, col, a, { far: o.far, shiny: true });   // nœud qui réunit les mèches
+    for (let i = 0; i < n; i++) {
+      const t = n > 1 ? i / (n - 1) - 0.5 : 0, b = a + t * spread, l = len * (1 - Math.abs(t) * 0.45);
+      const bx = x + px * t * bw, by = y + py * t * bw, c = b - t * 0.5;
+      d.tube([[bx, by], [bx + Math.cos(c) * l * 0.5, by + Math.sin(c) * l * 0.5], [bx + Math.cos(b) * l, by + Math.sin(b) * l]], o.w || 1.9, 0.3, col, { far: o.far, shiny: true });
+    }
+  };
+  // éventail de plumes-lames (ailes dorées d'Ophanimon) : n plumes partant de (x, y), centrées sur l'angle a
+  const fan = (d, x, y, a, sp, n, L0, L1, w, col, o = {}) => {
+    for (let k = 0; k < n; k++) {
+      const t = n > 1 ? k / (n - 1) : 0.5, b = a - sp / 2 + sp * t, L = L0 + (L1 - L0) * t, bend = o.bend != null ? o.bend : 0.1;
+      const m = [x + Math.cos(b - bend) * L * 0.55, y + Math.sin(b - bend) * L * 0.55], e = [x + Math.cos(b) * L, y + Math.sin(b) * L];
+      d.tube([[x, y], m, e], w, o.w1 != null ? o.w1 : 0.8, col, { far: o.far, shiny: !o.far });
+      if (o.vein) d.deco.line(x + Math.cos(b - bend * 0.5) * L * 0.3, y + Math.sin(b - bend * 0.5) * L * 0.3, x + Math.cos(b) * L * 0.86, y + Math.sin(b) * L * 0.86, 0.45, o.vein);
+    }
+  };
+  // aile d'ange déployée, d'un seul tenant : bord d'attaque arqué de la racine (x, y) vers l'angle a (longueur L),
+  // bord de fuite en n plumes arrondies du côté s (±1), largeur W ; nervures (o.line) et bouts teintés (o.tip)
+  const wing = (d, x, y, a, L, W, col, o = {}) => {
+    const s = o.side || 1, n = o.n || 5, ux = Math.cos(a), uy = Math.sin(a), vx = -uy * s, vy = ux * s;
+    const P = (u, v) => [x + ux * u + vx * v, y + uy * u + vy * v];
+    const prof = t => W * (0.3 + 0.7 * Math.pow(Math.sin(Math.PI * Math.min(1, 0.12 + t * 0.95)), 0.7));
+    const pts = [];
+    for (let i = 0; i <= 5; i++) { const t = i / 5; pts.push(P(t * L * 0.96, -W * 0.18 * Math.sin(Math.PI * t) - (i === 0 ? W * 0.25 : 0))); }
+    pts.push(P(L * 1.04, W * 0.02));
+    for (let k = 0; k < n; k++) {
+      const t0 = 1 - k / n, t1 = 1 - (k + 1) / n, tm = (t0 + t1) / 2;
+      pts.push(P(tm * L + L * 0.1, prof(tm) * 1.08), P(t1 * L + L * 0.05, prof(t1) * 0.72));
+    }
+    pts.push(P(0, W * 0.3));
+    d.blob(pts, col, { far: o.far, shiny: !o.far, round: 0.5 });
+    if (o.line) for (let k = 1; k < n; k++) { const t = 1 - k / n, a0 = P(t * L * 0.9 + L * 0.04, W * 0.12), a1 = P(t * L + L * 0.05, prof(t) * 0.66); d.deco.line(a0[0], a0[1], a1[0], a1[1], 0.5, o.line); }
+    if (o.tip) for (let k = 0; k < n; k++) { const tm = 1 - (k + 0.5) / n, p = P(tm * L + L * 0.08, prof(tm) * 0.9); d.deco.ell(p[0], p[1], W * 0.16, W * 0.12, o.tip, a); }
+  };
+  // anneau sacré (bande dorée gravée) posé en travers d'un tracé, à la fraction t
+  const holyRing = (d, pts, t, len, wid, o = {}) => {
+    const p = at(pts, t), ux = p.dx * len / 2, uy = p.dy * len / 2, vx = -p.dy * wid / 2, vy = p.dx * wid / 2;
+    d.poly([[p.x - ux - vx, p.y - uy - vy], [p.x + ux - vx, p.y + uy - vy], [p.x + ux + vx, p.y + uy + vy], [p.x - ux + vx, p.y - uy + vy]], '#f0c232', { shiny: true, round: 0.5, far: o.far });
+    d.deco.line(p.x - vx * 0.7, p.y - vy * 0.7, p.x + vx * 0.7, p.y + vy * 0.7, 0.5, '#9a7414');
+  };
+  // vues symétriques (de face, de dos) : miroir autour de x = 32, contour complété par son miroir, paires d'yeux et de
+  // taches (comme gfx/digimon/vues.js)
+  const mir = pts => pts.map(([x, y]) => [64 - x, y]);
+  const sym = L => [...L, ...mir(L).reverse().filter(([x]) => Math.abs(x - 32) > 0.01)];
+  const eyes = (d, y, dx, rx, ry, iris, o = {}) => { d.eye(32 - dx, y, rx, ry, iris, { ...o, look: 0.06 }); d.eye(32 + dx, y, rx, ry, iris, { ...o, look: -0.06 }); };
+  const pair = (d, y, dx, rx, ry, col, rot = 0) => { d.deco.ell(32 - dx, y, rx, ry, col, rot); d.deco.ell(32 + dx, y, rx, ry, col, -rot); };
+
+  Object.assign(DW.DRAW, {
+
+    // ---------------------------------------------------------- Entraînement : Nyaromon, petite tête de chat jaune
+    // (un « mochi » aux deux oreilles pointues), grands yeux brun-rouge, bouche en zigzag, longue queue rayée de violet
+    // au bout violet
+    nyaromon(d) {
+      const Y = '#f6dc4e', Yd = '#d6ae2e', Yi = '#ebbd3c', Yl = '#fff6c4', P = '#8c6ad0', K = '#3a1a10';
+      // queue (derrière) : sort du bas du dos et remonte en crosse ; rayures puis bout violets
+      const tail = smooth([[20, 56], [10, 57.8], [4.6, 52.6], [3.4, 45], [5, 39], [9, 35.4]], 3);
+      d.tube(tail, 3.4, 2.6, Y);
+      for (const t of [0.4, 0.51, 0.62]) band(d, tail, t, 1.2, 4.4, P);
+      d.tube(part(tail, 0.73, 1), 2.8, 3.6, P, { shiny: true });
+      // oreilles pointues (le haut du crâne les recouvre à la base)
+      d.poly([[38, 31], [42.6, 25], [47, 19.6], [50.4, 16], [51.6, 24], [52, 33], [51, 39]], Yd, { far: true, round: 0.55 });
+      d.poly([[14.4, 41], [14, 31], [16.6, 21], [19.6, 15.6], [23.4, 21], [28, 27], [32.6, 31]], Y, { round: 0.55 });
+      d.deco.poly([[17.4, 33], [18.4, 23.6], [20, 19.6], [24.4, 26], [28, 31]], Yi);
+      // tête-corps en mochi, plus large en bas
+      d.blob([[13.4, 62.6], [10.4, 53], [12, 42.6], [18, 34.4], [28, 29.4], [38, 29], [47.4, 33.4], [53, 42], [54.4, 52], [52, 61], [44, 63], [21, 63]], Y, { shiny: true });
+      d.deco.ell(22, 39, 5.6, 2.8, Yl, -0.5, { unlit: true });
+      // grands yeux brun-rouge
+      d.eye(34.4, 45.4, 4.8, 5.6, '#a42a1a', { look: 0.3 });
+      d.eye(46.6, 46, 3.8, 5, '#a42a1a', { look: 0.3 });
+      // bouche en zigzag
+      d.deco.curve([[36.8, 53.4], [38.8, 55.6], [40.8, 53.6], [42.8, 55.6], [44.8, 53.4]], 0.9, K, { unlit: true });
+    },
+
+    // ---------------------------------------------------------- Disciple : Salamon (Plotmon), petit chien-chat crème
+    // à quatre pattes, grosse tête, longues oreilles tombantes beiges, yeux bleus, joues roses, collier doré (l'anneau sacré)
+    salamon(d) {
+      const W = '#fbf5ea', Wd = '#ddd0c0', E = '#f0dcbc', Ed = '#d4b089', G = '#ecc23c', Gd = '#9a7414', Bl = '#3a7ad8', Pk = '#f4a6b6';
+      // oreille éloignée (pend derrière la tête, côté droit)
+      d.blob([[48.6, 11], [53.6, 11.6], [57.6, 17], [59.6, 26], [59.4, 34], [56.4, 37.4], [53.6, 33]], E, { far: true, round: 0.5 });
+      // pattes éloignées
+      d.tube([[23.6, 50], [23.6, 57]], 6, 5.6, Wd, { far: true }); d.ell(24.8, 59.6, 4.4, 2.8, Wd, 0, { far: true });
+      d.tube([[37, 50], [37.6, 57]], 6, 5.6, Wd, { far: true }); d.ell(38.8, 59.6, 4.4, 2.8, Wd, 0, { far: true });
+      // corps
+      d.ell(28, 47, 12.4, 8.6, W, 0, { shiny: true });
+      // pattes proches, pieds ronds
+      d.tube([[18.4, 51], [18.6, 57.6]], 7, 6.6, W); d.ell(19.8, 59.6, 5, 3, W);
+      d.tube([[32.6, 51], [33.4, 57.6]], 7, 6.6, W); d.ell(35, 59.6, 5, 3, W);
+      for (const x of [21.6, 23.6, 36.8, 38.8]) d.deco.line(x, 58.4, x + 0.4, 61.6, 0.5, Wd);
+      // collier doré : l'anneau sacré, gravé
+      d.tube(smooth([[30, 37.6], [35, 41.4], [41, 42.2], [45.4, 40.6], [47.6, 37.4]], 2), 3.8, 3, G, { shiny: true });
+      for (let i = 0; i < 3; i++) d.deco.line(35.6 + i * 3.4, 40.6, 36.2 + i * 3.4, 42.8, 0.5, Gd);
+      // tête
+      d.blob([[27.6, 19], [32, 11.4], [41, 8.4], [50.6, 10.6], [56, 17], [57.4, 27], [53.6, 34.6], [42, 37.4], [31.6, 34.6], [27, 27]], W, { shiny: true });
+      // yeux bleus, joues roses, petite truffe, bouche
+      d.eye(43.4, 24.6, 3.8, 4.6, Bl, { look: 0.3 });
+      d.eye(52, 25, 3, 4.2, Bl, { look: 0.3 });
+      d.deco.ell(39, 31, 2.4, 1.5, Pk); d.deco.ell(55, 31.2, 1.6, 1.4, Pk);
+      d.deco.poly([[48.4, 29.6], [50.6, 29.6], [49.5, 31]], '#9a5a5a', { unlit: true });
+      d.deco.curve([[47.6, 32.4], [49.5, 33.4], [51.4, 32.4]], 0.7, '#8a4a4a', { unlit: true });
+      // oreille proche : un grand rabat beige qui pend le long de la joue, plus large au bout
+      d.blob([[30, 11.6], [36.4, 10.6], [37, 15], [33.6, 21], [31.4, 30], [31.4, 38], [30, 44], [25, 45.6], [21.6, 41], [22.6, 32], [24.4, 22], [26.6, 15]], E, { shiny: true, round: 0.5 });
+      d.deco.curve([[30.6, 16], [28, 26], [27, 36], [26.4, 42]], 0.8, Ed);
+    },
+
+    // ---------------------------------------------------------- Champion : Gatomon (Tailmon), chat blanc debout,
+    // grandes oreilles à touffe violette, yeux bleus, gants jaunes rayés de rouge aux longues griffes, queue rayée de
+    // violet portant l'anneau sacré doré
+    gatomon(d, p = {}) {
+      const W = '#f8f8fc', Wd = '#d2d2e2', Pk = '#f6a8bc', Pu = '#7c52c4', Y = '#eedc3c', R = '#e2501e', K = '#2c2832', Bl = '#3c9ae8';
+      const atk = p.pose === 'attack';
+      // queue (derrière) : rayée de violet, anneau sacré, touffe violette au bout
+      const tail = smooth([[25, 51], [15, 53.4], [8.4, 48], [7, 38], [10, 29], [11, 21], [8.6, 14.6]], 3);
+      d.tube(tail, 3, 2.4, W);
+      for (const t of [0.3, 0.4, 0.5, 0.6, 0.7, 0.8]) band(d, tail, t, 1.2, 4, Pu);
+      holyRing(d, tail, 0.9, 2.6, 4.6);
+      const e = at(tail, 0.96); tuft(d, e.x, e.y, Math.atan2(e.dy, e.dx), 7, 3, 1.1, Pu, { base: 2.4, w: 2.6, knot: true });
+      // oreilles (derrière la tête) : intérieur rose, touffe violette en pinceau au bout
+      d.poly([[38, 18], [45, 12], [51.6, 7.4], [50, 17], [47, 24]], W, { far: true });
+      d.deco.poly([[41, 18], [48.6, 10.6], [47.6, 18.6]], Pk);
+      tuft(d, 50.6, 8.8, -0.93, 7, 3, 1.1, Pu, { far: true, base: 2.4, w: 2.6, knot: true });
+      d.poly([[24, 25], [21.6, 14], [19.8, 7], [27, 11], [34, 18]], W);
+      d.deco.poly([[24.6, 21], [22, 11], [30.6, 17]], Pk);
+      tuft(d, 20.8, 8.8, -2.15, 7.6, 3, 1.1, Pu, { base: 2.4, w: 2.6, knot: true });
+      // bras et gant éloignés (derrière le gant proche)
+      d.tube([[35, 41], [40.6, 49]], 3.6, 3.4, Wd, { far: true });
+      d.ell(43, 51.4, 3.8, 3.6, Y, 0, { far: true });
+      d.deco.line(41.4, 48.6, 40.8, 52.6, 1, R);
+      for (let i = -1; i <= 1; i++) d.tube([[46, 51.6 + i * 1.6], [48.6, 53 + i * 2], [50.6, 55.6 + i * 2.2]], 1.6, 0.3, K, { far: true, shiny: true });
+      // corps et jambes courtes
+      d.tube([[36, 51], [37.6, 57]], 5.6, 5, Wd, { far: true }); d.ell(39.6, 59.8, 5, 2.6, Wd, 0, { far: true });
+      d.blob([[26, 38], [37, 37], [41, 44], [40, 52], [33, 55.6], [25, 53.6], [22.6, 45]], W, { shiny: true });
+      d.tube([[28.6, 51], [28.6, 57]], 6.4, 5.6, W); d.ell(31, 59.8, 5.6, 2.8, W);
+      d.deco.line(33.4, 58.8, 33.8, 61.6, 0.5, Wd); d.deco.line(35.4, 59, 35.8, 61.6, 0.5, Wd);
+      // tête : yeux bleus, petit nez rose, bouche en « ω », moustaches
+      d.blob([[24, 30], [25.6, 21], [32, 17], [40, 16.6], [47, 20], [50.4, 27], [49, 35], [42, 39.6], [31, 39.6], [25.4, 36]], W, { shiny: true });
+      d.eye(39, 27.6, 3.8, 4.6, Bl, { look: 0.32 });
+      d.eye(46.6, 28, 3, 4.2, Bl, { look: 0.32 });
+      d.deco.poly([[44.4, 32.4], [46.6, 32.4], [45.5, 33.8]], '#e07890', { unlit: true });
+      d.deco.curve([[43, 34.6], [44.2, 35.8], [45.5, 34.8], [46.8, 35.8], [48, 34.6]], 0.6, '#3a2a3a', { unlit: true });
+      for (const [y0, y1] of [[33.4, 32], [34.8, 34.6], [36.2, 37.4]]) d.deco.line(37, y0, 30.6, y1, 0.4, '#6a6a7a');
+      d.deco.line(48.4, 33, 50.4, 32.4, 0.4, '#6a6a7a'); d.deco.line(48.4, 34.4, 50, 34.6, 0.4, '#6a6a7a');
+      // bras proche : gant jaune rayé de rouge, trois longues griffes noires (levées en attaque)
+      const gy = atk ? 38 : 45.6, ga = atk ? -0.5 : 0.25;
+      d.tube([[37, 40], [42, atk ? 40 : 44]], 4, 3.6, W);
+      d.tube([[41.6, atk ? 39.6 : 43.4], [46.6, gy - 0.4]], 6, 6.4, Y);
+      d.ell(49, gy, 4.6, 4.4, Y, 0, { shiny: true });
+      for (const [x0, x1] of [[43.4, 42.6], [46.4, 45.8], [49.6, 49.6]]) d.deco.line(x0, gy - 3.6, x1, gy + 0.6, 1.1, R);
+      for (let i = -1; i <= 1; i++) {
+        const a = ga + i * 0.36, x = 52.6, y = gy + i * 2;
+        d.tube([[x, y], [x + Math.cos(a - 0.2) * 3.6, y + Math.sin(a - 0.2) * 3.6], [x + Math.cos(a) * 7, y + Math.sin(a) * 7]], 2, 0.3, K, { shiny: true });
+      }
+    },
+
+    // ---------------------------------------------------------- Ultime : Angewomon, ange aux huit ailes blanches,
+    // casque argenté qui couvre les yeux, longs cheveux blonds, tenue blanche et plastron doré, ruban rose en boucle
+    angewomon(d) {
+      const Wh = '#f8f6f4', Wd = '#dcd8e4', Wp = '#efc6e0', Wl = '#ddd2e6', Hy = '#f4e08c', Hyd = '#cfae58', Sk = '#f8d6bc';
+      const Hm = '#c4c8d4', Hmd = '#5a6070', Rb = '#dc92c6', G = '#eac040', Bt = '#5a3a2e';
+      // ailes : quatre derrière l'épaule droite (en partie cachées), quatre déployées vers la gauche
+      for (const [a, L] of [[-0.05, 15], [-0.45, 18], [-0.85, 19], [-1.25, 17]]) wing(d, 37, 20, a, L, 6.6, Wd, { side: 1, far: true, n: 4 });
+      for (const [a, L] of [[2.85, 20], [-2.85, 23], [-2.4, 24], [-1.9, 19.5]]) wing(d, 27, 21, a, L, 8, Wh, { side: -1, line: Wl, tip: Wp });
+      // ruban rose : boucle au-dessus de la tête et pan qui pend à gauche en ondulant, bout effiloché
+      d.tube(smooth([[10.8, 59.8], [13.6, 55.4], [13, 50], [16, 44], [18.6, 37], [21.6, 29], [21, 18], [23.6, 8], [30, 2.2], [37.6, 2.8], [42.6, 8], [44, 15.6], [44.4, 22]], 2), 2.3, 2.3, Rb, { round: 0.4 });
+      for (const [x, y] of [[8.4, 61.6], [10.2, 62], [12, 61.6]]) d.line(10.8, 59.8, x, y, 0.9, Rb);
+      // longs cheveux blonds (dans le dos), ondulés
+      d.blob([[28, 4.6], [34, 4], [33, 10], [30, 17], [28.6, 26], [28, 34], [26.6, 41], [25.6, 48], [23.6, 43], [21.6, 48.4], [20.4, 42], [17.6, 45], [18.4, 36], [19.4, 26], [20.6, 17], [23, 10]], Hy, { tex: 0.12 });
+      for (const pts of [[[23, 14], [20.8, 26], [20.4, 36], [19.6, 42]], [[25.6, 16], [23.6, 28], [23, 38], [22.6, 45]], [[28, 18], [26.6, 30], [25.8, 40]]]) d.deco.curve(pts, 0.7, Hyd);
+      // bras éloigné : long gant blanc, le long du corps
+      d.tube([[26.8, 20.6], [25, 28], [25.4, 35.6]], 3.4, 2.8, Wh, { far: true });
+      // jambe éloignée : bas blanc, talon
+      d.tube([[29.6, 36], [28.8, 47], [28.4, 57]], 5, 3.6, Wh, { far: true });
+      d.poly([[26.4, 57], [31, 57], [34.4, 61.2], [33, 62.2], [28.8, 61], [27.6, 62.4], [26.4, 62.4]], Wh, { far: true });
+      // jambe proche : nue, jarretière brune, botte blanche à bande dorée et petite aile, talon
+      d.tube([[35, 36], [35.8, 47], [36.2, 56]], 5.6, 3.8, Sk);
+      d.deco.tube([[32.4, 40.4], [37.8, 40.8]], 1.4, 1.4, Bt);
+      d.tube([[36, 50], [36.2, 57.6]], 4.6, 4.2, Wh, { shiny: true });
+      d.rect(33.4, 49.2, 5.4, 1.8, G, { shiny: true, round: 0.5 });
+      d.poly([[34, 57], [38.6, 57], [42.6, 61.2], [41, 62.4], [37, 61.2], [35.6, 62.6], [34, 62.6]], Wh, { shiny: true });
+      wing(d, 34.6, 54.6, -2.7, 6, 3, Wh, { side: -1, n: 3 });
+      // torse : épaules nues, tenue blanche, plastron doré, ceinture brune
+      d.blob([[27, 19], [33, 17], [39, 19], [39.6, 24], [27, 24]], Sk);
+      d.blob([[27.4, 22], [38.6, 22], [38, 28], [36.6, 31], [38.4, 36.4], [34, 38.6], [31, 38], [27.6, 38.4], [25.6, 36], [27.6, 31], [26.6, 27]], Wh, { shiny: true });
+      d.blob([[27.6, 21.4], [38.4, 21.2], [38, 24.6], [33.2, 26.6], [28.2, 24.6]], G, { shiny: true });
+      d.deco.line(33.2, 21.8, 33.2, 25.6, 0.5, '#a8801a');
+      d.rect(26.4, 29.4, 11.8, 2.6, Bt, { round: 0.4 });
+      d.deco.rect(31, 29.6, 2.8, 2.2, '#c8ccd8');
+      // cou et visage (le casque couvre les yeux), mèche blonde
+      d.tube([[32.4, 14], [32.8, 19]], 3.4, 3.6, Sk);
+      d.blob([[29, 8], [34, 5.6], [38.4, 8], [39, 12.6], [36.6, 16.4], [33, 16.8], [29.6, 14]], Sk);
+      d.deco.ell(36.4, 14.2, 1.2, 0.6, '#e0607a', 0, { unlit: true });
+      d.tube([[29.2, 10], [28.2, 16], [27.6, 22]], 2.4, 1.4, Hy);
+      // casque argenté arrondi : visière à fentes, petites ailes sur les côtés
+      d.blob([[27.6, 11.6], [27, 7], [29.6, 3.6], [34.6, 2.4], [39.4, 4.2], [41.2, 8.4], [40.6, 11.6], [35.6, 11.8], [31, 12.6]], Hm, { shiny: true, round: 0.6 });
+      d.deco.poly([[33.4, 7.4], [40.6, 7], [40.8, 10.8], [33.8, 11.2]], '#9298a8');
+      for (const y of [8.4, 9.8]) d.deco.line(34.2, y, 40.6, y - 0.2, 0.5, Hmd, { unlit: true });
+      wing(d, 29.6, 6.4, -2.45, 7.4, 3.2, Wh, { side: -1, n: 3 });
+      // bras proche (nu) tendu en avant, main ouverte ; le ruban s'y enroule et pend à droite
+      d.tube([[37.6, 20], [44, 23], [50.4, 21.6]], 3.4, 2.8, Sk);
+      d.ell(51.8, 21.2, 2, 1.7, Sk);
+      d.tube(smooth([[44.4, 22], [45, 27], [48.6, 33], [48.4, 40], [51, 47], [51, 54], [54.6, 59.8]], 2), 2.3, 2.3, Rb, { round: 0.4 });
+      for (const [x, y] of [[53.2, 61.8], [55, 62.1], [56.6, 61.6]]) d.line(54.6, 59.8, x, y, 0.9, Rb);
+      d.deco.curve([[42, 23.4], [44.4, 25.6]], 1.2, Rb);
+    },
+
+    // ---------------------------------------------------------- Méga : Ophanimon, ange en armure verte et dorée aux
+    // dix ailes dorées, casque à visière, cheveux roux, longue jupe blanche, lance d'Éden et bouclier
+    ophanimon(d) {
+      const Gn = '#2ea880', Gnd = '#1c7458', Go = '#f2c844', God = '#b88a1c', Wh = '#f6f4ee', Whd = '#cfcfd6', Sk = '#f6d4bc', Hr = '#c4502e';
+      // dix ailes dorées en étoile (cinq de chaque côté ; celles de droite, derrière, en partie cachées)
+      for (const [a, L] of [[-1.4, 18], [-0.98, 21], [-0.55, 19], [-0.12, 16], [0.32, 13]]) fan(d, 37, 20, a, 0.12, 2, L, L * 0.72, 4.4, Go, { far: true, bend: 0.06 });
+      for (const [a, L] of [[-1.72, 19.5], [-2.12, 23], [-2.55, 24], [-2.98, 22], [2.7, 18]]) fan(d, 27, 21, a, 0.12, 2, L, L * 0.72, 5, Go, { bend: -0.06, vein: God });
+      // plumes dorées qui pendent des hanches (derrière)
+      fan(d, 26, 34, 1.95, 0.5, 4, 20, 15, 3.6, '#f6e2a0', { far: true });
+      // cheveux roux (sous le casque, dans le dos)
+      d.blob([[28, 8], [33, 6], [31, 14], [28, 22], [23, 25], [22.6, 18], [25, 11]], Hr, { tex: 0.15 });
+      // bras éloigné et bouclier (vert bordé d'or, emblème doré)
+      d.tube([[26.6, 20.6], [22.6, 27], [19, 31]], 4.4, 4, Gnd, { far: true });
+      d.blob([[10, 27], [17, 24.6], [24, 27], [24.4, 36], [17.4, 47], [10.4, 37]], Go, { shiny: true });
+      d.blob([[11.6, 28.4], [17, 26.6], [22.6, 28.4], [22.8, 35.6], [17.4, 44], [12, 36.4]], Gn, { shiny: true });
+      d.deco.line(17.2, 28.4, 17.2, 42, 1.2, Go); d.deco.line(12.6, 33.4, 22, 33.4, 1.2, Go);
+      d.deco.circ(17.2, 33.4, 2, Go);
+      // jupe blanche plissée jusqu'aux chevilles, chaussures vertes
+      d.blob([[26, 40], [39, 40], [41.4, 50], [42.6, 58.6], [33, 59.6], [22.6, 58.6], [24, 50]], Wh, { shiny: true });
+      for (const x of [27, 30.6, 34.4, 38]) d.deco.line(x, 45, x - (x < 33 ? 1.2 : -1.2), 58.4, 0.6, Whd);
+      d.poly([[27.6, 58.6], [32.4, 58.6], [35.6, 61.6], [34, 62.4], [29.6, 61.6], [28.6, 62.6], [27.6, 62.6]], Gn, { far: true });
+      d.poly([[34.6, 58.6], [39.6, 58.6], [43, 61.6], [41.4, 62.6], [37, 61.6], [36, 62.8], [34.6, 62.8]], Gn, { shiny: true });
+      // armure des hanches (écailles) jusqu'aux genoux
+      d.blob([[27, 30], [37.6, 30], [39.6, 38], [40.6, 45], [33, 47], [24.6, 45], [25.6, 38]], Gn, { shiny: true });
+      for (const y of [36, 40.4]) d.deco.curve([[26, y], [33, y + 1.6], [40, y]], 0.6, Gnd);
+      // plastron vert, croix dorée sur le ventre
+      d.blob([[26.6, 19], [38.4, 19], [39.4, 26], [37.6, 32], [27.4, 32], [25.6, 26]], Gn, { shiny: true });
+      d.deco.curve([[27.4, 23.4], [32.6, 25.6], [38.6, 23.4]], 0.8, Go);
+      d.deco.line(32.6, 26.6, 32.6, 36.4, 1.3, Go, { unlit: true }); d.deco.line(29.4, 30.6, 35.8, 30.6, 1.3, Go, { unlit: true }); d.deco.circ(32.6, 30.6, 1.6, '#fff0a0', { unlit: true });
+      // épaulière éloignée
+      d.circ(26.6, 20.4, 4.4, Gn, { far: true });
+      // tête : visage, casque vert à visière, étoile dorée
+      d.tube([[32.4, 14], [32.6, 19]], 3.4, 3.6, Sk);
+      d.blob([[30, 10], [40.4, 10.4], [39.6, 14.2], [36.6, 16.4], [33, 15.6]], Sk);
+      d.deco.ell(37, 14, 1.1, 0.55, '#d0586a', 0, { unlit: true });
+      d.blob([[27.4, 12.6], [27.6, 6.6], [31, 3.6], [36.4, 3.4], [40.4, 6.6], [41, 11.4], [37.4, 12.4], [31, 13]], Gn, { shiny: true });
+      d.deco.poly([[33.6, 8.4], [41, 8], [41, 10.8], [34, 11.2]], '#123a2e', { unlit: true });
+      d.deco.poly([[36.6, 3.6], [37.4, 5.2], [39, 6], [37.4, 6.8], [36.6, 8.4], [35.8, 6.8], [34.2, 6], [35.8, 5.2]], Go, { unlit: true });
+      d.tube([[28.4, 8], [24, 7.4]], 1.6, 0.4, Go, { shiny: true });
+      // lance d'Éden (dorée, longue pointe, anneau), bras proche qui la tient
+      d.tube([[53, 61.6], [55.2, 9.4]], 1.8, 1.6, Go, { shiny: true });
+      d.poly([[53.8, 10.4], [56.6, 10.4], [56.2, 2.4], [55.4, 1.6], [54.6, 2.4]], '#fff2b0', { shiny: true });
+      d.curve([[55, 14.4], [57.4, 13.2], [57.8, 11], [56.4, 9.4], [54, 9.6], [52.6, 11.6], [53, 13.8], [55, 14.4]], 0.9, Go, { shiny: true });
+      d.circ(38.6, 20.4, 4.8, Gn, { shiny: true });
+      d.deco.curve([[35, 19], [38.6, 16.4], [42.4, 19]], 0.7, Go);
+      d.tube([[40, 22], [46, 26.6], [52.4, 29]], 4.2, 3.6, Gn, { shiny: true });
+      d.deco.rect(45, 24.6, 2.4, 3.6, Go);
+      d.ell(54, 29.4, 2.4, 2.2, Gn, 0, { shiny: true });
+    },
+
+    // ---------------------------------------------------------- Méga : Magnadramon (Holydramon), grand dragon sacré
+    // serpentin rose et blanc, crinière blanche, cornes noires rayées de magenta, œil vert, quatre ailes de plumes,
+    // anneaux sacrés dorés aux poignets et à la queue
+    magnadramon(d) {
+      const P = '#f6dce8', Pd = '#d8a8c4', Pb = '#e8a6c6', Mw = '#fdf8fc', Wg = '#fbf0f6', Wl = '#e6c4d8', Wt = '#f0b8d4', Hk = '#2a2030', Hm = '#d82c7c', Cl = '#8a7a88';
+      // ailes de plumes (quatre, derrière le dos)
+      for (const [a, L, far] of [[-1.72, 23, true], [-2.18, 26, false], [-2.64, 25, false], [-3.06, 21, false]]) wing(d, 30, 29, a, L, 8.6, Wg, { side: -1, line: Wl, tip: Wt, far });
+      // corps serpentin : la queue (derrière) balaie le sol vers la gauche, touffe au bout
+      const spine = smooth([[45, 19], [38.6, 25.6], [33.6, 34], [33.6, 42], [38, 49], [36, 56], [26, 59.4], [16, 59.6], [9.6, 56.6], [7.6, 50.6]], 3);
+      d.tube(part(spine, 0.5, 1, 14), 10, 2.4, P, { shiny: true });
+      holyRing(d, spine, 0.88, 2, 4.4);
+      const e = at(spine, 1); tuft(d, e.x, e.y, Math.atan2(e.dy, e.dx), 5, 4, 1.4, Mw);
+      // patte arrière éloignée
+      d.tube([[29, 53], [26.6, 58.6]], 4, 3.4, Pd, { far: true }); d.ell(26.6, 60.6, 3.4, 1.8, Pd, 0, { far: true });
+      // tronc et cou, ventre rose plus soutenu
+      d.tube(part(spine, 0.18, 0.56, 12), 12.4, 11, P, { shiny: true, noline: true });
+      d.deco.tube(part(spine, 0.2, 0.52, 10).map(([x, y]) => [x + 3.6, y + 0.4]), 4.6, 4, Pb);
+      // crinière blanche duveteuse le long de la nuque (le cou la recouvre à la base)
+      wing(d, 41, 9.4, 2.06, 24.4, 7.6, Mw, { side: 1, n: 6, line: '#e6d6e2' });
+      d.tube(part(spine, 0, 0.24, 8), 8.4, 11.4, P, { shiny: true, noline: true });
+      d.deco.tube(part(spine, 0.02, 0.22, 6).map(([x, y]) => [x + 2.4, y + 2]), 3.4, 4, Pb);
+      // patte arrière proche
+      d.tube([[36, 51], [40.6, 56.6], [41.4, 59.6]], 5.4, 4, P);
+      d.ell(43, 60.8, 3.8, 1.8, P);
+      for (let i = 0; i < 3; i++) d.tube([[43.4 + i * 1.6, 61], [45.4 + i * 1.8, 62.4]], 1.2, 0.4, Cl);
+      // bras éloigné
+      d.tube([[34, 37], [38.4, 42.6], [44, 43]], 4.4, 3.6, Pd, { far: true });
+      for (let i = -1; i <= 1; i++) d.tube([[45, 43 + i * 1.4], [48.6, 44.4 + i * 1.8]], 1.4, 0.3, Cl, { far: true });
+      // tête : cornes noires rayées de magenta, crâne, long museau, gueule ouverte
+      d.tube(smooth([[45, 10], [40.4, 5.4], [34.6, 3.6], [29, 4.6]], 2), 3.4, 0.6, Hk, { far: true, shiny: true });
+      d.tube(smooth([[47.4, 9.6], [44.4, 5], [39.4, 3], [34, 3.2]], 2), 3.6, 0.6, Hk, { shiny: true });
+      for (const [x, y] of [[43.4, 4.4], [39.8, 3], [36.4, 3]]) d.deco.line(x, y - 1.6, x + 0.6, y + 1.6, 0.9, Hm, { unlit: true });
+      d.ell(46, 14.6, 7, 6.2, P, 0, { shiny: true });
+      d.blob([[46.6, 10.4], [54, 11.6], [59.8, 13.6], [60.6, 17], [56, 18.6], [49, 19]], P, { shiny: true });
+      d.blob([[47, 19], [54.4, 20.4], [59, 23.2], [57.6, 25.2], [50.6, 24.6], [45.6, 22]], P);
+      d.deco.poly([[49, 18.6], [59.8, 17.4], [58.2, 22.8], [51, 22.4]], '#8a1028', { unlit: true });
+      for (let i = 0; i < 4; i++) d.deco.poly([[50.2 + i * 2.4, 18.4 - i * 0.15], [51.1 + i * 2.4, 20.1 - i * 0.15], [52 + i * 2.4, 18.2 - i * 0.15]], '#ffffff', { unlit: true });
+      d.deco.ell(59.6, 14.4, 0.7, 0.5, '#5a2a40', 0, { unlit: true });
+      d.deco.ell(49.6, 12.6, 2.4, 1.7, '#1a1a22', -0.2, { unlit: true });
+      d.deco.ell(50, 12.6, 1.6, 1.1, '#3ac860', -0.2, { unlit: true }); d.deco.circ(49.4, 12.1, 0.45, '#ffffff', { unlit: true });
+      d.deco.curve([[46.6, 10.6], [50, 10], [53, 11]], 0.9, '#a86a8a', { unlit: true });
+      // touffes blanches derrière la tête et barbiche sous la mâchoire
+      for (const [x, y, a, l] of [[41.6, 11, -2.6, 6], [41, 16, -2.95, 6.4], [46.6, 22.6, 2.1, 4.6]]) tuft(d, x, y, a, l, 3, 0.8, Mw, { w: 2.2, base: 2.6 });
+      // bras proche, griffes grises, anneau sacré au poignet
+      d.tube([[39, 35], [45, 40], [50.6, 38.4]], 5, 4, P, { shiny: true });
+      d.rect(46.6, 37, 2.6, 4.6, '#f0c232', { shiny: true, round: 0.5 });
+      d.ell(52, 38, 2.6, 2.4, P);
+      for (let i = -1; i <= 1; i++) d.tube([[53.4, 38 + i * 1.6], [56, 37 + i * 2.4], [57.6, 38.6 + i * 2.6]], 1.6, 0.3, Cl, { shiny: true });
+    },
+  });
+
+  // ------------------------------------------------------------ vues de face et de dos (Entraînement, Disciple, Champion)
+  // Sur la carte, le partenaire suit le héros : vu de DOS quand il monte, de FACE quand il descend (gfx/sprites.js :
+  // param.view). Dessins symétriques autour de x = 32, mêmes couleurs que les profils ; de dos, pas de visage.
+  const NY = { Y: '#f6dc4e', Yi: '#ebbd3c', Yl: '#fff6c4', P: '#8c6ad0', K: '#3a1a10' };
+  const SA = { W: '#fbf5ea', Wd: '#ddd0c0', E: '#f0dcbc', Ed: '#d4b089', G: '#ecc23c', Gd: '#9a7414' };
+  const GA = { W: '#f8f8fc', Pk: '#f6a8bc', Pu: '#7c52c4', Y: '#eedc3c', R: '#e2501e', K: '#2c2832' };
+  const V = {
+    nyaromon: {
+      ears(d, front) {
+        const ear = [[12.4, 42], [12, 31], [14.4, 21.6], [17.4, 15.6], [21.6, 21], [26.6, 27], [31, 30.6]];
+        for (const e of [ear, mir(ear)]) d.poly(e, NY.Y, { round: 0.55 });
+        if (front) { const inner = [[15.4, 33.4], [16.2, 24], [17.8, 19.8], [22.2, 26], [26.6, 31.4]]; for (const e of [inner, mir(inner)]) d.deco.poly(e, NY.Yi); }
+      },
+      head(d) {
+        d.blob(sym([[32, 29.4], [22, 30.6], [14.6, 35.6], [10.8, 45], [11, 56], [15.6, 62.6], [32, 63]]), NY.Y, { shiny: true });
+        d.deco.ell(21.4, 39, 5.4, 2.6, NY.Yl, -0.5, { unlit: true });
+      },
+      // la queue dépasse derrière, à gauche ; grands yeux, bouche en zigzag
+      front(d) {
+        const tail = smooth([[22, 60], [11, 60.4], [6, 55], [5.4, 47], [8, 40.4]], 3);
+        d.tube(tail, 3.2, 2.6, NY.Y);
+        for (const t of [0.52, 0.63]) band(d, tail, t, 1.2, 4.2, NY.P);
+        d.tube(part(tail, 0.74, 1), 2.8, 3.4, NY.P, { shiny: true });
+        V.nyaromon.ears(d, true); V.nyaromon.head(d);
+        eyes(d, 45.6, 6.6, 4.6, 5.4, '#a42a1a');
+        d.deco.curve([[28, 53.4], [30, 55.6], [32, 53.6], [34, 55.6], [36, 53.4]], 0.9, NY.K, { unlit: true });
+      },
+      // la queue part du bas du dos et remonte vers nous en crosse
+      back(d) {
+        V.nyaromon.ears(d, false); V.nyaromon.head(d);
+        const tail = smooth([[32, 60.6], [36.6, 58], [41.6, 53], [44.4, 46], [43, 40]], 3);
+        d.tube(tail, 3.4, 2.8, NY.Y);
+        for (const t of [0.42, 0.56]) band(d, tail, t, 1.2, 3, NY.P);
+        d.tube(part(tail, 0.7, 1), 2.8, 3.6, NY.P, { shiny: true });
+      },
+    },
+    salamon: {
+      body(d) {
+        // pattes arrière (derrière, plus écartées), corps, pattes avant, collier doré (l'anneau sacré)
+        for (const s of [-1, 1]) { d.tube([[32 + s * 10, 50], [32 + s * 10.6, 57.4]], 5.6, 5.2, SA.Wd, { far: true }); d.ell(32 + s * 11, 59.8, 4.2, 2.6, SA.Wd, 0, { far: true }); }
+        d.ell(32, 47.6, 12, 8.6, SA.W, 0, { shiny: true });
+        for (const s of [-1, 1]) { d.tube([[32 + s * 5.4, 51], [32 + s * 5.8, 57.6]], 6.6, 6.2, SA.W); d.ell(32 + s * 6.2, 59.8, 4.8, 2.8, SA.W); }
+        d.tube(smooth([[21.4, 36.4], [26, 40.4], [32, 41.6], [38, 40.4], [42.6, 36.4]], 2), 3.8, 3.8, SA.G, { shiny: true });
+        for (const x of [27.4, 32, 36.6]) d.deco.line(x, 40, x, 43, 0.5, SA.Gd);
+        d.blob(sym([[32, 8.6], [24, 9.8], [18.6, 15], [17, 23], [18.6, 31.6], [24.4, 36.6], [32, 37.8]]), SA.W, { shiny: true });
+      },
+      // les deux grandes oreilles pendent de chaque côté de la tête
+      ears(d) {
+        const ear = [[21.6, 11], [27, 10.4], [24.6, 16.6], [21.6, 24], [20.6, 33], [20.6, 41], [17.6, 45.4], [13.6, 43], [13, 34], [14.4, 24], [17, 15.6]];
+        for (const e of [ear, mir(ear)]) d.blob(e, SA.E, { shiny: true, round: 0.5 });
+        for (const s of [-1, 1]) d.deco.curve([[32 + s * 10.6, 17], [32 + s * 13.4, 28], [32 + s * 14.4, 40]], 0.8, SA.Ed);
+      },
+      front(d) {
+        V.salamon.body(d); V.salamon.ears(d);
+        eyes(d, 23.6, 6, 3.4, 4.2, '#3a7ad8');
+        pair(d, 30.6, 9.4, 2.2, 1.4, '#f4a6b6');
+        d.deco.poly([[30.8, 28.6], [33.2, 28.6], [32, 30.2]], '#9a5a5a', { unlit: true });
+        d.deco.curve([[30, 31.8], [32, 32.8], [34, 31.8]], 0.7, '#8a4a4a', { unlit: true });
+      },
+      back(d) { V.salamon.body(d); V.salamon.ears(d); },
+    },
+    gatomon: {
+      // queue rayée de violet, anneau sacré, touffe violette au bout
+      tail(d, pts) {
+        d.tube(pts, 3, 2.4, GA.W);
+        for (const t of [0.3, 0.42, 0.54, 0.66, 0.78]) band(d, pts, t, 1.2, 2.8, GA.Pu);
+        holyRing(d, pts, 0.88, 2.6, 4.4);
+        const e = at(pts, 0.96); tuft(d, e.x, e.y, Math.atan2(e.dy, e.dx), 6.6, 3, 1.1, GA.Pu, { base: 2.4, w: 2.6, knot: true });
+      },
+      ears(d, front) {
+        const ear = [[23.6, 24], [19.4, 15], [15.6, 7.6], [23.4, 11], [30.4, 17.6]];
+        for (const e of [ear, mir(ear)]) d.poly(e, GA.W);
+        if (front) { const inner = [[23.4, 20.4], [18.6, 11.6], [27.4, 15.6]]; for (const e of [inner, mir(inner)]) d.deco.poly(e, GA.Pk); }
+        tuft(d, 16.6, 9.2, -2.2, 7, 3, 1.1, GA.Pu, { base: 2.4, w: 2.6, knot: true });
+        tuft(d, 47.4, 9.2, -0.94, 7, 3, 1.1, GA.Pu, { base: 2.4, w: 2.6, knot: true });
+      },
+      body(d) {
+        for (const s of [-1, 1]) { d.tube([[32 + s * 4.6, 51], [32 + s * 5.4, 57.4]], 6, 5.4, GA.W); d.ell(32 + s * 6.2, 59.8, 5, 2.8, GA.W); }
+        d.blob(sym([[32, 37], [26, 38.4], [23, 45], [25, 53], [32, 55.6]]), GA.W, { shiny: true });
+        // bras et gants jaunes rayés de rouge, griffes noires vers le bas
+        for (const s of [-1, 1]) {
+          d.tube([[32 + s * 6.6, 40.6], [32 + s * 11, 45]], 3.8, 3.4, GA.W);
+          d.ell(32 + s * 13, 48.4, 4.2, 4.6, GA.Y, 0, { shiny: true });
+          d.deco.line(32 + s * 10.6, 45.6, 32 + s * 15, 46.6, 1, GA.R); d.deco.line(32 + s * 10.6, 48.6, 32 + s * 15.4, 49.4, 1, GA.R);
+          for (let i = -1; i <= 1; i++) d.tube([[32 + s * (13 + i * 1.6), 52], [32 + s * (13.4 + i * 2), 55], [32 + s * (14.6 + i * 2.4), 57.4]], 1.8, 0.3, GA.K, { shiny: true });
+        }
+        d.blob(sym([[32, 15.4], [24.4, 16.8], [19.6, 22], [18.6, 29.4], [21.4, 36], [27, 39.6], [32, 40.2]]), GA.W, { shiny: true });
+      },
+      front(d) {
+        V.gatomon.tail(d, smooth([[26, 52], [17, 51], [11.6, 45], [10.4, 37], [11.6, 30], [10.4, 24]], 3));   // derrière, à gauche
+        V.gatomon.ears(d, true); V.gatomon.body(d);
+        eyes(d, 28.4, 5.6, 3.6, 4.4, '#3c9ae8');
+        d.deco.poly([[30.8, 33], [33.2, 33], [32, 34.4]], '#e07890', { unlit: true });
+        d.deco.curve([[29.4, 35.4], [30.7, 36.6], [32, 35.6], [33.3, 36.6], [34.6, 35.4]], 0.6, '#3a2a3a', { unlit: true });
+        for (const s of [-1, 1]) for (const [y0, y1] of [[33.6, 32.4], [35, 35], [36.4, 37.6]]) d.deco.line(32 + s * 6.4, y0, 32 + s * 13, y1, 0.4, '#6a6a7a');
+      },
+      // la queue part du bas du dos et se dresse
+      back(d) {
+        V.gatomon.ears(d, false); V.gatomon.body(d);
+        V.gatomon.tail(d, smooth([[32, 52], [36.6, 48], [40, 41], [41, 32], [39, 24], [41.6, 16]], 3));
+      },
+    },
+  };
+  // branchement : le dessin d'origine reste le profil ; param.view choisit la vue
+  for (const sp in V) {
+    const base = DW.DRAW[sp], v = V[sp];
+    const f = function (d, p = {}) {
+      if (p.view === 'front') return v.front(d, p);
+      if (p.view === 'back') return v.back(d, p);
+      return base(d, p);
+    };
+    f.views = ['front', 'back'];
+    DW.DRAW[sp] = f;
+  }
+
+  // poses de combat (gfx/sprites.js) : penché en avant pour attaquer, en arrière quand il est touché ; décalage (et
+  // inclinaison) mesurés pour que rien ne sorte du cadre (queue, oreilles, ailes, lance, museau)
+  DW.DRAW.nyaromon.poses = { hurt: { dx: 2.6 } };
+  DW.DRAW.salamon.poses = { attack: { dx: -2.6 } };
+  DW.DRAW.gatomon.poses = { attack: { dx: -2.6 }, hurt: { dx: 4.6 } };
+  DW.DRAW.angewomon.poses = { hurt: { dx: 4.6 } };
+  DW.DRAW.ophanimon.poses = { attack: { dx: -4.1 }, hurt: { dx: 3.1 } };
+  DW.DRAW.magnadramon.poses = { attack: { shear: 0.13, dx: -3.6 }, hurt: { dx: 1.1 } };
+})();
+;
+
+// ===== js/gfx/digimon/lignees2.js
+'use strict';
+// =====================================================================
+//  DESSINS — compléments de lignées (saison 1), d'après les modèles officiels (proportions et couleurs) :
+//  Pyocomon (Entraînement, lignée de Biyomon), MegaKabuterimon rouge (AtlurKabuterimon, Ultime de Kabuterimon),
+//  MagnaAngemon (HolyAngemon, Ultime d'Angemon), Omegamon (Omnimon, Méga : fusion de WarGreymon et MetalGarurumon).
+//  Repère 64x64, tourné vers la DROITE, sol à y≈62.
+//  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
+// =====================================================================
+(function () {
+  // bras d'insecte cuirassé : épaule → coude (articulation sombre) → main sombre à trois longues griffes recourbées
+  const insectArm = (d, s, e, h, col, claw, far, joint) => {
+    d.tube([s, e], 6, 5, col, { far, shiny: !far });
+    d.tube([e, h], 5.2, 4.2, col, { far, shiny: !far });
+    d.circ(e[0], e[1], 2.2, joint || claw, { far });
+    const a0 = Math.atan2(h[1] - e[1], h[0] - e[0]);
+    d.ell(h[0], h[1], 2.6, 2.3, claw, a0, { far, shiny: true });
+    for (let i = -1; i <= 1; i++) {
+      const a = a0 + i * 0.5, x1 = h[0] + Math.cos(a) * 3.4, y1 = h[1] + Math.sin(a) * 3.4;
+      d.tube([[h[0], h[1]], [x1, y1], [x1 + Math.cos(a + 0.6) * 2.6, y1 + Math.sin(a + 0.6) * 2.6]], 1.8, 0.3, claw, { shiny: true, far });
+    }
+  };
+  // plume (aile en lame de plume) : racine (x, y), direction a, longueur L, largeur w ; o.bend = courbure, o.vein = nervure
+  const plume = (d, x, y, a, L, w, col, o = {}) => {
+    const c = Math.cos(a), s = Math.sin(a), px = -s, py = c, b = o.bend != null ? o.bend : 1.6;
+    const at = (t, side, k) => { const bb = b * Math.sin(t * Math.PI); return [x + c * L * t + px * (side * w * k + bb), y + s * L * t + py * (side * w * k + bb)]; };
+    d.poly([at(0, 1, 0.3), at(0.35, 1, 0.5), at(0.75, 1, 0.34), at(1, 0, 0), at(0.75, -1, 0.34), at(0.35, -1, 0.5), at(0, -1, 0.3)], col, { far: o.far, shiny: !o.far });
+    if (o.vein) d.deco.curve([at(0.08, 0, 0), at(0.5, 0, 0), at(0.88, 0, 0)], 0.6, o.vein);
+  };
+
+  Object.assign(DW.DRAW, {
+
+    // ---------------------------------------------------------- Entraînement : Pyocomon, petite boule rose-pêche,
+    // fleur bleu-violet sur la tête, yeux noirs brillants, petits pieds jaune orangé (deviendra Biyomon)
+    // (vues de face et de dos pour la carte : param.view, gfx/sprites.js ; symétriques autour de x = 32)
+    pyocomon(d, p = {}) {
+      const P = '#f7aa92', Pl = '#ffd6c6', Ft = '#f2ac3c', Ftd = '#c87c1e', B = '#8070ee', Bd = '#4c3cc0', Bl = '#c4baff', Y = '#ffd84e', G = '#4aa84a', K = '#24161e';
+      // fleur à cinq pétales autour de C (pétales du fond d'abord) ; de dos : revers des pétales et sépales verts
+      const fleur = (C, angles, dos) => {
+        const L = 9.4;
+        for (const a of angles) {
+          const vx = Math.cos(a), vy = Math.sin(a) * 0.7, n = Math.hypot(vx, vy);
+          d.ell(C[0] + vx * L * 0.5, C[1] + vy * L * 0.5, n * L * 0.5 + 0.8, 3, dos ? '#6a5ad8' : B, Math.atan2(vy, vx), { shiny: true });
+          d.deco.line(C[0] + vx * L * 0.2, C[1] + vy * L * 0.2, C[0] + vx * L * 0.8, C[1] + vy * L * 0.8, 0.6, Bd);
+        }
+        if (dos) { for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + k * 1.2566; d.deco.poly([[C[0], C[1]], [C[0] + Math.cos(a - 0.3) * 3, C[1] + Math.sin(a - 0.3) * 2.2], [C[0] + Math.cos(a) * 5, C[1] + Math.sin(a) * 3.6], [C[0] + Math.cos(a + 0.3) * 3, C[1] + Math.sin(a + 0.3) * 2.2]], G); } return; }
+        d.deco.ell(C[0], C[1], 4.4, 3.2, Bl);
+        d.circ(C[0], C[1] + 0.2, 2.4, Y, { shiny: true });
+        d.deco.circ(C[0] + 0.6, C[1] + 0.6, 0.8, '#f08a2a', { unlit: true });
+      };
+      // yeux noirs brillants (un grand reflet, un petit)
+      const oeil = (x, y, rx, ry) => {
+        d.deco.ell(x, y, rx, ry, K, 0, { unlit: true });
+        d.deco.ell(x + rx * 0.3, y - ry * 0.38, rx * 0.42, ry * 0.34, '#ffffff', 0, { unlit: true });
+        d.deco.circ(x - rx * 0.32, y + ry * 0.45, Math.max(0.5, rx * 0.2), '#ffffff', { unlit: true });
+      };
+      if (p.view === 'front' || p.view === 'back') {
+        const face = p.view === 'front';
+        d.tube([[32, 33], [32, 27]], 2.6, 2.2, G);
+        d.ell(27.4, 30.2, 3.8, 1.7, G, -0.45); d.ell(36.6, 30.2, 3.8, 1.7, G, 0.45);
+        d.ell(32, 45.6, 15.6, 14.6, P);
+        if (face) d.deco.ell(32, 51.4, 9.6, 6.4, Pl);
+        d.deco.ell(face ? 24.6 : 39.4, 38, 3.6, 2.2, '#fff2ea', face ? -0.7 : 0.7, { unlit: true });
+        for (const s of [-1, 1]) {
+          d.ell(32 + s * 6.6, 60.2, 4.6, 2.4, Ft, 0, { shiny: true });
+          d.deco.line(32 + s * 6.6 - 1.6, 59.4, 32 + s * 6.6 - 2, 62, 0.5, Ftd); d.deco.line(32 + s * 6.6 + 1.6, 59.4, 32 + s * 6.6 + 2, 62, 0.5, Ftd);
+        }
+        // pétales du haut, puis du bas (de dos, la fleur est vue par-derrière)
+        fleur([32, 23.6], [-1.5708, -2.8274, -0.3142, 2.1991, 0.9425], !face);
+        if (face) {
+          oeil(26.6, 44.6, 2.6, 3.6); oeil(37.4, 44.6, 2.6, 3.6);
+          d.deco.ell(32, 51.6, 2.2, 1.6, '#a8243a', 0, { unlit: true }); d.deco.ell(32, 52.4, 1.3, 0.7, '#f27a8c', 0, { unlit: true });
+          d.deco.ell(22.6, 49.6, 2.4, 1.4, '#f58080'); d.deco.ell(41.4, 49.6, 2.4, 1.4, '#f58080');
+        }
+        return;
+      }
+      // pied éloigné
+      d.ell(38.6, 59.8, 4.4, 2.4, Ftd, 0, { far: true });
+      // petite tige et deux feuilles (sépales) au sommet de la tête
+      d.tube([[31, 33], [31, 27]], 2.6, 2.2, G);
+      d.ell(35.4, 29.8, 3.6, 1.6, '#3a8a3a', 0.45, { far: true }); d.ell(26.6, 30.2, 3.8, 1.7, G, -0.45);
+      // corps : boule rose-pêche, ventre plus clair, reflet
+      d.ell(31, 45.6, 15.6, 14.6, P);
+      d.deco.ell(35.5, 51, 9, 6.4, Pl, -0.1);
+      d.deco.ell(23.4, 38, 3.8, 2.2, '#fff2ea', -0.7, { unlit: true });
+      // pied proche (trois petits orteils)
+      d.ell(26, 60.2, 5, 2.5, Ft, 0, { shiny: true });
+      d.deco.line(24.2, 59.4, 23.8, 62, 0.5, Ftd); d.deco.line(27.6, 59.4, 28, 62, 0.5, Ftd);
+      // fleur bleu-violet à cinq pétales (vue un peu de dessus), cœur jaune ; d'abord les pétales du fond, puis ceux de devant
+      fleur([31.2, 23.6], [-1.42, -2.68, -0.16, 2.35, 1.09], false);
+      // yeux noirs brillants
+      oeil(36.4, 44.6, 2.7, 3.7); oeil(43.4, 45, 2.2, 3.3);
+      // petite bouche ouverte, joues roses
+      d.deco.ell(40.4, 52, 2.2, 1.6, '#a8243a', 0, { unlit: true }); d.deco.ell(40.6, 52.8, 1.3, 0.7, '#f27a8c', 0, { unlit: true });
+      d.deco.ell(31, 50, 2.8, 1.5, '#f58080'); d.deco.ell(47.6, 50, 1.6, 1.2, '#f58080');
+    },
+
+    // ---------------------------------------------------------- Ultime : MegaKabuterimon (AtlurKabuterimon rouge),
+    // énorme scarabée rouge : carapace en dôme, grande corne fourchue, quatre bras, ailes membraneuses pâles
+    megakabuterimon(d) {
+      const R = '#d62a2e', Rd = '#961820', Rl = '#f47062', Rs = '#a81c26', Rh = '#c41e24', K = '#2c2632', Wg = '#e8f2ee', Wv = '#9aaaa4', E = '#48dcff';
+      // ailes membraneuses pâles (deux paires), déployées derrière la carapace
+      d.ell(14, 16, 5.6, 14, Wg, -1, { far: true });
+      d.deco.curve([[4, 9.4], [13, 15.4], [23, 22.6]], 0.6, Wv); d.deco.curve([[8, 15.6], [14, 18], [20, 23]], 0.5, Wv);
+      d.ell(22.4, 13.8, 5.2, 11.8, Wg, -0.36, { far: true });
+      d.deco.curve([[18.6, 3.4], [22, 13], [26.4, 23]], 0.6, Wv); d.deco.curve([[20.6, 9], [24.6, 15], [27, 21]], 0.5, Wv);
+      // bras et jambe éloignés
+      insectArm(d, [41, 29], [48, 32.6], [56, 29.6], Rd, K, true, '#6a1016');
+      insectArm(d, [39, 40], [45.4, 45], [53, 46.4], Rd, K, true, '#6a1016');
+      d.tube([[35, 49], [37.6, 55], [39.6, 58.4]], 7, 5.6, Rd, { far: true });
+      d.ell(42, 60.2, 4.6, 2.2, K, 0, { far: true });
+      for (let i = 0; i < 3; i++) d.tube([[42 + i * 2, 60], [44.6 + i * 2.2, 61.2], [46 + i * 2.2, 62.4]], 1.5, 0.4, K, { far: true });
+      // carapace (élytres) : grand dôme rouge laqué sur le dos, bord sombre
+      d.blob([[34, 13], [22, 11], [11, 17], [5, 29], [5, 42], [10, 51], [19, 57], [28, 56], [33, 46], [36, 30]], R, { shiny: true });
+      d.deco.curve([[31, 14.4], [20, 14.8], [11.6, 22], [8, 33]], 2.2, Rl);
+      d.deco.ell(14, 26, 2.6, 4.6, '#ffc8bc', 0.5, { unlit: true });
+      d.deco.curve([[7.4, 43], [12, 51], [20, 55.4], [28, 54.6]], 1.4, Rd);
+      d.deco.curve([[33, 15], [27, 25], [25, 40], [28, 52]], 0.9, Rd);   // jointure des élytres
+      // corps : dessous annelé rouge sombre
+      d.blob([[32, 24], [43, 25], [47, 34], [45, 44], [40, 51], [33, 53], [29, 46], [30, 32]], Rs, { shiny: true });
+      for (let k = 0; k < 5; k++) d.deco.curve([[31.4, 31 + k * 4.4], [38, 32 + k * 4], [45.4, 31 + k * 3.6]], 0.8, Rd);
+      // jambe proche : cuisse rouge, pied sombre à trois griffes
+      d.tube([[29.6, 48], [28.6, 54.6], [29.4, 58]], 8.4, 6.6, R, { shiny: true });
+      d.ell(32, 60, 5.4, 2.6, K, 0, { shiny: true });
+      for (let i = 0; i < 3; i++) d.tube([[32 + i * 2.2, 59.8], [35 + i * 2.4, 61], [36.6 + i * 2.4, 62.4]], 1.7, 0.4, K, { shiny: true });
+      // thorax (pronotum) : plaque bombée entre la carapace et la tête
+      d.blob([[32, 14], [41, 12.4], [47.4, 16.6], [47, 23], [40, 25.6], [33, 22]], R, { shiny: true });
+      d.deco.curve([[35, 15.4], [41, 14.4], [45.6, 17.4]], 1, Rl);
+      // tête : plaque frontale, œil bleu lumineux, mandibules en pinces
+      d.ell(50, 24.6, 7.4, 6.2, R, 0.15, { shiny: true });
+      d.deco.blob([[49.4, 27.2], [56.6, 23.6], [57.4, 29], [51.4, 30.6]], K);
+      d.deco.ell(52.2, 22.4, 2.6, 2, '#14202a', -0.3, { unlit: true }); d.deco.ell(52.4, 22.4, 1.9, 1.4, E, -0.3, { unlit: true });
+      d.deco.circ(53, 21.9, 0.6, '#ffffff', { unlit: true });
+      d.tube([[55.2, 28.8], [58.8, 29.2], [60.2, 32.2]], 2.4, 0.4, K, { shiny: true });
+      d.tube([[53.2, 30.2], [55.8, 32.2], [56.2, 34.6]], 2.2, 0.4, K, { shiny: true, far: true });
+      // grande corne recourbée vers le haut, fourchue au bout
+      d.poly([[45.4, 21], [46.6, 13], [49.6, 7.6], [53, 4.2], [55.4, 1.6], [57, 4.6], [60.6, 3.2], [57.6, 7.8], [54.8, 12.8], [53.4, 21]], Rh, { shiny: true, round: 0.6 });
+      d.deco.curve([[47.6, 15], [50.4, 9], [54, 5.2]], 0.9, Rl);
+      // bras proches
+      insectArm(d, [37.6, 31], [43.4, 38.6], [52.4, 40.2], R, K, false, Rd);
+      insectArm(d, [35.4, 42], [39.4, 49.6], [47.2, 53.6], R, K, false, Rd);
+    },
+
+    // ---------------------------------------------------------- Ultime : MagnaAngemon (HolyAngemon), ange en armure
+    // violette et blanche, casque fermé à visière, huit ailes dorées, Excalibur (lame de lumière) au poignet droit
+    magnaangemon(d) {
+      const Pu = '#6e46b8', Pud = '#47297e', W = '#f6f4fb', Wd = '#cfc9de', Si = '#e4e6f0', Go = '#f4c43a', God = '#c08818', Sk = '#f2cba6', Bl = '#eaf6ff', Blc = '#8ad4ff';
+      // huit ailes dorées : quatre de l'autre côté (plus sombres), quatre de ce côté
+      for (const [a, L] of [[-2.15, 20], [-2.5, 26], [-2.85, 27], [3.08, 25]]) plume(d, 29, 18.5, a, L, 6, God, { far: true });
+      for (const [a, L] of [[-2.3, 24], [-2.65, 26], [-3.0, 25], [2.9, 23]]) plume(d, 27, 20, a, L, 6.6, Go, { vein: God });
+      // bras éloigné, le long du corps
+      d.tube([[28, 20], [25, 28], [26, 34]], 4.6, 4, Wd, { far: true });
+      d.tube([[26, 31], [26.5, 37]], 5, 4.6, Pud, { far: true });
+      d.ell(27, 38.6, 2.4, 2.4, Sk, 0, { far: true });
+      // jambe éloignée : jambière et soleret violets
+      d.tube([[34, 46], [35, 52], [36, 58]], 6, 5, Pud, { far: true });
+      d.ell(38.2, 60.4, 4.6, 2.2, Pud, 0, { far: true });
+      // corps : tunique blanche, plastron violet bordé d'or, ceinture
+      d.blob([[25, 16], [38, 15], [41, 24], [39, 34], [37, 41], [27, 41], [24, 32], [23, 22]], W, { shiny: true });
+      d.blob([[25, 17], [38, 16], [41, 22], [39.6, 29], [27, 30], [24, 24]], Pu, { shiny: true });
+      d.deco.curve([[25, 29], [33, 30], [39.6, 28.6]], 1, Go);
+      d.deco.poly([[34.6, 20], [36.6, 23.4], [34.6, 26.8], [32.6, 23.4]], Go);
+      d.deco.circ(34.6, 23.4, 0.8, Pud);
+      d.rect(25, 36, 14, 3.4, Pud, { round: 0.4 }); d.deco.rect(30.6, 36.2, 3.4, 3, Go);
+      // pagne blanc et pan violet
+      d.poly([[25, 39], [39, 39], [41, 50], [37, 49], [33, 52], [29, 49], [24, 50]], W);
+      d.deco.line(27, 41, 26.4, 49, 0.6, Wd); d.deco.line(38, 41, 39, 49, 0.6, Wd);
+      d.poly([[30, 39], [36, 39], [35.6, 52], [33, 54], [30.4, 52]], Pu, { shiny: true });
+      d.deco.line(33, 41, 33, 52, 0.7, Go);
+      // jambe proche : jambière violette, genouillère dorée, soleret
+      d.tube([[29, 48], [28.4, 53], [28.4, 58]], 6.4, 5.6, Pu, { shiny: true });
+      d.ell(28.8, 51.4, 2.6, 2, Go, 0, { shiny: true });
+      d.ell(30.6, 60.6, 5.4, 2.2, Pu, 0, { shiny: true });
+      d.deco.ell(34.6, 60.6, 1.4, 1.2, Go);
+      // épaulière violette bordée d'or
+      d.ell(36, 18.6, 6.6, 4.8, Pu, -0.25, { shiny: true });
+      d.deco.curve([[30, 21], [36, 22.6], [42, 19.6]], 1, Go);
+      // tête : gorgerin violet, menton, casque fermé argenté à crête violette, visière sombre
+      d.tube([[35, 17], [37, 12.6]], 4.6, 4.2, Pud);
+      d.ell(43.4, 12.2, 3.4, 2.6, Sk);
+      d.deco.curve([[44, 13.2], [46, 13]], 0.6, '#a0604a', { unlit: true });
+      d.blob([[33.4, 10], [34, 4], [38.6, 1.8], [44, 2.4], [47, 6], [47.6, 10.6], [44, 11], [41, 12], [38, 14.6], [34.4, 13.4]], Si, { shiny: true });
+      d.deco.curve([[45, 3.6], [40, 2.8], [35.4, 5.6], [34.6, 10]], 1.8, Pu);
+      d.deco.curve([[40.6, 8], [47.4, 8.4]], 1.4, '#2a2440', { unlit: true });
+      d.deco.poly([[37, 7], [40, 9.6], [36.4, 11.4]], Pu);   // garde de joue
+      // bras proche levé, Excalibur au poignet
+      d.tube([[36, 19], [42, 26]], 4.6, 4, W, { shiny: true });
+      d.tube([[42, 26], [48.6, 23]], 4.4, 4, W, { shiny: true });
+      d.tube([[50.4, 22.2], [56.4, 15.4], [61.4, 9.8]], 3, 1, Bl, { shiny: true });
+      d.deco.line(51.6, 20.8, 60.6, 10.6, 0.7, Blc, { unlit: true });
+      d.tube([[45, 24.6], [50.4, 22.2]], 5.6, 5.2, Pu, { shiny: true });
+      d.deco.line(45.6, 23, 47, 26.6, 0.8, Go);
+      d.ell(51.2, 22.8, 2.4, 2.4, Sk, 0, { shiny: true });
+    },
+
+    // ---------------------------------------------------------- Méga : Omegamon (Omnimon), chevalier blanc à cape rouge ;
+    // bras gauche : tête de WarGreymon (orange, casque argenté) ; bras droit : tête de MetalGarurumon (bleue)
+    omegamon(d) {
+      const W = '#f4f4f8', Wd = '#c4c6d6', Go = '#f2c230', R = '#d42a2a', Rd = '#9a1a1e', Bk = '#3c3c56', Bu = '#3a5ab8';
+      const O = '#f2902e', Si = '#c8d0dc', Sil = '#eef2f8', M = '#4a5aa8', Gm = '#e8c040';
+      // cape rouge (doublure) qui flotte derrière, bord blanc
+      d.blob([[24, 14], [15, 18], [8, 28], [4, 42], [3, 54], [5, 61], [11, 58], [16, 61], [22, 58], [27, 60], [29, 44], [30, 20]], R, { shiny: true });
+      d.deco.curve([[19, 20], [12, 34], [9, 52]], 1, Rd); d.deco.curve([[24, 22], [20, 38], [17, 56]], 1, Rd);
+      d.deco.tube([[25, 15], [16, 19], [10, 28], [6.6, 38]], 3, 1.6, W);
+      // bras gauche (de l'autre côté) levé : tête de WarGreymon (museau orange, casque argenté à trois cornes, œil vert)
+      d.tube([[29, 20], [38, 21], [45.4, 18.6]], 5, 4.6, Wd, { far: true });
+      d.ell(52.6, 18.4, 6.6, 3.4, O, 0.06);
+      d.ell(51.8, 21.2, 5, 1.7, O, 0.12, { noline: true });
+      d.deco.curve([[46.6, 20.2], [52.6, 20.6], [58.8, 19.2]], 0.8, '#5a2200', { unlit: true });
+      for (let i = 0; i < 3; i++) d.deco.poly([[52 + i * 2.4, 20.4 - i * 0.2], [52.8 + i * 2.4, 21.8 - i * 0.2], [53.6 + i * 2.4, 20.3 - i * 0.2]], '#ffffff', { unlit: true });
+      d.poly([[44.4, 17], [46.4, 11.6], [52.4, 10.6], [58, 13.4], [59.4, 16.6], [53, 16.4], [47.6, 18]], Si, { shiny: true, round: 0.4 });
+      d.deco.ell(52, 14.4, 1.5, 1.1, '#121a10', 0, { unlit: true }); d.deco.ell(52.4, 14.4, 0.8, 0.7, '#4ae070', 0, { unlit: true });
+      d.poly([[48.4, 11.8], [50.4, 6.4], [52.6, 11.2]], Sil, { shiny: true });
+      d.tube([[57, 13.6], [60, 10.8], [61.8, 10]], 2.2, 0.5, Sil, { shiny: true });
+      d.tube([[46.2, 12.8], [43.4, 9.4], [41.8, 7.6]], 2.2, 0.5, Sil, { shiny: true });
+      // jambe éloignée
+      d.tube([[34, 44], [35.6, 51], [36.6, 57.6]], 7, 6, Wd, { far: true });
+      d.ell(39, 60, 5.8, 2.6, Wd, 0, { far: true });
+      // corps : taille sombre annelée, plastron blanc bordé d'or, hanches blindées
+      d.blob([[28, 30], [37, 30], [36.4, 38], [28.6, 38]], Bk);
+      for (const y of [33, 35.6]) d.deco.line(28.4, y, 36.6, y, 0.6, '#64648a');
+      d.blob([[23, 16], [36, 14.6], [41, 22], [39, 31], [27, 32], [23, 26]], W, { shiny: true });
+      d.deco.curve([[26, 17], [32, 24], [39.6, 17.6]], 1.2, Go);
+      d.deco.circ(32.6, 26.4, 1.8, Bu, { unlit: true }); d.deco.circ(32.2, 26, 0.6, '#a8c8ff', { unlit: true });
+      d.blob([[24.6, 37], [38.6, 37], [41.4, 45], [33, 47], [24.4, 45.6]], W, { shiny: true });
+      d.deco.line(25, 38.4, 39.4, 38.4, 1.2, Go);
+      // jambe proche : genouillère dorée, botte blanche à pointe dorée
+      d.tube([[28, 44], [27.4, 51]], 7.4, 6.6, W, { shiny: true });
+      d.tube([[27.4, 51], [27.6, 58]], 6.8, 6.2, W, { shiny: true });
+      d.ell(27.6, 51, 3.4, 2.6, Go, 0, { shiny: true });
+      d.ell(30.6, 60, 7, 2.8, W, 0, { shiny: true });
+      d.deco.ell(35.4, 60.2, 2.2, 1.6, Go);
+      // épaulière éloignée (en partie cachée)
+      d.ell(27.4, 17.4, 4.8, 3.6, Wd, 0.2, { far: true });
+      // tête : cou sombre, casque blanc, cornes vers l'arrière, crête dorée en V, visage sombre à l'œil vert
+      d.tube([[34, 13], [33.4, 17]], 4.4, 4.4, Bk);
+      d.tube([[34, 8.4], [29, 4.6], [24.6, 3.6]], 3.2, 0.6, W, { shiny: true });
+      d.ell(35.6, 9.6, 5.4, 6, W, 0, { shiny: true });
+      d.deco.poly([[37.6, 8], [41, 8.6], [40.4, 13.6], [36.6, 13.4]], Bk);
+      d.deco.ell(39, 10, 1.3, 0.8, '#4ae070', 0, { unlit: true });
+      d.poly([[36.6, 6], [39.2, 1.6], [39.6, 6.6]], Go, { shiny: true });
+      d.poly([[35, 5.6], [34.6, 1.8], [37.4, 5]], Go, { shiny: true, far: true });
+      // épaulière proche, pointe dorée
+      d.ell(35.6, 19.6, 7.2, 5.2, W, -0.25, { shiny: true });
+      d.deco.curve([[29, 21.6], [35.6, 23.6], [42, 19.4]], 1.1, Go);
+      d.poly([[33, 15.4], [36.4, 10.6], [38.6, 15.2]], Go, { shiny: true });
+      // bras droit (de ce côté) : tête de MetalGarurumon (bleu métal, corne dorée, œil rouge, crocs)
+      d.tube([[35, 23], [39, 30], [45, 34]], 5.4, 5, W, { shiny: true });
+      d.poly([[47.6, 32.6], [46.4, 26.4], [51.6, 31]], M, { shiny: true });
+      d.blob([[44, 36], [48, 31.4], [55, 30.4], [61, 33], [63, 37], [60, 40.6], [52, 41.4], [46, 40]], M, { shiny: true });
+      d.deco.poly([[48.6, 33], [58, 32.2], [59.6, 35.4], [49.4, 36]], '#1a1a3a');
+      d.deco.ell(55, 34, 2, 1, '#e83a2a', 0, { unlit: true }); d.deco.circ(55.4, 33.8, 0.5, '#ffffff', { unlit: true });
+      d.tube([[51, 31.4], [54, 27], [58, 24.6]], 2, 0.4, Gm, { shiny: true });
+      d.deco.curve([[50, 39], [56, 39.4], [62.4, 37.8]], 0.9, '#1a1a3a', { unlit: true });
+      for (let i = 0; i < 3; i++) d.poly([[52 + i * 3.4, 39.4], [53.2 + i * 3.4, 41.6], [54.4 + i * 3.4, 39.2]], '#ffffff');
+    },
+  });
+
+  // Pyocomon a de vraies vues de face et de dos (carte : gfx/sprites.js)
+  DW.DRAW.pyocomon.views = ['front', 'back'];
+  // Poses de combat : ces grands dessins touchent les bords du cadre. En attaque on penche moins et on recule (corne,
+  // lame d'Excalibur, têtes des bras d'Omegamon) ; en recul on penche moins et on avance (ailes) : rien n'est coupé.
+  DW.DRAW.megakabuterimon.poses = { attack: { shear: 0.08, dx: -3 }, hurt: { shear: -0.06, dx: 2.5 } };
+  DW.DRAW.magnaangemon.poses = { attack: { shear: 0.08, dx: -3.5 }, hurt: { shear: -0.06, dx: 3 } };
+  DW.DRAW.omegamon.poses = { attack: { shear: 0.06, dx: -2.5 } };
+})();
+;
+
 // ===== js/gfx/digimon/gabumon.js
 'use strict';
 // =====================================================================
@@ -6834,7 +7568,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const n = nombre(k, g), vide = ['chaus', 'chapeau', 'sac', 'acc'].includes(k);
       if (typeof o[k] !== 'number' || o[k] < (vide ? -1 : 0) || o[k] >= (vide ? n - 1 : n)) o[k] = DEFAUT[g][k];
     }
-    if (!g && !BAS_G_OK.includes(o.bas)) o.bas = DEFAUT[0].bas;
+    if (!g && o.bf) { o.bf = 1; if (K.bas_f[o.bas].type === 'skirt') o.bas = 3; }
+    else if (!g && !BAS_G_OK.includes(o.bas)) o.bas = DEFAUT[0].bas;
     return o;
   }
 
@@ -6872,7 +7607,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // d'autres par-dessus (sinon deux paires l'une sur l'autre, trop grandes : des « bottes » sur tout le monde).
   // Les GARÇONS ont les pieds nus : chaque paire du kit (dessinée plus grande que les corps) est coupée en deux, et chaque
   // chaussure, ramenée à la largeur du pied, est posée sous sa jambe.
-  const chausses = g => !g;
+  const chausses = (g, ch) => !g && !(ch && ch.bf);
   const LARGEUR_PIED = 1.12;   // largeur d'une chaussure : 1,12 fois celle du pied nu
   const opaques = (cv, y) => {   // segments de pixels opaques sur une rangée d'une pièce
     const w = cv.width, d = cv.getContext('2d').getImageData(0, Math.max(0, Math.min(cv.height - 1, Math.round(y))), w, 1).data, out = [];
@@ -6888,6 +7623,36 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const S = deuxPlus(opaques(piece(cat, B), B.a[1] + B.pieds - 5));
     return (piedsNus[cle] = S.length === 2 ? S.map(([a, b]) => ({ x: (a + b) / 2 - B.a[0], w: b - a + 1 })) : [{ x: -0.09 * HB, w: 0.13 * HB }, { x: 0.08 * HB, w: 0.13 * HB }]);
   }
+  // la demi-largeur des hanches d'un corps nu (sous la taille, au-dessus des mains), et celle d'un bas complet du kit
+  const largeurs = {};
+  function hanches(cat, B) {
+    const cle = 'h:' + cat + ':' + B.r.join(','); if (largeurs[cle] != null) return largeurs[cle];
+    const cv = piece(cat, B); let m = 0;
+    for (let y = K.taille + 20; y <= K.taille + 40; y += 2) for (const [a, b] of opaques(cv, B.a[1] + y)) if (a <= B.a[0] && b >= B.a[0]) m = Math.max(m, B.a[0] - a, b - B.a[0]);
+    return (largeurs[cle] = m || 32);
+  }
+  function hanchesBas(p) {
+    const cle = 'b:' + p.r.join(','); if (largeurs[cle] != null) return largeurs[cle];
+    const cv = piece('bas_f', p); let m = 0;
+    for (let y = 12; y <= 30; y += 2) for (const [a, b] of opaques(cv, y)) if (a <= p.a[0] && b >= p.a[0]) m = Math.max(m, p.a[0] - a, b - p.a[0]);
+    return (largeurs[cle] = m || 34);
+  }
+  // le poing nu d'un corps (main i) : centre (par rapport au point d'ancrage), largeur et bas
+  const poings = {};
+  function poingDe(cat, B, i) {
+    const cle = cat + ':' + B.r.join(',') + ':' + i; if (poings[cle]) return poings[cle];
+    const cv = piece(cat, B), hx = Math.round(B.a[0] + B.mains[i][0]), hy = Math.round(B.a[1] + B.mains[i][1]);
+    let x0 = hx, x1 = hx, bas = hy, vu = false;
+    for (let y = hy - 8; y < Math.min(cv.height, hy + 24); y++) {
+      // (le morceau opaque de la rangée qui contient la main, ou le plus proche : pas la cuisse d'à côté)
+      const S = opaques(cv, y).filter(([a, b]) => b >= hx - 6 && a <= hx + 6);
+      if (!S.length) { if (vu && y > hy) break; continue; }
+      const [a, b] = S.reduce((m, s) => (Math.abs((s[0] + s[1]) / 2 - hx) < Math.abs((m[0] + m[1]) / 2 - hx) ? s : m));
+      if (y >= hy - 2) { x0 = Math.min(x0, a); x1 = Math.max(x1, b); }
+      bas = y; vu = true;
+    }
+    return (poings[cle] = { x: (x0 + x1) / 2 - B.a[0], w: x1 - x0 + 1, bas: bas - B.a[1] });
+  }
   // une paire du kit coupée en deux : pour chaque chaussure, son image, le centre de sa semelle et sa largeur
   const paires = {};
   function paire(p) {
@@ -6897,6 +7662,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // (large : la plus grande largeur de la chaussure, tige de botte comprise)
     const moitie = (x0, x1, s) => {
       const c = DW.Art.canvas(x1 - x0, h), cc = c.getContext('2d'); cc.drawImage(cv, x0, 0, x1 - x0, h, 0, 0, x1 - x0, h);
+      // (seulement la chaussure : les colonnes séparées d'elle par du vide — un éclat de l'autre chaussure — sont effacées)
+      { const D = cc.getImageData(0, 0, x1 - x0, h), e = D.data, w = x1 - x0, plein = x => { for (let y = 0; y < h; y++) if (e[(y * w + x) * 4 + 3] > 100) return true; return false; };
+        const m = Math.max(0, Math.min(w - 1, Math.round(s ? (s[0] + s[1]) / 2 - x0 : w / 2)));
+        let g = m, dd = m; while (g > 0 && plein(g - 1)) g--; while (dd < w - 1 && plein(dd + 1)) dd++;
+        if (plein(m)) { for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (x < g || x > dd) e[(y * w + x) * 4 + 3] = 0; cc.putImageData(D, 0, 0); } }
       const d = cc.getImageData(0, 0, x1 - x0, h).data; let a = x1 - x0, b = -1;
       for (let y = 0; y < h; y++) for (let x = 0; x < x1 - x0; x++) if (d[(y * (x1 - x0) + x) * 4 + 3] > 100) { if (x < a) a = x; if (x > b) b = x; }
       return { cv: c, x: s ? (s[0] + s[1]) / 2 - x0 : (x1 - x0) / 2, w: s ? s[1] - s[0] + 1 : x1 - x0, large: b >= a ? b - a + 1 : x1 - x0 };
@@ -6922,27 +7692,67 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     c.imageSmoothingEnabled = true;
     // une pièce, son point d'ancrage en (x, y) du repère
     const pose = (cat, p, x, y, avecPeau) => { if (!img[cat]) return; const im = piece(cat, p, avecPeau ? peau : null); c.drawImage(im, Math.round(X0 + x - p.a[0]), Math.round(Y0 + y - p.a[1])); };
+    // les gants du kit sont dessinés doigts en l'air : retournés (le poignet en haut, les doigts en bas, comme la main qui
+    // pend) et grossis pour couvrir tout le poing, le bout des doigts au bas du poing (règle du joueur : comme les
+    // chaussures, ils cachent le corps)
+    const gant = (p, i) => {
+      if (!img.acc) return;
+      const F = poingDe(g ? 'corps_f' : 'corps_g', B, i), im = piece('acc', p), k = Math.max(1, (F.w + 4) / im.width), W = im.width * k, Hh = im.height * k;
+      c.save(); c.translate(X0 + F.x, Y0 + F.bas + 2); c.scale(1, -1); c.drawImage(im, -W / 2, 0, W, Hh); c.restore();
+    };
+    // les chaussures d'un garçon d'avant le bas complet (le kit les dessine par paires : chacune sous sa jambe). Elles cachent
+    // le pied nu (ce qui dépasse à côté d'elles sous leur haut est effacé) ; le pantalon vient par-dessus
+    const chaussures = sur => {
+      const P = piedsDe(g ? 'corps_f' : 'corps_g', B), S = paire(K.chaus[ch.chaus]);
+      const J = jambes(c, P, Math.round(Y0 + B.pieds - 0.24 * HB), Math.round(Y0 + B.pieds - 2)), ecart = Math.abs(J[1].x - J[0].x);
+      const L = DW.Art.canvas(CW, CH), lc = L.getContext('2d'); lc.imageSmoothingEnabled = true;
+      for (let i = 0; i < 2; i++) {
+        const s = S[i], k = Math.min(Math.max(P[i].w * LARGEUR_PIED / s.w, (J[i].w + 2) / s.large), (ecart - (sur ? 1 : 3)) / s.large);
+        const W = s.cv.width * k, Hs = s.cv.height * k;
+        lc.drawImage(s.cv, J[i].x - s.x * k, Y0 + B.pieds + 3 - Hs, W, Hs);
+      }
+      cacherSous(c, L, Math.floor(Math.min(J[0].x0, J[1].x0)) - 3, Math.ceil(Math.max(J[0].x1, J[1].x1)) + 3);
+      c.drawImage(L, 0, 0);
+    };
+    // UN BAS COMPLET (règle du joueur, 21/10 : « un ensemble homogène et unique ») : les garçons portent, comme les filles, un
+    // bas du kit dessiné d'un seul tenant (jambes, vêtement et chaussures ensemble) ; leurs jambes nues et leurs hanches sont
+    // effacées sous la taille (pas leurs bras), puis le bas est posé, à la hauteur de leurs jambes et à la largeur de leurs
+    // hanches (les garçons sont plus trapus)
+    const basComplet = p => {
+      if (!img.bas_f) return;
+      const cat = g ? 'corps_f' : 'corps_g', basMains = Math.max(...B.mains.map(m => m[1])) + 12;
+      // (le masque des hanches et des jambes est pris sur le corps nu, où les bras pendent à part : un sac ou un bras posé
+      //  contre la hanche n'est pas effacé avec elle)
+      const cv = piece(cat, B), ox = Math.round(X0 - B.a[0]), oy = Math.round(Y0 - B.a[1]);
+      const D = c.getImageData(0, 0, CW, CH), d = D.data;
+      for (let yp = Math.round(B.a[1] + K.taille + 4); yp < cv.height; yp++) {
+        const y = oy + yp; if (y < 0 || y >= CH) continue;
+        for (const [a, b] of opaques(cv, yp)) {
+          if (Math.abs((a + b) / 2 - B.a[0]) >= (yp - B.a[1] > basMains ? 36 : 28)) continue;
+          for (let x = Math.max(0, ox + a); x <= Math.min(CW - 1, ox + b); x++) d[(y * CW + x) * 4 + 3] = 0;
+        }
+      }
+      c.putImageData(D, 0, 0);
+      const ky = (B.pieds - K.taille + 4) / p.a[1], kx = Math.max(ky, hanches(cat, B) / hanchesBas(p));
+      const im = piece('bas_f', p, peau);
+      c.drawImage(im, Math.round(X0 - p.a[0] * kx), Math.round(Y0 + B.pieds + 1 - p.a[1] * ky), Math.round(im.width * kx), Math.round(im.height * ky));
+    };
     const pieds = B.pieds, menton = K.menton, H = ch.chapeau >= 0 ? K.chapeau[ch.chapeau] : null, A = ch.acc >= 0 ? K.acc[ch.acc] : null;
     if (ch.sac >= 0) pose('sac', K.sac[ch.sac], 0.17 * HB, K.taille - 0.02 * HB);
     if (H && H.derriere) pose('chapeau', H, 0, menton - H.dy * HB);
     if (ensemble(ch)) pose('ensemble', K.ensemble[ch.haut - NB_HAUTS], 0, 0, true);
     else {
       pose(g ? 'corps_f' : 'corps_g', B, 0, 0);
-      if (g) pose('bas_f', K.bas_f[ch.bas], 0, pieds, true); else pose('bas_g', K.bas_g[ch.bas], 0, K.taille - 2, true);
-    }
-    if (ch.chaus >= 0 && chausses(g)) {
-      // chaque chaussure sous sa jambe, à la largeur du pied ; jamais plus large que la place entre les deux pieds (sinon les
-      // bottes et les baskets montantes se touchaient au milieu, collées en un seul bloc)
-      const P = piedsDe(g ? 'corps_f' : 'corps_g', B), S = paire(K.chaus[ch.chaus]), ecart = Math.abs(P[1].x - P[0].x);
-      for (let i = 0; i < 2; i++) {
-        const s = S[i], k = Math.min(P[i].w * LARGEUR_PIED / s.w, (ecart - 4) / s.large), W = s.cv.width * k, Hs = s.cv.height * k;
-        c.drawImage(s.cv, X0 + P[i].x - s.x * k, Y0 + pieds + 3 - Hs, W, Hs);
-      }
+      if (g) pose('bas_f', K.bas_f[ch.bas], 0, pieds, true);
+      else if (ch.bf) basComplet(K.bas_f[ch.bas]);
+      // (personnage d'avant : son bas de garçon, et ses chaussures dessous — le pantalon tombe dessus)
+      else if (ch.chaus >= 0) { chaussures(false); pose('bas_g', K.bas_g[ch.bas], 0, K.taille - 2, true); }
+      else pose('bas_g', K.bas_g[ch.bas], 0, K.taille - 2, true);
     }
     if (!ensemble(ch)) pose('haut', K.haut[ch.haut], 0, K.epaule - 3, true);
     if (A) {
       const [m1, m2] = B.mains;
-      if (A.ou === 'mains') { pose('acc', A.p[0], m1[0], m1[1] - 4); pose('acc', A.p[1] || A.p[0], m2[0], m2[1] - 4); }
+      if (A.ou === 'mains') { gant(A.p[0], 0); gant(A.p[1] || A.p[0], 1); }
       else if (A.ou === 'poignets') { pose('acc', A.p[0], m1[0], m1[1] - 0.06 * HB); pose('acc', A.p[1] || A.p[0], m2[0], m2[1] - 0.06 * HB); }
       else if (A.ou === 'poignet') pose('acc', A.p[0], m1[0], m1[1] - 0.06 * HB);
       else if (A.ou === 'hanche') pose('acc', A.p[0], 0, K.taille + 0.05 * HB);
@@ -6953,6 +7763,41 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     if (A && A.ou === 'yeux') pose('acc', A.p[0], 0, menton - 0.2 * HB);
     if (H && !H.derriere) pose('chapeau', H, 0, menton - H.dy * HB);
     return (cache[cle] = { cv, pieds: Y0 + pieds + 2 });
+  }
+  // les deux jambes (pantalon compris) du personnage en cours d'assemblage, entre les rangées y0 et y1 (la hauteur des
+  // chaussures) : centre, bords et largeur de chacune, au plus large ; deux jambes collées sont séparées au milieu des pieds
+  function jambes(c, P, y0, y1) {
+    const px = P.map(p => X0 + p.x), mil = (px[0] + px[1]) / 2, out = px.map((x, i) => ({ x0: x - P[i].w / 2, x1: x + P[i].w / 2 }));
+    const D = c.getImageData(0, y0, CW, y1 - y0 + 1).data;
+    for (let r = 0; r <= y1 - y0; r++) {
+      const segs = []; let s = -1;
+      for (let x = 0; x <= CW; x++) { const op = x < CW && D[(r * CW + x) * 4 + 3] > 100; if (op && s < 0) s = x; if (!op && s >= 0) { segs.push([s, x - 1]); s = -1; } }
+      px.forEach((x, i) => {
+        const seg = segs.find(([a, b]) => a <= x + 3 && b >= x - 3); if (!seg) return;
+        const a = i ? Math.max(seg[0], mil + 1) : seg[0], b = i ? seg[1] : Math.min(seg[1], mil - 1);
+        out[i].x0 = Math.min(out[i].x0, a); out[i].x1 = Math.max(out[i].x1, b);
+      });
+    }
+    return out.map(o => ({ x: (o.x0 + o.x1) / 2, x0: o.x0, x1: o.x1, w: o.x1 - o.x0 + 1 }));
+  }
+  // sous la ligne des chaussures (calque L), entre les colonnes xa et xb : tout ce qui n'est pas une chaussure est effacé
+  // (colonne par colonne, à partir du haut de la chaussure la plus proche : la jambe au-dessus reste entière)
+  function cacherSous(c, L, xa, xb) {
+    xa = Math.max(0, xa); xb = Math.min(CW - 1, xb);
+    const l = L.getContext('2d').getImageData(0, 0, CW, CH).data, haut = new Array(CW).fill(-1);
+    for (let x = xa; x <= xb; x++) for (let y = 0; y < CH; y++) if (l[(y * CW + x) * 4 + 3] > 40) { haut[x] = y; break; }
+    // (les chaussures : groupes de colonnes ; sous le point le plus haut d'une chaussure, seule la chaussure se voit — pas
+    //  de pantalon ni de peau qui dépasse sur les côtés, même le long du col d'une botte)
+    const groupes = [];
+    for (let x = xa; x <= xb; x++) if (haut[x] >= 0) { const G = groupes[groupes.length - 1]; if (G && x - G.b <= 2) { G.b = x; G.h = Math.min(G.h, haut[x]); } else groupes.push({ a: x, b: x, h: haut[x] }); }
+    if (!groupes.length) return;
+    const D = c.getImageData(0, 0, CW, CH), d = D.data;
+    const loin = (G, x) => (x < G.a ? G.a - x : x > G.b ? x - G.b : 0);
+    for (let x = xa; x <= xb; x++) {
+      const h = groupes.reduce((m, G) => (loin(G, x) < loin(m, x) ? G : m)).h;   // (sa chaussure, ou la plus proche)
+      for (let y = h; y < CH; y++) { const i = (y * CW + x) * 4; if (l[i + 3] <= 40) d[i + 3] = 0; }
+    }
+    c.putImageData(D, 0, 0);
   }
   // dessine le personnage, les pieds en (x, y) ; h : hauteur d'un corps de fille avec sa tête (les garçons, plus trapus, sont un peu
   // plus petits) ; rien si les planches ne sont pas (encore) là
@@ -7043,18 +7888,18 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const cheveux = dominante(piece(cT, T), 0, 0.35, P) || T.cheveux;
     const haut = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.12, 0.45, P) : dominante(piece('haut', K.haut[ch.haut]), 0.25, 1, P);
     // (le bas d'une fille montre aussi ses jambes, de la peau d'origine de la planche : ce n'est pas la couleur du vêtement)
-    const Bs = E ? null : (g ? K.bas_f : K.bas_g)[ch.bas], pB = g && Bs && Bs.peau ? hex(Bs.peau) : null;
+    const F = g || ch.bf, Bs = E ? null : (F ? K.bas_f : K.bas_g)[ch.bas], pB = F && Bs && Bs.peau ? hex(Bs.peau) : null;   // (F : un bas complet)
     const pasPeau = (r, v, b) => !pB || Math.abs(r - pB[0]) + Math.abs(v - pB[1]) + Math.abs(b - pB[2]) >= 45;
-    const bas = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.55, 0.85, P) : dominante(piece(g ? 'bas_f' : 'bas_g', Bs), 0, g ? 0.5 : 1, P, pasPeau);
-    // (filles : les chaussures de la tenue, au bas de la pièce ; garçons : la paire du kit)
-    const chaus = !chausses(g) ? couleurChaussures(E ? piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]) : piece('bas_f', K.bas_f[ch.bas]), 0.8, 1, P)
+    const bas = E ? dominante(piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]), 0.55, 0.85, P) : dominante(piece(F ? 'bas_f' : 'bas_g', Bs), 0, F ? 0.5 : 1, P, pasPeau);
+    // (bas complet : les chaussures dessinées avec lui, au bas de la pièce ; garçons d'avant : la paire du kit)
+    const chaus = !chausses(g, ch) ? couleurChaussures(E ? piece('ensemble', K.ensemble[ch.haut - NB_HAUTS]) : piece('bas_f', K.bas_f[ch.bas]), 0.8, 1, P)
       : ch.chaus >= 0 ? couleurChaussures(piece('chaus', K.chaus[ch.chaus]), 0.4, 1) : null;
     const chap = ch.chapeau >= 0 ? dominante(piece('chapeau', K.chapeau[ch.chapeau])) : null;
     return { skin: peau, hair: cheveux, hairL: eclaircir(cheveux, 0.3), shirt: haut || '#e04a3a', bottomCol: bas || '#3a5a9a', shoe: chaus || '#3a3a4a', headCol: chap };
   }
   function look(ch0, baby) {
     const ch = valide(ch0), g = ch.g, S = DW.LOOK_OPTS, T = (g ? K.tete_f : K.tete_g)[ch.tete], B = (g ? K.corps_f : K.corps_g)[ch.corps];
-    const E = ensemble(ch), Hh = E ? K.ensemble[ch.haut - NB_HAUTS] : K.haut[ch.haut], Bs = E ? null : (g ? K.bas_f : K.bas_g)[ch.bas];
+    const E = ensemble(ch), Hh = E ? K.ensemble[ch.haut - NB_HAUTS] : K.haut[ch.haut], Bs = E ? null : (g || ch.bf ? K.bas_f : K.bas_g)[ch.bas];
     const H = ch.chapeau >= 0 ? K.chapeau[ch.chapeau] : null, A = ch.acc >= 0 ? K.acc[ch.acc] : null;
     const idx = (liste, v) => Math.max(0, liste.findIndex(e => e[1] === v));
     const tete = H && H.type ? H.type : A && A.ou === 'yeux' ? 'glasses' : T.coiffe || '';   // (une tête de sa planche peut déjà porter un chapeau)
@@ -7069,18 +7914,19 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   }
   // PERSONNAGES FIXES (règle du joueur) : 8 enfants inspirés des DigiSauveurs de la saison 1, assemblés avec son kit ;
   // on en choisit un (plus de création pièce par pièce). bebe : la lignée de l'enfant qui l'inspire (DW.HERO_LINE)
-  // (sans chapeau : ceux du kit se posent mal sur les têtes — règle du joueur)
+  // (sans chapeau : ceux du kit se posent mal sur les têtes — règle du joueur ; bf : les garçons aussi portent un bas complet
+  //  du kit, jambes et chaussures dessinées avec — règle du joueur, 21/10 : « un ensemble homogène et unique »)
   const PRESETS = [
-    { nom: 'Inspiré de Tai', bebe: 'tai', ch: { g: 0, corps: 1, tete: 0, haut: 11, bas: 0, chaus: 0, chapeau: -1, sac: -1, acc: 5 } },
-    { nom: 'Inspiré de Matt', bebe: 'matt', ch: { g: 0, corps: 0, tete: 1, haut: 22, bas: 3, chaus: 4, chapeau: -1, sac: -1, acc: -1 } },
+    { nom: 'Inspiré de Tai', bebe: 'tai', ch: { g: 0, corps: 1, tete: 0, haut: 11, bas: 0, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: 5 } },
+    { nom: 'Inspiré de Matt', bebe: 'matt', ch: { g: 0, corps: 0, tete: 1, haut: 22, bas: 3, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspirée de Sora', bebe: 'sora', ch: { g: 1, corps: 2, tete: 26, haut: 14, bas: 0, chaus: 11, chapeau: -1, sac: -1, acc: 5 } },
-    { nom: 'Inspiré d’Izzy', bebe: 'izzy', ch: { g: 0, corps: 7, tete: 6, haut: 15, bas: 2, chaus: 13, chapeau: -1, sac: 3, acc: 9 } },
+    { nom: 'Inspiré d’Izzy', bebe: 'izzy', ch: { g: 0, corps: 7, tete: 6, haut: 15, bas: 2, bf: 1, chaus: -1, chapeau: -1, sac: 3, acc: 9 } },
     { nom: 'Inspirée de Mimi', bebe: 'mimi', ch: { g: 1, corps: 3, tete: 23, haut: 18, bas: 6, chaus: 7, chapeau: -1, sac: -1, acc: -1 } },
-    { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 3, chaus: 12, chapeau: -1, sac: 13, acc: 0 } },
-    { nom: 'Inspiré de T.K.', bebe: 'tk', ch: { g: 0, corps: 4, tete: 1, haut: 12, bas: 1, chaus: 16, chapeau: -1, sac: -1, acc: -1 } },
+    { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 5, bf: 1, chaus: -1, chapeau: -1, sac: 13, acc: 0 } },
+    { nom: 'Inspiré de T.K.', bebe: 'tk', ch: { g: 0, corps: 4, tete: 1, haut: 12, bas: 9, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspirée de Kari', bebe: 'kari', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
   ];
-  DW.Perso = { PRESETS, charger, valide, dessiner, look, couleurs };
+  DW.Perso = { PRESETS, charger, valide, dessiner, look, couleurs, vider: () => { for (const k in cache) delete cache[k]; } };
 })();
 ;
 

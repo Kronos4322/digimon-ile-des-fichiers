@@ -52,7 +52,7 @@ ENTETE = """'use strict';
 
 
 def empreinte(f):
-    with open(f, 'rb') as fh: return hashlib.md5(fh.read()).hexdigest()[:8]
+    with open(f, 'rb') as fh: return hashlib.sha256(fh.read()).hexdigest()[:8]
 
 
 def images():
@@ -94,7 +94,7 @@ def ecrire():
         if nom: ecrire_si_change(os.path.join(PAQUETS_DIR, nom), texte)
     for f in os.listdir(PAQUETS_DIR):
         if f.endswith('.js') and f not in [p[0] for p in P]: os.remove(os.path.join(PAQUETS_DIR, f))
-    lignes = ''.join(("    { f: '../paquets/%s', v: '%s' },\n" % (nom, hashlib.md5(texte.encode('utf-8')).hexdigest()[:8])) if nom else ("    { f: '%s' },\n" % fichiers) for nom, fichiers, texte in P)
+    lignes = ''.join(("    { f: '../paquets/%s', v: '%s' },\n" % (nom, hashlib.sha256(texte.encode('utf-8')).hexdigest()[:8])) if nom else ("    { f: '%s' },\n" % fichiers) for nom, fichiers, texte in P)
     i, j = s.index(DEBUT_P), s.index(FIN_P)
     s = s[:i] + DEBUT_P + '\n' + lignes + FIN_P + s[j + len(FIN_P):]
     ch_s = ecrire_si_change(SCRIPTS, s)
@@ -114,7 +114,7 @@ def verifier():
         j = out.index(b'\n', i); tete = out[i:j].split()
         if tete[-1] == b'missing': contenus.append(None); i = j + 1; continue
         n = int(tete[2]); contenus.append(out[j + 1:j + 1 + n]); i = j + 1 + n + 1
-    faux = [c for (c, h), b in zip(paires, contenus) if b is None or hashlib.md5(b).hexdigest()[:8] != h]
+    faux = [c for (c, h), b in zip(paires, contenus) if b is None or hashlib.sha256(b).hexdigest()[:8] != h]
     # paquets du site en ligne : chacun doit être exactement la réunion des fichiers du commit, avec son empreinte
     liste = re.findall(r"'([\w/]+\.js)'", s[s.index('const LIST = ['):s.index('];', s.index('const LIST = ['))])
     contenu = {c: b for (c, h), b in zip(paires, contenus)}
@@ -123,7 +123,7 @@ def verifier():
     for nom, fichiers, texte in paquets(liste, lire):
         if not nom: continue
         b = git('show', 'HEAD:paquets/' + nom)
-        if b.decode('utf-8') != texte or hashlib.md5(b).hexdigest()[:8] != attendus.get(nom): faux.append('paquets/' + nom)
+        if b.decode('utf-8') != texte or hashlib.sha256(b).hexdigest()[:8] != attendus.get(nom): faux.append('paquets/' + nom)
     paires += [('paquets/' + n, h) for n, h in attendus.items()]
     print('dernier commit : %d empreintes, %d fausses%s' % (len(paires), len(faux), (' : ' + ', '.join(faux[:10])) if faux else ''))
     return not faux

@@ -96,7 +96,7 @@ test('scripts : chaque script a son empreinte à jour (bloc VERSIONS de js/scrip
   const crypto = require('crypto'), s = fs.readFileSync(path.join(ROOT, 'js', 'scripts.js'), 'utf8');
   const V = Object.fromEntries([...s.slice(s.indexOf('const VERSIONS = {'), s.indexOf('(fin des versions)')).matchAll(/'([\w/]+\.js)': '([0-9a-f]+)'/g)].map(m => [m[1], m[2]]));
   // (les retouches de l'atelier, souvent modifiées sans être publiées, n'en ont pas : toujours redemandées au serveur)
-  for (const f of LIST) eq(V[f], f === 'maps/retouches_donnees.js' ? undefined : crypto.createHash('md5').update(fs.readFileSync(path.join(ROOT, 'js', f))).digest('hex').slice(0, 8), f + ' : empreinte périmée');
+  for (const f of LIST) eq(V[f], f === 'maps/retouches_donnees.js' ? undefined : crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, 'js', f))).digest('hex').slice(0, 8), f + ' : empreinte périmée');
   eq(Object.keys(V).length, LIST.length - 1, 'empreintes de scripts disparus');
 });
 test('paquets du site en ligne : chacun est la réunion exacte de ses scripts, avec son empreinte (python dev/versions.py)', () => {
@@ -107,7 +107,7 @@ test('paquets du site en ligne : chacun est la réunion exacte de ses scripts, a
   for (const [f, v] of P) {
     if (!f.startsWith('../paquets/')) { eq(f, LIST[k], 'fichier à part attendu'); k++; continue; }
     const txt = fs.readFileSync(path.join(ROOT, 'paquets', path.basename(f)), 'utf8');
-    eq(crypto.createHash('md5').update(txt).digest('hex').slice(0, 8), v, f + ' : empreinte périmée');
+    eq(crypto.createHash('sha256').update(txt).digest('hex').slice(0, 8), v, f + ' : empreinte périmée');
     const SEP = /\n\/\/ ===== js\/([\w/]+\.js)\n/g, fichiers = [...txt.matchAll(SEP)].map(m => m[1]), morceaux = txt.split(/\n\/\/ ===== js\/[\w/]+\.js\n/).slice(1);
     fichiers.forEach((g, i) => { eq(g, LIST[k], f + ' : ordre des scripts'); k++; eq(morceaux[i].replace(/\n;\n$/, ''), fs.readFileSync(path.join(ROOT, 'js', g), 'utf8').replace(/\n+$/, ''), f + ' : ' + g + ' périmé'); });
   }
@@ -119,7 +119,7 @@ test('images : chaque image servie a son empreinte à jour (js/data/versions_ima
     const p = path.join(A, d, sous); if (d.startsWith('ASSETS') || !fs.existsSync(p)) continue;
     for (const f of fs.readdirSync(p)) if (/\.(png|webp|jpg)$/i.test(f)) {
       const k = `${d}/${sous}/${f}`; vus.add(k);
-      eq(V[k], crypto.createHash('md5').update(fs.readFileSync(path.join(p, f))).digest('hex').slice(0, 8), k + ' : empreinte périmée');
+      eq(V[k], crypto.createHash('sha256').update(fs.readFileSync(path.join(p, f))).digest('hex').slice(0, 8), k + ' : empreinte périmée');
     }
   }
   const trop = Object.keys(V).filter(k => !vus.has(k));
