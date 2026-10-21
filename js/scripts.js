@@ -148,7 +148,7 @@
     'ui/status.js': '22bbd245',
     'ui/evotable.js': '46d5a4d8',
     'ui/learn.js': '4664fbdf',
-    'ui/battleui.js': 'd71365c1',
+    'ui/battleui.js': 'dd857b85',
     'ui/hatch.js': '6540247e',
     'ui/renaissance.js': 'df9a2006',
     'ui/farm.js': '75e9fb54',
@@ -159,7 +159,7 @@
     'maps/common.js': '3abc309b',
     'maps/retouches.js': '1d7cbe5a',
     'maps/puzzle.js': 'f06fe783',
-    'maps/decor.js': '32b94d69',
+    'maps/decor.js': 'c6202356',
     'maps/palais.js': '6daab73d',
     'maps/foret.js': '5d25b23a',
     'maps/plage.js': '9feb3ef5',
@@ -169,7 +169,7 @@
     'maps/maison.js': 'bfca4bfb',
     'maps/interieurs.js': 'd593e47f',
     'maps/grandir.js': '081f6f61',
-    'maps/champs.js': '2e1581e0',
+    'maps/champs.js': '43851bce',
     'maps/gym.js': 'a33932e7',
     'maps/berceau.js': '1739719b',
     'maps/quartiers.js': '8277a4c8',
@@ -206,9 +206,9 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: 'a22446fe' },
+    { f: '../paquets/jeu-1.js', v: 'd097793d' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: 'f50f9cd1' },
+    { f: '../paquets/jeu-2.js', v: '3648e487' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

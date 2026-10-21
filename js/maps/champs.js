@@ -50,7 +50,7 @@
       // verger et décor
       for (const [x, y] of [[24, 23], [36, 23], [2, 7], [36, 7]]) g.set(x, y, 'T');
       g.scatter(farm ? 'f' : 'j', 2, 2, 20, 23, farm ? 20 : 40, 61, ['.']);
-      if (farm) { g.set(14, 8, '7'); g.set(15, 9, '7'); g.set(3, 8, 'a'); }
+      if (farm) g.set(3, 8, 'a');   // (plus de bottes de foin : le joueur les trouve laides)
       else { g.scatter('r', 3, 6, 16, 3, 2, 62, ['.']); }
       // grange de Palmon : terrain vague tant qu'il n'est pas venu
       g.rect(BARN.x, BARN.y, BARN.w, BARN.h, '.');
@@ -71,7 +71,6 @@
       ...FIELDS.map(([x, y], i) => (i < MEAT ? { kind: 'meatpatch', v: ripe ? 1 : 0, x, y, w: 3, h: 2 } : farm ? { kind: 'cropbed', v: CROPS[i - MEAT][0], x, y, w: 3, h: 2 } : { kind: 'vegpatch', v: 0, x, y, w: 3, h: 2 })),
       ...ORCHARD.map(([x, y, v]) => ({ kind: 'fruittree', v, x, y, w: 2, h: 1 })),
       { kind: 'scarecrow', x: 15, y: 14, w: 1, h: 1, small: true },
-      { kind: 'haybale', v: 0, x: 19, y: 14, w: 1, h: 1, small: true }, { kind: 'haybale', v: 1, x: 19, y: 15, w: 1, h: 1, small: true },
       { kind: 'wheelbarrow', x: 11, y: 18, w: 1, h: 1, small: true },
       { kind: 'beehive', x: 8, y: 24, w: 1, h: 1, small: true }, { kind: 'beehive', x: 11, y: 24, w: 1, h: 1, small: true },
       { kind: 'producestand', x: 3, y: 3, w: 2, h: 1 },

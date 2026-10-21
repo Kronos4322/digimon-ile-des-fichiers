@@ -21650,8 +21650,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // l'ALLIÉ (l'enfant délivré et son Digimon : game/battle.js, allyTurn) : à côté du partenaire, un peu en retrait
     drawAlly(c) {
       const A = this.allyMon; if (!A || !(this.allyA > 0)) return;
-      const spr = DW.Sprites.battle(A.sp), k = Math.min(0.95, 62 / spr.h), x = POS.p.x + 46, y = POS.p.y - 13 - (this.allyJump || 0);
-      c.save(); c.globalAlpha = this.allyA * 0.3; c.fillStyle = '#000'; c.beginPath(); c.ellipse(x, POS.p.y - 12, 18, 4, 0, 0, 7); c.fill(); c.restore();
+      const spr = DW.Sprites.battle(A.sp), k = Math.min(0.95, 62 / spr.h), x = POS.p.x + 33, y = POS.p.y - 13 - (this.allyJump || 0);
+      c.save(); c.globalAlpha = this.allyA * 0.3; c.fillStyle = '#000'; c.beginPath(); c.ellipse(x, POS.p.y - 12, 17, 4, 0, 0, 7); c.fill(); c.restore();
       DW.Sprites.draw(c, spr, x, y, { scale: k, frame: Math.floor(this.t * 4 + 1), alpha: this.allyA });
     },
     drawMon(c, side) {
@@ -21680,20 +21680,21 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         if (this.st.owned[E.sp]) { c.fillStyle = '#ffd040'; c.beginPath(); c.arc(137, 42, 2.4, 0, 7); c.fill(); }
         if (DW.sigOf(E)) this.drawEnergy(c, 'e', 12, 54, 88);
       }
+      // TON DIGIMON : en bas à droite, au-dessus de la boîte de texte (en haut à droite, le cadre cachait la tête des grands
+      // ennemis — Meramon, Greymon...) ; le coin du bas reste à la fiche de la technique choisie (drawBottom)
       if (this.hud.p && this.active) {
-        const P = this.active;
-        dw3(c, 174, 8, 140, 52);
-        UI.text(c, P.name, 181, 22, { size: 10, bold: true });
-        UI.text(c, `N.${P.level}`, 308, 22, { size: 9, align: 'right', color: '#ffd860' });
-        if (P.status) UI.tag(c, DW.STATUS_NAME[P.status] + (P.stT > 0 && P.status !== 'slp' ? ' ' + P.stT : ''), 181 + UI.measure(c, P.name, 10, true) + 4, 13, DW.STATUS_COL[P.status]);
-        UI.text(c, 'PV', 181, 33, { size: 7, bold: true, color: '#ffd860' });
+        const P = this.active, X = 224, Y = 134;   // (l'allié se tient juste à sa gauche : drawAlly)
+        dw3(c, X, Y, 90, 44);
+        const nf = UI.fit(c, P.name, 56, 9, 7); UI.text(c, nf.s, X + 6, Y + 12, { size: nf.size, bold: true });
+        UI.text(c, `N.${P.level}`, X + 85, Y + 12, { size: 8, align: 'right', color: '#ffd860' });
+        if (P.status) UI.tag(c, DW.STATUS_NAME[P.status] + (P.stT > 0 && P.status !== 'slp' ? ' ' + P.stT : ''), X + 2, Y - 9, DW.STATUS_COL[P.status]);
+        UI.text(c, 'PV', X + 6, Y + 21, { size: 6, bold: true, color: '#ffd860' });
         const r = this.hpShow.p / P.maxHp;
-        UI.bar(c, 195, 28, 114, 4, r, UI.hpColor(r));
-        UI.text(c, `${Math.ceil(this.hpShow.p)} / ${P.maxHp}`, 308, 46, { size: 9, align: 'right' });
-        UI.text(c, `PM ${P.mp}/${P.maxMp}`, 181, 46, { size: 8, color: '#8ad0ff' });
-        UI.text(c, 'EXP', 181, 55.5, { size: 6, bold: true, color: '#7ac0ff' });
-        UI.bar(c, 195, 52, 112, 2, this.xpShow.v, '#48a8f8');
-        if (DW.sigOf(P)) this.drawEnergy(c, 'p', 176, 64, 96);
+        UI.bar(c, X + 18, Y + 17, 67, 4, r, UI.hpColor(r));
+        UI.text(c, `${Math.ceil(this.hpShow.p)}/${P.maxHp}`, X + 6, Y + 30, { size: 8 });   // (PV ; les PM en entier : fiche de la technique)
+        UI.text(c, `PM ${P.mp}`, X + 85, Y + 30, { size: 7, align: 'right', color: '#8ad0ff' });
+        UI.bar(c, X + 6, Y + 33, 79, 2, this.xpShow.v, '#48a8f8');   // (expérience)
+        if (DW.sigOf(P)) this.drawEnergy(c, 'p', X + 6, Y + 37, 46);
       }
     },
     drawEnergy(c, side, x, y, w) {

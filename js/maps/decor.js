@@ -166,13 +166,13 @@
       if (!free(cx, cy)) continue;
       // (choix tiré de la carte elle-même, jamais au hasard : le même décor à chaque partie, et dans l'atelier des cartes)
       const kit = A.hash(tries, 3, seed) < 0.1 && m.theme !== 'toy' ? DIGITAL[Math.floor(A.hash(tries, 5, seed) * DIGITAL.length)] : kits[Math.floor(A.hash(tries, 4, seed) * kits.length)];
-      const added = [];
+      const added = []; let gomme = 0;
       kit.forEach((kind, j) => {
         const D = W.OBJ[kind], sw = typeof D.w === 'number' ? D.w : 32, sh = typeof D.h === 'number' ? D.h : 32;   // taille d'après la définition (sans dessiner)
         const spr = { w: sw, h: sh }, tiny = spr.w <= 20 && spr.h <= 16, fw = Math.max(1, Math.round(spr.w / 16 * 0.7));
         const ox = j === 0 ? 0 : Math.round((A.hash(tries, 10 + j, seed) - 0.5) * 6), oy = j === 0 ? 0 : Math.round((A.hash(tries, 20 + j, seed) - 0.5) * 3);
         const x = cx + ox - Math.floor(fw / 2), y = cy + oy;
-        if (retiré(kind, x, y)) return;
+        if (retiré(kind, x, y)) { gomme++; return; }
         for (let xx = x; xx < x + fw; xx++) if (!free(xx, y)) return;
         const cells = visCells(kind, x, y, fw);
         if (cells.some(k => vis.has(k))) return;
@@ -181,7 +181,9 @@
         m.objects.push(o); added.push(o); o._vis = cells; for (const k of cells) vis.add(k);
         if (!o.walk) mark(o);
       });
-      if (!added.length) continue;
+      // (un ensemble gommé dans l'atelier compte comme posé : avant, le jeu en reposait un autre plus loin — sur lac11, chaque
+      //  botte de foin retirée en faisait apparaître une nouvelle ; les autres ensembles ne bougent pas)
+      if (!added.length) { if (gomme) i++; continue; }
       // un ensemble qui coupe un chemin est retiré
       const seen = reach();
       if (must.some(t => !ok(seen, t))) {
@@ -192,6 +194,8 @@
       near(cx, cy, 2);
       i++;
     }
+    // (plus de bottes de foin : le joueur les trouve laides ; retirées après coup, le reste du décor garde sa place)
+    m.objects = m.objects.filter(o => !(o.decor && o.kind === 'haybale'));
     m._dressFor = m.rows;
     // la carte avait déjà été préparée (carte voisine dessinée à l'avance) : on la redessine avec son décor
     if (m.objects.some(o => o.decor) && m.gfx) DW.World.unprepare(m);
