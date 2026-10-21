@@ -114,6 +114,7 @@
 
   DW.MAPS.berceau = {
     name: 'Village des Bébés', music: 'village', bg: 'village', ambient: 'town', climate: 'forest', region: 'foret', theme: 'nursery',
+    textures: 'bebe',   // (maisonnettes, manège, jouets, berceaux, lanternes : les images de la planche VILLAGE BEBE du joueur, gfx/textures.js)
     rows,
     // place ronde (pavés pastel) avec une rosace en mosaïque au centre
     plazas: [{ x: 22 * 16 + 8, y: 15 * 16 + 8, rx: 104, ry: 78, t: 'stone' }],
@@ -141,6 +142,8 @@
       { kind: 'giantflower', v: 0, x: 27, y: 25, w: 1, h: 1, small: true }, { kind: 'giantflower', v: 2, x: 41, y: 20, w: 1, h: 1, small: true },
       { kind: 'giantshroom', v: 1, x: 40, y: 27, w: 1, h: 1, small: true },
       { kind: 'sandcastle', x: 18, y: 27, w: 1, h: 1, small: true },
+      // les toilettes du village (près de l'entrée ouest, hors de l'ombre des arbres)
+      { kind: 'toilet', v: 0, x: 5, y: 14, w: 2, h: 2 },
       // lanternes (allumées la nuit) et massifs de fleurs
       { kind: 'stonelantern', x: 22, y: 7, w: 1, h: 1, small: true }, { kind: 'stonelantern', x: 26, y: 7, w: 1, h: 1, small: true },
       { kind: 'stonelantern', x: 8, y: 10, w: 1, h: 1, small: true }, { kind: 'stonelantern', x: 16, y: 21, w: 1, h: 1, small: true },

@@ -588,7 +588,7 @@
     plan: [[3, 0], [2, 0], [3, 1], [1, 0], [0, 0]], links: [[0, 1], [0, 2], [1, 3], [3, 4]],
     subs: [
       ['Désert des Poteaux', 'trail', { textures: 'desert', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 0) }],
-      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 },
+      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', textures: 'bebe', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 },
         objects: [
           { kind: 'stonefountain', v: 0, x: 46, y: 27, w: 5, h: 3 },
           { kind: 'shipwreck', v: 0, x: 21, y: 46, w: 7, h: 4 },

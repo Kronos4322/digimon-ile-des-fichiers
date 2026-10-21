@@ -3556,6 +3556,7 @@
 
   DW.MAPS.berceau = {
     name: 'Village des Bébés', music: 'village', bg: 'village', ambient: 'town', climate: 'forest', region: 'foret', theme: 'nursery',
+    textures: 'bebe',   // (maisonnettes, manège, jouets, berceaux, lanternes : les images de la planche VILLAGE BEBE du joueur, gfx/textures.js)
     rows,
     // place ronde (pavés pastel) avec une rosace en mosaïque au centre
     plazas: [{ x: 22 * 16 + 8, y: 15 * 16 + 8, rx: 104, ry: 78, t: 'stone' }],
@@ -3583,6 +3584,8 @@
       { kind: 'giantflower', v: 0, x: 27, y: 25, w: 1, h: 1, small: true }, { kind: 'giantflower', v: 2, x: 41, y: 20, w: 1, h: 1, small: true },
       { kind: 'giantshroom', v: 1, x: 40, y: 27, w: 1, h: 1, small: true },
       { kind: 'sandcastle', x: 18, y: 27, w: 1, h: 1, small: true },
+      // les toilettes du village (près de l'entrée ouest, hors de l'ombre des arbres)
+      { kind: 'toilet', v: 0, x: 5, y: 14, w: 2, h: 2 },
       // lanternes (allumées la nuit) et massifs de fleurs
       { kind: 'stonelantern', x: 22, y: 7, w: 1, h: 1, small: true }, { kind: 'stonelantern', x: 26, y: 7, w: 1, h: 1, small: true },
       { kind: 'stonelantern', x: 8, y: 10, w: 1, h: 1, small: true }, { kind: 'stonelantern', x: 16, y: 21, w: 1, h: 1, small: true },
@@ -5514,13 +5517,13 @@
     contracts(g, m, id, { forest: '#', tree: 'T' });
     const free = c => c === '.' || c === 's' || c === ',';
     const high = (x, y) => m.alt && m.alt[y * W + x] > 0;
-    // poteaux télégraphiques : en file le long des routes (une case sur 7, à 3 cases du bord), et en « forêts » de poteaux
+    // poteaux télégraphiques : en file le long des routes (une case sur 13, à 3 cases du bord), et quelques bosquets de poteaux
     const [ox, oy] = offsets()[id];
     for (let y = 3; y < H - 3; y++) for (let x = 3; x < W - 3; x++) {
       const c = g.get(x, y); if (!free(c) || high(x, y)) continue;
       const X = x + ox, Y = y + oy, rd = roadDist(X, Y);
-      if (rd > 2.6 && rd < 3.6 && (X + Y * 3) % 7 === 0) g.set(x, y, 'Ţ');
-      else if (rd > 2.5 && N(X, Y, 920 + n, 0.09) > (n === 2 ? 0.7 : 0.62) && Hh(X, Y, 921) < 0.04) g.set(x, y, 'Ţ');   // (moins de « forêts » de poteaux dans la Plaine ; tes poteaux, plus massifs que les anciens, clairsemés)
+      if (rd > 2.6 && rd < 3.6 && (X + Y * 3) % 13 === 0) g.set(x, y, 'Ţ');   // (une ligne clairsemée : le joueur trouvait qu'il y en avait trop)
+      else if (rd > 2.5 && N(X, Y, 920 + n, 0.09) > (n === 2 ? 0.7 : 0.62) && Hh(X, Y, 921) < 0.015) g.set(x, y, 'Ţ');   // (moins de « forêts » de poteaux dans la Plaine ; tes poteaux, plus massifs que les anciens, clairsemés)
     }
     // panneaux routiers (la Plaine en est couverte), vestiges numériques, arbres morts, rochers, os
     const off = (x, y) => nearRoad(id, x, y, 2.5) || high(x, y);
@@ -5594,6 +5597,29 @@
     for (const [x, y] of [[29, 18], [68, 19], [15, 23], [86, 23], [9, 45], [88, 48], [34, 58], [76, 56]]) put(g, x, y, Hh(x, y, 935) < 0.5 ? 'Y' : 'T');
     for (let y = 0; y < H / 2; y++) for (let x = 0; x < W; x++) if (free(x, y) && g.get(x, y) !== '=' && [1, 2, 3].some(k => g.get(x, y - k) === 's') && Hh(x, y, 936) < 0.06) g.set(x, y, 'p');
     g.set(48, 31, 'S');
+    // MOBILIER DES YOKOMON (images de la planche VILLAGE BEBE du joueur, dossier « bebe » : gfx/textures.js ; les bancs,
+    // lampadaires et caisses du village prennent aussi ses images) : aire de jeux au sud, kiosque à musique et pavillon
+    // fleuri à l'ouest, moulin qui devrait pomper l'eau à l'est, tableau d'affichage, poteaux indicateurs, fleurs et jouets.
+    // Un décor ne se pose que sur des cases libres (ni route, ni hutte, ni sortie) : sinon il est simplement omis.
+    const libreSous = (x, y, w, h) => { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (!free(xx, yy) || g.get(xx, yy) === '=' || m.signs[xx + ',' + yy]) return false; return true; };
+    for (const [n, x, y, w, h] of [
+      ['toboggan', 63, 47, 2, 1], ['balancoire', 66, 47, 2, 1], ['tape_cul', 69, 48, 2, 1], ['bac_sable', 64, 49, 2, 1], ['jeu_ressort', 68, 46, 1, 1], ['tourniquet', 71, 46, 2, 1],
+      ['cubes', 62, 49, 1, 1], ['panier_balles', 72, 48, 1, 1],
+      ['scene_musique', 6, 20, 3, 2], ['pavillon_fleur', 5, 25, 3, 2], ['buisson_fleurs', 2, 27, 1, 1], ['trefles', 10, 27, 1, 1], ['moulinets', 9, 22, 1, 1],
+      ['moulin', 77, 25, 3, 2], ['jardiniere', 74, 23, 2, 1], ['carillon', 81, 24, 1, 1],
+      ['panneau_affichage', 56, 22, 2, 1], ['boite_lettres', 31, 26, 1, 1], ['poubelle', 57, 37, 1, 1],
+      ['poteau_indicateur', 87, 32, 1, 1], ['poteau_indicateur', 7, 32, 1, 1],
+      ['champignon_geant', 34, 44, 1, 1], ['nid_oeufs', 12, 41, 1, 1], ['oeufs', 21, 39, 1, 1], ['fanions', 26, 33, 2, 1], ['fanions', 66, 33, 2, 1], ['ballons', 62, 27, 1, 1],
+    ]) {
+      if (!libreSous(x, y, w, h)) continue;
+      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) g.set(xx, yy, g.get(xx, yy) === 's' ? 's' : '.');
+      m.objects.push({ kind: 'tex_bebe_' + n, v: 0, x, y, w, h });
+      for (let yy = y - 1; yy < y + h + 1; yy++) for (let xx = x - 1; xx < x + w + 1; xx++) occ.add(xx + ',' + yy);
+      if (n === 'panneau_affichage') for (let k = 0; k < w; k++) m.signs[(x + k) + ',' + y] = () => DW.say(DW.state.flags.meramon
+        ? "Le tableau du village : « LA FONTAINE COULE ! Merci à l'humain, à Sora et à Biyomon. Arrosage des fleurs : tous les matins ! »"
+        : "Le tableau du village : « Fontaine à sec. Économisez l'eau ! Ne vous approchez pas du Mont Miharashi : Meramon brûle tout. »");
+      if (n === 'poteau_indicateur') m.signs[x + ',' + y] = x > 48 ? '→ Désert des Poteaux · Clairière de l\'Arrivée. ← Place de la fontaine.' : '← Route du Mont Miharashi (Meramon !) · → Place de la fontaine.';
+    }
   }
 
   // ------------------------------------------------------------ DÉCOR DE MONTAGNE PAR ÉTAGE (décors peints : gfx/premium.js)
@@ -6498,7 +6524,7 @@
     plan: [[3, 0], [2, 0], [3, 1], [1, 0], [0, 0]], links: [[0, 1], [0, 2], [1, 3], [3, 4]],
     subs: [
       ['Désert des Poteaux', 'trail', { textures: 'desert', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 0) }],
-      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 },
+      ['Village des Yokomon', 'plaza', { theme: 'yokovillage', textures: 'bebe', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 },
         objects: [
           { kind: 'stonefountain', v: 0, x: 46, y: 27, w: 5, h: 3 },
           { kind: 'shipwreck', v: 0, x: 21, y: 46, w: 7, h: 4 },

@@ -175,7 +175,12 @@
       crates: ['caisses'], barrel: ['tonneaux'], barrels: ['tonneaux'], sacks: ['sacs'] },
     // villages de bébés (Village des Bébés, Village des Poyomon) : le mobilier de la planche VILLAGE BEBE
     bebe: { bench: ['banc'], lamp: ['lampadaire'], mailbox: ['boite_lettres'], noticeboard: ['panneau_affichage'], vending: ['distributeur'],
-      crates: ['cartons'], planter: ['jardiniere'], chest: ['coffre'], toybox: ['etagere_jouets'] } };
+      crates: ['cartons'], planter: ['jardiniere'], chest: ['coffre'], toybox: ['etagere_jouets'], flowerbed: ['jardiniere', 'buisson_fleurs'],
+      // (Village des Bébés : maisonnettes, maison de Penguinmon, manège, jouets, berceaux, lanternes)
+      eggcottage: ['maison_oeuf', 'maison_nuage', 'maison_fleur', 'maison_coussin', 'maison_cubes', 'maison_coquillage'], house: ['maison_champignon'],
+      carousel: ['manege'], rockinghorse: ['jeu_ressort'], teddy: ['peluche'], jackbox: ['toupie'], block: ['cubes'], blockstack: ['cubes'], toytrain: ['train'],
+      starmobile: ['mobile'], toyball: ['panier_balles'], crib: ['berceau', 'lit_barreaux'], giantshroom: ['champignon_geant'],
+      stonelantern: ['lampe_etoile', 'lanterne_coeur', 'lampe_fleur'] } };
   // SOLS d'un dossier, par rôle (sinon l'image du rôle porte son nom : la grotte) : le désert prend son sable pâle et sa piste
   // caillouteuse
   const ROLES = { desert: { sable: 'sable_pale', chemin: 'sable_cailloux' } };
