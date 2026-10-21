@@ -648,7 +648,12 @@ BEBE_NOMS = {
     8: ['maison_oeuf', 'maison_nid', 'maison_champignon', 'maison_fleur', 'maison_coquillage', 'maison_coussin', 'maison_bois', 'maison_nuage', 'maison_mousse', 'maison_cubes'],
     9: ['couveuse', 'etagere_biberons', 'bassin_source', 'gamelles', 'table_langer', 'coffre', 'lit_cocon', 'lanterne_branche', 'garde_manger', 'armoire_soins'],
 }
-BEBE_GRAND = {**{n: 240 for n in BEBE_NOMS[0]}, **{n: 200 for n in BEBE_NOMS[8]}, 'arche_papillon': 200, 'arche_fleurs': 200, 'arche_lierre': 200}
+BEBE_GRAND = {**{n: 240 for n in BEBE_NOMS[0]}, **{n: 200 for n in BEBE_NOMS[8]}, 'arche_papillon': 200, 'arche_fleurs': 200, 'arche_lierre': 200, 'tipi': 220, 'tente_brulee': 200}
+# pris dans d'autres planches pour les mêmes villages : le TIPI et le camp (Mobiliers exterieurs, planche du camp : les huttes
+# du Village des Yokomon), la tente déchirée (DESERT)
+_CAMP = 'Mobiliers exterieurs/photo_2026-10-19_18-08-54.jpg'
+BEBE_EXTRA = {'tipi': (_CAMP, 4), 'poteau_camp': (_CAMP, 0), 'barriere_corde': (_CAMP, 1), 'lanterne_camp': (_CAMP, 3), 'feu_camp': (_CAMP, 5),
+              'table_camp': (_CAMP, 8), 'banc_camp': (_CAMP, 9), 'tente_brulee': ('DESERT/photo_2026-10-21_09-39-46 (2).jpg', 7)}
 
 # ---------------------------------------------------------------- DESERT (dossier du joueur) : 10 planches 5 x 2 sur fond
 # vert -> assets/desert/jeu/<nom>.webp : camp (caisses, jarres, tentes), ruines égyptiennes, sols (planche 2 : carreaux
@@ -672,22 +677,24 @@ DESERT_SOLS = {'sable_pale', 'sable_ondule', 'terre_orange', 'argile_craquelee',
 DESERT_GRAND = {'etal': 220, 'tente': 220, 'tente_dechiree': 200, **{n: 220 for n in DESERT_NOMS[1] + DESERT_NOMS[6] + DESERT_NOMS[9]},
                 'obelisque_losange': 220, 'portail': 220, 'porte_cristal': 220, 'station_meteo': 200, 'antenne': 200, 'tour_antenne': 200}
 
-# dossier -> (fichier de la planche n, noms par planche, sols, tailles maximales, taille par défaut)
+# dossier -> (fichier de la planche n, noms par planche, sols, tailles maximales, taille par défaut, objets pris ailleurs)
 DOSSIERS_PLANCHES = {
-    'grotte': (lambda i: _G(_GP[i]), GROTTE_NOMS, GROTTE_SOLS, GROTTE_GRAND, 170),
-    'bebe': (lambda i: _VB(_VBP[i]), BEBE_NOMS, set(), BEBE_GRAND, 180),
-    'desert': (lambda i: _DS(_DSP[i]), DESERT_NOMS, DESERT_SOLS, DESERT_GRAND, 180),
+    'grotte': (lambda i: _G(_GP[i]), GROTTE_NOMS, GROTTE_SOLS, GROTTE_GRAND, 170, {}),
+    'bebe': (lambda i: _VB(_VBP[i]), BEBE_NOMS, set(), BEBE_GRAND, 180, BEBE_EXTRA),
+    'desert': (lambda i: _DS(_DSP[i]), DESERT_NOMS, DESERT_SOLS, DESERT_GRAND, 180, {}),
 }
 
 
 def optimiser_planches(d):
-    fichier, NOMS_D, SOLS_D, GRAND_D, defaut = DOSSIERS_PLANCHES[d]
+    fichier, NOMS_D, SOLS_D, GRAND_D, defaut, EXTRA_D = DOSSIERS_PLANCHES[d]
     dst = os.path.join(RACINE, d, 'jeu'); os.makedirs(dst, exist_ok=True)
-    for i, noms in NOMS_D.items():
-        f = os.path.join(SOURCE_COMMUN, fichier(i))
+    # (chaque planche du dossier, case par case, puis les objets pris dans d'autres planches)
+    lots = [(fichier(i), list(enumerate(noms))) for i, noms in NOMS_D.items()] + [(rel, [(k, nom)]) for nom, (rel, k) in EXTRA_D.items()]
+    for rel, cases_ in lots:
+        f = os.path.join(SOURCE_COMMUN, rel)
         if not os.path.exists(f):
             print('absent :', f); continue
-        for k, nom in enumerate(noms):
+        for k, nom in cases_:
             if not nom: continue
             cible = os.path.join(dst, nom + '.webp')   # (WebP : 4 à 5 fois plus léger que le PNG pour ces images peintes)
             if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue

@@ -988,7 +988,7 @@
     }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
     for (const o0 of map.objects || []) {
-      const R = TX && TX.objet(map, o0.kind, o0.x, o0.y), o = R ? { ...o0, kind: R, v: 0 } : o0;   // (image dessinée : gfx/textures.js)
+      const R = TX && TX.objet(map, o0.kind, o0.x, o0.y, o0.v), o = R ? { ...o0, kind: R, v: 0 } : o0;   // (image dessinée : gfx/textures.js)
       const D = OBJ[o.kind], vv = o.v || 0;
       // sorte inconnue (une image du joueur, « tex_… », pas chargée : réseau coupé) : rien n'est dessiné, ses cases restent bloquées
       if (!D) { if (!o.walk && !o.top) for (let yy = 0; yy < (o.h || 1); yy++) for (let xx = 0; xx < (o.w || 1); xx++) solid.add((o.x + xx) + ',' + (o.y + yy)); continue; }

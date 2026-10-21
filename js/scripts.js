@@ -49,7 +49,7 @@
     'engine/art.js': 'afb33d8b',
     'ui/widgets.js': '952c1225',
     'ui/dialog.js': '14e36076',
-    'data/versions_images.js': '30bc0e2f',
+    'data/versions_images.js': '582723b8',
     'data/types.js': 'c8630ed6',
     'data/moves.js': '26633ce6',
     'data/species.js': '384aecac',
@@ -81,7 +81,7 @@
     'gfx/hero.js': '97095308',
     'gfx/icons.js': 'a527443c',
     'gfx/objects.js': '010e57d9',
-    'gfx/textures.js': 'a2112bf1',
+    'gfx/textures.js': 'af83e75d',
     'gfx/kit_donnees.js': '742be2d2',
     'gfx/persos.js': '22695c99',
     'gfx/pinceau.js': '7ee82687',
@@ -106,7 +106,7 @@
     'gfx/buildings2.js': 'a4a05564',
     'gfx/city.js': '95731dcd',
     'gfx/ponts.js': '1a0efd90',
-    'gfx/terrain.js': '2f031526',
+    'gfx/terrain.js': 'dbe62959',
     'gfx/ambient.js': '2d139098',
     'gfx/vivant.js': '992ba20f',
     'gfx/rendu.js': '8cd0343b',
@@ -171,7 +171,7 @@
     'maps/grandir.js': '081f6f61',
     'maps/champs.js': '43851bce',
     'maps/gym.js': 'ba4bcb1c',
-    'maps/berceau.js': '4f1f2415',
+    'maps/berceau.js': '51f3606c',
     'maps/quartiers.js': '8277a4c8',
     'maps/enigmes.js': 'fe6d785a',
     'maps/donjons.js': '5e05d5c7',
@@ -180,8 +180,8 @@
     'maps/gymnase.js': '5a475b3f',
     'maps/relief.js': 'a472a6a7',
     'maps/monde.js': '2c5310a3',
-    'maps/miharashi.js': '6cd16058',
-    'maps/regions.js': '374d88c2',
+    'maps/miharashi.js': '317b8801',
+    'maps/regions.js': '8c4cd77f',
     'maps/antre.js': '1f0e280f',
     'maps/yokomon.js': '44c78810',
     'maps/souterrain.js': '2c2d919b',
@@ -206,9 +206,9 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '62ebaa19' },
+    { f: '../paquets/jeu-1.js', v: 'def15079' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: '86f057e5' },
+    { f: '../paquets/jeu-2.js', v: '5c9975cb' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

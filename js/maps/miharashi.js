@@ -267,8 +267,8 @@
     for (const [x, y] of [[29, 18], [68, 19], [15, 23], [86, 23], [9, 45], [88, 48], [34, 58], [76, 56]]) put(g, x, y, Hh(x, y, 935) < 0.5 ? 'Y' : 'T');
     for (let y = 0; y < H / 2; y++) for (let x = 0; x < W; x++) if (free(x, y) && g.get(x, y) !== '=' && [1, 2, 3].some(k => g.get(x, y - k) === 's') && Hh(x, y, 936) < 0.06) g.set(x, y, 'p');
     g.set(48, 31, 'S');
-    // MOBILIER DES YOKOMON (images de la planche VILLAGE BEBE du joueur, dossier « bebe » : gfx/textures.js ; les bancs,
-    // lampadaires et caisses du village prennent aussi ses images) : aire de jeux au sud, kiosque à musique et pavillon
+    // MOBILIER DES YOKOMON (images de la planche VILLAGE BEBE du joueur, dossier « bebe » : gfx/textures.js ; les huttes sont
+    // ses tipis, les bancs, lampadaires et caisses du village prennent aussi ses images) : aire de jeux au sud, kiosque à musique et pavillon
     // fleuri à l'ouest, moulin qui devrait pomper l'eau à l'est, tableau d'affichage, poteaux indicateurs, fleurs et jouets.
     // Un décor ne se pose que sur des cases libres (ni route, ni hutte, ni sortie) : sinon il est simplement omis.
     const libreSous = (x, y, w, h) => { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (!free(xx, yy) || g.get(xx, yy) === '=' || m.signs[xx + ',' + yy]) return false; return true; };
@@ -280,6 +280,8 @@
       ['panneau_affichage', 56, 22, 2, 1], ['boite_lettres', 31, 26, 1, 1], ['poubelle', 57, 37, 1, 1],
       ['poteau_indicateur', 87, 32, 1, 1], ['poteau_indicateur', 7, 32, 1, 1],
       ['champignon_geant', 34, 44, 1, 1], ['nid_oeufs', 12, 41, 1, 1], ['oeufs', 21, 39, 1, 1], ['fanions', 26, 33, 2, 1], ['fanions', 66, 33, 2, 1], ['ballons', 62, 27, 1, 1],
+      // le camp des tipis : feux de camp et lanternes entre les tentes
+      ['feu_camp', 16, 40, 2, 1], ['feu_camp', 35, 20, 2, 1], ['lanterne_camp', 28, 38, 1, 1], ['lanterne_camp', 68, 21, 1, 1], ['banc_camp', 18, 42, 2, 1],
     ]) {
       if (!libreSous(x, y, w, h)) continue;
       for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) g.set(xx, yy, g.get(xx, yy) === 's' ? 's' : '.');

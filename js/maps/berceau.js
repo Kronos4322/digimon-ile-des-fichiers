@@ -109,6 +109,8 @@
     else await say("Reviens quand tu veux. Les bébés t'aiment bien !", 'Penguinmon');
   }
 
+  // Penguinmon veille dehors de 6 h à 20 h ; le soir et la nuit, il est dans sa maison (même service)
+  const dehors = () => { const h = DW.Time.hour(); return h >= 6 && h < 20; };
   // petits habitants (ils se promènent et donnent des conseils)
   const baby = (sp, x, y, lines, w = 2) => ({ sp, x, y, face: 'right', wander: w, talk: async () => { for (const l of lines) await say(l, DW.SPECIES[sp].name); } });
 
@@ -158,7 +160,7 @@
     ],
     warps: [{ x: 0, y: 11, w: 1, h: 3, dir: 'left', to: 'prairie', tx: 39, ty: 12 }],
     npcs: [
-      { sp: 'penguinmon', x: 20, y: 8, face: 'right', talk: penguinmonTalk },
+      { sp: 'penguinmon', x: 20, y: 8, face: 'right', cond: () => dehors(), talk: penguinmonTalk },   // (la nuit, il est chez lui)
       baby('botamon', 7, 11, ['Bo-bo... Je fais la sieste dans les berceaux tous les après-midi !', "Penguinmon dit que les œufs zébrés de bleu deviennent des Botamon. Comme moi !"]),
       baby('punimon', 30, 13, ['Puni ! Puni ! On joue à chat ? Le manège tourne toute la journée !', 'Les Punimon deviennent des Tsunomon, puis des Gabumon... ou des Elecmon ! Penguinmon dit que chacun choisit son chemin.']),
       baby('yuramon', 9, 21, ["Fuu... Le vent m'a encore emporté jusqu'ici...", "Un jour, je deviendrai Tanemon, puis Palmon. J'aurai une jolie fleur !"]),
@@ -182,4 +184,72 @@
     M.rows = g.map(r => r.join(''));
   }
   DW.MapKit.zoomMap(DW.MAPS.berceau, 'berceau');   // plan agrandi ×2 (maps/common.js)
+
+  // ------------------------------------------------------------ LA MAISON DU GARDIEN (Penguinmon) : on y entre par sa porte
+  // (sa maison-champignon : l'image du joueur, gfx/textures.js) ; dedans, une nurserie douillette
+  const B = n => 'tex_bebe_' + n;   // (images de la planche VILLAGE BEBE du joueur)
+  {
+    const M = DW.MAPS.berceau, mais = M.objects.find(o => o.kind === 'house'), px = mais.x + 1, py = mais.y + mais.h - 1;
+    const P = DW.MapKit.doorRoom(16, 9), D = P.door;
+    M.doors = [...(M.doors || []), { x: px, y: py, w: 2, dir: 'up', to: 'berceau_maison', tx: D, ty: P.rows.length - 2 }];
+    M.signs[`${mais.x},${py}`] = M.signs[`${mais.x + 3},${py}`] = 'La maison de Penguinmon, le gardien du village. Une odeur de lait chaud et de gâteau s\'échappe de la porte.';
+    DW.MAPS.berceau_maison = {
+      name: 'Maison de Penguinmon', music: 'village', bg: 'village', ambient: 'home', climate: 'village', region: 'foret', indoor: true, textures: 'bebe',
+      floor: { type: 'herring', cols: ['#dcb48a', '#b48a62', '#7a5a3a'] }, wall: { base: '#fbe4ec', alt: '#f2c6d6', pattern: 'dots', wood: '#a87a52' },
+      rows: P.rows, npcs: [], signs: {}, doors: [],
+      warps: [{ x: D, y: P.rows.length - 1, w: 2, h: 1, dir: 'down', to: 'berceau', tx: px, ty: py + 1 }],
+      entry: { x: D, y: P.rows.length - 2 },
+      objects: [
+        // le mur du fond : fenêtres, étagères à biberons, armoire à pharmacie, étagère à jouets, garde-manger, lampe-fleur
+        { kind: 'window', v: 0, x: 4, y: 1, w: 2, h: 2, back: true, oy: -6 }, { kind: 'window', v: 0, x: 10, y: 1, w: 2, h: 2, back: true, oy: -6 },
+        { kind: B('etagere_biberons'), x: 1, y: 3, w: 2, h: 1 }, { kind: B('armoire_soins'), x: 3, y: 3, w: 1, h: 1 }, { kind: B('etagere_jouets'), x: 7, y: 3, w: 2, h: 1 },
+        { kind: B('garde_manger'), x: 12, y: 3, w: 1, h: 1 }, { kind: B('lampe_fleur'), x: 14, y: 3, w: 1, h: 1 },
+        // le coin des bébés : berceau, lit à barreaux et son mobile, couveuse des œufs fragiles, table à langer, chaise haute
+        { kind: B('berceau'), x: 1, y: 6, w: 1, h: 1 }, { kind: B('lit_barreaux'), x: 1, y: 9, w: 2, h: 1 }, { kind: B('mobile'), x: 3, y: 6, w: 1, h: 1 },
+        { kind: B('couveuse'), x: 4, y: 10, w: 1, h: 1 }, { kind: B('table_langer'), x: 5, y: 3, w: 1, h: 1 }, { kind: B('chaise_haute'), x: 3, y: 10, w: 1, h: 1 },
+        // le salon : tapis, table ronde et tabourets-fleurs, coussins, panier de linge, jouets
+        { kind: 'bigrug', x: 6, y: 6, w: 4, h: 3, walk: true }, { kind: B('table'), x: 7, y: 7, w: 2, h: 1 },
+        { kind: B('tabouret'), x: 6, y: 7, w: 1, h: 1 }, { kind: B('tabouret'), x: 9, y: 7, w: 1, h: 1 },
+        { kind: B('coussins'), x: 7, y: 9, w: 2, h: 1 }, { kind: B('panier_linge'), x: 10, y: 10, w: 1, h: 1 }, { kind: B('peluche'), x: 6, y: 10, w: 1, h: 1 },
+        { kind: B('cubes'), x: 11, y: 8, w: 1, h: 1 }, { kind: B('xylophone'), x: 9, y: 10, w: 1, h: 1 },
+        // le coin de Penguinmon : son lit-cocon, son coffre, ses gamelles, une plante
+        { kind: B('lit_cocon'), x: 13, y: 6, w: 2, h: 1 }, { kind: B('coffre'), x: 14, y: 8, w: 1, h: 1 }, { kind: B('gamelles'), x: 13, y: 10, w: 1, h: 1 },
+        { kind: 'plant', v: 0, x: 14, y: 10, w: 1, h: 1, small: true },
+      ],
+    };
+    const IN = DW.MAPS.berceau_maison;
+    IN.npcs.push({ sp: 'penguinmon', x: 11, y: 6, face: 'down', cond: () => !dehors(), talk: penguinmonTalk },
+      baby('botamon', 2, 7, ['Bo... (Botamon dort à poings fermés dans le berceau.)', 'Bo-bo... (Il sourit en dormant.)'], 0),
+      baby('pabumon', 12, 9, ['Pabu ! Penguinmon fait les meilleurs biberons du monde !', "La nuit, Penguinmon nous raconte des histoires d'Engrenages et de Digimon géants..."], 1));
+    // (un meuble de deux cases : le même texte sur les deux)
+    const texte = (cases, t) => cases.forEach(k => (IN.signs[k] = t));
+    texte(['4,10'], "Une couveuse tiède. Les DigiŒufs les plus fragiles finissent d'y mûrir, bien au chaud.");
+    texte(['3,3'], 'Pansements, biberons de lait chaud, sirop au miel... Penguinmon pense à tout.');
+    texte(['1,3', '2,3'], 'Des biberons, des hochets et des petits pots, bien alignés.');
+    texte(['7,3', '8,3'], 'Une étagère pleine de jouets : des cubes, un nounours, une balle... Tout est rangé avant la sieste.');
+    texte(['12,3'], 'Des bocaux de compote de pomme bleue et de lait en poudre, bien rangés.');
+    texte(['13,6', '14,6'], "Le lit de Penguinmon : une coque de noix tapissée de pétales. Il a l'air drôlement confortable.");
+    texte(['14,8'], 'Le coffre à trésors de Penguinmon : des coquillages, une plume, un vieux dessin de bébé Digimon...');
+
+    // ---------------------------------------------------------- LE VILLAGE MEUBLÉ (cases de la carte agrandie ; seulement là où
+    // l'on voit, pas sous le feuillage des grands arbres) : aire de jeux près du manège, bancs autour de la place, kiosque à
+    // livres, scène, pavillon fleuri, dôme à bulles, moulin et observatoire, coin nurserie, boîte aux lettres, tableau, jouets
+    for (const [n, x, y, w, h] of [
+      ['toboggan', 58, 13, 2, 1], ['balancoire', 62, 15, 2, 1], ['trampoline', 75, 14, 2, 1], ['tourniquet', 61, 18, 2, 1], ['dome_grimpe', 66, 19, 2, 1], ['tunnel', 71, 20, 2, 1],
+      ['banc', 36, 24, 2, 1], ['banc', 53, 24, 2, 1], ['banc', 36, 38, 2, 1], ['banc', 53, 38, 2, 1],
+      ['kiosque_livres', 20, 5, 3, 1], ['statue_oeuf', 31, 5, 2, 1], ['scene_musique', 66, 26, 3, 2], ['pavillon_fleur', 13, 33, 3, 2], ['dome_bulles', 68, 35, 3, 2],
+      ['moulin', 28, 42, 3, 2], ['observatoire', 12, 46, 3, 2], ['fontaine_bulles', 54, 43, 1, 1],
+      ['couveuse', 26, 9, 1, 1], ['table_langer', 30, 8, 1, 1], ['etagere_biberons', 33, 8, 2, 1], ['chaise_haute', 24, 14, 1, 1], ['coussins', 26, 12, 2, 1],
+      ['boite_lettres', 41, 11, 1, 1], ['panneau_affichage', 30, 16, 2, 1], ['poteau_indicateur', 9, 21, 1, 1], ['poubelle', 58, 24, 1, 1],
+      ['fanions', 40, 19, 2, 1], ['fanions', 55, 19, 2, 1], ['ballons', 33, 28, 1, 1], ['ballons', 57, 34, 1, 1], ['moulinets', 31, 20, 1, 1],
+      ['cubes', 36, 13, 1, 1], ['anneaux', 40, 42, 1, 1], ['xylophone', 56, 40, 1, 1], ['tambour', 34, 44, 1, 1], ['hochet', 60, 24, 1, 1], ['toupie', 63, 22, 1, 1],
+      ['buisson_fleurs', 20, 16, 1, 1], ['buisson_fleurs', 76, 24, 1, 1], ['buisson_fleurs', 18, 40, 1, 1], ['trefles', 44, 50, 1, 1], ['trefles', 22, 31, 1, 1],
+      ['jardiniere', 43, 13, 2, 1], ['jardiniere', 61, 30, 2, 1], ['nid_oeufs', 35, 47, 1, 1], ['oeufs', 49, 47, 1, 1],
+    ]) M.objects.push({ kind: B(n), v: 0, x, y, w, h });
+    M.signs['30,16'] = M.signs['31,16'] = () => say(DW.state.flags.shellmon
+      ? 'Le tableau du village : « Les bébés remercient l\'humain qui a ramené le calme sur la plage ! Concert ce soir sur la scène. »'
+      : 'Le tableau du village : « Ne vous éloignez pas vers la plage : on y entend des cris. Les DigiŒufs se prennent auprès de Penguinmon. »');
+    M.signs['9,21'] = '→ Place du biberon · Maison de Penguinmon · Nid des DigiŒufs. ↑ Arche arc-en-ciel. ← Prairie des Lucioles.';
+    M.signs['20,5'] = M.signs['21,5'] = M.signs['22,5'] = 'Le kiosque à livres : « Mon premier Digivice », « Comment bien digivoluer », « Les Engrenages Noirs expliqués aux bébés »...';
+  }
 })();
