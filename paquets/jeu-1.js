@@ -1395,10 +1395,22 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/champi_violet.png": "a7632d0a",
   "commun/jeu/cristaux.png": "4aa85be5",
   "commun/jeu/dalle_runique.png": "e8c9a2ca",
+  "commun/jeu/digi_agumon_combat.png": "88b1121a",
+  "commun/jeu/digi_agumon_dos.png": "a26223b9",
+  "commun/jeu/digi_agumon_face.png": "c7a78a0d",
+  "commun/jeu/digi_agumon_profil.png": "9dbc08dd",
+  "commun/jeu/digi_angemon_combat.png": "43afaeca",
+  "commun/jeu/digi_angemon_dos.png": "8ab7e956",
+  "commun/jeu/digi_angemon_face.png": "191eceb9",
+  "commun/jeu/digi_angemon_profil.png": "8fbc62b9",
   "commun/jeu/digi_betamon_combat.png": "d4333983",
   "commun/jeu/digi_betamon_dos.png": "b06c581a",
   "commun/jeu/digi_betamon_face.png": "52ba1a81",
   "commun/jeu/digi_betamon_profil.png": "07ccfc9a",
+  "commun/jeu/digi_birdramon_combat.png": "2ae5b51a",
+  "commun/jeu/digi_birdramon_dos.png": "be29dc01",
+  "commun/jeu/digi_birdramon_face.png": "af3b3a7d",
+  "commun/jeu/digi_birdramon_profil.png": "39a43e40",
   "commun/jeu/digi_botamon_combat.png": "66450ee5",
   "commun/jeu/digi_botamon_dos.png": "639f08e5",
   "commun/jeu/digi_botamon_face.png": "2ade512e",
@@ -1407,18 +1419,46 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/digi_bukamon_dos.png": "3bba2253",
   "commun/jeu/digi_bukamon_face.png": "fb496dec",
   "commun/jeu/digi_bukamon_profil.png": "792461bf",
+  "commun/jeu/digi_drimogemon_combat.png": "d16ceb61",
+  "commun/jeu/digi_drimogemon_dos.png": "f085b07b",
+  "commun/jeu/digi_drimogemon_face.png": "1acdd989",
+  "commun/jeu/digi_drimogemon_profil.png": "c2605ed1",
   "commun/jeu/digi_elecmon_combat.png": "d1788710",
   "commun/jeu/digi_elecmon_dos.png": "3b435061",
   "commun/jeu/digi_elecmon_face.png": "e8f3ecbd",
   "commun/jeu/digi_elecmon_profil.png": "3f40f22d",
-  "commun/jeu/digi_koromon_combat.png": "dc3093c3",
-  "commun/jeu/digi_koromon_dos.png": "33dc0018",
-  "commun/jeu/digi_koromon_face.png": "9a0c31fe",
-  "commun/jeu/digi_koromon_profil.png": "efb42d6c",
+  "commun/jeu/digi_garurumon_combat.png": "0ccf43fe",
+  "commun/jeu/digi_garurumon_dos.png": "fe3953be",
+  "commun/jeu/digi_garurumon_face.png": "54e7e291",
+  "commun/jeu/digi_garurumon_profil.png": "3218067f",
+  "commun/jeu/digi_greymon_combat.png": "a34eb654",
+  "commun/jeu/digi_greymon_dos.png": "7251596f",
+  "commun/jeu/digi_greymon_face.png": "da38b2e4",
+  "commun/jeu/digi_greymon_profil.png": "c3126e38",
+  "commun/jeu/digi_ikkakumon_combat.png": "b6484f11",
+  "commun/jeu/digi_ikkakumon_dos.png": "21d99fee",
+  "commun/jeu/digi_ikkakumon_face.png": "7c2f4b94",
+  "commun/jeu/digi_ikkakumon_profil.png": "9c4500ea",
+  "commun/jeu/digi_kabuterimon_combat.png": "c39c66c0",
+  "commun/jeu/digi_kabuterimon_dos.png": "b5ce1b92",
+  "commun/jeu/digi_kabuterimon_face.png": "e0b5bc22",
+  "commun/jeu/digi_kabuterimon_profil.png": "952058e4",
+  "commun/jeu/digi_koromon_combat.png": "59f220fd",
+  "commun/jeu/digi_koromon_dos.png": "5937027e",
+  "commun/jeu/digi_koromon_face.png": "7905ff75",
+  "commun/jeu/digi_koromon_profil.png": "938919a4",
   "commun/jeu/digi_kuwagamon_combat.png": "c9ec2a1f",
   "commun/jeu/digi_kuwagamon_dos.png": "2c71d428",
   "commun/jeu/digi_kuwagamon_face.png": "bdbb1b73",
   "commun/jeu/digi_kuwagamon_profil.png": "90e01703",
+  "commun/jeu/digi_meramon_combat.png": "a3090352",
+  "commun/jeu/digi_meramon_dos.png": "09fd218d",
+  "commun/jeu/digi_meramon_face.png": "f60fc9fb",
+  "commun/jeu/digi_meramon_profil.png": "5b11ff84",
+  "commun/jeu/digi_monochromon_combat.png": "b8c6c09b",
+  "commun/jeu/digi_monochromon_dos.png": "82f3f3da",
+  "commun/jeu/digi_monochromon_face.png": "f18e537d",
+  "commun/jeu/digi_monochromon_profil.png": "89449368",
   "commun/jeu/digi_mushroomon_combat.png": "5bcf0c11",
   "commun/jeu/digi_mushroomon_dos.png": "f2f3a4b5",
   "commun/jeu/digi_mushroomon_face.png": "c439cd0b",
@@ -1451,6 +1491,10 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/digi_shellmon_dos.png": "d2688a5d",
   "commun/jeu/digi_shellmon_face.png": "b7447d69",
   "commun/jeu/digi_shellmon_profil.png": "470446ce",
+  "commun/jeu/digi_togemon_combat.png": "054ec481",
+  "commun/jeu/digi_togemon_dos.png": "a94d6dba",
+  "commun/jeu/digi_togemon_face.png": "dd2bc299",
+  "commun/jeu/digi_togemon_profil.png": "d38e36b8",
   "commun/jeu/digi_tsunomon_combat.png": "6e32af91",
   "commun/jeu/digi_tsunomon_dos.png": "47b10294",
   "commun/jeu/digi_tsunomon_face.png": "77d6eb2a",
@@ -3320,23 +3364,31 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   const VUES = ['combat', 'profil', 'face', 'dos'];
   const IMAGES = {
     punimon: { taille: 0.77 }, nyokimon: { taille: 0.91 }, pabumon: { taille: 0.88 }, poyomon: { taille: 0.76 },   // (Pabumon : ses bulles comptent dans sa hauteur)
-    koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
+    // (echelle : l'espèce entière plus grande que son stade — Bukamon, « toujours trop petit » pour le joueur)
+    koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95, echelle: 1.3 },
     // (21/10 : Botamon, Pichimon et YukimiBotamon en pixel art ; Yuramon, Disciples et Champions peints)
     botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yukimibotamon: { taille: 0.58 }, yuramon: { taille: 0.72 },
     betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.92 }, palmon: { taille: 0.97 },
     kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
+    // (21/10 au soir : Agumon et les Champions de la série, peints ; Koromon a sa nouvelle planche)
+    agumon: { taille: 0.95 }, greymon: { taille: 0.96 }, garurumon: { taille: 0.86 }, birdramon: { taille: 0.96 }, kabuterimon: { taille: 0.95 },
+    togemon: { taille: 0.95 }, ikkakumon: { taille: 0.86 }, angemon: { taille: 0.96 }, monochromon: { taille: 0.86 }, drimogemon: { taille: 0.82 },
+    meramon: { taille: 0.96 },
   };
   const imageDe = (sp, vue) => (IMAGES[sp] && DW.Textures && DW.Textures.a('commun/digi_' + sp + '_' + vue)) || null;
   // une image dans le cadre res × res (sol à 62/64), à la haute définition du jeu ; respiration (squash), pose d'attaque
   // ou de recul (shear) : comme les dessins par code (Art.render)
   const nets = new Map();   // image réduite à sa taille d'affichage (réduction par moitiés : gfx/textures.js)
   function rendreImage(sp, im, res, o = {}) {
-    const k = Art.HD || 1, N = Math.round(res * k), cv = Art.canvas(N + 2, N + 2), c = cv.getContext('2d');
-    const s = Math.min(IMAGES[sp].taille * N / im.naturalHeight, 0.98 * N / im.naturalWidth);
+    // (une image très large — profil d'un quadrupède, ailes ouvertes — garde la hauteur de son espèce : son cadre s'élargit,
+    //  jusqu'à 1,6 fois, au lieu de rétrécir le Digimon : il ne paraît plus plus petit de profil que de face)
+    const k = Art.HD || 1, N = Math.round(res * k);
+    const s = Math.min(IMAGES[sp].taille * N / im.naturalHeight, 1.6 * 0.98 * N / im.naturalWidth);
     const w = Math.max(1, Math.round(im.naturalWidth * s)), h = Math.max(1, Math.round(im.naturalHeight * s));
+    const L = Math.max(N, Math.ceil(w / 0.98)), cv = Art.canvas(L + 2, N + 2), c = cv.getContext('2d');
     if (!nets.has(im)) nets.set(im, {});
     const R0 = nets.get(im), net = R0[w + 'x' + h] || (R0[w + 'x' + h] = DW.Textures.reduire(im, w, h));
-    c.translate(1 + N / 2, 1 + N * 62 / 64);
+    c.translate(1 + L / 2, 1 + N * 62 / 64);
     if (o.shear) c.transform(1, 0, -o.shear, 1, 0, 0);
     if (o.squash) c.scale(1 / Math.sqrt(o.squash), o.squash);
     c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
@@ -3352,12 +3404,11 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   // Birdramon...) : chacun est réduit juste ce qu'il faut, les pieds toujours sur le sol, et recentré si besoin.
   // [échelle, décalage horizontal] mesurés par DW.Sprites.mesurerCadres() (console du navigateur) : à relancer si un
   // dessin change.
-  const CADRE = { yokomon: [0.991, 0], agumon: [1, 1], gomamon: [0.968, 0.5], biyomon: [0.976, 0], gabumon: [0.953, 0],
-    garurumon: [0.976, -0.7], meramon: [0.991, 0], birdramon: [0.925, 0.9], greymon: [0.932, 0.2], ikkakumon: [0.961, -0.2], togemon: [0.976, 0],
+  const CADRE = { yokomon: [0.991, 0], gomamon: [0.968, 0.5], biyomon: [0.976, 0], gabumon: [0.953, 0],
     metalgreymon: [0.939, 0], zudomon: [1, -2], weregarurumon: [0.953, 0], skullmeramon: [0.976, 0],
     garudamon: [0.961, -0.2], okuwamon: [0.984, -4.4], wargreymon: [0.991, -1.7], metalgarurumon: [0.961, -0.2], jijimon: [0.991, 0], tentomon: [1, -1],
-    kabuterimon: [0.924, 0], angemon: [1, 0.5], monochromon: [0.961, -0.2], frigimon: [0.976, 0], ogremon: [0.945, 0], seadramon: [0.991, -0.7],
-    drimogemon: [1, -1.5], centarumon: [1, -2.5], devimon: [0.968, -0.5], skullgreymon: [1, 1], megadramon: [0.991, -1.2], guilmon: [0.976, 1.2],
+    frigimon: [0.976, 0], ogremon: [0.945, 0], seadramon: [0.991, -0.7],
+    centarumon: [1, -2.5], devimon: [0.968, -0.5], skullgreymon: [1, 1], megadramon: [0.991, -1.2], guilmon: [0.976, 1.2],
     candlemon: [0.983, 0], flarizamon: [0.991, 0.7] };
   // options de rendu (engine/art.js) d'un dessin recadré : repère agrandi de 1/échelle, sol gardé à y = 62
   const cadre = (sp, o) => { const C = CADRE[sp]; if (!C) return o; const [s, sh] = C; return { ...o, box: [64 / s, 64 / s], dx: 32 / s - 32 + sh / s + (o.dx || 0), dy: 62 / s - 62, ground: 62 }; };
@@ -3371,6 +3422,8 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   const RES_BATTLE = { 'Bébé': 50, 'Entraînement': 66, 'Disciple': 86, 'Champion': 108, 'Ultime': 118, 'Méga': 126 };
   const RES_OW = { 'Bébé': 28, 'Entraînement': 35, 'Disciple': 43, 'Champion': 58, 'Ultime': 68, 'Méga': 76 };   // bien visibles, surtout sur téléphone
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
+  // taille du cadre d'une espèce : celle de son stade, fois son échelle propre (IMAGES)
+  const resDe = (sp, RES, def) => Math.round((RES[DW.SPECIES[sp].stage] || def) * ((IMAGES[sp] && IMAGES[sp].echelle) || 1));
   const S = DW.Sprites = {
     IMAGES, VUES,
     // view : null (profil), 'combat' (de trois quarts : l'image du joueur, sinon le profil), 'back' (de dos) ou 'front'
@@ -3411,10 +3464,10 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       }
       return cache[key];
     },
-    battle(sp) { return S.mon(sp, RES_BATTLE[DW.SPECIES[sp].stage] || 72, 4, 'combat'); },
+    battle(sp) { return S.mon(sp, resDe(sp, RES_BATTLE, 72), 4, 'combat'); },
     // poses de combat : 'attack' (penché en avant) et 'hurt' (recul)
     pose(sp, pose) {
-      const res = RES_BATTLE[DW.SPECIES[sp].stage] || 72, im = imageDe(sp, 'combat') || imageDe(sp, 'profil');
+      const res = resDe(sp, RES_BATTLE, 72), im = imageDe(sp, 'combat') || imageDe(sp, 'profil');
       const key = sp + '_' + res + '_' + pose + (im ? '_image' : '');
       if (!cache[key]) {
         const draw = D[sp] || D._secours, P = (draw.poses && draw.poses[pose]) || {};   // réglage propre à l'espèce (ex. tête au bord du cadre)
@@ -3447,7 +3500,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       const d = D[sp]; return !!(d && d.views && d.views.includes(v));
     },
     // view : true / 'back' = vu de dos (quand il monte), 'front' = de face (quand il descend) — gfx/digimon/vues.js
-    ow(sp, view) { return S.mon(sp, RES_OW[DW.SPECIES[sp].stage] || 24, 2, view === true ? 'back' : view || null); },
+    ow(sp, view) { return S.mon(sp, resDe(sp, RES_OW, 24), 2, view === true ? 'back' : view || null); },
     // les images du joueur viennent d'arriver : les Digimon déjà rendus avec leur dessin de secours sont refaits
     oublier() { for (const key in cache) if (IMAGES[key.slice(0, key.indexOf('_'))]) delete cache[key]; },
     // (x, y) = centre bas du sprite
@@ -3598,148 +3651,6 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       d.ell(50, 40, 6, 7.5, Gy, 0, { tex: 0.35 });
     },
     // (Gabumon : dessiné dans gfx/digimon/gabumon.js)
-  });
-})();
-;
-
-// ===== js/gfx/digimon/champions.js
-'use strict';
-// =====================================================================
-//  DESSINS DES DIGIMON — stade Champion
-//  Repère 64x64, tourné vers la DROITE, sol à y≈62.
-//  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
-// =====================================================================
-(function () {
-// ---- insectes (Kuwagamon, Kabuterimon) : trois griffes en éventail
-  const claw3 = (d, x, y, ang, l, col, far) => {
-    for (let i = -1; i <= 1; i++) { const a = ang + i * 0.45; d.tube([[x, y], [x + Math.cos(a) * l, y + Math.sin(a) * l]], 1.4, 0.3, col, { shiny: true, far }); }
-  };
-  // bras segmenté : épaule → coude → main + griffes
-  const insectArm = (d, s, e, h, col, claw, far) => {
-    d.tube([s, e, h], 3.6, 2.6, col, { far, shiny: true });
-    d.circ(e[0], e[1], 2, col, { far });
-    claw3(d, h[0], h[1], Math.atan2(h[1] - e[1], h[0] - e[0]), 4.8, claw, far);
-  };
-
-  Object.assign(DW.DRAW, {
-    ikkakumon(d) {
-      const Wt = '#eef2fa', Gy = '#aab6ce', Or = '#eaa848', Hm = '#56688c';
-      d.ell(44, 58, 6, 3.6, Wt, 0, { far: true }); d.ell(16, 58, 5.6, 3.4, Wt, 0, { far: true });
-      d.ell(9, 49, 9, 6.5, Wt, 0.3, { tex: 0.18 });
-      d.ell(30, 44, 23, 16, Wt, 0, { tex: 0.18 });
-      d.deco.tube([[14, 37], [21, 43]], 2.2, 1.4, Gy); d.deco.tube([[22, 32], [28, 39]], 2.2, 1.4, Gy); d.deco.tube([[31, 30], [35, 37]], 2.2, 1.4, Gy);
-      d.ell(24, 58.5, 7, 4, Wt); d.ell(42, 59, 7, 4, Wt);
-      d.ell(20, 61.5, 1, 1.5, '#2a2836'); d.ell(23.4, 62, 1, 1.5, '#2a2836'); d.ell(44, 62, 1, 1.5, '#2a2836'); d.ell(47.4, 61.8, 1, 1.5, '#2a2836');
-      d.tube([[58, 39], [59, 46], [60, 52]], 3, 1, '#fffbe8', { far: true });
-      d.ell(48, 32, 13, 12, Wt, 0, { tex: 0.18 });
-      d.ell(45, 23, 12.5, 7.5, Hm, 0, { shiny: true });
-      d.deco.tube([[35, 24], [56, 24]], 1.4, 1.4, '#3a4a6a');
-      d.poly([[43, 20], [49, 0.5], [54, 20]], Or, { shiny: true });
-      d.deco.line(45.5, 15, 51.6, 15, 0.9, '#b07820'); d.deco.line(46.6, 9.5, 50.6, 9.5, 0.9, '#b07820');
-      d.eye(53, 30, 2.6, 3, '#202020');
-      d.ell(59.5, 36, 4, 3, '#c4cce0');
-      d.deco.ell(60.5, 34.6, 1.2, 0.8, '#3a3a50', 0, { unlit: true });
-      d.tube([[53, 40], [54, 48], [55, 55]], 3.2, 1, '#fffbe8', { shiny: true });
-    },
-    togemon(d) {
-      const G = '#5aac4a', R = '#e43434', Pk = '#f070a0';
-      d.tube([[18, 36], [12, 40]], 5, 4, G, { far: true });
-      d.circ(10, 42, 6.4, R, { shiny: true, far: true });
-      d.ell(38, 58, 5.4, 4.2, G, 0, { far: true });
-      d.ell(32, 34, 16, 24, G);
-      d.deco.tube([[29, 13], [28, 55]], 2.2, 2.2, '#7acc66'); d.deco.tube([[38, 13], [39, 55]], 2.2, 2.2, '#7acc66'); d.deco.tube([[21, 22], [20, 48]], 2, 2, '#7acc66');
-      for (let i = 0; i < 18; i++) {
-        const a = i * 2.39, r = 4 + (i * 7) % 13;
-        d.deco.rect(32 + Math.cos(a) * r * 0.95 - 0.7, 34 + Math.sin(a) * r * 1.6 - 0.7, 1.5, 1.5, '#fafad8', { unlit: true });
-      }
-      d.ell(26, 58, 5.4, 4.2, G);
-      d.eye(36, 24, 2.6, 4, '#202020'); d.eye(43, 24, 2.4, 4, '#202020');
-      d.deco.ell(39.5, 32.5, 4, 1.7, '#2a5020', 0, { unlit: true });
-      d.ell(25, 8, 6, 3.6, Pk, -0.4); d.ell(39, 8, 6, 3.6, Pk, 0.4); d.ell(32, 4.5, 3.6, 5, Pk);
-      d.circ(32, 8.5, 2.8, '#f8e060');
-      d.tube([[44, 34], [50, 37]], 5, 4.5, G);
-      d.ell(48.5, 37, 2.2, 4.2, '#f8f8f8');
-      d.circ(54.5, 38, 7.2, R, { shiny: true });
-      d.deco.curve([[52, 33], [56, 34], [58, 38]], 0.9, '#a01818');
-    },
-    // (Garurumon : dessiné dans gfx/digimon/gabumon.js)
-    meramon(d) {
-      // homme de feu (anime) : silhouette de flammes rouges, cœur jaune-blanc, coutures noires sur le corps,
-      // tête en boule de feu hérissée, orbites noires en colère, grande bouche noire cousue
-      const R = '#e23c16', Rd = '#a8220c', O = '#ff8a1e', Y = '#ffd640', Wh = '#fff6c8', K = '#2a0a06';
-      // bras lointain et jambes (flammes qui s'effilent)
-      d.tube([[22, 30], [14, 38], [11, 46]], 7, 5.5, R, { far: true }); d.circ(11, 47, 4.6, Rd, { far: true });
-      d.poly([[8, 46], [6, 40], [10, 43]], O, { far: true });
-      d.tube([[26, 46], [22, 55], [19, 61]], 8.5, 5, R, { far: true }); d.ell(18.5, 61.5, 4.6, 2, Rd, 0, { far: true });
-      d.tube([[37, 46], [40, 55], [43, 61]], 8.5, 5, O); d.ell(44, 61.5, 5, 2.2, R);
-      // corps : silhouette de flammes, puis cœur orange, jaune et presque blanc
-      d.poly([[17, 49], [15, 37], [12, 28], [19, 31], [20, 24], [26, 22], [38, 22], [44, 25], [45, 30], [52, 27], [48, 37], [46, 49], [39, 53], [25, 53]], R, { tex: 0.2 });
-      d.ell(31, 38, 12, 13, O, 0, { tex: 0.15 });
-      d.deco.ell(31, 40, 7.5, 9.5, Y, 0, { unlit: true });
-      d.deco.ell(31, 42, 3.8, 5.4, Wh, 0, { unlit: true });
-      // coutures noires (comme des brûlures recousues)
-      d.deco.line(23.5, 29, 26.5, 48, 0.8, K); d.deco.line(38.5, 29, 35.5, 48, 0.8, K);
-      for (let k = 0; k < 5; k++) { d.deco.line(22.6 + k * 0.6, 31 + k * 4, 26.4 + k * 0.6, 30.4 + k * 4, 0.55, K); d.deco.line(35.6 - k * 0.6, 30.4 + k * 4, 39.4 - k * 0.6, 31 + k * 4, 0.55, K); }
-      // tête : boule de feu aux flammes dressées
-      d.poly([[18, 25], [15, 11], [21, 15], [21, 3], [27, 10], [31, 0], [35, 9], [41, 2], [42, 14], [48, 9], [45, 25]], R);
-      d.ell(31, 18, 11.5, 10.5, O, 0, { shiny: true });
-      d.poly([[21, 14], [22, 6], [26, 11], [30, 3], [33, 10], [37, 4], [38, 12], [42, 8], [41, 15]], O);
-      d.deco.poly([[24, 12], [26, 7], [29, 10.5], [31, 5], [33, 10.5], [36, 7], [38, 12]], Y, { unlit: true });
-      d.deco.ell(31, 20.5, 8.6, 6.4, Y, 0, { unlit: true });
-      // orbites noires en colère (inclinées vers le centre), pupilles blanches
-      d.deco.poly([[23.5, 14.6], [29.4, 17.2], [28.8, 20.4], [24.2, 19.4]], K, { unlit: true });
-      d.deco.poly([[38.5, 14.6], [32.6, 17.2], [33.2, 20.4], [37.8, 19.4]], K, { unlit: true });
-      d.deco.circ(27, 18.2, 1, '#ffffff', { unlit: true }); d.deco.circ(35, 18.2, 1, '#ffffff', { unlit: true });
-      // bouche noire, cousue de points jaunes
-      d.deco.poly([[23.6, 22.4], [38.4, 22.4], [36.4, 27], [25.6, 27]], K, { unlit: true });
-      for (let x = 26; x <= 36; x += 2.5) d.deco.line(x, 22.8, x, 26.6, 0.55, Y);
-      d.deco.line(24.6, 24.7, 37.4, 24.7, 0.5, Y);
-      // bras proche, poing serré enflammé
-      d.tube([[42, 30], [50, 34], [55, 40]], 7, 5.5, O); d.circ(56, 41, 4.8, R, { shiny: true });
-      d.deco.line(46, 31, 47.6, 35.4, 0.6, K); d.deco.line(50.4, 33.6, 52.2, 37.8, 0.6, K);
-      d.poly([[53, 37], [57, 29], [59.5, 38]], Y); d.poly([[56, 38], [62, 33], [60, 41]], O);
-    },
-    birdramon(d) {
-      // oiseau de feu (anime) : grandes ailes de plumes-flammes, corps orange, ventre jaune, huppe de flammes,
-      // bec jaune crochu, œil vert, pattes sombres griffues, queue en trois flammes
-      const O = '#f47a22', R = '#d8401a', Rd = '#9a2410', Y = '#ffd040', Yl = '#fff0a0', G = '#4a3a3a';
-      const feathers = (x, y, a0, a1, n, len0, len1, w, col, line, far) => {
-        for (let k = 0; k < n; k++) {
-          const t = n > 1 ? k / (n - 1) : 0, a = a0 + (a1 - a0) * t, L = len0 + (len1 - len0) * t;
-          const mx = x + Math.cos(a) * L * 0.55 + Math.cos(a + 1.57) * 1.5, my = y + Math.sin(a) * L * 0.55 + Math.sin(a + 1.57) * 1.5;
-          d.tube([[x, y], [mx, my], [x + Math.cos(a) * L, y + Math.sin(a) * L]], w, 0.6, col, { far, shiny: !far });
-          if (!far) d.deco.line(x + Math.cos(a) * 3, y + Math.sin(a) * 3, x + Math.cos(a) * L * 0.85, y + Math.sin(a) * L * 0.85, 0.5, line);
-        }
-      };
-      // aile lointaine, dressée vers l'arrière
-      feathers(27, 31, -3.0, -2.05, 7, 30, 17, 6.2, R, Rd, true);
-      // queue : trois flammes
-      feathers(21, 41, 2.5, 2.9, 3, 18, 13, 4.6, R, Rd, false);
-      feathers(21, 41, 2.55, 2.85, 2, 11, 9, 2.6, Y, '#e09020', false);
-      // pattes sombres, griffes
-      d.tube([[29, 46], [27, 55], [26, 60]], 3.2, 2.2, G, { far: true });
-      for (const a of [2.6, 1.9, 1.3]) d.tube([[26, 60], [26 + Math.cos(a) * 3.6, 60 + Math.sin(a) * 1.8]], 1.2, 0.4, '#2a2020', { far: true });
-      d.tube([[37, 47], [39, 55], [40, 60]], 3.4, 2.4, G);
-      for (const a of [2.8, 0.6, 0.1]) d.tube([[40, 60], [40 + Math.cos(a) * 4, 60.6 + Math.sin(a) * 1.6]], 1.3, 0.4, '#2a2020');
-      // corps, ventre jaune
-      d.ell(32, 39, 13, 10, O, -0.25, { shiny: true });
-      d.deco.ell(35.5, 42.5, 8, 5, Y, -0.25);
-      d.deco.ell(36, 43, 4, 2.4, Yl, -0.25, { unlit: true });
-      // cou et tête
-      d.tube([[39, 33], [44, 26], [47, 21]], 8, 6.5, O);
-      d.ell(49.5, 18.5, 7.6, 6.6, O, 0, { shiny: true });
-      // huppe de flammes vers l'arrière
-      d.poly([[44, 14], [34, 6], [42, 10], [38, 1], [46, 8], [48, 0], [50, 11]], R);
-      d.poly([[45, 14], [39, 8], [44, 10], [43, 4], [48, 10]], Y);
-      // bec crochu
-      d.poly([[54.5, 16.5], [63.5, 19], [61.5, 22.6], [55, 22]], Y, { shiny: true });
-      d.poly([[61, 19], [63.5, 19], [62.4, 23.4]], '#c8901a');
-      d.deco.line(55, 19.6, 61.5, 20.6, 0.5, '#a07010');
-      d.eye(51, 16.6, 2.4, 2.2, '#2a9a3a', { look: 0.4 });
-      // aile proche, déployée vers le haut et l'avant : plumes jaunes au bout orange
-      feathers(33, 32, -2.3, -1.25, 8, 36, 20, 6.6, O, R, false);
-      feathers(33, 32, -2.15, -1.4, 6, 19, 12, 4.2, Y, '#e09020', false);
-    },
   });
 })();
 ;
@@ -3985,18 +3896,6 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
 (function () {
   const CL = '#f6f2e6', K = '#1a1a22';
   const legs = (d, x, y, col, far) => { d.tube([[x, y], [x, y + 8]], 4, 3.6, col, { far }); d.ell(x + 1.5, y + 9, 3.4, 1.8, col, 0, { far }); };
-// ---- insectes (Kuwagamon, Kabuterimon) : trois griffes en éventail
-  const claw3 = (d, x, y, ang, l, col, far) => {
-    for (let i = -1; i <= 1; i++) { const a = ang + i * 0.45; d.tube([[x, y], [x + Math.cos(a) * l, y + Math.sin(a) * l]], 1.4, 0.3, col, { shiny: true, far }); }
-  };
-  // bras segmenté : épaule → coude → main + griffes
-  const insectArm = (d, s, e, h, col, claw, far) => {
-    d.tube([s, e, h], 3.6, 2.6, col, { far, shiny: true });
-    d.circ(e[0], e[1], 2, col, { far });
-    claw3(d, h[0], h[1], Math.atan2(h[1] - e[1], h[0] - e[0]), 4.8, claw, far);
-  };
-
-  // lissage d'une ligne brisée (Chaikin) : corps de serpent sans angles
   const smooth = (pts, n = 3) => { for (let k = 0; k < n; k++) { const o = [pts[0]]; for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]]; o.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]); } o.push(pts[pts.length - 1]); pts = o; } return pts; };
 
   Object.assign(DW.DRAW, {
@@ -4028,56 +3927,6 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       d.ell(34, 22, 12, 10, P, 0, { shiny: true }); d.deco.ell(38, 25, 7, 5, W);
       d.poly([[42, 25], [54, 27], [42, 29]], Y, { shiny: true });
       d.eye(38, 21, 2.6, 3.4, '#2a2a2a', { look: 0.3 }); d.deco.ell(36, 13, 3, 1.4, '#e04a3a');
-    },
-    // ---------------------------------------------------------- Champions
-    kabuterimon(d) {
-      // insecte bleu nuit cuirassé : grande corne recourbée, bouche rouge à crocs, 4 bras, deux paires d'ailes pâles
-      const B = '#3c4c9e', Bd = '#242d68', Bl = '#7a8ad0', K = '#20202c', Wg = '#f2eec8', Wl = '#c8bc7a';
-      d.ell(15, 15, 5.4, 16, Wg, -0.6, { far: true }); d.deco.line(10, 4, 18, 30, 0.6, Wl);
-      d.ell(24, 11, 5, 15, Wg, -0.1, { far: true }); d.deco.line(23, -2, 25, 25, 0.6, Wl);
-      d.ell(30, 14, 4.6, 13, Wg, 0.4, { far: true }); d.deco.line(32, 2, 29, 26, 0.6, Wl);
-      // abdomen segmenté terminé par des griffes
-      d.tube([[29, 42], [27, 51], [25, 58]], 7, 3, B, { shiny: true });
-      for (const y of [45, 49, 53]) d.deco.line(23, y, 31.5, y - 0.6, 0.8, Bd);
-      claw3(d, 25, 58, 1.7, 5, K);
-      insectArm(d, [36, 29], [44, 22], [51, 27], Bd, K, true);
-      insectArm(d, [35, 36], [42, 41], [48, 46], Bd, K, true);
-      // thorax cuirassé
-      d.ell(33, 33, 10, 8.5, B, -0.2, { shiny: true });
-      d.deco.curve([[26, 30], [33, 27], [41, 31]], 1.1, Bd); d.deco.curve([[27, 36], [33, 34], [40, 37]], 0.9, Bd);
-      insectArm(d, [31, 35], [38, 42], [44, 51], B, K, false);
-      insectArm(d, [28, 39], [31, 48], [36, 56], B, K, false);
-      // tête et grande corne recourbée vers l'avant
-      d.ell(46, 27, 8.6, 7.4, B, 0.1, { shiny: true });
-      d.deco.ell(44, 23, 4, 2, Bl);
-      d.tube([[44, 21], [47, 12], [53, 5], [59, 4]], 4.6, 1, K, { shiny: true });
-      d.tube([[49, 20], [54, 17]], 2, 0.6, K);
-      d.eye(48.6, 25, 1.7, 1.5, '#ff5040');
-      // bouche rouge et crocs blancs
-      d.deco.ell(51.6, 31.2, 3.6, 2.4, '#d02840');
-      d.poly([[49, 30], [50.6, 35], [52, 30]], '#f8f4ea', { shiny: true }); d.poly([[53, 30.4], [54.4, 34.4], [55.6, 30.4]], '#f8f4ea', { shiny: true });
-    },
-    angemon(d) {
-      const W = '#f8f6f0', Wd = '#c8c4b8', S = '#b8c0d0', Bl = '#3a5ad8', Sk = '#f0c8a0';
-      for (let i = 0; i < 3; i++) d.poly([[28, 22 + i * 4], [4 - i * 2, 4 + i * 10], [10, 14 + i * 10], [26, 28 + i * 4]], i % 2 ? Wd : W, { far: true, shiny: true });
-      d.tube([[30, 44], [29, 52], [29, 59]], 6, 5, Bl, { far: true }); d.tube([[36, 44], [38, 52], [38, 59]], 6.4, 5.4, Bl);
-      d.ell(30, 60.4, 5, 2.4, W, 0, { far: true }); d.ell(39, 60.6, 5.4, 2.4, W);
-      d.blob([[24, 22], [40, 22], [42, 36], [38, 46], [26, 46], [22, 34]], W, { shiny: true });
-      d.deco.rect(24, 40, 18, 3, Bl);
-      d.tube([[40, 26], [48, 32], [52, 38]], 5, 4.4, Sk); d.ell(53, 39, 3, 3, W);
-      d.tube([[54, 10], [52, 60]], 1.6, 1.6, '#e0c040', { shiny: true }); d.circ(54, 9, 2.4, '#e0c040', { shiny: true });
-      d.ell(34, 14, 7, 7, Sk); d.poly([[27, 10], [34, 6], [42, 9], [42, 15], [27, 15]], S, { shiny: true });
-      d.deco.line(28, 13, 41, 13, 1, '#5a6070'); d.poly([[30, 9], [24, 2], [34, 6]], '#f0e0a0'); d.deco.curve([[36, 19], [40, 19.4]], 0.7, '#a05a4a');
-    },
-    monochromon(d) {
-      const G = '#7a7a84', Gd = '#55555e', Gl = '#a8a8b0', Sh = '#d8c0a0';
-      d.tube([[14, 44], [6, 48], [1, 52]], 9, 2, G);
-      for (const [x, far] of [[18, true], [24, false], [38, true], [44, false]]) { d.tube([[x, 46], [x, 58]], 6, 5.6, far ? Gd : G, { far }); d.ell(x + 1, 59.6, 4.4, 2.2, far ? Gd : G, 0, { far }); }
-      d.ell(30, 42, 20, 12, G, 0, { tex: 0.3 }); d.deco.ell(28, 36, 10, 4, Gl, -0.1);
-      d.ell(50, 34, 9, 7, G, 0, { shiny: true });
-      d.poly([[40, 34], [44, 16], [50, 18], [52, 28]], Sh, { shiny: true, round: 0.4 });
-      d.poly([[54, 30], [64, 24], [58, 34]], CL, { shiny: true });
-      d.deco.ell(52, 32, 1.8, 1.4, '#e04a2a', 0, { unlit: true }); d.deco.curve([[50, 38], [57, 38.4], [61, 36]], 0.8, '#2a2a2a', { unlit: true });
     },
     frigimon(d) {
       const W = '#f4f8ff', Wd = '#c8d8ec', B = '#4a78c8';
@@ -4174,16 +4023,6 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       d.tube([[24, 22], [18, 10], [22, 4]], 3, 4.6, '#e0b040', { shiny: true }); d.tube([[40, 21], [44, 10], [50, 6]], 3, 4.6, '#e0b040', { shiny: true });
       d.eye(32, 26, 3.6, 4, '#2a2a2a', { look: 0.3 }); d.eye(42, 26, 3, 3.6, '#2a2a2a', { look: 0.3 });
       d.deco.curve([[34, 34], [41, 36], [47, 33]], 1.4, R, { unlit: true });
-    },
-    drimogemon(d) {
-      const B = '#7a5a3a', Bd = '#5a3e26', Bl = '#a88058', S = '#c8ccd6';
-      d.ell(24, 58, 7, 3.4, Bd, 0, { far: true }); d.ell(40, 58.4, 7.4, 3.4, B);
-      d.ell(30, 42, 19, 15, B, 0, { tex: 0.4 }); d.deco.ell(36, 46, 10, 8, Bl);
-      d.tube([[18, 40], [12, 50]], 6, 5, Bd, { far: true }); d.tube([[44, 40], [52, 48]], 6, 5, B);
-      for (let i = 0; i < 3; i++) d.tube([[52, 48], [57 + i * 2, 50 + i * 2]], 1.6, 0.6, CL);
-      d.ell(44, 26, 11, 9, B, 0, { tex: 0.3 });
-      d.poly([[52, 22], [64, 26], [52, 30]], S, { shiny: true }); for (let i = 0; i < 3; i++) d.deco.line(54 + i * 3, 23 + i, 54 + i * 3, 29 - i, 0.6, '#7a808e');
-      d.deco.ell(46, 22, 1.6, 1.2, K, 0, { unlit: true }); d.deco.curve([[44, 30], [50, 31]], 0.8, '#2a1a10', { unlit: true });
     },
     unimon(d) {
       const W = '#f4f2ec', Wd = '#c8c4b8', R = '#d83a3a', Wg = '#e0eaf8';
@@ -4463,13 +4302,13 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
 // ===== js/gfx/digimon/agumon.js
 'use strict';
 // =====================================================================
-//  DESSINS — LIGNÉE D'AGUMON (Agumon → Greymon → MetalGreymon → WarGreymon ; Botamon et Koromon : images du joueur,
+//  DESSINS — LIGNÉE D'AGUMON : MetalGreymon et WarGreymon (Botamon, Koromon, Agumon et Greymon : images du joueur,
 //  gfx/sprites.js), version détaillée fidèle aux modèles officiels
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
 // =====================================================================
 (function () {
-  const CLAW = '#f6f2e6', CLAWd = '#c8c0aa';
+  const CLAW = '#f6f2e6';
   // trois griffes en éventail (x, y = base ; ang = direction ; l = longueur)
   const claws = (d, x, y, l, o = {}) => {
     const col = o.col || CLAW, sp = o.spread || 2.2, ang = o.ang || 0;
@@ -4488,118 +4327,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
 
   Object.assign(DW.DRAW, {
 
-    // ---------------------------------------------------------- Disciple : Agumon
-    agumon(d, p = {}) {
-      const Y = '#f8b228', Yd = '#d88a1c', L = '#fcd468', B = '#7a3a12';
-      const atk = p.pose === 'attack';
-      // queue épaisse qui s'affine
-      d.tube([[22, 47], [13, 52], [5, 56], [1, 57]], 11, 1.6, Y);
-      d.deco.curve([[16, 49.6], [8, 54.6]], 0.8, Yd);
-      // bras éloigné
-      d.tube([[26, 34], [22, 40], [24, 44]], 4.8, 3.8, Yd, { far: true });
-      claws(d, 25, 44.4, 3.2, { far: true, w: 1.5, ang: 0.4 });
-      // jambe éloignée
-      d.ell(39, 53, 6.4, 8.4, Yd, 0, { far: true });
-      d.ell(42, 60, 7.6, 3, Yd, 0, { far: true });
-      toes(d, 45.4, 61.8, 3, { far: true });
-      // corps en poire, ventre à peine plus clair
-      d.blob([[22, 32], [34, 28], [40, 38], [39, 50], [30, 56], [20, 52], [17, 42]], Y);
-      d.deco.blob([[30, 36], [37, 37], [37.6, 48], [32, 53], [28, 48]], L);
-      d.deco.curve([[30, 41.4], [36, 42]], 0.6, Yd); d.deco.curve([[30, 45.4], [36.4, 46]], 0.6, Yd);
-      d.deco.curve([[18, 38], [21, 34]], 1, '#ffe080');
-      // jambe proche (cuisse + gros pied à trois griffes)
-      d.ell(25, 52, 7.6, 9.2, Y);
-      d.deco.curve([[20, 48], [22, 55]], 0.8, Yd);
-      d.ell(28, 60, 9, 3.4, Y);
-      toes(d, 30.6, 62.2, 3, { size: 1.1 });
-      // tête : crâne rond, long museau
-      d.blob([[23, 22], [25, 12], [33, 7.6], [43, 8.6], [50, 13], [60, 18], [62, 25], [56, 31], [42, 32.6], [29, 30]], Y);
-      d.deco.blob([[40, 28.6], [58, 26.6], [57, 31], [44, 32.2]], L);
-      d.deco.curve([[37, 11.6], [43, 10], [49, 12.6]], 1.4, Yd);
-      d.deco.ell(58.4, 20.6, 1.1, 0.8, B, 0, { unlit: true }); d.deco.ell(55.6, 19.4, 0.8, 0.6, B, 0, { unlit: true });
-      if (atk) {
-        // gueule grande ouverte : la Boule de Feu se prépare
-        d.deco.poly([[37, 26.6], [62, 22.6], [61, 33.6], [44, 33]], '#7a1010', { unlit: true });
-        d.deco.ell(50, 31, 6, 1.6, '#e85a6a', 0, { unlit: true });
-        d.deco.ell(55, 28.2, 4.6, 3, '#ff8a2a', 0, { unlit: true }); d.deco.ell(56, 28, 2.4, 1.6, '#fff0a0', 0, { unlit: true });
-        for (let i = 0; i < 4; i++) d.deco.poly([[42 + i * 4.6, 25.6 - i * 0.6], [43.4 + i * 4.6, 28 - i * 0.6], [44.6 + i * 4.6, 25.4 - i * 0.6]], '#ffffff', { unlit: true });
-      } else {
-        // grand sourire et rangée de dents
-        d.deco.curve([[36, 27.4], [47, 29.8], [61, 26]], 1.5, '#5a2000', { unlit: true });
-        for (let i = 0; i < 4; i++) d.deco.poly([[44 + i * 4.2, 28.6 - i * 0.4], [45.3 + i * 4.2, 31.4 - i * 0.4], [46.6 + i * 4.2, 28.4 - i * 0.4]], CLAW, { unlit: true });
-      }
-      // œil vert à iris cerclé
-      d.eye(43.4, 16.4, 4.4, 5.2, '#2aa040', { look: 0.36 });
-      d.deco.curve([[39.4, 10.6], [46.6, 11.2]], 1.2, '#b8641a', { unlit: true });
-      // bras proche replié, trois grandes griffes blanches
-      d.tube([[36, 33], [40, 39], [45, 42]], 5.6, 4.6, Y);
-      d.deco.curve([[38, 36], [41, 40]], 0.7, Yd);
-      claws(d, 45.6, 42.4, 5.6, { w: 2, ang: -0.1, spread: 2.4 });
-    },
 
-    // ---------------------------------------------------------- Champion : Greymon, casque brun et cornes
-    greymon(d, p = {}) {
-      const O = '#f2861e', Od = '#c8661a', Ol = '#f8c070';
-      const Hm = '#5a3a26', HmL = '#7a5638', Hd = '#2a1a10', Hn = '#ece4d2';
-      // queue puissante zébrée
-      d.tube([[18, 43], [9, 49], [3, 54], [0, 58]], 14, 2.6, O);
-      stripe(d, [[11, 45.6], [13.6, 51.4]], 2.6); stripe(d, [[7, 49], [9, 54]], 2.2); stripe(d, [[3.4, 53], [5, 56.6]], 1.8); stripe(d, [[1, 55.6], [2, 57.8]], 1.4);
-      // jambe et bras éloignés
-      d.ell(40, 51, 7, 9.4, Od, 0, { far: true }); d.ell(43, 60, 9.4, 3.2, Od, 0, { far: true });
-      toes(d, 46, 61.8, 3, { far: true });
-      d.tube([[36, 33], [40, 38], [44, 40]], 5, 4, Od, { far: true });
-      claws(d, 44.4, 40.2, 4.4, { far: true, w: 1.6 });
-      // torse massif penché vers l'avant
-      d.blob([[16, 30], [30, 25], [40, 30], [42, 42], [36, 50], [22, 52], [13, 44]], O);
-      d.deco.blob([[30, 32], [39, 34], [40, 44], [34, 50], [28, 44]], Ol);
-      for (let i = 0; i < 3; i++) d.deco.curve([[31, 37 + i * 4], [39, 37.6 + i * 4]], 0.7, '#e09a50');
-      // nombreuses rayures bleues
-      stripe(d, [[16, 28.6], [22, 33.4]], 3); stripe(d, [[13, 34.4], [19.6, 38.4]], 3); stripe(d, [[12.4, 41], [19, 43.4]], 3);
-      stripe(d, [[24, 27], [27, 31]], 2.4); stripe(d, [[20, 47.6], [24.6, 49.6]], 2);
-      // jambe proche : cuisse musclée zébrée, pied griffu
-      d.ell(23, 49, 9.6, 11, O);
-      stripe(d, [[16, 44], [23, 47]], 2.6); stripe(d, [[15.4, 50], [21, 52.4]], 2.4); stripe(d, [[18, 55.4], [23, 56.6]], 2);
-      d.ell(25, 59.6, 10.4, 3.6, O);
-      toes(d, 28.4, 62.2, 3, { size: 1.15 });
-      // cou puissant
-      d.ell(37, 27, 8.6, 7.4, O, -0.45);
-      stripe(d, [[34, 22.6], [37.6, 28]], 2.4);
-      // tête : grand crâne + long museau carré (mâchoire de tyrannosaure)
-      d.blob([[36, 21], [40, 12], [50, 9.4], [58, 13], [63.4, 19], [63.6, 25.4], [60, 28], [46, 28.6], [39, 27]], O);
-      // mâchoire inférieure massive
-      d.blob([[40, 27.4], [50, 28], [61, 27.6], [62, 31], [56, 34.4], [45, 34], [40, 31]], O);
-      d.deco.blob([[44, 31.6], [58, 30.8], [56, 33.6], [46, 33.6]], Ol);
-      stripe(d, [[42, 29], [45, 33]], 1.8); stripe(d, [[39.6, 24.4], [42, 27.6]], 1.6);
-      // casque fossile brun : couvre le crâne et le dessus du museau, bords crénelés, trous
-      d.poly([[35.4, 20.6], [38.6, 11.6], [46, 6.8], [55, 7.6], [61.6, 13.6], [64, 19.4], [60.4, 20.4], [54, 18.6], [47, 20.4], [41.6, 23.4]], Hm, { shiny: true, round: 0.35 });
-      d.deco.curve([[39, 18], [43, 11], [52, 9.2], [60, 14.6]], 1, HmL);
-      for (const [x, y] of [[43.4, 13.4], [48.6, 11.4], [54, 11.6]]) d.deco.ell(x, y, 1.3, 0.9, Hd);
-      for (let k = 0; k < 5; k++) d.deco.poly([[46 + k * 3.4, 20 - k * 0.3], [47.6 + k * 3.4, 22.4 - k * 0.3], [49.2 + k * 3.4, 19.8 - k * 0.3]], Hm);   // bord crénelé sur la joue
-      // corne du nez, pointée vers le haut
-      d.tube([[59.6, 13.6], [61, 9], [60.6, 5.6]], 3, 0.5, Hn, { shiny: true });
-      // deux grandes cornes à l'arrière du casque, recourbées vers le haut et l'arrière
-      d.tube([[44, 8.6], [42.6, 3.6], [39, 0.6], [34.6, 0.2]], 4.4, 0.6, Hn, { shiny: true });
-      d.tube([[39.6, 12], [36, 8], [31.6, 6.4], [28, 7.6]], 4, 0.6, Hn, { shiny: true, far: true });
-      d.deco.line(42.4, 3.6, 39, 1.4, 0.5, CLAWd);
-      // œil vert vif, sourcil du casque au-dessus
-      d.deco.ell(50.6, 17.2, 3.6, 2.6, '#1a2010', 0, { unlit: true });
-      d.deco.ell(51.2, 17.4, 2.2, 1.8, '#3ac850', 0, { unlit: true });
-      d.deco.ell(51.6, 17.6, 0.9, 1.2, '#0a1a08', 0, { unlit: true });
-      d.deco.ell(50.6, 16.6, 0.6, 0.5, '#e8fff0', 0, { unlit: true });
-      d.deco.curve([[47, 15.4], [51, 14], [55, 15.4]], 1.3, Hd, { unlit: true });
-      // narines, gueule et rangée de crocs
-      d.deco.ell(62.4, 21.2, 1, 0.7, '#5a2200', 0, { unlit: true });
-      if (p.pose === 'attack') {
-        d.deco.poly([[42, 27.6], [63.6, 25.6], [62, 33], [46, 33.4]], '#6a0a0a', { unlit: true });
-        d.deco.ell(57, 29.4, 4.4, 2.6, '#ff9a30', 0, { unlit: true }); d.deco.ell(58, 29.2, 2.2, 1.4, '#fff0a0', 0, { unlit: true });
-      } else d.deco.curve([[41, 27.8], [52, 28.4], [63.4, 26.4]], 1.3, '#5a2200', { unlit: true });
-      for (let i = 0; i < 6; i++) d.deco.poly([[43 + i * 3.4, 27.8 - i * 0.25], [44.2 + i * 3.4, 30.6 - i * 0.25], [45.4 + i * 3.4, 27.6 - i * 0.25]], CLAW, { unlit: true });
-      for (let i = 0; i < 4; i++) d.deco.poly([[46 + i * 3.6, 28.6], [47.2 + i * 3.6, 26.2], [48.4 + i * 3.6, 28.6]], CLAW, { unlit: true });
-      // bras proche zébré, trois grandes griffes
-      d.tube([[40, 34], [45, 39], [49, 41]], 6.6, 5, O);
-      stripe(d, [[42, 35.6], [44.6, 38.6]], 2); stripe(d, [[45.4, 38.4], [47.4, 40.6]], 1.8);
-      claws(d, 49.6, 41.6, 6.4, { w: 2.2, ang: 0, spread: 2.6 });
-    },
 
     // ---------------------------------------------------------- Ultime : MetalGreymon, ailes-lames et Bras Trident
     metalgreymon(d, p = {}) {
@@ -5507,7 +5235,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
 // ===== js/gfx/digimon/gabumon.js
 'use strict';
 // =====================================================================
-//  DESSINS — LIGNÉE DE GABUMON (Gabumon → Garurumon → WereGarurumon → MetalGarurumon ; Punimon et Tsunomon : images
+//  DESSINS — LIGNÉE DE GABUMON : Gabumon, WereGarurumon et MetalGarurumon (Punimon, Tsunomon et Garurumon : images
 //  du joueur, gfx/sprites.js), d'après les modèles officiels (proportions et couleurs, rien n'est copié) :
 //  fourrure blanc lavande rayée de bleu-violet, griffes rose foncé, yeux rouges.
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62. Pose « attack » : gueule ouverte, flamme bleue / souffle glacé.
@@ -5600,40 +5328,6 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       for (let i = -1; i <= 1; i++) { const a = (atk ? -0.5 : -0.2) + i * 0.42; d.tube([[50.4, 39 + i * 1.8], [50.4 + Math.cos(a) * 3, 39 + i * 1.8 + Math.sin(a) * 3], [50.4 + Math.cos(a + 0.4) * 5.4, 39 + i * 1.8 + Math.sin(a + 0.4) * 5.4]], 2, 0.3, CW, { shiny: true }); }
     },
 
-    // ---------------------------------------------------------- Champion : Garurumon, loup blanc lavande rayé, accroupi
-    garurumon(d, p = {}) {
-      const atk = p.pose === 'attack';
-      d.tube([[14, 32], [7, 28], [3, 21], [5, 15], [10, 13]], 6.4, 2.4, FUR);
-      stripe(d, [[6, 27], [9, 24]], 2); stripe(d, [[3.4, 20], [6.6, 18]], 1.8); stripe(d, [[6, 14.6], [9, 13.4]], 1.4);
-      d.tube([[20, 42], [16, 50], [18, 58]], 8, 6.4, FURd, { far: true }); foot(d, 15, 61.6, 0.95, true);
-      d.tube([[42, 42], [46, 50], [46, 57]], 8, 6.4, FURd, { far: true }); foot(d, 44, 61.6, 0.95, true);
-      d.blob([[9, 34], [18, 25], [36, 25], [47, 32], [50, 43], [38, 49], [18, 49], [8, 42]], FUR, { tex: 0.12 });
-      for (let x = 12; x < 46; x += 5) d.poly([[x - 2, 47], [x + 1, 51], [x + 3, 47]], FUR);   // fourrure ébouriffée sous le ventre
-      for (const [a, b] of [[[16, 30], [19, 39]], [[22, 28.4], [24, 38]], [[29, 28.4], [30, 37]], [[36, 30], [36, 38]], [[12, 36], [15, 42]], [[42, 34], [42, 40]]]) stripe(d, [a, b], 2.6);
-      // touffes en pointes sur le dos et les épaules
-      for (const [x, y, h, a] of [[18, 29, 9, -1.9], [24, 28, 11, -1.7], [30, 28, 10, -1.5], [36, 29, 9, -1.3], [42, 32, 8, -1.1]]) {
-        d.poly([[x - 3, y + 1], [x + Math.cos(a) * h, y + Math.sin(a) * h], [x + 3, y + 1]], FUR);
-        stripe(d, [[x, y - 1], [x + Math.cos(a) * h * 0.7, y + Math.sin(a) * h * 0.7]], 1.2);
-      }
-      d.tube([[16, 42], [13, 50], [14, 58]], 9.6, 7.4, FUR); stripe(d, [[12, 48], [16.6, 49]], 1.8); foot(d, 10, 62, 1);
-      d.tube([[40, 42], [44, 49], [43, 57]], 9.8, 7.4, FUR); stripe(d, [[41, 46], [45.6, 47]], 1.8); foot(d, 40, 62, 1);
-      // tête basse en avant
-      d.poly([[44, 30], [44, 20], [50, 27]], FUR); d.poly([[48, 28], [50, 19], [53, 27]], FUR, { far: true });
-      d.blob([[41, 35], [45, 27], [54, 25.6], [61, 30], [64, 36], [61, 42], [52, 43], [44, 41]], FUR);
-      for (const [x, y] of [[43, 30], [42, 36], [44, 41]]) d.poly([[x + 2, y - 3], [x - 4, y], [x + 2, y + 3]], FUR);   // joues ébouriffées
-      stripe(d, [[47, 29], [49, 33]], 1.8); stripe(d, [[52, 28], [53, 32]], 1.6); stripe(d, [[45, 37], [49, 39]], 1.6);
-      d.deco.ell(63.2, 34.6, 1.2, 1, '#2a2a3a', 0, { unlit: true });
-      d.deco.ell(53.4, 32.6, 2.6, 1.6, '#1a0a10', -0.2, { unlit: true }); d.deco.ell(53.8, 32.6, 1.7, 1.1, '#e02a2a', -0.2, { unlit: true }); d.deco.circ(53.2, 32, 0.5, '#ffffff', { unlit: true });
-      d.deco.curve([[50, 30.6], [56, 30]], 1.1, STR, { unlit: true });
-      if (atk) {
-        d.deco.poly([[47, 38], [63, 36], [62, 43], [50, 42]], '#6a0a14', { unlit: true });
-        for (let i = 0; i < 4; i++) d.deco.poly([[50 + i * 3.4, 37.6], [51.2 + i * 3.4, 40], [52.4 + i * 3.4, 37.4]], '#ffffff', { unlit: true });
-        blueFire(d, 59, 40, 1.2);
-      } else {
-        d.deco.curve([[47, 39], [55, 39.4], [63, 37.6]], 1.1, '#3a2a3a', { unlit: true });
-        for (let i = 0; i < 3; i++) d.deco.poly([[52 + i * 3.2, 39.2], [53.2 + i * 3.2, 41.4], [54.4 + i * 3.2, 39]], '#ffffff', { unlit: true });
-      }
-    },
 
     // ---------------------------------------------------------- Ultime : WereGarurumon, loup-garou en jean et cuir
     weregarurumon(d, p = {}) {
@@ -5806,44 +5500,6 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
         d.deco.ell(23, 38, 5.6, 3.2, '#ffffff', -0.4, { unlit: true });
       },
     },
-    // ================================================================ DISCIPLES
-    agumon: {
-      front(d, p = {}) {
-        const Yd = '#d88a1c', L = '#fcd468', B = '#7a3a12';
-        V.agumon.body(d, true);
-        d.deco.blob(sym([[32, 35], [27, 37], [26, 48], [32, 53]]), L);
-        d.deco.curve([[27, 42], [37, 42]], 0.6, Yd); d.deco.curve([[27, 46], [37, 46]], 0.6, Yd);
-        // museau vu de face, narines, œil vert de chaque côté du crâne
-        d.deco.ell(32, 23.6, 9.4, 5.6, L);
-        d.deco.ell(29.6, 20.4, 1, 0.7, B, 0, { unlit: true }); d.deco.ell(34.4, 20.4, 1, 0.7, B, 0, { unlit: true });
-        eyes(d, 14.2, 7.4, 3.8, 4.6, '#2aa040');
-        d.deco.curve([[20.6, 9.2], [26.4, 9.8]], 1.1, '#b8641a', { unlit: true }); d.deco.curve([[43.4, 9.2], [37.6, 9.8]], 1.1, '#b8641a', { unlit: true });
-        if (p.pose === 'attack') d.deco.ell(32, 27.6, 7.4, 3.4, '#7a1010', 0, { unlit: true });
-        d.deco.curve([[21, 25.4], [32, 29.4], [43, 25.4]], 1.5, '#5a2000', { unlit: true });
-        for (const x of [25.4, 29.4, 34.6, 38.6]) d.deco.poly([[x - 1.2, 26.8 + Math.abs(x - 32) * -0.12 + 0.6], [x, 29.4], [x + 1.2, 26.8 + Math.abs(x - 32) * -0.12 + 0.6]], CLAW, { unlit: true });
-      },
-      back(d) {
-        const Y = '#f8b228', Yd = '#d88a1c';
-        V.agumon.body(d, false);
-        d.deco.curve([[32, 10], [32, 26]], 1, Yd);
-        // la queue épaisse descend vers nous
-        d.tube([[32, 44], [32, 52], [33, 58], [34, 62]], 12, 3.4, Y);
-        d.deco.curve([[30, 50], [31, 58]], 0.8, Yd);
-      },
-      body(d, front) {
-        const Y = '#f8b228';
-        for (const s of [-1, 1]) {
-          d.ell(32 + s * 9, 52, 7.4, 9, Y);
-          d.ell(32 + s * 10.4, 60, 8, 3.4, Y);
-          if (front) toes(d, 32 + s * 10.4, 61.6);
-        }
-        d.blob(sym([[32, 29], [22, 32], [18, 42], [22, 52], [32, 56]]), Y);
-        const arm = [[21, 34], [15, 40], [16, 45]];
-        for (const a of [arm, mir(arm)]) { d.tube(a, 4.8, 3.8, Y); const [hx, hy] = a[2]; for (let i = -1; i <= 1; i++) d.poly([[hx + i * 1.6 - 0.7, hy + 0.6], [hx + i * 1.8, hy + 3.4], [hx + i * 1.6 + 0.7, hy + 0.6]], CLAW, { shiny: true }); }
-        d.blob(sym([[32, 5], [22, 8], [17, 16], [18, 24], [24, 29], [32, 31]]), Y);
-        d.deco.curve([[22, 9], [26, 7]], 1.2, '#ffe080');
-      },
-    },
     biyomon: {
       front(d) {
         const Y = '#f8c830';
@@ -5970,220 +5626,6 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
         }
         d.tube([[32, 7], [32, 1], [32, -2]], 4.4, 0.5, Hn, { shiny: true });
         for (const y of [4.6, 1.8]) d.deco.line(30.6, y, 33.4, y, 0.7, Hd);
-      },
-    },
-    // ================================================================ CHAMPIONS
-    greymon: {
-      front(d, p = {}) {
-        const O = '#f2861e', Ol = '#f8c070', Hd = '#2a1a10';
-        V.greymon.body(d, true);
-        d.deco.blob(sym([[32, 31], [26, 34], [26, 45], [32, 50]]), Ol);
-        for (let i = 0; i < 3; i++) d.deco.curve([[27, 37 + i * 4], [37, 37 + i * 4]], 0.7, '#e09a50');
-        // mâchoire inférieure massive et crocs
-        d.blob(sym([[32, 25], [21, 25.4], [21, 30], [26, 34], [32, 34.4]]), O);
-        d.deco.blob(sym([[32, 29], [25, 29.6], [27, 33], [32, 33.4]]), Ol);
-        if (p.pose === 'attack') d.deco.ell(32, 27.6, 9, 3, '#6a0a0a', 0, { unlit: true });
-        d.deco.curve([[20.6, 25.6], [32, 27.4], [43.4, 25.6]], 1.3, '#5a2200', { unlit: true });
-        for (let i = 0; i < 6; i++) { const x = 22.6 + i * 3.76; d.deco.poly([[x - 1.1, 25.8], [x, 28.6], [x + 1.1, 25.8]], CLAW, { unlit: true }); }
-        // yeux verts sous le bord du casque, narines
-        for (const s of [-1, 1]) {
-          const x = 32 + s * 7.6;
-          d.deco.ell(x, 17.4, 3.2, 2.4, '#1a2010', 0, { unlit: true }); d.deco.ell(x, 17.6, 2, 1.7, '#3ac850', 0, { unlit: true });
-          d.deco.ell(x, 17.8, 0.8, 1.1, '#0a1a08', 0, { unlit: true }); d.deco.ell(x - 0.7, 16.8, 0.6, 0.5, '#e8fff0', 0, { unlit: true });
-          d.deco.curve([[x - 3.6, 15.6], [x, 14.4], [x + 3.6, 15.6]], 1.2, Hd, { unlit: true });
-          d.deco.ell(32 + s * 2.4, 22, 0.9, 0.7, '#5a2200', 0, { unlit: true });
-        }
-      },
-      back(d) {
-        const O = '#f2861e', stripe = (pts, w = 2.4) => d.deco.tube(pts, w, w * 0.55, '#3a5ec8');
-        V.greymon.body(d, false);
-        // le dos zébré de bleu, la grosse queue qui descend vers nous
-        for (let i = 0; i < 4; i++) { stripe([[22, 30 + i * 5], [29, 32 + i * 5]], 2.6); stripe([[42, 30 + i * 5], [35, 32 + i * 5]], 2.6); }
-        d.tube([[32, 44], [32, 53], [33, 59], [34, 63]], 15, 4, O);
-        for (const [y, w] of [[48, 7], [53, 6], [57.6, 5]]) stripe([[32 - w / 2, y], [32 + w / 2, y + 0.6]], 2.2);
-      },
-      body(d, front) {
-        const O = '#f2861e', Hm = '#5a3a26', HmL = '#7a5638', Hd = '#2a1a10', Hn = '#ece4d2';
-        const stripe = (pts, w = 2.4) => d.deco.tube(pts, w, w * 0.55, '#3a5ec8');
-        for (const s of [-1, 1]) {
-          d.ell(32 + s * 10, 50, 9.4, 11, O);
-          stripe([[32 + s * 15, 45], [32 + s * 9, 47.6]], 2.6); stripe([[32 + s * 16, 51], [32 + s * 10, 53]], 2.4);
-          d.ell(32 + s * 11, 59.6, 9.4, 3.6, O);
-          if (front) for (let i = -1; i <= 1; i++) d.poly([[32 + s * 11 + i * 3.2 - 1.3, 61], [32 + s * 11 + i * 3.4, 57.4], [32 + s * 11 + i * 3.2 + 1.3, 61]], CLAW, { shiny: true });
-        }
-        d.blob(sym([[32, 24], [20, 28], [15, 40], [20, 50], [32, 52]]), O);
-        if (front) for (const s of [-1, 1]) { stripe([[32 + s * 16, 31], [32 + s * 12, 35]], 2.8); stripe([[32 + s * 17, 38], [32 + s * 13, 41]], 2.6); }
-        const arm = [[20, 32], [13, 38], [12, 43]];
-        for (const a of [arm, mir(arm)]) {
-          d.tube(a, 6.4, 5, O); stripe([a[0], a[1]], 1.9);
-          const [hx, hy] = a[2]; for (let i = -1; i <= 1; i++) d.tube([[hx + i * 2, hy], [hx + i * 2.6, hy + 3], [hx + i * 3, hy + 5.6]], 2, 0.4, CLAW, { shiny: true });
-        }
-        d.ell(32, 26, 9, 7, O);
-        d.blob(sym([[32, 6], [22, 9], [18, 16], [19, 24], [25, 28], [32, 29]]), O);
-        // casque fossile brun, ses trous, la corne du nez et les deux grandes cornes
-        d.poly(sym([[32, 3], [22, 5.6], [17, 12], [17.6, 19], [21.6, 17], [24.6, 20.6], [28.6, 18.4], [32, 19.6]]), Hm, { shiny: true, round: 0.35 });
-        d.deco.curve([[21, 10], [32, 5], [43, 10]], 1, HmL);
-        for (const x of [24, 32, 40]) d.deco.ell(x, front ? 9.6 : 11, 1.3, 0.9, Hd);
-        if (front) d.tube([[32, 15], [32, 9.4], [32, 5]], 3, 0.5, Hn, { shiny: true });
-        for (const s of [-1, 1]) d.tube([[32 + s * 9, 7], [32 + s * 14, 3], [32 + s * 18, 1.4], [32 + s * 21, 3]], 4.2, 0.6, Hn, { shiny: true });
-      },
-    },
-    garurumon: {
-      front(d) {
-        const Wt = '#e8f0ff', Bl = '#3a64c8';
-        V.garurumon.body(d, true);
-        d.ell(32, 31, 6.4, 4.6, Wt, 0, { noline: true });
-        d.deco.tube([[26, 22], [29, 25]], 2, 1.4, Bl); d.deco.tube([[38, 22], [35, 25]], 2, 1.4, Bl);
-        eyes(d, 24.4, 5, 2.4, 2.2, '#e8c020');
-        d.ell(32, 30, 1.8, 1.4, '#2a2a3a', 0, { shiny: true });
-        d.deco.curve([[27.4, 34], [32, 35.4], [36.6, 34]], 1, '#3a2a40', { unlit: true });
-        d.deco.poly([[28.4, 34.2], [29.2, 36.6], [30, 34.6]], '#ffffff', { unlit: true }); d.deco.poly([[34, 34.6], [34.8, 36.6], [35.6, 34.2]], '#ffffff', { unlit: true });
-      },
-      back(d) {
-        const Wt = '#e8f0ff', Bl = '#3a64c8';
-        V.garurumon.body(d, false);
-        d.tube([[32, 34], [31, 22], [33, 10]], 10, 4, Wt);   // la queue dressée
-        d.deco.tube([[29, 26], [35, 25]], 2.4, 1.6, Bl); d.deco.tube([[29.6, 16], [35, 15.4]], 2.4, 1.6, Bl);
-      },
-      body(d, front) {
-        const Wt = '#e8f0ff', Bl = '#3a64c8', Sh = '#b8c8e8';
-        for (const s of [-1, 1]) d.tube([[32 + s * 13, 46], [32 + s * 15, 59]], 5.6, 4.6, Wt, { far: true });
-        d.ell(32, 40, 15, 12.6, Wt);
-        d.deco.ell(32, 46, 10, 5, Sh);
-        for (const x of [21, 27, 37, 43]) d.deco.tube([[x, 31], [x + (x < 32 ? -1.4 : 1.4), 39]], 2.6, 1.8, Bl);
-        for (const s of [-1, 1]) {
-          d.tube([[32 + s * 8, 44], [32 + s * 9, 60]], 6, 5, Wt); d.deco.tube([[32 + s * 7, 50], [32 + s * 10, 52]], 2.2, 1.6, Bl);
-          d.ell(32 + s * 9, 60.6, 4.4, 2.2, Wt);
-        }
-        d.ell(32, 25, 10, 9.6, Wt, 0, { tex: 0.15 });
-        for (const s of [-1, 1]) { d.poly([[32 + s * 8, 19], [32 + s * 10, 8], [32 + s * 4, 16]], Wt); d.deco.poly([[32 + s * 7.4, 17], [32 + s * 9, 11], [32 + s * 5.4, 16]], '#9ab0e0'); }
-        if (!front) d.deco.tube([[32, 17], [32, 30]], 2.2, 1.4, Bl);
-      },
-    },
-    birdramon: {
-      front(d) {
-        const Y = '#ffd040';
-        V.birdramon.body(d);
-        d.deco.ell(32, 41, 7, 7, '#ffc070');
-        eyes(d, 15.6, 4.4, 2.2, 2.2, '#2a8a3a');
-        d.poly([[28.6, 18], [35.4, 18], [32, 26]], Y, { shiny: true }); d.deco.line(29.6, 19.4, 34.4, 19.4, 0.7, '#a07010');
-      },
-      back(d) {
-        const Y = '#ffd040', O = '#f2702a';
-        d.tube([[32, 46], [32, 56]], 6, 2, O); d.ell(32, 58, 4, 5, Y);   // la queue de plumes
-        V.birdramon.body(d);
-        d.deco.curve([[26, 34], [32, 37], [38, 34]], 0.8, '#d06a1a');
-      },
-      body(d) {
-        const O = '#f2702a', Y = '#ffd040', Wg = '#f8a03a';
-        const wing = [[26, 31], [3, 6], [0, 18], [8, 21], [0, 30], [10, 33], [4, 42], [24, 38]];
-        for (const w of [wing, mir(wing)]) d.poly(w, Wg, { shiny: true });
-        for (const s of [-1, 1]) { d.deco.line(32 + s * 6, 32, 32 + s * 26, 10, 0.8, '#d06a1a'); d.deco.line(32 + s * 8, 35, 32 + s * 28, 30, 0.8, '#d06a1a'); }
-        for (const s of [-1, 1]) { d.tube([[32 + s * 4, 48], [32 + s * 5, 60]], 2.8, 2.4, '#5a3a2a'); d.poly([[32 + s * 5 - 4, 60], [32 + s * 5 + 4, 60], [32 + s * 5, 63]], '#3a2a1a'); }
-        d.ell(32, 38, 11, 11.6, O);
-        d.tube([[32, 30], [32, 22]], 7, 6, O);
-        d.ell(32, 17, 8, 7, O);
-        d.blob(sym([[32, 11], [26, 9], [24, 1], [29, 6], [32, 1]]), Y);
-      },
-    },
-    togemon: {
-      front(d) {
-        V.togemon.body(d);
-        eyes(d, 24, 4, 2.4, 3.8, '#202020');
-        d.deco.ell(32, 32.5, 4, 1.7, '#2a5020', 0, { unlit: true });
-      },
-      back(d) { V.togemon.body(d); d.deco.tube([[32, 14], [32, 54]], 2, 2, '#4a9a3a'); },
-      body(d) {
-        const G = '#5aac4a', R = '#e43434', Pk = '#f070a0';
-        d.ell(25, 58, 5.4, 4.2, G); d.ell(39, 58, 5.4, 4.2, G);
-        d.ell(32, 34, 16, 24, G);
-        d.deco.tube([[27, 13], [26, 55]], 2.2, 2.2, '#7acc66'); d.deco.tube([[37, 13], [38, 55]], 2.2, 2.2, '#7acc66'); d.deco.tube([[20, 22], [19, 48]], 2, 2, '#7acc66'); d.deco.tube([[44, 22], [45, 48]], 2, 2, '#7acc66');
-        for (let i = 0; i < 18; i++) { const a = i * 2.39, r = 4 + (i * 7) % 13; d.deco.rect(32 + Math.cos(a) * r * 0.95 - 0.7, 34 + Math.sin(a) * r * 1.6 - 0.7, 1.5, 1.5, '#fafad8', { unlit: true }); }
-        for (const s of [-1, 1]) { d.tube([[32 + s * 14, 34], [32 + s * 19, 37]], 5, 4.5, G); d.ell(32 + s * 18, 37, 2.2, 4, '#f8f8f8'); d.circ(32 + s * 24, 38, 7, R, { shiny: true }); }
-        d.ell(25, 8, 6, 3.6, Pk, -0.4); d.ell(39, 8, 6, 3.6, Pk, 0.4); d.ell(32, 4.5, 3.6, 5, Pk);
-        d.circ(32, 8.5, 2.8, '#f8e060');
-      },
-    },
-    kabuterimon: {
-      front(d) {
-        V.kabuterimon.body(d, true);
-        eyes(d, 24.6, 4.6, 1.7, 1.5, '#ff5040');
-        d.deco.ell(32, 30.6, 3.6, 2.4, '#d02840');
-        d.poly([[29.4, 29.6], [30.4, 34.4], [31.4, 29.6]], '#f8f4ea', { shiny: true }); d.poly([[32.6, 29.6], [33.6, 34.4], [34.6, 29.6]], '#f8f4ea', { shiny: true });
-      },
-      back(d) { V.kabuterimon.body(d, false); },
-      body(d, front) {
-        const B = '#3c4c9e', Bd = '#242d68', Bl = '#7a8ad0', K = '#20202c', Wg = '#f2eec8', Wl = '#c8bc7a';
-        for (const s of [-1, 1]) {
-          d.ell(32 + s * 18, 15, 5.4, 16, Wg, s * 0.55, { far: front, shiny: !front }); d.deco.line(32 + s * 13, 4, 32 + s * 21, 28, 0.6, Wl);
-          d.ell(32 + s * 9, 11, 5, 15, Wg, s * 0.15, { far: front, shiny: !front }); d.deco.line(32 + s * 8, -2, 32 + s * 10, 25, 0.6, Wl);
-        }
-        d.tube([[32, 40], [32, 50], [32, 58]], 7, 3, B, { shiny: true });
-        for (const y of [44, 48, 52]) d.deco.line(28.4, y, 35.6, y, 0.8, Bd);
-        for (let i = -1; i <= 1; i++) d.tube([[32, 58], [32 + i * 2.6, 62]], 1.7, 0.5, K);
-        for (const s of [-1, 1]) {
-          for (const [a, b, c] of [[[32 + s * 8, 31], [32 + s * 17, 25], [32 + s * 23, 29]], [[32 + s * 8, 38], [32 + s * 16, 44], [32 + s * 20, 50]]]) {
-            d.tube([a, b, c], 3.2, 2.4, front ? B : Bd);
-            for (let i = -1; i <= 1; i++) d.tube([c, [c[0] + s * 2.4, c[1] + i * 2.2]], 1.4, 0.5, K);
-          }
-        }
-        d.ell(32, 33, 10.6, 8.6, B, 0, { shiny: true });
-        d.deco.curve([[24, 30], [32, 27], [40, 30]], 1.1, Bd); d.deco.curve([[25, 36], [32, 34], [39, 36]], 0.9, Bd);
-        if (!front) d.deco.line(32, 25, 32, 41, 1.1, Bd);
-        d.ell(32, front ? 26 : 22, 8.6, front ? 7.4 : 5.4, B, 0, { shiny: true });
-        d.deco.ell(29, front ? 22 : 20, 3.6, 1.8, Bl);
-        d.tube([[32, front ? 20 : 18], [32, 11], [33.6, 4], [37, 1]], 4.6, 1, K, { shiny: true });
-      },
-    },
-    ikkakumon: {
-      front(d) {
-        V.ikkakumon.body(d, true);
-        eyes(d, 30, 6.2, 2.4, 2.8, '#202020');
-        d.ell(32, 36, 5, 3.4, '#c4cce0');
-        pair(d, 34.6, 1.8, 0.9, 0.7, '#3a3a50');
-        for (const s of [-1, 1]) d.tube([[32 + s * 4, 39], [32 + s * 5, 47], [32 + s * 6, 54]], 3.2, 1, '#fffbe8', { shiny: true });
-      },
-      back(d) {
-        const Wt = '#eef2fa';
-        V.ikkakumon.body(d, false);
-        d.ell(25.6, 60, 7, 3, Wt, 0.25); d.ell(38.4, 60, 7, 3, Wt, -0.25);   // nageoires de la queue
-      },
-      body(d, front) {
-        const Wt = '#eef2fa', Gy = '#aab6ce', Or = '#eaa848', Hm = '#56688c';
-        d.ell(32, 44, 22, 16, Wt, 0, { tex: 0.18 });
-        for (const [a, b] of [[[16, 37], [21, 43]], [[23, 32], [27, 39]], [[48, 37], [43, 43]], [[41, 32], [37, 39]]]) d.deco.tube([a, b], 2.2, 1.4, Gy);
-        if (!front) d.deco.tube([[32, 34], [32, 52]], 2.2, 1.4, Gy);
-        for (const s of [-1, 1]) { d.ell(32 + s * 12, 58.5, 7, 4, Wt); for (let i = 0; i < 2; i++) d.ell(32 + s * (10 + i * 3.4), 61.8, 1, 1.5, '#2a2836'); }
-        d.ell(32, 31, 13, 12, Wt, 0, { tex: 0.18 });
-        d.ell(32, 22.6, 12.5, 7.5, Hm, 0, { shiny: true });
-        d.deco.tube([[20, 24], [44, 24]], 1.4, 1.4, '#3a4a6a');
-        d.poly([[28.6, 20], [32, 0.5], [35.4, 20]], Or, { shiny: true });
-        d.deco.line(29.8, 15, 34.2, 15, 0.9, '#b07820'); d.deco.line(30.6, 9.5, 33.4, 9.5, 0.9, '#b07820');
-      },
-    },
-    angemon: {
-      front(d) {
-        V.angemon.body(d, true);
-        d.deco.curve([[29.6, 18.6], [32, 19.6], [34.4, 18.6]], 0.7, '#a05a4a');
-      },
-      back(d) { V.angemon.body(d, false); },
-      body(d, front) {
-        const W = '#f8f6f0', Wd = '#c8c4b8', S = '#b8c0d0', Bl = '#3a5ad8', Sk = '#f0c8a0';
-        for (let i = 0; i < 3; i++) {
-          const wing = [[28, 22 + i * 4], [4 - i * 2, 4 + i * 10], [10, 14 + i * 10], [26, 28 + i * 4]];
-          d.poly(wing, i % 2 ? Wd : W, { far: front, shiny: true }); d.poly(mir(wing), i % 2 ? Wd : W, { far: front, shiny: true });
-        }
-        for (const s of [-1, 1]) { d.tube([[32 + s * 4, 44], [32 + s * 5, 52], [32 + s * 5, 59]], 6, 5, Bl); d.ell(32 + s * 5.4, 60.4, 5, 2.4, W); }
-        d.blob(sym([[32, 22], [24, 22], [22, 34], [26, 46], [32, 46]]), W, { shiny: true });
-        d.deco.rect(23, 40, 18, 3, Bl);
-        d.tube([[24, 26], [17, 34], [14, 40]], 5, 4.4, Sk); d.ell(13.4, 41, 3, 3, W);
-        d.tube([[40, 26], [47, 32], [50, 38]], 5, 4.4, Sk); d.ell(51, 39, 3, 3, W);
-        { const sx = front ? 52 : 12; d.tube([[sx, 10], [sx + (front ? -1 : 1), 60]], 1.6, 1.6, '#e0c040', { shiny: true }); d.circ(sx, 9, 2.4, '#e0c040', { shiny: true }); }   // (de dos, le bâton change de côté)
-        if (!front) d.tube([[32, 14], [32, 27]], 6, 4, '#f0e0a0');   // ses cheveux blonds
-        d.ell(32, 14, 7, 7, front ? Sk : '#f0e0a0');
-        d.poly(sym([[32, 6], [25, 9], [25, 15], [32, 15]]), S, { shiny: true });
-        if (front) d.deco.line(26, 13, 38, 13, 1, '#5a6070');
-        for (const s of [-1, 1]) d.poly([[32 + s * 6, 9], [32 + s * 11, 2], [32 + s * 3, 6]], '#f0e0a0');
       },
     },
   };
@@ -18430,7 +17872,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
           if (nx < 1 || ny < 1 || nx >= ow.map.w - 1 || ny >= ow.map.h - 1) continue;
           if ((nx === P.x && ny === P.y) || (nx === P.tx && ny === P.ty) || (nx === F.x && ny === F.y) || (nx === F.tx && ny === F.ty)) continue;
           if (ow.solid(nx, ny) || Wild.at(ow, nx, ny)) continue;
-          if (ax) w.face = ax > 0 ? 'right' : 'left';
+          w.face = ax ? (ax > 0 ? 'right' : 'left') : ay > 0 ? 'down' : 'up';   // (vers le haut ou le bas : de dos ou de face)
           w.mv = { sx: w.x, sy: w.y, t: 0, d: chase ? 0.3 : 0.5 };
           w.x = nx; w.y = ny;
           if (DW.World.isTall(ow.tileAt(nx, ny))) ow.rustle[nx + ',' + ny] = 0.4;
@@ -18477,7 +17919,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     },
     draw(ow, c, w) {
       const X = w.hx * TS + 8, Y = w.hy * TS + 15;
-      ow.drawMon(c, w.sp, X, Y, w.face === 'left', w.mv ? ow.t * 12 : ow.t * 1.6 + w.x * 0.37, !!w.mv);
+      ow.drawMon(c, w.sp, X, Y, w.face === 'left', w.mv ? ow.t * 12 : ow.t * 1.6 + w.x * 0.37, !!w.mv, w.face === 'up' && DW.Sprites.hasBack(w.sp), w.face === 'down');
       if (w.alert > 0) {
         const spr = DW.Sprites.ow(w.sp), top = Math.round(Y - spr.h - 6 + Math.min(0, (w.alert - 0.7) * 20));
         c.fillStyle = '#1a0e22'; c.fillRect(Math.round(X) - 2, top - 1, 5, 10);
@@ -21100,7 +20542,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         if (Math.abs(nx - n.home[0]) > n.wander || Math.abs(ny - n.home[1]) > n.wander) continue;
         const busy = (nx === P.x && ny === P.y) || (nx === P.tx && ny === P.ty) || (nx === F.x && ny === F.y) || (nx === F.tx && ny === F.ty);
         if (busy || this.solid(nx, ny) || DW.World.isTall(this.tileAt(nx, ny))) continue;
-        if (dx) n.face = dx > 0 ? 'right' : 'left';
+        n.face = dx ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';   // (vers le haut ou le bas : de dos ou de face, pas de profil)
         n.mv = { sx: n.x, sy: n.y, t: 0 };
         n.x = nx; n.y = ny;
       }

@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  DESSINS — LIGNÉE DE GABUMON (Gabumon → Garurumon → WereGarurumon → MetalGarurumon ; Punimon et Tsunomon : images
+//  DESSINS — LIGNÉE DE GABUMON : Gabumon, WereGarurumon et MetalGarurumon (Punimon, Tsunomon et Garurumon : images
 //  du joueur, gfx/sprites.js), d'après les modèles officiels (proportions et couleurs, rien n'est copié) :
 //  fourrure blanc lavande rayée de bleu-violet, griffes rose foncé, yeux rouges.
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62. Pose « attack » : gueule ouverte, flamme bleue / souffle glacé.
@@ -93,40 +93,6 @@
       for (let i = -1; i <= 1; i++) { const a = (atk ? -0.5 : -0.2) + i * 0.42; d.tube([[50.4, 39 + i * 1.8], [50.4 + Math.cos(a) * 3, 39 + i * 1.8 + Math.sin(a) * 3], [50.4 + Math.cos(a + 0.4) * 5.4, 39 + i * 1.8 + Math.sin(a + 0.4) * 5.4]], 2, 0.3, CW, { shiny: true }); }
     },
 
-    // ---------------------------------------------------------- Champion : Garurumon, loup blanc lavande rayé, accroupi
-    garurumon(d, p = {}) {
-      const atk = p.pose === 'attack';
-      d.tube([[14, 32], [7, 28], [3, 21], [5, 15], [10, 13]], 6.4, 2.4, FUR);
-      stripe(d, [[6, 27], [9, 24]], 2); stripe(d, [[3.4, 20], [6.6, 18]], 1.8); stripe(d, [[6, 14.6], [9, 13.4]], 1.4);
-      d.tube([[20, 42], [16, 50], [18, 58]], 8, 6.4, FURd, { far: true }); foot(d, 15, 61.6, 0.95, true);
-      d.tube([[42, 42], [46, 50], [46, 57]], 8, 6.4, FURd, { far: true }); foot(d, 44, 61.6, 0.95, true);
-      d.blob([[9, 34], [18, 25], [36, 25], [47, 32], [50, 43], [38, 49], [18, 49], [8, 42]], FUR, { tex: 0.12 });
-      for (let x = 12; x < 46; x += 5) d.poly([[x - 2, 47], [x + 1, 51], [x + 3, 47]], FUR);   // fourrure ébouriffée sous le ventre
-      for (const [a, b] of [[[16, 30], [19, 39]], [[22, 28.4], [24, 38]], [[29, 28.4], [30, 37]], [[36, 30], [36, 38]], [[12, 36], [15, 42]], [[42, 34], [42, 40]]]) stripe(d, [a, b], 2.6);
-      // touffes en pointes sur le dos et les épaules
-      for (const [x, y, h, a] of [[18, 29, 9, -1.9], [24, 28, 11, -1.7], [30, 28, 10, -1.5], [36, 29, 9, -1.3], [42, 32, 8, -1.1]]) {
-        d.poly([[x - 3, y + 1], [x + Math.cos(a) * h, y + Math.sin(a) * h], [x + 3, y + 1]], FUR);
-        stripe(d, [[x, y - 1], [x + Math.cos(a) * h * 0.7, y + Math.sin(a) * h * 0.7]], 1.2);
-      }
-      d.tube([[16, 42], [13, 50], [14, 58]], 9.6, 7.4, FUR); stripe(d, [[12, 48], [16.6, 49]], 1.8); foot(d, 10, 62, 1);
-      d.tube([[40, 42], [44, 49], [43, 57]], 9.8, 7.4, FUR); stripe(d, [[41, 46], [45.6, 47]], 1.8); foot(d, 40, 62, 1);
-      // tête basse en avant
-      d.poly([[44, 30], [44, 20], [50, 27]], FUR); d.poly([[48, 28], [50, 19], [53, 27]], FUR, { far: true });
-      d.blob([[41, 35], [45, 27], [54, 25.6], [61, 30], [64, 36], [61, 42], [52, 43], [44, 41]], FUR);
-      for (const [x, y] of [[43, 30], [42, 36], [44, 41]]) d.poly([[x + 2, y - 3], [x - 4, y], [x + 2, y + 3]], FUR);   // joues ébouriffées
-      stripe(d, [[47, 29], [49, 33]], 1.8); stripe(d, [[52, 28], [53, 32]], 1.6); stripe(d, [[45, 37], [49, 39]], 1.6);
-      d.deco.ell(63.2, 34.6, 1.2, 1, '#2a2a3a', 0, { unlit: true });
-      d.deco.ell(53.4, 32.6, 2.6, 1.6, '#1a0a10', -0.2, { unlit: true }); d.deco.ell(53.8, 32.6, 1.7, 1.1, '#e02a2a', -0.2, { unlit: true }); d.deco.circ(53.2, 32, 0.5, '#ffffff', { unlit: true });
-      d.deco.curve([[50, 30.6], [56, 30]], 1.1, STR, { unlit: true });
-      if (atk) {
-        d.deco.poly([[47, 38], [63, 36], [62, 43], [50, 42]], '#6a0a14', { unlit: true });
-        for (let i = 0; i < 4; i++) d.deco.poly([[50 + i * 3.4, 37.6], [51.2 + i * 3.4, 40], [52.4 + i * 3.4, 37.4]], '#ffffff', { unlit: true });
-        blueFire(d, 59, 40, 1.2);
-      } else {
-        d.deco.curve([[47, 39], [55, 39.4], [63, 37.6]], 1.1, '#3a2a3a', { unlit: true });
-        for (let i = 0; i < 3; i++) d.deco.poly([[52 + i * 3.2, 39.2], [53.2 + i * 3.2, 41.4], [54.4 + i * 3.2, 39]], '#ffffff', { unlit: true });
-      }
-    },
 
     // ---------------------------------------------------------- Ultime : WereGarurumon, loup-garou en jean et cuir
     weregarurumon(d, p = {}) {

@@ -496,9 +496,9 @@ DIGIMON = {
     'nyokimon': ('NYAKOMON.jpg', {'combat': 6, 'profil': 12, 'face': 0, 'dos': 8}),
     'pabumon':  ('PABUMON.jpg',  {'combat': (2, 'miroir'), 'profil': (3, 'miroir'), 'face': 0, 'dos': 7}),
     'punimon':  ('PUNIMON.jpg',  {'combat': 5, 'profil': 4, 'face': 0, 'dos': 3}),
-    # (Koromon et Poyomon : le joueur garde leurs premières planches, peintes — leurs versions en pixel art du 21/10,
-    #  « photo_2026-10-21_16-16-36 (2) » et « photo_2026-10-21_16-16-36 », ne servent pas)
-    'koromon':  ('Koromon.jpg',  {'combat': 5, 'profil': (2, 'miroir'), 'face': 0, 'dos': 1}),
+    # (Poyomon : le joueur garde sa première planche, peinte — sa version en pixel art du 21/10,
+    #  « photo_2026-10-21_16-16-36 », ne sert pas ; Koromon : nouvelle planche peinte du 21/10 au soir, même nom de fichier)
+    'koromon':  ('Koromon.jpg',  {'combat': (3, 'miroir'), 'profil': 4, 'face': 0, 'dos': 1}),
     'poyomon':  ('POYOMON.jpg',  {'combat': 3, 'profil': (2, 'miroir'), 'face': 0, 'dos': 4}),
     # 21/10 : bébés en pixel art, Disciples et Champions peints
     'botamon':  ('botamon.jpg', _PIXEL),
@@ -512,6 +512,18 @@ DIGIMON = {
     'kuwagamon': ('kuwagamon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 1}, 240),
     'shellmon': ('shellmon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 2}, 240),
     'whamon':   ('whamon.jpg', {'combat': (4, 'miroir'), 'profil': 1, 'face': 2, 'dos': 3}, 240),
+    # 21/10 au soir : Agumon, et les Champions de la série (planches peintes, 5 poses : face, dos, puis profils et trois-quarts)
+    'agumon':   ('Agumon.jpg', {'combat': 3, 'profil': (2, 'miroir'), 'face': 0, 'dos': 1}, 200),
+    'greymon':  ('Greymon.jpg', {'combat': (2, 'miroir'), 'profil': 4, 'face': 0, 'dos': 1}, 240),
+    'garurumon': ('Garururmon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 2}, 240),
+    'birdramon': ('Birdramon.jpg', {'combat': 3, 'profil': 4, 'face': 0, 'dos': 1}, 240),
+    'kabuterimon': ('Kabuterimon.jpg', {'combat': (2, 'miroir'), 'profil': 4, 'face': 0, 'dos': 1}, 240),
+    'togemon':  ('Togemon.jpg', {'combat': (4, 'miroir'), 'profil': 2, 'face': 0, 'dos': 1}, 240),
+    'ikkakumon': ('Ikkakumon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 1}, 240),
+    'angemon':  ('Angémon.jpg', {'combat': 4, 'profil': 3, 'face': 0, 'dos': 1}, 240),
+    'monochromon': ('Monochromon.jpg', {'combat': (2, 'miroir'), 'profil': 4, 'face': 0, 'dos': 1}, 240),
+    'drimogemon': ('Drimogemon.jpg', {'combat': (2, 'miroir'), 'profil': 4, 'face': 0, 'dos': 1}, 240),
+    'meramon':  ('Méramon.jpg', {'combat': 4, 'profil': 2, 'face': 0, 'dos': 1}, 240),
 }
 HAUT_DIGIMON = 168   # hauteur des copies : le plus grand affichage d'un Bébé ou d'un Digimon d'entraînement (combat, en haute définition)
 # DÉTOURAGE propre à une planche : un Digimon VERT sur le fond vert (Betamon) — le fond, c'est seulement le vert pur

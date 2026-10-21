@@ -24,7 +24,7 @@
   // un PNJ fait un pas (animation de marche du moteur)
   async function npcStep(ow, n, dir) {
     const D = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
-    if (D[0]) n.face = D[0] > 0 ? 'right' : 'left';
+    n.face = D[0] ? (D[0] > 0 ? 'right' : 'left') : D[1] > 0 ? 'down' : 'up';
     n.mv = { sx: n.x, sy: n.y, t: 0 }; n.x += D[0]; n.y += D[1];
     await wait(0.32);
   }

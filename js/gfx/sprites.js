@@ -20,23 +20,31 @@
   const VUES = ['combat', 'profil', 'face', 'dos'];
   const IMAGES = {
     punimon: { taille: 0.77 }, nyokimon: { taille: 0.91 }, pabumon: { taille: 0.88 }, poyomon: { taille: 0.76 },   // (Pabumon : ses bulles comptent dans sa hauteur)
-    koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
+    // (echelle : l'espèce entière plus grande que son stade — Bukamon, « toujours trop petit » pour le joueur)
+    koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95, echelle: 1.3 },
     // (21/10 : Botamon, Pichimon et YukimiBotamon en pixel art ; Yuramon, Disciples et Champions peints)
     botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yukimibotamon: { taille: 0.58 }, yuramon: { taille: 0.72 },
     betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.92 }, palmon: { taille: 0.97 },
     kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
+    // (21/10 au soir : Agumon et les Champions de la série, peints ; Koromon a sa nouvelle planche)
+    agumon: { taille: 0.95 }, greymon: { taille: 0.96 }, garurumon: { taille: 0.86 }, birdramon: { taille: 0.96 }, kabuterimon: { taille: 0.95 },
+    togemon: { taille: 0.95 }, ikkakumon: { taille: 0.86 }, angemon: { taille: 0.96 }, monochromon: { taille: 0.86 }, drimogemon: { taille: 0.82 },
+    meramon: { taille: 0.96 },
   };
   const imageDe = (sp, vue) => (IMAGES[sp] && DW.Textures && DW.Textures.a('commun/digi_' + sp + '_' + vue)) || null;
   // une image dans le cadre res × res (sol à 62/64), à la haute définition du jeu ; respiration (squash), pose d'attaque
   // ou de recul (shear) : comme les dessins par code (Art.render)
   const nets = new Map();   // image réduite à sa taille d'affichage (réduction par moitiés : gfx/textures.js)
   function rendreImage(sp, im, res, o = {}) {
-    const k = Art.HD || 1, N = Math.round(res * k), cv = Art.canvas(N + 2, N + 2), c = cv.getContext('2d');
-    const s = Math.min(IMAGES[sp].taille * N / im.naturalHeight, 0.98 * N / im.naturalWidth);
+    // (une image très large — profil d'un quadrupède, ailes ouvertes — garde la hauteur de son espèce : son cadre s'élargit,
+    //  jusqu'à 1,6 fois, au lieu de rétrécir le Digimon : il ne paraît plus plus petit de profil que de face)
+    const k = Art.HD || 1, N = Math.round(res * k);
+    const s = Math.min(IMAGES[sp].taille * N / im.naturalHeight, 1.6 * 0.98 * N / im.naturalWidth);
     const w = Math.max(1, Math.round(im.naturalWidth * s)), h = Math.max(1, Math.round(im.naturalHeight * s));
+    const L = Math.max(N, Math.ceil(w / 0.98)), cv = Art.canvas(L + 2, N + 2), c = cv.getContext('2d');
     if (!nets.has(im)) nets.set(im, {});
     const R0 = nets.get(im), net = R0[w + 'x' + h] || (R0[w + 'x' + h] = DW.Textures.reduire(im, w, h));
-    c.translate(1 + N / 2, 1 + N * 62 / 64);
+    c.translate(1 + L / 2, 1 + N * 62 / 64);
     if (o.shear) c.transform(1, 0, -o.shear, 1, 0, 0);
     if (o.squash) c.scale(1 / Math.sqrt(o.squash), o.squash);
     c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
@@ -52,12 +60,11 @@
   // Birdramon...) : chacun est réduit juste ce qu'il faut, les pieds toujours sur le sol, et recentré si besoin.
   // [échelle, décalage horizontal] mesurés par DW.Sprites.mesurerCadres() (console du navigateur) : à relancer si un
   // dessin change.
-  const CADRE = { yokomon: [0.991, 0], agumon: [1, 1], gomamon: [0.968, 0.5], biyomon: [0.976, 0], gabumon: [0.953, 0],
-    garurumon: [0.976, -0.7], meramon: [0.991, 0], birdramon: [0.925, 0.9], greymon: [0.932, 0.2], ikkakumon: [0.961, -0.2], togemon: [0.976, 0],
+  const CADRE = { yokomon: [0.991, 0], gomamon: [0.968, 0.5], biyomon: [0.976, 0], gabumon: [0.953, 0],
     metalgreymon: [0.939, 0], zudomon: [1, -2], weregarurumon: [0.953, 0], skullmeramon: [0.976, 0],
     garudamon: [0.961, -0.2], okuwamon: [0.984, -4.4], wargreymon: [0.991, -1.7], metalgarurumon: [0.961, -0.2], jijimon: [0.991, 0], tentomon: [1, -1],
-    kabuterimon: [0.924, 0], angemon: [1, 0.5], monochromon: [0.961, -0.2], frigimon: [0.976, 0], ogremon: [0.945, 0], seadramon: [0.991, -0.7],
-    drimogemon: [1, -1.5], centarumon: [1, -2.5], devimon: [0.968, -0.5], skullgreymon: [1, 1], megadramon: [0.991, -1.2], guilmon: [0.976, 1.2],
+    frigimon: [0.976, 0], ogremon: [0.945, 0], seadramon: [0.991, -0.7],
+    centarumon: [1, -2.5], devimon: [0.968, -0.5], skullgreymon: [1, 1], megadramon: [0.991, -1.2], guilmon: [0.976, 1.2],
     candlemon: [0.983, 0], flarizamon: [0.991, 0.7] };
   // options de rendu (engine/art.js) d'un dessin recadré : repère agrandi de 1/échelle, sol gardé à y = 62
   const cadre = (sp, o) => { const C = CADRE[sp]; if (!C) return o; const [s, sh] = C; return { ...o, box: [64 / s, 64 / s], dx: 32 / s - 32 + sh / s + (o.dx || 0), dy: 62 / s - 62, ground: 62 }; };
@@ -71,6 +78,8 @@
   const RES_BATTLE = { 'Bébé': 50, 'Entraînement': 66, 'Disciple': 86, 'Champion': 108, 'Ultime': 118, 'Méga': 126 };
   const RES_OW = { 'Bébé': 28, 'Entraînement': 35, 'Disciple': 43, 'Champion': 58, 'Ultime': 68, 'Méga': 76 };   // bien visibles, surtout sur téléphone
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
+  // taille du cadre d'une espèce : celle de son stade, fois son échelle propre (IMAGES)
+  const resDe = (sp, RES, def) => Math.round((RES[DW.SPECIES[sp].stage] || def) * ((IMAGES[sp] && IMAGES[sp].echelle) || 1));
   const S = DW.Sprites = {
     IMAGES, VUES,
     // view : null (profil), 'combat' (de trois quarts : l'image du joueur, sinon le profil), 'back' (de dos) ou 'front'
@@ -111,10 +120,10 @@
       }
       return cache[key];
     },
-    battle(sp) { return S.mon(sp, RES_BATTLE[DW.SPECIES[sp].stage] || 72, 4, 'combat'); },
+    battle(sp) { return S.mon(sp, resDe(sp, RES_BATTLE, 72), 4, 'combat'); },
     // poses de combat : 'attack' (penché en avant) et 'hurt' (recul)
     pose(sp, pose) {
-      const res = RES_BATTLE[DW.SPECIES[sp].stage] || 72, im = imageDe(sp, 'combat') || imageDe(sp, 'profil');
+      const res = resDe(sp, RES_BATTLE, 72), im = imageDe(sp, 'combat') || imageDe(sp, 'profil');
       const key = sp + '_' + res + '_' + pose + (im ? '_image' : '');
       if (!cache[key]) {
         const draw = D[sp] || D._secours, P = (draw.poses && draw.poses[pose]) || {};   // réglage propre à l'espèce (ex. tête au bord du cadre)
@@ -147,7 +156,7 @@
       const d = D[sp]; return !!(d && d.views && d.views.includes(v));
     },
     // view : true / 'back' = vu de dos (quand il monte), 'front' = de face (quand il descend) — gfx/digimon/vues.js
-    ow(sp, view) { return S.mon(sp, RES_OW[DW.SPECIES[sp].stage] || 24, 2, view === true ? 'back' : view || null); },
+    ow(sp, view) { return S.mon(sp, resDe(sp, RES_OW, 24), 2, view === true ? 'back' : view || null); },
     // les images du joueur viennent d'arriver : les Digimon déjà rendus avec leur dessin de secours sont refaits
     oublier() { for (const key in cache) if (IMAGES[key.slice(0, key.indexOf('_'))]) delete cache[key]; },
     // (x, y) = centre bas du sprite

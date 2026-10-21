@@ -255,7 +255,7 @@
         if (Math.abs(nx - n.home[0]) > n.wander || Math.abs(ny - n.home[1]) > n.wander) continue;
         const busy = (nx === P.x && ny === P.y) || (nx === P.tx && ny === P.ty) || (nx === F.x && ny === F.y) || (nx === F.tx && ny === F.ty);
         if (busy || this.solid(nx, ny) || DW.World.isTall(this.tileAt(nx, ny))) continue;
-        if (dx) n.face = dx > 0 ? 'right' : 'left';
+        n.face = dx ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';   // (vers le haut ou le bas : de dos ou de face, pas de profil)
         n.mv = { sx: n.x, sy: n.y, t: 0 };
         n.x = nx; n.y = ny;
       }

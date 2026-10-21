@@ -160,7 +160,7 @@
           if (nx < 1 || ny < 1 || nx >= ow.map.w - 1 || ny >= ow.map.h - 1) continue;
           if ((nx === P.x && ny === P.y) || (nx === P.tx && ny === P.ty) || (nx === F.x && ny === F.y) || (nx === F.tx && ny === F.ty)) continue;
           if (ow.solid(nx, ny) || Wild.at(ow, nx, ny)) continue;
-          if (ax) w.face = ax > 0 ? 'right' : 'left';
+          w.face = ax ? (ax > 0 ? 'right' : 'left') : ay > 0 ? 'down' : 'up';   // (vers le haut ou le bas : de dos ou de face)
           w.mv = { sx: w.x, sy: w.y, t: 0, d: chase ? 0.3 : 0.5 };
           w.x = nx; w.y = ny;
           if (DW.World.isTall(ow.tileAt(nx, ny))) ow.rustle[nx + ',' + ny] = 0.4;
@@ -207,7 +207,7 @@
     },
     draw(ow, c, w) {
       const X = w.hx * TS + 8, Y = w.hy * TS + 15;
-      ow.drawMon(c, w.sp, X, Y, w.face === 'left', w.mv ? ow.t * 12 : ow.t * 1.6 + w.x * 0.37, !!w.mv);
+      ow.drawMon(c, w.sp, X, Y, w.face === 'left', w.mv ? ow.t * 12 : ow.t * 1.6 + w.x * 0.37, !!w.mv, w.face === 'up' && DW.Sprites.hasBack(w.sp), w.face === 'down');
       if (w.alert > 0) {
         const spr = DW.Sprites.ow(w.sp), top = Math.round(Y - spr.h - 6 + Math.min(0, (w.alert - 0.7) * 20));
         c.fillStyle = '#1a0e22'; c.fillRect(Math.round(X) - 2, top - 1, 5, 10);

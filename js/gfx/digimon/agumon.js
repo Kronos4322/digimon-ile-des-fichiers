@@ -1,12 +1,12 @@
 'use strict';
 // =====================================================================
-//  DESSINS — LIGNÉE D'AGUMON (Agumon → Greymon → MetalGreymon → WarGreymon ; Botamon et Koromon : images du joueur,
+//  DESSINS — LIGNÉE D'AGUMON : MetalGreymon et WarGreymon (Botamon, Koromon, Agumon et Greymon : images du joueur,
 //  gfx/sprites.js), version détaillée fidèle aux modèles officiels
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
 // =====================================================================
 (function () {
-  const CLAW = '#f6f2e6', CLAWd = '#c8c0aa';
+  const CLAW = '#f6f2e6';
   // trois griffes en éventail (x, y = base ; ang = direction ; l = longueur)
   const claws = (d, x, y, l, o = {}) => {
     const col = o.col || CLAW, sp = o.spread || 2.2, ang = o.ang || 0;
@@ -25,118 +25,7 @@
 
   Object.assign(DW.DRAW, {
 
-    // ---------------------------------------------------------- Disciple : Agumon
-    agumon(d, p = {}) {
-      const Y = '#f8b228', Yd = '#d88a1c', L = '#fcd468', B = '#7a3a12';
-      const atk = p.pose === 'attack';
-      // queue épaisse qui s'affine
-      d.tube([[22, 47], [13, 52], [5, 56], [1, 57]], 11, 1.6, Y);
-      d.deco.curve([[16, 49.6], [8, 54.6]], 0.8, Yd);
-      // bras éloigné
-      d.tube([[26, 34], [22, 40], [24, 44]], 4.8, 3.8, Yd, { far: true });
-      claws(d, 25, 44.4, 3.2, { far: true, w: 1.5, ang: 0.4 });
-      // jambe éloignée
-      d.ell(39, 53, 6.4, 8.4, Yd, 0, { far: true });
-      d.ell(42, 60, 7.6, 3, Yd, 0, { far: true });
-      toes(d, 45.4, 61.8, 3, { far: true });
-      // corps en poire, ventre à peine plus clair
-      d.blob([[22, 32], [34, 28], [40, 38], [39, 50], [30, 56], [20, 52], [17, 42]], Y);
-      d.deco.blob([[30, 36], [37, 37], [37.6, 48], [32, 53], [28, 48]], L);
-      d.deco.curve([[30, 41.4], [36, 42]], 0.6, Yd); d.deco.curve([[30, 45.4], [36.4, 46]], 0.6, Yd);
-      d.deco.curve([[18, 38], [21, 34]], 1, '#ffe080');
-      // jambe proche (cuisse + gros pied à trois griffes)
-      d.ell(25, 52, 7.6, 9.2, Y);
-      d.deco.curve([[20, 48], [22, 55]], 0.8, Yd);
-      d.ell(28, 60, 9, 3.4, Y);
-      toes(d, 30.6, 62.2, 3, { size: 1.1 });
-      // tête : crâne rond, long museau
-      d.blob([[23, 22], [25, 12], [33, 7.6], [43, 8.6], [50, 13], [60, 18], [62, 25], [56, 31], [42, 32.6], [29, 30]], Y);
-      d.deco.blob([[40, 28.6], [58, 26.6], [57, 31], [44, 32.2]], L);
-      d.deco.curve([[37, 11.6], [43, 10], [49, 12.6]], 1.4, Yd);
-      d.deco.ell(58.4, 20.6, 1.1, 0.8, B, 0, { unlit: true }); d.deco.ell(55.6, 19.4, 0.8, 0.6, B, 0, { unlit: true });
-      if (atk) {
-        // gueule grande ouverte : la Boule de Feu se prépare
-        d.deco.poly([[37, 26.6], [62, 22.6], [61, 33.6], [44, 33]], '#7a1010', { unlit: true });
-        d.deco.ell(50, 31, 6, 1.6, '#e85a6a', 0, { unlit: true });
-        d.deco.ell(55, 28.2, 4.6, 3, '#ff8a2a', 0, { unlit: true }); d.deco.ell(56, 28, 2.4, 1.6, '#fff0a0', 0, { unlit: true });
-        for (let i = 0; i < 4; i++) d.deco.poly([[42 + i * 4.6, 25.6 - i * 0.6], [43.4 + i * 4.6, 28 - i * 0.6], [44.6 + i * 4.6, 25.4 - i * 0.6]], '#ffffff', { unlit: true });
-      } else {
-        // grand sourire et rangée de dents
-        d.deco.curve([[36, 27.4], [47, 29.8], [61, 26]], 1.5, '#5a2000', { unlit: true });
-        for (let i = 0; i < 4; i++) d.deco.poly([[44 + i * 4.2, 28.6 - i * 0.4], [45.3 + i * 4.2, 31.4 - i * 0.4], [46.6 + i * 4.2, 28.4 - i * 0.4]], CLAW, { unlit: true });
-      }
-      // œil vert à iris cerclé
-      d.eye(43.4, 16.4, 4.4, 5.2, '#2aa040', { look: 0.36 });
-      d.deco.curve([[39.4, 10.6], [46.6, 11.2]], 1.2, '#b8641a', { unlit: true });
-      // bras proche replié, trois grandes griffes blanches
-      d.tube([[36, 33], [40, 39], [45, 42]], 5.6, 4.6, Y);
-      d.deco.curve([[38, 36], [41, 40]], 0.7, Yd);
-      claws(d, 45.6, 42.4, 5.6, { w: 2, ang: -0.1, spread: 2.4 });
-    },
 
-    // ---------------------------------------------------------- Champion : Greymon, casque brun et cornes
-    greymon(d, p = {}) {
-      const O = '#f2861e', Od = '#c8661a', Ol = '#f8c070';
-      const Hm = '#5a3a26', HmL = '#7a5638', Hd = '#2a1a10', Hn = '#ece4d2';
-      // queue puissante zébrée
-      d.tube([[18, 43], [9, 49], [3, 54], [0, 58]], 14, 2.6, O);
-      stripe(d, [[11, 45.6], [13.6, 51.4]], 2.6); stripe(d, [[7, 49], [9, 54]], 2.2); stripe(d, [[3.4, 53], [5, 56.6]], 1.8); stripe(d, [[1, 55.6], [2, 57.8]], 1.4);
-      // jambe et bras éloignés
-      d.ell(40, 51, 7, 9.4, Od, 0, { far: true }); d.ell(43, 60, 9.4, 3.2, Od, 0, { far: true });
-      toes(d, 46, 61.8, 3, { far: true });
-      d.tube([[36, 33], [40, 38], [44, 40]], 5, 4, Od, { far: true });
-      claws(d, 44.4, 40.2, 4.4, { far: true, w: 1.6 });
-      // torse massif penché vers l'avant
-      d.blob([[16, 30], [30, 25], [40, 30], [42, 42], [36, 50], [22, 52], [13, 44]], O);
-      d.deco.blob([[30, 32], [39, 34], [40, 44], [34, 50], [28, 44]], Ol);
-      for (let i = 0; i < 3; i++) d.deco.curve([[31, 37 + i * 4], [39, 37.6 + i * 4]], 0.7, '#e09a50');
-      // nombreuses rayures bleues
-      stripe(d, [[16, 28.6], [22, 33.4]], 3); stripe(d, [[13, 34.4], [19.6, 38.4]], 3); stripe(d, [[12.4, 41], [19, 43.4]], 3);
-      stripe(d, [[24, 27], [27, 31]], 2.4); stripe(d, [[20, 47.6], [24.6, 49.6]], 2);
-      // jambe proche : cuisse musclée zébrée, pied griffu
-      d.ell(23, 49, 9.6, 11, O);
-      stripe(d, [[16, 44], [23, 47]], 2.6); stripe(d, [[15.4, 50], [21, 52.4]], 2.4); stripe(d, [[18, 55.4], [23, 56.6]], 2);
-      d.ell(25, 59.6, 10.4, 3.6, O);
-      toes(d, 28.4, 62.2, 3, { size: 1.15 });
-      // cou puissant
-      d.ell(37, 27, 8.6, 7.4, O, -0.45);
-      stripe(d, [[34, 22.6], [37.6, 28]], 2.4);
-      // tête : grand crâne + long museau carré (mâchoire de tyrannosaure)
-      d.blob([[36, 21], [40, 12], [50, 9.4], [58, 13], [63.4, 19], [63.6, 25.4], [60, 28], [46, 28.6], [39, 27]], O);
-      // mâchoire inférieure massive
-      d.blob([[40, 27.4], [50, 28], [61, 27.6], [62, 31], [56, 34.4], [45, 34], [40, 31]], O);
-      d.deco.blob([[44, 31.6], [58, 30.8], [56, 33.6], [46, 33.6]], Ol);
-      stripe(d, [[42, 29], [45, 33]], 1.8); stripe(d, [[39.6, 24.4], [42, 27.6]], 1.6);
-      // casque fossile brun : couvre le crâne et le dessus du museau, bords crénelés, trous
-      d.poly([[35.4, 20.6], [38.6, 11.6], [46, 6.8], [55, 7.6], [61.6, 13.6], [64, 19.4], [60.4, 20.4], [54, 18.6], [47, 20.4], [41.6, 23.4]], Hm, { shiny: true, round: 0.35 });
-      d.deco.curve([[39, 18], [43, 11], [52, 9.2], [60, 14.6]], 1, HmL);
-      for (const [x, y] of [[43.4, 13.4], [48.6, 11.4], [54, 11.6]]) d.deco.ell(x, y, 1.3, 0.9, Hd);
-      for (let k = 0; k < 5; k++) d.deco.poly([[46 + k * 3.4, 20 - k * 0.3], [47.6 + k * 3.4, 22.4 - k * 0.3], [49.2 + k * 3.4, 19.8 - k * 0.3]], Hm);   // bord crénelé sur la joue
-      // corne du nez, pointée vers le haut
-      d.tube([[59.6, 13.6], [61, 9], [60.6, 5.6]], 3, 0.5, Hn, { shiny: true });
-      // deux grandes cornes à l'arrière du casque, recourbées vers le haut et l'arrière
-      d.tube([[44, 8.6], [42.6, 3.6], [39, 0.6], [34.6, 0.2]], 4.4, 0.6, Hn, { shiny: true });
-      d.tube([[39.6, 12], [36, 8], [31.6, 6.4], [28, 7.6]], 4, 0.6, Hn, { shiny: true, far: true });
-      d.deco.line(42.4, 3.6, 39, 1.4, 0.5, CLAWd);
-      // œil vert vif, sourcil du casque au-dessus
-      d.deco.ell(50.6, 17.2, 3.6, 2.6, '#1a2010', 0, { unlit: true });
-      d.deco.ell(51.2, 17.4, 2.2, 1.8, '#3ac850', 0, { unlit: true });
-      d.deco.ell(51.6, 17.6, 0.9, 1.2, '#0a1a08', 0, { unlit: true });
-      d.deco.ell(50.6, 16.6, 0.6, 0.5, '#e8fff0', 0, { unlit: true });
-      d.deco.curve([[47, 15.4], [51, 14], [55, 15.4]], 1.3, Hd, { unlit: true });
-      // narines, gueule et rangée de crocs
-      d.deco.ell(62.4, 21.2, 1, 0.7, '#5a2200', 0, { unlit: true });
-      if (p.pose === 'attack') {
-        d.deco.poly([[42, 27.6], [63.6, 25.6], [62, 33], [46, 33.4]], '#6a0a0a', { unlit: true });
-        d.deco.ell(57, 29.4, 4.4, 2.6, '#ff9a30', 0, { unlit: true }); d.deco.ell(58, 29.2, 2.2, 1.4, '#fff0a0', 0, { unlit: true });
-      } else d.deco.curve([[41, 27.8], [52, 28.4], [63.4, 26.4]], 1.3, '#5a2200', { unlit: true });
-      for (let i = 0; i < 6; i++) d.deco.poly([[43 + i * 3.4, 27.8 - i * 0.25], [44.2 + i * 3.4, 30.6 - i * 0.25], [45.4 + i * 3.4, 27.6 - i * 0.25]], CLAW, { unlit: true });
-      for (let i = 0; i < 4; i++) d.deco.poly([[46 + i * 3.6, 28.6], [47.2 + i * 3.6, 26.2], [48.4 + i * 3.6, 28.6]], CLAW, { unlit: true });
-      // bras proche zébré, trois grandes griffes
-      d.tube([[40, 34], [45, 39], [49, 41]], 6.6, 5, O);
-      stripe(d, [[42, 35.6], [44.6, 38.6]], 2); stripe(d, [[45.4, 38.4], [47.4, 40.6]], 1.8);
-      claws(d, 49.6, 41.6, 6.4, { w: 2.2, ang: 0, spread: 2.6 });
-    },
 
     // ---------------------------------------------------------- Ultime : MetalGreymon, ailes-lames et Bras Trident
     metalgreymon(d, p = {}) {
