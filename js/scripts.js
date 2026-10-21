@@ -193,12 +193,12 @@
     'game/requests.js': 'fc2a2b2d',
     'game/cuisine.js': '3593d267',
     'game/guide.js': '5134ad7e',
-    'game/chapitre1.js': '69e63564',
+    'game/chapitre1.js': '536ba16c',
     'game/cine_shellmon.js': '834ea900',
     'game/debut.js': '152dcb8b',
     'game/trophees.js': '0ae21ace',
-    'game/chapitre2.js': '1e7ccf20',
-    'game/chapitre3.js': '0b04b903',
+    'game/chapitre2.js': 'f7753b5d',
+    'game/chapitre3.js': 'ccaf2f8c',
     'game/quetes.js': '5a3b33fe',
     'game/minijeux.js': 'be70ba3d',
     'main.js': 'b4b3e189',
@@ -208,7 +208,7 @@
   const PAQUETS = [
     { f: '../paquets/jeu-1.js', v: '16b48bfe' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: '15cc2f5f' },
+    { f: '../paquets/jeu-2.js', v: 'c5fb50d9' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

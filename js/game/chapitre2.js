@@ -394,7 +394,7 @@
       ['Seadramon', 'libéré !'],
       ['Enfants retrouvés', `${kids} / ${DW.Crests.ORDER.filter(k => k !== s.hero).length}`],
       ['Bits', String(s.bits)],
-    ], 'BILAN DU CHAPITRE 2'));
+    ], 'BILAN DU CHAPITRE 2', { hero: 'matt', sp: 'gabumon' }));
     await say("Hohoho ! Matt est un garçon bien taciturne... mais il a bon cœur. Il est monté direct dans sa chambre.", 'Jijimon');
     await say("Son petit frère, TK... Je n'en ai pas entendu parler. Mais l'île est grande. Garde l'œil ouvert, et demande à Biyomon : elle a des nouvelles de partout.", 'Jijimon');
     await say("Hm ? Un grand panache de fumée s'élève à l'ouest, par-delà la forêt... Du côté du Mont Miharashi. Ça ne me dit rien qui vaille.", 'Jijimon');

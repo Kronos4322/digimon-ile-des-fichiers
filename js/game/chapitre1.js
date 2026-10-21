@@ -99,7 +99,8 @@
 
   // ------------------------------------------------------------ bilan de fin de chapitre (écran de récapitulatif)
   class RecapScene extends DW.Scene {
-    constructor(lines, title) { super(); this.lines = lines; this.title = title; }
+    // kid : l'enfant délivré pendant ce chapitre et son partenaire (Tai et Agumon, Matt et Gabumon, Sora et Biyomon)
+    constructor(lines, title, kid = { hero: 'tai', sp: 'agumon' }) { super(); this.lines = lines; this.title = title; this.kid = kid; }
     update() { if (this.t > 1.2 && (Input.hit('ok') || Input.hit('back'))) this.close(); }
     draw(c) {
       const t = this.t;
@@ -110,11 +111,12 @@
       c.fillStyle = '#5adcc8'; c.fillRect(40, 38, W - 80, 1);
       const m = st().party[0];
       if (m) DW.Sprites.draw(c, DW.Sprites.battle(m.sp), 54, 150, { frame: Math.floor(t * 4), scale: Math.min(1, 70 / DW.Sprites.battle(m.sp).h) });
-      // Tai et Agumon, délivrés pendant ce chapitre
-      if ((st().kids || {}).tai) {
+      // l'enfant délivré pendant ce chapitre, et son partenaire
+      const K = this.kid;
+      if ((st().kids || {})[K.hero]) {
         // (côte à côte, au-dessus de « ESPACE : continuer »)
-        const hs = DW.Sprites.hero('down', Math.floor(t * 3) % 2 ? 0 : 2, 'tai'); c.drawImage(hs.img, 26, 162, hs.w * 1.4, hs.h * 1.4);
-        DW.Sprites.draw(c, DW.Sprites.battle('agumon'), 84, 206, { frame: Math.floor(t * 4) + 1, scale: 0.55 });
+        const hs = DW.Sprites.hero('down', Math.floor(t * 3) % 2 ? 0 : 2, K.hero); c.drawImage(hs.img, 26, 162, hs.w * 1.4, hs.h * 1.4);
+        DW.Sprites.draw(c, DW.Sprites.battle(K.sp), 84, 206, { frame: Math.floor(t * 4) + 1, scale: Math.min(0.55, 40 / DW.Sprites.battle(K.sp).h) });
       }
       this.lines.forEach(([k, v], i) => {
         const a = DW.clamp((t - 0.3 - i * 0.25) / 0.3, 0, 1);

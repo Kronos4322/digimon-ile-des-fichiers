@@ -189,7 +189,7 @@
       ['Meramon', 'calmé !'],
       ['Enfants retrouvés', `${kids} / ${DW.Crests.ORDER.filter(k => k !== s.hero).length}`],
       ['Bits', String(s.bits)],
-    ], 'BILAN DU CHAPITRE 3'));
+    ], 'BILAN DU CHAPITRE 3', { hero: 'sora', sp: 'biyomon' }));
     await say("Hohoho ! Meramon ouvre un restaurant en ville ? Tout ce qu'il cuit sera bien grillé, ça c'est sûr !", 'Jijimon');
     if ((s.kids || {}).sora) await say("Et Sora... Une jeune fille qui a du cœur. Elle a déjà réorganisé la cuisine de ta maison, hohoho.", 'Jijimon');
     await say("Ces Engrenages Noirs qui tombent du ciel... Quelqu'un les lance sur l'île. Il faudra découvrir qui.", 'Jijimon');
