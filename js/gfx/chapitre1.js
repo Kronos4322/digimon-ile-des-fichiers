@@ -5,10 +5,29 @@
 //    v0 : écorce gravée ; v1, v2 : une, puis deux fissures (énigmes résolues) ; v3 : écorce éclatée, passage ouvert
 //  - treeroots, kuwanest : décor du Cœur du Grand Arbre
 //  - trophystand (1×1) : présentoir de trophée de la cave du joueur ; v0 vide, v1 Kuwagamon (et les suivants, v5 Meramon)
+//  - arbrecreux (1×1) : le vieil arbre creux de la Prairie des Lucioles, entrée du village des Poyomon (maps/yokomon.js)
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
+  // (le grand chêne, avec l'image du joueur si elle est chargée : gfx/textures.js, bigtree)
+  const chene = () => DW.World.obj('bigtree', 0);
   Object.assign(OBJ, {
+    // LE VIEIL ARBRE CREUX : le grand chêne (3 fois le héros, comme tous les arbres) et, au pied de son tronc, une ouverture
+    // sombre où l'on se faufile (remarque du joueur : la petite bûche couchée d'avant n'était « pas assez grosse »)
+    arbrecreux: { w: () => chene().w - 2, h: () => chene().h - 2, n: 1, paint(x) {
+      const B = chene(), iw = B.w - 2, ih = B.h - 2;
+      x.drawImage(B.img, -1, -1, B.w, B.h);
+      // le tronc de l'image (chêne de 112 × 111 posé en bas, sur toute la largeur) : centre à 57,5 / 112 ; dessin de secours
+      // (image absente) : tronc au milieu
+      const im = DW.Textures && DW.Textures.a('commun/arbre_chene'), s = iw / (im ? im.naturalWidth : 112);
+      const cx = im ? 57.5 * s : iw / 2, bas = ih - 3 * s, hw = 6.5 * s, hh = 16 * s;
+      const arche = (dx, dy, r, h) => { x.beginPath(); x.moveTo(dx - r, dy); x.lineTo(dx - r, dy - h + r); x.ellipse(dx, dy - h + r, r, r, 0, Math.PI, 0); x.lineTo(dx + r, dy); x.closePath(); x.fill(); };
+      x.fillStyle = 'rgba(20,12,6,0.45)'; x.beginPath(); x.ellipse(cx, bas + 0.8, hw + 3, 2, 0, 0, 7); x.fill();   // ombre au pied
+      x.fillStyle = '#6a4424'; arche(cx, bas + 0.6, hw + 1.6, hh + 1.6);   // bord d'écorce relevé
+      const g = x.createLinearGradient(0, bas - hh, 0, bas); g.addColorStop(0, '#2a180c'); g.addColorStop(1, '#070302');
+      x.fillStyle = g; arche(cx, bas, hw, hh);   // le creux, noir au fond
+      x.strokeStyle = 'rgba(232,200,140,0.55)'; x.lineWidth = 0.8; x.beginPath(); x.ellipse(cx, bas - hh + hw, hw + 0.8, hw + 0.8, 0, Math.PI * 1.05, Math.PI * 1.95); x.stroke();   // lumière sur l'arête
+    } },
     grandarbre: { w: 132, h: 150, n: 4 },   // (peint : gfx/peints.js ; avec l'image du joueur : gfx/textures.js)
     // racines qui pendent du plafond, gouttes de sève lumineuse (décor mural du Cœur du Grand Arbre)
     treeroots: { w: 40, h: 44, n: 2, draw: DW.World.secours.bois(40, 44) },
@@ -55,4 +74,6 @@
     } },
   });
   OBJ.grandarbre.scale = 1.15;
+  // (dessiné pendant le chargement avec le chêne de secours : redessiné dès que les images du joueur sont là)
+  if (DW.Textures && DW.Textures.charge) DW.Textures.charge.then(() => DW.World.oublierObjet('arbrecreux'));
 })();

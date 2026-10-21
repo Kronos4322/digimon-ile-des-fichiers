@@ -21,7 +21,7 @@
     if (DW.MapKit.dress) DW.MapKit.dress(map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
     if (DW.Distrib) { DW.Distrib.signs(map, mapId); DW.Distrib.place(map, mapId); }   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
     if (DW.Antre) DW.Antre.hole(map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
-    if (DW.YokoVillage) DW.YokoVillage.place(map, mapId);   // le tronc creux vers le village des Poyomon (maps/yokomon.js)
+    if (DW.YokoVillage) DW.YokoVillage.place(map, mapId);   // le vieil arbre creux vers le village des Poyomon (maps/yokomon.js)
     pnjHorsDecor(map);
     return map;
   };
@@ -214,6 +214,17 @@
       const door = (x, y) => (this.map.doors || []).some(o => y === o.y && x >= o.x && x < o.x + (o.w || 1));
       return !door(nx, ny) && !door(P.x + dx, P.y) && !door(P.x, P.y + dy);
     }
+    // UN PAS DU PARTENAIRE de (ax, ay) vers (bx, by) : une case voisine (diagonale comprise), libre, hors de la case où va
+    // le héros (hx, hy) ; en diagonale, comme le héros (canDiag), les deux cases d'angle sont libres : il ne coupe jamais le
+    // coin d'un décor et ne passe pas au travers du héros (game/companion.js : ses pas de côté suivent la même règle)
+    pasPartenaire(ax, ay, bx, by, hx, hy) {
+      const dx = bx - ax, dy = by - ay;
+      if ((!dx && !dy) || Math.abs(dx) > 1 || Math.abs(dy) > 1 || (bx === hx && by === hy)) return false;
+      if (this.solid(bx, by) || this.falaise(ax, ay, bx, by)) return false;
+      if (!dx || !dy) return true;
+      return !this.solid(bx, ay) && !this.solid(ax, by) && !(bx === hx && ay === hy) && !(ax === hx && by === hy)
+        && !this.falaise(ax, ay, bx, ay) && !this.falaise(ax, ay, ax, by);
+    }
     // un pas dans la direction v (8 directions) ; contre un obstacle en diagonale, on glisse le long
     walk(v, over) {
       const P = this.p, run = Input.isDown('run') || Input.runLock || Input.analogRun();
@@ -336,18 +347,25 @@
       if (DW.World.isTall(this.tileAt(nx, ny))) this.rustle[nx + ',' + ny] = 0.5;
       if (!this.partner) Object.assign(F, { moving: false, x: P.x, y: P.y, sx: P.x, sy: P.y, tx: P.x, ty: P.y });   // sans partenaire : la place reste collée au héros
       else if (F.x !== P.sx || F.y !== P.sy) {
-        // le partenaire suit pas à pas, sans jamais traverser le héros ni sauter deux cases d'un coup :
-        // - demi-tour (le héros vient sur sa case) : il s'écarte sur le côté au lieu de passer au travers
-        // - trop loin (après un pas de côté) : il avance d'une seule case vers le héros
-        let tx = P.sx, ty = P.sy;
+        // le partenaire suit pas à pas, sans jamais traverser un décor, ni le héros, ni sauter deux cases d'un coup
+        // (chaque pas : pasPartenaire, une case libre voisine, sans couper le coin d'un décor) :
+        // - en temps normal : sur la case que le héros quitte (son chemin est praticable) ; en diagonale contre un coin de
+        //   décor, il passe par la case d'angle libre
+        // - demi-tour (le héros vient sur sa case) : il s'écarte sur le côté ; dans un couloir, il échange sa place
+        // - trop loin (après un pas de côté) : il avance d'une seule case vers le héros, en contournant le décor
+        const ok = (x, y) => this.pasPartenaire(F.x, F.y, x, y, nx, ny);
+        let T = null;
         if (F.x === nx && F.y === ny) {
-          const dx = nx - P.sx, dy = ny - P.sy, side = [[dy, dx], [-dy, -dx], [-dx, -dy]].map(([a, b]) => [P.sx + a, P.sy + b]);
-          const free = side.find(([x, y]) => (x !== nx || y !== ny) && !this.solid(x, y));
-          if (free) [tx, ty] = free; else { tx = F.x; ty = F.y; }
-        } else if (Math.max(Math.abs(F.x - P.sx), Math.abs(F.y - P.sy)) > 1) {
-          tx = F.x + Math.sign(P.sx - F.x); ty = F.y + Math.sign(P.sy - F.y);
-          if (tx === nx && ty === ny) { tx = F.x; ty = F.y; }
-        }
+          const dx = nx - P.sx, dy = ny - P.sy;   // (côtés : perpendiculaires au pas du héros, d'abord depuis sa propre case)
+          T = [[F.x - dy, F.y + dx], [F.x + dy, F.y - dx], [P.sx - dy, P.sy + dx], [P.sx + dy, P.sy - dx]].find(([x, y]) => ok(x, y)) || [P.sx, P.sy];
+        } else if (Math.max(Math.abs(F.x - P.sx), Math.abs(F.y - P.sy)) <= 1) {
+          T = ok(P.sx, P.sy) ? [P.sx, P.sy] : [[P.sx, F.y], [F.x, P.sy]].find(([x, y]) => (x !== F.x || y !== F.y) && ok(x, y));
+        } else if (Math.max(Math.abs(F.x - P.sx), Math.abs(F.y - P.sy)) <= 3) {
+          const sx = Math.sign(P.sx - F.x), sy = Math.sign(P.sy - F.y);
+          T = [[F.x + sx, F.y + sy], [F.x + sx, F.y], [F.x, F.y + sy]].find(([x, y]) => (x !== F.x || y !== F.y) && ok(x, y));
+        } else T = [P.sx, P.sy];   // (resté coincé loin derrière : il reparaît sur la case que le héros quitte)
+        const [tx, ty] = T || [F.x, F.y], loin = Math.max(Math.abs(tx - F.x), Math.abs(ty - F.y)) > 1;
+        if (loin) Object.assign(F, { x: tx, y: ty });   // (jamais une glissade de plusieurs cases à travers le décor)
         Object.assign(F, { moving: tx !== F.x || ty !== F.y, sx: F.x, sy: F.y, tx, ty, t: over });
         // regard : dans le sens de sa marche ; s'il monte, descend ou attend, il se tourne vers le héros
         if (tx > F.sx) F.face = 'right'; else if (tx < F.sx) F.face = 'left';

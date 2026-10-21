@@ -50,11 +50,12 @@
       if (r < 0.32) { F.face = F.face === 'left' ? 'right' : 'left'; F.back = false; F.front = false; }
       else if (r < 0.52) { C.hop = 0.5; Audio.sfx('text'); }
       else if (r < 0.78) {
-        // petit pas vers une case libre à côté du héros
+        // petit pas vers une case libre à côté du héros : un seul pas, jamais à travers le héros ni un décor (même coin)
+        // (avant : jusqu'à deux cases d'un coup, en ligne droite par-dessus le héros ou un rocher)
         const cand = [];
         for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
           const x = P.x + dx, y = P.y + dy;
-          if ((dx || dy) && !(x === F.x && y === F.y) && Math.abs(x - F.x) + Math.abs(y - F.y) <= 2 && !ow.solid(x, y)) cand.push([x, y]);
+          if ((dx || dy) && ow.pasPartenaire(F.x, F.y, x, y, P.x, P.y)) cand.push([x, y]);
         }
         if (cand.length) {
           const [x, y] = DW.pick(cand);

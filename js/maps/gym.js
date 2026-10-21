@@ -7,7 +7,8 @@
 //    tatami bleu de garde (est)  : A mur de pierre (Défense), râtelier à boucliers, mannequin de bois
 //    dalle violette (sud-ouest)  : Ψ cristal de données (PM)
 //    jardin zen (sud-est) ; l'Intelligence s'apprend à l'école (maps/classe.js), les résistances au Gymnase (maps/gymnase.js)
-//  Chaque poste a son panneau à pictogramme juste à sa gauche. Appareils : images du joueur (dossier SPORT : gfx/textures.js).
+//  Un panneau à pictogramme par stat, juste à gauche de son appareil (pas de panneaux en double : règle du joueur) ; les
+//  autres appareils se lancent en leur parlant. Appareils : images du joueur (dossier SPORT : gfx/textures.js).
 //  + allées pavées, torches, panneau
 // =====================================================================
 (function () {
@@ -143,11 +144,14 @@
       { kind: 'traineau', x: 7, y: 13, w: 1, h: 1, small: true }, { kind: 'punchbag', x: 7, y: 15, w: 1, h: 1, small: true },
       { kind: 'pneus', x: 20, y: 8, w: 1, h: 1, small: true },
       { kind: 'shieldrack', x: 25, y: 11, w: 1, h: 1, small: true }, { kind: 'mannequinbois', x: 27, y: 11, w: 1, h: 1, small: true },
-      // panneaux à pictogramme, chacun juste à gauche de son poste (w: 2 : solide sur toute sa largeur ; eq : son appareil)
-      { kind: 'stationsign', v: 0, x: 4, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 4, y: 11, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 0, eq: 'traineau', x: 4, y: 13, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 6, eq: 'punchbag', x: 4, y: 15, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 3, x: 8, y: 12, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 3, eq: 'pneus', x: 18, y: 8, w: 2, h: 1, small: true },
+      // panneaux à pictogramme : UN SEUL par pictogramme (règle du joueur : « les panneaux en double, tu supprimes »), chacun
+      // juste à gauche de son appareil (plan agrandi : le panneau en x 11-12, l'appareil dessiné à partir de x 13) ;
+      // w: 2 : solide sur toute sa largeur ; eq : son appareil. Le traîneau, les pneus et la seconde haie n'ont pas de
+      // panneau (cœur et chevrons en double) : on leur parle directement (game/overworld.js, trainSpot)
+      { kind: 'stationsign', v: 0, x: 5, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 11, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 6, eq: 'punchbag', x: 5, y: 15, w: 2, h: 1, small: true },
+      // (la haie de la piste : celle que l'atelier des cartes a posée en 22, 24 du plan agrandi ; le panneau en 19-20)
+      { kind: 'stationsign', v: 3, x: 9, y: 12, w: 2, h: 1, small: true },
       { kind: 'stationsign', v: 2, x: 25, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 8, y: 16, w: 2, h: 1, small: true },
       // jardin zen : lanterne, rochers, le gros rocher peint de signes rouges
       { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'kanjirock', x: 23, y: 16, w: 2, h: 1 },
@@ -157,7 +161,7 @@
       { kind: 'bunting', v: 6, x: 13, y: 4, w: 6, h: 1, top: true, oy: -14 },
     ],
     warps: [{ x: 15, y: 0, w: 2, h: 1, dir: 'up', to: 'village', tx: 19, ty: 29 }],
-    doors: [{ x: 22, y: 4, w: 2, dir: 'up', to: 'classe', tx: 7, ty: 10 },
+    doors: [{ x: 22, y: 4, w: 2, dir: 'up', to: 'classe', tx: 8, ty: 11 },   // (devant la porte de la salle de classe : maps/classe.js)
       { x: 8, y: 4, w: 2, dir: 'up', to: 'gymnase', tx: 8, ty: 10, cond: () => !!(DW.Gymnase && DW.Gymnase.open()) }],
     signs: {
       '14,6': async () => {
@@ -175,4 +179,16 @@
     },
   };
   DW.MapKit.zoomMap(DW.MAPS.gym, 'gym');   // plan agrandi ×2 (maps/common.js)
+  // (agrandi, le bloc de 2 × 2 cases d'un appareil de la grille se complète avec la terre de son sol, « = » comme un chemin ;
+  //  or un décor ne s'élargit jamais sur un chemin (gfx/terrain.js) : on traversait le rocher et le mur de pierre par le
+  //  côté. Le sol des aires est peint (paintGround) : ces cases redeviennent de l'herbe, et l'appareil bloque sur toute
+  //  la largeur de son dessin)
+  {
+    const g = DW.MAPS.gym.rows.map(r => [...r]);
+    for (let y = 0; y < g.length; y++) for (let x = 0; x < g[y].length; x++) {
+      if (!DW.World.info(g[y][x]).train) continue;
+      for (const [dx, dy] of [[1, 0], [0, 1], [1, 1]]) if (g[y + dy] && g[y + dy][x + dx] === '=') g[y + dy][x + dx] = '.';
+    }
+    DW.MAPS.gym.rows = g.map(r => r.join(''));
+  }
 })();
