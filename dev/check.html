@@ -1,9 +1,16 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><title>Vérification des cartes</title>
-<style>body{font:13px monospace;background:#0c1a24;color:#cfe;padding:12px}#game{display:none}.ok{color:#7f7}.ko{color:#f77}</style></head>
-<body>
-<canvas id="game"></canvas>
-<h2>Vérification des cartes</h2><pre id="out">...</pre>
-<script src="../js/scripts.js" data-sans-main></script>
-<script src="checkmaps.js"></script>
-</body></html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Vérification des cartes</title>
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body class="verif">
+  <!-- toutes les cartes et l'arbre des Digivolutions (checkmaps.js) ; check.html?seul=carte1,carte2 : seulement ces cartes -->
+  <canvas id="game"></canvas>
+  <h2>Vérification des cartes</h2>
+  <pre id="out">...</pre>
+  <script src="../js/scripts.js" data-sans-main></script>
+  <script src="checkmaps.js"></script>
+</body>
+</html>

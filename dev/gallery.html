@@ -1,44 +1,15 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><title>Galerie sprites</title>
-<style>body{margin:0;background:#5a8ad0}canvas{image-rendering:pixelated;display:block}#game{display:none}</style></head>
-<body>
-<canvas id="game"></canvas>
-<canvas id="g"></canvas>
-<script src="../js/scripts.js" data-sans-main></script>
-<script>
-  // gallery.html?sp=agumon,greymon  (vide = tous)  ;  ?hero  ;  ?icons
-  const q = new URLSearchParams(location.search);
-  const pick = (q.get('sp') || '').split(',').filter(Boolean);
-  const SC = 3, g = document.getElementById('g'), c = g.getContext('2d');
-  g.style.width = '100%';
-  const t0 = performance.now();
-  // (images du joueur : certains Digimon sont dessinés par lui, gfx/sprites.js)
-  DW.Textures.charge.then(() => {
-    if (q.has('hero')) {
-      g.width = 300 * SC; g.height = 290 * SC; c.imageSmoothingEnabled = false; c.scale(SC, SC);
-      c.fillStyle = '#5cb452'; c.fillRect(0, 0, 300, 290);
-      ['down', 'up', 'right', 'left'].forEach((d, j) => [0, 1, 2, 3].forEach(f => {
-        const s = DW.Sprites.hero(d, f);
-        c.drawImage(s.img, 10 + f * 60, 4 + j * 70, s.w * 2, s.h * 2);
-      }));
-    } else if (q.has('icons')) {
-      const ids = Object.keys(DW.ITEMS);
-      g.width = 300 * SC; g.height = 60 * SC; c.imageSmoothingEnabled = false; c.scale(SC, SC);
-      c.fillStyle = '#123'; c.fillRect(0, 0, 300, 60);
-      ids.forEach((id, i) => { const s = DW.Icons.item(id); c.drawImage(s, 10 + i * 40, 10, s.width * 2, s.height * 2); });
-    } else {
-      const list = pick.length ? pick : DW.DEX_ORDER;
-      g.width = 6 * 110 * SC; g.height = Math.ceil(list.length / 6) * 120 * SC;
-      c.imageSmoothingEnabled = false; c.scale(SC, SC);
-      c.fillStyle = '#7aa0e0'; c.fillRect(0, 0, g.width, g.height);
-      list.forEach((sp, i) => {
-        const x = (i % 6) * 110 + 50, y = Math.floor(i / 6) * 120 + 110;
-        c.fillStyle = 'rgba(0,0,0,0.15)'; c.beginPath(); c.ellipse(x, y - 2, 40, 7, 0, 0, 7); c.fill();
-        DW.Sprites.draw(c, DW.Sprites.battle(sp), x, y);
-        DW.Sprites.draw(c, DW.Sprites.ow(sp), x + 46, y);
-      });
-    }
-    document.title = 'Galerie ' + Math.round(performance.now() - t0) + 'ms';
-  });
-</script>
-</body></html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Galerie des sprites</title>
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body class="galerie">
+  <!-- gallery.html?sp=agumon,greymon (vide : tous les Digimon) ; ?hero : le héros ; ?icons : les icônes des objets -->
+  <canvas id="game"></canvas>
+  <canvas id="g"></canvas>
+  <script src="../js/scripts.js" data-sans-main></script>
+  <script src="gallery.js"></script>
+</body>
+</html>
