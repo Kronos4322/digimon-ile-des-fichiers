@@ -66,6 +66,16 @@
       for (const o of map.objects || []) if ((o.kind === 'bouledelave' || o.kind === 'fissure') && x >= o.x && x < o.x + (o.w || 1) && y >= o.y && y < o.y + (o.h || 1)) return o.kind;
       return null;
     },
+    // ÉRUPTION d'un piège (les Corniches de l'Abîme : maps/sous_volcan.js) : des coulées sur ces chemins, qui partent tout
+    // de suite (tot) ou au fil du temps, puis reviennent de temps en temps comme les autres
+    declencher(map, chemins, tot = true) {
+      const S = E(map); map.coulees = map.coulees || [];
+      for (const c of chemins) {
+        if (map.coulees.includes(c)) continue;
+        map.coulees.push(c);
+        S.coulees.push({ c, phase: 'repos', t: tot ? Math.random() * 2.5 : 3 + Math.random() * 25, n: 0, v: 2.4 + Math.random() * 1.4, w: 4.8 + Math.random() * 2.8, seed: S.coulees.length * 7 + 3, pts: null });
+      }
+    },
     // après chaque pas du héros
     pas(ow) { if (!volcanique(ow.map)) return null; const k = L.danger(ow.map, ow.p.x, ow.p.y); return k ? bruler(ow, k) : null; },
     // le héros se cogne à une case (game/overworld.js : tryMove) : rocher magmatique ou fumerolle brûlants

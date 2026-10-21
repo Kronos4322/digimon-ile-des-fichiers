@@ -221,6 +221,9 @@
     // l'arrivée : un couloir qui monte du bas jusqu'à la corniche extérieure
     P.couloir([[cx, H - 4], [cx, 39]], 1.5);
     P.escalier(cx);
+    // (le couloir d'arrivée ne débouche que sur la corniche extérieure : au sud, entre les deux corniches, la roche ; on
+    //  doit faire le tour par les marches du nord)
+    for (let y = cy + 1; y < H - 2; y++) for (let x = 2; x < W - 2; x++) { const e = Math.hypot((x - cx) / ax, (y - cy) / ay); if (e >= 1.36 && e < 1.56) P.set(x, y, '#'); }
     // l'effondrement de la corniche extérieure (à gauche de l'arrivée) et celui de la corniche intérieure (à l'est)
     for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) {
       const a = ang(x, y), e = Math.hypot((x - cx) / ax, (y - cy) / ay);
@@ -261,6 +264,26 @@
       rows: P.g.map(r => r.join('')), objects: P.objs, ...vide(),
       triggers: [{ x: cx - 1, y: H - 3, w: 3, h: 1, run: remonter(SV(1)) }, { x: cx, y: cy - 1, w: 1, h: 1, run: descendre(SV(3)) }],
       entry: { x: cx, y: H - 6 }, exitAt: { x: cx, y: cy } };
+    // L'ÉRUPTION (game/perils.js) : à la première arrivée, Biyomon prévient ; quinze secondes pour quitter les corniches
+    // (en courant, le grand tour se fait juste à temps ; rebrousser chemin, c'est plus sûr), sinon la lave déborde du
+    // gouffre sur la corniche intérieure et dégringole de la paroi sur la corniche extérieure. Jamais sur les marches,
+    // le pont ni le couloir d'arrivée.
+    {
+      const coulees = [], sol = (x, y) => { const c = M.rows[y] && M.rows[y][x]; return c === '.' || c === 'ţ'; };
+      const rayon = (a, e0, e1) => {
+        const L = [], pas = (e1 - e0) / 14;
+        for (let i = 0; i <= 14; i++) { const e = e0 + pas * i, x = Math.round(cx + Math.cos(a) * ax * e), y = Math.round(cy + Math.sin(a) * ay * e); if (sol(x, y) && !L.some(([u, v]) => u === x && v === y)) L.push([x, y]); }
+        return L;
+      };
+      const loin = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+      for (let k = 0; k < 14; k++) {
+        const a = k / 14 * Math.PI * 2 + 0.11, b = a + Math.PI / 14;
+        if (loin(a, -Math.PI / 2) > 0.2 && loin(a, Math.PI / 2) > 0.16) coulees.push(rayon(a, 1.0, 1.34));   // (du gouffre vers la paroi intérieure)
+        if (loin(b, -Math.PI / 2) > 0.2 && loin(b, Math.PI / 2) > 0.2) coulees.push(rayon(b, 2.1, 1.58));    // (de la paroi vers le vide)
+      }
+      M.eruption = { secondes: 15, coulees: coulees.filter(L => L.length >= 3),
+        message: "Bip ! Bip ! Ton Digivice capte un message de Biyomon : « La montagne tremble de plus en plus fort... Le volcan va entrer en éruption ! Tu as quinze secondes pour quitter les corniches. Cours ! »" };
+    }
     // la corniche intérieure coupée à l'est : un coffre attend au bout, pour qui fait le mauvais tour
     let bout = null;
     for (let y = 2; y < H - 2 && !bout; y++) for (let x = W - 3; x > cx; x--) { const a = ang(x, y), e = Math.hypot((x - cx) / ax, (y - cy) / ay); if (e > 1.12 && e < 1.3 && a > -0.85 && a < -0.66 && P.sol(x, y)) { bout = [x, y]; break; } }

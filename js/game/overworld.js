@@ -751,6 +751,7 @@
       DW.Meteo.draw(this, c);   // éclairs, flashs, brouillard épais, soleil de plomb
       DW.Rendu.grade(this, c);  // étalonnage des couleurs, halo du ciel, vignette
       if (!this.cine && (!this.locked || Game.top() === this)) { DW.Time.drawClock(c, W - 92, 6); DW.Care.drawHUD(c, DW.Care.lead(), W - 152, 6); DW.Care.drawMood(c, DW.Care.lead(), W - 88, H - 28); }
+      if (DW.Perils) DW.Perils.drawEcran(this, c);   // compte à rebours d'une éruption annoncée (game/perils.js)
       DW.Care.drawToasts(c);
       if (DW.saveFlash > 0) {
         c.globalAlpha = Math.min(1, DW.saveFlash);

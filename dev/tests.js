@@ -606,6 +606,30 @@ test("poids : un repas fait grossir, un combat fait à peine maigrir (on peut at
   const f0 = m.fat; for (let i = 0; i < 20; i++) DW.Life.addFat(m, -0.02);
   yes(f0 - m.fat <= 1.01, 'vingt combats font trop maigrir');
 });
+test("Meramon sans Sora : un seul coup laisse ton Digimon à 1 PV, et tu prends la fuite", async () => {
+  fresh();
+  const B = new DW.BattleScene({ enemy: new DW.Digimon('meramon', 30), boss: true, ecrasant: { textes: ['Il faut fuir !'] } });
+  B.active = new DW.Digimon('agumon', 15);
+  B.msg = async () => {}; B.attackAnim = async () => {}; B.hitAnim = async () => {};
+  B.applyDamage = async (side, d) => { B.active.hp -= d; };
+  const r = await B.ecrasement(B.o.ecrasant);
+  yes(r === 'run', `le combat ne se termine pas par la fuite (${r})`);
+  yes(B.active.hp === 1, `il reste ${B.active.hp} PV au lieu de 1`);
+});
+test("Corniches de l'Abîme : l'éruption s'annonce à la première arrivée ; partir à temps l'évite, puis la lave revient de temps en temps", () => {
+  fresh();
+  DW.state.flags.chapter = 3;
+  const m2 = DW.preparerCarte('sous_volcan2'), m1 = DW.preparerCarte('sous_volcan1');
+  yes(m2.eruption && m2.eruption.coulees.length >= 10, "pas de coulées prévues pour l'éruption");
+  DW.Perils.compte = null;
+  DW.Perils.entree({ map: m2 });
+  yes(DW.Perils.compte && DW.Perils.compte.t === 15, 'pas de compte à rebours de 15 secondes');
+  DW.Perils.entree({ map: m1 });
+  yes(DW.state.flags.svEruption === 'evitee', "partir des corniches n'évite pas l'éruption");
+  DW.Perils.entree({ map: m2 });
+  yes(!DW.Perils.compte, 'le compte à rebours recommence à chaque visite');
+  yes(DW.Lave.etat(m2).coulees.length >= 10, "le volcan ne reste pas en colère (pas de coulées) après l'éruption");
+});
 
 // (une attente qui ne se termine jamais — une animation attendue sans boucle de jeu — vidait la file de Node : la suite
 //  s'arrêtait en silence avec le code 0, comme une réussite)

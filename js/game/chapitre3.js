@@ -6,8 +6,10 @@
 //     Meramon, le gardien du Mont Miharashi, est devenu fou et brûle tout. Sora est descendue sous la montagne chercher
 //     la source de la fontaine ; Biyomon est remontée seule et supplie le héros d'aller la chercher. Sora est retrouvée
 //     au fond des souterrains, cinq cercles plus bas (maps/sous_volcan.js) ; ensemble, ils montent affronter Meramon.
-//  3) Au sommet du Mont Miharashi, combat contre Meramon ; Biyomon digivolue en Birdramon (à 40 % des PV)
-//     et vient t'aider. L'Engrenage Noir se brise, Meramon s'excuse et part ouvrir le Restaurant en ville.
+//  3) Au sommet du Mont Miharashi, combat contre Meramon. Tant que Sora n'est pas délivrée, il est bien trop puissant :
+//     un seul coup et ton Digimon tombe à 1 PV, tu prends la fuite et les Yokomon te soignent au village. Avec Sora,
+//     Biyomon digivolue en Birdramon (à 40 % des PV) et vient t'aider, comme Greymon et Garurumon aux chapitres 1 et 2.
+//     L'Engrenage Noir se brise, Meramon s'excuse et part ouvrir le Restaurant en ville.
 //  4) L'eau revient au village, Sora s'installe chez toi. Bilan, puis le carton du chapitre 4.
 //  (cartes : région « miharashi » de maps/regions.js ; décors : gfx/desert.js)
 // =====================================================================
@@ -114,6 +116,19 @@
     await say("Dans son dos, un Engrenage Noir tourne en crissant... C'est lui qui le rend fou !");
     if (!s.party.some(m => m.hp > 0)) { await say("Ton partenaire n'est pas en état de se battre... Soigne-le d'abord."); return; }
     if ((await DW.ask('Affronter Meramon ? (un Champion de feu qui grandit à chaque coup)')) !== 0) return;
+    // SANS SORA, Meramon est bien trop puissant : un seul coup, la fuite, et les Yokomon te ramènent au village
+    if (perso() && !s.flags.soraMet && !(s.kids || {}).sora) {
+      await ow.battle({ enemy: new DW.Digimon('meramon', 30), boss: true, canLose: true, music: 'boss', intro: 'Meramon déchaîne ses flammes !',
+        ecrasant: { textes: ["Un seul coup... et c'est déjà trop ! Ces flammes-là, aucun Digimon ne peut les encaisser seul.", 'Il faut fuir, vite !'] } });
+      await DW.fade(1, 0.6);
+      for (const m of s.party) m.heal();
+      await ow.charger('miharashi1', 48, 34, 'down');
+      await DW.fade(0, 0.6);
+      await say("Les Yokomon t'ont trouvé au pied de la montagne et ramené au village. Ils ont soigné ton partenaire avec l'eau de leurs dernières fleurs.", 'Yokomon');
+      await say("Meramon est bien trop fort... Seule, je ne peux pas digivoluer. Il faut d'abord retrouver Sora, sous la montagne ! Je t'en supplie !", 'Biyomon');
+      DW.autosave();
+      return;
+    }
     const res = await ow.battle({
       enemy: new DW.Digimon('meramon', 30), boss: true, canLose: true, music: 'boss', intro: 'Meramon déchaîne ses flammes !',
       grows: 'Meramon absorbe le choc... et ses flammes grandissent encore !',

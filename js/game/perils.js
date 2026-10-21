@@ -11,6 +11,10 @@
 //  - JETS DE FLAMMES (map.flammes = [{ x, y, dx, dy, n, tous: [min, max] }]) : un tombeau rougeoie, puis crache une
 //    langue de feu sur n cases devant lui ;
 //  - LUEURS : la lave éclaire les cartes sombres ; la vapeur monte des eaux qui bouillent (map.vapeur).
+//  - ÉRUPTION ANNONCÉE (map.eruption = { secondes, coulees, message }) : à la première arrivée, Biyomon prévient sur le
+//    Digivice et un compte à rebours s'affiche ; quitter la carte avant la fin, c'est l'éviter ; sinon la lave déborde
+//    et des coulées dévalent partout (game/lave.js). Ensuite, le volcan reste en colère : des coulées reviennent de temps
+//    en temps, jusqu'à ce que Meramon soit calmé. (drapeau svEruption : 'evitee' ou 'subie')
 //  Une carte s'y inscrit avec map.perils = true.
 //  Comme la lave (game/lave.js), un coup laisse au moins 1 PV ; mais un partenaire DÉJÀ à bout de forces s'évanouit :
 //  le héros le porte jusqu'au début du cercle (l'arrivée de la carte, map.entry).
@@ -131,13 +135,37 @@
   const P = DW.Perils = {
     etat: E,   // (pour les essais)
     // arrivée sur une carte : rien ne tombe ni ne vole dans les premières secondes
-    entree(ow) { if (!actif(ow.map)) return; const S = E(ow.map); S.chutes.length = 0; S.nuees.length = 0; S.gravats.clear(); S.grace = 2.5; S.tNuee = Math.max(S.tNuee, 5); },
+    entree(ow) {
+      // (l'éruption annoncée : quitter la carte avant la fin du compte à rebours, c'est l'avoir évitée)
+      const f = DW.state.flags;
+      if (P.compte && P.compte.map !== ow.map) { f.svEruption = f.svEruption || 'evitee'; P.compte = null; }
+      if (!actif(ow.map)) return;
+      const S = E(ow.map); S.chutes.length = 0; S.nuees.length = 0; S.gravats.clear(); S.grace = 2.5; S.tNuee = Math.max(S.tNuee, 5);
+      const Er = ow.map.eruption;
+      if (Er && !f.meramon) {
+        if (!f.svEruption) P.compte = { map: ow.map, t: Er.secondes, annonce: false };
+        else if (!S.eruptee && DW.Lave) { S.eruptee = true; DW.Lave.declencher(ow.map, Er.coulees, false); }   // (le volcan est resté en colère)
+      }
+    },
+    compte: null,   // éruption annoncée en cours : { map, t (secondes restantes), annonce }
     // gravats encore là : la case est bloquée (game/overworld.js : solid)
     bloque(ow, x, y) { const s = etat.get(ow.map); return !!(s && s.gravats.size && s.gravats.has(x + ',' + y)); },
     update(ow, dt) {
       const map = ow.map; if (!actif(map)) return;
       const S = E(map), libre = !ow.locked && !ow.cine;
       if (S.grace > 0) S.grace -= dt;
+      // ÉRUPTION ANNONCÉE : le message de Biyomon, puis le compte à rebours (il s'arrête pendant les dialogues) ; à zéro,
+      // la lave déborde du gouffre
+      const K = P.compte;
+      if (K && K.map === map && DW.Game.top() === ow) {
+        if (!K.annonce) { if (libre) { K.annonce = true; ow.runScript(async () => { DW.Audio.sfx('ring'); await DW.say(map.eruption.message, 'Biyomon'); }); } }
+        else if ((K.t -= dt) <= 0) {
+          P.compte = null; DW.state.flags.svEruption = 'subie'; S.eruptee = true;
+          ow.shake = 1.4; DW.Audio.sfx('roar'); if (DW.Input.rumble) DW.Input.rumble(0.9, 500);
+          if (DW.Lave) DW.Lave.declencher(map, map.eruption.coulees, true);
+          ow.runScript(async () => { await DW.say("BOUM ! Le volcan entre en éruption ! La lave déborde du gouffre et dévale les corniches de tous les côtés !"); });
+        }
+      }
       // gravats qui s'effritent
       for (const [k, g] of S.gravats) { g.t -= dt; if (g.t <= 0) { S.gravats.delete(k); const [x, y] = k.split(',').map(Number); for (let i = 0; i < 6; i++) S.parts.push({ x: x * TS + 8 + (R() - 0.5) * 12, y: y * TS + 12, vx: (R() - 0.5) * 16, vy: -8 - R() * 10, t: 0, vie: 0.9, k: 'poussiere' }); } }
       // nouvelles chutes de pierres et de braises (seulement quand on joue : pas pendant un dialogue)
@@ -276,6 +304,17 @@
         }
         c.globalAlpha = 1;
       }
+    },
+    // ---------------------------------------------------------------- sur l'écran, par-dessus l'obscurité et les jauges : le
+    // compte à rebours de l'éruption annoncée, sous les jauges du haut (gros chiffres, une barre qui fond ; ça clignote plus
+    // vite à la fin)
+    drawEcran(ow, c) {
+      const K = P.compte; if (!K || K.map !== ow.map || !K.annonce) return;
+      const n = Math.max(0, Math.ceil(K.t)), X = DW.W / 2, Y = 64, k = 0.5 + 0.5 * Math.sin((ow.t || 0) * (n <= 5 ? 16 : 7));
+      c.fillStyle = 'rgba(30,4,2,0.82)'; c.fillRect(X - 58, Y - 12, 116, 26);
+      c.fillStyle = `rgba(255,${Math.round(90 + 90 * k)},40,0.95)`; c.fillRect(X - 58, Y - 12, 116, 1); c.fillRect(X - 58, Y + 13, 116 * Math.max(0, K.t) / ow.map.eruption.secondes, 2);
+      DW.UI.text(c, 'ÉRUPTION DANS', X, Y - 2, { size: 7, align: 'center', bold: true, color: '#ffd060' });
+      DW.UI.text(c, `${n} s`, X, Y + 10, { size: 11, align: 'center', bold: true, color: n <= 5 ? `rgb(255,${Math.round(70 + 120 * k)},50)` : '#ffffff' });
     },
     // lumières (coordonnées du monde) : la lave, les braises qui tombent, les tombeaux qui crachent
     lights(ow) {

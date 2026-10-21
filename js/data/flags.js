@@ -53,6 +53,7 @@
     svDescente: 'première descente dans les souterrains du Mont Miharashi (maps/sous_volcan.js)',
     svRocher: 'le gros rocher de la Galerie des Foreurs poussé par un Champion (la galerie du trésor est ouverte)',
     svGardien: "Drimogemon, gardien possédé de la source, libéré de son Engrenage Noir (l'échelle des foreurs est ouverte)",
+    svEruption: "éruption des Corniches de l'Abîme : 'evitee' (on a quitté les corniches à temps) ou 'subie' (game/perils.js)",
     arrosage: "jour de la dernière partie d'arrosage des fleurs au Village des Yokomon (game/minijeux.js)",
     mihaFire: 'grondement du Mont Miharashi entendu (Meramon au sommet)',
     meramon: 'Meramon calmé au sommet du Mont Miharashi, l’eau revient au village (fin du chapitre 3)',

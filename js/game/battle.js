@@ -93,6 +93,7 @@
     // ---------------------------------------------------------- déroulement
     async run() {
       await this.intro();
+      if (this.o.ecrasant) return this.ecrasement(this.o.ecrasant);
       while (true) {
         const action = await this.playerTurn();
         if (action.type === 'run') {
@@ -109,6 +110,21 @@
         const r = await this.doTurn(action);
         if (r) return r;
       }
+    }
+    // COMBAT PERDU D'AVANCE (Meramon avant que Sora soit délivrée : game/chapitre3.js) : l'ennemi frappe d'emblée de son
+    // coup le plus fort, ton Digimon tombe à 1 PV, et tu prends la fuite (E.textes : ce qu'on comprend, avant de fuir)
+    async ecrasement(E) {
+      const en = this.enemy, sig = DW.sigOf(en), ids = (en.moves || []).map(s => s.id).filter(id => DW.MOVES[id]);
+      const id = sig && DW.MOVES[sig] ? sig : ids.sort((a, b) => (DW.MOVES[b].pow || 0) - (DW.MOVES[a].pow || 0))[0];
+      const mv = DW.MOVES[id];
+      await this.msg(`${this.label('e')} déchaîne ${mv.name} !`);
+      this.flash = 0.8; this.shake = 0.6;
+      await this.attackAnim('e', mv);
+      await this.hitAnim('p', 2);
+      await this.applyDamage('p', Math.max(0, this.active.hp - 1));
+      for (const t of E.textes || []) await this.msg(t);
+      Audio.sfx('run'); await this.msg('Tu prends la fuite !');
+      return 'run';
     }
     async intro() {
       Audio.sfx('encounter');
