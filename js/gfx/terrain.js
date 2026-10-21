@@ -971,7 +971,11 @@
     // quinconce (une case sur quatre, et chaque case du premier rang, celui qu'on voit de face) ; variantes du thème
     if (FORET_ARBRES) {
       const KF = (map.objMap && map.objMap.tree) || 'tree';   // (forêt de pins, etc. : map.objMap)
-      const pick = (tx, ty) => { const h = hash(tx, ty, 60); if (KF !== 'tree') return h < 0.5 ? 0 : 1; if (TH && TH.trees) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; for (const [tv, w] of TH.trees) { if (r < w) return tv; r -= w; } return TH.trees[0][0]; } return Math.floor(h * 3); };
+      // ESSENCES PAR BOSQUETS : une forêt pousse par taches (les cerisiers ensemble, les bouleaux ensemble) ; avant, chaque
+      // arbre tirait son espèce au hasard, un tapis uniforme. Tache : une grille d'environ 10 cases déformée par le bruit
+      // (contours naturels) ; un arbre sur cinq garde une espèce au hasard (des mélanges en lisière)
+      const tache = (tx, ty) => { const wx = (fbm(tx * 0.09, ty * 0.09, 71) - 0.5) * 9, wy = (fbm(tx * 0.09, ty * 0.09, 72) - 0.5) * 9; return hash(Math.floor((tx + wx) / 10), Math.floor((ty + wy) / 10), 73); };
+      const pick = (tx, ty) => { const h0 = hash(tx, ty, 60), h = KF !== 'tree' ? h0 : h0 < 0.2 ? hash(tx, ty, 74) : tache(tx, ty); if (KF !== 'tree') return h < 0.5 ? 0 : 1; if (TH && TH.trees) { const tot = TH.trees.reduce((a, t) => a + t[1], 0); let r = h * tot; for (const [tv, w] of TH.trees) { if (r < w) return tv; r -= w; } return TH.trees[0][0]; } return Math.floor(h * 3); };
       for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
         if (tAt(tx, ty) !== TER.canopy) continue;
         const devant = tAt(tx, ty + 1) !== TER.canopy, quinconce = ty % 3 === 0 && (tx + ((ty / 3) & 1) * 2) % 4 === 0;   // (arbres 3 fois plus grands que le héros)

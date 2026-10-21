@@ -106,7 +106,7 @@
     'gfx/buildings2.js': 'fb684c59',
     'gfx/city.js': '95731dcd',
     'gfx/ponts.js': '1a0efd90',
-    'gfx/terrain.js': 'd559e33d',
+    'gfx/terrain.js': '2f031526',
     'gfx/ambient.js': '2d139098',
     'gfx/vivant.js': '992ba20f',
     'gfx/rendu.js': '8cd0343b',
@@ -206,7 +206,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '17174085' },
+    { f: '../paquets/jeu-1.js', v: '34033701' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '780943fe' },
   ];   // (fin des paquets)
