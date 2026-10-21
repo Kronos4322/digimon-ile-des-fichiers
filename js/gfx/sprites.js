@@ -21,6 +21,10 @@
   const IMAGES = {
     punimon: { taille: 0.77 }, nyokimon: { taille: 0.91 }, pabumon: { taille: 0.88 }, poyomon: { taille: 0.76 },   // (Pabumon : ses bulles comptent dans sa hauteur)
     koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
+    // (21/10 : Botamon, Pichimon, et Koromon et Poyomon refaits, en pixel art ; Yuramon, Disciples et Champions peints)
+    botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yuramon: { taille: 0.72 },
+    betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.79 }, palmon: { taille: 0.97 },
+    kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
   };
   const imageDe = (sp, vue) => (IMAGES[sp] && DW.Textures && DW.Textures.a('commun/digi_' + sp + '_' + vue)) || null;
   // une image dans le cadre res × res (sol à 62/64), à la haute définition du jeu ; respiration (squash), pose d'attaque
@@ -48,9 +52,9 @@
   // Birdramon...) : chacun est réduit juste ce qu'il faut, les pieds toujours sur le sol, et recentré si besoin.
   // [échelle, décalage horizontal] mesurés par DW.Sprites.mesurerCadres() (console du navigateur) : à relancer si un
   // dessin change.
-  const CADRE = { yokomon: [0.991, 0], agumon: [1, 1], gomamon: [0.968, 0.5], biyomon: [0.976, 0], elecmon: [1, 1], gabumon: [0.953, 0],
+  const CADRE = { yokomon: [0.991, 0], agumon: [1, 1], gomamon: [0.968, 0.5], biyomon: [0.976, 0], gabumon: [0.953, 0],
     garurumon: [0.976, -0.7], meramon: [0.991, 0], birdramon: [0.925, 0.9], greymon: [0.932, 0.2], ikkakumon: [0.961, -0.2], togemon: [0.976, 0],
-    kuwagamon: [0.96, 0], shellmon: [0.992, 0.2], metalgreymon: [0.939, 0], zudomon: [1, -2], weregarurumon: [0.953, 0], skullmeramon: [0.976, 0],
+    metalgreymon: [0.939, 0], zudomon: [1, -2], weregarurumon: [0.953, 0], skullmeramon: [0.976, 0],
     garudamon: [0.961, -0.2], okuwamon: [0.984, -4.4], wargreymon: [0.991, -1.7], metalgarurumon: [0.961, -0.2], jijimon: [0.991, 0], tentomon: [1, -1],
     kabuterimon: [0.924, 0], angemon: [1, 0.5], monochromon: [0.961, -0.2], frigimon: [0.976, 0], ogremon: [0.945, 0], seadramon: [0.991, -0.7],
     drimogemon: [1, -1.5], centarumon: [1, -2.5], devimon: [0.968, -0.5], skullgreymon: [1, 1], megadramon: [0.991, -1.2], guilmon: [0.976, 1.2],

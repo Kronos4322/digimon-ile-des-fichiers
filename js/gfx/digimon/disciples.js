@@ -28,29 +28,6 @@
       d.deco.curve([[51, 42], [55, 42.8], [58.5, 41]], 1, '#a02a30', { unlit: true });
       d.deco.line(56, 40, 62, 39, 0.4, '#9aa0b8'); d.deco.line(56, 41, 62, 41.5, 0.4, '#9aa0b8');
     },
-    palmon(d) {
-      const G = '#78c862', Gd = '#3e8e3a', Pk = '#f0588c', Pl = '#ff9ec4', Lf = '#2e7a2a';
-      for (let i = 0; i < 7; i++) {
-        const a = Math.PI * 0.92 + (i / 6) * Math.PI * 1.16, x = 32 + Math.cos(a) * 13.5, y = 22 + Math.sin(a) * 12.5;
-        d.ell(x, y, 8, 5.2, Pk, a);
-        d.deco.ell(x - Math.cos(a) * 1.5, y - Math.sin(a) * 1.5, 4.4, 2.2, Pl, a);
-      }
-      d.ell(36, 55, 4.4, 8, Gd, 0, { far: true }); d.ell(37, 61, 6, 2.4, Gd, 0, { far: true });
-      d.tube([[25, 40], [18, 46], [13, 49]], 4, 2.6, Gd, { far: true }); d.ell(11, 50, 4, 2.6, Lf, 0.4, { far: true });
-      d.ell(31, 43, 9, 11, G);
-      d.deco.ell(33, 46, 5, 7, '#a0dc86');
-      d.deco.curve([[33, 38], [33, 52]], 0.7, '#5aa84a');
-      d.ell(26, 55, 4.6, 8, Gd); d.ell(25, 61, 6, 2.4, Gd);
-      d.tube([[20, 62], [17, 63]], 1.6, 1, Lf); d.tube([[30, 62], [33, 63]], 1.6, 1, Lf);
-      d.ell(32, 25, 11.5, 10, G);
-      d.deco.ell(30, 30, 7, 3, '#8ad874');
-      d.eye(36, 25, 3, 4, '#202020'); d.eye(43.5, 25, 2.6, 3.8, '#202020');
-      d.deco.curve([[36, 31], [40, 32.4], [44, 31]], 1, '#2a5a20', { unlit: true });
-      d.deco.ell(33.6, 29, 1.4, 0.8, '#ff9ab0'); d.deco.ell(45.6, 29, 1.2, 0.8, '#ff9ab0');
-      d.tube([[37, 39], [44, 43], [50, 45]], 4.4, 3, G);
-      d.ell(52.5, 45.5, 3.6, 2.4, Lf, 0.5); d.ell(53.5, 43, 3, 1.6, Lf, -0.4); d.ell(53.5, 48.4, 3, 1.6, Lf, 0.8);
-      d.circ(32, 13, 3.2, '#f8e070', { shiny: true });
-    },
     biyomon(d) {
       const P = '#f590b8', Pd = '#d8608f', Y = '#f8c830', Bl = '#5aa0ec';
       d.tube([[36, 50], [38, 60]], 2.8, 2.4, Y, { far: true });
@@ -91,37 +68,6 @@
       d.blob([[49, 41], [62, 43], [60, 51], [50, 51.6], [46, 47]], Bk, { shiny: true });
       d.deco.line(51, 47, 60, 46.6, 0.8, '#1e5aa8');
     },
-    mushroomon(d) {
-      const Cap = '#8e4cba', Sp = '#c8a0f0', Bd = '#f4ecd0', Pk = '#e04a8a';
-      d.ell(37, 58, 5, 3.6, Pk, 0, { far: true });
-      d.tube([[40, 44], [48, 50]], 3.6, 3, Bd, { far: true }); d.circ(49, 51, 3.4, Pk, { far: true, shiny: true });
-      d.ell(32, 47, 10.5, 10, Bd);
-      d.ell(26, 58.6, 5.4, 3.8, Pk, 0, { shiny: true });
-      d.tube([[24, 44], [15, 51]], 3.6, 3, Bd); d.circ(14, 52, 3.6, Pk, { shiny: true });
-      d.ell(32, 34, 20, 4.5, '#6a3092');
-      d.ell(32, 26, 22, 14, Cap);
-      d.deco.circ(22, 20, 3.6, Sp); d.deco.circ(35, 15, 3.8, Sp); d.deco.circ(45, 24, 3, Sp); d.deco.circ(15, 29, 2.6, Sp); d.deco.circ(29, 30, 2, Sp);
-      d.deco.ell(26, 15, 4, 1.6, '#b07ad8', -0.4);
-      d.eye(36, 41, 2.6, 3.2, '#3a2a40'); d.eye(43, 41, 2.4, 3.2, '#3a2a40');
-      d.deco.curve([[33, 46.6], [38.5, 49.4], [44, 46.4]], 1.2, '#7a2a40', { unlit: true });
-      d.deco.poly([[36, 47.6], [37, 49], [38, 47.8]], '#ffffff', { unlit: true });
-    },
-    betamon(d) {
-      const G = '#4cae52', Fin = '#f07a2a', Y = '#ecdf78', St = '#2a5a7a';
-      d.blob([[16, 38], [18, 24], [26, 10], [36, 16], [42, 30], [40, 38]], Fin, { shiny: true });
-      d.deco.line(26, 14, 27, 34, 0.9, '#b84a12'); d.deco.line(21, 22, 23, 35, 0.8, '#b84a12'); d.deco.line(33, 19, 32, 35, 0.8, '#b84a12');
-      d.ell(40, 56, 4.4, 4, G, 0, { far: true }); d.ell(24, 56, 4.2, 4, G, 0, { far: true });
-      d.tube([[16, 47], [8, 48], [2, 46]], 8, 2, G);
-      d.ell(30, 45, 18, 11, G);
-      d.deco.ell(33, 51, 12, 4, Y);
-      d.deco.tube([[18, 40], [22, 44]], 2, 1.4, St); d.deco.tube([[26, 38], [29, 43]], 2, 1.4, St); d.deco.tube([[34, 38], [36, 43]], 2, 1.4, St);
-      d.ell(20, 57, 4.6, 4, G); d.ell(42, 57, 4.6, 4, G);
-      d.poly([[17, 59], [18, 62.6], [20, 59.6]], '#f4f0e4'); d.poly([[40, 59.6], [41, 62.8], [43, 59.6]], '#f4f0e4');
-      d.ell(48, 40, 11.5, 9, G);
-      d.eye(50, 35, 3.3, 3.8, '#e83a30', { look: 0.35 });
-      d.deco.curve([[46, 46], [52, 46.8], [59, 45]], 1.1, '#1a4a1a', { unlit: true });
-      d.deco.ell(57.5, 39.5, 0.8, 0.6, '#1a4a1a', 0, { unlit: true });
-    },
     gotsumon(d) {
       const Gy = '#a2a2b2', Gl = '#cacad6', Gd = '#6e6e7e';
       d.ell(14, 40, 6, 7.5, Gy, 0, { far: true, tex: 0.35 });
@@ -134,26 +80,6 @@
       d.eye(36, 20, 2.8, 3.2, '#f0d020'); d.eye(42.5, 20, 2.4, 3.2, '#f0d020');
       d.deco.line(35, 26.5, 42, 26.5, 1.1, Gd, { unlit: true });
       d.ell(50, 40, 6, 7.5, Gy, 0, { tex: 0.35 });
-    },
-    elecmon(d) {
-      const R = '#e43c3c', Bl = '#3a6ae8', Wt = '#f8f0e0';
-      [[2, 31], [3, 21], [8, 13], [15, 9], [23, 12]].forEach(([tx, ty], i) => {
-        d.tube([[17, 42], [(17 + tx) / 2 - 3, (42 + ty) / 2 + 2], [tx, ty]], 3.2, 2, R, { far: i < 2 || i > 3 });
-        d.circ(tx, ty, 2.2, Bl);
-      });
-      d.ell(23, 55, 3.8, 6, R, 0, { far: true }); d.ell(39, 55, 3.8, 6, R, 0, { far: true });
-      d.ell(29, 45, 14, 9, R);
-      d.deco.ell(31, 50, 9, 3, Wt);
-      d.deco.tube([[24, 37], [26, 45]], 2.4, 1.4, Bl); d.deco.tube([[30, 36.5], [32, 44]], 2.4, 1.4, Bl);
-      d.ell(19, 56, 4.2, 6, R); d.ell(35, 56, 4.2, 6, R);
-      d.poly([[38, 29], [33, 10], [44, 26]], R, { far: true });
-      d.poly([[44, 26], [50, 9], [52, 28]], R);
-      d.deco.poly([[46, 24], [49.5, 13], [50.5, 25]], Bl);
-      d.ell(45, 34, 10.5, 9, R);
-      d.deco.ell(44, 28, 3, 1.4, Bl);
-      d.eye(48.5, 32, 3, 3.8, '#2030a8');
-      d.circ(55.5, 36, 1.8, '#202020', { shiny: true });
-      d.deco.curve([[47, 40], [50, 40.8], [53, 40]], 1, '#801818', { unlit: true });
     },
     // (Gabumon : dessiné dans gfx/digimon/gabumon.js)
   });

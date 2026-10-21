@@ -1,6 +1,6 @@
 'use strict';
 // =====================================================================
-//  DESSINS — LIGNÉE D'AGUMON (Botamon → Agumon → Greymon → MetalGreymon → WarGreymon ; Koromon : images du joueur,
+//  DESSINS — LIGNÉE D'AGUMON (Agumon → Greymon → MetalGreymon → WarGreymon ; Botamon et Koromon : images du joueur,
 //  gfx/sprites.js), version détaillée fidèle aux modèles officiels
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 //  d.xxx = volume ; d.deco.xxx = motif peint sur le volume (voir engine/art.js)
@@ -24,27 +24,6 @@
   const stripe = (d, pts, w = 2.4) => d.deco.tube(pts, w, w * 0.55, '#3a5ec8');
 
   Object.assign(DW.DRAW, {
-    // ---------------------------------------------------------- Bébé : boule noire lisse aux oreilles de chat
-    botamon(d) {
-      const K = '#1e1c26', K2 = '#3a3848', Ks = '#8a8aa0';
-      // oreilles de chat
-      d.poly([[19, 40], [20.6, 26.4], [29, 34.6]], K, { far: true });
-      d.poly([[35, 33.6], [44.6, 26], [45.6, 39]], K);
-      d.deco.poly([[38.6, 33.4], [43.4, 29.6], [43.6, 35.4]], K2);
-      // corps rond et lisse
-      d.ell(32, 47.6, 18.6, 14.6, K, 0, { shiny: true });
-      d.ell(32, 59.4, 16, 3, K, 0, { noline: true });
-      // reflet satiné
-      d.deco.ell(25, 39, 7, 3.6, K2, -0.35);
-      d.deco.ell(24, 38, 3, 1.4, Ks, -0.35);
-      // fines rayures du pelage (comme des moustaches)
-      for (let i = 0; i < 3; i++) { d.deco.line(17, 46 + i * 2.6, 22, 45.4 + i * 2.2, 0.5, K2); d.deco.line(47, 51 + i * 2.2, 51.6, 51.6 + i * 2.6, 0.5, K2); }
-      d.deco.line(30, 36, 33, 35.4, 0.5, K2); d.deco.line(31, 38, 34, 37.6, 0.5, K2);
-      // yeux jaunes en amande
-      d.deco.ell(35.6, 47.4, 3.8, 4.4, '#f8c020', 0.1, { unlit: true });
-      d.deco.ell(46.4, 47.8, 3.3, 4, '#f8c020', -0.1, { unlit: true });
-      d.deco.ell(34.6, 46, 1.2, 1.2, '#fff4b0', 0, { unlit: true }); d.deco.ell(45.6, 46.4, 1.1, 1.1, '#fff4b0', 0, { unlit: true });
-    },
 
     // ---------------------------------------------------------- Disciple : Agumon
     agumon(d, p = {}) {

@@ -486,14 +486,29 @@ def optimiser_commun():
 # le bas), dos (marche vers le haut) -> assets/commun/jeu/digi_<espèce>_<vue>.png ; le jeu les met à la taille de chaque
 # écran (js/gfx/sprites.js : IMAGES). Le numéro d'une pose : son rang dans l'ordre de lecture de la planche (rangées de
 # haut en bas, puis de gauche à droite).
+# (planches en PIXEL ART du 21/10, 10 poses : 0 de face, 1 de dos, 2 et 3 de profil vers la gauche puis la droite, 4 à 6
+#  joie, surprise, sommeil, 7 et 8 de trois quarts vers la gauche puis la droite, 9 qui sautille : les bébés)
+_PIXEL = {'combat': 8, 'profil': 3, 'face': 0, 'dos': 1}
+# (un troisième élément : la hauteur de la copie, pour les Digimon affichés plus grands — Champions)
 DIGIMON = {
-    'koromon':  ('Koromon.jpg',  {'combat': 5, 'profil': (2, 'miroir'), 'face': 0, 'dos': 1}),
     'tsunomon': ('TSUNOMON.jpg', {'combat': (1, 'miroir'), 'profil': (2, 'miroir'), 'face': 0, 'dos': 4}),
     'bukamon':  ('BUKAMON.jpg',  {'combat': 5, 'profil': 3, 'face': 8, 'dos': 1}),
     'nyokimon': ('NYAKOMON.jpg', {'combat': 6, 'profil': 12, 'face': 0, 'dos': 8}),
     'pabumon':  ('PABUMON.jpg',  {'combat': (2, 'miroir'), 'profil': (3, 'miroir'), 'face': 0, 'dos': 7}),
-    'poyomon':  ('POYOMON.jpg',  {'combat': 3, 'profil': (2, 'miroir'), 'face': 0, 'dos': 4}),
     'punimon':  ('PUNIMON.jpg',  {'combat': 5, 'profil': 4, 'face': 0, 'dos': 3}),
+    # 21/10 : bébés en pixel art (Koromon et Poyomon remplacent leurs planches peintes), Disciples et Champions peints
+    'botamon':  ('botamon.jpg', _PIXEL),
+    'koromon':  ('photo_2026-10-21_16-16-36 (2).jpg', _PIXEL),
+    'pichimon': ('photo_2026-10-21_16-16-36 (3).jpg', _PIXEL),
+    'poyomon':  ('photo_2026-10-21_16-16-36.jpg', _PIXEL),
+    'yuramon':  ('yuramon.jpg', {'combat': 1, 'profil': 2, 'face': 0, 'dos': 4}),
+    'betamon':  ('betamon.jpg', {'combat': 2, 'profil': (3, 'miroir'), 'face': 0, 'dos': 1}),
+    'elecmon':  ('elecmon.jpg', {'combat': (3, 'miroir'), 'profil': 2, 'face': 0, 'dos': 1}),
+    'mushroomon': ('muschroomon.jpg', {'combat': 2, 'profil': (3, 'miroir'), 'face': 0, 'dos': 1}),
+    'palmon':   ('palmon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 1}),
+    'kuwagamon': ('kuwagamon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 1}, 240),
+    'shellmon': ('shellmon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 2}, 240),
+    'whamon':   ('whamon.jpg', {'combat': (4, 'miroir'), 'profil': 1, 'face': 2, 'dos': 3}, 240),
 }
 HAUT_DIGIMON = 168   # hauteur des copies : le plus grand affichage d'un Bébé ou d'un Digimon d'entraînement (combat, en haute définition)
 
@@ -577,7 +592,8 @@ def optimiser_digimon():
     if '--numeros' in sys.argv: return numeroter_digimon()
     src = os.path.join(SOURCE_COMMUN, 'Digimon')
     dst = os.path.join(RACINE, 'commun', 'jeu'); os.makedirs(dst, exist_ok=True)
-    for sp, (fichier, vues) in DIGIMON.items():
+    for sp, (fichier, vues, *haut) in DIGIMON.items():
+        haut = haut[0] if haut else HAUT_DIGIMON
         f = os.path.join(src, fichier)
         if not os.path.exists(f):
             print('absent :', fichier); continue
@@ -588,7 +604,7 @@ def optimiser_digimon():
         for v, k in vues.items():
             n, miroir = (k[0], True) if isinstance(k, tuple) else (k, False)
             im = pose_digimon(a, vert, poses[n], miroir)
-            w, h = im.size; s = min(1.0, HAUT_DIGIMON / h)
+            w, h = im.size; s = min(1.0, haut / h)
             out = im.resize((max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
             out.save(cibles[v], optimize=True)
             print('%-24s -> %4dx%-4d  %4d Ko' % ('digi_%s_%s' % (sp, v), out.width, out.height, os.path.getsize(cibles[v]) // 1024))

@@ -23,7 +23,7 @@ qu'il contient : c'est la référence, ce document en donne la carte.
 | `docs/` | Documentation | ce fichier, `ZONES_DW1.md` (recherches sur Digimon World 1) |
 
 **`js/gfx/`** — `sprites.js` (cache et respiration des Digimon ; ceux qui ont des images du créateur, table `IMAGES`, les
-prennent : vues combat, profil, face, dos), `digimon/*.js` (un dessin par espèce pour les autres : `bebes.js`,
+prennent : vues combat, profil, face, dos), `digimon/*.js` (un dessin par espèce pour les autres : les bébés sont tous des images du créateur ;
 `entrainement.js`, `disciples.js`, `champions.js`, `ultimes.js`, `ultimes2.js`, `ile.js`, `chapitre3.js`, lignées détaillées
 `agumon.js`, `gabumon.js`, `lignees.js`, vues de face / de dos `vues.js`), `hero.js` (sprite de marche du joueur et des
 enfants de l'histoire `DW.HEROES`), `persos.js` + `kit_donnees.js` (personnage assemblé avec le kit du créateur), `icons.js`,

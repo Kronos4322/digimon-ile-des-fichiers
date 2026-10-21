@@ -18,63 +18,6 @@
   const toes = (d, x, y, s = 1) => { for (let i = -1; i <= 1; i++) d.poly([[x + i * 2.8 * s - 1, y - 1.6], [x + i * 2.8 * s, y + 1.2], [x + i * 2.8 * s + 1, y - 1.6]], CLAW, { shiny: true }); };
 
   const V = {
-    // ================================================================ BÉBÉS
-    botamon: {
-      front(d) {
-        const K = '#1e1c26', K2 = '#3a3848', Ks = '#8a8aa0';
-        d.poly([[18, 41], [19, 25], [29, 34]], K); d.poly(mir([[18, 41], [19, 25], [29, 34]]), K);
-        d.deco.poly([[20.6, 34.6], [21, 29], [25.6, 33.6]], K2); d.deco.poly(mir([[20.6, 34.6], [21, 29], [25.6, 33.6]]), K2);
-        d.ell(32, 47.6, 18.6, 14.6, K, 0, { shiny: true }); d.ell(32, 59.4, 16, 3, K, 0, { noline: true });
-        d.deco.ell(24, 39, 6.4, 3.2, K2, -0.35); d.deco.ell(23, 38, 2.6, 1.2, Ks, -0.35);
-        for (let i = 0; i < 3; i++) { d.deco.line(14, 47 + i * 2.4, 19, 46.6 + i * 2, 0.5, K2); d.deco.line(50, 47 + i * 2.4, 45, 46.6 + i * 2, 0.5, K2); }
-        pair(d, 47.6, 6.4, 3.7, 4.4, '#f8c020', 0.15);
-        pair(d, 46.2, 7.2, 1.1, 1.1, '#fff4b0');
-      },
-      back(d) {
-        const K = '#1e1c26', K2 = '#3a3848', Ks = '#8a8aa0';
-        d.poly([[18, 41], [19, 25], [29, 34]], K); d.poly(mir([[18, 41], [19, 25], [29, 34]]), K);
-        d.ell(32, 47.6, 18.6, 14.6, K, 0, { shiny: true }); d.ell(32, 59.4, 16, 3, K, 0, { noline: true });
-        d.deco.ell(25, 40, 9, 4.4, K2, -0.3); d.deco.ell(23.6, 38.6, 3.4, 1.4, Ks, -0.3);
-        for (let i = 0; i < 3; i++) d.deco.line(29 + i * 3, 37, 29.4 + i * 3, 41, 0.5, K2);
-      },
-    },
-    pichimon: {
-      front(d) {
-        const B = '#d6e6f4', F = '#a8c8ec';
-        d.poly([[28, 36], [32, 24], [36, 36]], F, { shiny: true });
-        d.ell(32, 48, 19, 14, B, 0, { shiny: true });
-        d.ell(12.6, 51, 5, 2.8, F, 0.6); d.ell(51.4, 51, 5, 2.8, F, -0.6);
-        d.deco.ell(32, 55.4, 10, 3.6, '#eef4fa'); d.deco.ell(24.6, 41, 6, 3.2, '#ffffff', -0.3);
-        eyes(d, 46, 6.6, 4.2, 5.4, '#1a2a4a');
-        d.deco.ell(32, 53.4, 2, 1.4, '#4a2a3a', 0, { unlit: true });
-        pair(d, 51.4, 12.6, 2, 1.1, '#ffb8c8');
-        d.deco.circ(51, 37, 1.6, '#ffffff', { unlit: true }); d.deco.circ(54, 32, 1.1, '#ffffff', { unlit: true });
-      },
-      back(d) {
-        const B = '#d6e6f4', Bd = '#9ab6d4', F = '#a8c8ec';
-        d.poly([[28, 36], [32, 24], [36, 36]], F, { shiny: true });
-        d.ell(32, 48, 19, 14, B, 0, { shiny: true });
-        d.ell(12.6, 51, 5, 2.8, F, 0.6); d.ell(51.4, 51, 5, 2.8, F, -0.6);
-        d.deco.ell(25, 41, 7, 3.6, '#ffffff', -0.3);
-        // nageoire de queue, tournée vers nous
-        d.poly([[32, 47], [21, 39], [24.6, 49], [20.6, 58.6], [32, 53], [43.4, 58.6], [39.4, 49], [43, 39]], F, { shiny: true });
-        d.deco.line(24, 43, 31, 49, 0.6, Bd); d.deco.line(40, 43, 33, 49, 0.6, Bd); d.deco.line(24, 56, 31, 51.6, 0.6, Bd); d.deco.line(40, 56, 33, 51.6, 0.6, Bd);
-      },
-    },
-    yuramon: {
-      front(d) { V.yuramon.body(d); eyes(d, 48.4, 5.6, 3.3, 4.4, '#2a2a2a'); smile(d, 55.4, 1.8, '#a05a4a', 1.2, 0.8); pair(d, 54, 12, 2, 1.1, '#ffc8c0'); },
-      back(d) { V.yuramon.body(d); for (let i = 0; i < 6; i++) { const a = Math.PI * 0.3 + i * 0.4; d.deco.line(32 + Math.cos(a) * 4, 50 + Math.sin(a) * 3, 32 + Math.cos(a) * 15, 50 + Math.sin(a) * 9, 0.6, '#d8d4c8'); } },
-      body(d) {
-        const Wt = '#fbf8f0', Wd = '#d8d4c8', St = '#7aa040', Sl = '#c8e070';
-        const fl = [];
-        for (let i = 0; i <= 40; i++) { const a = Math.PI * 0.9 + (i / 40) * Math.PI * 1.2, r = i % 2 ? 20 : 16.4; fl.push([32 + Math.cos(a) * r * 1.05, 47 + Math.sin(a) * r]); }
-        fl.push([53, 61], [11, 61]);
-        d.poly(fl, Wt, { tex: 0.25 });
-        d.ell(32, 50, 17.6, 12, Wt, 0, { tex: 0.2 });
-        for (let i = 0; i < 7; i++) { const a = Math.PI * 1.1 + i * 0.2; d.deco.line(32 + Math.cos(a) * 9, 46 + Math.sin(a) * 8, 32 + Math.cos(a) * 17, 46 + Math.sin(a) * 15, 0.6, Wd); }
-        d.tube([[32, 29], [32, 23], [33, 19]], 1.8, 1.2, St); d.ell(32, 18, 3.6, 1.8, Sl, 0);
-      },
-    },
     // ================================================================ ENTRAÎNEMENT
     yokomon: {
       front(d) { V.yokomon.body(d); eyes(d, 46, 6.2, 3.6, 4.4, '#2a9a4a'); smile(d, 53.4, 2, '#a04060', 1.4, 0.8); },
@@ -207,30 +150,6 @@
         for (const s of [-1, 1]) { d.ell(32 + s * 13, 42, 9.6, 5, Pd, s * -0.7); d.poly([[32 + s * 19, 47], [32 + s * 21, 51.4], [32 + s * 16.6, 48.6]], W); }
         for (const [a, b, c] of [[[29, 16], [26, 8], [23, 3]], [[32, 15], [32, 6], [32, 1]], [[35, 16], [38, 8], [41, 3]]]) { d.tube([a, b, c], 5, 2, P); d.ell(c[0], c[1] + 1, 2.4, 2.8, Bl); }
         d.ell(32, 24, 11, 10, P);
-      },
-    },
-    palmon: {
-      front(d) {
-        V.palmon.body(d);
-        eyes(d, 25, 4.4, 2.8, 3.8, '#202020');
-        smile(d, 31, 4, '#2a5a20', 1.4, 1);
-        pair(d, 29, 9, 1.3, 0.8, '#ff9ab0');
-        d.deco.ell(32, 46, 5, 7, '#a0dc86'); d.deco.curve([[32, 38], [32, 52]], 0.7, '#5aa84a');
-      },
-      back(d) { V.palmon.body(d); d.deco.curve([[32, 34], [32, 52]], 0.8, '#3e8e3a'); d.deco.curve([[25, 22], [32, 27], [39, 22]], 0.7, '#3e8e3a'); },
-      body(d) {
-        const G = '#78c862', Gd = '#3e8e3a', Pk = '#f0588c', Pl = '#ff9ec4', Lf = '#2e7a2a';
-        for (let i = 0; i < 7; i++) {
-          const a = Math.PI * 0.92 + (i / 6) * Math.PI * 1.16, x = 32 + Math.cos(a) * 13.5, y = 22 + Math.sin(a) * 12.5;
-          d.ell(x, y, 8, 5.2, Pk, a); d.deco.ell(x - Math.cos(a) * 1.5, y - Math.sin(a) * 1.5, 4.4, 2.2, Pl, a);
-        }
-        for (const s of [-1, 1]) { d.ell(32 + s * 4.6, 55, 4.4, 8, Gd); d.ell(32 + s * 5.4, 61, 5.6, 2.4, Gd); }
-        d.ell(32, 43, 9, 11, G);
-        const arm = [[25, 39], [18, 44], [13, 46]];
-        for (const a of [arm, mir(arm)]) { d.tube(a, 4.4, 3, G); const [hx, hy] = a[2], s = hx < 32 ? -1 : 1; d.ell(hx + s * 2.4, hy + 0.4, 3.6, 2.4, Lf, s * 0.5); d.ell(hx + s * 2.6, hy - 2.2, 3, 1.6, Lf, s * -0.4); d.ell(hx + s * 2.4, hy + 3, 3, 1.6, Lf, s * 0.8); }
-        d.ell(32, 25, 11.5, 10, G);
-        d.deco.ell(32, 30, 7, 3, '#8ad874');
-        d.circ(32, 13, 3.2, '#f8e070', { shiny: true });
       },
     },
     tentomon: {
