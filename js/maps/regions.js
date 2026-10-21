@@ -149,6 +149,15 @@
       // toilettes (cabane 3 × 2) près du carrefour, dans quelques sous-zones de chaque région
       if (m.hamlet) placeHamlet(g, m, hub, occ);   // un petit village par région
       if (m.idx % 4 === 0 || m.hamlet) placeToilet(g, m, hub, occ);
+      // (après les toilettes : leur place ne bouge pas, les retouches de l'atelier les retrouvent)
+      // mobilier propre à un village (images du joueur : option mobilier = [[nom, x, y, w, h]], posé seulement sur une case libre)
+      for (const [n, x0, y0, ow, oh] of o.mobilier || []) {
+        let libre = true;
+        for (let yy = y0; yy < y0 + oh; yy++) for (let xx = x0; xx < x0 + ow; xx++) if (occ.has(xx + ',' + yy) || DW.SOLID.has(g.get(xx, yy) || '#') || g.get(xx, yy) === '=') libre = false;
+        if (!libre) continue;
+        m.objects.push({ kind: n, v: 0, x: x0, y: y0, w: ow, h: oh });
+        for (let yy = y0; yy < y0 + oh; yy++) for (let xx = x0; xx < x0 + ow; xx++) occ.add(xx + ',' + yy);
+      }
       // liaison garantie : chaque sortie (et la porte) rejoint le carrefour, quitte à tracer un chemin / un pont
       const walk = (x, y) => x >= 0 && y >= 0 && x < w && y < h && !DW.SOLID.has(g.get(x, y)) && !occ.has(x + ',' + y);
       const reach = () => {
@@ -235,7 +244,7 @@
       if (kind === 'islands') for (const l of k.lakes || []) { l.rx *= K; l.ry *= K; }
       for (const rv of k.rivers || []) rv.r *= 1.6;
       const cave = kind === 'cave';
-      const spec = Object.assign({ seed: s + 13, hub, lm: [...(x.lm || []), ...(x.noRegionLm ? [] : R.lm || [])] }, k, x.opts || {}, { post: x.post });
+      const spec = Object.assign({ seed: s + 13, hub, lm: [...(x.lm || []), ...(x.noRegionLm ? [] : R.lm || [])] }, k, x.opts || {}, { post: x.post, mobilier: x.mobilier });
       const m = MAPS[id] = { idx: i,
         name, regionName: R.name, music: x.music || DW.REGION_MUSIC[rid] || R.music || 'field', bg: 'foret', ambient: R.ambient || 'forest', theme, climate: R.climate || 'forest', region: rid, mer: !!R.mer,   // (mer : l'eau qui touche le bord de la carte est salée, game/paysage.js)
        
@@ -558,7 +567,12 @@
     links: [[0, 1], [1, 8], [8, 7], [7, 6], [6, 5], [5, 4], [4, 3], [3, 0], [6, 2], [6, 9], [7, 10], [7, 11], [9, 10]],
     lake: { cx: 1.5, cy: 1.5, r: 1.02 }, subs: [
     // (bord nord-ouest de l'île : plages à l'ouest, côte rocheuse autour du Phare)
-    ['Rive Sud', 'trail'], ['Rosière', 'plaza', { textures: 'bebe', lm: [['Ð', 3], ['ŗ', 10]], coast: { left: 'beach' } }],
+    ['Rive Sud', 'trail'], ['Rosière', 'plaza', { textures: 'bebe', lm: [['Ð', 3], ['ŗ', 10]], coast: { left: 'beach' },
+      // le Village des Gomamon (ses maisons : gfx/textures.js) : jardinières, lanternes en cœur et boîtes aux lettres devant
+      // chaque maison, bancs, tableau, buissons fleuris (les toilettes posées dans l'atelier restent dégagées)
+      mobilier: [['jardiniere', 40, 34], ['lanterne_coeur', 46, 34], ['boite_lettres', 41, 35], ['jardiniere', 40, 42], ['lanterne_coeur', 46, 42], ['boite_lettres', 41, 43],
+        ['jardiniere', 53, 38], ['lanterne_coeur', 59, 38], ['boite_lettres', 54, 39], ['banc', 48, 38, 2], ['banc', 36, 36, 2], ['panneau_affichage', 50, 42, 2],
+        ['buisson_fleurs', 38, 39], ['buisson_fleurs', 61, 35], ['trefles', 52, 45], ['fanions', 57, 43, 2]].map(([n, x, y, w = 1]) => ['tex_bebe_' + n, x, y, w, 1]) }],
     ['Lac du Tramway', 'trail', { sandWalk: true }],
     ['Ponton des Pêcheurs', 'trail', { coast: { right: 'cliff' } }], ['Pointe Coela', 'trail', { lm: [['Ð', 3]], coast: { right: 'cliff' } }], ['Îlots aux Nénuphars', 'islands', { coast: { up: 'cliff', right: 'cliff' } }],   // (bord est de l'île : falaises)
     ['Cascade du Dragon', 'trail', { sandWalk: true }], ["Lac de l'Œil du Dragon", 'lake'], ['Pont Numérique', 'trail', { coast: { left: 'beach' } }],   // (terre ferme entre la plage et le lac : plus de rivière ni de pont)

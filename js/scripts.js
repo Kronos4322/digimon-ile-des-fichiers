@@ -181,7 +181,7 @@
     'maps/relief.js': 'a472a6a7',
     'maps/monde.js': '2c5310a3',
     'maps/miharashi.js': '317b8801',
-    'maps/regions.js': '8c4cd77f',
+    'maps/regions.js': '3142c5d4',
     'maps/antre.js': '1f0e280f',
     'maps/yokomon.js': '44c78810',
     'maps/souterrain.js': '2c2d919b',
@@ -208,7 +208,7 @@
   const PAQUETS = [
     { f: '../paquets/jeu-1.js', v: 'def15079' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: '5c9975cb' },
+    { f: '../paquets/jeu-2.js', v: 'd1471818' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.
