@@ -139,7 +139,7 @@
     if (!s.flags.tanemon) {
       s.flags.tanemon = true;
       await say("B-bonjour... Je suis Tanemon. Je m'occupe du DigiChamp : ici, la Digiviande pousse sur les plantes !", 'Tanemon');
-      await say("Il n'y a plus que moi en ville pour l'instant... Mais je peux nourrir ton partenaire.", 'Tanemon');
+      await say("Quand les habitants sont partis, moi, je suis resté pour m'occuper des plants. Je peux nourrir ton partenaire !", 'Tanemon');
     }
     if (s.flags.meat === today()) { await say('Les plants repoussent... Reviens demain pour la prochaine récolte !', 'Tanemon'); return; }
     await say('Les Digiviandes sont mûres ! Attends, je les cueille pour toi...', 'Tanemon');
@@ -151,6 +151,8 @@
     DW.Audio.sfx('buy');
     await say(`Tu reçois 3 Viandes !${DW.extraMsg(extra)}`);
     await say('Donne-en à ton partenaire quand il a faim (menu ENTRÉE → SAC).', 'Tanemon');
+    // (la première récolte : sa carte pour l'album du chapitre 1, si tu ne l'as pas déjà)
+    if (DW.Cards && DW.Cards.give('tanemon')) await say('Tanemon te donne aussi une carte à son image pour ton album ! (Album)');
     DW.autosave();
   }
   // récolte de Palmon : une fois par jour de jeu
@@ -165,7 +167,7 @@
     if (dry) await say('La sécheresse a tout desséché... La récolte est maigre cette fois.', 'Palmon');
     const extra = DW.giveItem('viande', n) + (sup ? DW.giveItem('super_viande', 1) : 0);
     DW.Audio.sfx('buy');
-    await say(`Voici la récolte du jour : ${n} Viandes${sup ? ' et une Super Viande' : ''} !${DW.extraMsg(extra)}`, 'Palmon');
+    await say(`Voici la récolte du jour : ${n} Viandes${sup ? ` et une ${DW.ITEMS.super_viande.name}` : ''} !${DW.extraMsg(extra)}`, 'Palmon');
   }
   // pêche : une fois par heure de jeu
   async function gomamonTalk() {

@@ -1,10 +1,11 @@
 'use strict';
 // =====================================================================
-//  CHAPITRE 1 — « L'Île des Fichiers » : de l'arrivée jusqu'à la victoire contre Kuwagamon
+//  CHAPITRE 1 — « L'Île des Fichiers » : de l'arrivée jusqu'à la victoire contre Shellmon (Kuwagamon, puis Shellmon et Tai)
 //  - cartons de chapitre (ChapterScene) : au début de la partie et à la fin du chapitre
 //  - visite guidée de Koromon : ta maison, le panneau de la ville, la route des Champs (nourriture)
 //  - panneau devant la maison de Jijimon : ce qu'on trouve en ville et au jardin, mis à jour à chaque arrivée
-//  (la bande-annonce est dans ui/intro.js, le réveil chez Jijimon dans game/guide.js, Kuwagamon dans maps/foret.js)
+//  (la bande-annonce est dans ui/intro.js, le réveil chez Jijimon dans game/guide.js, Kuwagamon dans maps/kuwagamon.js,
+//   Shellmon et la fin du chapitre dans maps/antre.js)
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
@@ -91,6 +92,8 @@
     await goTo(ow, villageSpot(m => (m.doors || []).find(d => d.to === 'maison'), 2), 'down');
     await say("Voilà, tu sais tout ! Moi, je reste sur la place. Reviens me voir si tu te perds. Bonne chance !", K);
     s.flags.tour = true;
+    // (sa carte pour l'album du chapitre 1, si tu ne l'as pas déjà)
+    if (DW.Cards && DW.Cards.give('koromon')) await say('Koromon te donne une carte à son image pour ton album ! (Album)');
     DW.autosave();
   }
 
@@ -125,7 +128,7 @@
   }
   DW.RecapScene = RecapScene;
 
-  // ------------------------------------------------------------ fin du chapitre 1 (après Kuwagamon)
+  // ------------------------------------------------------------ fin du chapitre 1 (après Shellmon : maps/antre.js)
   async function end1() {
     const s = st();
     if (s.flags.chapter >= 2) return;
@@ -145,7 +148,7 @@
       ['Développement de la ville', `${T.progress()} %`],
       ['Combats gagnés', String(wins)],
       ['Kuwagamon', s.flags.kuwagamon ? 'vaincu !' : '-'],
-      ['Shellmon', s.flags.shellmon ? 'vaincu !' : 'toujours sur la plage...'],
+      ['Shellmon', 'vaincu !'],   // (le bilan ne s'affiche qu'après sa défaite : maps/antre.js)
       ['Album de l\'île', `${DW.Cards ? DW.Cards.ch1Count() : 0} / ${DW.Cards ? DW.Cards.CH1.length : 12} cartes`],
       ['Bits', String(s.bits)],
     ], 'BILAN DU CHAPITRE 1'));
@@ -156,8 +159,9 @@
   }
 
   // ------------------------------------------------------------ zones ouvertes pendant le chapitre 1
-  // La ville, la plage et la forêt (dont le Sentier et le Village des Bébés, où vit Elecmon) ; tout le reste
-  // ouvre après Kuwagamon. Renvoie le message de blocage, ou null si la carte est accessible.
+  // La ville, la plage et la forêt (dont le Sentier et le Village des Bébés, où veille Penguinmon : maps/berceau.js) ;
+  // le reste ouvre région par région à partir du chapitre 2 (après Shellmon : OPENS). Renvoie le message de blocage,
+  // ou null si la carte est accessible.
   const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set();   // (la Crique du Radeau est ouverte dès le début : Whamon n'y apparaît qu'après Shellmon)
   // les régions de l'île s'ouvrent chapitre après chapitre, dans l'ordre de l'anime :
   // chapitre 2 (Garurumon) : le lac ; chapitre 3 (Birdramon) : le pays de Meramon (déserts, Village des Yokomon, Mont Miharashi) ; les autres attendent leur chapitre

@@ -552,7 +552,8 @@
   //     |       |
   //     1 — 0 — 3            (0 ↓ Clairière de l'Arrivée ; 1 ↓ Pays des Scarabées, en attendant le futur village au sud de la Rosière)
   //  10 au nord et 11 à l'ouest du Lac de l'Œil du Dragon (7) : prairies au bord des falaises, la mer en contrebas
-  region('lac', { taille: DW.PUZZLE.case, name: 'Lac du Tramway', theme: 'spring', entry: 'down', music: 'beach', out: [[1, 'down']], lm: [['Ð', 3]],
+  // (la RÉGION s'appelle « Grand Lac » ; « Lac du Tramway » est le nom de la carte de l'île, au centre : lac2)
+  region('lac', { taille: DW.PUZZLE.case, name: 'Grand Lac', theme: 'spring', entry: 'down', music: 'beach', out: [[1, 'down']], lm: [['Ð', 3]],
     plan: [[1, 2], [0, 2], [1, 1], [2, 2], [2, 1], [2, 0], [1, 0], [0, 0], [0, 1], [1, -1], [0, -1], [-1, 0]],
     links: [[0, 1], [1, 8], [8, 7], [7, 6], [6, 5], [5, 4], [4, 3], [3, 0], [6, 2], [6, 9], [7, 10], [7, 11], [9, 10]],
     lake: { cx: 1.5, cy: 1.5, r: 1.02 }, subs: [
@@ -587,7 +588,9 @@
           { kind: 'shipwreck', v: 0, x: 21, y: 46, w: 7, h: 4 },
           ...[[34, 15], [43, 14], [53, 14], [62, 16], [26, 22], [70, 22], [26, 39], [38, 44], [57, 44], [67, 39], [77, 44], [18, 17], [79, 16]].map(([x, y], i) => ({ kind: 'yokohut', v: i % 3 === 2 ? 1 : 0, x, y, w: 4, h: 3, hut: i })),
         ],
-        signs: { '48,31': "La fontaine du village. Les Yokomon y puisent l'eau qui arrose leurs fleurs." },
+        // (la fontaine est à sec tant que Meramon n'est pas calmé : game/chapitre3.js)
+        signs: { '48,31': () => DW.say(DW.state.flags.meramon ? "La fontaine du village. L'eau coule de nouveau : les Yokomon y puisent de quoi arroser leurs fleurs."
+          : "La fontaine du village... à sec. Depuis que Meramon a perdu la tête, plus une goutte pour arroser les fleurs des Yokomon.") },
         post: (g, m) => DW.Mih.village(g, m) }],
       ['Plaine des Panneaux', 'trail', { noRegionLm: true, opts: { hub: [50, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
       ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', noRegionLm: true, opts: { hub: [48, 42], autoTall: 0.3 }, post: (g, m) => DW.Mih.route(g, m) }],

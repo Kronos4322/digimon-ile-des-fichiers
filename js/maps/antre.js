@@ -306,6 +306,8 @@
       await say("Je peux venir chez toi ? Agumon et moi, on n'a nulle part où aller. Et dès que tu entends parler de Matt ou des autres, préviens-moi !", 'Tai');
       DW.Audio.sfx('fanfare');
       await say('Tai et Agumon sont délivrés ! Ils s\'installent dans une chambre de ta maison.');
+      // (la carte d'Agumon pour l'album du chapitre 1, si tu ne l'as pas déjà ; Shellmon et Greymon : plus bas)
+      if (DW.Cards && DW.Cards.give('agumon')) await say("Tai te donne une carte d'Agumon pour ton album ! (Album)");
       for (const k of kids) ow.map.npcs.splice(ow.map.npcs.indexOf(k), 1);
     }
     DW.Trophies.give('shellmon'); DW.Audio.sfx('fanfare'); if (DW.Cards) { DW.Cards.give('shellmon'); DW.Cards.give('greymon'); }

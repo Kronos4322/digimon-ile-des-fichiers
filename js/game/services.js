@@ -24,10 +24,10 @@
   const KIOSK = {
     centarumon: [0, 'Clinique de Centarumon — Soins complets : PV, PM, maladies et blessures. Ouvert de 6 h à 22 h.'],
     andromon: [1, "Atelier d'Andromon — Puces de données : des statistiques augmentées pour toujours. Ouvert de 6 h à 22 h."],
-    meramon: [2, 'Grill de Meramon — Riz, poisson, Super Viande et gâteaux, cuits au feu de Meramon. Ouvert de 6 h à 22 h.'],
+    meramon: [2, 'Grill de Meramon — Viandes grillées au feu de Meramon, champignons, fruits et légumes. Ouvert de 6 h à 22 h.'],   // (son stock : DW.SHOPS.resto)
     frigimon: [3, 'Glacier de Frigimon — Glaces et bonbons, toute la journée.'],
     etemon: [4, "Stand d'Etemon — Paquets de cartes Digimon pour compléter ton album."],
-    tentomon: [5, 'Réparations de Tentomon — Disques PM et Repousse. Ouvert de 6 h à 22 h.'],
+    tentomon: [5, 'Réparations de Tentomon — Disques de combat : Attaque, Défense, Vitesse. Ouvert de 6 h à 22 h.'],   // (DW.SHOPS.disques)
     togemon: [6, "Librairie de Togemon — Manuels pour apprendre de nouvelles techniques. Ouvert de 6 h à 22 h."],
     bakemon: [7, 'Boutique de nuit de Bakemon — Ouverte de 20 h à 5 h... Hihihi.'],
     numemon: [8, "Panneau des rumeurs de Numemon — Toutes les nouvelles de l'île."],
@@ -113,7 +113,8 @@
     togemon: { home: 'village', async talk(n) { if (!open()) return closed(n); await say('Un Digimon doit apprendre en lisant, pas seulement en se battant !', n); await shop('savoir'); } },
     bakemon: { home: 'village', cond: () => hour() >= 20 || hour() < 5, async talk(n) { await say('Hihihi... La boutique de nuit est ouverte...', n); await shop('nuit'); } },
     numemon: { home: 'village', async talk(n) { await say("Le panneau des rumeurs ! Voyons voir...", n); await rumor(n); } },
-    birdramon: { home: 'village', async talk(n) { await say('Je peux te porter dans les airs !', n); if (DW.Story.services && DW.Story.services.biyomon) await DW.Story.services.biyomon(); } },
+    // (son relais : les vols de Biyomon, mais c'est Birdramon qui parle et qui vole : maps/village.js, flyMenu)
+    birdramon: { home: 'village', async talk(n) { await say('Je peux te porter dans les airs !', n); if (DW.Story.flyMenu) await DW.Story.flyMenu(n); } },
     monzaemon: { home: 'village', async talk(n) {
       if (!daily('monzaemon')) return say('Reviens demain pour un autre câlin !', n);
       st().party.forEach(m => m.addHappy(10)); DW.Audio.sfx('buff'); await say('Câlin géant ! Toute ton équipe est heureuse (bonheur +10) !', n);
@@ -140,11 +141,12 @@
       spot: (ow) => { for (let y = 2; y < ow.map.h - 2; y++) for (let x = 2; x < ow.map.w - 2; x++) if (!ow.solid(x, y) && ow.tileAt(x + 1, y) === '~' && !ow.npcAt(x, y)) return [x, y]; return null; },
       cond: () => { const h = hour(); return (h >= 7.5 && h < 9) || (h >= 16.5 && h < 18); },
       async talk(n, ow) {
-        if ((await DW.ask('Je pars pour le Lac Dragon. Tu montes sur mon dos ?', ['Oui', 'Non'], n)) !== 0) return;
+        // (il dépose à l'entrée de la région du lac : la Rive Sud du Grand Lac, lac0)
+        if ((await DW.ask('Je pars pour le Grand Lac. Tu montes sur mon dos ?', ['Oui', 'Non'], n)) !== 0) return;
         const id = DW.REGION_ENTRY.lac, m = DW.getMap(id);
         DW.Audio.sfx('swoosh'); await DW.fade(1, 0.6, '#5ab0ff');
         const hub = m.spec.hub; await ow.charger(id, hub[0], hub[1], 'down'); await DW.wait(0.3); await DW.fade(0, 0.6);
-        await say('Nous voici au Lac Dragon. Je repasse aux Champs à 8 h et à 17 h !', n);
+        await say('Nous voici sur la Rive Sud du Grand Lac. Je repasse aux Champs à 8 h et à 17 h !', n);
       } },
     gabumon: { home: 'champs', async talk(n) {
       const m = st().party[0]; if (!m) return say('Un Digimon, ça se choisit avec le cœur !', n);
@@ -176,8 +178,11 @@
   async function talkRecruit(sp, ow) {
     const n = DW.SPECIES[sp].name, T = TOWN[sp];
     if (T && T.talk) return T.talk(n, ow);
-    const R = DW.Town.info(sp);
-    await say(`Merci de m'avoir accueilli en ville ! ${R.role.replace(new RegExp('^' + n + ' '), 'Je ')}`, n);
+    // (son rôle est écrit à la 3e personne, « Monochromon sert de bouclier... » : il le dit à la 1re, « Je sers de bouclier... » ;
+    //  les verbes dont la 1re personne diffère sont dans JE)
+    const R = DW.Town.info(sp), JE = { sert: 'sers', court: 'cours', fait: 'fais' };
+    const role = R.role.replace(new RegExp('^' + n + ' (\\S+)'), (_, v) => { const w = JE[v] || v; return (/^[aeiouhéèêâ]/i.test(w) ? "J'" : 'Je ') + w; });
+    await say(`Merci de m'avoir accueilli en ville ! ${role}`, n);
   }
 
 

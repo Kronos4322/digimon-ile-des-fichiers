@@ -689,7 +689,8 @@
       // étiquette au-dessus du poste d'entraînement qu'on peut utiliser
       const ts = !this.locked && Game.top() === this && this.trainSpot();
       if (ts) {
-        const label = 'ESPACE : ' + DW.Training.STATS[ts.k].name, w = UI.measure(c, label, 7) + 10;
+        const poste = ts.eq && DW.Training.POSTES[ts.eq];   // (un appareil : son nom, « Traîneau », plutôt que celui de la stat)
+        const label = 'ESPACE : ' + (poste ? poste.nom : DW.Training.STATS[ts.k].name), w = UI.measure(c, label, 7) + 10;
         const X = Math.round(ts.x * TS + 8 - w / 2), Y = Math.round(ts.y * TS - 18 + Math.sin(this.t * 4) * 1.5);
         c.fillStyle = 'rgba(8,20,40,0.85)'; c.fillRect(X, Y, w, 12);
         c.fillStyle = '#ffe070'; c.fillRect(X, Y + 11, w, 1);

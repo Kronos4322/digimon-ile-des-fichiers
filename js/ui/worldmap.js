@@ -39,7 +39,7 @@
     brumes: { x: 150, y: 22, b: 'fog', name: 'Bois Brumeux', desc: "Un brouillard épais où l'on se perd. Les lanternes de pierre montrent le chemin." },
     jouets: { x: 190, y: 18, b: 'toy', name: 'Ville des Jouets', desc: 'Manège, petit train, nounours et boîtes à surprise, autour du château de Monzaemon.' },
     gel: { x: 106, y: 20, b: 'snow', name: 'Terre Gelée', desc: 'Neige éternelle, lacs gelés, igloos et le Temple de Glace.' },
-    lac: { x: 70, y: 41, b: 'lake', name: 'Lac du Tramway', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
+    lac: { x: 70, y: 41, b: 'lake', name: 'Grand Lac', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
     miharashi: { x: 44, y: 60, b: 'desert', name: 'Pays de Meramon', desc: "Des déserts hérissés de poteaux télégraphiques, le Village des Yokomon et sa vieille épave, et le Mont Miharashi où veille Meramon." },
     scarabees: { x: 30, y: 90, b: 'beetle', name: 'Pays des Scarabées', desc: "Une forêt ancienne de souches géantes, l'Arbre-Monde et le Colisée des Scarabées." },
     marais: { x: 146, y: 160, b: 'swamp', name: 'Marais des Geko', desc: 'Tourbières, roseaux chantants, cabanes sur pilotis et le Palais Geko.' },
@@ -469,7 +469,8 @@
       const base = k === 'village' && id === 'village' ? `${DW.Town.label()}. ` : m.piece ? '★ Lieu emblématique. ' : m.landmark ? `★ ${m.landmark}. ` : '';
       const desc = base + (ways.length ? 'Passages connus : ' + [...new Set(ways)].join('  ') : NODES[k].desc);
       // Digimon sauvages de la zone (à droite, dans le panneau)
-      const enc = m.encounters, list = enc && enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];
+      // (sans ceux qui n'apparaissent qu'à un chapitre à venir : game/wild.js)
+      const ch = this.st.flags.chapter || 1, enc = (m.encounters || []).filter(e => !e.ch || ch >= e.ch), list = enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];
       const tw = list.length ? W - 26 - list.length * 20 : W - 24;
       UI.wrap(c, desc, tw - 12, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 12, y0 + 27 + j * 10, { size: 8, color: '#c8f0ff' }));
       if (list.length) {

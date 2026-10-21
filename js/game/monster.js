@@ -15,6 +15,7 @@
       this.happy = o.happy != null ? o.happy : 50;          // bonheur 0-100
       this.born = o.born != null ? o.born : (DW.state ? DW.state.clock : 0); // date d'arrivée (minutes de jeu)
       this.evoAt = o.evoAt != null ? o.evoAt : this.born;                      // date de la dernière Digivolution
+      this.parcours = (o.parcours || []).slice();          // formes passées, la plus ancienne d'abord (renaissance, dé-digivolution)
       this.wins = o.wins || 0;
       this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
       this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
@@ -110,7 +111,11 @@
       if (DW.state) { DW.state.seen[to] = true; DW.state.owned = DW.state.owned || {}; DW.state.owned[to] = true; }
       // ABI (Cyber Sleuth) : +1 en digivoluant, +2 en dé-digivoluant (le stade d'arrivée est plus bas)
       const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
-      this.abi = (this.abi || 0) + (ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage) ? 2 : 1);
+      const bas = ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage);
+      this.abi = (this.abi || 0) + (bas ? 2 : 1);
+      // parcours : une dé-digivolution revient sur ses pas (les formes d'avant restent connues)
+      if (bas) { const i = this.parcours.lastIndexOf(to); this.parcours = i >= 0 ? this.parcours.slice(0, i) : []; }
+      else this.parcours.push(this.sp);
       this.sp = to;
       this.evoAt = DW.state ? DW.state.clock : 0;
       this.reajuster(hp0, mp0);   // (une dé-digivolution laissait des PM au-dessus du maximum)
@@ -118,7 +123,7 @@
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);

@@ -28,9 +28,9 @@
     biyoHint: 'Biyomon : nombre d\u2019indices donnés (un Digimon différent à chaque visite)',
     gymIntro: 'Leomon a présenté le Gymnase (résistances aux éléments, maps/gymnase.js)',
     // histoire
-    kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière, fin du chapitre 1)',
+    kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière ; le chapitre 1 continue jusqu’à Shellmon)',
     kuwaSeen: 'entré dans le Grand Arbre (les racines se sont refermées)',
-    shellmon: 'Shellmon vaincu (plage)',
+    shellmon: 'Shellmon vaincu (antre sous la plage, fin du chapitre 1)',
     whamon: 'Whamon libéré de son Engrenage Noir (Crique du Radeau)',
     devimon: 'Devimon vaincu',
     ending: 'fin du jeu vue',
@@ -39,7 +39,7 @@
     gift_tanemon: 'cadeau de Tanemon reçu (sentier)',
     jiji_tanemon: 'conseil de Jijimon sur le DigiChamp entendu',
     tour: 'visite guidée de la ville par Koromon faite (chapitre 1)',
-    chapter: 'chapitre en cours (2 = après Shellmon, 3 = après Seadramon)',
+    chapter: 'chapitre en cours (2 = après Shellmon, 3 = après Seadramon, 4 = après Meramon)',
     // chapitre 2 (game/chapitre2.js)
     monoSeen: 'combat des deux Monochromon vu (Rive Sud)',
     monoCh2: 'Monochromon de la Rive Sud vaincu (le chemin du lac est libre)',

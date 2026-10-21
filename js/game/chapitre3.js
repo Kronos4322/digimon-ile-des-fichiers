@@ -36,7 +36,7 @@
         folk(43, 36, () => freed() ? ["L'eau ! L'eau est revenue ! Mes fleurs vont refleurir !", "Meramon est venu s'excuser. Il avait l'air tout gêné, hihi."] : ["Il fait si chaud... Mes pétales se dessèchent.", "La nuit, on voit des flammes au sommet du Mont Miharashi."]),
         folk(54, 37, () => freed() ? ['On va faire une grande fête autour de la fontaine !'] : ["Le lac a presque séché. On voit même la vieille épave, au milieu !", "On dit que ce bateau est là depuis toujours. Personne ne sait d'où il vient."]),
         folk(45, 40, () => freed() ? ['Merci, merci, merci !'] : ["Meramon était gentil, avant... Il veillait sur la montagne.", "Une drôle de chose noire est tombée du ciel sur le Mont Miharashi. Depuis, Meramon a changé."]),
-        folk(52, 41, () => ["Les poteaux du désert ? Ils étaient là avant nous. Ils ne mènent nulle part...", "Bienvenue au Village des Yokomon !"]),
+        folk(52, 41, () => ["Les poteaux du désert ? Ils étaient là avant nous. Leur vieille ligne arrive jusqu'au village... mais personne ne sait d'où elle part.", "Bienvenue au Village des Yokomon !"]),
         // la jardinière : une fois l'eau revenue, le mini-jeu d'arrosage (game/minijeux.js)
         { sp: 'yokomon', x: at(40, 37)[0], y: at(40, 37)[1], face: 'right', cond: () => freed(), talk: () => DW.MiniJeux.arrosage('Yokomon jardinière') },
         { hero: 'sora', x: at(43, 32)[0], y: at(43, 32)[1], face: 'right', cond: soraHere, talk: ow => soraTalk(ow) },
@@ -123,7 +123,7 @@
   async function victory(ow, withSora) {
     const s = st();
     s.flags.meramon = true;
-    s.gears = s.gears || {}; s.gears.volcan = true;   // (l'Engrenage Noir de Meramon est brisé)
+    s.gears = s.gears || {}; s.gears.miharashi = true;   // (l'Engrenage Noir de Meramon est brisé : il compte pour le Pays de Meramon, game/story.js)
     ow.shake = 1; Audio.sfx('super');
     await say("L'Engrenage Noir jaillit du dos de Meramon... et se brise en éclats de données !");
     await say("Ouh... ma tête... Qu'est-ce que j'ai fait ? Ces flammes... ce n'étaient pas les miennes. Une chose noire m'est tombée dessus, du ciel.", 'Meramon');

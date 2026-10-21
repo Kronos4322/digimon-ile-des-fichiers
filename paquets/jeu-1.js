@@ -2035,10 +2035,10 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   const r = (to, lvl, req) => ({ to, lvl, req });
   DW.EVO_EXTRA = {
     tsunomon: [r('patamon', 7, { spd: 8, int: 8, wins: 3 })], bukamon: [r('penguinmon', 7, { spd: 10, wins: 3 })], yokomon: [r('tentomon', 8, { def: 12, wins: 3 })],
-    tentomon: [r('kabuterimon', 18, { def: 26, int: 14, wins: 10 })], kunemon: [r('kabuterimon', 18, { def: 26, wins: 10 })],
-    patamon: [r('angemon', 18, { int: 28, wins: 10 }), r('unimon', 18, { spd: 28, wins: 10 }), r('devimon', 18, { atk: 26, mistakes: 3 })],
+    tentomon: [r('kabuterimon', 15, { def: 26, int: 14, wins: 10 })], kunemon: [r('kabuterimon', 18, { def: 26, wins: 10 })],
+    patamon: [r('angemon', 15, { int: 28, wins: 10 }), r('unimon', 18, { spd: 28, wins: 10 }), r('devimon', 18, { atk: 26, mistakes: 3 })],
     gotsumon: [r('monochromon', 18, { def: 28, wins: 10 }), r('drimogemon', 18, { atk: 22, def: 20, wins: 10 })],
-    penguinmon: [r('frigimon', 18, { hp: 26, wins: 10 })], gabumon: [r('frigimon', 18, { hp: 28, def: 14, wins: 10 }), r('ogremon', 18, { atk: 24, mistakes: 3 })],
+    penguinmon: [r('frigimon', 15, { hp: 26, wins: 10 })], gabumon: [r('frigimon', 18, { hp: 28, def: 14, wins: 10 }), r('ogremon', 18, { atk: 24, mistakes: 3 })],
     elecmon: [r('leomon', 18, { atk: 28, wins: 12 }), r('centarumon', 18, { int: 26, def: 14, wins: 10 })], agumon: [r('monochromon', 18, { def: 28, hp: 14, wins: 10 })],
     betamon: [r('seadramon', 18, { int: 28, wins: 10 }), r('gekomon', 18, { int: 22, hp: 18, wins: 10 })], gomamon: [r('seadramon', 18, { int: 26, spd: 14, wins: 10 })],
     biyomon: [r('unimon', 18, { spd: 26, int: 14, wins: 10 })], mushroomon: [r('bakemon', 18, { int: 26, wins: 10 })], kunemon2: [],
@@ -2071,6 +2071,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   mv('flamme_follet', { name: 'Flamme Follet', type: 'Feu', pow: 40, acc: 100, st: { s: 'brn', ch: 0.3 }, desc: 'Une petite flamme dansante qui brûle sans prévenir.' }, 'orb');
   mv('morsure_ardente', { name: 'Morsure Ardente', type: 'Feu', pow: 85, contact: true, st: { s: 'brn', ch: 0.15 }, desc: 'Mord de toutes ses dents chauffées à blanc.' }, 'bite');
   mv('poing_lave', { name: 'Poing de Lave', type: 'Feu', pow: 95, acc: 90, contact: true, desc: 'Un coup de poing enrobé de lave en fusion.' }, 'firepunch');
+  Object.assign(DW.SIG, { guilmon: 'pyro_sphere', candlemon: 'bombe_paraffine', flarizamon: 'morsure_ardente' });   // (coups spéciaux : data/moves.js)
 
   def('guilmon', { name: 'Guilmon', stage: 'Disciple', types: ['Feu'], attr: 'Virus', base: { hp: 58, atk: 64, def: 50, spd: 54, int: 50 }, kg: 12,
     learn: [[1, 'griffe'], [1, 'grondement'], [1, 'pyro_sphere'], [10, 'vive_attaque'], [13, 'morsure'], [16, 'coup_tete'], [19, 'souffle_ardent'], [22, 'mega_flamme']], evo: { to: 'flarizamon', lvl: 18 }, rate: 120, xp: 72,
@@ -2121,6 +2122,8 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'morsure'], [8, 'vive_attaque'], [10, 'bulle_explosive']], rate: 190, xp: 45,
     desc: "Une adorable boule blanche aux longues oreilles... qui cache une bouche immense pleine de dents !" });
 
+  // coups spéciaux (data/moves.js) : comme les autres bébés et Digimon d'Entraînement
+  Object.assign(DW.SIG, { pabumon: 'bulles', poyomon: 'bulles_acides', motimon: 'bulles', tokomon: 'bulles' });
   // Digivolutions (fusionnées par evolutions.js)
   Object.assign(DW.EVO_EXTRA, {
     pabumon: [{ to: 'motimon', lvl: 5, req: { wins: 2 } }],
@@ -2235,6 +2238,18 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     options: sp => EVO[sp] || [],
     // formes précédentes (pour la dé-digivolution)
     prev: sp => Object.keys(EVO).filter(k => EVO[k].some(e => e.to === sp)),
+    // LA forme précédente : celle qu'il a vraiment été (passe : m.parcours), sinon celle dont il est l'évolution principale
+    // (Gabumon ← Tsunomon et non Koromon, Tentomon ← Motimon, Patamon ← Tokomon : les lignées de l'animé)
+    prev1(sp, passe) {
+      const p = this.prev(sp), v = passe && passe[passe.length - 1];
+      return p.includes(v) ? v : p.find(k => EVO[k][0].to === sp) || p[0] || null;
+    },
+    // bébé à l'origine de sa lignée (renaissance) : Greymon → Agumon → Koromon → Botamon
+    bebe(sp, passe = []) {
+      const P = passe.slice();
+      for (let k = 0; k < 8; k++) { const p = this.prev1(sp, P); if (!p) break; if (P[P.length - 1] === p) P.pop(); sp = p; }
+      return sp;
+    },
     // détail des conditions pour un Digimon donné
     check(mon, opt) {
       const rows = [{ label: 'Niveau', need: opt.lvl, have: mon.level }];
@@ -2430,7 +2445,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   mv('sphere_obscure', { name: 'Sphère Obscure', type: 'Ténèbres', pow: 80, acc: 95, desc: 'Une sphère noire qui aspire la lumière.' }, 'darkorb');
   mv('tempete_petales', { name: 'Tempête de Pétales', type: 'Plante', pow: 80, acc: 95, desc: 'Un tourbillon de pétales tranchants.' }, 'petalstorm');
   // anciennes techniques : leur vraie nature
-  for (const id of ['gadoue_nume', 'ordure_toxique']) if (M[id]) M[id].type = 'Poison';
+  for (const id of ['gadoue_nume', 'ordure_toxique', 'champi_bombe']) if (M[id]) M[id].type = 'Poison';
   if (M.ordure_toxique) M.ordure_toxique.fx = 'sludge';
   if (M.jugement) M.jugement.fx = 'holybeam';
   if (M.neant) M.neant.fx = 'darkorb';
@@ -2889,9 +2904,9 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     biyoHint: 'Biyomon : nombre d\u2019indices donnés (un Digimon différent à chaque visite)',
     gymIntro: 'Leomon a présenté le Gymnase (résistances aux éléments, maps/gymnase.js)',
     // histoire
-    kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière, fin du chapitre 1)',
+    kuwagamon: 'Kuwagamon vaincu (Grand Arbre de la clairière ; le chapitre 1 continue jusqu’à Shellmon)',
     kuwaSeen: 'entré dans le Grand Arbre (les racines se sont refermées)',
-    shellmon: 'Shellmon vaincu (plage)',
+    shellmon: 'Shellmon vaincu (antre sous la plage, fin du chapitre 1)',
     whamon: 'Whamon libéré de son Engrenage Noir (Crique du Radeau)',
     devimon: 'Devimon vaincu',
     ending: 'fin du jeu vue',
@@ -2900,7 +2915,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     gift_tanemon: 'cadeau de Tanemon reçu (sentier)',
     jiji_tanemon: 'conseil de Jijimon sur le DigiChamp entendu',
     tour: 'visite guidée de la ville par Koromon faite (chapitre 1)',
-    chapter: 'chapitre en cours (2 = après Shellmon, 3 = après Seadramon)',
+    chapter: 'chapitre en cours (2 = après Shellmon, 3 = après Seadramon, 4 = après Meramon)',
     // chapitre 2 (game/chapitre2.js)
     monoSeen: 'combat des deux Monochromon vu (Rive Sud)',
     monoCh2: 'Monochromon de la Rive Sud vaincu (le chemin du lac est libre)',
@@ -14676,6 +14691,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       this.happy = o.happy != null ? o.happy : 50;          // bonheur 0-100
       this.born = o.born != null ? o.born : (DW.state ? DW.state.clock : 0); // date d'arrivée (minutes de jeu)
       this.evoAt = o.evoAt != null ? o.evoAt : this.born;                      // date de la dernière Digivolution
+      this.parcours = (o.parcours || []).slice();          // formes passées, la plus ancienne d'abord (renaissance, dé-digivolution)
       this.wins = o.wins || 0;
       this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
       this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
@@ -14771,7 +14787,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (DW.state) { DW.state.seen[to] = true; DW.state.owned = DW.state.owned || {}; DW.state.owned[to] = true; }
       // ABI (Cyber Sleuth) : +1 en digivoluant, +2 en dé-digivoluant (le stade d'arrivée est plus bas)
       const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
-      this.abi = (this.abi || 0) + (ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage) ? 2 : 1);
+      const bas = ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage);
+      this.abi = (this.abi || 0) + (bas ? 2 : 1);
+      // parcours : une dé-digivolution revient sur ses pas (les formes d'avant restent connues)
+      if (bas) { const i = this.parcours.lastIndexOf(to); this.parcours = i >= 0 ? this.parcours.slice(0, i) : []; }
+      else this.parcours.push(this.sp);
       this.sp = to;
       this.evoAt = DW.state ? DW.state.clock : 0;
       this.reajuster(hp0, mp0);   // (une dé-digivolution laissait des PM au-dessus du maximum)
@@ -14779,7 +14799,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);
@@ -14961,7 +14981,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   DW.slot = 1;
   const keyOf = n => (n > 1 ? BASE + '_' + n : BASE);
   const K = { get KEY() { return keyOf(DW.slot); }, get BAK() { return keyOf(DW.slot) + '_precedente'; }, get BROKEN() { return keyOf(DW.slot) + '_illisible'; } };
-  DW.SAVE_V = 6; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20) — v6 : antre de Shellmon redessinée
+  DW.SAVE_V = 7; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20) — v6 : antre de Shellmon redessinée — v7 : l'Engrenage de Meramon compte pour le Pays de Meramon
   DW.newState = () => ({
     name: 'Tai', hero: 'tai', party: [], box: [], bag: {}, bits: 300, flags: {}, seen: {}, owned: {},
     map: 'maison', x: 12, y: 5, dir: 'down', heal: { map: 'maison', x: 12, y: 5 }, time: 0, recruits: {},
@@ -15083,6 +15103,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     }
     // v6 : l'antre de Shellmon est redessinée (images du joueur) : une partie sauvegardée dedans reprend à l'entrée de la salle
     if (v < 6 && /^antre/.test(st.map) && DW.MAPS[st.map] && DW.MAPS[st.map].entry) Object.assign(st, { x: DW.MAPS[st.map].entry.x, y: DW.MAPS[st.map].entry.y, dir: 'up' });
+    // v7 : l'Engrenage de Meramon (chapitre 3, Mont Miharashi) était compté pour le Mont Panorama (gears.volcan) ; il compte
+    //  désormais pour le Pays de Meramon (game/story.js). Seulement si Meramon a bien été calmé au Mont Miharashi ; l'ancien
+    //  engrenage n'est retiré que s'il ne peut pas venir de l'ancien boss du Mont Panorama (son Belvédère jamais visité)
+    if (v < 7 && st.flags.meramon) { st.gears = st.gears || {}; st.gears.miharashi = true; if (!(st.visited || {}).volcan7) delete st.gears.volcan; }
     st.v = DW.SAVE_V;
     for (const box of [st.bag, st.bank, st.fridge || {}]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
     const orphans = (st.orphans || []).slice();
@@ -15313,7 +15337,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 //    et sont la condition principale des Digivolutions.
 //  - Une séance = un mini-jeu propre au poste, en 3 essais (game/trainingames.js) :
 //    le Digimon court, soulève, frappe... Plus la stat est entraînée, plus c'est dur.
-//    Raté = 0, réussi = 1, parfait = 2 points. Fatigue +30, 1 h 30.
+//    Raté = 0, réussi = 1, parfait = 2 points. Fatigue +20, +30 ou +40 selon le niveau choisi (LEVELS), 1 h 30.
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
@@ -15335,7 +15359,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     pneus: { k: 'spd', jeu: 'hurdle', nom: 'Pneus', desc: 'Passer entre les pneus qui se balancent (Vitesse, un peu de Défense).', base: { spd: 6, def: 4 } },
     hurdle: { k: 'spd', jeu: 'hurdle', nom: 'Haies', desc: 'Sauter les haies à toute allure.' },   // (haies posées dans l'atelier des cartes)
   };
-  const TOTAL = 300, TIRE = 30, MINUTES = 90;   // TOTAL : points d'entraînement cumulés, toutes stats (6 avec les PM)
+  const TOTAL = 300, MINUTES = 90;   // TOTAL : points d'entraînement cumulés, toutes stats (6 avec les PM) ; la fatigue : LEVELS
 
   const Training = DW.Training = {
     STATS, POSTES, TOTAL,
@@ -15419,9 +15443,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const st = DW.state, S = STATS[k];
       if (!S) return;
       if (!st.party.length) { await DW.say("Un poste d'entraînement... Il te faudrait un partenaire Digimon !"); return; }
+      // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu ; un appareil
+      // (traîneau, sac de frappe...) donne son nom au poste
+      const at = spot && DW.ow && DW.FieldTrainingScene ? (spot.eq ? { x: spot.x, y: spot.y, eq: spot.eq } : this.station(DW.ow, k, spot)) : null;
+      const nom = at && at.eq && POSTES[at.eq] ? POSTES[at.eq].nom : S.name;
       let m = st.party[0];
       if (st.party.length > 1) {
-        const r = await DW.ask(`Poste « ${S.name} » (${S.stat}). Qui s'entraîne ?`, [m.name, 'Un autre Digimon', 'Annuler']);
+        const r = await DW.ask(`Poste « ${nom} » (${S.stat}). Qui s'entraîne ?`, [m.name, 'Un autre Digimon', 'Annuler']);
         if (r === 1) {
           const i = await Game.push(new DW.PartyScene({ mode: 'select', title: 'ENTRAÎNEMENT' }));
           if (i == null || i < 0) return;
@@ -15431,14 +15459,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const why = this.blocked(m, k);
       if (why) { await DW.say(why); return; }
       // objectif et difficulté de la séance (comme dans Digimon World : on peut aussi monter les stats directement)
-      const goal = await DW.ask(`Objectif de l'entraînement « ${S.name} » ?`, ["Digivolution (points d'entraînement)", `Statistique (${S.stat} directement)`, 'Annuler']);
+      const goal = await DW.ask(`Objectif de l'entraînement « ${nom} » ?`, ["Digivolution (points d'entraînement)", `Statistique (${S.stat} directement)`, 'Annuler']);
       if (goal < 0 || goal > 1) return;
       const lv = await DW.ask('Quel niveau de difficulté ?', this.LEVELS.map(L => `${L.name}${L.mul === 1 ? '' : L.mul > 1 ? ' (points ×2)' : ' (points ÷2)'}`).concat(['Annuler']));
       if (lv < 0 || lv > 2) return;
       this.opts = { mode: goal === 1 ? 'stat' : 'evo', level: this.LEVELS[lv] };
       // séances enchaînées ; après chaque séance d'Intelligence, une technique peut être retenue (maps/classe.js)
-      // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu
-      const at = spot && DW.ow && DW.FieldTrainingScene ? (spot.eq ? { x: spot.x, y: spot.y, eq: spot.eq } : this.station(DW.ow, k, spot)) : null;
       for (;;) { const sc = at ? new DW.FieldTrainingScene(m, k, at) : new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
       if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre sa fiche, onglet Digivolution (ENTRÉE → DIGIMON, puis flèche droite).`);
     },
@@ -15535,7 +15561,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (this.state === 'ready') {
         const stars = 1 + Math.round(this.dif * 4);
         UI.text(c, S.desc, 16, 202, { size: 8, color: '#ffffff' });
-        UI.text(c, `Difficulté ${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}   ·   ${S.stat} actuel : ${this.before}   ·   1 h 30, fatigue +${TIRE} %`, 16, 214, { size: 7, color: '#8ae0f0' });
+        UI.text(c, `Difficulté ${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}   ·   ${S.stat} actuel : ${this.before}   ·   1 h 30, fatigue +${this.opts.level.tire} %`, 16, 214, { size: 7, color: '#8ae0f0' });
         UI.text(c, 'ESPACE : commencer      ÉCHAP : annuler', W / 2, 228, { size: 8, align: 'center', color: '#ffe070' });
       } else if (play) {
         UI.wrap(c, this.game.hint, W - 80, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 16, 204 + j * 11, { size: 8, color: '#c8f0ff' }));
@@ -16528,12 +16554,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       await Life.sleep(true);
       await DW.say(`${m.name} se réveille tard, encore tout grognon.`);
     },
-    // renaissance : bébé de la lignée, avec un héritage
-    babyOf(sp) { for (let k = 0; k < 8; k++) { const p = DW.Evo.prev(sp); if (!p.length) break; sp = p[0]; } return sp; },
+    // renaissance : le bébé qu'il a été (sinon celui de sa lignée), avec un héritage
+    babyOf: m => DW.Evo.bebe(m.sp, m.parcours),
     reborn(m, sp) {
       Life.init(m);
-      const same = !sp || sp === Life.babyOf(m.sp);
-      sp = sp || Life.babyOf(m.sp);
+      const same = !sp || sp === Life.babyOf(m);
+      sp = sp || Life.babyOf(m);
       const iv = {}; for (const k in m.iv) iv[k] = Math.min(15, m.iv[k] + 2);
       const tr = {}; for (const k in m.tr) tr[k] = Math.floor(m.tr[k] / 2);
       // même lignée : il garde ses techniques et son surnom ; nouvelle lignée : un nouveau Digimon qui hérite d'une partie de la force
@@ -16547,7 +16573,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (idx < 0) return;
       await DW.say(`${m.name} est arrivé au bout de sa vie de Digimon... Il te regarde une dernière fois avec tendresse.`);
       await DW.say('Ses données se rassemblent... et forment un DigiŒuf ! Quel Digimon va en naître ?');
-      const same = Life.babyOf(m.sp), eggs = [same, ...DW.EGG_ORDER.filter(e => e !== same)];
+      const same = Life.babyOf(m), eggs = [same, ...DW.EGG_ORDER.filter(e => e !== same)];
       let i = -1;
       while (i < 0) i = await DW.choose(eggs.map((e, k) => DW.SPECIES[e].name + (k ? '' : ' (même lignée)')), { y: 20 });
       const nm = Life.reborn(m, eggs[i]);
@@ -16924,8 +16950,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const emote = (ow, k) => { if (DW.Companion) DW.Companion.emote(ow, k, 2); };
   // Digimon sauvage caché dans le décor (s'il y en a dans la zone)
   async function ambush(ow, line) {
-    const enc = ow.map.encounters;
-    if (!enc || !enc.length || !pt() || pt().hp <= 0) return false;
+    const ch = st().flags.chapter || 1, enc = (ow.map.encounters || []).filter(x => !x.ch || ch >= x.ch);   // (pas ceux réservés à un chapitre à venir : game/wild.js)
+    if (!enc.length || !pt() || pt().hp <= 0) return false;
     const e = DW.weighted(enc.map(x => ({ ...x, w: x.w || 1 })));
     await say(line.replace('%s', DW.SPECIES[e.sp].name));
     await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)) });
@@ -17285,20 +17311,21 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 
   // ------------------------------------------------------------ tables des régions
   // 'espèce:poids' ; '@n' = à partir de la sous-zone n ; 'nP' = poids la nuit ; 'hA-B' = visible seulement de A h à B h
-  //  (raretés à horaire, comme Coelamon dans Digimon World 1 : une par région)
+  //  (raretés à horaire, comme Coelamon dans Digimon World 1 : une par région) ; 'cN' = seulement à partir du chapitre N
+  //  (le boss d'un chapitre n'a pas de sosie sauvage avant la fin de ce chapitre)
   const TABLES = {
     montagne: [8, 'gotsumon:30 biyomon:20 elecmon:15 gabumon:15 monochromon:8@6 leomon:5@8h5-8'],
     // (chapitre 2 : un vrai FOSSÉ après le chapitre 1 — Shellmon est N.17, l'antre monte à 18 : le lac commence à 18-20,
     //  Champions 20-22, jusqu'à 25-27 au fond ; Monochromon rôde sur la Rive Sud)
-    lac: [20, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 monochromon:14 kuwagamon:10 seadramon:6@7h5-9'],
+    lac: [20, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 monochromon:14 kuwagamon:10 seadramon:6@7h5-9c3'],
     brumes: [10, 'mushroomon:30n50 kunemon:20 patamon:15 palmon:15 bakemon:0n25@3 unimon:5@7h4-7'],
     marais: [10, 'betamon:25 mushroomon:25n40 palmon:20 gekomon:12@3 numemon:8@4n12 sukamon:6@5h22-4'],
     savane: [12, 'elecmon:30 agumon:20 biyomon:20 leomon:10@4 monochromon:8@5 centarumon:6@7h16-19'],
     // (chapitre 3 : après Seadramon N.26 — le désert 26-28, la route et le Mont Miharashi jusqu'à 29-31)
     //  (Digimon choisis par le joueur : Agumon, Guilmon, Candlemon partout ; puis Flarizamon sur la route, Meramon et
-    //   Birdramon sur le volcan)
-    miharashi: [26, 'agumon:30 guilmon:28 candlemon:24n36 flarizamon:12@3 meramon:10@4 birdramon:7@4'],
-    volcan: [16, 'agumon:30 gotsumon:20 meramon:20@2 monochromon:12 birdramon:8@5 skullmeramon:3@9h18-22'],
+    //   Birdramon sur le volcan, une fois le chapitre 3 terminé)
+    miharashi: [26, 'agumon:30 guilmon:28 candlemon:24n36 flarizamon:12@3 meramon:10@4c4 birdramon:7@4c4'],
+    volcan: [16, 'agumon:30 gotsumon:20 meramon:20@2c4 monochromon:12 birdramon:8@5c4 skullmeramon:3@9h18-22'],
     usine: [18, 'kunemon:25 tentomon:25 elecmon:20 numemon:15 kabuterimon:10@4 andromon:3@8h14-17'],
     decharge: [18, 'numemon:30 sukamon:30 kunemon:15 mushroomon:15 ogremon:8@4 etemon:2@9h19-23'],
     tunnel: [18, 'gotsumon:30 kunemon:15 numemon:15 bakemon:10n25 drimogemon:20@2 devimon:3@8h22-2'],
@@ -17312,8 +17339,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   };
   function parse(str) {
     return str.split(/\s+/).map(t => {
-      const [sp, rest] = t.split(':'), n = rest.match(/n(\d+)/), at = rest.match(/@(\d+)/), h = rest.match(/h(\d+)-(\d+)/);
-      return { sp, w: parseInt(rest, 10), night: n ? +n[1] : null, from: at ? +at[1] : 0, hours: h ? [+h[1], +h[2]] : null };
+      const [sp, rest] = t.split(':'), n = rest.match(/n(\d+)/), at = rest.match(/@(\d+)/), h = rest.match(/h(\d+)-(\d+)/), c = rest.match(/c(\d+)/);
+      return { sp, w: parseInt(rest, 10), night: n ? +n[1] : null, from: at ? +at[1] : 0, hours: h ? [+h[1], +h[2]] : null, ch: c ? +c[1] : null };
     });
   }
   // remplit les rencontres des sous-zones de région (appelé une fois au chargement)
@@ -17324,7 +17351,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const idx = +(id.match(/(\d+)$/) || [0, 0])[1], base = T[0] + Math.floor(idx * 0.8);
       m.encounters = parse(T[1]).filter(e => idx >= e.from && DW.SPECIES[e.sp]).map(e => {
         const lv = Math.max(2, base - 1 + (STAGE_LV[DW.SPECIES[e.sp].stage] || 0));   // 1 niveau sous le joueur attendu : les combats poussent à s'entraîner et à s'équiper
-        return { sp: e.sp, min: lv - 1, max: lv + 1, w: e.w, night: e.night, hours: e.hours };
+        return { sp: e.sp, min: lv - 1, max: lv + 1, w: e.w, night: e.night, hours: e.hours, ch: e.ch };   // (ch : Wild.weight)
       });
       m.wildN = m.wildN || DW.clamp(Math.round(m.w * m.h / 240), 3, 6);
     }
@@ -20168,7 +20195,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       // étiquette au-dessus du poste d'entraînement qu'on peut utiliser
       const ts = !this.locked && Game.top() === this && this.trainSpot();
       if (ts) {
-        const label = 'ESPACE : ' + DW.Training.STATS[ts.k].name, w = UI.measure(c, label, 7) + 10;
+        const poste = ts.eq && DW.Training.POSTES[ts.eq];   // (un appareil : son nom, « Traîneau », plutôt que celui de la stat)
+        const label = 'ESPACE : ' + (poste ? poste.nom : DW.Training.STATS[ts.k].name), w = UI.measure(c, label, 7) + 10;
         const X = Math.round(ts.x * TS + 8 - w / 2), Y = Math.round(ts.y * TS - 18 + Math.sin(this.t * 4) * 1.5);
         c.fillStyle = 'rgba(8,20,40,0.85)'; c.fillRect(X, Y, w, 12);
         c.fillStyle = '#ffe070'; c.fillRect(X, Y + 11, w, 1);
@@ -21243,7 +21271,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     constructor(i = 0) { super(); this.i = i; this.col = 1; this.sel = 0; }
     get m() { return DW.state.party[this.i]; }
     get opts() { return DW.Evo.options(this.m.sp); }
-    get prev() { return DW.Evo.prev(this.m.sp)[0] || null; }
+    get prev() { return DW.Evo.prev1(this.m.sp, this.m.parcours); }
     update() {
       const n = this.opts.length;
       if (Input.hit('menu')) { this.i = (this.i + 1) % DW.state.party.length; this.sel = 0; this.col = this.opts.length ? 1 : 0; Audio.sfx('move'); }
@@ -22079,7 +22107,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     brumes: { x: 150, y: 22, b: 'fog', name: 'Bois Brumeux', desc: "Un brouillard épais où l'on se perd. Les lanternes de pierre montrent le chemin." },
     jouets: { x: 190, y: 18, b: 'toy', name: 'Ville des Jouets', desc: 'Manège, petit train, nounours et boîtes à surprise, autour du château de Monzaemon.' },
     gel: { x: 106, y: 20, b: 'snow', name: 'Terre Gelée', desc: 'Neige éternelle, lacs gelés, igloos et le Temple de Glace.' },
-    lac: { x: 70, y: 41, b: 'lake', name: 'Lac du Tramway', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
+    lac: { x: 70, y: 41, b: 'lake', name: 'Grand Lac', desc: "Un grand lac où s'est échoué un vieux tramway. Pointe Coela, Pont Numérique et phare." },
     miharashi: { x: 44, y: 60, b: 'desert', name: 'Pays de Meramon', desc: "Des déserts hérissés de poteaux télégraphiques, le Village des Yokomon et sa vieille épave, et le Mont Miharashi où veille Meramon." },
     scarabees: { x: 30, y: 90, b: 'beetle', name: 'Pays des Scarabées', desc: "Une forêt ancienne de souches géantes, l'Arbre-Monde et le Colisée des Scarabées." },
     marais: { x: 146, y: 160, b: 'swamp', name: 'Marais des Geko', desc: 'Tourbières, roseaux chantants, cabanes sur pilotis et le Palais Geko.' },
@@ -22509,7 +22537,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const base = k === 'village' && id === 'village' ? `${DW.Town.label()}. ` : m.piece ? '★ Lieu emblématique. ' : m.landmark ? `★ ${m.landmark}. ` : '';
       const desc = base + (ways.length ? 'Passages connus : ' + [...new Set(ways)].join('  ') : NODES[k].desc);
       // Digimon sauvages de la zone (à droite, dans le panneau)
-      const enc = m.encounters, list = enc && enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];
+      // (sans ceux qui n'apparaissent qu'à un chapitre à venir : game/wild.js)
+      const ch = this.st.flags.chapter || 1, enc = (m.encounters || []).filter(e => !e.ch || ch >= e.ch), list = enc.length ? [...new Set(enc.map(e => e.sp))].slice(0, 6) : [];
       const tw = list.length ? W - 26 - list.length * 20 : W - 24;
       UI.wrap(c, desc, tw - 12, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 12, y0 + 27 + j * 10, { size: 8, color: '#c8f0ff' }));
       if (list.length) {

@@ -183,11 +183,18 @@
     { kind: 'teddy', x: 8, y: 7, w: 1, h: 1 }, { kind: 'wardrobe', v: 1, x: 5, y: 1, w: 2, h: 2, back: true }];
   const CELLAR = [{ kind: 'crates', x: 2, y: 4, w: 1, h: 1, small: true }, { kind: 'crates', v: 1, x: 2, y: 5, w: 1, h: 1, small: true }, { kind: 'pots', x: 5, y: 4, w: 2, h: 1 },
     { kind: 'sacks', x: 8, y: 7, w: 2, h: 1 }, { kind: 'shelf', x: 4, y: 1, w: 2, h: 1, back: true }];
-  const clearStairs = (id, x) => { const m = MAPS[id]; m.objects = m.objects.filter(o => o.back || o.walk || !(o.x < x + 2 && o.x + (o.w || 1) > x && o.y <= 4)); };
+  // (les meubles retirés pour l'escalier emportent leurs panneaux : sinon on lisait « l'aquarium » ou « la télé » devant
+  //  l'escalier, sur une case vide)
+  const clearStairs = (id, x) => {
+    const m = MAPS[id], gone = m.objects.filter(o => !o.back && !o.walk && o.x < x + 2 && o.x + (o.w || 1) > x && o.y <= 4);
+    m.objects = m.objects.filter(o => !gone.includes(o));
+    for (const o of gone) for (let yy = o.y; yy < o.y + (o.h || 1); yy++) for (let xx = o.x; xx < o.x + (o.w || 1); xx++) delete m.signs[`${xx},${yy}`];
+  };
   function addLevel(home, sub, name, objs, up, opts = {}, hx = 11, ax = 2) {
     const P = DW.Palais, id = `${home}_${sub}`, racine = MAPS[home].racine || home;
     P.room(id, 'village', { name: `${MAPS[racine].name} — ${name}`, w: 14, h: 11, floor: opts.floor, wall: opts.wall, dark: opts.dark, objects: objs.map(o => ({ ...o })) });
     Object.assign(MAPS[id], { racine, populate() { this.name = `${MAPS[racine].name} — ${name}`; } });
+    Object.assign(MAPS[id].signs, opts.signs || {});   // (panneaux des meubles : posés avant l'escalier, qui retire les siens)
     clearStairs(home, hx); clearStairs(id, ax);
     P.stairs(home, hx, id, ax, up);
     return id;
@@ -201,10 +208,9 @@
       let below = home;
       for (const n of [1, 2]) {
         const s2 = seed + n * 101, L = LAYOUTS[LAYOUT_ORDER[Math.floor(Hh(s2, 1, 803) * 4)]](Math.floor(Hh(s2, 2, 804) * 6));
-        const id = addLevel(below, `e${n}`, `${n}${n === 1 ? 'er' : 'e'} étage`, L.objs, true, { floor: FLOORS[(n + 2) % FLOORS.length], wall: WALLS[(n + 3) % WALLS.length] });
+        const id = addLevel(below, `e${n}`, `${n}${n === 1 ? 'er' : 'e'} étage`, L.objs, true, { floor: FLOORS[(n + 2) % FLOORS.length], wall: WALLS[(n + 3) % WALLS.length], signs: L.signs });
         const line = lineOf(s2);
         MAPS[id].populate = function () { this.npcs = homeNpc(ownerOf(s2), s2, L.npc[0], L.npc[1], line); };
-        Object.assign(MAPS[id].signs, L.signs);
         below = id;
       }
       return;

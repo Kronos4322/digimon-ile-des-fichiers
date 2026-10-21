@@ -16,13 +16,16 @@
 
   // ------------------------------------------------------------ régions : boss possédé + habitant
   // boss : sous-zone 7 ; habitant : sous-zone 4 (il rejoint la ville une fois sa région libérée)
+  // (bossAt / mateAt : ailleurs, quand il le faut — le combat du boss est alors celui de son chapitre)
   const REG = {
     montagne: { boss: 'leomon', mate: 'gabumon', lore: "un rugissement furieux résonne entre les rochers" },
     lac: { boss: 'seadramon', mate: 'shellmon', lore: 'les eaux du lac bouillonnent de colère' },
     brumes: { boss: 'unimon', mate: 'patamon', lore: 'une ombre ailée tourne dans le brouillard' },
     marais: { boss: 'gekomon', mate: 'tsunomon', lore: 'un chant lugubre monte des marécages' },
     savane: { boss: 'centarumon', mate: 'agumon', lore: 'un archer fou tire sur tout ce qui bouge' },
-    volcan: { boss: 'meramon', mate: 'birdramon', lore: 'un brasier vivant dévale les pentes' },
+    // le Pays de Meramon (chapitre 3) : Meramon est possédé au sommet du Mont Miharashi (combat : game/chapitre3.js) ;
+    // Birdramon, son compagnon, l'attend au Mont Panorama (Fumerolles). Le Mont Panorama n'a pas d'autre Engrenage.
+    miharashi: { boss: 'meramon', mate: 'birdramon', bossAt: 'miharashi4', mateAt: 'volcan4', lore: 'un brasier vivant dévale les pentes du Mont Miharashi' },
     usine: { boss: 'andromon', mate: 'tentomon', lore: "les machines de l'usine tournent à plein régime" },
     decharge: { boss: 'etemon', mate: 'sukamon', lore: "un concert assourdissant fait trembler les ordures" },
     tunnel: { boss: 'drimogemon', mate: 'numemon', lore: 'les galeries s\'effondrent les unes après les autres' },
@@ -63,16 +66,16 @@
     drimogemon: ['Drimogemon creuse pour toi, une fois par jour.'],
     monzaemon: ['Monzaemon distribue des câlins : bonheur pour toute l\'équipe, une fois par jour.'],
     gekomon: ['Gekomon chante des berceuses : fatigue envolée, une fois par jour.'],
-    seadramon: ['Seadramon fait le passeur jusqu\'au Lac Dragon, à 8 h et à 17 h, depuis l\'étang des Champs.'],
+    seadramon: ['Seadramon fait le passeur jusqu\'à la Rive Sud du Grand Lac, à 8 h et à 17 h, depuis l\'étang des Champs.'],
     bakemon: ['Bakemon tient une boutique de nuit, à partir de 20 h.'],
     birdramon: ['Birdramon peut te faire voler vers les lieux déjà visités.'],
-    tentomon: ['Tentomon répare les Disques : il vend des Disques PM.'],
+    tentomon: ['Tentomon répare les vieux Disques : il vend des Disques de combat.'],
     lillymon: ['Lillymon fait pousser des fruits : une récolte par jour.'],
     togemon: ['Togemon enseigne des techniques : il vend des Manuels.'],
     shellmon: ['Shellmon pêche pour la ville : un poisson par jour.'],
     gabumon: ['Gabumon donne des conseils sur les Digivolutions.'],
     patamon: ['Patamon veille sur les bébés du Village des Bébés.'],
-    tsunomon: ['Tsunomon raconte ce qu\'il a vu dans les marais.'],
+    tsunomon: ['Tsunomon raconte les histoires des marais.'],   // (dite aussi à la 1re personne : « Je raconte... », game/services.js)
     agumon: ['Agumon est toujours partant pour un petit combat d\'entraînement.'],
     skullgreymon: ['SkullGreymon garde l\'entrée de la ville. Plus personne n\'ose s\'en approcher !'],
     ogremon: ["Ogremon s'est mis à l'entraînement : il propose des combats d'entraînement."],
@@ -83,7 +86,7 @@
     const R = REG[rid];
     for (const [sp, k] of [[R.boss, 7], [R.mate, 4]]) {
       const role = ROLES[sp] || [`${sp} s'installe en ville.`];
-      DW.Town.RECRUITS.push({ id: sp, zone: rid + k, role: role[0], train: role[1], region: rid, boss: k === 7 });
+      DW.Town.RECRUITS.push({ id: sp, zone: (k === 7 ? R.bossAt : R.mateAt) || rid + k, role: role[0], train: role[1], region: rid, boss: k === 7 });
     }
   }
   // bonus d'entraînement des recrues (le Terrain n'est pas modifié : ce sont des coachs)
@@ -133,16 +136,18 @@
       return;
     }
     const rid = m.region, R = REG[rid], k = +(id.match(/(\d+)$/) || [0, -1])[1];
-    if (!R || !m.spec) return;
+    if (!m.spec) return;
     const near = () => freeSpots(ow, avoid, 3, m.spec.hub[0] - 3, m.spec.hub[1] + 1)[0];
-    if (k === 7) {
+    if (R && k === 7 && !R.bossAt) {
       const p = near(); if (!p) return;
       // (chapitre 2 : pour le héros original, Seadramon n'est pas ici mais au Lac du Tramway, la nuit, avec Matt — game/chapitre2.js)
       m.npcs.push({ sp: R.boss, x: p[0], y: p[1], face: 'left', gear: true, story: true, cond: s => !(s.gears || {})[rid] && bossHere(rid) && !(rid === 'lac' && s.hero === 'perso'), talk: ow2 => bossFight(rid, ow2) });
     }
-    if (k === 4) {
-      const p = near(); if (!p) return;
-      m.npcs.push({ sp: R.mate, x: p[0], y: p[1], face: 'right', story: true, cond: s => !DW.Town.has(R.mate), talk: () => mateTalk(rid) });
+    // l'habitant d'une région : dans sa sous-zone 4, ou là où il attend (mateAt : Birdramon au Mont Panorama)
+    const mr = RID.find(r => (REG[r].mateAt || r + 4) === id);
+    if (mr) {
+      const M = REG[mr], p = near(); if (!p) return;
+      m.npcs.push({ sp: M.mate, x: p[0], y: p[1], face: 'right', story: true, cond: s => !DW.Town.has(M.mate), talk: () => mateTalk(mr) });
     }
     if (id === 'montagne9') {
       const p = near(); if (!p) return;
@@ -154,7 +159,7 @@
   const lvOf = rid => (DW.Wild.TABLES[rid] || [10])[0];
   // niveau des boss possédés, réglé au simulateur : ~65 % de victoire (médiane sur 7 lignées de partenaires)
   // pour un partenaire entraîné arrivé au bout de la région (niveau de la région + 4)
-  const BOSS_LV = { montagne: 10, lac: 26, brumes: 12, marais: 12, savane: 14, volcan: 21, usine: 23, decharge: 22, tunnel: 24,
+  const BOSS_LV = { montagne: 10, lac: 26, brumes: 12, marais: 12, savane: 14, usine: 23, decharge: 22, tunnel: 24,
     jouets: 23, canyon: 28, scarabees: 26, dino: 28, jungle: 29, gel: 32, overdell: 35 };
   async function bossFight(rid, ow) {
     const R = REG[rid], name = DW.SPECIES[R.boss].name, s = st();
@@ -179,13 +184,15 @@
   }
   async function mateTalk(rid) {
     const R = REG[rid], name = DW.SPECIES[R.mate].name, s = st();
+    // (un habitant qui attend loin de son boss — mateAt — parle de la région de celui-ci)
+    const loin = R.mateAt && DW.MAPS[DW.REGION_ENTRY[rid]].regionName;
     if (!(s.gears || {})[rid]) {
-      await say(`Chut... Ne fais pas de bruit. Plus loin dans la région, ${R.lore}.`, name);
+      await say(loin ? `Au loin, du côté de « ${loin} », ${R.lore}...` : `Chut... Ne fais pas de bruit. Plus loin dans la région, ${R.lore}.`, name);
       await say(`C'est ${DW.SPECIES[R.boss].name}... Il n'est plus lui-même depuis qu'un Engrenage Noir est tombé du ciel. Si tu le libères, je te suivrai !`, name);
       if (BOSS_TIME[rid]) await say(`On ne le voit que ${BOSS_TIME[rid][2]}, entre ${BOSS_TIME[rid][0]} h et ${BOSS_TIME[rid][1] % 24} h. Le reste du temps, il disparaît...`, name);
       return;
     }
-    await say(`Tu as libéré ${DW.SPECIES[R.boss].name} ! La région respire de nouveau.`, name);
+    await say(`Tu as libéré ${DW.SPECIES[R.boss].name} ! ${loin ? 'Là-bas, tout' : 'La région'} respire de nouveau.`, name);
     await say('Je viens avec toi : la Ville des Fichiers a besoin de bras !', name);
     await DW.Town.recruit(R.mate);
   }
@@ -280,10 +287,10 @@
       // (région inexplorée — presque toutes, aux chapitres 1 à 3 : l'objectif du moment)
       const obj = DW.Chapter && DW.Chapter.objective ? DW.Chapter.objective() : '';
       const txt = !seen ? (obj ? `OBJECTIF : ${obj}` : 'Région encore inexplorée. Consulte la carte (Menu → CARTE).')
-        : g[r] ? `${DW.SPECIES[R.boss].name} a été libéré${DW.Town.has(R.mate) ? ` et ${DW.SPECIES[R.mate].name} s'est installé en ville` : `. ${DW.SPECIES[R.mate].name} t'attend quelque part dans la région`}.`
+        : g[r] ? `${DW.SPECIES[R.boss].name} a été libéré${DW.Town.has(R.mate) ? ` et ${DW.SPECIES[R.mate].name} s'est installé en ville` : `. ${DW.SPECIES[R.mate].name} t'attend ${R.mateAt ? `du côté de « ${DW.MAPS[R.mateAt].regionName} »` : 'quelque part dans la région'}`}.`
         : `On raconte ${/^[aeiouyéh]/i.test(R.lore) ? "qu'" : 'que '}${R.lore}. Un Digimon possédé se cache au fond de la région${BOSS_TIME[r] ? ` (seulement ${BOSS_TIME[r][2]}, ${BOSS_TIME[r][0]} h – ${BOSS_TIME[r][1] % 24} h)` : ''}.`;
-      UI.wrap(c, txt, 290, 8).slice(0, fin ? 3 : 4).forEach((l, j) => UI.text(c, l, 14, 192 + j * 11, { size: 8, color: !seen && obj ? '#ffe9a8' : '#c8f0ff' }));
       const fin = Story.gears() >= FINAL ? (s.flags.devimon ? 'Devimon est vaincu !' : "Devimon t'attend au sommet de la Montagne de l'Infini !") : Story.gears() ? `Brise les ${FINAL} Engrenages Noirs : quelqu'un les lance sur l'île...` : '';
+      UI.wrap(c, txt, 290, 8).slice(0, fin ? 3 : 4).forEach((l, j) => UI.text(c, l, 14, 192 + j * 11, { size: 8, color: !seen && obj ? '#ffe9a8' : '#c8f0ff' }));
       UI.text(c, fin, 14, 228, { size: 7, color: '#ffe070' });
     }
   }

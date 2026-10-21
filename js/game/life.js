@@ -175,12 +175,12 @@
       await Life.sleep(true);
       await DW.say(`${m.name} se réveille tard, encore tout grognon.`);
     },
-    // renaissance : bébé de la lignée, avec un héritage
-    babyOf(sp) { for (let k = 0; k < 8; k++) { const p = DW.Evo.prev(sp); if (!p.length) break; sp = p[0]; } return sp; },
+    // renaissance : le bébé qu'il a été (sinon celui de sa lignée), avec un héritage
+    babyOf: m => DW.Evo.bebe(m.sp, m.parcours),
     reborn(m, sp) {
       Life.init(m);
-      const same = !sp || sp === Life.babyOf(m.sp);
-      sp = sp || Life.babyOf(m.sp);
+      const same = !sp || sp === Life.babyOf(m);
+      sp = sp || Life.babyOf(m);
       const iv = {}; for (const k in m.iv) iv[k] = Math.min(15, m.iv[k] + 2);
       const tr = {}; for (const k in m.tr) tr[k] = Math.floor(m.tr[k] / 2);
       // même lignée : il garde ses techniques et son surnom ; nouvelle lignée : un nouveau Digimon qui hérite d'une partie de la force
@@ -194,7 +194,7 @@
       if (idx < 0) return;
       await DW.say(`${m.name} est arrivé au bout de sa vie de Digimon... Il te regarde une dernière fois avec tendresse.`);
       await DW.say('Ses données se rassemblent... et forment un DigiŒuf ! Quel Digimon va en naître ?');
-      const same = Life.babyOf(m.sp), eggs = [same, ...DW.EGG_ORDER.filter(e => e !== same)];
+      const same = Life.babyOf(m), eggs = [same, ...DW.EGG_ORDER.filter(e => e !== same)];
       let i = -1;
       while (i < 0) i = await DW.choose(eggs.map((e, k) => DW.SPECIES[e].name + (k ? '' : ' (même lignée)')), { y: 20 });
       const nm = Life.reborn(m, eggs[i]);

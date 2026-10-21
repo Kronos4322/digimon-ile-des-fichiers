@@ -82,10 +82,10 @@
   const r = (to, lvl, req) => ({ to, lvl, req });
   DW.EVO_EXTRA = {
     tsunomon: [r('patamon', 7, { spd: 8, int: 8, wins: 3 })], bukamon: [r('penguinmon', 7, { spd: 10, wins: 3 })], yokomon: [r('tentomon', 8, { def: 12, wins: 3 })],
-    tentomon: [r('kabuterimon', 18, { def: 26, int: 14, wins: 10 })], kunemon: [r('kabuterimon', 18, { def: 26, wins: 10 })],
-    patamon: [r('angemon', 18, { int: 28, wins: 10 }), r('unimon', 18, { spd: 28, wins: 10 }), r('devimon', 18, { atk: 26, mistakes: 3 })],
+    tentomon: [r('kabuterimon', 15, { def: 26, int: 14, wins: 10 })], kunemon: [r('kabuterimon', 18, { def: 26, wins: 10 })],
+    patamon: [r('angemon', 15, { int: 28, wins: 10 }), r('unimon', 18, { spd: 28, wins: 10 }), r('devimon', 18, { atk: 26, mistakes: 3 })],
     gotsumon: [r('monochromon', 18, { def: 28, wins: 10 }), r('drimogemon', 18, { atk: 22, def: 20, wins: 10 })],
-    penguinmon: [r('frigimon', 18, { hp: 26, wins: 10 })], gabumon: [r('frigimon', 18, { hp: 28, def: 14, wins: 10 }), r('ogremon', 18, { atk: 24, mistakes: 3 })],
+    penguinmon: [r('frigimon', 15, { hp: 26, wins: 10 })], gabumon: [r('frigimon', 18, { hp: 28, def: 14, wins: 10 }), r('ogremon', 18, { atk: 24, mistakes: 3 })],
     elecmon: [r('leomon', 18, { atk: 28, wins: 12 }), r('centarumon', 18, { int: 26, def: 14, wins: 10 })], agumon: [r('monochromon', 18, { def: 28, hp: 14, wins: 10 })],
     betamon: [r('seadramon', 18, { int: 28, wins: 10 }), r('gekomon', 18, { int: 22, hp: 18, wins: 10 })], gomamon: [r('seadramon', 18, { int: 26, spd: 14, wins: 10 })],
     biyomon: [r('unimon', 18, { spd: 26, int: 14, wins: 10 })], mushroomon: [r('bakemon', 18, { int: 26, wins: 10 })], kunemon2: [],

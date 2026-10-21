@@ -14,7 +14,7 @@
     constructor(i = 0) { super(); this.i = i; this.col = 1; this.sel = 0; }
     get m() { return DW.state.party[this.i]; }
     get opts() { return DW.Evo.options(this.m.sp); }
-    get prev() { return DW.Evo.prev(this.m.sp)[0] || null; }
+    get prev() { return DW.Evo.prev1(this.m.sp, this.m.parcours); }
     update() {
       const n = this.opts.length;
       if (Input.hit('menu')) { this.i = (this.i + 1) % DW.state.party.length; this.sel = 0; this.col = this.opts.length ? 1 : 0; Audio.sfx('move'); }

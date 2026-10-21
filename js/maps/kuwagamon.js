@@ -1,13 +1,14 @@
 'use strict';
 // =====================================================================
-//  KUWAGAMON, PREMIER BOSS (fin du chapitre 1)
+//  KUWAGAMON, PREMIER BOSS DU CHAPITRE 1 (le chapitre se termine plus tard, après Shellmon : maps/antre.js)
 //  Il se cache dans le Grand Arbre de la Clairière de l'Arrivée (objet « grandarbre », maps/foret.js).
 //  1) trois énigmes sont gravées dans l'écorce, l'une après l'autre : à chaque bonne réponse l'écorce se fissure,
 //     à la troisième elle éclate et ouvre le tronc ;
 //  2) dans l'arbre, Kuwagamon ; les racines se referment : impossible de ressortir sans le battre ;
 //  3) victoire : il se désagrège en données (KuwaDefeatScene), fondu au noir, réveil chez Jijimon :
 //     la clairière est calme, il te donne le Trophée de Kuwagamon (il ouvre la cave de ta maison) ;
-//  4) fin du chapitre 1 (game/chapitre1.js).
+//  4) le chapitre 1 continue : les cabines de la plage, l'antre de Shellmon et Tai (maps/antre.js), puis la fin du
+//     chapitre (game/chapitre1.js, end1).
 // =====================================================================
 (function () {
   const { UI, Audio, Game } = DW;
@@ -140,7 +141,7 @@
       if (k < 1) {
         c.save(); c.globalAlpha = 1 - k;
         const flash = t > 1 && t < 4.6 && Math.floor(t * 8) % 3 === 0;
-        DW.Sprites.draw(c, spr, cx + shake, 176 - k * 40, { frame: Math.floor(t * 6), white: flash ? 0.7 : 0, scale: 1 + k * 0.2 });
+        DW.Sprites.draw(c, spr, cx + shake, 176 - k * 40, { frame: Math.floor(t * 6), white: flash ? 0.7 : 0, scale: 1 + k * 0.2, flip: true });   // (face au partenaire, à gauche)
         c.restore();
         // fissures de lumière sur son corps
         c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = '#c8fff0'; c.lineWidth = 1.6;
@@ -178,13 +179,15 @@
     await DW.fade(0, 0.8);
     Audio.play('village');
     await say("Hohoho ! Te voilà ! Les petits Digimon de la clairière sont venus me prévenir en courant...", J);
-    await say("Kuwagamon s'est envolé vers la montagne, et la Clairière de l'Arrivée est enfin calme ! Tu as été formidable, avec ton partenaire.", J);
+    await say("Kuwagamon s'est désagrégé en données, et la Clairière de l'Arrivée est enfin calme ! Tu as été formidable, avec ton partenaire.", J);
     await say("On a eu chaud, hein ?", pn);
-    await say("Tiens, prends ceci. Les Poyomon l'ont taillé pour toi dans une pince que Kuwagamon a perdue : un trophée !", J);
+    await say("Tiens, prends ceci. Les Poyomon l'ont taillé pour toi dans une pince que Kuwagamon a perdue pendant le combat : un trophée !", J);
     DW.Trophies.give('kuwagamon'); Audio.sfx('fanfare'); if (DW.Cards) DW.Cards.give('kuwagamon');
     await say('Tu reçois le Trophée de Kuwagamon !');
     await say("Mets-le dans ta maison. Sous le plancher, il y a une vieille cave que je n'ai jamais ouverte : de quoi exposer tes trophées !", J);
     await say("Un éclat noir s'est arraché de son dos, dis-tu ? Kuwagamon n'était pas méchant autrefois... Il n'était pas lui-même. Je me demande ce qui lui est arrivé...", J);
+    // (comme le dit Penguinmon, maps/berceau.js : les données d'un Digimon qui disparaît reviennent au Village des Bébés)
+    await say("Ses données ne sont pas perdues : elles retournent au Village des Bébés. Un jour, Kuwagamon renaîtra d'un DigiŒuf... libéré de cet éclat noir.", J);
     // le chapitre continue : un enfant humain serait retenu près des cabines de la plage (Shellmon, fin du chapitre 1)
     if (s.hero !== 'tai') {
       await say("Autre chose... Les Bukamon de la plage disent qu'un autre enfant humain, comme toi, est prisonnier près des cabines téléphoniques.", J);

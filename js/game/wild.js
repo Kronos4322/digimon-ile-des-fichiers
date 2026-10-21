@@ -13,20 +13,21 @@
 
   // ------------------------------------------------------------ tables des régions
   // 'espèce:poids' ; '@n' = à partir de la sous-zone n ; 'nP' = poids la nuit ; 'hA-B' = visible seulement de A h à B h
-  //  (raretés à horaire, comme Coelamon dans Digimon World 1 : une par région)
+  //  (raretés à horaire, comme Coelamon dans Digimon World 1 : une par région) ; 'cN' = seulement à partir du chapitre N
+  //  (le boss d'un chapitre n'a pas de sosie sauvage avant la fin de ce chapitre)
   const TABLES = {
     montagne: [8, 'gotsumon:30 biyomon:20 elecmon:15 gabumon:15 monochromon:8@6 leomon:5@8h5-8'],
     // (chapitre 2 : un vrai FOSSÉ après le chapitre 1 — Shellmon est N.17, l'antre monte à 18 : le lac commence à 18-20,
     //  Champions 20-22, jusqu'à 25-27 au fond ; Monochromon rôde sur la Rive Sud)
-    lac: [20, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 monochromon:14 kuwagamon:10 seadramon:6@7h5-9'],
+    lac: [20, 'betamon:30 gomamon:30 penguinmon:15 gekomon:10@4 shellmon:8@5 monochromon:14 kuwagamon:10 seadramon:6@7h5-9c3'],
     brumes: [10, 'mushroomon:30n50 kunemon:20 patamon:15 palmon:15 bakemon:0n25@3 unimon:5@7h4-7'],
     marais: [10, 'betamon:25 mushroomon:25n40 palmon:20 gekomon:12@3 numemon:8@4n12 sukamon:6@5h22-4'],
     savane: [12, 'elecmon:30 agumon:20 biyomon:20 leomon:10@4 monochromon:8@5 centarumon:6@7h16-19'],
     // (chapitre 3 : après Seadramon N.26 — le désert 26-28, la route et le Mont Miharashi jusqu'à 29-31)
     //  (Digimon choisis par le joueur : Agumon, Guilmon, Candlemon partout ; puis Flarizamon sur la route, Meramon et
-    //   Birdramon sur le volcan)
-    miharashi: [26, 'agumon:30 guilmon:28 candlemon:24n36 flarizamon:12@3 meramon:10@4 birdramon:7@4'],
-    volcan: [16, 'agumon:30 gotsumon:20 meramon:20@2 monochromon:12 birdramon:8@5 skullmeramon:3@9h18-22'],
+    //   Birdramon sur le volcan, une fois le chapitre 3 terminé)
+    miharashi: [26, 'agumon:30 guilmon:28 candlemon:24n36 flarizamon:12@3 meramon:10@4c4 birdramon:7@4c4'],
+    volcan: [16, 'agumon:30 gotsumon:20 meramon:20@2c4 monochromon:12 birdramon:8@5c4 skullmeramon:3@9h18-22'],
     usine: [18, 'kunemon:25 tentomon:25 elecmon:20 numemon:15 kabuterimon:10@4 andromon:3@8h14-17'],
     decharge: [18, 'numemon:30 sukamon:30 kunemon:15 mushroomon:15 ogremon:8@4 etemon:2@9h19-23'],
     tunnel: [18, 'gotsumon:30 kunemon:15 numemon:15 bakemon:10n25 drimogemon:20@2 devimon:3@8h22-2'],
@@ -40,8 +41,8 @@
   };
   function parse(str) {
     return str.split(/\s+/).map(t => {
-      const [sp, rest] = t.split(':'), n = rest.match(/n(\d+)/), at = rest.match(/@(\d+)/), h = rest.match(/h(\d+)-(\d+)/);
-      return { sp, w: parseInt(rest, 10), night: n ? +n[1] : null, from: at ? +at[1] : 0, hours: h ? [+h[1], +h[2]] : null };
+      const [sp, rest] = t.split(':'), n = rest.match(/n(\d+)/), at = rest.match(/@(\d+)/), h = rest.match(/h(\d+)-(\d+)/), c = rest.match(/c(\d+)/);
+      return { sp, w: parseInt(rest, 10), night: n ? +n[1] : null, from: at ? +at[1] : 0, hours: h ? [+h[1], +h[2]] : null, ch: c ? +c[1] : null };
     });
   }
   // remplit les rencontres des sous-zones de région (appelé une fois au chargement)
@@ -52,7 +53,7 @@
       const idx = +(id.match(/(\d+)$/) || [0, 0])[1], base = T[0] + Math.floor(idx * 0.8);
       m.encounters = parse(T[1]).filter(e => idx >= e.from && DW.SPECIES[e.sp]).map(e => {
         const lv = Math.max(2, base - 1 + (STAGE_LV[DW.SPECIES[e.sp].stage] || 0));   // 1 niveau sous le joueur attendu : les combats poussent à s'entraîner et à s'équiper
-        return { sp: e.sp, min: lv - 1, max: lv + 1, w: e.w, night: e.night, hours: e.hours };
+        return { sp: e.sp, min: lv - 1, max: lv + 1, w: e.w, night: e.night, hours: e.hours, ch: e.ch };   // (ch : Wild.weight)
       });
       m.wildN = m.wildN || DW.clamp(Math.round(m.w * m.h / 240), 3, 6);
     }

@@ -244,6 +244,7 @@
       }
       if (cave) {
         this.objects = this.objects.filter(o => !(o.x < 14 && o.x + (o.w || 1) > 12 && (o.back || o.y <= 4)));
+        for (const k of ['12,2', '13,2']) delete this.signs[k];   // (les tableaux décrochés pour l'escalier de la cave, comme pour l'étage)
         this.objects.push({ kind: 'stairsdown', x: 12, y: 1, w: 2, h: 2, back: true });
         this.doors.push({ x: 12, y: 2, w: 2, dir: 'up', to: 'cave_joueur', tx: 7, ty: 3 });
       }

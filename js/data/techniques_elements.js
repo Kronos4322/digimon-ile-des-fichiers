@@ -30,7 +30,7 @@
   mv('sphere_obscure', { name: 'Sphère Obscure', type: 'Ténèbres', pow: 80, acc: 95, desc: 'Une sphère noire qui aspire la lumière.' }, 'darkorb');
   mv('tempete_petales', { name: 'Tempête de Pétales', type: 'Plante', pow: 80, acc: 95, desc: 'Un tourbillon de pétales tranchants.' }, 'petalstorm');
   // anciennes techniques : leur vraie nature
-  for (const id of ['gadoue_nume', 'ordure_toxique']) if (M[id]) M[id].type = 'Poison';
+  for (const id of ['gadoue_nume', 'ordure_toxique', 'champi_bombe']) if (M[id]) M[id].type = 'Poison';
   if (M.ordure_toxique) M.ordure_toxique.fx = 'sludge';
   if (M.jugement) M.jugement.fx = 'holybeam';
   if (M.neant) M.neant.fx = 'darkorb';

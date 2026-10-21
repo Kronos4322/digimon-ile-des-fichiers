@@ -47,8 +47,9 @@
       this.npcs = [
         { sp: 'poyomon', x: 16, y: 13, face: 'down', talk: () => elder() },
         ...[[7, 9], [11, 17], [24, 16], [13, 7], [22, 6], [27, 11]].map(([x, y], i) => ({ sp: 'poyomon', x, y, face: i % 2 ? 'left' : 'right', wander: 2,
+          // (le monstre rouge, c'est Kuwagamon : une fois vaincu, il ne survole plus le village)
           talk: () => say(done ? DW.pick(["Le puits chante de nouveau ! Merci, merci !", "On a bu, on a ri, on a dansé toute la nuit !", "Reviens nous voir quand tu veux !"])
-            : DW.pick(["Le puits est à sec... On a si soif.", "Chut ! Le monstre rouge passe parfois au-dessus du village...", "Avant, il y avait de l'eau fraîche ici. Et des chansons."]), 'Poyomon') })),
+            : DW.pick(["Le puits est à sec... On a si soif.", st().flags.kuwagamon ? "Le monstre rouge ne survole plus le village ! Mais le puits, lui, est toujours à sec..." : "Chut ! Le monstre rouge passe parfois au-dessus du village...", "Avant, il y avait de l'eau fraîche ici. Et des chansons."]), 'Poyomon') })),
       ];
     },
   };

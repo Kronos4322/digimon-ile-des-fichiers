@@ -9,7 +9,7 @@
 //    et sont la condition principale des Digivolutions.
 //  - Une séance = un mini-jeu propre au poste, en 3 essais (game/trainingames.js) :
 //    le Digimon court, soulève, frappe... Plus la stat est entraînée, plus c'est dur.
-//    Raté = 0, réussi = 1, parfait = 2 points. Fatigue +30, 1 h 30.
+//    Raté = 0, réussi = 1, parfait = 2 points. Fatigue +20, +30 ou +40 selon le niveau choisi (LEVELS), 1 h 30.
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
@@ -31,7 +31,7 @@
     pneus: { k: 'spd', jeu: 'hurdle', nom: 'Pneus', desc: 'Passer entre les pneus qui se balancent (Vitesse, un peu de Défense).', base: { spd: 6, def: 4 } },
     hurdle: { k: 'spd', jeu: 'hurdle', nom: 'Haies', desc: 'Sauter les haies à toute allure.' },   // (haies posées dans l'atelier des cartes)
   };
-  const TOTAL = 300, TIRE = 30, MINUTES = 90;   // TOTAL : points d'entraînement cumulés, toutes stats (6 avec les PM)
+  const TOTAL = 300, MINUTES = 90;   // TOTAL : points d'entraînement cumulés, toutes stats (6 avec les PM) ; la fatigue : LEVELS
 
   const Training = DW.Training = {
     STATS, POSTES, TOTAL,
@@ -115,9 +115,13 @@
       const st = DW.state, S = STATS[k];
       if (!S) return;
       if (!st.party.length) { await DW.say("Un poste d'entraînement... Il te faudrait un partenaire Digimon !"); return; }
+      // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu ; un appareil
+      // (traîneau, sac de frappe...) donne son nom au poste
+      const at = spot && DW.ow && DW.FieldTrainingScene ? (spot.eq ? { x: spot.x, y: spot.y, eq: spot.eq } : this.station(DW.ow, k, spot)) : null;
+      const nom = at && at.eq && POSTES[at.eq] ? POSTES[at.eq].nom : S.name;
       let m = st.party[0];
       if (st.party.length > 1) {
-        const r = await DW.ask(`Poste « ${S.name} » (${S.stat}). Qui s'entraîne ?`, [m.name, 'Un autre Digimon', 'Annuler']);
+        const r = await DW.ask(`Poste « ${nom} » (${S.stat}). Qui s'entraîne ?`, [m.name, 'Un autre Digimon', 'Annuler']);
         if (r === 1) {
           const i = await Game.push(new DW.PartyScene({ mode: 'select', title: 'ENTRAÎNEMENT' }));
           if (i == null || i < 0) return;
@@ -127,14 +131,12 @@
       const why = this.blocked(m, k);
       if (why) { await DW.say(why); return; }
       // objectif et difficulté de la séance (comme dans Digimon World : on peut aussi monter les stats directement)
-      const goal = await DW.ask(`Objectif de l'entraînement « ${S.name} » ?`, ["Digivolution (points d'entraînement)", `Statistique (${S.stat} directement)`, 'Annuler']);
+      const goal = await DW.ask(`Objectif de l'entraînement « ${nom} » ?`, ["Digivolution (points d'entraînement)", `Statistique (${S.stat} directement)`, 'Annuler']);
       if (goal < 0 || goal > 1) return;
       const lv = await DW.ask('Quel niveau de difficulté ?', this.LEVELS.map(L => `${L.name}${L.mul === 1 ? '' : L.mul > 1 ? ' (points ×2)' : ' (points ÷2)'}`).concat(['Annuler']));
       if (lv < 0 || lv > 2) return;
       this.opts = { mode: goal === 1 ? 'stat' : 'evo', level: this.LEVELS[lv] };
       // séances enchaînées ; après chaque séance d'Intelligence, une technique peut être retenue (maps/classe.js)
-      // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu
-      const at = spot && DW.ow && DW.FieldTrainingScene ? (spot.eq ? { x: spot.x, y: spot.y, eq: spot.eq } : this.station(DW.ow, k, spot)) : null;
       for (;;) { const sc = at ? new DW.FieldTrainingScene(m, k, at) : new TrainingScene(m, k), r = await Game.push(sc); if (k === 'int' && DW.Classe) await DW.Classe.after(m, sc.score || 0); if (r !== 'again') break; }
       if (DW.Evo.available(m).length) await DW.say(`Le Digivice vibre... ${m.name} peut digivoluer ! Ouvre sa fiche, onglet Digivolution (ENTRÉE → DIGIMON, puis flèche droite).`);
     },
@@ -231,7 +233,7 @@
       if (this.state === 'ready') {
         const stars = 1 + Math.round(this.dif * 4);
         UI.text(c, S.desc, 16, 202, { size: 8, color: '#ffffff' });
-        UI.text(c, `Difficulté ${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}   ·   ${S.stat} actuel : ${this.before}   ·   1 h 30, fatigue +${TIRE} %`, 16, 214, { size: 7, color: '#8ae0f0' });
+        UI.text(c, `Difficulté ${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}   ·   ${S.stat} actuel : ${this.before}   ·   1 h 30, fatigue +${this.opts.level.tire} %`, 16, 214, { size: 7, color: '#8ae0f0' });
         UI.text(c, 'ESPACE : commencer      ÉCHAP : annuler', W / 2, 228, { size: 8, align: 'center', color: '#ffe070' });
       } else if (play) {
         UI.wrap(c, this.game.hint, W - 80, 8).slice(0, 2).forEach((l, j) => UI.text(c, l, 16, 204 + j * 11, { size: 8, color: '#c8f0ff' }));

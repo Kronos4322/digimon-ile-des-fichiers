@@ -18,6 +18,7 @@ function fakeCtx() {
     createImageData: (w, h) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h }),
     createLinearGradient: () => ({ addColorStop: stub }), createRadialGradient: () => ({ addColorStop: stub }),
     createPattern: () => ({}), measureText: t => ({ width: String(t).length * 5 }),
+    getTransform: () => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }),   // (dessins des objets : engine/art.js)
   };
   return new Proxy(base, { get: (o, k) => (k in o ? o[k] : stub), set: (o, k, v) => ((o[k] = v), true) });
 }
@@ -437,6 +438,24 @@ test('Sora délivrée : sa chambre à l’étage (avec Biyomon), et elle ne rest
   yes(R.npcs.some(n => n.hero === 'sora') && R.npcs.some(n => n.sp === 'biyomon'), 'Sora et Biyomon absents de sa chambre');
   const atJiji = DW.MAPS.maison.npcs.find(n => n.hero === 'sora');
   yes(!atJiji || !atJiji.cond(DW.state), 'Sora attend encore chez Jijimon');
+});
+test('Journal : chaque onglet et chaque région se dessinent sans erreur (début, chapitre 4, 12 Engrenages)', () => {
+  fresh();
+  const c = fakeCanvas().getContext('2d'), s = DW.state;
+  const etats = [() => {}, () => { s.flags.chapter = 4; s.flags.meramon = true; s.gears.miharashi = true; s.visited.miharashi4 = s.visited.lac0 = true; },
+    () => { for (const r of ['montagne', 'lac', 'brumes', 'marais', 'savane', 'miharashi', 'usine', 'decharge', 'tunnel', 'jouets', 'canyon', 'scarabees']) s.gears[r] = s.visited[r + '0'] = true; }];
+  for (const f of etats) { f(); const J = new DW.Story.JournalScene(); for (J.tab = 0; J.tab < 3; J.tab++) for (J.i = 0; J.i < 16; J.i++) J.draw(c); }
+});
+test('renaissance et dé-digivolution : le vrai chemin du Digimon, sinon la lignée de l’animé (Gabumon ← Tsunomon ← Punimon)', () => {
+  fresh();
+  const chemin = (...sps) => { const m = new DW.Digimon(sps[0], 10); for (const sp of sps.slice(1)) m.evolve(sp); return m; };
+  eq(DW.Life.babyOf(chemin('punimon', 'tsunomon', 'gabumon', 'garurumon')), 'punimon', 'Garurumon de Matt');
+  eq(DW.Life.babyOf(chemin('pabumon', 'motimon', 'tentomon')), 'pabumon', 'Tentomon d’Izzy');
+  const g = chemin('botamon', 'koromon', 'gabumon');
+  eq(DW.Life.babyOf(g), 'botamon', 'Gabumon venu de Koromon'); eq(DW.Evo.prev1(g.sp, g.parcours), 'koromon', 'sa forme précédente');
+  g.evolve('koromon'); eq(g.parcours.join(), 'botamon', 'parcours après la dé-digivolution');
+  for (const [sp, bebe] of [['gabumon', 'punimon'], ['tentomon', 'pabumon'], ['patamon', 'poyomon'], ['angemon', 'poyomon'], ['greymon', 'botamon']]) eq(DW.Life.babyOf(new DW.Digimon(sp, 20)), bebe, sp + ' sans passé');
+  eq(DW.Digimon.from(JSON.parse(JSON.stringify(chemin('poyomon', 'tokomon', 'patamon')))).parcours.join(), 'poyomon,tokomon', 'parcours sauvegardé');
 });
 test('cuisine : Mushroomon propose une recette dont on peut trouver les ingrédients (la Brochette attend le Piment de Meramon)', async () => {
   fresh();

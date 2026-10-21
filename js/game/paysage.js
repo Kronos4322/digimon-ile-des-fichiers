@@ -20,8 +20,8 @@
   const emote = (ow, k) => { if (DW.Companion) DW.Companion.emote(ow, k, 2); };
   // Digimon sauvage caché dans le décor (s'il y en a dans la zone)
   async function ambush(ow, line) {
-    const enc = ow.map.encounters;
-    if (!enc || !enc.length || !pt() || pt().hp <= 0) return false;
+    const ch = st().flags.chapter || 1, enc = (ow.map.encounters || []).filter(x => !x.ch || ch >= x.ch);   // (pas ceux réservés à un chapitre à venir : game/wild.js)
+    if (!enc.length || !pt() || pt().hp <= 0) return false;
     const e = DW.weighted(enc.map(x => ({ ...x, w: x.w || 1 })));
     await say(line.replace('%s', DW.SPECIES[e.sp].name));
     await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)) });

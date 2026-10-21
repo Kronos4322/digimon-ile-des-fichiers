@@ -77,6 +77,18 @@
     options: sp => EVO[sp] || [],
     // formes précédentes (pour la dé-digivolution)
     prev: sp => Object.keys(EVO).filter(k => EVO[k].some(e => e.to === sp)),
+    // LA forme précédente : celle qu'il a vraiment été (passe : m.parcours), sinon celle dont il est l'évolution principale
+    // (Gabumon ← Tsunomon et non Koromon, Tentomon ← Motimon, Patamon ← Tokomon : les lignées de l'animé)
+    prev1(sp, passe) {
+      const p = this.prev(sp), v = passe && passe[passe.length - 1];
+      return p.includes(v) ? v : p.find(k => EVO[k][0].to === sp) || p[0] || null;
+    },
+    // bébé à l'origine de sa lignée (renaissance) : Greymon → Agumon → Koromon → Botamon
+    bebe(sp, passe = []) {
+      const P = passe.slice();
+      for (let k = 0; k < 8; k++) { const p = this.prev1(sp, P); if (!p) break; if (P[P.length - 1] === p) P.pop(); sp = p; }
+      return sp;
+    },
     // détail des conditions pour un Digimon donné
     check(mon, opt) {
       const rows = [{ label: 'Niveau', need: opt.lvl, have: mon.level }];

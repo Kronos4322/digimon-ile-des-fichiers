@@ -109,8 +109,17 @@
         { sp: 'monochromon', x: x + 1, y: y + 2, face: 'left', cond: s => ch2() && !s.flags.monoSeen, talk: () => say('GRRROOOH !', 'Monochromon') },
       );
     };
-    // le chemin du lac (vers la Rosière) est gardé tant que Monochromon n'est pas vaincu
-    for (const w of R0.warps.filter(w0 => w0.to === 'lac1' || w0.to === 'lac3')) { w.cond = s => !ch2() || !!s.flags.monoCh2; w.lock = "Monochromon te barre la route en grattant le sol de ses pattes. Impossible de passer tant qu'il garde les rives du lac !"; }
+    // le chemin du lac est gardé tant que Monochromon n'est pas vaincu. Il se tient près de la sortie est (Ponton des
+    // Pêcheurs) ; à l'ouest (Rosière), c'est un voile de données levé par le combat qui barre le sentier (comme au chapitre 1 :
+    // il se dissipe quand le calme revient). La règle de chapitre déjà posée sur le passage (atelier des cartes, maps/puzzle.js :
+    // Rosière ↔ Rive Sud fermé après le chapitre 3) s'AJOUTE à la garde au lieu d'être écrasée (avant : sens unique au chapitre 4)
+    for (const w of R0.warps.filter(w0 => w0.to === 'lac1' || w0.to === 'lac3')) {
+      const cond0 = w.cond, lock0 = w.lock;
+      const garde = w.to === 'lac1' ? "Un voile de données barre le sentier de l'ouest, vers la Rosière... Il s'est levé avec le combat des deux Monochromon : tant que le vainqueur fait la loi sur la rive, plus loin à l'est, il ne se dissipera pas !"
+        : "Monochromon te barre la route en grattant le sol de ses pattes. Impossible de passer tant qu'il garde les rives du lac !";
+      w.cond = s => (!cond0 || cond0(s)) && (!ch2() || !!s.flags.monoCh2);
+      w.lock = () => (cond0 && !cond0(st()) ? (typeof lock0 === 'function' ? lock0() : lock0) : garde);
+    }
     R0.onEnter = async ow => {
       const s = st();
       if (!ch2() || s.flags.monoSeen) return;
@@ -141,7 +150,7 @@
     }
     s.flags.monoCh2 = true;
     ow.shake = 0.5; Audio.sfx('fanfare');
-    await say("Monochromon secoue la tête... puis s'écarte du chemin en grognant. Il retourne brouter dans les roseaux.");
+    await say("Monochromon secoue la tête... puis s'écarte du chemin en grognant. Il retourne brouter dans les roseaux. À l'ouest, le voile de données qui barrait le sentier se dissipe.");
     DW.Trophies.give('monochromon'); if (DW.Cards) DW.Cards.give('monochromon');
     s.bits += 400;
     const extra = DW.giveItem('soin_m', 2);
@@ -175,7 +184,7 @@
     ow.shake = 1.2; Audio.sfx('roar');
     await say("La « feuille » se tord de douleur ! L'île tout entière tremble...");
     // Seadramon jaillit du lac, à l'est de l'île
-    const S = { sp: 'seadramon', x: 56 * TS, y: 53 * TS, s: 0.5, sil: true, flip: false, shadow: 0 };
+    const S = { sp: 'seadramon', x: 56 * TS, y: 53 * TS, s: 0.5, sil: true, flip: true, shadow: 0 };   // (tourné vers l'île, à l'ouest)
     ow.flyers = [S];
     Audio.sfx('swoosh');
     await DW.tween(S, { y: 46 * TS, s: 1, sil: false }, 1.2, t => t * (2 - t));
@@ -294,7 +303,7 @@
       // Seadramon dressé au-dessus des vagues
       const sd = DW.Sprites.battle('seadramon');
       c.save(); c.globalAlpha = 1 - v.boom * 0.85;
-      DW.Sprites.draw(c, sd, 228 + Math.sin(t * 30) * 3 * v.shake * (1 - v.boom), 150 + v.boom * 50, { frame: Math.floor(t * 6), scale: 1.2, white: v.boom > 0.05 ? Math.min(1, v.boom * 2) : 0 });
+      DW.Sprites.draw(c, sd, 228 + Math.sin(t * 30) * 3 * v.shake * (1 - v.boom), 150 + v.boom * 50, { frame: Math.floor(t * 6), scale: 1.2, flip: true, white: v.boom > 0.05 ? Math.min(1, v.boom * 2) : 0 });   // (face à Garurumon)
       c.restore();
       // Garurumon sur l'île
       DW.Sprites.draw(c, DW.Sprites.battle('garurumon'), 96, 172, { frame: Math.floor(t * 6), scale: 0.6 });

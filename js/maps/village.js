@@ -365,7 +365,9 @@
     if (!s.flags.starter) urgent.push(`Ko-ko ! Bonjour ! Un bébé Digimon t'attend ici, sur la place : ${DW.SPECIES[DW.heroLine().baby].name}. Va lui parler !`);
     else {
       if (m && m.hunger >= 70) urgent.push(`${m.name} a faim ! Tanemon donne 3 Viandes par jour dans son DigiChamp, au Quartier des Champs (sortie sud-ouest).`);
-      if (m && m.sick) urgent.push(`${m.name} est malade ! Un Médicament le guérira (Bazar de Gotsumon), ou une nuit chez Jijimon.`);
+      // (le Médicament n'est en rayon au Bazar qu'une fois la ville un peu développée : DW.shopStock)
+      if (m && m.sick) urgent.push(T().has('gotsumon') && DW.shopStock('bazar').includes('medoc') ? `${m.name} est malade ! Un Médicament le guérira (Bazar de Gotsumon), ou une nuit chez Jijimon.`
+        : `${m.name} est malade ! Une bonne nuit chez Jijimon le guérira.${T().has('gotsumon') ? ' (Le Bazar vendra des Médicaments quand la ville aura grandi.)' : ''}`);
       else if (m && (m.germs || 0) >= 50) { const c = DW.Life.causes(m).map(x => x[1]); urgent.push(`${m.name} n'a pas l'air bien...${c.length ? ' Fais attention : ' + c.join(', ') + '.' : ''} S'il accumule les négligences, il tombera malade. Le sommeil l'aide à se rétablir.`); }
       if (m && m.need >= 60) urgent.push("Vite ! Il y a des toilettes au sud de la ville, près de la route du Terrain d'entraînement.");
       if (m && DW.Evo.available(m).length) urgent.push(`${m.name} peut digivoluer ! Ouvre le menu (ENTRÉE) → DIGIMON → onglet DIGIVOLUTION.`);
@@ -394,7 +396,7 @@
     // selon l'heure : le matin on s'étire, le soir on flâne, la nuit on bâille
     const h = DW.Time.hour(), f = st().flags;
     if (h >= 22 || h < 6) lines.push('Il est tard... Je ne devrais pas traîner dehors. *bâille*', 'Chut ! Tout le monde dort. Regarde les étoiles au-dessus de la place...');
-    else if (h < 9) lines.push("Bonjour ! Le matin, je fais trois tours de la fontaine pour me réveiller. Tu viens ?", 'Les boutiques ouvrent à 6 h. Les premiers arrivés ont les meilleures viandes !');
+    else if (h < 9) lines.push("Bonjour ! Le matin, je fais trois tours de la fontaine pour me réveiller. Tu viens ?", "Le matin, la place est encore toute calme... C'est mon moment préféré pour me promener.");
     else if (h >= 18) lines.push("Le soir, tout le monde se retrouve sur la place pour raconter sa journée.", "Tu as vu le coucher de soleil sur la plage ? Magnifique !");
     // les nouvelles de l'aventure font le tour de la ville
     if (f.seadramon) lines.push("Il paraît que tu as calmé Seadramon, au grand lac ! Les Gomamon en parlent encore.");
@@ -533,6 +535,7 @@
     },
   };
   DW.Story.services = SERVICES;
+  DW.Story.flyMenu = qui => flyMenu(qui);   // (aussi au relais de Birdramon : game/services.js)
   // le pari de Gotsumon : trois cailloux, un seul cache une pépite (50 Bits la partie, 150 si tu trouves), 3 parties par jour
   async function gotsuBet() {
     const s = st(), f = s.flags, d = DW.Time.day();
@@ -562,10 +565,11 @@
     await say(`Parfait ! Toutes les lettres sont arrivées ! Tiens, un Paquet de cartes pour te remercier.${DW.extraMsg(extra)}`, 'Biyomon');
   }
   // vol rapide (comme Birdramon dans Digimon World) : lieux et régions déjà visités — payant
+  // (qui : celui qui te porte et qui parle — Biyomon à la Poste, Birdramon à son relais : game/services.js)
   const FLY_FEE = 80;
-  async function flyMenu() {
+  async function flyMenu(qui = 'Biyomon') {
     const s = st(), R = DW.REGION_ENTRY || {};
-    if (s.bits < FLY_FEE) { await say(`Un vol coûte ${FLY_FEE} Bits... Il me faut des graines pour avoir la force de voler ! Cui !`, 'Biyomon'); return; }
+    if (s.bits < FLY_FEE) { await say(`Un vol coûte ${FLY_FEE} Bits... Il me faut des graines pour avoir la force de voler !${qui === 'Biyomon' ? ' Cui !' : ''}`, qui); return; }
     const dest = [['Ville des Fichiers', 'village', 20, 16], ['Village des Bébés', 'berceau', 18, 15], ['Plage des Cabines', 'plage', 20, 8], ["Clairière de l'Arrivée", 'clairiere', 17, 14]]
       .filter(([, id]) => s.visited[id]).map(([n, id, x, y]) => [n, id, ...zpt(id, x, y)]);
     for (const rid in R) {
@@ -580,9 +584,9 @@
       if (i < 0 || opts[i] === 'Annuler') return;
       if (opts[i] === 'Plus loin...') { page++; continue; }
       const [name, id, x, y] = slice[i];
-      if ((await DW.ask(`Voler jusqu'à ${name} pour ${FLY_FEE} Bits ?`, ['Oui', 'Non'], 'Biyomon')) !== 0) return;
+      if ((await DW.ask(`Voler jusqu'à « ${name} » pour ${FLY_FEE} Bits ?`, ['Oui', 'Non'], qui)) !== 0) return;
       s.bits -= FLY_FEE; DW.Audio.sfx('buy');
-      await say(`Accroche-toi bien ! Direction : ${name} !`, 'Biyomon');
+      await say(`Accroche-toi bien ! Direction : ${name} !`, qui);
       DW.Audio.sfx('swoosh');
       await DW.fade(1, 0.5, '#ffffff');
       // case praticable la plus proche du point d'arrivée

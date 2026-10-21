@@ -17,6 +17,17 @@
   };
   const BITERS = { mer: ['bukamon', 'gomamon', 'shellmon'], riviere: ['betamon', 'gomamon'], lac: ['betamon', 'gomamon', 'gekomon'] };
   const LAKES = new Set(['lac', 'marais', 'gel']);
+  // le boss du chapitre 1 (Shellmon) et Gomamon (partenaire de Joe, encore un bébé au début de l'île) ne mordent qu'à partir
+  // du chapitre 2 ; niveau d'un Digimon qui mord : celui des Digimon sauvages du coin (écart par stade comme game/wild.js)
+  const DES_CH = { shellmon: 2, gomamon: 2 };
+  const ECART = { 'Bébé': -4, 'Entraînement': -2, Disciple: 0, Champion: 2 };
+  function niveau(map, sp) {
+    const E = map.encounters || [], e = E.find(x => x.sp === sp), ec = x => ECART[DW.SPECIES[x].stage] || 0;
+    if (e) return DW.rand(e.min, e.max);
+    const ref = E.length ? E.reduce((a, x) => a + (x.min + x.max) / 2 - ec(x.sp), 0) / E.length
+      : DW.Wild.TABLES[map.region] ? DW.Wild.TABLES[map.region][0] : ((DW.Care && DW.Care.lead()) || { level: 7 }).level - 1;
+    return Math.max(3, Math.round(ref) + ec(sp) + DW.rand(-1, 1));
+  }
 
   DW.Peche = {
     has: () => (st().bag || {}).canne > 0,
@@ -35,13 +46,12 @@
       if (r === 'early') { await say('Trop tôt ! Le bouchon a fait fuir les poissons.'); return; }
       if (r !== 'catch') { await say('Le poisson a filé avec l\'appât...'); return; }
       // un Digimon aquatique au bout de la ligne
-      const lv = (DW.Wild.TABLES[ow.map.region] || [6])[0];
-      const bit = (BITERS[kind] || []).filter(sp => DW.SPECIES[sp]);
+      const ch = s.flags.chapter || 1, bit = (BITERS[kind] || []).filter(sp => DW.SPECIES[sp] && ch >= (DES_CH[sp] || 1));
       if (bit.length && Math.random() < 0.1) {
         const sp = DW.pick(bit);
         ow.shake = 0.5; DW.Audio.sfx('roar');
         await say(`Ça tire très fort... SPLASH ! Un ${DW.SPECIES[sp].name} jaillit de l'eau, furieux d'avoir été hameçonné !`);
-        await ow.battle({ enemy: new DW.Digimon(sp, Math.max(3, lv + Math.floor(Math.random() * 3) - 1)) });
+        await ow.battle({ enemy: new DW.Digimon(sp, niveau(ow.map, sp)) });
         return;
       }
       const h = DW.Time.hour(), big = h >= 20 || h < 7;

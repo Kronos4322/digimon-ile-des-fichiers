@@ -73,18 +73,13 @@
     await say('Prends bien soin de lui. Les bébés grandissent vite : deux victoires, et hop, ils digivoluent !', 'Penguinmon');
     DW.autosave();
   }
-  // bébé à l'origine de la lignée (Greymon → Agumon → Koromon → Botamon)
-  function babyOf(sp) {
-    for (let k = 0; k < 8; k++) { const p = DW.Evo.prev(sp); if (!p.length) break; sp = p[0]; }
-    return sp;
-  }
   async function rebirthService() {
     const s = st();
     await say("La renaissance... Ton Digimon redevient un œuf, puis un bébé. C'est le cycle de la vie des Digimon.", 'Penguinmon');
     await say("Il garde ses techniques, ses victoires et la moitié de son entraînement. Et ses données innées se renforcent à chaque renaissance !", 'Penguinmon');
     const idx = await Game.push(new DW.PartyScene({ mode: 'select', title: 'RENAISSANCE' }));
     if (idx == null || idx < 0) return;
-    const m = s.party[idx], sp = babyOf(m.sp);
+    const m = s.party[idx], sp = DW.Life.babyOf(m);   // (le bébé qu'il a été : Greymon → Agumon → Koromon → Botamon)
     if (sp === m.sp) { await say(`${m.name} est déjà un bébé !`, 'Penguinmon'); return; }
     const r = await DW.ask(`${m.name} redeviendra un ${DW.SPECIES[sp].name}. D'accord ?`);
     if (r !== 0) { await say('Comme tu veux. Rien ne presse.', 'Penguinmon'); return; }
@@ -97,13 +92,15 @@
     await say(`${m.name} est revenu au monde en ${DW.SPECIES[sp].name} ! Ses données innées se sont renforcées.`);
     DW.autosave();
   }
-  async function elecmonTalk() {
+  async function penguinmonTalk() {
     const s = st();
     if (!s.flags.berceau) {
       s.flags.berceau = true;
       await say("Bienvenue au Village des Bébés ! Je suis Penguinmon, le gardien de cet endroit.", 'Penguinmon');
       await say("Ici, les Digimon naissent dans des DigiŒufs. Quand un Digimon disparaît, ses données reviennent aussi ici, sous forme d'œuf.", 'Penguinmon');
       await say("Tant que tu les traites bien, je te confierai un œuf par jour. Et si l'un de tes Digimon veut repartir de zéro, je peux l'aider à renaître.", 'Penguinmon');
+      // (première visite : la carte de Botamon, le bébé des berceaux, pour l'album du chapitre 1 — si tu ne l'as pas déjà)
+      if (DW.Cards && DW.Cards.give('botamon')) await say('Penguinmon te donne une carte de Botamon, le bébé qui dort dans les berceaux, pour ton album ! (Album)');
     }
     const r = await DW.choose(['Prendre un DigiŒuf', 'Faire renaître un Digimon', 'Se reposer', 'Au revoir']);
     if (r === 0) await eggService();
@@ -158,7 +155,7 @@
     ],
     warps: [{ x: 0, y: 11, w: 1, h: 3, dir: 'left', to: 'prairie', tx: 39, ty: 12 }],
     npcs: [
-      { sp: 'penguinmon', x: 20, y: 8, face: 'right', talk: elecmonTalk },
+      { sp: 'penguinmon', x: 20, y: 8, face: 'right', talk: penguinmonTalk },
       baby('botamon', 7, 11, ['Bo-bo... Je fais la sieste dans les berceaux tous les après-midi !', "Penguinmon dit que les œufs zébrés de bleu deviennent des Botamon. Comme moi !"]),
       baby('punimon', 30, 13, ['Puni ! Puni ! On joue à chat ? Le manège tourne toute la journée !', 'Les Punimon deviennent des Tsunomon, puis des Gabumon... ou des Elecmon ! Penguinmon dit que chacun choisit son chemin.']),
       baby('yuramon', 9, 21, ["Fuu... Le vent m'a encore emporté jusqu'ici...", "Un jour, je deviendrai Tanemon, puis Palmon. J'aurai une jolie fleur !"]),

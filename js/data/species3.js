@@ -14,6 +14,7 @@
   mv('flamme_follet', { name: 'Flamme Follet', type: 'Feu', pow: 40, acc: 100, st: { s: 'brn', ch: 0.3 }, desc: 'Une petite flamme dansante qui brûle sans prévenir.' }, 'orb');
   mv('morsure_ardente', { name: 'Morsure Ardente', type: 'Feu', pow: 85, contact: true, st: { s: 'brn', ch: 0.15 }, desc: 'Mord de toutes ses dents chauffées à blanc.' }, 'bite');
   mv('poing_lave', { name: 'Poing de Lave', type: 'Feu', pow: 95, acc: 90, contact: true, desc: 'Un coup de poing enrobé de lave en fusion.' }, 'firepunch');
+  Object.assign(DW.SIG, { guilmon: 'pyro_sphere', candlemon: 'bombe_paraffine', flarizamon: 'morsure_ardente' });   // (coups spéciaux : data/moves.js)
 
   def('guilmon', { name: 'Guilmon', stage: 'Disciple', types: ['Feu'], attr: 'Virus', base: { hp: 58, atk: 64, def: 50, spd: 54, int: 50 }, kg: 12,
     learn: [[1, 'griffe'], [1, 'grondement'], [1, 'pyro_sphere'], [10, 'vive_attaque'], [13, 'morsure'], [16, 'coup_tete'], [19, 'souffle_ardent'], [22, 'mega_flamme']], evo: { to: 'flarizamon', lvl: 18 }, rate: 120, xp: 72,

@@ -12,7 +12,7 @@
   DW.slot = 1;
   const keyOf = n => (n > 1 ? BASE + '_' + n : BASE);
   const K = { get KEY() { return keyOf(DW.slot); }, get BAK() { return keyOf(DW.slot) + '_precedente'; }, get BROKEN() { return keyOf(DW.slot) + '_illisible'; } };
-  DW.SAVE_V = 6; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20) — v6 : antre de Shellmon redessinée
+  DW.SAVE_V = 7; // v2 : Digimon sauvages visibles, Engrenages Noirs, puces, règles DW1 — v3 : « obtenus » (owned), plus de PP — v4 : cartes faites à la main agrandies ×2 — v5 : PV / PM en milliers (×20) — v6 : antre de Shellmon redessinée — v7 : l'Engrenage de Meramon compte pour le Pays de Meramon
   DW.newState = () => ({
     name: 'Tai', hero: 'tai', party: [], box: [], bag: {}, bits: 300, flags: {}, seen: {}, owned: {},
     map: 'maison', x: 12, y: 5, dir: 'down', heal: { map: 'maison', x: 12, y: 5 }, time: 0, recruits: {},
@@ -134,6 +134,10 @@
     }
     // v6 : l'antre de Shellmon est redessinée (images du joueur) : une partie sauvegardée dedans reprend à l'entrée de la salle
     if (v < 6 && /^antre/.test(st.map) && DW.MAPS[st.map] && DW.MAPS[st.map].entry) Object.assign(st, { x: DW.MAPS[st.map].entry.x, y: DW.MAPS[st.map].entry.y, dir: 'up' });
+    // v7 : l'Engrenage de Meramon (chapitre 3, Mont Miharashi) était compté pour le Mont Panorama (gears.volcan) ; il compte
+    //  désormais pour le Pays de Meramon (game/story.js). Seulement si Meramon a bien été calmé au Mont Miharashi ; l'ancien
+    //  engrenage n'est retiré que s'il ne peut pas venir de l'ancien boss du Mont Panorama (son Belvédère jamais visité)
+    if (v < 7 && st.flags.meramon) { st.gears = st.gears || {}; st.gears.miharashi = true; if (!(st.visited || {}).volcan7) delete st.gears.volcan; }
     st.v = DW.SAVE_V;
     for (const box of [st.bag, st.bank, st.fridge || {}]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
     const orphans = (st.orphans || []).slice();

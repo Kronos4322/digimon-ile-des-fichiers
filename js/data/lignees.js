@@ -25,6 +25,8 @@
     learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'morsure'], [8, 'vive_attaque'], [10, 'bulle_explosive']], rate: 190, xp: 45,
     desc: "Une adorable boule blanche aux longues oreilles... qui cache une bouche immense pleine de dents !" });
 
+  // coups spéciaux (data/moves.js) : comme les autres bébés et Digimon d'Entraînement
+  Object.assign(DW.SIG, { pabumon: 'bulles', poyomon: 'bulles_acides', motimon: 'bulles', tokomon: 'bulles' });
   // Digivolutions (fusionnées par evolutions.js)
   Object.assign(DW.EVO_EXTRA, {
     pabumon: [{ to: 'motimon', lvl: 5, req: { wins: 2 } }],

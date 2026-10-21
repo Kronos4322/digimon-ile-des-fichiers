@@ -147,7 +147,8 @@
   if (J) {
     const lv = () => (DW.Town ? DW.Town.level() : 0);
     const residents = (spots, skip) => DW.Town.RECRUITS.filter(r => DW.Town.has(r.id) && DW.SPECIES[r.id] && !skip.includes(r.id)).slice(0, spots.length).map((r, i) => ({ sp: r.id, x: spots[i][0], y: spots[i][1], face: i % 2 ? 'left' : 'right', wander: 1,
-      talk: () => say(DW.pick(['Jijimon nous loge le temps que nos maisons soient reconstruites. Il est si gentil !', 'Hohoho, c\'est ce que dit toujours Jijimon. Je commence à le dire aussi !', 'La ville grandit à vue d\'œil. Bientôt, chacun aura sa maison !']), DW.SPECIES[r.id].name) }));
+      // (ce sont les habitants revenus en ville : leur bâtiment existe déjà, ils viennent seulement dormir ici)
+      talk: () => say(DW.pick(['Le jour, je travaille en ville ; le soir, Jijimon nous prête un lit au dortoir. Il est si gentil !', 'Hohoho, c\'est ce que dit toujours Jijimon. Je commence à le dire aussi !', 'Le soir, on se raconte notre journée avant de dormir. La ville grandit à vue d\'œil !']), DW.SPECIES[r.id].name) }));
     MAPS.maison_haut = {
       name: 'Maison de Jijimon — Dortoir des habitants', music: 'village', bg: 'foret', ambient: 'home', climate: 'village', region: 'village', indoor: true,
       floor: { type: 'herring', cols: ['#c8a070', '#a07a4a', '#6a4e2e'] }, wall: { base: '#f0e0c8', alt: '#e0ccac', pattern: 'stripes', wood: '#6a4a2a' },
@@ -292,7 +293,8 @@
           ...[1, 4, 25, 27].map(x => ({ kind: 'pots', x, y: 3, w: 2, h: 1 })), ...[9, 20].map(x => ({ kind: 'bigplant', x, y: 3, w: 1, h: 1, small: true })),
           ...[6, 14, 22].map(x => ({ kind: 'window', v: 0, x, y: 1, w: 2, h: 2, back: true, oy: -6 })), { kind: 'plant', v: 0, x: 28, y: 13, w: 1, h: 1, small: true }],
         decor: m => { for (let x = 13; x < 17; x++) m.signs[`${x},4`] = svc; },
-        npcs: () => [{ sp: 'yokomon', x: 14, y: 3, face: 'left', talk: svc }, grower('palmon', 5, 9), grower('tanemon', 22, 9), grower('lalamon', 5, 13), grower('floramon', 22, 13), ...farm([[11, 7], [17, 7], [11, 11], [17, 11], [14, 13], [6, 6]])] },
+        // (des Digimon plantes qui existent dans le jeu, DW.SPECIES : avant, Lalamon et Floramon, absents, devenaient des Yokomon)
+        npcs: () => [{ sp: 'yokomon', x: 14, y: 3, face: 'left', talk: svc }, grower('palmon', 5, 9), grower('tanemon', 22, 9), grower('togemon', 5, 13), grower('yuramon', 22, 13), ...farm([[11, 7], [17, 7], [11, 11], [17, 11], [14, 13], [6, 6]])] },
     ]);
   }
 })();

@@ -45,7 +45,7 @@
 
   // ------------------------------------------------------------ Dojo d'Elecmon
   // l'arbitre des tournois de la ville (Coupes Junior, Disciple, Champion, Ultime : game/activities.js)
-  const arena = (x, y) => ({ sp: 'agumon', x, y, face: 'down', talk: async () => { await DW.say("Moi, j'organise les tournois de la ville ! Une coupe par jour, trois combats d'affilée.", 'Agumon'); await DW.Tournament('au tournoi du Dojo'); } });
+  const arena = (x, y) => ({ sp: 'agumon', x, y, face: 'down', talk: async () => { await DW.say("Moi, j'organise les tournois de la ville ! Chaque coupe se dispute une fois par jour, en trois combats d'affilée.", 'Agumon'); await DW.Tournament('au tournoi du Dojo'); } });
   DW.arenaNPC = arena;
   const dojo = shop('dojo_in', {
     name: "Dojo d'Elecmon", w: 14, h: 7, lot: { x: 29, y: 7, w: 5, h: 3 },

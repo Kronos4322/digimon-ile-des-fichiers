@@ -71,14 +71,14 @@
     await walk(ow, 'down', 3);
     await walk(ow, 'left', 2);
     const hx = ow.p.x * TS + 8, hy = ow.p.y * TS;
-    const K = { sp: 'kuwagamon', x: hx - 260, y: hy - 75, s: 0.55, sil: true, flip: true, shadow: 0.3 };
+    const K = { sp: 'kuwagamon', x: hx - 260, y: hy - 75, s: 0.55, sil: true, flip: false, shadow: 0.3 };   // (il file vers la droite)
     ow.flyers = [K];
     DW.Audio.sfx('roar');
     await say('BZZZZZZ... Un bourdonnement énorme fait trembler les feuilles.');
     await fly(K, { x: hx + 260, y: hy - 55 }, 2.2, DW.linear);   // (assez bas pour passer dans le champ de la caméra)
     await say("Une grande ombre rouge passe au-dessus de la clairière... puis fait demi-tour !");
     DW.Audio.play('boss');
-    Object.assign(K, { flip: false, sil: false, s: 0.8 });
+    Object.assign(K, { flip: true, sil: false, s: 0.8 });   // (demi-tour : il fonce vers la gauche, sur vous)
     DW.Audio.sfx('swoosh');
     await fly(K, { x: hx + 70, y: hy + 6, s: 1 }, 1.2, t => t * t);
     ow.shake = 0.8; DW.Audio.sfx('hit');

@@ -208,9 +208,18 @@
     const fx = m.exits.right ? exitCenter(m, 'right') : null;
     if (fx) {
       for (const [dx, dy] of [[-7, -4], [-10, -3], [-13, -5], [-8, 4], [-11, 5], [-15, 4]]) put(g, fx[0] + dx, Math.round(fx[1] + dy), 'Ŝ');
-      const sx = fx[0] - 4, sy = Math.round(fx[1]) - 3;
-      if (WALK(g.get(sx, sy)) || g.get(sx, sy) === 'Ŝ') { g.set(sx, sy, 'S'); m.signs[sx + ',' + sy] = n === 0
-        ? "↑ Rosière · ← Village des Yokomon · → Clairière de l'Arrivée. Les poteaux suivent l'ancienne ligne... jusqu'au village."
+      // (la place prévue peut tomber dans la lisière reprise de la carte d'en face — la forêt du Sentier, à la Plaine des
+      //  Panneaux : le panneau se pose alors sur la case praticable la plus proche, hors de la route)
+      const libre = (x, y) => WALK(g.get(x, y)) || g.get(x, y) === 'Ŝ';
+      let sx = fx[0] - 4, sy = Math.round(fx[1]) - 3;
+      if (!libre(sx, sy)) {
+        let best = null;
+        for (let r = 1; r <= 6 && !best; r++) for (let dy = -r; dy <= r && !best; dy++) for (let dx = -r; dx <= r && !best; dx++)
+          if (Math.max(Math.abs(dx), Math.abs(dy)) === r && libre(sx + dx, sy + dy) && g.get(sx + dx, sy + dy) !== '=') best = [sx + dx, sy + dy];
+        if (best) [sx, sy] = best;
+      }
+      if (libre(sx, sy)) { g.set(sx, sy, 'S'); m.signs[sx + ',' + sy] = n === 0
+        ? "↑ Rosière · ↓ Plaine des Panneaux · ← Village des Yokomon · → Clairière de l'Arrivée. Les poteaux suivent l'ancienne ligne... jusqu'au village."
         : "↑ Désert des Poteaux · ↓ Bosquet des Pousses · → Sentier des Murmures. Qui a planté tous ces panneaux ? Mystère..."; }
     }
   }
