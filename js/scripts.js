@@ -52,14 +52,14 @@
     'data/versions_images.js': '49003128',
     'data/types.js': 'c8630ed6',
     'data/moves.js': '26633ce6',
-    'data/species.js': '7b0e227f',
+    'data/species.js': '384aecac',
     'data/species2.js': '23bfaa33',
     'data/species3.js': '5ba4f3c1',
     'data/lignees.js': 'b82758b7',
-    'data/evolutions.js': '65f2f5d3',
+    'data/evolutions.js': 'da030dc3',
     'data/ecussons.js': '731a7ffd',
     'data/techniques_classe.js': 'c138a51c',
-    'data/techniques_elements.js': '8797f404',
+    'data/techniques_elements.js': '8c5f902e',
     'data/items.js': '3d4f8e3a',
     'data/equipements.js': '617199cb',
     'data/music.js': '54b59a41',
@@ -206,7 +206,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: 'dd5362c8' },
+    { f: '../paquets/jeu-1.js', v: 'd0442649' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '15cc2f5f' },
   ];   // (fin des paquets)

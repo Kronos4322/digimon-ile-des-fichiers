@@ -77,10 +77,10 @@
     learn: [[0, 'flamme_bleue'], [1, 'morsure'], [1, 'souffle_bleu'], [1, 'vive_attaque'], [24, 'tempete_neige'], [28, 'poing_zero'], [32, 'fleche_glace']], rate: 45, xp: 150,
     desc: 'Un loup légendaire à la fourrure plus dure que l\'acier. Sa Flamme Bleue gèle tout sur son passage.' });
   def('meramon', { name: 'Meramon', stage: 'Champion', types: ['Feu'], attr: 'Données', base: { hp: 78, atk: 90, def: 68, spd: 74, int: 86 }, kg: 45,
-    learn: [[0, 'poing_ardent'], [1, 'boule_feu'], [1, 'souffle_ardent'], [1, 'grondement'], [24, 'mega_flamme'], [28, 'flamme_bebe'], [32, 'souffle_ardent']], rate: 45, xp: 150,
+    learn: [[0, 'poing_ardent'], [1, 'boule_feu'], [1, 'souffle_ardent'], [1, 'grondement'], [24, 'mega_flamme']], rate: 45, xp: 150,
     desc: 'Un Digimon fait de flammes vivantes. Il brûle tout ce qu\'il touche avec son Poing Ardent.' });
   def('birdramon', { name: 'Birdramon', stage: 'Champion', types: ['Feu', 'Air'], attr: 'Vaccin', base: { hp: 78, atk: 82, def: 70, spd: 94, int: 84 }, kg: 40,
-    learn: [[0, 'meteore'], [1, 'flamme_spirale'], [1, 'coup_bec'], [1, 'tornade'], [24, 'vol_plane'], [28, 'flamme_spirale'], [32, 'souffle_ardent']], rate: 45, xp: 150,
+    learn: [[0, 'meteore'], [1, 'flamme_spirale'], [1, 'coup_bec'], [1, 'tornade'], [24, 'vol_plane'], [32, 'souffle_ardent']], rate: 45, xp: 150,
     desc: 'Un immense oiseau de feu. Ses Ailes de Météore font pleuvoir des boules de feu.' });
   def('greymon', { name: 'Greymon', stage: 'Champion', types: ['Feu'], attr: 'Vaccin', base: { hp: 80, atk: 92, def: 75, spd: 70, int: 72 }, kg: 60,
     learn: [[0, 'mega_flamme'], [1, 'griffe'], [1, 'flamme_bebe'], [1, 'morsure'], [22, 'coup_corne'], [27, 'coup_queue'], [31, 'souffle_ardent'], [35, 'vrille']], evo: { to: 'metalgreymon', lvl: 32 }, rate: 45, xp: 150,
@@ -95,7 +95,7 @@
     learn: [[0, 'pince'], [1, 'charge'], [1, 'grondement'], [1, 'electro_fil'], [22, 'vol_plane'], [26, 'main_enfers'], [30, 'vrille']], rate: 45, xp: 155,
     desc: 'Un insecte géant et agressif. Ses pinces tranchantes peuvent couper un arbre en deux.' });
   def('shellmon', { name: 'Shellmon', stage: 'Champion', types: ['Eau'], attr: 'Données', base: { hp: 90, atk: 78, def: 90, spd: 40, int: 75 }, kg: 80,
-    learn: [[0, 'jet_hydro'], [1, 'charge'], [1, 'coquille'], [1, 'bulles'], [14, 'coup_tete'], [18, 'grande_vague'], [22, 'boomerang']], rate: 45, xp: 160,
+    learn: [[0, 'jet_hydro'], [1, 'charge'], [1, 'coquille'], [1, 'bulles'], [14, 'coup_tete'], [18, 'grande_vague']], rate: 45, xp: 160,
     desc: 'Il vit dans un énorme coquillage sur les plages. Très territorial, il attaque avec des jets d\'eau.' });
 
   def('metalgreymon', { name: 'MetalGreymon', stage: 'Ultime', types: ['Feu', 'Lumière'], attr: 'Vaccin', base: { hp: 100, atk: 120, def: 100, spd: 82, int: 95 }, kg: 140,

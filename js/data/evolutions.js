@@ -57,7 +57,7 @@
     if (st === 'Méga') { if (r.mistakesMax == null) r.mistakesMax = 1; if (r.disc == null) r.disc = 80; }
   }
   // tout Disciple trop négligé peut devenir Numemon (≥ 5 erreurs) ou Sukamon (≥ 8 erreurs)
-  for (const sp of ['agumon', 'gabumon', 'gomamon', 'palmon', 'biyomon', 'kunemon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon']) {
+  for (const sp of ['agumon', 'gabumon', 'gomamon', 'palmon', 'biyomon', 'kunemon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon', 'tentomon', 'patamon', 'penguinmon', 'guilmon', 'candlemon']) {
     EVO[sp] = EVO[sp] || [];
     EVO[sp].push({ to: 'numemon', lvl: 14, req: { mistakes: 5 } }, { to: 'sukamon', lvl: 14, req: { mistakes: 8 } });
   }

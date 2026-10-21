@@ -14,7 +14,8 @@
   set('Terre', ['Poison'], 2); set('Insecte', ['Poison'], 0.5);
 
   const M = DW.MOVES;
-  const mv = (id, o, fx) => { M[id] = Object.assign({ acc: 100 }, o, { fx }); };
+  // (une technique déjà apprise en classe — Orage, Séisme, Tempête de Pétales : data/techniques_classe.js — y reste proposée)
+  const mv = (id, o, fx) => { const classe = M[id] && M[id].classe; M[id] = Object.assign({ acc: 100 }, o, { fx }); if (classe != null) M[id].classe = classe; };
   // poison
   mv('dard_venin', { name: 'Dard Venimeux', type: 'Poison', pow: 45, st: { s: 'psn', ch: 0.3 }, desc: 'Trois dards empoisonnés lancés en rafale.' }, 'venomsting');
   mv('boue_toxique', { name: 'Boue Toxique', type: 'Poison', pow: 70, acc: 90, st: { s: 'psn', ch: 0.3 }, desc: 'Une grosse boule de boue violette qui éclabousse tout.' }, 'sludge');
