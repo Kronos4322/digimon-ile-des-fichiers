@@ -18,7 +18,7 @@ qu'il contient : c'est la référence, ce document en donne la carte.
 | `js/gfx/` | Graphismes | voir ci-dessous |
 | `js/game/` | Logique de jeu | voir ci-dessous |
 | `js/maps/` | Cartes et scénario | voir ci-dessous |
-| `assets/` | Images, polices, icônes | `commun/jeu/` et `volcan/jeu/` (copies allégées des images du créateur, faites par `dev/optimiser_textures.py`), `grotte/jeu/` (grotte de Shellmon, WebP, chargée après le démarrage), `intro/jeu/` (écran titre et introduction peints), `commun/kit/` (kit du personnage, `dev/kit_persos.py`), `ASSETS - Digimon/` et `volcan/*.png` (originaux : sur le PC du créateur seulement, hors GitHub), `css/`, `fonts/` (licence SIL OFL), `icons/` |
+| `assets/` | Images, polices, icônes | `commun/jeu/` et `volcan/jeu/` (copies allégées des images du créateur, faites par `dev/optimiser_textures.py`), `grotte/jeu/`, `bebe/jeu/`, `desert/jeu/` (grotte de Shellmon, villages de bébés, désert : WebP, chargés après le démarrage), `intro/jeu/` (écran titre et introduction peints), `commun/kit/` (kit du personnage, `dev/kit_persos.py`), `ASSETS - Digimon/` et `volcan/*.png` (originaux : sur le PC du créateur seulement, hors GitHub), `css/`, `fonts/` (licence SIL OFL), `icons/` |
 | `dev/` | Outils (jamais chargés par le jeu) | voir « Outils » |
 | `docs/` | Documentation | ce fichier, `ZONES_DW1.md` (recherches sur Digimon World 1) |
 
@@ -98,6 +98,11 @@ de héros, `CHOIX` : sols par thème). Un objet remplacé garde seulement un pet
 si l'image ne se charge pas ; les rendus faits pendant le chargement sont oubliés dès que les images arrivent
 (`World.oublierObjet`). Règles du créateur : arbres et maisons font 3 fois la hauteur du héros ; un objet vu de biais n'est
 pas utilisé (on garde le dessin de face).
+Ses PLANCHES (10 objets en 5 × 2 sur fond vert : GROTTE DE SHELLMON, VILLAGE BEBE, DESERT) deviennent des dossiers entiers
+(`DOSSIERS_PLANCHES` de l'optimiseur, objets pris dans d'autres planches compris : le tipi du camp). Une carte prend un dossier
+avec `map.textures` (une sous-zone de région aussi : option `textures`) : ses sols par rôle (`ROLES`), et `REMPLACE[dossier]`
+change les objets du jeu en ses images (poteaux télégraphiques du désert, maisonnettes, manège, berceaux, huttes → tipis ;
+la variante `v` d'un objet posé choisit son image). Toutes les toilettes du jeu sont sa cabane au toit bleu (`toilettes`).
 
 DIGIMON : une planche par espèce (`assets/ASSETS - Digimon/Digimon/`, fond vert). La table `DIGIMON` de
 `dev/optimiser_textures.py` y choisit quatre poses par leur rang dans la planche — combat (de trois quarts), profil (de
@@ -262,8 +267,11 @@ Pour insérer du texte brut, utiliser `s.slice(0, i) + b + s.slice(i + a.length)
 - **Cartes fabriquées à la demande** : les sous-zones des régions, la forêt, les Dunes et le Bosquet n'ont leurs cases
   qu'à leur première visite (`build()` ; `MapKit.zoomMap` y ajoute les dégagements relevés au chargement, puis `finir`).
   Une carte doit rester identique : comparer les empreintes de toutes les cartes avant/après (`DW.preparerCarte`).
-- **Images chargées plus tard** (`gfx/textures.js`, `TARDIFS`) : la grotte de Shellmon se charge en arrière-plan après
-  le démarrage ; `Overworld.charger` attend son dossier (`DW.Textures.dossier`) avant d'y entrer.
+- **Images chargées plus tard** (`gfx/textures.js`, `TARDIFS`) : la grotte de Shellmon, les villages de bébés et le désert
+  se chargent en arrière-plan après le démarrage ; `Overworld.charger` attend le dossier de la carte (`DW.Textures.dossier`)
+  avant d'y entrer.
+- **Ce que cachent les arbres** : un arbre fait 3 fois le héros ; son feuillage cache ~5 rangées au-dessus de lui. Un décor
+  posé en bas d'une clairière disparaît : vérifier sur une capture (ou les cases visibles) avant de meubler.
 - Mesures (PC du créateur, 2 cœurs à 1,1 GHz) : en ligne, images prêtes ~22 s → ~7 s avec les empreintes ; banc Node :
   les scripts du jeu s'exécutent en ~2,5 s (dont `maps/regions.js` ~0,9 s). Sous Node, `vm.createContext` rend `Math.*`
   très lent : pour mesurer, exécuter les scripts dans le contexte principal (`vm.runInThisContext`).
