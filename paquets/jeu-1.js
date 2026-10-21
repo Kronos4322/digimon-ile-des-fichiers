@@ -12311,6 +12311,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     for (const o0 of map.objects || []) {
       const R = TX && TX.objet(map, o0.kind, o0.x, o0.y), o = R ? { ...o0, kind: R, v: 0 } : o0;   // (image dessinée : gfx/textures.js)
       const D = OBJ[o.kind], vv = o.v || 0;
+      // sorte inconnue (une image du joueur, « tex_… », pas chargée : réseau coupé) : rien n'est dessiné, ses cases restent bloquées
+      if (!D) { if (!o.walk && !o.top) for (let yy = 0; yy < (o.h || 1); yy++) for (let xx = 0; xx < (o.w || 1); xx++) solid.add((o.x + xx) + ',' + (o.y + yy)); continue; }
       if (!World.objReady(o.kind, vv)) { if (D.frames) for (let fr = 0; fr < D.frames; fr++) { World.objFrame(o.kind, vv, fr); yield; } else { World.obj(o.kind, vv); yield; } }
       const anim = OBJ[o.kind].frames ? World.objFrames(o.kind, o.v || 0) : null;
       const spr = anim ? anim[0] : World.obj(o.kind, o.v || 0);

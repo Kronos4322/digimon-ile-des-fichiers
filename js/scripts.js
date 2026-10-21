@@ -106,7 +106,7 @@
     'gfx/buildings2.js': 'fb684c59',
     'gfx/city.js': '95731dcd',
     'gfx/ponts.js': '1a0efd90',
-    'gfx/terrain.js': 'a818be10',
+    'gfx/terrain.js': '43f9959e',
     'gfx/ambient.js': '2d139098',
     'gfx/vivant.js': '992ba20f',
     'gfx/rendu.js': 'bee4520c',
@@ -157,7 +157,7 @@
     'ui/intro.js': '919e3315',
     'ui/touch.js': '59197a5b',
     'maps/common.js': '3abc309b',
-    'maps/retouches.js': 'd0180747',
+    'maps/retouches.js': '04372ee2',
     'maps/puzzle.js': 'f06fe783',
     'maps/decor.js': '32b94d69',
     'maps/palais.js': '6daab73d',
@@ -206,9 +206,9 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '734a3eec' },
+    { f: '../paquets/jeu-1.js', v: 'dd5362c8' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: '4f829c45' },
+    { f: '../paquets/jeu-2.js', v: 'bd3ed567' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

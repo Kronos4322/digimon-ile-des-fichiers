@@ -53,8 +53,26 @@
       // (sinon, si la génération a déplacé la sienne depuis, sa clé de retrait ne correspond plus et on avait un doublon)
       const span = w => (w.dir === 'left' || w.dir === 'right' ? [w.y, w.y + (w.h || 1)] : [w.x, w.x + (w.w || 1)]);
       const remplacee = w => S.some(o => o.type === 'bord' && o.to === w.to && o.dir === w.dir && span(o)[0] < span(w)[1] && span(w)[0] < span(o)[1]);
-      m.warps = B.warps.filter(w => !parti.has(R.cleSortie(w)) && !remplacee(w)).concat(S.filter(o => o.type === 'bord' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, dir: o.dir, to: o.to, tx: o.tx, ty: o.ty, ed: true, enclos: true, _zt: true }, o)));
-      m.doors = B.doors.filter(d => !parti.has(R.cleSortie(d, true))).concat(S.filter(o => o.type === 'porte' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: 1, dir: o.dir || 'up', to: o.to, tx: o.tx, ty: o.ty, ed: true, _zt: true }, o)));
+      // une sortie de l'atelier qui reprend une sortie du jeu (reprend : sa clé ; sinon la sortie de bord qu'elle chevauche, ou
+      // la seule porte retirée vers la même carte) garde sa CONDITION D'HISTOIRE (le Bois Brumeux attend qu'Elecmon rallume
+      // les lanternes, la porte du Grand Arbre l'énigme...) : une règle de chapitre posée dans l'atelier s'y AJOUTE
+      const origine = (o, porte) => {
+        const L = porte ? B.doors : B.warps;
+        if (o.reprend) return L.find(w => R.cleSortie(w, porte) === o.reprend) || null;
+        if (!porte) return L.find(w => w.to === o.to && w.dir === o.dir && span(o)[0] < span(w)[1] && span(w)[0] < span(o)[1]) || null;
+        const c = L.filter(d => d.to === o.to && parti.has(R.cleSortie(d, true)));
+        return c.length === 1 ? c[0] : null;
+      };
+      const garde = (w, o0) => {
+        if (!o0 || !o0.cond || o0.regle) return w;   // (une règle de chapitre d'origine est remplacée par celle de l'atelier)
+        const c0 = o0.cond, l0 = o0.lock, c1 = w.cond, l1 = w.lock, txt = l => (typeof l === 'function' ? l() : l);
+        w.cond = s => c0(s) && (!c1 || c1(s));
+        w.lock = () => txt(c1 && !c1(DW.state) ? l1 : l0);
+        w.histoire = l0;   // (montrée dans l'atelier)
+        return w;
+      };
+      m.warps = B.warps.filter(w => !parti.has(R.cleSortie(w)) && !remplacee(w)).concat(S.filter(o => o.type === 'bord' && ok(o)).map(o => garde(regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, dir: o.dir, to: o.to, tx: o.tx, ty: o.ty, ed: true, enclos: true, _zt: true }, o), origine(o, false))));
+      m.doors = B.doors.filter(d => !parti.has(R.cleSortie(d, true))).concat(S.filter(o => o.type === 'porte' && ok(o)).map(o => garde(regle({ x: o.x, y: o.y, w: o.w || 1, h: 1, dir: o.dir || 'up', to: o.to, tx: o.tx, ty: o.ty, ed: true, _zt: true }, o), origine(o, true))));
       m.portails = S.filter(o => o.type === 'portail' && ok(o)).map(o => regle({ x: o.x, y: o.y, w: o.w || 1, h: o.h || 1, to: o.to, tx: o.tx, ty: o.ty, ed: true, _zt: true }, o));
       // PANNEAUX : texte écrit dans l'éditeur (une case = un texte ; « null » retire le texte d'origine)
       m.signs = { ...(m._baseSigns || m.signs || {}) };
@@ -62,6 +80,16 @@
       // (un objet retiré emporte les panneaux posés sur lui, sauf ceux écrits dans l'éditeur : une cabine de toilettes
       //  retirée laissait 3 cases « toilettes » invisibles)
       for (const o of B.objects) if (gone.has(R.cle(o))) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) if (!(T && T.panneaux && (x + ',' + y) in T.panneaux)) delete m.signs[x + ',' + y];
+      // un objet du jeu DÉPLACÉ ou modifié dans l'atelier (ajout « reprend » : la clé de l'original) emporte ses actions
+      // (panneaux-fonctions : l'énigme du Grand Arbre, le feu de camp de Matt...) et ses textes, au même endroit de son dessin
+      // (sauf un texte écrit dans l'atelier à cet endroit)
+      if (T) for (const o of T.ajouts || []) {
+        const o0 = o.reprend && B.objects.find(q => R.cle(q) === o.reprend); if (!o0) continue;
+        for (let y = o0.y; y < o0.y + (o0.h || 1); y++) for (let x = o0.x; x < o0.x + (o0.w || 1); x++) {
+          const v = (m._baseSigns || {})[x + ',' + y], k = (o.x + x - o0.x) + ',' + (o.y + y - o0.y);
+          if (v != null && !(T.panneaux && typeof T.panneaux[k] === 'string')) m.signs[k] = v;
+        }
+      }
       // COLLISIONS CHOISIES À LA MAIN : cases forcées bloquantes (1) ou praticables (0), quel que soit le décor
       m.forceBloque = new Set(); m.forceLibre = new Set();
       if (T) for (const k in T.bloque || {}) (T.bloque[k] ? m.forceBloque : m.forceLibre).add(k);
