@@ -5,7 +5,6 @@
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 // =====================================================================
 (function () {
-  const CLAW = '#f6f2e6';
   Object.assign(DW.DRAW, {
     // limace verte aux yeux pédonculés, grande langue rouge
     numemon(d) {
