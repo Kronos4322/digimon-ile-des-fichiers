@@ -61,6 +61,21 @@
       else { place('bush', 1, 150, 112); place('rock', 0, 60, 110); }
       if (theme === 'misty') { const g2 = c.createLinearGradient(0, HZ - 30, 0, HZ + 30); g2.addColorStop(0, 'rgba(230,245,240,0)'); g2.addColorStop(0.5, 'rgba(230,245,240,0.45)'); g2.addColorStop(1, 'rgba(230,245,240,0)'); c.fillStyle = g2; c.fillRect(0, HZ - 30, W, 60); }
       if (theme === 'deep') { c.fillStyle = 'rgba(10,30,20,0.22)'; c.fillRect(0, 0, W, H); }
+    } else if (type === 'lac') {
+      // RIVE (Grand Lac, île du tramway, bord d'une rivière) : la forêt au loin, l'eau, puis la berge du thème et ses roseaux
+      c.fillStyle = TH ? TH.canopy[4] : '#9ac8b0'; c.globalAlpha = 0.6;
+      for (let i = 0; i < 12; i++) { c.beginPath(); c.ellipse(i * 30 + 8, 80, 22, 14 + (i % 3) * 5, 0, Math.PI, 0); c.fill(); }
+      c.globalAlpha = 1;
+      g = c.createLinearGradient(0, 80, 0, HZ); g.addColorStop(0, '#3a86c8'); g.addColorStop(1, '#6cc6ea');
+      c.fillStyle = g; c.fillRect(0, 80, W, HZ - 80);
+      c.fillStyle = 'rgba(255,255,255,0.4)';
+      for (let i = 0; i < 18; i++) c.fillRect(Math.floor(hash(i, 3, 71) * W), 82 + Math.floor(hash(i, 4, 71) * 16), 5 + Math.floor(hash(i, 5, 71) * 10), 1);   // (reflets)
+      ground(TH ? TH.grass.map(Art.hex) : PAL.grass, 37, false);
+      g = c.createLinearGradient(0, HZ, 0, HZ + 8); g.addColorStop(0, 'rgba(230,250,255,0.75)'); g.addColorStop(1, 'rgba(230,250,255,0)');
+      c.fillStyle = g; c.fillRect(0, HZ, W, 8);
+      for (let i = 0; i < 7; i++) place('reeds', i % 2, 18 + i * 47 + Math.floor(hash(i, 6, 71) * 12), HZ + 12);
+      const TK = (TH && TH.objMap && TH.objMap.tree) || 'tree';
+      place(TK, 0, -6, 214, 2); place(TK, 1, W + 4, 206, 2);
     } else if (type === 'plage') {
       g = c.createLinearGradient(0, 70, 0, HZ);
       g.addColorStop(0, '#2a74c8'); g.addColorStop(1, '#4ab4e8');
@@ -88,7 +103,7 @@
   };
   World.platform = (c, key, x, y, rx, ry) => {
     const [type, theme] = key.split('@'), TH = theme && World.THEMES[theme];
-    const cols = TH && type === 'foret' ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
+    const cols = TH && (type === 'foret' || type === 'lac') ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
     c.fillStyle = 'rgba(0,0,0,0.22)'; c.beginPath(); c.ellipse(x, y + 3, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[0]; c.beginPath(); c.ellipse(x, y + 1, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[1]; c.beginPath(); c.ellipse(x, y, rx - 2, ry - 2, 0, 0, 7); c.fill();

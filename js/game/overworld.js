@@ -476,7 +476,15 @@
 
     // ---------------------------------------------------------- combats
     // éclairs de rencontre ; on en profite pour dessiner les sprites du combat (évite un gel au 1er affichage)
-    battleKey() { return this.map.bg === 'foret' && this.map.theme ? 'foret@' + this.map.theme : this.map.bg; }
+    // fond du combat : celui de la carte ; au bord de l'eau (lac, île, rivière), la rive plutôt que la forêt (gfx/battlebg.js)
+    battleKey() { const m = this.map; return m.bg === 'foret' && m.theme ? (this.eauProche() ? 'lac@' : 'foret@') + m.theme : m.bg; }
+    eauProche() {
+      const TH = DW.World.themeOf(this.map); if (TH && TH.water === DW.World.LAVA) return false;   // (volcan : c'est de la lave)
+      if (this.map.region === 'lac') return true;   // (le Grand Lac : 21 à 95 % d'eau sur chaque carte)
+      const P = this.p; let n = 0;
+      for (let dy = -5; dy <= 5; dy++) for (let dx = -6; dx <= 6; dx++) { const I = DW.World.info(this.tileAt(P.x + dx, P.y + dy)); if (I && I.t === 'water' && I.eau !== 5) n++; }
+      return n >= 12;
+    }
     async encounterFx(o = {}) {
       const S = DW.Sprites, st = DW.state, me = st.party.find(m => m.hp > 0);
       const warm = [() => o.enemy && S.battle(o.enemy.sp), () => me && S.battle(me.sp), () => DW.World.battleBg(o.bg || this.battleKey()),
