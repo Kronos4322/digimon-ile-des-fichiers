@@ -46,7 +46,7 @@
     'engine/core.js': '32d8cccd',
     'engine/input.js': 'a4caafad',
     'engine/audio.js': 'fa226099',
-    'engine/art.js': 'cb01f63c',
+    'engine/art.js': 'afb33d8b',
     'ui/widgets.js': '952c1225',
     'ui/dialog.js': '14e36076',
     'data/versions_images.js': '49003128',
@@ -65,12 +65,12 @@
     'data/music.js': '54b59a41',
     'data/musiques_regions.js': '7e295f8a',
     'data/flags.js': 'def74270',
-    'gfx/sprites.js': 'a00df0d2',
+    'gfx/sprites.js': '62a5b55e',
     'gfx/digimon/entrainement.js': '5ff5b75d',
-    'gfx/digimon/disciples.js': '4fa18674',
-    'gfx/digimon/champions.js': '1769f50d',
+    'gfx/digimon/disciples.js': '7661fcb8',
+    'gfx/digimon/champions.js': '93b0d904',
     'gfx/digimon/ultimes.js': 'cb04bd69',
-    'gfx/digimon/ultimes2.js': 'fd39eeb4',
+    'gfx/digimon/ultimes2.js': '225e20ef',
     'gfx/digimon/ile.js': 'b5cf032b',
     'gfx/digimon/chapitre3.js': '40272a2a',
     'gfx/digimon/agumon.js': '4caed1db',
@@ -206,7 +206,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '16b48bfe' },
+    { f: '../paquets/jeu-1.js', v: 'b25b6f7b' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: 'c5fb50d9' },
   ];   // (fin des paquets)

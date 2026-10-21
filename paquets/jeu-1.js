@@ -686,7 +686,7 @@ window.DW = window.DW || {};
       c.setTransform(1, 0, 0, 1, 0, 0);
       if (prev) c.clearRect(prev[0], prev[1], prev[2], prev[3]);
       c.setTransform(W / bw, 0, 0, H / bh, 0, 0);
-      if (o.dx) c.translate(o.dx, 0);   // décalage horizontal (pose qui sortirait du cadre)
+      if (o.dx || o.dy) c.translate(o.dx || 0, o.dy || 0);   // décalage (pose qui sortirait du cadre ; dessin recadré : gfx/sprites.js)
       if (o.shear) { // inclinaison (pose d'attaque / de recul) autour du sol
         const g = o.ground != null ? o.ground : bh - 2;
         c.translate(0, g); c.transform(1, 0, -o.shear, 1, 0, 0); c.translate(0, -g);
@@ -3007,6 +3007,21 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     return R;
   }
 
+  // ------------------------------------------------------------ recadrage des dessins par code
+  // Des dessins dépassaient un peu du cadre 64×64 et étaient coupés (queue de Greymon, cornes de Kabuterimon, aile de
+  // Birdramon...) : chacun est réduit juste ce qu'il faut, les pieds toujours sur le sol, et recentré si besoin.
+  // [échelle, décalage horizontal] mesurés par DW.Sprites.mesurerCadres() (console du navigateur) : à relancer si un
+  // dessin change.
+  const CADRE = { yokomon: [0.991, 0], agumon: [1, 1], gomamon: [0.968, 0.5], biyomon: [0.976, 0], elecmon: [1, 1], gabumon: [0.953, 0],
+    garurumon: [0.976, -0.7], meramon: [0.991, 0], birdramon: [0.925, 0.9], greymon: [0.932, 0.2], ikkakumon: [0.961, -0.2], togemon: [0.976, 0],
+    kuwagamon: [0.96, 0], shellmon: [0.992, 0.2], metalgreymon: [0.939, 0], zudomon: [1, -2], weregarurumon: [0.953, 0], skullmeramon: [0.976, 0],
+    garudamon: [0.961, -0.2], okuwamon: [0.984, -4.4], wargreymon: [0.991, -1.7], metalgarurumon: [0.961, -0.2], jijimon: [0.991, 0], tentomon: [1, -1],
+    kabuterimon: [0.924, 0], angemon: [1, 0.5], monochromon: [0.961, -0.2], frigimon: [0.976, 0], ogremon: [0.945, 0], seadramon: [0.991, -0.7],
+    drimogemon: [1, -1.5], centarumon: [1, -2.5], devimon: [0.968, -0.5], skullgreymon: [1, 1], megadramon: [0.991, -1.2], guilmon: [0.976, 1.2],
+    candlemon: [0.983, 0], flarizamon: [0.991, 0.7] };
+  // options de rendu (engine/art.js) d'un dessin recadré : repère agrandi de 1/échelle, sol gardé à y = 62
+  const cadre = (sp, o) => { const C = CADRE[sp]; if (!C) return o; const [s, sh] = C; return { ...o, box: [64 / s, 64 / s], dx: 32 / s - 32 + sh / s + (o.dx || 0), dy: 62 / s - 62, ground: 62 }; };
+
   // ------------------------------------------------------------ cache & API
   const cache = {};
   // résolutions de rendu (plus grand = plus de détails : les dessins sont des formes, pas des pixels étirés)
@@ -3048,7 +3063,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
           if (same >= 0 && same < f) { frames.push(frames[same]); continue; }
           // vu de dos : vrai dessin de dos si l'espèce en a un (draw.views), sinon profil sans les détails du visage
           const real = view && draw.views && draw.views.includes(view);
-          frames.push(Art.render(draw, res, res, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30, back: back && !real, param: real ? { view } : undefined }));
+          frames.push(Art.render(draw, res, res, cadre(D[sp] ? sp : null, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30, back: back && !real, param: real ? { view } : undefined })));
         }
         cache[key] = Object.assign({ frames }, frames[0]);
       }
@@ -3062,10 +3077,27 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       if (!cache[key]) {
         const draw = D[sp] || D._secours, P = (draw.poses && draw.poses[pose]) || {};   // réglage propre à l'espèce (ex. tête au bord du cadre)
         const o = { shear: P.shear != null ? P.shear : pose === 'attack' ? 0.16 : -0.12, squash: pose === 'hurt' ? 0.95 : 1.02 };
-        const fr = im ? rendreImage(sp, im, res, o) : Art.render(draw, res, res, { box: [64, 64], ground: 62, rim: true, selout: true, param: { pose }, dx: P.dx || 0, ...o });
+        const fr = im ? rendreImage(sp, im, res, o) : Art.render(draw, res, res, cadre(D[sp] ? sp : null, { box: [64, 64], ground: 62, rim: true, selout: true, param: { pose }, dx: P.dx || 0, ...o }));
         cache[key] = Object.assign({ frames: [fr] }, fr);
       }
       return cache[key];
+    },
+    // (outil) mesure ce qui dépasse du cadre 64×64 et renvoie la table CADRE à recopier ci-dessus (marge d'une unité)
+    mesurerCadres(M = 1) {
+      const B = 160, OFF = 48, N = 320, out = {};
+      for (const sp of Object.keys(DW.SPECIES)) {
+        if (IMAGES[sp] || !D[sp]) continue;
+        const R = Art.render(D[sp], N, N, { box: [B, B], dx: OFF, dy: OFF, ground: 62, hd: 1, rim: true, selout: true }), d = R.img.getContext('2d').getImageData(0, 0, N, N).data;
+        let x0 = 1e9, y0 = 1e9, x1 = -1e9;
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (d[(y * N + x) * 4 + 3] > 40) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; }
+        const k = N / B; x0 = x0 / k - OFF; x1 = (x1 + 1) / k - OFF; y0 = y0 / k - OFF;
+        if (x0 >= M && x1 <= 64 - M && y0 >= M) continue;
+        let s = 1; if (y0 < M) s = Math.min(s, (62 - M) / (62 - y0)); if (x1 - x0 > 64 - 2 * M) s = Math.min(s, (64 - 2 * M) / (x1 - x0));
+        s = Math.floor(s * 1000) / 1000;
+        const X0 = 32 + (x0 - 32) * s, X1 = 32 + (x1 - 32) * s; let sh = 0; if (X0 < M) sh = M - X0; if (X1 + sh > 64 - M) sh = 64 - M - X1;
+        out[sp] = [s, Math.round(sh * 10) / 10];
+      }
+      return out;
     },
     hasBack(sp) { return S.hasView(sp, 'back'); },
     hasView(sp, v) {
@@ -3297,31 +3329,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       d.circ(55.5, 36, 1.8, '#202020', { shiny: true });
       d.deco.curve([[47, 40], [50, 40.8], [53, 40]], 1, '#801818', { unlit: true });
     },
-    // ---------------------------------------------------------- Champions
-    gabumon(d) {
-      const Bl = '#5a8ae6', Bd = '#2a4aa0', Wt = '#eef2ff', Y = '#f2c440', Cl = '#f2efe4';
-      d.tube([[20, 48], [10, 52], [3, 49]], 9, 4, Bl);
-      d.deco.tube([[13, 50], [14, 54]], 2, 1.6, Bd); d.ell(3, 48.6, 3.4, 2.8, Wt);
-      d.ell(37, 54, 5.6, 7.6, Bl, 0, { far: true }); d.ell(40, 60, 7, 2.8, Bl, 0, { far: true });
-      d.ell(29, 42, 12.5, 14.5, Bl);
-      d.deco.ell(34, 45, 6.5, 10, Wt);
-      d.deco.tube([[19, 34], [24, 38]], 2.2, 1.6, Bd); d.deco.tube([[17, 41], [22, 44]], 2.2, 1.6, Bd); d.deco.tube([[18, 49], [23, 51]], 2.2, 1.6, Bd);
-      d.ell(24, 53, 6.4, 8.4, Bl); d.ell(27, 60, 7.6, 3, Wt);
-      d.poly([[32, 61.6], [34.4, 58], [35.8, 61.6]], Cl); d.poly([[28.6, 62], [30.6, 58.6], [32, 62]], Cl);
-      d.ell(36, 22, 13.5, 11.5, Bl);
-      d.deco.tube([[27, 14], [31, 20]], 2.2, 1.6, Bd); d.deco.tube([[34, 11], [36, 17]], 2.2, 1.6, Bd);
-      d.poly([[31, 13], [27, 0.5], [36, 10]], '#f4ecd0', { shiny: true });
-      d.ell(46, 26, 9.5, 7.5, Y, 0.1);
-      d.ell(52, 28.5, 7.5, 5, Y, 0.1, { noline: true });
-      d.deco.ell(52, 31.5, 6, 2, '#ffe090');
-      d.eye(45.5, 22.6, 3.2, 3.8, '#d02020', { look: 0.35 });
-      d.deco.curve([[44, 31.4], [51, 32.2], [59, 29.6]], 1.2, '#7a3a10', { unlit: true });
-      d.deco.poly([[52, 32], [53.2, 34.4], [54.4, 31.8]], Cl, { unlit: true });
-      d.deco.ell(58.4, 26.6, 0.9, 0.7, '#5a2a10', 0, { unlit: true });
-      d.tube([[38, 36], [42, 41], [46, 43]], 5, 4.4, Bl);
-      d.ell(48, 43.4, 3.4, 3, Y);
-      d.tube([[49, 41.6], [53, 41]], 1.4, 0.6, Cl); d.tube([[50, 43.6], [54, 44]], 1.4, 0.6, Cl);
-    },
+    // (Gabumon : dessiné dans gfx/digimon/gabumon.js)
   });
 })();
 ;
@@ -3484,27 +3492,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
         d.tube([[x, y], [(x + ex) / 2 + 1.5, (y + ey) / 2 - 1.5], [ex, ey]], 2.6, 1.2, Hair, { shiny: true });
       d.deco.line(40, 20, 44, 26, 0.6, Hd);
     },
-    garurumon(d) {
-      const Wt = '#e8f0ff', Bl = '#3a64c8', Sh = '#b8c8e8';
-      d.tube([[14, 32], [8, 22], [6, 12]], 10, 4, Wt);
-      d.deco.tube([[8, 24], [11, 22]], 2.4, 1.6, Bl); d.deco.tube([[6, 17], [9, 16]], 2.4, 1.6, Bl);
-      d.tube([[22, 44], [20, 60]], 5.6, 4.6, Wt, { far: true }); d.tube([[44, 44], [46, 60]], 5.6, 4.6, Wt, { far: true });
-      d.ell(32, 38, 21, 12, Wt);
-      d.deco.ell(34, 45, 15, 5, Sh);
-      [[18, 30], [26, 28], [34, 28], [42, 30]].forEach(([x, y]) => d.deco.tube([[x, y], [x + 3, y + 8]], 2.6, 1.8, Bl));
-      d.tube([[18, 44], [16, 60]], 6, 5, Wt); d.tube([[42, 44], [41, 60]], 6, 5, Wt);
-      d.deco.tube([[17, 50], [20, 52]], 2.2, 1.6, Bl); d.deco.tube([[41, 50], [44, 52]], 2.2, 1.6, Bl);
-      d.ell(15, 60.6, 4.4, 2.2, Wt); d.ell(40, 60.6, 4.4, 2.2, Wt);
-      d.ell(46, 30, 9, 10, Wt, 0.3, { tex: 0.15 });
-      d.poly([[46, 18], [48, 8], [53, 17]], Wt); d.deco.poly([[48, 16], [49, 11], [51.6, 16]], '#9ab0e0');
-      d.ell(52, 24, 9.5, 8, Wt);
-      d.ell(59, 27.5, 6, 4, Wt, 0.1, { noline: true });
-      d.deco.tube([[47, 20], [53, 18]], 2.2, 1.6, Bl); d.deco.tube([[50, 28], [55, 26]], 2, 1.4, Bl);
-      d.eye(54.6, 21.6, 2.6, 2.4, '#e8c020', { look: 0.4 });
-      d.ell(63, 26.6, 1.6, 1.4, '#2a2a3a', 0, { shiny: true });
-      d.deco.curve([[54, 30.4], [59, 31.4], [63, 29.6]], 1, '#3a2a40', { unlit: true });
-      d.deco.poly([[58, 31], [59, 33.4], [60, 31]], '#ffffff', { unlit: true });
-    },
+    // (Garurumon : dessiné dans gfx/digimon/gabumon.js)
     meramon(d) {
       // homme de feu (anime) : silhouette de flammes rouges, cœur jaune-blanc, coutures noires sur le corps,
       // tête en boule de feu hérissée, orbites noires en colère, grande bouche noire cousue
@@ -3687,7 +3675,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
 'use strict';
 // =====================================================================
 //  DESSINS — Ultimes qui complètent l'arbre des Digivolutions
-//  WereGarurumon (Garurumon), SkullMeramon (Meramon), Garudamon (Birdramon), Okuwamon (Kuwagamon)
+//  SkullMeramon (Meramon), Garudamon (Birdramon), Okuwamon (Kuwagamon) ; WereGarurumon : gfx/digimon/gabumon.js
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 // =====================================================================
 (function () {
@@ -3732,47 +3720,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       d.ell(55, 44, 4.4, 4, B); d.deco.poly([[53, 42], [56, 44], [55, 47], [52, 45]], R, { unlit: true });
       d.deco.line(13, 30, 13, 52, 0.8, '#8a6020');
     },
-    // loup-garou bipède : fourrure bleue et blanche, jean déchiré, protège-poignets
-    weregarurumon(d, p = {}) {
-      const B = '#4a7ad8', Bd = '#2e56a8', Wt = '#eef2fa', J = '#3a4a7a', Jd = '#2a3458', R = '#d83a3a';
-      // crinière blanche dans le dos
-      d.poly([[30, 12], [20, 10], [14, 18], [18, 20], [12, 26], [20, 26], [18, 34], [26, 28], [30, 22]], Wt, { far: true, tex: 0.3 });
-      // queue
-      d.tube([[22, 40], [12, 44], [6, 40]], 5, 2, B, { far: true });
-      // jambe éloignée (jean) et pied griffu
-      d.tube([[30, 40], [33, 50], [34, 57]], 7, 6, Jd, { far: true });
-      d.ell(37, 59.6, 6.4, 3, B, 0, { far: true });
-      // bras éloigné
-      d.tube([[27, 22], [22, 30], [22, 37]], 5.6, 4.6, Bd, { far: true });
-      d.ell(22, 38.6, 3.6, 3.6, B, 0, { far: true });
-      // torse musclé, ventre blanc, ceinture-bandoulière
-      d.blob([[22, 18], [37, 16], [41, 26], [38, 40], [26, 41], [21, 30]], B);
-      d.deco.blob([[29, 22], [37, 22], [37, 36], [30, 38], [27, 30]], Wt);
-      d.deco.line(24, 20, 39, 37, 1.6, '#5a3a20');
-      for (let i = 0; i < 3; i++) d.deco.rect(27 + i * 4, 23 + i * 4.4, 2, 2, '#c8b080');
-      // jean
-      d.blob([[24, 38], [38, 37], [39, 44], [24, 45]], J);
-      d.tube([[29, 44], [27, 51], [26, 57]], 7.6, 6.4, J);
-      d.deco.line(24, 50, 29, 51, 0.8, '#7a8ab8'); d.deco.line(25, 54, 28, 53, 0.6, Wt);
-      d.ell(30, 59.6, 7, 3.2, B);
-      for (let i = 0; i < 3; i++) d.poly([[33 + i * 2.4, 61.6], [34.2 + i * 2.4, 58.6], [35.4 + i * 2.4, 61.6]], CLAW);
-      // tête de loup
-      d.ell(37, 15, 4.6, 3.8, B, -0.3);
-      d.ell(43, 11, 7, 6, B);
-      d.ell(51, 13.4, 6, 3.2, B, 0.1, { noline: true });
-      d.deco.ell(51, 15.4, 4.6, 1.4, Wt, 0.1);
-      d.poly([[38, 7], [36, 0.6], [42, 5]], B); d.deco.poly([[38.6, 6], [37.4, 2.6], [40.6, 5]], '#f0a0b0');
-      d.deco.ell(46, 9.4, 1.8, 1.3, '#f0d020', 0, { unlit: true }); d.deco.ell(46.4, 9.4, 0.7, 1, '#1a1a1a', 0, { unlit: true });
-      d.deco.curve([[44.6, 7.6], [48, 8.2]], 0.8, Bd, { unlit: true });
-      d.deco.ell(56.4, 12, 1.2, 1, '#1a1a2a', 0, { unlit: true });
-      d.deco.curve([[45, 15.6], [51, 16], [56, 14.6]], 0.8, '#3a1a1a', { unlit: true });
-      d.deco.poly([[50, 15.4], [51, 17.4], [52, 15.2]], CLAW, { unlit: true });
-      // bras proche, poing en avant, protège-poignet rouge
-      d.tube([[35, 20], [42, 26], [47, 30]], 6.4, 5.6, B);
-      d.rect(44.6, 27.6, 5.6, 5.6, R, { round: 0.4 });
-      d.ell(51.6, 32, 4.4, 4, B);
-      for (let i = 0; i < 3; i++) d.tube([[54, 30 + i * 2], [57, 29.6 + i * 2.4]], 1.4, 0.4, CLAW);
-    },
+    // (WereGarurumon : dessiné dans gfx/digimon/gabumon.js)
     // flamme bleue enchaînée, masque de métal
     skullmeramon(d) {
       // colosse de flammes bleu pâle, cheveux noirs hérissés, chaînes, pantalon noir à flammes, bottes rayées à crâne

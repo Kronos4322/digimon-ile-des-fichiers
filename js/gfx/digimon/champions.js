@@ -155,27 +155,7 @@
         d.tube([[x, y], [(x + ex) / 2 + 1.5, (y + ey) / 2 - 1.5], [ex, ey]], 2.6, 1.2, Hair, { shiny: true });
       d.deco.line(40, 20, 44, 26, 0.6, Hd);
     },
-    garurumon(d) {
-      const Wt = '#e8f0ff', Bl = '#3a64c8', Sh = '#b8c8e8';
-      d.tube([[14, 32], [8, 22], [6, 12]], 10, 4, Wt);
-      d.deco.tube([[8, 24], [11, 22]], 2.4, 1.6, Bl); d.deco.tube([[6, 17], [9, 16]], 2.4, 1.6, Bl);
-      d.tube([[22, 44], [20, 60]], 5.6, 4.6, Wt, { far: true }); d.tube([[44, 44], [46, 60]], 5.6, 4.6, Wt, { far: true });
-      d.ell(32, 38, 21, 12, Wt);
-      d.deco.ell(34, 45, 15, 5, Sh);
-      [[18, 30], [26, 28], [34, 28], [42, 30]].forEach(([x, y]) => d.deco.tube([[x, y], [x + 3, y + 8]], 2.6, 1.8, Bl));
-      d.tube([[18, 44], [16, 60]], 6, 5, Wt); d.tube([[42, 44], [41, 60]], 6, 5, Wt);
-      d.deco.tube([[17, 50], [20, 52]], 2.2, 1.6, Bl); d.deco.tube([[41, 50], [44, 52]], 2.2, 1.6, Bl);
-      d.ell(15, 60.6, 4.4, 2.2, Wt); d.ell(40, 60.6, 4.4, 2.2, Wt);
-      d.ell(46, 30, 9, 10, Wt, 0.3, { tex: 0.15 });
-      d.poly([[46, 18], [48, 8], [53, 17]], Wt); d.deco.poly([[48, 16], [49, 11], [51.6, 16]], '#9ab0e0');
-      d.ell(52, 24, 9.5, 8, Wt);
-      d.ell(59, 27.5, 6, 4, Wt, 0.1, { noline: true });
-      d.deco.tube([[47, 20], [53, 18]], 2.2, 1.6, Bl); d.deco.tube([[50, 28], [55, 26]], 2, 1.4, Bl);
-      d.eye(54.6, 21.6, 2.6, 2.4, '#e8c020', { look: 0.4 });
-      d.ell(63, 26.6, 1.6, 1.4, '#2a2a3a', 0, { shiny: true });
-      d.deco.curve([[54, 30.4], [59, 31.4], [63, 29.6]], 1, '#3a2a40', { unlit: true });
-      d.deco.poly([[58, 31], [59, 33.4], [60, 31]], '#ffffff', { unlit: true });
-    },
+    // (Garurumon : dessiné dans gfx/digimon/gabumon.js)
     meramon(d) {
       // homme de feu (anime) : silhouette de flammes rouges, cœur jaune-blanc, coutures noires sur le corps,
       // tête en boule de feu hérissée, orbites noires en colère, grande bouche noire cousue

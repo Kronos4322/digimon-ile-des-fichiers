@@ -1,7 +1,7 @@
 'use strict';
 // =====================================================================
 //  DESSINS — Ultimes qui complètent l'arbre des Digivolutions
-//  WereGarurumon (Garurumon), SkullMeramon (Meramon), Garudamon (Birdramon), Okuwamon (Kuwagamon)
+//  SkullMeramon (Meramon), Garudamon (Birdramon), Okuwamon (Kuwagamon) ; WereGarurumon : gfx/digimon/gabumon.js
 //  Repère 64x64, tourné vers la DROITE, sol à y≈62.
 // =====================================================================
 (function () {
@@ -46,47 +46,7 @@
       d.ell(55, 44, 4.4, 4, B); d.deco.poly([[53, 42], [56, 44], [55, 47], [52, 45]], R, { unlit: true });
       d.deco.line(13, 30, 13, 52, 0.8, '#8a6020');
     },
-    // loup-garou bipède : fourrure bleue et blanche, jean déchiré, protège-poignets
-    weregarurumon(d, p = {}) {
-      const B = '#4a7ad8', Bd = '#2e56a8', Wt = '#eef2fa', J = '#3a4a7a', Jd = '#2a3458', R = '#d83a3a';
-      // crinière blanche dans le dos
-      d.poly([[30, 12], [20, 10], [14, 18], [18, 20], [12, 26], [20, 26], [18, 34], [26, 28], [30, 22]], Wt, { far: true, tex: 0.3 });
-      // queue
-      d.tube([[22, 40], [12, 44], [6, 40]], 5, 2, B, { far: true });
-      // jambe éloignée (jean) et pied griffu
-      d.tube([[30, 40], [33, 50], [34, 57]], 7, 6, Jd, { far: true });
-      d.ell(37, 59.6, 6.4, 3, B, 0, { far: true });
-      // bras éloigné
-      d.tube([[27, 22], [22, 30], [22, 37]], 5.6, 4.6, Bd, { far: true });
-      d.ell(22, 38.6, 3.6, 3.6, B, 0, { far: true });
-      // torse musclé, ventre blanc, ceinture-bandoulière
-      d.blob([[22, 18], [37, 16], [41, 26], [38, 40], [26, 41], [21, 30]], B);
-      d.deco.blob([[29, 22], [37, 22], [37, 36], [30, 38], [27, 30]], Wt);
-      d.deco.line(24, 20, 39, 37, 1.6, '#5a3a20');
-      for (let i = 0; i < 3; i++) d.deco.rect(27 + i * 4, 23 + i * 4.4, 2, 2, '#c8b080');
-      // jean
-      d.blob([[24, 38], [38, 37], [39, 44], [24, 45]], J);
-      d.tube([[29, 44], [27, 51], [26, 57]], 7.6, 6.4, J);
-      d.deco.line(24, 50, 29, 51, 0.8, '#7a8ab8'); d.deco.line(25, 54, 28, 53, 0.6, Wt);
-      d.ell(30, 59.6, 7, 3.2, B);
-      for (let i = 0; i < 3; i++) d.poly([[33 + i * 2.4, 61.6], [34.2 + i * 2.4, 58.6], [35.4 + i * 2.4, 61.6]], CLAW);
-      // tête de loup
-      d.ell(37, 15, 4.6, 3.8, B, -0.3);
-      d.ell(43, 11, 7, 6, B);
-      d.ell(51, 13.4, 6, 3.2, B, 0.1, { noline: true });
-      d.deco.ell(51, 15.4, 4.6, 1.4, Wt, 0.1);
-      d.poly([[38, 7], [36, 0.6], [42, 5]], B); d.deco.poly([[38.6, 6], [37.4, 2.6], [40.6, 5]], '#f0a0b0');
-      d.deco.ell(46, 9.4, 1.8, 1.3, '#f0d020', 0, { unlit: true }); d.deco.ell(46.4, 9.4, 0.7, 1, '#1a1a1a', 0, { unlit: true });
-      d.deco.curve([[44.6, 7.6], [48, 8.2]], 0.8, Bd, { unlit: true });
-      d.deco.ell(56.4, 12, 1.2, 1, '#1a1a2a', 0, { unlit: true });
-      d.deco.curve([[45, 15.6], [51, 16], [56, 14.6]], 0.8, '#3a1a1a', { unlit: true });
-      d.deco.poly([[50, 15.4], [51, 17.4], [52, 15.2]], CLAW, { unlit: true });
-      // bras proche, poing en avant, protège-poignet rouge
-      d.tube([[35, 20], [42, 26], [47, 30]], 6.4, 5.6, B);
-      d.rect(44.6, 27.6, 5.6, 5.6, R, { round: 0.4 });
-      d.ell(51.6, 32, 4.4, 4, B);
-      for (let i = 0; i < 3; i++) d.tube([[54, 30 + i * 2], [57, 29.6 + i * 2.4]], 1.4, 0.4, CLAW);
-    },
+    // (WereGarurumon : dessiné dans gfx/digimon/gabumon.js)
     // flamme bleue enchaînée, masque de métal
     skullmeramon(d) {
       // colosse de flammes bleu pâle, cheveux noirs hérissés, chaînes, pantalon noir à flammes, bottes rayées à crâne

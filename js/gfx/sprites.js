@@ -43,6 +43,21 @@
     return R;
   }
 
+  // ------------------------------------------------------------ recadrage des dessins par code
+  // Des dessins dépassaient un peu du cadre 64×64 et étaient coupés (queue de Greymon, cornes de Kabuterimon, aile de
+  // Birdramon...) : chacun est réduit juste ce qu'il faut, les pieds toujours sur le sol, et recentré si besoin.
+  // [échelle, décalage horizontal] mesurés par DW.Sprites.mesurerCadres() (console du navigateur) : à relancer si un
+  // dessin change.
+  const CADRE = { yokomon: [0.991, 0], agumon: [1, 1], gomamon: [0.968, 0.5], biyomon: [0.976, 0], elecmon: [1, 1], gabumon: [0.953, 0],
+    garurumon: [0.976, -0.7], meramon: [0.991, 0], birdramon: [0.925, 0.9], greymon: [0.932, 0.2], ikkakumon: [0.961, -0.2], togemon: [0.976, 0],
+    kuwagamon: [0.96, 0], shellmon: [0.992, 0.2], metalgreymon: [0.939, 0], zudomon: [1, -2], weregarurumon: [0.953, 0], skullmeramon: [0.976, 0],
+    garudamon: [0.961, -0.2], okuwamon: [0.984, -4.4], wargreymon: [0.991, -1.7], metalgarurumon: [0.961, -0.2], jijimon: [0.991, 0], tentomon: [1, -1],
+    kabuterimon: [0.924, 0], angemon: [1, 0.5], monochromon: [0.961, -0.2], frigimon: [0.976, 0], ogremon: [0.945, 0], seadramon: [0.991, -0.7],
+    drimogemon: [1, -1.5], centarumon: [1, -2.5], devimon: [0.968, -0.5], skullgreymon: [1, 1], megadramon: [0.991, -1.2], guilmon: [0.976, 1.2],
+    candlemon: [0.983, 0], flarizamon: [0.991, 0.7] };
+  // options de rendu (engine/art.js) d'un dessin recadré : repère agrandi de 1/échelle, sol gardé à y = 62
+  const cadre = (sp, o) => { const C = CADRE[sp]; if (!C) return o; const [s, sh] = C; return { ...o, box: [64 / s, 64 / s], dx: 32 / s - 32 + sh / s + (o.dx || 0), dy: 62 / s - 62, ground: 62 }; };
+
   // ------------------------------------------------------------ cache & API
   const cache = {};
   // résolutions de rendu (plus grand = plus de détails : les dessins sont des formes, pas des pixels étirés)
@@ -84,7 +99,7 @@
           if (same >= 0 && same < f) { frames.push(frames[same]); continue; }
           // vu de dos : vrai dessin de dos si l'espèce en a un (draw.views), sinon profil sans les détails du visage
           const real = view && draw.views && draw.views.includes(view);
-          frames.push(Art.render(draw, res, res, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30, back: back && !real, param: real ? { view } : undefined }));
+          frames.push(Art.render(draw, res, res, cadre(D[sp] ? sp : null, { box: [64, 64], squash: sq, ground: 62, rim: res >= 40, selout: res >= 30, back: back && !real, param: real ? { view } : undefined })));
         }
         cache[key] = Object.assign({ frames }, frames[0]);
       }
@@ -98,10 +113,27 @@
       if (!cache[key]) {
         const draw = D[sp] || D._secours, P = (draw.poses && draw.poses[pose]) || {};   // réglage propre à l'espèce (ex. tête au bord du cadre)
         const o = { shear: P.shear != null ? P.shear : pose === 'attack' ? 0.16 : -0.12, squash: pose === 'hurt' ? 0.95 : 1.02 };
-        const fr = im ? rendreImage(sp, im, res, o) : Art.render(draw, res, res, { box: [64, 64], ground: 62, rim: true, selout: true, param: { pose }, dx: P.dx || 0, ...o });
+        const fr = im ? rendreImage(sp, im, res, o) : Art.render(draw, res, res, cadre(D[sp] ? sp : null, { box: [64, 64], ground: 62, rim: true, selout: true, param: { pose }, dx: P.dx || 0, ...o }));
         cache[key] = Object.assign({ frames: [fr] }, fr);
       }
       return cache[key];
+    },
+    // (outil) mesure ce qui dépasse du cadre 64×64 et renvoie la table CADRE à recopier ci-dessus (marge d'une unité)
+    mesurerCadres(M = 1) {
+      const B = 160, OFF = 48, N = 320, out = {};
+      for (const sp of Object.keys(DW.SPECIES)) {
+        if (IMAGES[sp] || !D[sp]) continue;
+        const R = Art.render(D[sp], N, N, { box: [B, B], dx: OFF, dy: OFF, ground: 62, hd: 1, rim: true, selout: true }), d = R.img.getContext('2d').getImageData(0, 0, N, N).data;
+        let x0 = 1e9, y0 = 1e9, x1 = -1e9;
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (d[(y * N + x) * 4 + 3] > 40) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; }
+        const k = N / B; x0 = x0 / k - OFF; x1 = (x1 + 1) / k - OFF; y0 = y0 / k - OFF;
+        if (x0 >= M && x1 <= 64 - M && y0 >= M) continue;
+        let s = 1; if (y0 < M) s = Math.min(s, (62 - M) / (62 - y0)); if (x1 - x0 > 64 - 2 * M) s = Math.min(s, (64 - 2 * M) / (x1 - x0));
+        s = Math.floor(s * 1000) / 1000;
+        const X0 = 32 + (x0 - 32) * s, X1 = 32 + (x1 - 32) * s; let sh = 0; if (X0 < M) sh = M - X0; if (X1 + sh > 64 - M) sh = 64 - M - X1;
+        out[sp] = [s, Math.round(sh * 10) / 10];
+      }
+      return out;
     },
     hasBack(sp) { return S.hasView(sp, 'back'); },
     hasView(sp, v) {
