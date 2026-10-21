@@ -25,6 +25,7 @@
     gotsuBet: 'parties du pari de Gotsumon aujourd\u2019hui { d, n }',
     biyoGame: 'jour du dernier jeu du courrier de Biyomon',
     boothPos: 'énigme des cabines : nombre de mots déjà entendus dans le bon ordre',
+    ankhs: "Crypte des Gardiens : les ankhs déjà rallumés (tableau, 0 à 2) ; les trois ouvrent la porte scellée vers Shellmon (maps/antre.js)",
     biyoHint: 'Biyomon : nombre d\u2019indices donnés (un Digimon différent à chaque visite)',
     gymIntro: 'Leomon a présenté le Gymnase (résistances aux éléments, maps/gymnase.js)',
     // histoire

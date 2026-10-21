@@ -86,9 +86,12 @@
       }
       c.globalAlpha = 1;
       ground(TH ? TH.grass.map(Art.hex) : PAL.sand, 43, false);
-      for (const [x, v] of [[52, 0], [120, 2], [204, 1], [262, 3]]) place('telpole', v, x, HZ + 2 + (v & 1), 0.6);   // (la vieille ligne, au loin)
-      place('drybush', 0, 96, HZ + 14); place('drybush', 2, 228, HZ + 16);
-      place('boulder', 1, 8, 222, 2); place('roadsign', 0, W - 18, 218, 1.6);
+      // (images de la planche DESERT, chargée avec la carte : gfx/textures.js ; sinon les dessins du jeu)
+      const D = n => World.OBJ['tex_desert_' + n] ? 'tex_desert_' + n : null;
+      const poteaux = ['poteau', 'poteau_brise', 'poteau_penche', 'poteau_transfo'].map(D);
+      if (poteaux[0]) for (const [x, k] of [[52, 0], [120, 2], [204, 1], [262, 3]]) place(poteaux[k], 0, x, HZ + 2 + (k & 1), 0.42);   // (la vieille ligne, au loin)
+      place(D('arbuste_sec') || 'drybush', 0, 96, HZ + 14); place(D('buisson_epineux') || 'drybush', 2, 228, HZ + 16);
+      place(D('rocher') || 'boulder', 1, 8, 222, 2); place(D('panneau_fleches') || 'roadsign', 0, W - 18, 218, 1.6);
     } else if (type === 'mont') {
       // SOMMET DU MONT MIHARASHI : la crête du cratère qui rougeoie, fumées, roche brune, aiguilles et fumerolles
       c.fillStyle = 'rgba(255,130,50,0.22)'; c.fillRect(0, 0, W, HZ);   // (ciel teinté par le cratère)

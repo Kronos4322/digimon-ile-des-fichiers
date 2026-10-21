@@ -183,12 +183,15 @@ _E = 'Mobiliers exterieurs/photo_2026-10-19_23-15-35.jpg'
 COMMUN.update({
     'ext_caisse': (_E, ('panneau', 2, 0)), 'ext_caisse2': (_E, ('panneau', 2, 1)),
     'ext_distrib_rouge': (_E, ('panneau', 4, 0)), 'ext_distrib_bleu': (_E, ('panneau', 4, 1)), 'ext_distrib_blanc': (_E, ('panneau', 4, 2)),
-    'ext_boite_lettres': (_E, ('panneau', 1, 6)), 'ext_toilettes': (_E, ('panneau', 5, 1)),
+    'ext_boite_lettres': (_E, ('panneau', 1, 6)),
     'ext_jardiniere_verte': (_E, ('panneau', 3, 0)), 'ext_jardiniere_blanche': (_E, ('panneau', 3, 1)), 'ext_jardiniere_rose': (_E, ('panneau', 3, 2)),
     'ext_etal_fruits': (_E, ('panneau', 8, 1)), 'ext_etal_legumes': (_E, ('panneau', 8, 2)), 'ext_etal_pain': (_E, ('panneau', 8, 3)),
     'ext_puits': (_E, ('panneau', 9, 3)), 'ext_panneau': (_E, ('panneau', 1, 8)),
 })
 SOLS_PLANCHE = {'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche', 'plage_sable'}
+# les TOILETTES de tout le jeu (cases « y », objets toilet de l'atelier, cabanes des régions) : la cabane en bois au toit
+# bleu de la planche VILLAGE BEBE (planche 5, case 4)
+COMMUN['toilettes'] = ('VILLAGE BEBE/photo_2026-10-21_09-43-22 (3).jpg', ('case', 4))
 # planches SPORT (fond vert, 5 x 2 appareils par planche : cases()) : le matériel d'entraînement retenu pour le jeu
 # (Terrain d'entraînement, Gymnase de Leomon, salle de classe : gfx/sport.js) ; les autres appareils attendent dans le dossier
 _SP = lambda n: 'SPORT/photo_2026-10-20_11-39-' + n + '.jpg'
@@ -627,10 +630,61 @@ GROTTE_GRAND = {'porte_gardiens': 260, 'porte_bannieres': 240, 'arche_ruine': 22
                 'cascade_temple': 220, 'bassin_colonnes': 220, 'fontaine': 200, 'fontaine_lotus': 200, 'sanctuaire_orbe': 200}
 
 
-def optimiser_grotte():
-    dst = os.path.join(RACINE, 'grotte', 'jeu'); os.makedirs(dst, exist_ok=True)
-    for i, noms in GROTTE_NOMS.items():
-        f = os.path.join(SOURCE_COMMUN, _G(_GP[i]))
+# ---------------------------------------------------------------- VILLAGE BEBE (dossier du joueur) : 10 planches 5 x 2 sur
+# fond vert -> assets/bebe/jeu/<nom>.webp : grands décors (fontaine-œuf, scène, observatoire, moulin, manège, portail),
+# jardin, mobilier de nurserie, aire de jeux, guirlandes, mobilier de village, jouets, barrières, petites maisons, soins
+# (Village des Bébés, Village des Poyomon : maps/berceau.js, maps/village_yokomon.js ; les toilettes : COMMUN)
+_VB = lambda n: 'VILLAGE BEBE/photo_2026-10-21_09-43-' + n + '.jpg'
+_VBP = ['21 (2)', '21 (3)', '21 (4)', '21', '22 (2)', '22 (3)', '22 (4)', '22 (5)', '22 (6)', '22']
+BEBE_NOMS = {
+    0: ['fontaine_oeuf', 'statue_oeuf', 'scene_musique', 'kiosque_livres', 'pavillon_fleur', 'dome_bulles', 'observatoire', 'moulin', 'manege', 'portail'],
+    1: ['nid_oeufs', 'jardiniere', 'champignon_geant', 'oeufs', 'buisson_fleurs', 'mare_cascade', 'maison_escargot', 'passerelle', 'arche_papillon', 'trefles'],
+    2: ['table', 'banc', 'etagere_jouets', 'berceau', 'lit_barreaux', 'chaise_haute', 'coussins', 'panier_linge', 'tabouret', 'lampe_fleur'],
+    3: ['toboggan', 'balancoire', 'tape_cul', 'jeu_ressort', 'bac_sable', 'tunnel', 'dome_grimpe', 'tourniquet', 'trampoline', 'fontaine_bulles'],
+    4: ['guirlande', 'ballons', 'moulinets', 'mobile', 'carillon', 'arche_fleurs', 'lanterne_coeur', 'souche_musique', 'fanions', 'lampe_etoile'],
+    5: ['boite_lettres', 'panneau_meteo', 'panneau_affichage', 'distributeur', None, 'lampadaire', 'poteau_indicateur', 'poubelle', 'cartons', 'borne'],
+    6: ['hochet', 'peluche', 'cubes', 'chariot', 'panier_balles', 'toupie', 'xylophone', 'tambour', 'anneaux', 'train'],
+    7: ['portillon', 'barriere', 'barriere_fleurs', 'pas_japonais', 'tapis_patchwork', 'escalier_bois', 'pont_bois', 'arche_lierre', 'haie', 'estrade'],
+    8: ['maison_oeuf', 'maison_nid', 'maison_champignon', 'maison_fleur', 'maison_coquillage', 'maison_coussin', 'maison_bois', 'maison_nuage', 'maison_mousse', 'maison_cubes'],
+    9: ['couveuse', 'etagere_biberons', 'bassin_source', 'gamelles', 'table_langer', 'coffre', 'lit_cocon', 'lanterne_branche', 'garde_manger', 'armoire_soins'],
+}
+BEBE_GRAND = {**{n: 240 for n in BEBE_NOMS[0]}, **{n: 200 for n in BEBE_NOMS[8]}, 'arche_papillon': 200, 'arche_fleurs': 200, 'arche_lierre': 200}
+
+# ---------------------------------------------------------------- DESERT (dossier du joueur) : 10 planches 5 x 2 sur fond
+# vert -> assets/desert/jeu/<nom>.webp : camp (caisses, jarres, tentes), ruines égyptiennes, sols (planche 2 : carreaux
+# raccordables ; la dune en pente n'en est pas un), rochers et plantes, relief (falaises, échelles, fosses), objets
+# abandonnés, POTEAUX TÉLÉGRAPHIQUES, panneaux, vestiges numériques, ruines (2)
+_DS = lambda n: 'DESERT/photo_2026-10-21_09-39-' + n + '.jpg'
+_DSP = ['46 (2)', '46 (3)', '46 (4)', '46', '50 (2)', '50 (3)', '50 (4)', '50 (5)', '50 (6)', '50']
+DESERT_NOMS = {
+    0: ['caisses', 'caisses_numeriques', 'jarres', 'tonneaux', 'sacs', 'etal', 'tente', 'tente_dechiree', 'foyer', 'coffre'],
+    1: ['mur_ruine', 'arche', 'niche_faucon', 'bloc_grave', 'colonne', 'dalle', 'stele_orbe', 'portique', 'pilier_vasque', 'mur_brise'],
+    2: ['sable_pale', 'sable_ondule', 'terre_orange', 'argile_craquelee', 'sable_graviers', None, 'terre_noire', 'sable_cailloux', 'dalles_ensablees', 'sable_numerique'],
+    3: ['cailloux', 'rocher', 'rocher_pointu', 'blocs', 'dalle_plate', 'arbuste_sec', 'buisson_epineux', 'virevoltant', 'cactus', 'herbes_seches'],
+    4: ['pont_casse', 'barriere_corde', 'dune', 'falaise', 'echelle', 'bord_falaise', 'escalier', 'eboulis', 'fosse', 'marches'],
+    5: ['balise', 'squelette', 'station_meteo', 'puits', 'panneau_pierre', 'epave_machine', 'arbre_mort', 'bassin', 'antenne', 'barrage'],
+    6: ['poteau', 'poteau_penche', 'poteau_casse', 'poteaux_cable', 'poteau_brise', 'borne_rayee', 'poteau_transfo', 'poteau_boitier', 'poteau_eclate', 'poteau_tombe'],
+    7: ['panneau_fleches', 'panneau_danger', 'stele_cible', 'panneau_ensable', 'balise_cristal', 'poteau_orbe', 'borne_pierre', 'carte', 'banniere', 'porte_cristal'],
+    8: ['cristal', 'rocher_glitch', 'obelisque_losange', 'rocher_ecran', 'tour_antenne', 'stele_holo', 'bloc_circuits', 'portail', 'pilier_circuits', 'teleporteur'],
+    9: ['colonne_brisee', 'mur_oeil', 'arche_ruine', 'porte_ankh', 'stele_gravee', 'colonne_tombee', 'piedestal', 'obelisque', 'niche_statue', 'dolmen'],
+}
+DESERT_SOLS = {'sable_pale', 'sable_ondule', 'terre_orange', 'argile_craquelee', 'sable_graviers', 'terre_noire', 'sable_cailloux', 'dalles_ensablees', 'sable_numerique'}
+DESERT_GRAND = {'etal': 220, 'tente': 220, 'tente_dechiree': 200, **{n: 220 for n in DESERT_NOMS[1] + DESERT_NOMS[6] + DESERT_NOMS[9]},
+                'obelisque_losange': 220, 'portail': 220, 'porte_cristal': 220, 'station_meteo': 200, 'antenne': 200, 'tour_antenne': 200}
+
+# dossier -> (fichier de la planche n, noms par planche, sols, tailles maximales, taille par défaut)
+DOSSIERS_PLANCHES = {
+    'grotte': (lambda i: _G(_GP[i]), GROTTE_NOMS, GROTTE_SOLS, GROTTE_GRAND, 170),
+    'bebe': (lambda i: _VB(_VBP[i]), BEBE_NOMS, set(), BEBE_GRAND, 180),
+    'desert': (lambda i: _DS(_DSP[i]), DESERT_NOMS, DESERT_SOLS, DESERT_GRAND, 180),
+}
+
+
+def optimiser_planches(d):
+    fichier, NOMS_D, SOLS_D, GRAND_D, defaut = DOSSIERS_PLANCHES[d]
+    dst = os.path.join(RACINE, d, 'jeu'); os.makedirs(dst, exist_ok=True)
+    for i, noms in NOMS_D.items():
+        f = os.path.join(SOURCE_COMMUN, fichier(i))
         if not os.path.exists(f):
             print('absent :', f); continue
         for k, nom in enumerate(noms):
@@ -638,11 +692,11 @@ def optimiser_grotte():
             cible = os.path.join(dst, nom + '.webp')   # (WebP : 4 à 5 fois plus léger que le PNG pour ces images peintes)
             if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
             im = morceau(f, ('case', k))
-            if nom in GROTTE_SOLS: out = raccordable(im)
-            else: w, h = im.size; s = min(1.0, GROTTE_GRAND.get(nom, 170) / max(w, h)); out = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
+            if nom in SOLS_D: out = raccordable(im)
+            else: w, h = im.size; s = min(1.0, GRAND_D.get(nom, defaut) / max(w, h)); out = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
             out.save(cible, 'WEBP', quality=85, method=4)
             if os.path.exists(cible[:-5] + '.png'): os.remove(cible[:-5] + '.png')
-            print('grotte/%-20s -> %4dx%-4d  %4d Ko%s' % (nom, out.width, out.height, os.path.getsize(cible) // 1024, ' (sol)' if nom in GROTTE_SOLS else ''))
+            print('%s/%-20s -> %4dx%-4d  %4d Ko%s' % (d, nom, out.width, out.height, os.path.getsize(cible) // 1024, ' (sol)' if nom in SOLS_D else ''))
 
 
 # ---------------------------------------------------------------- GÉNÉRIQUE ET INTRODUCTION (dossier du joueur « Générique,
@@ -690,10 +744,10 @@ def optimiser_intro():
 
 if __name__ == '__main__':
     # (les options --numeros et --tout ne sont pas des dossiers)
-    for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon', 'grotte', 'intro']):
+    for d in ([a for a in sys.argv[1:] if not a.startswith('--')] or DOSSIERS + ['commun', 'digimon', 'intro', *DOSSIERS_PLANCHES]):
         if d == 'commun': optimiser_commun()
         elif d == 'digimon': optimiser_digimon()
-        elif d == 'grotte': optimiser_grotte()
+        elif d in DOSSIERS_PLANCHES: optimiser_planches(d)
         elif d == 'intro': optimiser_intro()
         else: optimiser(d)
     # empreintes des fichiers servis (dev/versions.py : le téléphone reprend une image changée)

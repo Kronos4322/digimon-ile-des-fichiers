@@ -193,7 +193,7 @@
       const c = g.get(x, y); if (!free(c) || high(x, y)) continue;
       const X = x + ox, Y = y + oy, rd = roadDist(X, Y);
       if (rd > 2.6 && rd < 3.6 && (X + Y * 3) % 7 === 0) g.set(x, y, 'Ţ');
-      else if (rd > 2.5 && N(X, Y, 920 + n, 0.09) > (n === 2 ? 0.7 : 0.62) && Hh(X, Y, 921) < 0.09) g.set(x, y, 'Ţ');   // (moins de « forêts » de poteaux dans la Plaine)
+      else if (rd > 2.5 && N(X, Y, 920 + n, 0.09) > (n === 2 ? 0.7 : 0.62) && Hh(X, Y, 921) < 0.04) g.set(x, y, 'Ţ');   // (moins de « forêts » de poteaux dans la Plaine ; tes poteaux, plus massifs que les anciens, clairsemés)
     }
     // panneaux routiers (la Plaine en est couverte), vestiges numériques, arbres morts, rochers, os
     const off = (x, y) => nearRoad(id, x, y, 2.5) || high(x, y);

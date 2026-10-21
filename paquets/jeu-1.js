@@ -1241,6 +1241,105 @@ window.DW = window.DW || {};
 //  sans la redemander tant qu'elle n'a pas changé. Les tests (dev/tests.js) vérifient que les empreintes sont à jour.
 // =====================================================================
 DW.VERSIONS_IMAGES = {
+  "bebe/jeu/anneaux.webp": "f8dcea4f",
+  "bebe/jeu/arche_fleurs.webp": "d16c8987",
+  "bebe/jeu/arche_lierre.webp": "cddf3c68",
+  "bebe/jeu/arche_papillon.webp": "df3e4f02",
+  "bebe/jeu/armoire_soins.webp": "8552cf8e",
+  "bebe/jeu/bac_sable.webp": "cab59de0",
+  "bebe/jeu/balancoire.webp": "cf96961a",
+  "bebe/jeu/ballons.webp": "d2f46173",
+  "bebe/jeu/banc.webp": "4f09bded",
+  "bebe/jeu/barriere.webp": "88e0c13e",
+  "bebe/jeu/barriere_fleurs.webp": "b75d4f10",
+  "bebe/jeu/bassin_source.webp": "001bc14c",
+  "bebe/jeu/berceau.webp": "8a3b8e8f",
+  "bebe/jeu/boite_lettres.webp": "8fc466b8",
+  "bebe/jeu/borne.webp": "79644c96",
+  "bebe/jeu/buisson_fleurs.webp": "79167716",
+  "bebe/jeu/carillon.webp": "ef436eac",
+  "bebe/jeu/cartons.webp": "e8c53087",
+  "bebe/jeu/chaise_haute.webp": "868260bd",
+  "bebe/jeu/champignon_geant.webp": "5062c77e",
+  "bebe/jeu/chariot.webp": "869e29c1",
+  "bebe/jeu/coffre.webp": "d76dbe38",
+  "bebe/jeu/coussins.webp": "8e4239b4",
+  "bebe/jeu/couveuse.webp": "3ad4b00b",
+  "bebe/jeu/cubes.webp": "bbd0bc86",
+  "bebe/jeu/distributeur.webp": "932bd9de",
+  "bebe/jeu/dome_bulles.webp": "5f17a645",
+  "bebe/jeu/dome_grimpe.webp": "40354b00",
+  "bebe/jeu/escalier_bois.webp": "c8e069a5",
+  "bebe/jeu/estrade.webp": "b5ce95db",
+  "bebe/jeu/etagere_biberons.webp": "2fa0839b",
+  "bebe/jeu/etagere_jouets.webp": "2e801dac",
+  "bebe/jeu/fanions.webp": "18b34e5a",
+  "bebe/jeu/fontaine_bulles.webp": "7c5092be",
+  "bebe/jeu/fontaine_oeuf.webp": "f4556ba2",
+  "bebe/jeu/gamelles.webp": "97975c8d",
+  "bebe/jeu/garde_manger.webp": "a7a81e7a",
+  "bebe/jeu/guirlande.webp": "ff7421bc",
+  "bebe/jeu/haie.webp": "8faefb9e",
+  "bebe/jeu/hochet.webp": "24aa5976",
+  "bebe/jeu/jardiniere.webp": "9dc9ee8f",
+  "bebe/jeu/jeu_ressort.webp": "3524199e",
+  "bebe/jeu/kiosque_livres.webp": "1f42d56b",
+  "bebe/jeu/lampadaire.webp": "b6c455dc",
+  "bebe/jeu/lampe_etoile.webp": "e1d374f9",
+  "bebe/jeu/lampe_fleur.webp": "112c4f43",
+  "bebe/jeu/lanterne_branche.webp": "e52c102c",
+  "bebe/jeu/lanterne_coeur.webp": "d13a9c1f",
+  "bebe/jeu/lit_barreaux.webp": "ae359731",
+  "bebe/jeu/lit_cocon.webp": "d5be7c74",
+  "bebe/jeu/maison_bois.webp": "d83337b9",
+  "bebe/jeu/maison_champignon.webp": "ee81b2c0",
+  "bebe/jeu/maison_coquillage.webp": "c7dcf692",
+  "bebe/jeu/maison_coussin.webp": "9dbf314e",
+  "bebe/jeu/maison_cubes.webp": "ddb6bd4d",
+  "bebe/jeu/maison_escargot.webp": "d5eeef55",
+  "bebe/jeu/maison_fleur.webp": "b5cdbf53",
+  "bebe/jeu/maison_mousse.webp": "07ffd2aa",
+  "bebe/jeu/maison_nid.webp": "30f7ab55",
+  "bebe/jeu/maison_nuage.webp": "2cf1ec2b",
+  "bebe/jeu/maison_oeuf.webp": "a2f1fbe5",
+  "bebe/jeu/manege.webp": "dfd634a9",
+  "bebe/jeu/mare_cascade.webp": "85804874",
+  "bebe/jeu/mobile.webp": "2e7cd327",
+  "bebe/jeu/moulin.webp": "7a9b6c90",
+  "bebe/jeu/moulinets.webp": "10b03334",
+  "bebe/jeu/nid_oeufs.webp": "6d08b491",
+  "bebe/jeu/observatoire.webp": "cdb5d951",
+  "bebe/jeu/oeufs.webp": "fc97e8fd",
+  "bebe/jeu/panier_balles.webp": "ad213ff1",
+  "bebe/jeu/panier_linge.webp": "5e333775",
+  "bebe/jeu/panneau_affichage.webp": "66351a4b",
+  "bebe/jeu/panneau_meteo.webp": "044b99ad",
+  "bebe/jeu/pas_japonais.webp": "203d1b63",
+  "bebe/jeu/passerelle.webp": "fb51e081",
+  "bebe/jeu/pavillon_fleur.webp": "00fb13e1",
+  "bebe/jeu/peluche.webp": "d8897a5b",
+  "bebe/jeu/pont_bois.webp": "f672f202",
+  "bebe/jeu/portail.webp": "0b9ef452",
+  "bebe/jeu/portillon.webp": "42d38805",
+  "bebe/jeu/poteau_indicateur.webp": "070ac50b",
+  "bebe/jeu/poubelle.webp": "69e0ef81",
+  "bebe/jeu/scene_musique.webp": "98309e39",
+  "bebe/jeu/souche_musique.webp": "0d0989e7",
+  "bebe/jeu/statue_oeuf.webp": "208ed6cb",
+  "bebe/jeu/table.webp": "8547c0d5",
+  "bebe/jeu/table_langer.webp": "520e092f",
+  "bebe/jeu/tabouret.webp": "e2649e8d",
+  "bebe/jeu/tambour.webp": "6d81ae72",
+  "bebe/jeu/tape_cul.webp": "55b3b5a0",
+  "bebe/jeu/tapis_patchwork.webp": "6aa826fc",
+  "bebe/jeu/toboggan.webp": "b4db7672",
+  "bebe/jeu/toupie.webp": "afde6f2f",
+  "bebe/jeu/tourniquet.webp": "90658c33",
+  "bebe/jeu/train.webp": "6df12598",
+  "bebe/jeu/trampoline.webp": "3462ac91",
+  "bebe/jeu/trefles.webp": "40894760",
+  "bebe/jeu/tunnel.webp": "30ad91c7",
+  "bebe/jeu/xylophone.webp": "94148d4e",
   "commun/jeu/amanites.png": "9e3e5b32",
   "commun/jeu/amanites2.png": "e0e8ebbf",
   "commun/jeu/arbre_automne_brun.png": "86bc2c65",
@@ -1330,7 +1429,6 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/ext_jardiniere_verte.png": "871bda78",
   "commun/jeu/ext_panneau.png": "f851e824",
   "commun/jeu/ext_puits.png": "acc3ad99",
-  "commun/jeu/ext_toilettes.png": "2ef984f3",
   "commun/jeu/fleur_1.png": "66e64d44",
   "commun/jeu/fleur_10.png": "9e82224c",
   "commun/jeu/fleur_2.png": "47b3e844",
@@ -1462,6 +1560,7 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/terre_craquelee.png": "f135381f",
   "commun/jeu/terre_savane.png": "badfbe80",
   "commun/jeu/terre_sombre.png": "a00196a8",
+  "commun/jeu/toilettes.png": "2f571478",
   "commun/jeu/totem.png": "b58cc91f",
   "commun/jeu/tronc_couche.png": "60f5190e",
   "commun/jeu/tuyau.png": "3c8658a1",
@@ -1487,6 +1586,105 @@ DW.VERSIONS_IMAGES = {
   "commun/kit/sac.png": "a1b67b53",
   "commun/kit/tete_f.png": "190c5048",
   "commun/kit/tete_g.png": "24f3c9b1",
+  "desert/jeu/antenne.webp": "7ca999be",
+  "desert/jeu/arbre_mort.webp": "1bdd8066",
+  "desert/jeu/arbuste_sec.webp": "a95b0d35",
+  "desert/jeu/arche.webp": "ff359725",
+  "desert/jeu/arche_ruine.webp": "d12d595f",
+  "desert/jeu/argile_craquelee.webp": "eab7e268",
+  "desert/jeu/balise.webp": "60dfb955",
+  "desert/jeu/balise_cristal.webp": "2561ca54",
+  "desert/jeu/banniere.webp": "967a6aac",
+  "desert/jeu/barrage.webp": "b6670f54",
+  "desert/jeu/barriere_corde.webp": "e265c9a7",
+  "desert/jeu/bassin.webp": "ab228058",
+  "desert/jeu/bloc_circuits.webp": "dc8a2a82",
+  "desert/jeu/bloc_grave.webp": "86ca8cfc",
+  "desert/jeu/blocs.webp": "2c81d9a5",
+  "desert/jeu/bord_falaise.webp": "1bf29bf1",
+  "desert/jeu/borne_pierre.webp": "0f4270d0",
+  "desert/jeu/borne_rayee.webp": "bec1b712",
+  "desert/jeu/buisson_epineux.webp": "0336d225",
+  "desert/jeu/cactus.webp": "258d26ec",
+  "desert/jeu/cailloux.webp": "ea955c3f",
+  "desert/jeu/caisses.webp": "aab3d1ae",
+  "desert/jeu/caisses_numeriques.webp": "846adcae",
+  "desert/jeu/carte.webp": "4564abba",
+  "desert/jeu/coffre.webp": "28938720",
+  "desert/jeu/colonne.webp": "6823a5fd",
+  "desert/jeu/colonne_brisee.webp": "6de1e699",
+  "desert/jeu/colonne_tombee.webp": "024c283e",
+  "desert/jeu/cristal.webp": "d02ea664",
+  "desert/jeu/dalle.webp": "2f44f8ed",
+  "desert/jeu/dalle_plate.webp": "be8b87aa",
+  "desert/jeu/dalles_ensablees.webp": "55be2398",
+  "desert/jeu/dolmen.webp": "0db7e841",
+  "desert/jeu/dune.webp": "05899c1b",
+  "desert/jeu/eboulis.webp": "9cd7dfbc",
+  "desert/jeu/echelle.webp": "64027468",
+  "desert/jeu/epave_machine.webp": "03334822",
+  "desert/jeu/escalier.webp": "eada9e87",
+  "desert/jeu/etal.webp": "b0ce8409",
+  "desert/jeu/falaise.webp": "d2606d72",
+  "desert/jeu/fosse.webp": "918fab2f",
+  "desert/jeu/foyer.webp": "c56b85a3",
+  "desert/jeu/herbes_seches.webp": "d45e1876",
+  "desert/jeu/jarres.webp": "3d20e947",
+  "desert/jeu/marches.webp": "50ff71bb",
+  "desert/jeu/mur_brise.webp": "b51da32e",
+  "desert/jeu/mur_oeil.webp": "87caf2da",
+  "desert/jeu/mur_ruine.webp": "18d15a95",
+  "desert/jeu/niche_faucon.webp": "29508de7",
+  "desert/jeu/niche_statue.webp": "f8f6c286",
+  "desert/jeu/obelisque.webp": "623f8309",
+  "desert/jeu/obelisque_losange.webp": "1df2599b",
+  "desert/jeu/panneau_danger.webp": "0e137226",
+  "desert/jeu/panneau_ensable.webp": "1905b42b",
+  "desert/jeu/panneau_fleches.webp": "b6b02ced",
+  "desert/jeu/panneau_pierre.webp": "bb0aba6b",
+  "desert/jeu/piedestal.webp": "1c645b43",
+  "desert/jeu/pilier_circuits.webp": "350a5a3f",
+  "desert/jeu/pilier_vasque.webp": "20b7952b",
+  "desert/jeu/pont_casse.webp": "d2b1de9d",
+  "desert/jeu/portail.webp": "6176f0e7",
+  "desert/jeu/porte_ankh.webp": "90fba058",
+  "desert/jeu/porte_cristal.webp": "545bd1a0",
+  "desert/jeu/portique.webp": "249c24f6",
+  "desert/jeu/poteau.webp": "a09fc560",
+  "desert/jeu/poteau_boitier.webp": "89e33d5d",
+  "desert/jeu/poteau_brise.webp": "644fb370",
+  "desert/jeu/poteau_casse.webp": "4dca996f",
+  "desert/jeu/poteau_eclate.webp": "9a7319c0",
+  "desert/jeu/poteau_orbe.webp": "9b3f92a2",
+  "desert/jeu/poteau_penche.webp": "71edfd47",
+  "desert/jeu/poteau_tombe.webp": "3e5fdf13",
+  "desert/jeu/poteau_transfo.webp": "2a6252d1",
+  "desert/jeu/poteaux_cable.webp": "d0ba2d91",
+  "desert/jeu/puits.webp": "6c3de6e5",
+  "desert/jeu/rocher.webp": "cd8820be",
+  "desert/jeu/rocher_ecran.webp": "8f9fbdc3",
+  "desert/jeu/rocher_glitch.webp": "34b6cf13",
+  "desert/jeu/rocher_pointu.webp": "68c1d600",
+  "desert/jeu/sable_cailloux.webp": "5decbb6d",
+  "desert/jeu/sable_graviers.webp": "4e7cf6ea",
+  "desert/jeu/sable_numerique.webp": "9c8dcfcd",
+  "desert/jeu/sable_ondule.webp": "f1cc6826",
+  "desert/jeu/sable_pale.webp": "e51063ae",
+  "desert/jeu/sacs.webp": "1532753b",
+  "desert/jeu/squelette.webp": "d77782db",
+  "desert/jeu/station_meteo.webp": "c9a17687",
+  "desert/jeu/stele_cible.webp": "39fa03c9",
+  "desert/jeu/stele_gravee.webp": "188f7774",
+  "desert/jeu/stele_holo.webp": "0ac5f44d",
+  "desert/jeu/stele_orbe.webp": "86b83a32",
+  "desert/jeu/teleporteur.webp": "0e15a8f4",
+  "desert/jeu/tente.webp": "a5cd76e5",
+  "desert/jeu/tente_dechiree.webp": "93e891f2",
+  "desert/jeu/terre_noire.webp": "688956a0",
+  "desert/jeu/terre_orange.webp": "26191e5e",
+  "desert/jeu/tonneaux.webp": "9a155929",
+  "desert/jeu/tour_antenne.webp": "0080a58b",
+  "desert/jeu/virevoltant.webp": "12e4a942",
   "grotte/jeu/alcove_sarcophage.webp": "8e56c625",
   "grotte/jeu/ankh.webp": "f8b1f51d",
   "grotte/jeu/ankh_lumineux.webp": "3705192b",
@@ -2902,6 +3100,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     gotsuBet: 'parties du pari de Gotsumon aujourd\u2019hui { d, n }',
     biyoGame: 'jour du dernier jeu du courrier de Biyomon',
     boothPos: 'énigme des cabines : nombre de mots déjà entendus dans le bon ordre',
+    ankhs: "Crypte des Gardiens : les ankhs déjà rallumés (tableau, 0 à 2) ; les trois ouvrent la porte scellée vers Shellmon (maps/antre.js)",
     biyoHint: 'Biyomon : nombre d\u2019indices donnés (un Digimon différent à chaque visite)',
     gymIntro: 'Leomon a présenté le Gymnase (résistances aux éléments, maps/gymnase.js)',
     // histoire
@@ -6305,7 +6504,7 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
   const HEROS_VISIBLE = World.HEROS_VISIBLE = 34.5;
   const TAILLE_HEROS = World.TAILLE_HEROS = {};
   for (const k of ['jhouse', 'bazar', 'dojo', 'restaurant', 'garden', 'homepalace', 'shack', 'cottage', 'townhouse', 'apartment', 'shopfront',
-    'bakery', 'patisserie', 'bank', 'poste', 'ecole', 'gymnase', 'barn', 'greenhouse', 'windmill', 'chalet', 'wcabin', 'chapel', 'lighthouse',
+    'bakery', 'patisserie', 'bank', 'poste', 'ecole', 'gymnase', 'barn', 'greenhouse', 'windmill', 'chalet', 'chapel', 'lighthouse',
     'manor', 'bogshack', 'stilthut']) TAILLE_HEROS[k] = 3;
   for (const k of ['house', 'eggcottage', 'yokohut']) TAILLE_HEROS[k] = 2.5;   // (Village des Bébés, Village des Yokomon)
   const hauteurVisible = r => {
@@ -6416,8 +6615,9 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
       'mont_grotte', 'mont_petit_rocher', 'mont_rocher', 'mont_gros_rocher', 'mont_aiguille', 'mont_eboulis_gros', 'mont_rocher_mousse', 'mont_eboulis', 'mont_cairn',
       'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche',
       'maison_aquarium', 'maison_ordinateur', 'maison_cuisiniere', 'ville_lampadaire_noir', 'ville_paves',
-      // mobilier extérieur (planche à 10 catégories) : caisses, distributeurs, boîte aux lettres, toilettes, jardinières, étals, puits
-      'ext_caisse', 'ext_caisse2', 'ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc', 'ext_boite_lettres', 'ext_toilettes',
+      // mobilier extérieur (planche à 10 catégories) : caisses, distributeurs, boîte aux lettres, jardinières, étals, puits ;
+      // les toilettes de tout le jeu : la cabane au toit bleu de la planche VILLAGE BEBE
+      'ext_caisse', 'ext_caisse2', 'ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc', 'ext_boite_lettres', 'toilettes',
       'ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose', 'ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain', 'ext_puits', 'ext_panneau',
       // plage : rochers, arche, herbes de dune, coquillages, mares, palmiers, bois flotté, château de sable, barque, radeau, sables
       'plage_rocher', 'plage_rochers', 'plage_pile_rochers', 'plage_arche', 'plage_herbe_dune', 'plage_herbe_seche', 'plage_conque', 'plage_escargot', 'plage_coquille', 'plage_etoile', 'plage_mare',
@@ -6488,7 +6688,7 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
     sidetable: ['maison_chevet'], plant: ['maison_plante', 'maison_vase_fleurs'], fridge: ['maison_frigo'],
     // mobilier extérieur : les distributeurs gardent leur couleur selon leur rôle (0 soins PV : rouge, 1 PM : bleu, 2 nourriture :
     // blanc) ; les stands des recrues gardent leur dessin (leurs variantes ont un sens)
-    crates: ['ext_caisse', 'ext_caisse2'], vending: ['ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc'], mailbox: ['ext_boite_lettres'], toilet: ['ext_toilettes'],
+    crates: ['ext_caisse', 'ext_caisse2'], vending: ['ext_distrib_rouge', 'ext_distrib_bleu', 'ext_distrib_blanc'], mailbox: ['ext_boite_lettres'], toilet: ['toilettes'],
     planter: ['ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_jardiniere_rose'], marketstall: ['ext_etal_fruits', 'ext_etal_legumes', 'ext_etal_pain'],
     stall: ['ext_etal_pain'], producestand: ['ext_etal_fruits'],
     // le panneau d'affichage de la ville : son image, et par-dessus les affiches des habitants revenus (OBJ.noticeboard.surImage)
@@ -6535,21 +6735,48 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
   // ambiances qui gardent leur dessin (sombres, enneigées, mécaniques) ; le Terrain d'entraînement reste tel quel
   const SANS = new Set(['cave', 'lavacave', 'sewer', 'snow', 'summit', 'icecave', 'swamp', 'fog', 'cemetery', 'trash', 'factory', 'volcano']);
   const CARTES_SANS = new Set(['gym']);
-  const REMPLACE = { volcan: { lavarock: ['rocher_magma'], steamvent: ['fumerolle'], aiguille: ['pic_1', 'pic_2', 'pic_3'] }, grotte: { chest: ['coffre'] } };
+  const REMPLACE = { volcan: { lavarock: ['rocher_magma'], steamvent: ['fumerolle'], aiguille: ['pic_1', 'pic_2', 'pic_3'] }, grotte: { chest: ['coffre'] },
+    // désert (Désert des Poteaux, Plaine des Panneaux : maps/miharashi.js) : la vieille ligne télégraphique, les panneaux
+    // routiers, les vestiges numériques, rochers, os, cactus et arbustes de la planche DESERT
+    desert: { telpole: ['poteau', 'poteau_penche', 'poteau_brise', 'poteau_transfo', 'poteau', 'poteau_boitier', 'poteau_eclate'],
+      roadsign: ['panneau_fleches', 'panneau_danger', 'panneau_ensable', 'poteau_orbe', 'panneau_pierre', 'panneau_fleches', 'stele_cible'],
+      antenna: ['tour_antenne', 'antenne', 'balise_cristal'], datapanel: ['rocher_ecran', 'stele_holo', 'bloc_circuits', 'carte'],
+      deadtree: ['arbre_mort'], boulder: ['rocher', 'rocher_pointu', 'blocs'], bones: ['squelette'], cactus: ['cactus'],
+      drybush: ['arbuste_sec', 'buisson_epineux', 'herbes_seches', 'arbuste_sec', 'virevoltant'], rock: ['rocher', 'cailloux'], chest: ['coffre'],
+      crates: ['caisses'], barrel: ['tonneaux'], barrels: ['tonneaux'], sacks: ['sacs'] },
+    // villages de bébés (Village des Bébés, Village des Poyomon) : le mobilier de la planche VILLAGE BEBE
+    bebe: { bench: ['banc'], lamp: ['lampadaire'], mailbox: ['boite_lettres'], noticeboard: ['panneau_affichage'], vending: ['distributeur'],
+      crates: ['cartons'], planter: ['jardiniere'], chest: ['coffre'], toybox: ['etagere_jouets'] } };
+  // SOLS d'un dossier, par rôle (sinon l'image du rôle porte son nom : la grotte) : le désert prend son sable pâle et sa piste
+  // caillouteuse
+  const ROLES = { desert: { sable: 'sable_pale', chemin: 'sable_cailloux' } };
   // DOSSIERS CHARGÉS PLUS TARD, en arrière-plan après le démarrage (le démarrage n'attend pas leurs images ; une carte qui
-  // s'en sert attend qu'ils soient prêts : T.dossier, game/overworld.js) — la grotte de Shellmon (maps/antre.js), en WebP
+  // s'en sert attend qu'ils soient prêts : T.dossier, game/overworld.js), en WebP — la grotte de Shellmon (maps/antre.js),
+  // le village des bébés (maps/berceau.js, maps/village_yokomon.js), le désert (maps/miharashi.js)
   const TARDIFS = {
+    bebe: ['anneaux', 'arche_fleurs', 'arche_lierre', 'arche_papillon', 'armoire_soins', 'bac_sable', 'balancoire', 'ballons', 'banc', 'barriere', 'barriere_fleurs', 'bassin_source', 'berceau', 'boite_lettres', 'borne', 'buisson_fleurs', 'carillon', 'cartons', 'chaise_haute', 'champignon_geant', 'chariot', 'coffre', 'coussins', 'couveuse', 'cubes', 'distributeur', 'dome_bulles', 'dome_grimpe', 'escalier_bois', 'estrade', 'etagere_biberons', 'etagere_jouets', 'fanions', 'fontaine_bulles', 'fontaine_oeuf', 'gamelles', 'garde_manger', 'guirlande', 'haie', 'hochet', 'jardiniere', 'jeu_ressort', 'kiosque_livres', 'lampadaire', 'lampe_etoile', 'lampe_fleur', 'lanterne_branche', 'lanterne_coeur', 'lit_barreaux', 'lit_cocon', 'maison_bois', 'maison_champignon', 'maison_coquillage', 'maison_coussin', 'maison_cubes', 'maison_escargot', 'maison_fleur', 'maison_mousse', 'maison_nid', 'maison_nuage', 'maison_oeuf', 'manege', 'mare_cascade', 'mobile', 'moulin', 'moulinets', 'nid_oeufs', 'observatoire', 'oeufs', 'panier_balles', 'panier_linge', 'panneau_affichage', 'panneau_meteo', 'pas_japonais', 'passerelle', 'pavillon_fleur', 'peluche', 'pont_bois', 'portail', 'portillon', 'poteau_indicateur', 'poubelle', 'scene_musique', 'souche_musique', 'statue_oeuf', 'table', 'table_langer', 'tabouret', 'tambour', 'tape_cul', 'tapis_patchwork', 'toboggan', 'toupie', 'tourniquet', 'train', 'trampoline', 'trefles', 'tunnel', 'xylophone'],
+    desert: ['antenne', 'arbre_mort', 'arbuste_sec', 'arche', 'arche_ruine', 'argile_craquelee', 'balise', 'balise_cristal', 'banniere', 'barrage', 'barriere_corde', 'bassin', 'bloc_circuits', 'bloc_grave', 'blocs', 'bord_falaise', 'borne_pierre', 'borne_rayee', 'buisson_epineux', 'cactus', 'cailloux', 'caisses', 'caisses_numeriques', 'carte', 'coffre', 'colonne', 'colonne_brisee', 'colonne_tombee', 'cristal', 'dalle', 'dalle_plate', 'dalles_ensablees', 'dolmen', 'dune', 'eboulis', 'echelle', 'epave_machine', 'escalier', 'etal', 'falaise', 'fosse', 'foyer', 'herbes_seches', 'jarres', 'marches', 'mur_brise', 'mur_oeil', 'mur_ruine', 'niche_faucon', 'niche_statue', 'obelisque', 'obelisque_losange', 'panneau_danger', 'panneau_ensable', 'panneau_fleches', 'panneau_pierre', 'piedestal', 'pilier_circuits', 'pilier_vasque', 'pont_casse', 'portail', 'porte_ankh', 'porte_cristal', 'portique', 'poteau', 'poteau_boitier', 'poteau_brise', 'poteau_casse', 'poteau_eclate', 'poteau_orbe', 'poteau_penche', 'poteau_tombe', 'poteau_transfo', 'poteaux_cable', 'puits', 'rocher', 'rocher_ecran', 'rocher_glitch', 'rocher_pointu', 'sable_cailloux', 'sable_graviers', 'sable_numerique', 'sable_ondule', 'sable_pale', 'sacs', 'squelette', 'station_meteo', 'stele_cible', 'stele_gravee', 'stele_holo', 'stele_orbe', 'teleporteur', 'tente', 'tente_dechiree', 'terre_noire', 'terre_orange', 'tonneaux', 'tour_antenne', 'virevoltant'],
     grotte: ['alcove_sarcophage', 'ankh', 'ankh_lumineux', 'anubis', 'anubis_geant', 'arche', 'arche_ruine', 'autel', 'autel_soleil', 'banniere', 'bassin_colonnes', 'braises', 'brasero', 'brasero_anubis', 'brasero_colonne', 'caisse', 'canopes', 'cascade_roche', 'cascade_temple', 'champignons', 'chemin', 'coffre', 'coffre_anubis', 'colonne_cristaux', 'colonne_moussue', 'coupe_feu', 'cristaux', 'cristaux_violets', 'dais', 'dalle_soleil', 'dalles_fissurees', 'eboulis', 'entree', 'entree_mousse', 'entree_temple', 'escalier', 'escalier_roche', 'flamme_bleue', 'fleurs_lanternes', 'fontaine', 'fontaine_lotus', 'fresque', 'frise_murale', 'gres_aiguilles', 'gres_ankh', 'gres_arche', 'gres_eboulis', 'gres_entree', 'gres_mur', 'gres_rochers', 'grille', 'gue', 'herbe', 'jarre', 'lampe', 'lanterne', 'mur_blocs', 'mur_brise', 'mur_colonne', 'mur_ecroule', 'mur_fissure', 'mur_frise', 'mur_grave', 'mur_hieroglyphes', 'mur_moussu', 'mur_niche', 'mur_peint', 'mur_scarabee', 'mur_soleil', 'mur_sombre', 'niche', 'niche_statue', 'obelisque', 'obelisque_bleu', 'obelisque_cristal', 'offrandes', 'ossements', 'panneau', 'paves', 'piedestal_orbe', 'pierre_runique', 'pilier_brise', 'pilier_grave', 'pilier_lotus', 'pilier_peint', 'pilier_roche', 'portail_roche', 'porte_anubis', 'porte_arche', 'porte_bannieres', 'porte_gardiens', 'porte_grotte', 'porte_ruine', 'porte_scellee', 'porte_temple', 'porte_tombeau', 'porte_torches', 'portique', 'rideau', 'rocher_mousse', 'rochers', 'sable', 'sanctuaire_orbe', 'sarcophage', 'sarcophage_roche', 'scarabee_or', 'socle', 'sol_roche', 'source', 'source_grotte', 'stalagmite', 'stalagmites', 'statue_scarabee', 'stele', 'stele_lumineuse', 'stele_magique', 'tambour', 'terre_sombre', 'tombeau', 'tonneau', 'torche', 'torche_anubis', 'torche_murale', 'torche_plantee', 'torche_trepied', 'tresor_sable', 'vase', 'vasque'],
   };
-  const EXT = { grotte: 'webp' };
+  const EXT = { grotte: 'webp', bebe: 'webp', desert: 'webp' };
   // tailles propres à un dossier (en pixels du jeu, comme TAILLE ; un même nom peut exister ailleurs : l'escalier du volcan)
   const TAILLES_DOSSIER = {
+    bebe: { anneaux: { h: 20 }, arche_fleurs: { h: 64 }, arche_lierre: { h: 64 }, arche_papillon: { h: 62 }, armoire_soins: { h: 46 }, bac_sable: { h: 22 }, balancoire: { h: 54 }, ballons: { h: 46 }, banc: { h: 22 }, barriere: { h: 20 }, barriere_fleurs: { h: 20 }, bassin_source: { h: 34 }, berceau: { h: 34 }, boite_lettres: { h: 40 }, borne: { h: 40 }, buisson_fleurs: { h: 30 }, carillon: { h: 52 }, cartons: { h: 32 }, chaise_haute: { h: 36 }, champignon_geant: { h: 42 }, chariot: { h: 16 }, coffre: { h: 24 }, coussins: { h: 18 }, couveuse: { h: 46 }, cubes: { h: 18 }, distributeur: { h: 46 }, dome_bulles: { h: 76 }, dome_grimpe: { h: 32 }, escalier_bois: { h: 34 }, estrade: { h: 30 }, etagere_biberons: { h: 46 }, etagere_jouets: { h: 40 }, fanions: { h: 40 }, fontaine_bulles: { h: 46 }, fontaine_oeuf: { h: 62 }, gamelles: { h: 16 }, garde_manger: { h: 44 }, guirlande: { h: 50 }, haie: { h: 20 }, hochet: { h: 18 }, jardiniere: { h: 20 }, jeu_ressort: { h: 30 }, kiosque_livres: { h: 62 }, lampadaire: { h: 56 }, lampe_etoile: { h: 44 }, lampe_fleur: { h: 44 }, lanterne_branche: { h: 50 }, lanterne_coeur: { h: 54 }, lit_barreaux: { h: 28 }, lit_cocon: { h: 34 }, maison_bois: { h: 85 }, maison_champignon: { h: 85 }, maison_coquillage: { h: 85 }, maison_coussin: { h: 85 }, maison_cubes: { h: 85 }, maison_escargot: { h: 50 }, maison_fleur: { h: 85 }, maison_mousse: { h: 85 }, maison_nid: { h: 85 }, maison_nuage: { h: 85 }, maison_oeuf: { h: 85 }, manege: { h: 86 }, mare_cascade: { h: 40 }, mobile: { h: 50 }, moulin: { h: 96 }, moulinets: { h: 38 }, nid_oeufs: { h: 22 }, observatoire: { h: 96 }, oeufs: { h: 22 }, panier_balles: { h: 18 }, panier_linge: { h: 20 }, panneau_affichage: { h: 42 }, panneau_meteo: { h: 40 }, pas_japonais: { h: 36 }, passerelle: { h: 22 }, pavillon_fleur: { h: 78 }, peluche: { h: 20 }, pont_bois: { h: 30 }, portail: { h: 76 }, portillon: { h: 26 }, poteau_indicateur: { h: 50 }, poubelle: { h: 32 }, scene_musique: { h: 72 }, souche_musique: { h: 34 }, statue_oeuf: { h: 66 }, table: { h: 22 }, table_langer: { h: 40 }, tabouret: { h: 16 }, tambour: { h: 20 }, tape_cul: { h: 22 }, tapis_patchwork: { h: 36 }, toboggan: { h: 46 }, toupie: { h: 18 }, tourniquet: { h: 26 }, train: { h: 16 }, trampoline: { h: 22 }, trefles: { h: 22 }, tunnel: { h: 28 }, xylophone: { h: 14 } },
+    desert: { antenne: { h: 62 }, arbre_mort: { h: 44 }, arbuste_sec: { h: 28 }, arche: { h: 66 }, arche_ruine: { h: 58 }, argile_craquelee: [128, 128], balise: { h: 30 }, balise_cristal: { h: 58 }, banniere: { h: 56 }, barrage: { h: 26 }, barriere_corde: { h: 44 }, bassin: { h: 22 }, bloc_circuits: { h: 32 }, bloc_grave: { h: 34 }, blocs: { h: 24 }, bord_falaise: { h: 48 }, borne_pierre: { h: 52 }, borne_rayee: { h: 34 }, buisson_epineux: { h: 26 }, cactus: { h: 40 }, cailloux: { h: 14 }, caisses: { h: 30 }, caisses_numeriques: { h: 30 }, carte: { h: 40 }, coffre: { h: 22 }, colonne: { h: 64 }, colonne_brisee: { h: 60 }, colonne_tombee: { h: 30 }, cristal: { h: 48 }, dalle: { h: 24 }, dalle_plate: { h: 16 }, dalles_ensablees: [128, 128], dolmen: { h: 52 }, dune: { h: 44 }, eboulis: { h: 46 }, echelle: { h: 56 }, epave_machine: { h: 34 }, escalier: { h: 50 }, etal: { h: 56 }, falaise: { h: 56 }, fosse: { h: 40 }, foyer: { h: 16 }, herbes_seches: { h: 24 }, jarres: { h: 28 }, marches: { h: 50 }, mur_brise: { h: 64 }, mur_oeil: { h: 60 }, mur_ruine: { h: 70 }, niche_faucon: { h: 66 }, niche_statue: { h: 60 }, obelisque: { h: 74 }, obelisque_losange: { h: 72 }, panneau_danger: { h: 46 }, panneau_ensable: { h: 26 }, panneau_fleches: { h: 44 }, panneau_pierre: { h: 44 }, piedestal: { h: 34 }, pilier_circuits: { h: 62 }, pilier_vasque: { h: 56 }, pont_casse: { h: 48 }, portail: { h: 72 }, porte_ankh: { h: 68 }, porte_cristal: { h: 66 }, portique: { h: 64 }, poteau: { h: 76 }, poteau_boitier: { h: 66 }, poteau_brise: { h: 72 }, poteau_casse: { h: 36 }, poteau_eclate: { h: 66 }, poteau_orbe: { h: 58 }, poteau_penche: { h: 68 }, poteau_tombe: { h: 22 }, poteau_transfo: { h: 74 }, poteaux_cable: { h: 60 }, puits: { h: 40 }, rocher: { h: 26 }, rocher_ecran: { h: 40 }, rocher_glitch: { h: 60 }, rocher_pointu: { h: 38 }, sable_cailloux: [128, 128], sable_graviers: [128, 128], sable_numerique: [128, 128], sable_ondule: [128, 128], sable_pale: [128, 128], sacs: { h: 28 }, squelette: { h: 34 }, station_meteo: { h: 62 }, stele_cible: { h: 52 }, stele_gravee: { h: 52 }, stele_holo: { h: 58 }, stele_orbe: { h: 62 }, teleporteur: { h: 36 }, tente: { h: 62 }, tente_dechiree: { h: 52 }, terre_noire: [128, 128], terre_orange: [128, 128], tonneaux: { h: 30 }, tour_antenne: { h: 64 }, virevoltant: { h: 20 } },
     grotte: { alcove_sarcophage: { h: 82 }, ankh: { h: 44 }, ankh_lumineux: { h: 46 }, anubis: { h: 60 }, anubis_geant: { h: 112 }, arche: { h: 72 }, arche_ruine: { h: 84 }, autel: { h: 26 }, autel_soleil: { h: 92 }, banniere: { h: 56 }, bassin_colonnes: { h: 64 }, braises: { h: 20 }, brasero: { h: 42 }, brasero_anubis: { h: 58 }, brasero_colonne: { h: 56 }, caisse: { h: 22 }, canopes: { h: 28 }, cascade_roche: { h: 78 }, cascade_temple: { h: 74 }, champignons: { h: 30 }, chemin: [128, 128], coffre: { h: 26 }, coffre_anubis: { h: 34 }, colonne_cristaux: { h: 72 }, colonne_moussue: { h: 52 }, coupe_feu: { h: 46 }, cristaux: { h: 30 }, cristaux_violets: { h: 38 }, dais: { h: 80 }, dalle_soleil: { h: 12 }, dalles_fissurees: [64, 64], eboulis: { h: 34 }, entree: { h: 72 }, entree_mousse: { h: 72 }, entree_temple: { h: 92 }, escalier: { h: 42 }, escalier_roche: { h: 50 }, flamme_bleue: { h: 52 }, fleurs_lanternes: { h: 36 }, fontaine: { h: 60 }, fontaine_lotus: { h: 70 }, fresque: { h: 58 }, frise_murale: { h: 40 }, gres_aiguilles: { h: 58 }, gres_ankh: { h: 46 }, gres_arche: { h: 66 }, gres_eboulis: { h: 34 }, gres_entree: { h: 72 }, gres_mur: { h: 62 }, gres_rochers: { h: 42 }, grille: { h: 66 }, gue: { h: 22 }, herbe: [128, 128], jarre: { h: 30 }, lampe: { h: 52 }, lanterne: { h: 50 }, mur_blocs: { h: 56 }, mur_brise: { h: 54 }, mur_colonne: { h: 58 }, mur_ecroule: { h: 56 }, mur_fissure: { h: 56 }, mur_frise: { h: 56 }, mur_grave: { h: 56 }, mur_hieroglyphes: { h: 46 }, mur_moussu: { h: 56 }, mur_niche: { h: 58 }, mur_peint: { h: 56 }, mur_scarabee: { h: 44 }, mur_soleil: { h: 42 }, mur_sombre: { h: 58 }, niche: { h: 58 }, niche_statue: { h: 76 }, obelisque: { h: 88 }, obelisque_bleu: { h: 70 }, obelisque_cristal: { h: 80 }, offrandes: { h: 28 }, ossements: { h: 14 }, panneau: { h: 32 }, paves: [64, 64], piedestal_orbe: { h: 50 }, pierre_runique: { h: 52 }, pilier_brise: { h: 50 }, pilier_grave: { h: 76 }, pilier_lotus: { h: 82 }, pilier_peint: { h: 82 }, pilier_roche: { h: 74 }, portail_roche: { h: 82 }, porte_anubis: { h: 72 }, porte_arche: { h: 86 }, porte_bannieres: { h: 98 }, porte_gardiens: { h: 98 }, porte_grotte: { h: 86 }, porte_ruine: { h: 82 }, porte_scellee: { h: 92 }, porte_temple: { h: 92 }, porte_tombeau: { h: 72 }, porte_torches: { h: 92 }, portique: { h: 66 }, rideau: { h: 46 }, rocher_mousse: { h: 30 }, rochers: { h: 34 }, sable: [128, 128], sanctuaire_orbe: { h: 74 }, sarcophage: { h: 62 }, sarcophage_roche: { h: 72 }, scarabee_or: { h: 54 }, socle: { h: 22 }, sol_roche: [128, 128], source: { h: 46 }, source_grotte: { h: 52 }, stalagmite: { h: 50 }, stalagmites: { h: 40 }, statue_scarabee: { h: 48 }, stele: { h: 50 }, stele_lumineuse: { h: 60 }, stele_magique: { h: 54 }, tambour: { h: 34 }, terre_sombre: [128, 128], tombeau: { h: 58 }, tonneau: { h: 24 }, torche: { h: 46 }, torche_anubis: { h: 50 }, torche_murale: { h: 42 }, torche_plantee: { h: 46 }, torche_trepied: { h: 48 }, tresor_sable: { h: 30 }, vase: { h: 30 }, vasque: { h: 26 } },
   };
   const tailleDe = (d, n) => (TAILLES_DOSSIER[d] && TAILLES_DOSSIER[d][n]) || TAILLE[n];
   // lumières des décors dessinés, dans le noir des cartes sombres : [x, y] en fraction de l'image, rayon, couleur ;
   // FLAMMES : leur lumière vacille, des flammèches et des étincelles s'en échappent (gfx/ambient.js)
-  const LUMIERES = { grotte: { ankh_lumineux: [[0.5, 0.3, 44, 'rgba(255,240,120,0.6)']], autel_soleil: [[0.15, 0.25, 34], [0.85, 0.25, 34]], braises: [[0.5, 0.4, 30]], brasero: [[0.5, 0.15, 44]], brasero_anubis: [[0.5, 0.12, 48]], brasero_colonne: [[0.5, 0.14, 48]], champignons: [[0.5, 0.4, 26, 'rgba(170,120,255,0.45)']], colonne_cristaux: [[0.5, 0.5, 40, 'rgba(140,140,255,0.45)']], coupe_feu: [[0.5, 0.16, 52]], cristaux: [[0.5, 0.5, 30, 'rgba(110,170,255,0.5)']], cristaux_violets: [[0.5, 0.5, 34, 'rgba(170,120,255,0.5)']], flamme_bleue: [[0.5, 0.14, 44, 'rgba(120,190,255,0.6)']], fleurs_lanternes: [[0.5, 0.35, 32, 'rgba(220,140,255,0.5)']], fontaine_lotus: [[0.5, 0.5, 46, 'rgba(110,230,240,0.5)']], lampe: [[0.5, 0.62, 40]], lanterne: [[0.62, 0.72, 36]], obelisque_bleu: [[0.5, 0.3, 30, 'rgba(110,190,255,0.5)']], obelisque_cristal: [[0.5, 0.4, 40, 'rgba(120,180,255,0.5)']], piedestal_orbe: [[0.5, 0.12, 28, 'rgba(120,180,255,0.5)']], pierre_runique: [[0.5, 0.4, 32, 'rgba(110,200,255,0.5)']], porte_torches: [[0.12, 0.3, 38], [0.88, 0.3, 38]], sanctuaire_orbe: [[0.5, 0.45, 44, 'rgba(255,200,90,0.55)']], source: [[0.5, 0.6, 30, 'rgba(110,200,240,0.4)']], source_grotte: [[0.5, 0.6, 34, 'rgba(110,200,240,0.4)']], stele_lumineuse: [[0.5, 0.45, 40, 'rgba(255,210,120,0.5)']], stele_magique: [[0.5, 0.45, 36, 'rgba(110,200,255,0.5)']], torche: [[0.55, 0.12, 40]], torche_anubis: [[0.6, 0.12, 40]], torche_murale: [[0.5, 0.2, 38]], torche_plantee: [[0.5, 0.12, 40]], torche_trepied: [[0.5, 0.12, 42]] } };
+  const LUMIERES = {
+    bebe: { couveuse: [[0.5, 0.28, 30]], dome_bulles: [[0.5, 0.5, 40, 'rgba(160,220,255,0.45)']], fontaine_bulles: [[0.5, 0.6, 30, 'rgba(150,220,255,0.45)']], kiosque_livres: [[0.92, 0.55, 26]],
+      lampadaire: [[0.3, 0.22, 38]], lampe_etoile: [[0.5, 0.25, 40, 'rgba(255,230,140,0.6)']], lampe_fleur: [[0.5, 0.18, 34, 'rgba(255,230,170,0.55)']], lanterne_branche: [[0.45, 0.55, 32]],
+      lanterne_coeur: [[0.68, 0.35, 34, 'rgba(255,150,190,0.55)']], portail: [[0.1, 0.45, 26], [0.9, 0.45, 26]] },
+    desert: { balise: [[0.35, 0.12, 30, 'rgba(255,150,60,0.6)']], balise_cristal: [[0.5, 0.15, 40, 'rgba(110,200,255,0.55)']], bloc_circuits: [[0.5, 0.6, 24, 'rgba(110,200,255,0.45)']], carte: [[0.5, 0.4, 22, 'rgba(120,255,170,0.4)']],
+      cristal: [[0.5, 0.45, 40, 'rgba(110,190,255,0.55)']], obelisque_losange: [[0.5, 0.25, 26, 'rgba(110,200,255,0.5)']], pilier_circuits: [[0.5, 0.5, 26, 'rgba(110,200,255,0.45)']], portail: [[0.5, 0.5, 44, 'rgba(110,255,170,0.5)']],
+      porte_cristal: [[0.5, 0.45, 40, 'rgba(110,220,255,0.55)']], poteau_orbe: [[0.5, 0.06, 24, 'rgba(110,200,255,0.5)']], rocher_ecran: [[0.5, 0.45, 26, 'rgba(110,200,255,0.45)']], rocher_glitch: [[0.5, 0.5, 30, 'rgba(140,110,255,0.5)']],
+      stele_holo: [[0.5, 0.4, 36, 'rgba(110,220,255,0.55)']], stele_orbe: [[0.5, 0.3, 26, 'rgba(110,220,200,0.45)']], teleporteur: [[0.5, 0.55, 44, 'rgba(110,230,255,0.55)']], tour_antenne: [[0.5, 0.15, 34, 'rgba(110,220,255,0.5)']] },
+    grotte: { ankh_lumineux: [[0.5, 0.3, 44, 'rgba(255,240,120,0.6)']], autel_soleil: [[0.15, 0.25, 34], [0.85, 0.25, 34]], braises: [[0.5, 0.4, 30]], brasero: [[0.5, 0.15, 44]], brasero_anubis: [[0.5, 0.12, 48]], brasero_colonne: [[0.5, 0.14, 48]], champignons: [[0.5, 0.4, 26, 'rgba(170,120,255,0.45)']], colonne_cristaux: [[0.5, 0.5, 40, 'rgba(140,140,255,0.45)']], coupe_feu: [[0.5, 0.16, 52]], cristaux: [[0.5, 0.5, 30, 'rgba(110,170,255,0.5)']], cristaux_violets: [[0.5, 0.5, 34, 'rgba(170,120,255,0.5)']], flamme_bleue: [[0.5, 0.14, 44, 'rgba(120,190,255,0.6)']], fleurs_lanternes: [[0.5, 0.35, 32, 'rgba(220,140,255,0.5)']], fontaine_lotus: [[0.5, 0.5, 46, 'rgba(110,230,240,0.5)']], lampe: [[0.5, 0.62, 40]], lanterne: [[0.62, 0.72, 36]], obelisque_bleu: [[0.5, 0.3, 30, 'rgba(110,190,255,0.5)']], obelisque_cristal: [[0.5, 0.4, 40, 'rgba(120,180,255,0.5)']], piedestal_orbe: [[0.5, 0.12, 28, 'rgba(120,180,255,0.5)']], pierre_runique: [[0.5, 0.4, 32, 'rgba(110,200,255,0.5)']], porte_torches: [[0.12, 0.3, 38], [0.88, 0.3, 38]], sanctuaire_orbe: [[0.5, 0.45, 44, 'rgba(255,200,90,0.55)']], source: [[0.5, 0.6, 30, 'rgba(110,200,240,0.4)']], source_grotte: [[0.5, 0.6, 34, 'rgba(110,200,240,0.4)']], stele_lumineuse: [[0.5, 0.45, 40, 'rgba(255,210,120,0.5)']], stele_magique: [[0.5, 0.45, 36, 'rgba(110,200,255,0.5)']], torche: [[0.55, 0.12, 40]], torche_anubis: [[0.6, 0.12, 40]], torche_murale: [[0.5, 0.2, 38]], torche_plantee: [[0.5, 0.12, 40]], torche_trepied: [[0.5, 0.12, 42]] } };
   const FLAMMES = new Set(['autel_soleil', 'braises', 'brasero', 'brasero_anubis', 'brasero_colonne', 'coupe_feu', 'lampe', 'lanterne', 'porte_torches', 'torche', 'torche_anubis', 'torche_murale', 'torche_plantee', 'torche_trepied']);
   const T = DW.Textures = { img: {}, fini: false, LISTE, TAILLE };
   const nav = typeof Image !== 'undefined' && typeof document !== 'undefined';
@@ -6589,7 +6816,7 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
   // la texture d'un RÔLE de sol pour cette carte : d'abord le dossier propre à la carte (même nom que le rôle), puis
   // l'image commune choisie pour son thème ; null = le dessin par code
   T.sol = (map, role) => {
-    if (map && map.textures) { const P = T.pixels(map.textures + '/' + role); if (P) return P; }
+    if (map && map.textures) { const P = T.pixels(map.textures + '/' + ((ROLES[map.textures] || {})[role] || role)); if (P) return P; }
     // (une carte d'intérieur avec son dossier — la grotte — prend les sols communs qui lui manquent : solCommun)
     const th = themeDe(map) || (map && map.solCommun ? 'autre' : null); if (!th) return null;
     const n = (CHOIX[th] && CHOIX[th][role]) || DEFAUT[role];
@@ -9776,8 +10003,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 //  Thème « desert » : terre sèche pâle, herbes grises, ciel immense ; poteaux télégraphiques penchés
 //  et panneaux routiers plantés au milieu de nulle part ; huttes de chaume rondes des Yokomon,
 //  fontaine de pierre (à sec tant que Meramon brûle tout), épave de bateau au fond du lac asséché.
-//  Peints au pinceau HD (o.paint), lumière en haut à gauche comme le reste du décor ; les panneaux routiers sont
-//  l'image du joueur (gfx/textures.js).
+//  Peints au pinceau HD (o.paint), lumière en haut à gauche comme le reste du décor ; les poteaux et les panneaux
+//  routiers sont les images du joueur (planche DESERT : gfx/textures.js).
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ, TH = DW.World.THEMES, hash = DW.Art.hash;
@@ -9809,40 +10036,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const shadow = (x, cx, cy, rx, ry, a = 0.3) => { x.fillStyle = `rgba(30,26,10,${a})`; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill(); };
   const draw0 = (w, h, col) => function (d) { d.rect(w / 2 - 1, 2, 2, h - 4, col); };   // (secours : rendu en volumes si le pinceau manque)
 
-  // ------------------------------------------------------------ poteau télégraphique en bois, un peu penché (v : inclinaison)
-  OBJ.telpole = { w: 18, h: 64, n: 4, scale: 1.6, draw: draw0(18, 64, '#a8a49a'),
-    paint(x, v) {
-      const lean = [-2.4, -1, 1.2, 2.6][v % 4], bx = 9, by = 62, tx = 9 + lean, ty = 3;
-      shadow(x, bx + 3, by, 5, 1.6, 0.28);
-      // fût : bois grisé par le soleil, éclairé à gauche
-      x.save();
-      x.beginPath(); x.moveTo(bx - 2, by); x.lineTo(tx - 1.4, ty); x.lineTo(tx + 1.4, ty); x.lineTo(bx + 2, by); x.closePath();
-      x.fillStyle = lin(x, bx - 2, 0, bx + 2, 0, [[0, '#e6e2d6'], [0.35, '#c4bfb0'], [0.75, '#948e80'], [1, '#6e685c']]); x.fill();
-      x.strokeStyle = 'rgba(60,54,44,0.8)'; x.lineWidth = 0.6; x.stroke();
-      x.clip();
-      // veines et fentes du bois
-      for (let i = 0; i < 7; i++) { const yy = 8 + hash(v, i, 71) * 50, k = (by - yy) / (by - ty), cx = bx + (tx - bx) * k + (hash(v, i, 72) - 0.5) * 1.6;
-        x.strokeStyle = 'rgba(70,62,50,0.45)'; x.lineWidth = 0.35; x.beginPath(); x.moveTo(cx, yy); x.lineTo(cx + lean * 0.04, yy + 3 + hash(v, i, 73) * 5); x.stroke(); }
-      x.restore();
-      // bague de métal au pied
-      x.fillStyle = '#5a5850'; x.fillRect(bx - 2.2, by - 9, 4.4, 1.4); x.fillStyle = 'rgba(255,255,255,0.35)'; x.fillRect(bx - 2.2, by - 9, 1.2, 1.4);
-      // traverses (une ou deux) avec isolateurs de verre
-      const bars = v % 2 ? [[8, 15], [15, 10]] : [[8, 15]];
-      for (const [yy, hw] of bars) {
-        const cx = bx + (tx - bx) * ((by - yy) / (by - ty));
-        x.save(); x.translate(cx, yy); x.rotate(lean * 0.02);
-        x.fillStyle = lin(x, 0, -1.4, 0, 1.4, [[0, '#d8d2c2'], [1, '#7a7466']]); x.fillRect(-hw / 2 - 1, -1.2, hw + 2, 2.4);
-        x.strokeStyle = 'rgba(60,54,44,0.7)'; x.lineWidth = 0.5; x.strokeRect(-hw / 2 - 1, -1.2, hw + 2, 2.4);
-        for (const ix of [-hw / 2, -hw / 6, hw / 6, hw / 2]) { x.fillStyle = '#9ad0c0'; x.beginPath(); x.ellipse(ix, -2.4, 0.9, 1.2, 0, 0, 7); x.fill(); x.fillStyle = '#e8fff8'; x.fillRect(ix - 0.5, -3.2, 0.5, 0.6); }
-        x.restore();
-      }
-      // fils cassés qui pendent
-      x.strokeStyle = 'rgba(40,40,40,0.55)'; x.lineWidth = 0.4;
-      x.beginPath(); x.moveTo(tx - 6, 6); x.quadraticCurveTo(tx - 9, 14, tx - 8, 20); x.stroke();
-      if (v > 1) { x.beginPath(); x.moveTo(tx + 6, 6); x.quadraticCurveTo(tx + 9, 12, tx + 7, 17); x.stroke(); }
-    } };
-
-  // ------------------------------------------------------------ panneaux routiers (image du joueur : gfx/textures.js ; ici leur secours)
+  // ------------------------------------------------------------ poteaux télégraphiques et panneaux routiers : les images de la planche
+  // DESERT du joueur (gfx/textures.js, REMPLACE.desert) ; ici leur secours
+  OBJ.telpole = { w: 18, h: 64, n: 4, scale: 1.6, draw: draw0(18, 64, '#a8a49a') };
   OBJ.roadsign = { w: 18, h: 36, n: 4, scale: 1.3, draw: draw0(18, 36, '#8a8a90') };
 
   // ------------------------------------------------------------ hutte de chaume ronde des Yokomon (v : 0 paille grise, 1 paille blonde, 2 roussie par Meramon)
@@ -10511,41 +10707,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 // ===== js/gfx/buildings2.js
 'use strict';
 // =====================================================================
-//  BÂTIMENTS (2) : cabane de toilettes, escaliers d'intérieur, boulangerie, pâtisserie
+//  BÂTIMENTS (2) : escaliers d'intérieur, boulangerie, pâtisserie (les toilettes : une image, gfx/textures.js)
 //  Repère : sprite posé sur le bas de son emprise (voir World.prepare).
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
   const sign = (...a) => DW.World.signText && DW.World.signText(...a);
   Object.assign(OBJ, {
-    // ------------------------------------------------------------ cabane de toilettes (3 × 2 cases)
-    wcabin: { w: 60, h: 74, n: 2, lights: [[47, 40, 22, 'rgba(255,220,140,0.55)']], draw(d, v) {
-      const wood = v ? '#8a6a8a' : '#a87a4a', woodD = v ? '#5e465e' : '#7a5230', roof = v ? '#3a6aa8' : '#b84a3a', roofD = v ? '#24467a' : '#7e2e24';
-      // dalle et marche
-      d.rect(6, 64, 48, 8, '#a8a090', { round: 0.2, tex: 0.3 });
-      d.rect(20, 66, 20, 5, '#bab2a2', { round: 0.3 });
-      // murs en planches
-      d.rect(8, 28, 44, 38, wood, { round: 0.04, tex: 0.25 });
-      for (let x = 12; x < 52; x += 5) d.deco.line(x, 30, x, 64, 0.6, woodD);
-      // porte avec une lune découpée
-      d.rect(22, 36, 16, 30, woodD, { round: 0.08 });
-      d.rect(23.4, 37.4, 13.2, 27, wood, { tex: 0.3 });
-      d.deco.circ(30, 43, 3.2, '#ffe9a0', { unlit: true }); d.deco.circ(31.6, 42, 2.8, wood);
-      d.deco.circ(34.6, 52, 1.1, '#e8c860', { unlit: true });
-      // plaque WC
-      d.rect(11, 36, 9, 7, '#f4f0e0', { round: 0.2 }); sign(d, 'WC', 12, 37.4, '#3a68a8', 0.55);
-      // toit de tuiles
-      d.poly([[2, 32], [30, 8], [58, 32]], roof, { shiny: true });
-      for (let k = 0; k < 4; k++) d.deco.line(8 + k * 1, 30 - k * 5.4, 52 - k * 1, 30 - k * 5.4, 0.8, roofD);
-      d.deco.line(2, 32, 58, 32, 1.4, roofD);
-      d.rect(26, 4, 8, 7, '#8a8a92', { round: 0.2 }); d.deco.rect(25, 3, 10, 2, '#6a6a72');   // aération
-      // lanterne et pots de fleurs
-      d.tube([[47, 46], [47, 34]], 1, 1, '#3a3a40'); d.rect(44, 36, 6, 8, '#3a3a40', { round: 0.2 }); d.deco.rect(45, 37, 4, 6, '#ffd870', { unlit: true });
-      for (const [x, c] of [[13, '#e05a8a'], [49, '#f0c040']]) {
-        d.rect(x - 4, 60, 8, 6, '#b8642e', { round: 0.3 });
-        for (let k = 0; k < 4; k++) d.circ(x - 3 + k * 2, 57 + (k % 2), 1.6, k % 2 ? c : '#5aa84a');
-      }
-    } },
     // ------------------------------------------------------------ escaliers d'intérieur (porte dans le mur du fond)
     stairsup: { w: 34, h: 40, n: 1, draw(d) {
       d.rect(2, 2, 30, 38, '#4a3a2e', { round: 0.05 });
@@ -13380,9 +13548,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       }
       c.globalAlpha = 1;
       ground(TH ? TH.grass.map(Art.hex) : PAL.sand, 43, false);
-      for (const [x, v] of [[52, 0], [120, 2], [204, 1], [262, 3]]) place('telpole', v, x, HZ + 2 + (v & 1), 0.6);   // (la vieille ligne, au loin)
-      place('drybush', 0, 96, HZ + 14); place('drybush', 2, 228, HZ + 16);
-      place('boulder', 1, 8, 222, 2); place('roadsign', 0, W - 18, 218, 1.6);
+      // (images de la planche DESERT, chargée avec la carte : gfx/textures.js ; sinon les dessins du jeu)
+      const D = n => World.OBJ['tex_desert_' + n] ? 'tex_desert_' + n : null;
+      const poteaux = ['poteau', 'poteau_brise', 'poteau_penche', 'poteau_transfo'].map(D);
+      if (poteaux[0]) for (const [x, k] of [[52, 0], [120, 2], [204, 1], [262, 3]]) place(poteaux[k], 0, x, HZ + 2 + (k & 1), 0.42);   // (la vieille ligne, au loin)
+      place(D('arbuste_sec') || 'drybush', 0, 96, HZ + 14); place(D('buisson_epineux') || 'drybush', 2, 228, HZ + 16);
+      place(D('rocher') || 'boulder', 1, 8, 222, 2); place(D('panneau_fleches') || 'roadsign', 0, W - 18, 218, 1.6);
     } else if (type === 'mont') {
       // SOMMET DU MONT MIHARASHI : la crête du cratère qui rougeoie, fumées, roche brune, aiguilles et fumerolles
       c.fillStyle = 'rgba(255,130,50,0.22)'; c.fillRect(0, 0, W, HZ);   // (ciel teinté par le cratère)

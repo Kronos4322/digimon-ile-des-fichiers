@@ -9981,7 +9981,7 @@ DW.RETOUCHES = {
    ],
    "retraits": [
     "lighthouse@71,46",
-    "wcabin@72,37"
+    "toilet@72,37"
    ]
   },
   "miharashi2": {
@@ -10262,7 +10262,7 @@ DW.RETOUCHES = {
     }
    ],
    "retraits": [
-    "wcabin@42,60"
+    "toilet@42,60"
    ]
   },
   "champs": {
@@ -10636,7 +10636,7 @@ DW.RETOUCHES = {
     }
    ],
    "retraits": [
-    "wcabin@91,32",
+    "toilet@91,32",
     "bouledelave@59,26"
    ]
   },
@@ -10654,7 +10654,7 @@ DW.RETOUCHES = {
     }
    ],
    "retraits": [
-    "wcabin@25,41"
+    "toilet@25,41"
    ]
   },
   "lac1": {
@@ -10674,7 +10674,7 @@ DW.RETOUCHES = {
     }
    ],
    "retraits": [
-    "wcabin@51,35",
+    "toilet@51,35",
     "dock@54,29"
    ]
   }

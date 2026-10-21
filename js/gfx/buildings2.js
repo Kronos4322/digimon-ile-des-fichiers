@@ -1,40 +1,12 @@
 'use strict';
 // =====================================================================
-//  BÂTIMENTS (2) : cabane de toilettes, escaliers d'intérieur, boulangerie, pâtisserie
+//  BÂTIMENTS (2) : escaliers d'intérieur, boulangerie, pâtisserie (les toilettes : une image, gfx/textures.js)
 //  Repère : sprite posé sur le bas de son emprise (voir World.prepare).
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
   const sign = (...a) => DW.World.signText && DW.World.signText(...a);
   Object.assign(OBJ, {
-    // ------------------------------------------------------------ cabane de toilettes (3 × 2 cases)
-    wcabin: { w: 60, h: 74, n: 2, lights: [[47, 40, 22, 'rgba(255,220,140,0.55)']], draw(d, v) {
-      const wood = v ? '#8a6a8a' : '#a87a4a', woodD = v ? '#5e465e' : '#7a5230', roof = v ? '#3a6aa8' : '#b84a3a', roofD = v ? '#24467a' : '#7e2e24';
-      // dalle et marche
-      d.rect(6, 64, 48, 8, '#a8a090', { round: 0.2, tex: 0.3 });
-      d.rect(20, 66, 20, 5, '#bab2a2', { round: 0.3 });
-      // murs en planches
-      d.rect(8, 28, 44, 38, wood, { round: 0.04, tex: 0.25 });
-      for (let x = 12; x < 52; x += 5) d.deco.line(x, 30, x, 64, 0.6, woodD);
-      // porte avec une lune découpée
-      d.rect(22, 36, 16, 30, woodD, { round: 0.08 });
-      d.rect(23.4, 37.4, 13.2, 27, wood, { tex: 0.3 });
-      d.deco.circ(30, 43, 3.2, '#ffe9a0', { unlit: true }); d.deco.circ(31.6, 42, 2.8, wood);
-      d.deco.circ(34.6, 52, 1.1, '#e8c860', { unlit: true });
-      // plaque WC
-      d.rect(11, 36, 9, 7, '#f4f0e0', { round: 0.2 }); sign(d, 'WC', 12, 37.4, '#3a68a8', 0.55);
-      // toit de tuiles
-      d.poly([[2, 32], [30, 8], [58, 32]], roof, { shiny: true });
-      for (let k = 0; k < 4; k++) d.deco.line(8 + k * 1, 30 - k * 5.4, 52 - k * 1, 30 - k * 5.4, 0.8, roofD);
-      d.deco.line(2, 32, 58, 32, 1.4, roofD);
-      d.rect(26, 4, 8, 7, '#8a8a92', { round: 0.2 }); d.deco.rect(25, 3, 10, 2, '#6a6a72');   // aération
-      // lanterne et pots de fleurs
-      d.tube([[47, 46], [47, 34]], 1, 1, '#3a3a40'); d.rect(44, 36, 6, 8, '#3a3a40', { round: 0.2 }); d.deco.rect(45, 37, 4, 6, '#ffd870', { unlit: true });
-      for (const [x, c] of [[13, '#e05a8a'], [49, '#f0c040']]) {
-        d.rect(x - 4, 60, 8, 6, '#b8642e', { round: 0.3 });
-        for (let k = 0; k < 4; k++) d.circ(x - 3 + k * 2, 57 + (k % 2), 1.6, k % 2 ? c : '#5aa84a');
-      }
-    } },
     // ------------------------------------------------------------ escaliers d'intérieur (porte dans le mur du fond)
     stairsup: { w: 34, h: 40, n: 1, draw(d) {
       d.rect(2, 2, 30, 38, '#4a3a2e', { round: 0.05 });

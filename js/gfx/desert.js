@@ -4,8 +4,8 @@
 //  Thème « desert » : terre sèche pâle, herbes grises, ciel immense ; poteaux télégraphiques penchés
 //  et panneaux routiers plantés au milieu de nulle part ; huttes de chaume rondes des Yokomon,
 //  fontaine de pierre (à sec tant que Meramon brûle tout), épave de bateau au fond du lac asséché.
-//  Peints au pinceau HD (o.paint), lumière en haut à gauche comme le reste du décor ; les panneaux routiers sont
-//  l'image du joueur (gfx/textures.js).
+//  Peints au pinceau HD (o.paint), lumière en haut à gauche comme le reste du décor ; les poteaux et les panneaux
+//  routiers sont les images du joueur (planche DESERT : gfx/textures.js).
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ, TH = DW.World.THEMES, hash = DW.Art.hash;
@@ -37,40 +37,9 @@
   const shadow = (x, cx, cy, rx, ry, a = 0.3) => { x.fillStyle = `rgba(30,26,10,${a})`; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill(); };
   const draw0 = (w, h, col) => function (d) { d.rect(w / 2 - 1, 2, 2, h - 4, col); };   // (secours : rendu en volumes si le pinceau manque)
 
-  // ------------------------------------------------------------ poteau télégraphique en bois, un peu penché (v : inclinaison)
-  OBJ.telpole = { w: 18, h: 64, n: 4, scale: 1.6, draw: draw0(18, 64, '#a8a49a'),
-    paint(x, v) {
-      const lean = [-2.4, -1, 1.2, 2.6][v % 4], bx = 9, by = 62, tx = 9 + lean, ty = 3;
-      shadow(x, bx + 3, by, 5, 1.6, 0.28);
-      // fût : bois grisé par le soleil, éclairé à gauche
-      x.save();
-      x.beginPath(); x.moveTo(bx - 2, by); x.lineTo(tx - 1.4, ty); x.lineTo(tx + 1.4, ty); x.lineTo(bx + 2, by); x.closePath();
-      x.fillStyle = lin(x, bx - 2, 0, bx + 2, 0, [[0, '#e6e2d6'], [0.35, '#c4bfb0'], [0.75, '#948e80'], [1, '#6e685c']]); x.fill();
-      x.strokeStyle = 'rgba(60,54,44,0.8)'; x.lineWidth = 0.6; x.stroke();
-      x.clip();
-      // veines et fentes du bois
-      for (let i = 0; i < 7; i++) { const yy = 8 + hash(v, i, 71) * 50, k = (by - yy) / (by - ty), cx = bx + (tx - bx) * k + (hash(v, i, 72) - 0.5) * 1.6;
-        x.strokeStyle = 'rgba(70,62,50,0.45)'; x.lineWidth = 0.35; x.beginPath(); x.moveTo(cx, yy); x.lineTo(cx + lean * 0.04, yy + 3 + hash(v, i, 73) * 5); x.stroke(); }
-      x.restore();
-      // bague de métal au pied
-      x.fillStyle = '#5a5850'; x.fillRect(bx - 2.2, by - 9, 4.4, 1.4); x.fillStyle = 'rgba(255,255,255,0.35)'; x.fillRect(bx - 2.2, by - 9, 1.2, 1.4);
-      // traverses (une ou deux) avec isolateurs de verre
-      const bars = v % 2 ? [[8, 15], [15, 10]] : [[8, 15]];
-      for (const [yy, hw] of bars) {
-        const cx = bx + (tx - bx) * ((by - yy) / (by - ty));
-        x.save(); x.translate(cx, yy); x.rotate(lean * 0.02);
-        x.fillStyle = lin(x, 0, -1.4, 0, 1.4, [[0, '#d8d2c2'], [1, '#7a7466']]); x.fillRect(-hw / 2 - 1, -1.2, hw + 2, 2.4);
-        x.strokeStyle = 'rgba(60,54,44,0.7)'; x.lineWidth = 0.5; x.strokeRect(-hw / 2 - 1, -1.2, hw + 2, 2.4);
-        for (const ix of [-hw / 2, -hw / 6, hw / 6, hw / 2]) { x.fillStyle = '#9ad0c0'; x.beginPath(); x.ellipse(ix, -2.4, 0.9, 1.2, 0, 0, 7); x.fill(); x.fillStyle = '#e8fff8'; x.fillRect(ix - 0.5, -3.2, 0.5, 0.6); }
-        x.restore();
-      }
-      // fils cassés qui pendent
-      x.strokeStyle = 'rgba(40,40,40,0.55)'; x.lineWidth = 0.4;
-      x.beginPath(); x.moveTo(tx - 6, 6); x.quadraticCurveTo(tx - 9, 14, tx - 8, 20); x.stroke();
-      if (v > 1) { x.beginPath(); x.moveTo(tx + 6, 6); x.quadraticCurveTo(tx + 9, 12, tx + 7, 17); x.stroke(); }
-    } };
-
-  // ------------------------------------------------------------ panneaux routiers (image du joueur : gfx/textures.js ; ici leur secours)
+  // ------------------------------------------------------------ poteaux télégraphiques et panneaux routiers : les images de la planche
+  // DESERT du joueur (gfx/textures.js, REMPLACE.desert) ; ici leur secours
+  OBJ.telpole = { w: 18, h: 64, n: 4, scale: 1.6, draw: draw0(18, 64, '#a8a49a') };
   OBJ.roadsign = { w: 18, h: 36, n: 4, scale: 1.3, draw: draw0(18, 36, '#8a8a90') };
 
   // ------------------------------------------------------------ hutte de chaume ronde des Yokomon (v : 0 paille grise, 1 paille blonde, 2 roussie par Meramon)

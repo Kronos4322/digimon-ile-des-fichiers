@@ -184,7 +184,7 @@
   const HEROS_VISIBLE = World.HEROS_VISIBLE = 34.5;
   const TAILLE_HEROS = World.TAILLE_HEROS = {};
   for (const k of ['jhouse', 'bazar', 'dojo', 'restaurant', 'garden', 'homepalace', 'shack', 'cottage', 'townhouse', 'apartment', 'shopfront',
-    'bakery', 'patisserie', 'bank', 'poste', 'ecole', 'gymnase', 'barn', 'greenhouse', 'windmill', 'chalet', 'wcabin', 'chapel', 'lighthouse',
+    'bakery', 'patisserie', 'bank', 'poste', 'ecole', 'gymnase', 'barn', 'greenhouse', 'windmill', 'chalet', 'chapel', 'lighthouse',
     'manor', 'bogshack', 'stilthut']) TAILLE_HEROS[k] = 3;
   for (const k of ['house', 'eggcottage', 'yokohut']) TAILLE_HEROS[k] = 2.5;   // (Village des Bébés, Village des Yokomon)
   const hauteurVisible = r => {

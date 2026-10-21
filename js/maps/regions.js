@@ -240,6 +240,7 @@
         name, regionName: R.name, music: x.music || DW.REGION_MUSIC[rid] || R.music || 'field', bg: 'foret', ambient: R.ambient || 'forest', theme, climate: R.climate || 'forest', region: rid, mer: !!R.mer,   // (mer : l'eau qui touche le bord de la carte est salée, game/paysage.js)
        
         w, h, rate: 0, encounters: [], npcs: [], warps: [], exits, objects: [...(x.objects || [])], signs: { ...(x.signs || {}) }, doors: [],
+        ...(x.textures ? { textures: x.textures } : {}),   // (dossier d'images de la carte : gfx/textures.js)
         sandWalk: !!x.sandWalk, coastCorners: corners[i], indoor: cave || !!x.indoor, dark: x.dark || (cave ? { d: 0.45, col: '#3a3050' } : R.dark), plazas: x.plazas, mosaic: x.mosaic, hazard: x.hazard, coast: x.coast,
         spec, build() { if (!this.rows) this.rows = genRows(this); },
       };
@@ -357,8 +358,7 @@
     if (!best) return;
     const [x, y] = best;
     for (let yy = y; yy < y + 2; yy++) for (let xx = x; xx < x + 3; xx++) { g.set(xx, yy, '.'); occ.add(xx + ',' + yy); }
-    m.objects.push({ kind: 'wcabin', v: m.idx % 8 === 0 ? 0 : 1, x, y, w: 3, h: 2 });
-    for (let k = 0; k < 3; k++) m.signs[`${x + k},${y + 1}`] = () => DW.Care.toilet();
+    m.objects.push({ kind: 'toilet', v: 0, x, y, w: 3, h: 2 });   // (ta cabane de toilettes : gfx/textures.js ; on s'en sert en lui parlant)
   }
 
   // ------------------------------------------------------------ continuité entre sous-zones voisines
@@ -587,7 +587,7 @@
     out: [[0, 'up'], [2, 'right'], [2, 'down']],
     plan: [[3, 0], [2, 0], [3, 1], [1, 0], [0, 0]], links: [[0, 1], [0, 2], [1, 3], [3, 4]],
     subs: [
-      ['Désert des Poteaux', 'trail', { noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 0) }],
+      ['Désert des Poteaux', 'trail', { textures: 'desert', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 0) }],
       ['Village des Yokomon', 'plaza', { theme: 'yokovillage', noRegionLm: true, opts: { hub: [48, 36], autoTall: 0.2 },
         objects: [
           { kind: 'stonefountain', v: 0, x: 46, y: 27, w: 5, h: 3 },
@@ -598,7 +598,7 @@
         signs: { '48,31': () => DW.say(DW.state.flags.meramon ? "La fontaine du village. L'eau coule de nouveau : les Yokomon y puisent de quoi arroser leurs fleurs."
           : "La fontaine du village... à sec. Depuis que Meramon a perdu la tête, plus une goutte pour arroser les fleurs des Yokomon.") },
         post: (g, m) => DW.Mih.village(g, m) }],
-      ['Plaine des Panneaux', 'trail', { noRegionLm: true, opts: { hub: [50, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
+      ['Plaine des Panneaux', 'trail', { textures: 'desert', noRegionLm: true, opts: { hub: [50, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
       ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', noRegionLm: true, opts: { hub: [48, 42], autoTall: 0.3 }, post: (g, m) => DW.Mih.route(g, m) }],
       ['Mont Miharashi', 'plaza', { theme: 'miharashi', noRegionLm: true, opts: { hub: [88, 36], autoTall: 0.2 },
         objects: [],   // (le cratère est un lac de lave creusé dans le sommet : maps/miharashi.js, mont)

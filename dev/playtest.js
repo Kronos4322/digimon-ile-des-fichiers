@@ -57,7 +57,7 @@
     st.flags.tour = true;
     log(`début joué dans la forêt → réveil chez Jijimon avec ${lead() ? lead().name : '???'} (Kuwagamon vu : ${!!st.flags.kuwaChase})`);
 
-    const ZONES = ['dunes', 'bosquet', 'plage', 'lisiere', 'geants', 'sentier', 'clairiere', 'antre1', 'antre2'];
+    const ZONES = ['dunes', 'bosquet', 'plage', 'lisiere', 'geants', 'sentier', 'clairiere', 'antre1', 'antre_lagune', 'antre2', 'antre_crypte'];
     const ENC = id => (DW.FIRST_ZONES && DW.FIRST_ZONES[id]) || DW.getMap(id).encounters;
     const zoneFor = lv => {
       const ok = ZONES.filter(z => !z.startsWith('antre') || DW.state.flags.shellLair);

@@ -3,34 +3,62 @@
 //  VILLAGE DES POYOMON — un hameau caché dans la forêt (le Village des Yokomon de l'animé est au Mont Miharashi,
 //  chapitre 3 : maps/miharashi.js)
 //  On y entre en se faufilant dans un tronc creux, au bord de la Prairie des Lucioles.
-//  Les Poyomon vivent dans des nids autour d'un vieux puits... à sec. Quête : rapporter 3 bouteilles
+//  Les Poyomon vivent dans des nids et de petites maisons autour d'un vieux puits... à sec. Quête : rapporter 3 bouteilles
 //  d'eau (Eau fraîche ou Eau de source). Récompense : cartes Digimon, Pomme bleue, et un puits qui
 //  désaltère gratuitement ensuite. Les Poyomon parlent aussi de la menace de la forêt.
+//  Mobilier : les images de la planche VILLAGE BEBE du joueur (dossier « bebe », gfx/textures.js) — maisons, portail,
+//  bancs et lanternes autour du puits, aire de jeux, tableau d'affichage, toilettes, jouets, guirlandes.
 // =====================================================================
 (function () {
   const { say, st, paint } = DW.MapKit;
   const MAPS = DW.MAPS;
   const Hh = (x, y, s) => DW.Art.hash(x, y, s);
-  const W = 34, H = 26;
+  const W = 40, H = 32;   // (agrandi pour le mobilier : la clairière s'étend au sud et à l'est ; le puits ne bouge pas)
+  const B = n => 'tex_bebe_' + n;   // (images de la planche VILLAGE BEBE : gfx/textures.js)
   const rows = paint(W, H, 'T', g => {
     // clairière ovale entourée d'arbres, chemin vers la sortie (en bas), mare, fleurs
-    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (Math.hypot((x - 17) / 14.5, (y - 12) / 10) + (Hh(x, y, 5) - 0.5) * 0.18 < 1) g.set(x, y, Hh(x, y, 6) < 0.18 ? 'f' : '.');
+    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (Math.hypot((x - 19) / 17, (y - 13) / 11.5) + (Hh(x, y, 5) - 0.5) * 0.16 < 1) g.set(x, y, Hh(x, y, 6) < 0.18 ? 'f' : '.');
     for (let y = 18; y < H; y++) for (let x = 16; x < 19; x++) g.set(x, y, '=');
     g.set(16, H - 1, 'T'); g.set(18, H - 1, 'T');   // une seule case de sortie
     for (let y = 9; y < 17; y++) for (let x = 15; x < 20; x++) if (g.get(x, y) === '.') g.set(x, y, '=');
     for (let y = 6; y < 9; y++) for (let x = 25; x < 30; x++) if (Math.hypot((x - 27.5) / 2.4, (y - 7.5) / 1.4) < 1) g.set(x, y, '~');
   });
   MAPS.village_yokomon = {
-    name: 'Village des Poyomon', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'foret',
+    name: 'Village des Poyomon', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'foret', textures: 'bebe',
     rows, encounters: [], wildN: 0, dress: false, secretEntry: true,   // (on y entre par le tronc creux de la Prairie : pas de passage normal)
     objects: [
       { kind: 'well', x: 17, y: 11, w: 1, h: 1 },
       { kind: 'giantnest', x: 6, y: 7, w: 3, h: 1 }, { kind: 'giantnest', x: 9, y: 15, w: 3, h: 1 }, { kind: 'giantnest', x: 23, y: 14, w: 3, h: 1 },
-      { kind: 'nest', x: 12, y: 5, w: 2, h: 1 }, { kind: 'nest', x: 21, y: 4, w: 2, h: 1 }, { kind: 'nest', x: 4, y: 12, w: 2, h: 1 },
       { kind: 'flowerbed', v: 0, x: 14, y: 8, w: 1, h: 1, small: true }, { kind: 'flowerbed', v: 1, x: 20, y: 8, w: 1, h: 1, small: true },
+      // les maisons des Poyomon, au bord de la clairière (nid de feuilles, œuf, butte moussue, champignon) ; une boîte aux lettres
+      ...[['maison_nid', 11, 4], ['maison_oeuf', 19, 3], ['maison_mousse', 3, 11], ['maison_champignon', 27, 12]].map(([n, x, y]) => ({ kind: B(n), x, y, w: 3, h: 2 })),
+      { kind: B('boite_lettres'), x: 14, y: 5, w: 1, h: 1 },
+      // le portail du village sur le chemin (on passe en son milieu) et le poteau indicateur
+      { kind: B('portail'), x: 17, y: 18, w: 1, h: 1, walk: true, block: [[-2, 0], [2, 0]] }, { kind: B('poteau_indicateur'), x: 20, y: 17, w: 1, h: 1 },
+      // autour du puits : bancs, lanternes en cœur et lampes étoiles
+      { kind: B('banc'), x: 13, y: 11, w: 2, h: 1 }, { kind: B('banc'), x: 21, y: 11, w: 2, h: 1 },
+      { kind: B('lanterne_coeur'), x: 14, y: 9, w: 1, h: 1 }, { kind: B('lanterne_coeur'), x: 20, y: 9, w: 1, h: 1, flip: true },
+      { kind: B('lampe_etoile'), x: 14, y: 14, w: 1, h: 1 }, { kind: B('lampe_etoile'), x: 20, y: 14, w: 1, h: 1 },
+      // l'aire de jeux, au sud-est (hors de l'ombre des grands arbres du bas) : balançoire, toboggan, tape-cul, bac à sable,
+      // et des jouets qui traînent
+      { kind: B('balancoire'), x: 22, y: 17, w: 2, h: 1 }, { kind: B('toboggan'), x: 25, y: 18, w: 2, h: 1 }, { kind: B('tape_cul'), x: 27, y: 16, w: 2, h: 1 },
+      { kind: B('bac_sable'), x: 24, y: 15, w: 2, h: 1 }, { kind: B('cubes'), x: 26, y: 15, w: 1, h: 1 }, { kind: B('panier_balles'), x: 24, y: 18, w: 1, h: 1 },
+      // à l'ouest : le coin pique-nique, les fanions, le tableau d'affichage ; à l'est, au bord de la mare, les toilettes
+      { kind: B('table'), x: 5, y: 10, w: 2, h: 1 }, { kind: B('tabouret'), x: 4, y: 10, w: 1, h: 1 }, { kind: B('tabouret'), x: 7, y: 10, w: 1, h: 1 },
+      { kind: B('fanions'), x: 8, y: 9, w: 2, h: 1 }, { kind: B('panneau_affichage'), x: 8, y: 13, w: 2, h: 1 },
+      { kind: 'toilet', v: 0, x: 31, y: 10, w: 2, h: 2 },
+      // et partout : ballons, moulinets, carillon près de la mare, œufs, champignon géant, buisson fleuri, trèfles
+      { kind: B('ballons'), x: 12, y: 13, w: 1, h: 1 }, { kind: B('moulinets'), x: 11, y: 7, w: 1, h: 1 }, { kind: B('carillon'), x: 25, y: 6, w: 1, h: 1 },
+      { kind: B('oeufs'), x: 25, y: 10, w: 1, h: 1 }, { kind: B('champignon_geant'), x: 29, y: 15, w: 1, h: 1 }, { kind: B('buisson_fleurs'), x: 7, y: 6, w: 1, h: 1 },
+      { kind: B('trefles'), x: 10, y: 16, w: 1, h: 1 }, { kind: B('guirlande'), x: 24, y: 9, w: 2, h: 1 },
     ],
     npcs: [],
-    signs: {},
+    signs: {
+      '20,17': '« VILLAGE DES POYOMON » — ↓ Prairie des Lucioles (par le tronc creux). Une petite main a dessiné des gouttes d\'eau tout autour.',
+      '8,13': () => say(st().flags.yokoWell ? 'Le tableau du village : « LE PUITS CHANTE DE NOUVEAU ! Merci à l\'humain et à son Digimon ! Grande fête ce soir autour du puits. »'
+        : 'Le tableau du village : « Puits à sec... Qui pourra nous rapporter de l\'eau ? Demandez à la doyenne, près du puits. »'),
+      '9,13': () => MAPS.village_yokomon.signs['8,13'](),
+    },
     // (l'arrivée est réglée sur le tronc creux à la première visite ; en attendant, près de l'entrée de la Prairie)
     warps: [(() => {
       // arrivée par défaut : là où l'on arrive dans la Prairie depuis une autre carte (une case sûre)

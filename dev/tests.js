@@ -394,7 +394,7 @@ test("cabines de la plage : les mots dans le bon ordre ouvrent l'antre, un mauva
   yes(DW.state.flags.shellLair, "la bonne phrase n'ouvre pas l'antre");
 });
 test("antre de Shellmon : chaque labyrinthe se traverse de la porte d'entrée à celle de sortie, et les deux sont éloignées", () => {
-  for (const id of ['antre1', 'antre2']) {
+  for (const id of ['antre1', 'antre_lagune', 'antre2', 'antre_crypte']) {
     const m = DW.MAPS[id], occ = new Set();
     for (const o of m.objects) if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
     const free = (x, y) => m.rows[y] && m.rows[y][x] !== undefined && !DW.SOLID.has(m.rows[y][x]) && !occ.has(x + ',' + y);
@@ -403,6 +403,30 @@ test("antre de Shellmon : chaque labyrinthe se traverse de la porte d'entrée à
     yes(seen.has(m.exitAt.x + ',' + m.exitAt.y), `${id} : sortie inaccessible`);
     yes(Math.abs(m.entry.x - m.exitAt.x) + Math.abs(m.entry.y - m.exitAt.y) > 25, `${id} : les deux portes sont trop proches`);
   }
+});
+test("antre de Shellmon : galeries → lagune → temple → crypte → Shellmon, et chaque escalier ramène à la carte d'avant", async () => {
+  fresh(); DW.state.flags.shellmon = true;   // (porte de la crypte ouverte : son passage est vérifié à part)
+  const fade = DW.fade; DW.fade = async () => {};
+  try {
+    const ORDRE = ['antre1', 'antre_lagune', 'antre2', 'antre_crypte', 'antre_shellmon'];
+    const va = async (id, i) => { let to = null; const tr = DW.MAPS[id].triggers[i]; await tr.run({ charger: async t => { to = t; } }); return to; };
+    for (let k = 0; k + 1 < ORDRE.length; k++) {
+      eq(await va(ORDRE[k], 1), ORDRE[k + 1], ORDRE[k] + ' : porte du fond');
+      eq(await va(ORDRE[k + 1], 0), ORDRE[k], ORDRE[k + 1] + " : escalier d'entrée");
+    }
+  } finally { DW.fade = fade; }
+});
+test("crypte des gardiens : la porte scellée ne s'ouvre qu'une fois les trois ankhs allumés (dans n'importe quel ordre)", async () => {
+  fresh();
+  const M = DW.MAPS.antre_crypte, ow = { shake: 0 }, porte = () => M.objects.find(o => o.scellee), passage = M.triggers.find(t => t.cond);
+  M.populate();
+  yes(!passage.cond(DW.state) && porte().block.length === 3, 'porte ouverte sans ankh');
+  await DW.Antre.allumer(ow, 2); await DW.Antre.allumer(ow, 0); await DW.Antre.allumer(ow, 0);
+  yes(!passage.cond(DW.state) && porte().block.length === 3, 'porte ouverte avec deux ankhs');
+  yes(M.objects.filter(o => o.ankh != null && o.kind === 'tex_grotte_ankh_lumineux').length === 2, 'ankhs allumés mal dessinés');
+  await DW.Antre.allumer(ow, 1);
+  yes(passage.cond(DW.state) && porte().block.length === 2 && porte().kind === 'tex_grotte_porte_temple', 'porte toujours scellée après les trois ankhs');
+  yes(ow.shake > 0, "pas de secousse à l'ouverture");
 });
 test("Shellmon : Tai et son Digimon (devenu Greymon) rejoignent le combat à mi-vie et frappent seuls (tour par tour)", async () => {
   fresh();

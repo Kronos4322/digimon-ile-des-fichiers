@@ -36,8 +36,8 @@
     g.set(27, 9, 'A');
     // (l'Intelligence s'entraîne désormais dans la salle de classe : maps/classe.js)
     g.set(10, 16, 'Ψ');   // cristal de données (PM)
-    // toilettes et panneau
-    g.set(5, 18, 'y'); g.set(14, 6, 'S');
+    // toilettes (hors de l'ombre des grands arbres du bas, qui les cachaient) et panneau
+    g.set(4, 14, 'y'); g.set(14, 6, 'S');
   });
 
   // ------------------------------------------------------------ sol du centre sportif, peint au pixel
