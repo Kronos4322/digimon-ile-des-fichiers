@@ -82,7 +82,7 @@
     'gfx/objects.js': '010e57d9',
     'gfx/textures.js': 'af83e75d',
     'gfx/kit_donnees.js': '742be2d2',
-    'gfx/persos.js': '7f5ce87c',
+    'gfx/persos.js': '796efd4b',
     'gfx/pinceau.js': '7ee82687',
     'gfx/premium.js': 'b3573708',
     'gfx/town.js': '2fd90457',
@@ -154,7 +154,7 @@
     'ui/farm.js': '75e9fb54',
     'ui/worldmap.js': '1e057d43',
     'ui/title.js': '12ba72b0',
-    'ui/intro.js': 'f1aae3cb',
+    'ui/intro.js': '9953444c',
     'ui/touch.js': '252aa386',
     'maps/common.js': '3abc309b',
     'maps/retouches.js': '1d7cbe5a',
@@ -207,7 +207,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '0c3f3a8a' },
+    { f: '../paquets/jeu-1.js', v: '1f324209' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '31275638' },
   ];   // (fin des paquets)

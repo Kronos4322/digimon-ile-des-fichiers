@@ -17,21 +17,27 @@
   const CATS = ['corps_f', 'corps_g', 'tete_f', 'tete_g', 'haut', 'ensemble', 'bas_f', 'bas_g', 'chaus', 'chapeau', 'sac', 'acc'];
   const img = {};
   let charge = null, fait = false;
-  const charger = () => charge || (charge = new Promise(fin => {
-    if (!nav) { fait = true; fin(); return; }
-    let reste = CATS.length;
-    // (une planche ratée est redemandée deux fois : sinon « Chargement... » restait affiché pour toujours)
-    const essai = (n, k) => {
-      const im = new Image();
-      im.onload = im.onerror = () => {
-        if (im.naturalWidth) img[n] = im;
-        else if (k < 2) { setTimeout(() => essai(n, k + 1), 600 * (k + 1)); return; }
-        if (--reste === 0) { fait = true; fin(); }
+  const charger = () => {
+    // (une planche ratée trois fois — réseau coupé — est redemandée à l'ouverture suivante de la création)
+    if (fait && nav && CATS.some(n => !img[n])) { charge = null; fait = false; }
+    return charge || (charge = new Promise(fin => {
+      if (!nav) { fait = true; fin(); return; }
+      const manquent = CATS.filter(n => !img[n]);
+      let reste = manquent.length;
+      if (!reste) { fait = true; fin(); return; }
+      // (une planche ratée est redemandée deux fois : sinon « Chargement... » restait affiché pour toujours)
+      const essai = (n, k) => {
+        const im = new Image();
+        im.onload = im.onerror = () => {
+          if (im.naturalWidth) img[n] = im;
+          else if (k < 2) { setTimeout(() => essai(n, k + 1), 600 * (k + 1)); return; }
+          if (--reste === 0) { fait = true; fin(); }
+        };
+        im.src = racine + 'assets/commun/kit/' + n + '.png' + DW.versionImage('commun/kit/' + n + '.png');   // (adresse versionnée : sw.js)
       };
-      im.src = racine + 'assets/commun/kit/' + n + '.png' + DW.versionImage('commun/kit/' + n + '.png');   // (adresse versionnée : sw.js)
-    };
-    for (const n of CATS) essai(n, 0);
-  }));
+      for (const n of manquent) essai(n, 0);
+    }));
+  };
 
   // ------------------------------------------------------------ les choix possibles
   const NB_HAUTS = K.haut.length, NB_ENS = K.ensemble.length;
@@ -122,8 +128,13 @@
   // ------------------------------------------------------------ assemblage
   const CW = 260, CH = 380, X0 = 130, Y0 = 140;   // le canevas du personnage ; le haut du cou en (X0, Y0)
   const cache = {};
+  // (une planche du kit qui n'a pas pu être chargée, ou un canevas refusé par le navigateur : pas de personnage assemblé,
+  //  au lieu d'une erreur qui bloquait la création — le héros restait seul au camp, la partie figée)
   function image(ch0) {
     if (!fait) return null;
+    try { return assembler(ch0); } catch (e) { console.warn('[persos] personnage assemblé impossible :', e); return null; }
+  }
+  function assembler(ch0) {
     const ch = valide(ch0), cle = JSON.stringify(ch);
     if (cache[cle]) return cache[cle];
     const g = ch.g, B = (g ? K.corps_f : K.corps_g)[ch.corps], T = (g ? K.tete_f : K.tete_g)[ch.tete];
@@ -231,8 +242,12 @@
   }
   const eclaircir = (h, k) => '#' + hex(h).map(v => Math.round(v + (255 - v) * k).toString(16).padStart(2, '0')).join('');
   // les vraies couleurs du personnage assemblé (null si les planches ne sont pas encore chargées)
+  // (même chose : sans les planches, le petit sprite garde ses couleurs par défaut)
   function couleurs(ch0) {
     if (!fait) return null;
+    try { return couleursKit(ch0); } catch (e) { console.warn('[persos] couleurs du kit indisponibles :', e); return null; }
+  }
+  function couleursKit(ch0) {
     const ch = valide(ch0), g = ch.g, B = (g ? K.corps_f : K.corps_g)[ch.corps], T = (g ? K.tete_f : K.tete_g)[ch.tete];
     const cB = g ? 'corps_f' : 'corps_g', cT = g ? 'tete_f' : 'tete_g'; if (!img[cB] || !img[cT]) return null;
     // peau : la teinte de peau la plus présente sur le corps (rouge > vert > bleu, ni grise ni saturée comme un tissu)

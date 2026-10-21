@@ -156,7 +156,20 @@
       await DW.tween(this.cap, { a: 0 }, 0.35);
     }
     update() { if (Input.hit('ok')) this.skip = true; }
+    // (une erreur pendant l'introduction laissait le héros seul au camp, sans la création du personnage, et plus rien ne
+    //  bougeait : elle est affichée, puis on revient à l'écran titre — ou, le prénom déjà donné, la partie commence)
     async run() {
+      try { await this.cinematique(); }
+      catch (e) {
+        DW.reportError(e, 'introduction');
+        Input.textMode = false; Audio.stop();
+        await DW.fade(1, 0.3);
+        this.mode = 'black';
+        if (!DW.state.name) { Game.replaceAll(new DW.TitleScene()); DW.fade(0, 0.3); }
+        else DW.startGame(true);
+      }
+    }
+    async cinematique() {
       const st = DW.state;
       // 1) qui es-tu ? (un enfant qui n'est pas dans l'animé : il va délivrer les autres) ; RETOUR : de la saisie du nom à
       //    la création, de la création à l'écran titre

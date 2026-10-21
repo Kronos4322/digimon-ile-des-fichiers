@@ -8,7 +8,9 @@
 //    est prise dès qu'on est en ligne ; sans réseau (ou réseau bloqué plus de 6 s), la dernière version gardée en cache
 //  - à l'installation : la page, les scripts et les images sont rangés dans le cache (hors ligne dès le lancement suivant)
 // =====================================================================
-const CACHE = 'digimon-ile';   // (un seul cache, gardé d'une version du jeu à l'autre : rien n'est retéléchargé pour rien)
+// (un seul cache, gardé d'une version du jeu à l'autre : rien n'est retéléchargé pour rien ; son nom change seulement pour
+//  repartir d'un cache neuf partout — 21/10 : un joueur restait bloqué au camp, sans la création du personnage)
+const CACHE = 'digimon-ile-2';
 
 // les fichiers du jeu : la page et ses fichiers de départ ; les scripts (bloc VERSIONS de js/scripts.js) et les images
 // (js/data/versions_images.js) à leur adresse versionnée
