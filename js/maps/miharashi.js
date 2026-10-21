@@ -177,7 +177,8 @@
     const prot = base(g, m, id, (x, y, X, Y) => {
       // vers le village (à l'ouest), le désert passe au sable : de part et d'autre de la frontière, du sable (raccord sans couture)
       if (n === 0 && Hh(X, Y, 1251) < DW.clamp((20 - x) / 20, 0, 0.92)) return Hh(X, Y, 1252) < 0.12 ? ';' : 's';
-      return N(X, Y, 1253, 0.06) > 0.6 ? 's' : N(X, Y, 1254, 0.16) > 0.68 ? ';' : '.';
+      // (la Plaine des Panneaux est une PLAINE : plus d'herbe et moins de sable que le Désert des Poteaux)
+      return N(X, Y, 1253, 0.06) > (n === 2 ? 0.7 : 0.6) ? 's' : N(X, Y, 1254, 0.16) > 0.68 ? ';' : '.';
     });
     // relief : les mesas, avec leurs parois ocre et un escalier pour monter dessus
     DW.Relief.build(g, m, { id, keep: (x, y) => prot.has(x + ',' + y), corridor: (x, y) => nearRoad(id, x, y, 4.5), levelAt: (x, y) => levelOf(id, x, y),
@@ -192,7 +193,7 @@
       const c = g.get(x, y); if (!free(c) || high(x, y)) continue;
       const X = x + ox, Y = y + oy, rd = roadDist(X, Y);
       if (rd > 2.6 && rd < 3.6 && (X + Y * 3) % 7 === 0) g.set(x, y, 'Ţ');
-      else if (rd > 2.5 && N(X, Y, 920 + n, 0.09) > 0.62 && Hh(X, Y, 921) < 0.09) g.set(x, y, 'Ţ');
+      else if (rd > 2.5 && N(X, Y, 920 + n, 0.09) > (n === 2 ? 0.7 : 0.62) && Hh(X, Y, 921) < 0.09) g.set(x, y, 'Ţ');   // (moins de « forêts » de poteaux dans la Plaine)
     }
     // panneaux routiers (la Plaine en est couverte), vestiges numériques, arbres morts, rochers, os
     const off = (x, y) => nearRoad(id, x, y, 2.5) || high(x, y);
@@ -202,6 +203,17 @@
     sow(g, 6, 6, W - 7, H - 7, '|', 0.004, 925 + n, c => c === '.', off);
     sow(g, 6, 6, W - 7, H - 7, 'Ó', 0.005, 926 + n, c => c === '.' || c === 's', off);
     sow(g, 6, 6, W - 7, H - 7, 'õ', 0.003, 928 + n, c => c === 's', off);
+    // la Plaine : des bosquets d'arbres et de buissons çà et là dans l'herbe (comme ceux que tu y as plantés dans l'atelier ;
+    // jamais à côté de tes arbres, ni sur les mesas, ni près des routes)
+    if (n === 2) {
+      const T0 = DW.Retouches && DW.Retouches.de(id), tiens = (T0 && T0.ajouts) || [], presDesTiens = (x, y) => tiens.some(o => Math.abs(o.x - x) <= 2 && Math.abs(o.y - y) <= 2);
+      for (let y = 6; y < H - 6; y++) for (let x = 6; x < W - 6; x++) {
+        if (g.get(x, y) !== '.' || off(x, y) || presDesTiens(x, y)) continue;
+        const v = N(x + ox, y + oy, 1291, 0.08), h = Hh(x + ox, y + oy, 1292);
+        if (v > 0.69) { if (h < 0.55) g.set(x, y, 'T'); else if (h < 0.8) g.set(x, y, 'b'); }
+        else if (v > 0.64 && h < 0.18) g.set(x, y, 'b');
+      }
+    }
     // une oasis au Désert des Poteaux (palmiers, roseaux)
     if (n === 0) { const [px, py] = [40, 26]; if (!high(px, py) && !nearRoad(id, px, py, 6)) { pond(g, px, py, 4.2, 2.4, 'Ð', 929); for (const [dx, dy] of [[-6, -1], [5, -2], [-4, 3], [7, 2]]) put(g, px + dx, py + dy, 'p'); } }
     // panneaux d'orientation à la sortie de la forêt
