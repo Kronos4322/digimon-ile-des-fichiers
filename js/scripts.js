@@ -25,14 +25,14 @@
     'gfx/battlebg.js', 'gfx/grandir.js', 'gfx/facades.js', 'engine/time.js', 'gfx/ciel.js', 'gfx/meteo.js',
     // logique de jeu
     'game/options.js', 'game/monster.js', 'game/objets.js', 'game/sauvegarde.js', 'game/fichier.js', 'game/training.js', 'game/trainingames.js', 'game/trainfield.js', 'game/care.js', 'game/life.js', 'game/calendrier.js', 'game/abri.js', 'game/paysage.js',
-    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/lave.js', 'game/fxelem.js', 'game/battle.js', 'game/evolution.js',
+    'game/companion.js', 'game/sol.js', 'game/wild.js', 'game/town.js', 'game/collab.js', 'game/fx.js', 'game/lave.js', 'game/perils.js', 'game/fxelem.js', 'game/battle.js', 'game/evolution.js',
     'game/overworld.js',
     // écrans et menus
     'ui/menus.js', 'ui/sac.js', 'ui/boutique.js', 'ui/nom.js', 'ui/status.js', 'ui/evotable.js', 'ui/learn.js', 'ui/battleui.js', 'ui/hatch.js', 'ui/renaissance.js', 'ui/farm.js', 'ui/worldmap.js',
     'ui/title.js', 'ui/intro.js', 'ui/touch.js',
     // cartes et scénario (un fichier par région)
     'maps/common.js', 'maps/retouches_donnees.js', 'maps/retouches.js', 'maps/puzzle.js', 'maps/decor.js', 'maps/palais.js', 'maps/foret.js', 'maps/plage.js', 'maps/rivage.js', 'maps/village.js', 'maps/joueur.js', 'maps/maison.js', 'maps/interieurs.js', 'maps/grandir.js',
-    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/enigmes.js', 'maps/donjons.js', 'maps/kuwagamon.js', 'maps/classe.js', 'maps/gymnase.js', 'maps/relief.js', 'maps/monde.js', 'maps/miharashi.js', 'maps/regions.js', 'maps/antre.js', 'maps/yokomon.js', 'maps/souterrain.js', 'maps/distrib.js',
+    'maps/champs.js', 'maps/gym.js', 'maps/berceau.js', 'maps/quartiers.js', 'maps/enigmes.js', 'maps/donjons.js', 'maps/kuwagamon.js', 'maps/classe.js', 'maps/gymnase.js', 'maps/relief.js', 'maps/monde.js', 'maps/miharashi.js', 'maps/regions.js', 'maps/antre.js', 'maps/sous_volcan.js', 'maps/yokomon.js', 'maps/souterrain.js', 'maps/distrib.js',
     'game/activities.js', 'game/peche.js', 'game/services.js', 'game/story.js', 'game/requests.js', 'game/cuisine.js', 'game/guide.js', 'game/chapitre1.js', 'game/cine_shellmon.js', 'game/debut.js', 'game/trophees.js', 'game/chapitre2.js', 'game/chapitre3.js', 'game/quetes.js', 'game/minijeux.js',
     // démarrage
     'main.js',
