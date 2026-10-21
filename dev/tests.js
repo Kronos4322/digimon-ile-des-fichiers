@@ -630,6 +630,26 @@ test("Corniches de l'Abîme : l'éruption s'annonce à la première arrivée ; p
   yes(!DW.Perils.compte, 'le compte à rebours recommence à chaque visite');
   yes(DW.Lave.etat(m2).coulees.length >= 10, "le volcan ne reste pas en colère (pas de coulées) après l'éruption");
 });
+test("lignées de la série (données par le joueur) : chaque enfant suit la sienne, et WarGreymon + MetalGarurumon fusionnent en Omegamon", () => {
+  fresh();
+  const suit = (sp, ...apres) => { for (const to of apres) { yes(DW.Evo.options(sp).some(e => e.to === to), `${sp} ne peut pas devenir ${to}`); sp = to; } };
+  suit('botamon', 'koromon', 'agumon', 'greymon', 'metalgreymon', 'wargreymon', 'omegamon'); suit('greymon', 'skullgreymon');
+  suit('punimon', 'tsunomon', 'gabumon', 'garurumon', 'weregarurumon', 'metalgarurumon', 'omegamon');
+  suit('nyokimon', 'pyocomon', 'biyomon', 'birdramon', 'garudamon'); suit('pabumon', 'motimon', 'tentomon', 'kabuterimon', 'megakabuterimon');
+  suit('poyomon', 'tanemon', 'palmon', 'togemon', 'lillymon'); suit('pichimon', 'bukamon', 'gomamon', 'ikkakumon', 'zudomon');
+  suit('poyomon', 'tokomon', 'patamon', 'angemon', 'magnaangemon'); suit('yukimibotamon', 'nyaromon', 'salamon', 'gatomon', 'angewomon', 'ophanimon'); suit('angewomon', 'magnadramon');
+  // (Mimi et T.K. ont le même bébé : la lignée choisie à la création décide du partenaire)
+  DW.state.hero = 'perso'; DW.state.look = { baby: 'poyomon', ligne: 'tk' }; yes(DW.heroLine().partner === 'patamon', 'T.K. : pas Patamon');
+  DW.state.look = { baby: 'poyomon', ligne: 'mimi' }; yes(DW.heroLine().partner === 'palmon', 'Mimi : pas Palmon');
+  DW.state.look = { baby: 'yuramon' }; yes(DW.heroLine().partner === 'palmon', 'ancienne partie de Mimi (Yuramon) : pas Palmon');
+  // fusion : seulement avec MetalGarurumon dans l'équipe
+  const W = new DW.Digimon('wargreymon', 60), o = DW.Evo.options('wargreymon').find(e => e.to === 'omegamon');
+  DW.state.party = [W];
+  yes(!DW.Evo.partenaireFusion(W, o), 'fusion possible sans MetalGarurumon');
+  const MG = new DW.Digimon('metalgarurumon', 60); DW.state.party.push(MG);
+  yes(DW.Evo.partenaireFusion(W, o) === MG, "MetalGarurumon de l'équipe pas trouvé pour la fusion");
+  yes(DW.Evo.check(W, o).rows.some(r => r.label === 'Avec MetalGarurumon' && r.ok), 'la condition de fusion ne se coche pas');
+});
 
 // (une attente qui ne se termine jamais — une animation attendue sans boucle de jeu — vidait la file de Node : la suite
 //  s'arrêtait en silence avec le code 0, comme une réussite)

@@ -43,7 +43,7 @@
       DW.state.hero = 'perso'; this.apply();
       DW.Perso.charger();
     }
-    apply() { DW.state.look = DW.Perso.look(this.ch, BEBES()[this.bebe]); DW.state.perso = { ...this.ch }; }
+    apply() { DW.state.look = DW.Perso.look(this.ch, BEBES()[this.bebe]); DW.state.look.ligne = Object.keys(DW.HERO_LINE)[this.bebe]; DW.state.perso = { ...this.ch }; }
     eclair(v = 0.4) { this.flash.v = 1; DW.tween(this.flash, { v: 0 }, v); }
     change(k, d) {
       if (k === 'bebe') { const n = BEBES().length; this.bebe = (this.bebe + d + n) % n; }

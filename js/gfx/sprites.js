@@ -21,8 +21,8 @@
   const IMAGES = {
     punimon: { taille: 0.77 }, nyokimon: { taille: 0.91 }, pabumon: { taille: 0.88 }, poyomon: { taille: 0.76 },   // (Pabumon : ses bulles comptent dans sa hauteur)
     koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
-    // (21/10 : Botamon, Pichimon, et Koromon et Poyomon refaits, en pixel art ; Yuramon, Disciples et Champions peints)
-    botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yuramon: { taille: 0.72 },
+    // (21/10 : Botamon, Pichimon et YukimiBotamon en pixel art ; Yuramon, Disciples et Champions peints)
+    botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yukimibotamon: { taille: 0.58 }, yuramon: { taille: 0.72 },
     betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.79 }, palmon: { taille: 0.97 },
     kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
   };

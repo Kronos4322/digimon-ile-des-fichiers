@@ -8,6 +8,15 @@
   // st: {s: statut, ch: chance}  sc: {who: 'self'|'foe', s: stat, n: crans, ch}
   const M = DW.MOVES = {
     lutte:          { name: 'Lutte', type: 'Neutre', pow: 40, acc: null, contact: true, desc: "Utilisée quand il n'y a plus assez de PM." },
+    // (les signatures des lignées de Kari, de Sora, d'Izzy et de T.K., et d'Omegamon)
+    cri_chiot:      { name: 'Cri du Chiot', type: 'Lumière', pow: 45, acc: 100, sc: { who: 'foe', s: 'atk', n: -1, ch: 0.3 }, desc: "Salamon pousse un cri aigu plein de lumière. Peut baisser l'Attaque de l'ennemi." },
+    griffe_eclair:  { name: 'Griffe Éclair', type: 'Lumière', pow: 85, acc: 95, contact: true, desc: 'Gatomon frappe à la vitesse de la lumière avec les griffes de ses gants.' },
+    fleche_celeste: { name: 'Flèche Céleste', type: 'Lumière', pow: 110, acc: 90, desc: "Angewomon tire de son arc une flèche de lumière sacrée qui transperce les ténèbres." },
+    porte_destin:   { name: 'Porte du Destin', type: 'Lumière', pow: 120, acc: 85, desc: "MagnaAngemon trace un cercle dans le ciel avec son épée : la porte qui s'ouvre aspire ses ennemis." },
+    corne_explosive: { name: 'Corne Explosive', type: 'Électrique', pow: 115, acc: 90, st: { s: 'par', ch: 0.2 }, desc: "MegaKabuterimon concentre l'électricité dans sa grande corne et la libère d'un coup." },
+    lumiere_eden:   { name: "Lumière de l'Éden", type: 'Lumière', pow: 130, acc: 90, desc: "Ophanimon fait jaillir dix cristaux de lumière qui frappent de toutes parts." },
+    feu_sacre:      { name: 'Feu Sacré', type: 'Feu', pow: 130, acc: 90, st: { s: 'brn', ch: 0.2 }, desc: 'Magnadramon crache un feu sacré qui purifie tout ce qu\'il touche.' },
+    epee_transcendante: { name: 'Épée Transcendante', type: 'Lumière', pow: 140, acc: 90, contact: true, desc: "Omegamon tranche avec la lame jaillie de la tête de WarGreymon, à son bras gauche." },
     charge:         { name: 'Coup de Corps', type: 'Neutre', pow: 40, acc: 100, contact: true, desc: 'Fonce sur l\'ennemi de tout son corps.' },
     vive_attaque:   { name: 'Assaut Éclair', type: 'Neutre', pow: 40, acc: 100, pri: 1, contact: true, desc: 'Attaque très rapide qui frappe toujours en premier.' },
     griffe:         { name: 'Griffe', type: 'Neutre', pow: 50, acc: 95, contact: true, desc: 'Lacère l\'ennemi avec ses griffes.' },
@@ -95,6 +104,7 @@
     super_tonnerre: 'thunder', champi_bombe: 'mushbomb', jet_pierres: 'rocks', poing_roc: 'punch', souffle_ardent: 'flamebeam',
     coup_queue: 'tackle', giga_destruction: 'missiles', bras_trident: 'claw', grande_vague: 'wave', tempete_neige: 'blizzard',
     marteau_vulcain: 'hammer', boomerang: 'boomerang', feuille: 'leaves', feuille_rasoir: 'leaves', uppercut: 'punch',
+    griffe_eclair: 'claw', epee_transcendante: 'claw', fleche_celeste: 'meteor', porte_destin: 'meteor', corne_explosive: 'thunder', lumiere_eden: 'meteor', feu_sacre: 'flamebeam',
     gadoue_nume: 'mushbomb', ordure_toxique: 'spores', attaque_coeur: 'hearts', griffe_garuru: 'claw', feu_metal: 'bluefire', ombre_ailee: 'meteor', double_ciseaux: 'scissor', bulles_acides: 'bubbles', force_gaia: 'meteor', souffle_cocyte: 'bluefire', tornade_courage: 'dash', canon_floral: 'flowercannon', charme: 'hearts', souffle_bleu: 'bluefire', flamme_bleue: 'bluefire', poing_ardent: 'firepunch', meteore: 'meteor',
   };
   for (const id in M) M[id].fx = FX[id] || (M[id].contact ? 'tackle' : 'orb');
@@ -115,6 +125,8 @@
     palmon: 'lierre', togemon: 'pluie_epines', lillymon: 'canon_floral', biyomon: 'flamme_spirale', birdramon: 'meteore',
     kunemon: 'electro_fil', kuwagamon: 'pince', mushroomon: 'champi_bombe', betamon: 'electro_choc', gotsumon: 'poing_roc',
     elecmon: 'super_tonnerre', shellmon: 'jet_hydro',
+    yukimibotamon: 'bulles', nyaromon: 'bulles', pyocomon: 'bulles', salamon: 'cri_chiot', gatomon: 'griffe_eclair', angewomon: 'fleche_celeste',
+    ophanimon: 'lumiere_eden', magnadramon: 'feu_sacre', megakabuterimon: 'corne_explosive', magnaangemon: 'porte_destin', omegamon: 'epee_transcendante',
   };
   DW.sigOf = mon => DW.SIG[mon.sp] || null;
 })();

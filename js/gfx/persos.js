@@ -284,7 +284,7 @@
     { nom: 'Inspirée de Mimi', bebe: 'mimi', ch: { g: 1, corps: 3, tete: 23, haut: 18, bas: 6, chaus: 7, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 3, chaus: 12, chapeau: -1, sac: 13, acc: 0 } },
     { nom: 'Inspiré de T.K.', bebe: 'tk', ch: { g: 0, corps: 4, tete: 1, haut: 12, bas: 1, chaus: 16, chapeau: -1, sac: -1, acc: -1 } },
-    { nom: 'Inspirée de Kari', bebe: 'tai', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
+    { nom: 'Inspirée de Kari', bebe: 'kari', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
   ];
   DW.Perso = { PRESETS, charger, valide, dessiner, look, couleurs };
 })();

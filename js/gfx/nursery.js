@@ -17,6 +17,9 @@
     poyomon: { base: '#f4f6ff', pat: 'waves', col: '#a8c0f0', hint: 'Un œuf presque transparent aux reflets bleutés. Il flotte au-dessus du coussin !' },
   };
   DW.EGG_ORDER = Object.keys(DW.EGGS);
+  // (l'œuf de YukimiBotamon, la lignée de Kari : à l'éclosion d'une renaissance ; pas parmi les œufs du jour de Penguinmon,
+  //  dont le coussin n'a que sept places)
+  DW.EGGS.yukimibotamon = { base: '#f6faff', pat: 'spots', col: '#9ac8f0', hint: 'Un œuf blanc comme la neige, constellé de petits flocons bleus. Il est tout froid !' };
 
   // dessin de l'œuf dans un repère 32x40 (centre 16, base 38)
   function egg(d, sp, ox = 0, oy = 0) {

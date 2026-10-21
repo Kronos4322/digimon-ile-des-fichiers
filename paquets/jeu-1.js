@@ -1393,10 +1393,10 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/champi_violet.png": "31700590",
   "commun/jeu/cristaux.png": "a3de54f7",
   "commun/jeu/dalle_runique.png": "d5c0f67e",
-  "commun/jeu/digi_betamon_combat.png": "4d985e44",
-  "commun/jeu/digi_betamon_dos.png": "93b7cdb6",
-  "commun/jeu/digi_betamon_face.png": "05ad6712",
-  "commun/jeu/digi_betamon_profil.png": "81ced3db",
+  "commun/jeu/digi_betamon_combat.png": "a9072a8f",
+  "commun/jeu/digi_betamon_dos.png": "76980666",
+  "commun/jeu/digi_betamon_face.png": "845e711d",
+  "commun/jeu/digi_betamon_profil.png": "d49142cd",
   "commun/jeu/digi_botamon_combat.png": "4acc222d",
   "commun/jeu/digi_botamon_dos.png": "007d8171",
   "commun/jeu/digi_botamon_face.png": "349b5288",
@@ -1409,10 +1409,10 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/digi_elecmon_dos.png": "b54a1dfd",
   "commun/jeu/digi_elecmon_face.png": "0b434f40",
   "commun/jeu/digi_elecmon_profil.png": "f23b21d5",
-  "commun/jeu/digi_koromon_combat.png": "253cec30",
-  "commun/jeu/digi_koromon_dos.png": "f5571b45",
-  "commun/jeu/digi_koromon_face.png": "0448d9ca",
-  "commun/jeu/digi_koromon_profil.png": "f926e2d9",
+  "commun/jeu/digi_koromon_combat.png": "bd66bbbc",
+  "commun/jeu/digi_koromon_dos.png": "4d959bd2",
+  "commun/jeu/digi_koromon_face.png": "8ed57d99",
+  "commun/jeu/digi_koromon_profil.png": "fdbafe81",
   "commun/jeu/digi_kuwagamon_combat.png": "5ec78a85",
   "commun/jeu/digi_kuwagamon_dos.png": "fef85a03",
   "commun/jeu/digi_kuwagamon_face.png": "f4eb75a6",
@@ -1437,10 +1437,10 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/digi_pichimon_dos.png": "f5a93cdd",
   "commun/jeu/digi_pichimon_face.png": "06f0523e",
   "commun/jeu/digi_pichimon_profil.png": "de061c74",
-  "commun/jeu/digi_poyomon_combat.png": "c6fa2471",
-  "commun/jeu/digi_poyomon_dos.png": "750d8c58",
-  "commun/jeu/digi_poyomon_face.png": "db3ffa9b",
-  "commun/jeu/digi_poyomon_profil.png": "d7af2a51",
+  "commun/jeu/digi_poyomon_combat.png": "3ac2ae71",
+  "commun/jeu/digi_poyomon_dos.png": "c3457c81",
+  "commun/jeu/digi_poyomon_face.png": "40d3d895",
+  "commun/jeu/digi_poyomon_profil.png": "e5f32d35",
   "commun/jeu/digi_punimon_combat.png": "76e3a2d7",
   "commun/jeu/digi_punimon_dos.png": "29b8b0fa",
   "commun/jeu/digi_punimon_face.png": "33416133",
@@ -1457,6 +1457,10 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/digi_whamon_dos.png": "a3aab219",
   "commun/jeu/digi_whamon_face.png": "ba7e3906",
   "commun/jeu/digi_whamon_profil.png": "4b3dda0b",
+  "commun/jeu/digi_yukimibotamon_combat.png": "28e50d32",
+  "commun/jeu/digi_yukimibotamon_dos.png": "a830ad57",
+  "commun/jeu/digi_yukimibotamon_face.png": "2566c46c",
+  "commun/jeu/digi_yukimibotamon_profil.png": "a80c406e",
   "commun/jeu/digi_yuramon_combat.png": "85ae15b7",
   "commun/jeu/digi_yuramon_dos.png": "a71e8524",
   "commun/jeu/digi_yuramon_face.png": "13b18ef2",
@@ -1934,6 +1938,15 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   // st: {s: statut, ch: chance}  sc: {who: 'self'|'foe', s: stat, n: crans, ch}
   const M = DW.MOVES = {
     lutte:          { name: 'Lutte', type: 'Neutre', pow: 40, acc: null, contact: true, desc: "Utilisée quand il n'y a plus assez de PM." },
+    // (les signatures des lignées de Kari, de Sora, d'Izzy et de T.K., et d'Omegamon)
+    cri_chiot:      { name: 'Cri du Chiot', type: 'Lumière', pow: 45, acc: 100, sc: { who: 'foe', s: 'atk', n: -1, ch: 0.3 }, desc: "Salamon pousse un cri aigu plein de lumière. Peut baisser l'Attaque de l'ennemi." },
+    griffe_eclair:  { name: 'Griffe Éclair', type: 'Lumière', pow: 85, acc: 95, contact: true, desc: 'Gatomon frappe à la vitesse de la lumière avec les griffes de ses gants.' },
+    fleche_celeste: { name: 'Flèche Céleste', type: 'Lumière', pow: 110, acc: 90, desc: "Angewomon tire de son arc une flèche de lumière sacrée qui transperce les ténèbres." },
+    porte_destin:   { name: 'Porte du Destin', type: 'Lumière', pow: 120, acc: 85, desc: "MagnaAngemon trace un cercle dans le ciel avec son épée : la porte qui s'ouvre aspire ses ennemis." },
+    corne_explosive: { name: 'Corne Explosive', type: 'Électrique', pow: 115, acc: 90, st: { s: 'par', ch: 0.2 }, desc: "MegaKabuterimon concentre l'électricité dans sa grande corne et la libère d'un coup." },
+    lumiere_eden:   { name: "Lumière de l'Éden", type: 'Lumière', pow: 130, acc: 90, desc: "Ophanimon fait jaillir dix cristaux de lumière qui frappent de toutes parts." },
+    feu_sacre:      { name: 'Feu Sacré', type: 'Feu', pow: 130, acc: 90, st: { s: 'brn', ch: 0.2 }, desc: 'Magnadramon crache un feu sacré qui purifie tout ce qu\'il touche.' },
+    epee_transcendante: { name: 'Épée Transcendante', type: 'Lumière', pow: 140, acc: 90, contact: true, desc: "Omegamon tranche avec la lame jaillie de la tête de WarGreymon, à son bras gauche." },
     charge:         { name: 'Coup de Corps', type: 'Neutre', pow: 40, acc: 100, contact: true, desc: 'Fonce sur l\'ennemi de tout son corps.' },
     vive_attaque:   { name: 'Assaut Éclair', type: 'Neutre', pow: 40, acc: 100, pri: 1, contact: true, desc: 'Attaque très rapide qui frappe toujours en premier.' },
     griffe:         { name: 'Griffe', type: 'Neutre', pow: 50, acc: 95, contact: true, desc: 'Lacère l\'ennemi avec ses griffes.' },
@@ -2021,6 +2034,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     super_tonnerre: 'thunder', champi_bombe: 'mushbomb', jet_pierres: 'rocks', poing_roc: 'punch', souffle_ardent: 'flamebeam',
     coup_queue: 'tackle', giga_destruction: 'missiles', bras_trident: 'claw', grande_vague: 'wave', tempete_neige: 'blizzard',
     marteau_vulcain: 'hammer', boomerang: 'boomerang', feuille: 'leaves', feuille_rasoir: 'leaves', uppercut: 'punch',
+    griffe_eclair: 'claw', epee_transcendante: 'claw', fleche_celeste: 'meteor', porte_destin: 'meteor', corne_explosive: 'thunder', lumiere_eden: 'meteor', feu_sacre: 'flamebeam',
     gadoue_nume: 'mushbomb', ordure_toxique: 'spores', attaque_coeur: 'hearts', griffe_garuru: 'claw', feu_metal: 'bluefire', ombre_ailee: 'meteor', double_ciseaux: 'scissor', bulles_acides: 'bubbles', force_gaia: 'meteor', souffle_cocyte: 'bluefire', tornade_courage: 'dash', canon_floral: 'flowercannon', charme: 'hearts', souffle_bleu: 'bluefire', flamme_bleue: 'bluefire', poing_ardent: 'firepunch', meteore: 'meteor',
   };
   for (const id in M) M[id].fx = FX[id] || (M[id].contact ? 'tackle' : 'orb');
@@ -2041,6 +2055,8 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     palmon: 'lierre', togemon: 'pluie_epines', lillymon: 'canon_floral', biyomon: 'flamme_spirale', birdramon: 'meteore',
     kunemon: 'electro_fil', kuwagamon: 'pince', mushroomon: 'champi_bombe', betamon: 'electro_choc', gotsumon: 'poing_roc',
     elecmon: 'super_tonnerre', shellmon: 'jet_hydro',
+    yukimibotamon: 'bulles', nyaromon: 'bulles', pyocomon: 'bulles', salamon: 'cri_chiot', gatomon: 'griffe_eclair', angewomon: 'fleche_celeste',
+    ophanimon: 'lumiere_eden', magnadramon: 'feu_sacre', megakabuterimon: 'corne_explosive', magnaangemon: 'porte_destin', omegamon: 'epee_transcendante',
   };
   DW.sigOf = mon => DW.SIG[mon.sp] || null;
 })();
@@ -2349,7 +2365,11 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
 //    Tai → Agumon, Matt → Gabumon, Sora → Biyomon, Mimi → Palmon,
 //    Izzy → Tentomon, Joe → Gomamon, T.K. → Patamon.
 //  À sa mort, tu choisis l'œuf suivant (même lignée ou une autre).
-//  Ajoute aussi les lignées d'Izzy (Pabumon → Motimon) et de T.K. (Poyomon → Tokomon).
+//  Ajoute aussi les lignées d'Izzy (Pabumon → Mochimon) et de T.K. (Poyomon → Tokomon), et (lignées données par le joueur) :
+//    Sora : Nyokimon → Pyocomon → Biyomon → Birdramon → Garudamon ;
+//    Izzy : … → Tentomon → Kabuterimon → MegaKabuterimon ;  Mimi : Poyomon → Tanemon → Palmon → Togemon → Lilimon ;
+//    T.K. : … → Angemon → MagnaAngemon ;  Kari : YukimiBotamon → Nyaromon → Salamon → Gatomon → Angewomon → Ophanimon
+//    ou Magnadramon ;  Tai et Matt : WarGreymon et MetalGarurumon fusionnent en Omegamon (data/evolutions.js : fusion).
 // =====================================================================
 (function () {
   const S = DW.SPECIES;
@@ -2369,35 +2389,81 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'morsure'], [8, 'vive_attaque'], [10, 'bulle_explosive']], rate: 190, xp: 45,
     desc: "Une adorable boule blanche aux longues oreilles... qui cache une bouche immense pleine de dents !" });
 
+  // la lignée de Kari (et les formes qui manquaient aux autres lignées)
+  baby('yukimibotamon', { name: 'YukimiBotamon', types: ['Glace'], base: { hp: 40, atk: 34, def: 38, spd: 40, int: 42 },
+    learn: [[1, 'charge'], [1, 'bulles'], [3, 'flocon'], [5, 'garde']],
+    desc: "Un bébé tout blanc, comme un flocon de neige tombé du ciel. Il souffle des bulles glacées pour se défendre." });
+  def('nyaromon', { name: 'Nyaromon', stage: 'Entraînement', types: ['Lumière'], attr: 'Vaccin', base: { hp: 46, atk: 44, def: 42, spd: 50, int: 48 }, kg: 4,
+    learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'rayon'], [8, 'vive_attaque'], [10, 'morsure']], rate: 190, xp: 45,
+    desc: "Une petite tête de chat aux grandes oreilles. Elle remue la queue quand elle est contente et ne tient pas en place." });
+  def('pyocomon', { name: 'Pyocomon', stage: 'Entraînement', types: ['Plante', 'Air'], attr: 'Données', base: { hp: 45, atk: 42, def: 40, spd: 50, int: 46 }, kg: 3,
+    learn: [[1, 'charge'], [1, 'bulles'], [4, 'parfum'], [6, 'feuille'], [8, 'picorage'], [10, 'bulle_explosive']], rate: 190, xp: 45,
+    desc: "Une petite boule rose qui porte une fleur sur la tête. Elle sautille partout en piaillant de joie." });
+  def('salamon', { name: 'Salamon', stage: 'Disciple', types: ['Lumière'], attr: 'Vaccin', base: { hp: 54, atk: 50, def: 50, spd: 60, int: 62 }, kg: 6,
+    learn: [[1, 'charge'], [1, 'cri_chiot'], [1, 'grondement'], [10, 'vive_attaque'], [13, 'morsure'], [16, 'rayon'], [19, 'charme'], [22, 'prisme']], rate: 120, xp: 70,
+    desc: "Un petit chien au cœur pur qui porte au cou l'Anneau Sacré. Son Cri du Chiot fait fuir les Digimon des ténèbres." });
+  def('gatomon', { name: 'Gatomon', stage: 'Champion', types: ['Lumière'], attr: 'Vaccin', base: { hp: 76, atk: 86, def: 70, spd: 98, int: 88 }, kg: 7,
+    learn: [[0, 'griffe_eclair'], [1, 'vive_attaque'], [1, 'charme'], [1, 'morsure'], [22, 'rayon_sacre'], [26, 'poing_celeste'], [30, 'prisme']], rate: 45, xp: 150,
+    desc: "Une petite chatte sacrée à la queue ornée de l'Anneau Sacré. Malgré sa taille, sa Griffe Éclair renverse les géants." });
+  def('angewomon', { name: 'Angewomon', stage: 'Ultime', types: ['Lumière', 'Air'], attr: 'Vaccin', base: { hp: 96, atk: 100, def: 90, spd: 112, int: 120 }, kg: 45,
+    learn: [[0, 'fleche_celeste'], [1, 'rayon_sacre'], [1, 'charme'], [1, 'aura_soin'], [38, 'jugement'], [42, 'canon_aerien']], rate: 20, xp: 230,
+    desc: "Un ange aux huit ailes, au casque d'argent. Sa Flèche Céleste ne manque jamais un cœur corrompu." });
+  def('ophanimon', { name: 'Ophanimon', stage: 'Méga', types: ['Lumière'], attr: 'Vaccin', base: { hp: 112, atk: 112, def: 120, spd: 118, int: 138 }, kg: 60,
+    learn: [[0, 'lumiere_eden'], [1, 'jugement'], [1, 'fleche_celeste'], [1, 'aura_soin'], [50, 'prisme'], [55, 'rayon_sacre']], rate: 8, xp: 300,
+    desc: "L'un des trois Grands Anges, gardienne de l'amour et de la connaissance. Elle protège les Digimon avec sa lance et son bouclier." });
+  def('magnadramon', { name: 'Magnadramon', stage: 'Méga', types: ['Lumière', 'Feu'], attr: 'Vaccin', base: { hp: 120, atk: 126, def: 112, spd: 116, int: 120 }, kg: 300,
+    learn: [[0, 'feu_sacre'], [1, 'jugement'], [1, 'ombre_ailee'], [1, 'cyclone'], [50, 'rayon_sacre'], [55, 'meteore']], rate: 8, xp: 300,
+    desc: "Un dragon sacré aux ailes multiples, entouré de sceaux d'or. Son Feu Sacré purifie tout ce qu'il touche." });
+  def('megakabuterimon', { name: 'MegaKabuterimon', stage: 'Ultime', types: ['Insecte', 'Électrique'], attr: 'Vaccin', base: { hp: 110, atk: 116, def: 116, spd: 70, int: 96 }, kg: 200,
+    learn: [[0, 'corne_explosive'], [1, 'mega_decharge'], [1, 'pince'], [1, 'carapace'], [38, 'orage'], [42, 'seisme']], rate: 20, xp: 230,
+    desc: "Un scarabée géant rouge à la corne immense. Sa Corne Explosive libère un orage entier d'un seul coup." });
+  def('magnaangemon', { name: 'MagnaAngemon', stage: 'Ultime', types: ['Lumière', 'Air'], attr: 'Vaccin', base: { hp: 102, atk: 112, def: 100, spd: 104, int: 114 }, kg: 70,
+    learn: [[0, 'porte_destin'], [1, 'poing_celeste'], [1, 'rayon_sacre'], [1, 'canon_aerien'], [38, 'jugement'], [42, 'fleche_solaire']], rate: 20, xp: 230,
+    desc: "Un ange en armure aux huit ailes d'or, l'épée Excalibur au poignet. Sa Porte du Destin enferme les Digimon maléfiques." });
+  def('omegamon', { name: 'Omegamon', stage: 'Méga', types: ['Lumière', 'Glace'], attr: 'Vaccin', base: { hp: 130, atk: 145, def: 130, spd: 125, int: 120 }, kg: 120,
+    learn: [[0, 'epee_transcendante'], [1, 'souffle_cocyte'], [1, 'force_gaia'], [1, 'griffe_garuru'], [60, 'jugement'], [65, 'giga_destruction']], rate: 4, xp: 400,
+    desc: "Né de la fusion de WarGreymon et de MetalGarurumon, le chevalier sacré à la cape rouge. Il réunit le courage et l'amitié." });
+  // (les noms de la série, comme le joueur les écrit)
+  S.motimon.name = 'Mochimon'; S.lillymon.name = 'Lilimon';
+
   // coups spéciaux (data/moves.js) : comme les autres bébés et Digimon d'Entraînement
   Object.assign(DW.SIG, { pabumon: 'bulles', poyomon: 'bulles_acides', motimon: 'bulles', tokomon: 'bulles' });
   // Digivolutions (fusionnées par evolutions.js)
   Object.assign(DW.EVO_EXTRA, {
     pabumon: [{ to: 'motimon', lvl: 5, req: { wins: 2 } }],
-    poyomon: [{ to: 'tokomon', lvl: 5, req: { wins: 2 } }],
+    poyomon: [{ to: 'tokomon', lvl: 5, req: { wins: 2 } }, { to: 'tanemon', lvl: 5, req: { wins: 2 } }],   // (T.K., puis Mimi)
     motimon: [{ to: 'tentomon', lvl: 7, req: { int: 10, wins: 3 } }, { to: 'kunemon', lvl: 7, req: { spd: 10, wins: 3 } }],
     tokomon: [{ to: 'patamon', lvl: 7, req: { spd: 10, wins: 3 } }, { to: 'elecmon', lvl: 7, req: { atk: 10, wins: 3 } }],
   });
   const O = DW.DEX_ORDER;
   O.splice(O.indexOf('tentomon') >= 0 ? O.indexOf('tentomon') : O.length, 0, 'pabumon', 'motimon');
   O.splice(O.indexOf('patamon') >= 0 ? O.indexOf('patamon') : O.length, 0, 'poyomon', 'tokomon');
+  // (les nouvelles formes, chacune à sa place dans sa lignée ; la lignée de Kari à la fin)
+  const apres = (ref, ...ids) => O.splice(O.indexOf(ref) >= 0 ? O.indexOf(ref) + 1 : O.length, 0, ...ids);
+  apres('nyokimon', 'pyocomon'); apres('kabuterimon', 'megakabuterimon'); apres('angemon', 'magnaangemon'); apres('metalgarurumon', 'omegamon');
+  O.push('yukimibotamon', 'nyaromon', 'salamon', 'gatomon', 'angewomon', 'ophanimon', 'magnadramon');
 
   // héros → bébé de départ et partenaire de la série
   DW.HERO_LINE = {
     tai: { baby: 'botamon', partner: 'agumon' },
     matt: { baby: 'punimon', partner: 'gabumon' },
     sora: { baby: 'nyokimon', partner: 'biyomon' },
-    mimi: { baby: 'yuramon', partner: 'palmon' },
+    mimi: { baby: 'poyomon', partner: 'palmon' },
     izzy: { baby: 'pabumon', partner: 'tentomon' },
     joe: { baby: 'pichimon', partner: 'gomamon' },
     tk: { baby: 'poyomon', partner: 'patamon' },
+    kari: { baby: 'yukimibotamon', partner: 'salamon' },
   };
+  // (anciennes parties : Mimi commençait avec Yuramon)
+  const ANCIENNES = { yuramon: { baby: 'yuramon', partner: 'palmon' } };
   // accord au féminin quand le héros est une fille : DW.gn('tombé', 'tombée')
   DW.gn = (m, f) => (DW.state && DW.state.hero === 'perso' && DW.state.look && DW.state.look.gender ? f : m);
   DW.heroLine = id => {
     const k = id || (DW.state && DW.state.hero);
     if (k === 'perso') {   // personnage original : le bébé choisi à la création, et le partenaire de cette lignée
-      const baby = (DW.state.look && DW.state.look.baby) || 'botamon', L = Object.values(DW.HERO_LINE).find(l => l.baby === baby);
+      // (Mimi et T.K. ont le même bébé, Poyomon : c'est la lignée choisie à la création qui compte — look.ligne)
+      const look = DW.state.look || {}, baby = look.baby || 'botamon';
+      const L = (look.ligne && DW.HERO_LINE[look.ligne]) || Object.values(DW.HERO_LINE).find(l => l.baby === baby) || ANCIENNES[baby];
       return { baby, partner: L ? L.partner : 'agumon' };
     }
     return DW.HERO_LINE[k] || DW.HERO_LINE.tai;
@@ -2423,7 +2489,10 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     punimon: [{ to: 'tsunomon', lvl: 5, req: { wins: 2 } }],
     pichimon: [{ to: 'bukamon', lvl: 5, req: { wins: 2 } }],
     yuramon: [{ to: 'tanemon', lvl: 5, req: { wins: 2 } }],
-    nyokimon: [{ to: 'yokomon', lvl: 5, req: { wins: 2 } }],
+    nyokimon: [{ to: 'pyocomon', lvl: 5, req: { wins: 2 } }, { to: 'yokomon', lvl: 5, req: { wins: 2 } }],
+    pyocomon: [{ to: 'biyomon', lvl: 7, req: { spd: 10, wins: 3 } }],
+    yukimibotamon: [{ to: 'nyaromon', lvl: 5, req: { wins: 2 } }],
+    nyaromon: [{ to: 'salamon', lvl: 7, req: { int: 10, wins: 3 } }],
     koromon: [{ to: "agumon", lvl: 7, req: { atk: 10, wins: 3 } }, { to: "gabumon", lvl: 7, req: { def: 10, wins: 3 } }],
     tsunomon: [{ to: "gabumon", lvl: 7, req: { def: 10, wins: 3 } }, { to: "elecmon", lvl: 7, req: { spd: 10, wins: 3 } }, { to: 'gotsumon', lvl: 7, req: { hp: 10, wins: 3 } }],
     bukamon: [{ to: "gomamon", lvl: 7, req: { def: 10, wins: 3 } }, { to: "betamon", lvl: 7, req: { int: 10, wins: 3 } }],
@@ -2439,6 +2508,14 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     gotsumon: [{ to: 'meramon', lvl: 15, req: { atk: 28, hp: 12, wins: 10 } }],
     mushroomon: [{ to: 'togemon', lvl: 15, req: { def: 26, wins: 10 } }],
     kunemon: [{ to: "kuwagamon", lvl: 16, req: { atk: 30, wins: 10 } }],
+    salamon: [{ to: 'gatomon', lvl: 15, req: { spd: 26, int: 12, wins: 10 } }],
+    gatomon: [{ to: 'angewomon', lvl: 32, req: { int: 50, spd: 30, happy: 70, wins: 40 } }],
+    angewomon: [{ to: 'ophanimon', lvl: 45, req: { int: 64, def: 50, happy: 90, wins: 80 } }, { to: 'magnadramon', lvl: 45, req: { atk: 64, int: 50, happy: 90, wins: 80 } }],
+    kabuterimon: [{ to: 'megakabuterimon', lvl: 32, req: { def: 50, int: 30, happy: 70, wins: 40 } }],
+    angemon: [{ to: 'magnaangemon', lvl: 32, req: { int: 50, spd: 30, happy: 70, wins: 40 } }],
+    // FUSION (WarGreymon + MetalGarurumon) : il faut l'autre dans l'équipe ; il fusionne avec lui (ui/evotable.js)
+    wargreymon: [{ to: 'omegamon', lvl: 55, req: { fusion: 'metalgarurumon', happy: 90, wins: 100 } }],
+    metalgarurumon: [{ to: 'omegamon', lvl: 55, req: { fusion: 'wargreymon', happy: 90, wins: 100 } }],
     greymon: [{ to: "metalgreymon", lvl: 32, req: { atk: 50, def: 30, happy: 70, wins: 40 } }],
     metalgreymon: [{ to: 'wargreymon', lvl: 45, req: { atk: 64, def: 50, happy: 90, wins: 80 } }],
     ikkakumon: [{ to: "zudomon", lvl: 32, req: { def: 50, hp: 30, happy: 70, wins: 40 } }],
@@ -2465,7 +2542,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     if (st === 'Méga') { if (r.mistakesMax == null) r.mistakesMax = 1; if (r.disc == null) r.disc = 80; }
   }
   // tout Disciple trop négligé peut devenir Numemon (≥ 5 erreurs) ou Sukamon (≥ 8 erreurs)
-  for (const sp of ['agumon', 'gabumon', 'gomamon', 'palmon', 'biyomon', 'kunemon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon', 'tentomon', 'patamon', 'penguinmon', 'guilmon', 'candlemon']) {
+  for (const sp of ['agumon', 'gabumon', 'gomamon', 'palmon', 'biyomon', 'kunemon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon', 'tentomon', 'patamon', 'penguinmon', 'guilmon', 'candlemon', 'salamon']) {
     EVO[sp] = EVO[sp] || [];
     EVO[sp].push({ to: 'numemon', lvl: 14, req: { mistakes: 5 } }, { to: 'sukamon', lvl: 14, req: { mistakes: 8 } });
   }
@@ -2478,7 +2555,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   fat('betamon', 'shellmon', 'fatMin', 3); fat('gomamon', 'shellmon', 'fatMin', 3); fat('kunemon', 'kuwagamon', 'fatMax', 2); fat('mushroomon', 'togemon', 'fatMin', 1); fat('gomamon', 'ikkakumon', 'fatMin', 1); fat('ikkakumon', 'zudomon', 'fatMin', 3);
 
   const LABEL = { hp: 'Entr. PV', atk: 'Entr. Attaque', def: 'Entr. Défense', spd: 'Entr. Vitesse', int: 'Entr. Intell.', happy: 'Bonheur', wins: 'Victoires',
-    disc: 'Discipline', mistakes: 'Erreurs de soin', mistakesMax: 'Erreurs de soin', fatMin: 'Corpulence', fatMax: 'Corpulence' };
+    disc: 'Discipline', mistakes: 'Erreurs de soin', mistakesMax: 'Erreurs de soin', fatMin: 'Corpulence', fatMax: 'Corpulence', fusion: 'Fusion' };
   const MAXK = ['mistakesMax', 'fatMax'];
 
   DW.Evo = {
@@ -2501,6 +2578,8 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     check(mon, opt) {
       const rows = [{ label: 'Niveau', need: opt.lvl, have: mon.level }];
       for (const k in opt.req || {}) {
+        // fusion : l'autre Digimon doit être dans l'équipe, en état de se battre (1 = oui)
+        if (k === 'fusion') { const F = DW.Evo.partenaireFusion(mon, opt); rows.push({ label: `Avec ${DW.SPECIES[opt.req.fusion].name}`, need: 1, have: F ? 1 : 0 }); continue; }
         const have = k === 'happy' ? mon.happy : k === 'wins' ? mon.wins : k === 'disc' ? (mon.disc != null ? mon.disc : 40)
           : k === 'mistakes' || k === 'mistakesMax' ? (mon.mistakes || 0) : k === 'fatMin' || k === 'fatMax' ? Math.round(mon.fat || 0) : mon.tr[k];
         const max = MAXK.includes(k);
@@ -2510,6 +2589,8 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
       return { ok: rows.every(r => r.ok), rows };
     },
     available(mon) { return this.options(mon.sp).filter(o => this.check(mon, o).ok); },
+    // le Digimon de l'équipe avec qui fusionner (autre que lui), ou null
+    partenaireFusion(mon, opt) { const sp = opt.req && opt.req.fusion; return sp ? ((DW.state && DW.state.party) || []).find(p => p !== mon && p.sp === sp && p.hp > 0) || null : null; },
   };
   // compatibilité : évolution "principale" de chaque espèce
   for (const sp in EVO) if (DW.SPECIES[sp]) DW.SPECIES[sp].evo = { to: EVO[sp][0].to, lvl: EVO[sp][0].lvl };
@@ -3238,8 +3319,8 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   const IMAGES = {
     punimon: { taille: 0.77 }, nyokimon: { taille: 0.91 }, pabumon: { taille: 0.88 }, poyomon: { taille: 0.76 },   // (Pabumon : ses bulles comptent dans sa hauteur)
     koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
-    // (21/10 : Botamon, Pichimon, et Koromon et Poyomon refaits, en pixel art ; Yuramon, Disciples et Champions peints)
-    botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yuramon: { taille: 0.72 },
+    // (21/10 : Botamon, Pichimon et YukimiBotamon en pixel art ; Yuramon, Disciples et Champions peints)
+    botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yukimibotamon: { taille: 0.58 }, yuramon: { taille: 0.72 },
     betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.79 }, palmon: { taille: 0.97 },
     kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
   };
@@ -6982,7 +7063,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     { nom: 'Inspirée de Mimi', bebe: 'mimi', ch: { g: 1, corps: 3, tete: 23, haut: 18, bas: 6, chaus: 7, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 3, chaus: 12, chapeau: -1, sac: 13, acc: 0 } },
     { nom: 'Inspiré de T.K.', bebe: 'tk', ch: { g: 0, corps: 4, tete: 1, haut: 12, bas: 1, chaus: 16, chapeau: -1, sac: -1, acc: -1 } },
-    { nom: 'Inspirée de Kari', bebe: 'tai', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
+    { nom: 'Inspirée de Kari', bebe: 'kari', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
   ];
   DW.Perso = { PRESETS, charger, valide, dessiner, look, couleurs };
 })();
@@ -8882,6 +8963,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     poyomon: { base: '#f4f6ff', pat: 'waves', col: '#a8c0f0', hint: 'Un œuf presque transparent aux reflets bleutés. Il flotte au-dessus du coussin !' },
   };
   DW.EGG_ORDER = Object.keys(DW.EGGS);
+  // (l'œuf de YukimiBotamon, la lignée de Kari : à l'éclosion d'une renaissance ; pas parmi les œufs du jour de Penguinmon,
+  //  dont le coussin n'a que sept places)
+  DW.EGGS.yukimibotamon = { base: '#f6faff', pat: 'spots', col: '#9ac8f0', hint: 'Un œuf blanc comme la neige, constellé de petits flocons bleus. Il est tout froid !' };
 
   // dessin de l'œuf dans un repère 32x40 (centre 16, base 38)
   function egg(d, sp, ox = 0, oy = 0) {
@@ -21673,8 +21757,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (!chk.ok) { Audio.sfx('bump'); await DW.say('Les conditions ne sont pas encore remplies. Entraîne-toi et gagne des combats !'); return; }
       Audio.sfx('select');
       const name = (st.owned || {})[o.to] ? DW.SPECIES[o.to].name : '???';
-      const r = await DW.ask(`Faire digivoluer ${m.name} en ${name} ?`);
+      const F = DW.Evo.partenaireFusion(m, o);
+      const r = await DW.ask(F ? `Fusionner ${m.name} et ${F.name} en ${name} ? (${F.name} quitte l'équipe : ils ne font plus qu'un)` : `Faire digivoluer ${m.name} en ${name} ?`);
       if (r !== 0) return;
+      if (F) { st.party.splice(st.party.indexOf(F), 1); this.i = st.party.indexOf(m); await DW.say(`${m.name} et ${F.name} unissent leurs données... Le courage et l'amitié ne font plus qu'un !`); }
       await Game.push(new DW.EvolutionScene(m, o.to, { manual: true }));
       m.evolve(o.to);
       st.seen[o.to] = st.owned[o.to] = true;
@@ -23563,7 +23649,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       DW.state.hero = 'perso'; this.apply();
       DW.Perso.charger();
     }
-    apply() { DW.state.look = DW.Perso.look(this.ch, BEBES()[this.bebe]); DW.state.perso = { ...this.ch }; }
+    apply() { DW.state.look = DW.Perso.look(this.ch, BEBES()[this.bebe]); DW.state.look.ligne = Object.keys(DW.HERO_LINE)[this.bebe]; DW.state.perso = { ...this.ch }; }
     eclair(v = 0.4) { this.flash.v = 1; DW.tween(this.flash, { v: 0 }, v); }
     change(k, d) {
       if (k === 'bebe') { const n = BEBES().length; this.bebe = (this.bebe + d + n) % n; }

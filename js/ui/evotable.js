@@ -46,8 +46,10 @@
       if (!chk.ok) { Audio.sfx('bump'); await DW.say('Les conditions ne sont pas encore remplies. Entraîne-toi et gagne des combats !'); return; }
       Audio.sfx('select');
       const name = (st.owned || {})[o.to] ? DW.SPECIES[o.to].name : '???';
-      const r = await DW.ask(`Faire digivoluer ${m.name} en ${name} ?`);
+      const F = DW.Evo.partenaireFusion(m, o);
+      const r = await DW.ask(F ? `Fusionner ${m.name} et ${F.name} en ${name} ? (${F.name} quitte l'équipe : ils ne font plus qu'un)` : `Faire digivoluer ${m.name} en ${name} ?`);
       if (r !== 0) return;
+      if (F) { st.party.splice(st.party.indexOf(F), 1); this.i = st.party.indexOf(m); await DW.say(`${m.name} et ${F.name} unissent leurs données... Le courage et l'amitié ne font plus qu'un !`); }
       await Game.push(new DW.EvolutionScene(m, o.to, { manual: true }));
       m.evolve(o.to);
       st.seen[o.to] = st.owned[o.to] = true;

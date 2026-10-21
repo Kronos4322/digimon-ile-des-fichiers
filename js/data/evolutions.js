@@ -15,7 +15,10 @@
     punimon: [{ to: 'tsunomon', lvl: 5, req: { wins: 2 } }],
     pichimon: [{ to: 'bukamon', lvl: 5, req: { wins: 2 } }],
     yuramon: [{ to: 'tanemon', lvl: 5, req: { wins: 2 } }],
-    nyokimon: [{ to: 'yokomon', lvl: 5, req: { wins: 2 } }],
+    nyokimon: [{ to: 'pyocomon', lvl: 5, req: { wins: 2 } }, { to: 'yokomon', lvl: 5, req: { wins: 2 } }],
+    pyocomon: [{ to: 'biyomon', lvl: 7, req: { spd: 10, wins: 3 } }],
+    yukimibotamon: [{ to: 'nyaromon', lvl: 5, req: { wins: 2 } }],
+    nyaromon: [{ to: 'salamon', lvl: 7, req: { int: 10, wins: 3 } }],
     koromon: [{ to: "agumon", lvl: 7, req: { atk: 10, wins: 3 } }, { to: "gabumon", lvl: 7, req: { def: 10, wins: 3 } }],
     tsunomon: [{ to: "gabumon", lvl: 7, req: { def: 10, wins: 3 } }, { to: "elecmon", lvl: 7, req: { spd: 10, wins: 3 } }, { to: 'gotsumon', lvl: 7, req: { hp: 10, wins: 3 } }],
     bukamon: [{ to: "gomamon", lvl: 7, req: { def: 10, wins: 3 } }, { to: "betamon", lvl: 7, req: { int: 10, wins: 3 } }],
@@ -31,6 +34,14 @@
     gotsumon: [{ to: 'meramon', lvl: 15, req: { atk: 28, hp: 12, wins: 10 } }],
     mushroomon: [{ to: 'togemon', lvl: 15, req: { def: 26, wins: 10 } }],
     kunemon: [{ to: "kuwagamon", lvl: 16, req: { atk: 30, wins: 10 } }],
+    salamon: [{ to: 'gatomon', lvl: 15, req: { spd: 26, int: 12, wins: 10 } }],
+    gatomon: [{ to: 'angewomon', lvl: 32, req: { int: 50, spd: 30, happy: 70, wins: 40 } }],
+    angewomon: [{ to: 'ophanimon', lvl: 45, req: { int: 64, def: 50, happy: 90, wins: 80 } }, { to: 'magnadramon', lvl: 45, req: { atk: 64, int: 50, happy: 90, wins: 80 } }],
+    kabuterimon: [{ to: 'megakabuterimon', lvl: 32, req: { def: 50, int: 30, happy: 70, wins: 40 } }],
+    angemon: [{ to: 'magnaangemon', lvl: 32, req: { int: 50, spd: 30, happy: 70, wins: 40 } }],
+    // FUSION (WarGreymon + MetalGarurumon) : il faut l'autre dans l'équipe ; il fusionne avec lui (ui/evotable.js)
+    wargreymon: [{ to: 'omegamon', lvl: 55, req: { fusion: 'metalgarurumon', happy: 90, wins: 100 } }],
+    metalgarurumon: [{ to: 'omegamon', lvl: 55, req: { fusion: 'wargreymon', happy: 90, wins: 100 } }],
     greymon: [{ to: "metalgreymon", lvl: 32, req: { atk: 50, def: 30, happy: 70, wins: 40 } }],
     metalgreymon: [{ to: 'wargreymon', lvl: 45, req: { atk: 64, def: 50, happy: 90, wins: 80 } }],
     ikkakumon: [{ to: "zudomon", lvl: 32, req: { def: 50, hp: 30, happy: 70, wins: 40 } }],
@@ -57,7 +68,7 @@
     if (st === 'Méga') { if (r.mistakesMax == null) r.mistakesMax = 1; if (r.disc == null) r.disc = 80; }
   }
   // tout Disciple trop négligé peut devenir Numemon (≥ 5 erreurs) ou Sukamon (≥ 8 erreurs)
-  for (const sp of ['agumon', 'gabumon', 'gomamon', 'palmon', 'biyomon', 'kunemon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon', 'tentomon', 'patamon', 'penguinmon', 'guilmon', 'candlemon']) {
+  for (const sp of ['agumon', 'gabumon', 'gomamon', 'palmon', 'biyomon', 'kunemon', 'mushroomon', 'betamon', 'gotsumon', 'elecmon', 'tentomon', 'patamon', 'penguinmon', 'guilmon', 'candlemon', 'salamon']) {
     EVO[sp] = EVO[sp] || [];
     EVO[sp].push({ to: 'numemon', lvl: 14, req: { mistakes: 5 } }, { to: 'sukamon', lvl: 14, req: { mistakes: 8 } });
   }
@@ -70,7 +81,7 @@
   fat('betamon', 'shellmon', 'fatMin', 3); fat('gomamon', 'shellmon', 'fatMin', 3); fat('kunemon', 'kuwagamon', 'fatMax', 2); fat('mushroomon', 'togemon', 'fatMin', 1); fat('gomamon', 'ikkakumon', 'fatMin', 1); fat('ikkakumon', 'zudomon', 'fatMin', 3);
 
   const LABEL = { hp: 'Entr. PV', atk: 'Entr. Attaque', def: 'Entr. Défense', spd: 'Entr. Vitesse', int: 'Entr. Intell.', happy: 'Bonheur', wins: 'Victoires',
-    disc: 'Discipline', mistakes: 'Erreurs de soin', mistakesMax: 'Erreurs de soin', fatMin: 'Corpulence', fatMax: 'Corpulence' };
+    disc: 'Discipline', mistakes: 'Erreurs de soin', mistakesMax: 'Erreurs de soin', fatMin: 'Corpulence', fatMax: 'Corpulence', fusion: 'Fusion' };
   const MAXK = ['mistakesMax', 'fatMax'];
 
   DW.Evo = {
@@ -93,6 +104,8 @@
     check(mon, opt) {
       const rows = [{ label: 'Niveau', need: opt.lvl, have: mon.level }];
       for (const k in opt.req || {}) {
+        // fusion : l'autre Digimon doit être dans l'équipe, en état de se battre (1 = oui)
+        if (k === 'fusion') { const F = DW.Evo.partenaireFusion(mon, opt); rows.push({ label: `Avec ${DW.SPECIES[opt.req.fusion].name}`, need: 1, have: F ? 1 : 0 }); continue; }
         const have = k === 'happy' ? mon.happy : k === 'wins' ? mon.wins : k === 'disc' ? (mon.disc != null ? mon.disc : 40)
           : k === 'mistakes' || k === 'mistakesMax' ? (mon.mistakes || 0) : k === 'fatMin' || k === 'fatMax' ? Math.round(mon.fat || 0) : mon.tr[k];
         const max = MAXK.includes(k);
@@ -102,6 +115,8 @@
       return { ok: rows.every(r => r.ok), rows };
     },
     available(mon) { return this.options(mon.sp).filter(o => this.check(mon, o).ok); },
+    // le Digimon de l'équipe avec qui fusionner (autre que lui), ou null
+    partenaireFusion(mon, opt) { const sp = opt.req && opt.req.fusion; return sp ? ((DW.state && DW.state.party) || []).find(p => p !== mon && p.sp === sp && p.hp > 0) || null : null; },
   };
   // compatibilité : évolution "principale" de chaque espèce
   for (const sp in EVO) if (DW.SPECIES[sp]) DW.SPECIES[sp].evo = { to: EVO[sp][0].to, lvl: EVO[sp][0].lvl };

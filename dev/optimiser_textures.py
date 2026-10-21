@@ -496,11 +496,14 @@ DIGIMON = {
     'nyokimon': ('NYAKOMON.jpg', {'combat': 6, 'profil': 12, 'face': 0, 'dos': 8}),
     'pabumon':  ('PABUMON.jpg',  {'combat': (2, 'miroir'), 'profil': (3, 'miroir'), 'face': 0, 'dos': 7}),
     'punimon':  ('PUNIMON.jpg',  {'combat': 5, 'profil': 4, 'face': 0, 'dos': 3}),
-    # 21/10 : bébés en pixel art (Koromon et Poyomon remplacent leurs planches peintes), Disciples et Champions peints
+    # (Koromon et Poyomon : le joueur garde leurs premières planches, peintes — leurs versions en pixel art du 21/10,
+    #  « photo_2026-10-21_16-16-36 (2) » et « photo_2026-10-21_16-16-36 », ne servent pas)
+    'koromon':  ('Koromon.jpg',  {'combat': 5, 'profil': (2, 'miroir'), 'face': 0, 'dos': 1}),
+    'poyomon':  ('POYOMON.jpg',  {'combat': 3, 'profil': (2, 'miroir'), 'face': 0, 'dos': 4}),
+    # 21/10 : bébés en pixel art, Disciples et Champions peints
     'botamon':  ('botamon.jpg', _PIXEL),
-    'koromon':  ('photo_2026-10-21_16-16-36 (2).jpg', _PIXEL),
     'pichimon': ('photo_2026-10-21_16-16-36 (3).jpg', _PIXEL),
-    'poyomon':  ('photo_2026-10-21_16-16-36.jpg', _PIXEL),
+    'yukimibotamon': ('yukimibotamon.jpg', _PIXEL),
     'yuramon':  ('yuramon.jpg', {'combat': 1, 'profil': 2, 'face': 0, 'dos': 4}),
     'betamon':  ('betamon.jpg', {'combat': 2, 'profil': (3, 'miroir'), 'face': 0, 'dos': 1}),
     'elecmon':  ('elecmon.jpg', {'combat': (3, 'miroir'), 'profil': 2, 'face': 0, 'dos': 1}),
@@ -511,9 +514,12 @@ DIGIMON = {
     'whamon':   ('whamon.jpg', {'combat': (4, 'miroir'), 'profil': 1, 'face': 2, 'dos': 3}, 240),
 }
 HAUT_DIGIMON = 168   # hauteur des copies : le plus grand affichage d'un Bébé ou d'un Digimon d'entraînement (combat, en haute définition)
+# DÉTOURAGE propre à une planche : un Digimon VERT sur le fond vert (Betamon) — le fond, c'est seulement le vert pur
+# (seuil plus haut), et pas d'« ombres vertes » (ses rayures sombres en auraient fait partie)
+CLE_DIGIMON = {'betamon': {'seuil': 165, 'ombres': False}}
 
 
-def planche_digimon(f):
+def planche_digimon(f, seuil=100, ombres=True):
     """Poses d'une planche de Digimon : (image, part de vert, [(y0, x0, y1, x1, masque)]) dans l'ordre de lecture."""
     import numpy as np
     from scipy import ndimage
@@ -522,7 +528,7 @@ def planche_digimon(f):
     vert = g - np.maximum(r, b)
     # fond : le vert pur, clair ou sombre (les ombres vertes sous les poses qui sautent) ; les feuilles d'un Digimon,
     # vert-jaune, restent
-    fond = (vert > 100) | ((r < 40) & (b < 40) & (g > 80))
+    fond = (vert > seuil) | (((r < 40) & (b < 40) & (g > 80)) if ombres else False)
     obj = ndimage.binary_opening(~fond, iterations=1)
     lab, n = ndimage.label(obj)
     aires = ndimage.sum(obj, lab, range(1, n + 1))
@@ -600,7 +606,7 @@ def optimiser_digimon():
         cibles = {v: os.path.join(dst, 'digi_%s_%s.png' % (sp, v)) for v in vues}
         if all(os.path.exists(c) and os.path.getmtime(c) >= os.path.getmtime(f) for c in cibles.values()) and '--tout' not in sys.argv:
             continue
-        a, vert, poses = planche_digimon(f)
+        a, vert, poses = planche_digimon(f, **CLE_DIGIMON.get(sp, {}))
         for v, k in vues.items():
             n, miroir = (k[0], True) if isinstance(k, tuple) else (k, False)
             im = pose_digimon(a, vert, poses[n], miroir)
