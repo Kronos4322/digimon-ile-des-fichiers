@@ -6466,6 +6466,7 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
     saule: ['arbre_saule'], pintordu: ['arbre_sapin'], bigtree: ['arbre_chene', 'arbre_chene_clair'],
     jungletree: ['arbre_vert', 'arbre_chene', 'arbre_vert_vif'], cycad: ['arbre_vert_vif', 'arbre_vert'], mangrove: ['arbre_saule'], swamptree: ['arbre_saule'],
     acacia: ['arbre_chene_clair', 'arbre_mi_automne'], baobab: ['arbre_chene'], deadtree: ['arbre_automne_brun'],
+    cendre: ['arbre_neige_nu'],   // (arbre de cendres des volcans : ton arbre nu enneigé, passé en gris cendre — CENDRE ci-dessous)
     candytree: ['arbre_cerisier', 'arbre_mauve', 'arbre_fleurs'],
     // DÉCORS : buissons, fougères, rochers, souches, troncs, champignons lumineux, objets de forêt
     bush: ['buisson', 'buisson_baies', 'buisson_fleuri', 'buisson_baies2'], hedge: ['buisson'], junglebush: ['buisson', 'buisson_baies2'],
@@ -6507,7 +6508,7 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
   const HEROS = DW.World.HEROS_VISIBLE;   // hauteur visible du héros (sprite de marche), en pixels du jeu
   const HAUTEUR = {
     // (règle du joueur : TOUS les arbres font 3 fois la hauteur du héros, quelle que soit l'espèce)
-    tree: 3, oak: 3, birch: 3, pine: 3, saule: 3, pintordu: 3, bigtree: 3, jungletree: 3, cycad: 3, mangrove: 3, swamptree: 3, acacia: 3, baobab: 3, deadtree: 3, candytree: 3,
+    tree: 3, oak: 3, birch: 3, pine: 3, saule: 3, pintordu: 3, bigtree: 3, jungletree: 3, cycad: 3, mangrove: 3, swamptree: 3, acacia: 3, baobab: 3, deadtree: 3, candytree: 3, cendre: 3,
     bush: 0.85, hedge: 0.85, junglebush: 0.9, buissonfleuri: 0.85, rosebush: 0.8, flowerbed: 0.55, fern: 0.75, bigfern: 0.9, fougeres: 0.8, giantflower: 1.4,
     glowshroom: 0.9, giantshroom: 1.7, champignons: 0.5, mossrock: 0.8, rock: 0.6, boulder: 1, rochersmousse: 1, rubble: 0.8, cairn: 0.9,
     stump: 0.6, giantstump: 1, log: 0.5, hollowlog: 0.55, troncouche: 0.6, treeroots: 1, monolith: 1.6, totem: 1.7, crystal: 1, datacrystal: 1.9,
@@ -6596,12 +6597,20 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
   };
   // image d'arbre pour (type, variante), prête à poser dans le cadre de l'objet (w x h, agrandi S fois) ; null sinon
   const arbres = {};
+  // ARBRE DE CENDRES (volcans) : l'image passée en gris cendre, pixel par pixel (la neige devient de la cendre, les branches
+  // du charbon ; sans « filter » de canvas : il manque à certains Safari)
+  function cendre(cv) {
+    const x = cv.getContext('2d'), D = x.getImageData(0, 0, cv.width, cv.height), d = D.data;
+    for (let i = 0; i < d.length; i += 4) { const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]; d[i] = l * 0.5 + 24; d[i + 1] = l * 0.45 + 19; d[i + 2] = l * 0.41 + 17; }
+    x.putImageData(D, 0, 0);
+  }
   T.arbre = (kind, v, w, h, S) => {
     const n = nomArbre(kind, v); if (!n) return null;
     const im = T.a('commun/' + n); if (!im) return null;
     const k = kind + v; if (arbres[k]) return arbres[k];
     const f = Math.min(w / im.naturalWidth, h / im.naturalHeight), dw = im.naturalWidth * f, dh = im.naturalHeight * f, q = (DW.Art.HD || 1) * (S || 1);
     const net = reduire(im, 0, 0, im.naturalWidth, im.naturalHeight, Math.max(1, Math.round(dw * q)), Math.max(1, Math.round(dh * q)));
+    if (kind === 'cendre') cendre(net);
     return (arbres[k] = { net, x: (w - dw) / 2, y: h - dh, w: dw, h: dh });
   };
   // fleurs du sol : quelle image pour cette case (null = pas d'images) ; selon le thème (des champs, des sous-bois...)
@@ -9080,7 +9089,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // Mont Panorama : volcan, cendres, coulées de lave
     volcano: { grass: ['#3a302c', '#463a34', '#54463e', '#64544a', '#766456', '#8a7864'], canopy: ['#1a1210', '#261a16', '#34241e', '#463028', '#5a3e32', '#72503e'], canopyStyle: 'rock',
       dirt: ['#3a2218', '#4c2c1e', '#5e3826', '#72462e', '#885638', '#9e6a46'], cliff: ['#2a1c18', '#3a2620', '#4c322a', '#604036', '#765044', '#8e6454'], water: LAVA, foam: ['#fffbe0', '#ffe070'],
-      tall: ['#4a3a2a', '#7a6040', '#b89a60'], trees: [[0, 1]], objMap: { tree: 'pine', bush: 'lavarock', mossrock: 'lavarock', fern: 'steamvent', glowshroom: 'steamvent', hollowlog: 'lavarock', stump: 'lavarock' }, trees2: [[2, 1]],
+      tall: ['#4a3a2a', '#7a6040', '#b89a60'], trees: [[0, 1]], ombre: [34, 20, 14], ombreProjetee: '#1c100a', objMap: { tree: 'cendre', bush: 'lavarock', mossrock: 'lavarock', fern: 'steamvent', glowshroom: 'steamvent', hollowlog: 'lavarock', stump: 'lavarock' }, trees2: [[2, 1]],
       litter: ['#2a2420', '#6a5a4a'], particle: 'ember', leaves: ['#ffb040', '#ff7020', '#ffe080'], noFlowers: true, noFlies: true, tint: 'rgba(255,100,40,0.05)', sky: ['#a8502e', '#f4b878'], marks: ['steamvent', 'lavarock'] },
     // Savane des Engrenages
     savanna: { grass: ['#8a7830', '#9e8a38', '#b49e44', '#c8b252', '#d8c464', '#e8d67e'], canopy: ['#3a3618', '#4a461e', '#5c5824', '#6e6a2c', '#828036', '#9a9644'],
@@ -9156,6 +9165,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // ---------------------------------------------------------- végétation des biomes
     // sapin : 0 vert, 1 enneigé, 2 mort (images : gfx/textures.js, avec 3 enneigé l'hiver et 4 mort enneigé des sommets)
     pine: { w: 26, h: 46, n: 3, big: true, draw: DW.World.secours.arbre(26, 46) },
+    cendre: { w: 30, h: 46, n: 1, big: true, draw: DW.World.secours.arbre(30, 46) },   // (arbre de cendres des volcans : gfx/textures.js)
     // rocher arrondi (montagne, grottes)
     boulder: { w: 22, h: 18, n: 3, draw: DW.World.secours.rocher(22, 18) },
     // cairn de pierres empilées
@@ -11395,7 +11405,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (Q) { solNaturel(Q[0], Q[1], px, py); r = NAT[0]; g = NAT[1]; b = NAT[2]; }
       else { const q = texO(TX_HERBE, px, py), d = TX_HERBE.d; r = d[q]; g = d[q + 1]; b = d[q + 2]; }
       if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) { const q2 = texO(TX_CHEMIN, px, py), d2 = TX_CHEMIN.d; r = r + (d2[q2] - r) * 0.55; g = g + (d2[q2 + 1] - g) * 0.55; b = b + (d2[q2 + 2] - b) * 0.55; }   // (bord de chemin)
-      const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (24 - r) * k; g = g + (50 - g) * k; b = b + (60 - b) * k; }
+      const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (OMB[0] - r) * k; g = g + (OMB[1] - g) * k; b = b + (OMB[2] - b) * k; }
       HC[0] = r; HC[1] = g; HC[2] = b; return HC;
     };
     const altCase = (x, y) => { const a = map.alt ? map.alt[DW.clamp(y, 0, map.h - 1) * map.w + DW.clamp(x, 0, map.w - 1)] : 0; return a === 255 ? 9 : a; };
@@ -11429,6 +11439,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const L12 = half((x, y) => fbm(x * 0.04, y * 0.04, 12)), C21 = half((x, y) => fbm(x * 0.08, y * 0.08, 21));
     // thème de la zone (couleurs propres à chaque zone)
     const TH = World.themeOf ? World.themeOf(map) : World.THEMES && World.THEMES[map.theme];
+    // couleur vers laquelle tire l'ombre des arbres et des falaises : bleu-vert froid (forêts), sinon celle du thème (TH.ombre :
+    // brun chaud sur le volcan, sous les branches nues des arbres de cendres)
+    const OMB = (TH && TH.ombre) || [24, 50, 60];
     const GRASS = map.grass ? (World.seasonGrass ? World.seasonGrass(map, map.grass) : map.grass).map(Art.hex) : TH ? TH.grass.map(Art.hex) : map.ambient === 'forest' ? PAL.forest : PAL.grass;
     // map.lush : sol façon Digimon World 1 (herbe en brins fins, tons continus, chemins aux bords fondus, ombre de forêt sur les bords)
     // actif sur toutes les cartes extérieures (map.lush = false pour le désactiver), jamais en intérieur
@@ -11767,7 +11780,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
           const p5 = G5(px, py), sh = SH[i];
           if (p5 > 0.55) { const w = (p5 - 0.55) * 0.55; col[0] += (236 - col[0]) * w; col[1] += (226 - col[1]) * w * 0.6; col[2] += (110 - col[2]) * w * 0.4; }   // nappe de soleil (jaune doré)
           const cool = Math.min(0.5, (p5 < 0.42 ? (0.42 - p5) * 1.2 : 0) + sh * 0.035);
-          if (cool > 0) { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; }   // ombre bleutée
+          if (cool > 0) { if (TH && TH.ombre) { col[0] += (OMB[0] - col[0]) * cool; col[1] += (OMB[1] - col[1]) * cool; col[2] += (OMB[2] - col[2]) * cool; }   // ombre du thème (volcan : brun chaud)
+            else { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; } }   // ombre bleutée
         }
       } else if (t === TER.dirt && LUSH) {
         // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre
@@ -13142,7 +13156,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // s'allonge, à midi elle est courte (un peu vers le bas, la lumière vient du sud), le soir elle part vers la droite.
     // Couleur de l'ombre : bleu froid à midi, violet le matin, brun pourpre au couchant.
     const dx = sun.dx, shear = dx * 0.85, sq = 0.22 + Math.abs(dx) * 0.38, a = Math.min(0.45, sun.a * 1.6);
-    const tint = dx < -0.4 ? '#241a3c' : dx > 0.4 ? '#2e1428' : '#0a1a2a';
+    // (thème qui a sa propre ombre — le volcan : brun sombre, sous les branches nues des arbres de cendres)
+    const TH = DW.World.themeOf && DW.World.themeOf(ow.map), tint = (TH && TH.ombreProjetee) || (dx < -0.4 ? '#241a3c' : dx > 0.4 ? '#2e1428' : '#0a1a2a');
     c.save(); c.globalAlpha = a;
     for (const o of list) {
       if (!o.spr || o.flat || o.spr.h < 34) continue;

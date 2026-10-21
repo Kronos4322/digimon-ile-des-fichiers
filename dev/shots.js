@@ -29,15 +29,19 @@
       const ow = DW.ow, cv = DW.canvas, W = ow.map.w * 16, H = ow.map.h * 16;
       const big = document.createElement('canvas'); big.width = Math.max(W, 320); big.height = Math.max(H, 240);
       const g = big.getContext('2d'); g.imageSmoothingEnabled = false;
-      const orig = ow.camera, clock = DW.Time.drawClock, hud = DW.Care.drawHUD;
-      DW.Time.drawClock = () => {}; DW.Care.drawHUD = () => {};
+      const orig = ow.camera, clock = DW.Time.drawClock, hud = DW.Care.drawHUD, cine = ow.cine;
+      DW.Time.drawClock = () => {}; DW.Care.drawHUD = () => {}; ow.cine = true;   // (cine : ni nom de la zone, ni jauges, sur chaque morceau)
+      // effets attachés à l'ÉCRAN (brume qui passe, rais de lumière, météo, vignette, étalonnage) : sans eux, pas de coutures
+      // entre les morceaux de la vue d'ensemble
+      const NUL = () => {}, ecran = [[ow.amb, 'drawScreen'], [DW.Rendu, 'scene'], [DW.Rendu, 'grade'], [DW.Meteo, 'draw'], [ow.weather, 'draw']].filter(([o]) => o);
+      const gardes = ecran.map(([o, k]) => o[k]); ecran.forEach(([o, k]) => (o[k] = NUL));
       for (let cy = 0; cy < big.height; cy += 240) for (let cx = 0; cx < big.width; cx += 320) {
         const X = Math.min(cx, big.width - 320), Y = Math.min(cy, big.height - 240);
         ow.camera = () => ({ cx: X, cy: Y });
         await wait(120);
         g.drawImage(cv, 0, 0, cv.width, cv.height, X, Y, 320, 240);
       }
-      ow.camera = orig; DW.Time.drawClock = clock; DW.Care.drawHUD = hud;
+      ow.camera = orig; DW.Time.drawClock = clock; DW.Care.drawHUD = hud; ow.cine = cine; ecran.forEach(([o, k], i) => (o[k] = gardes[i]));
       this.last = big;
       show(big);
       return 'ok';

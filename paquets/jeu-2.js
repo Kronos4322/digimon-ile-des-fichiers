@@ -5751,10 +5751,17 @@
     drawRoads(g, m, id);
     m.solsNiveau = { herbe: SOLS_MONT.herbe };
     decorEtages(g, m, 0.7, null, ETAGES_MONT);
-    // bosquets de la jungle du pied du mont, plus denses vers l'ouest
+    // BOSQUETS de la jungle du pied du mont, plus fournis vers l'ouest (avant : des arbres semés un par un, partout pareil,
+    // comme un verger) : des massifs denses là où le bruit est fort, bordés de buissons et de cycas, quelques arbres isolés
+    // ailleurs ; jamais sur les terrasses ni près des routes
     const high = (x, y) => m.alt && m.alt[y * W + x] > 0;
-    sow(g, 3, 3, W - 4, H - 4, 'T', 0.03, 1271, c => c === '.' || c === ',', (x, y) => high(x, y) || nearRoad(id, x, y, 3) || Hh(x, y, 1272) > 1 - (1 - x / W) * 0.7);
-    sow(g, 3, 3, W - 4, H - 4, 'Ô', 0.01, 1273, c => c === '.' || c === ',', (x, y) => high(x, y) || nearRoad(id, x, y, 3));
+    for (let y = 3; y <= H - 4; y++) for (let x = 3; x <= W - 4; x++) {
+      const c = g.get(x, y); if ((c !== '.' && c !== ',') || high(x, y) || nearRoad(id, x, y, 3)) continue;
+      const v = N(x, y, 1281, 0.07) + (1 - x / W) * 0.12, h = Hh(x, y, 1282);
+      if (v > 0.66) g.set(x, y, h < 0.84 ? 'T' : 'Ô');                                       // cœur du bosquet
+      else if (v > 0.6) { if (h < 0.34) g.set(x, y, 'b'); else if (h < 0.44) g.set(x, y, 'Ô'); }   // lisière : buissons, cycas
+      else if (h < 0.006) g.set(x, y, 'T');                                                  // arbre isolé
+    }
     sow(g, 5, 5, Math.round(W * 0.3), H - 6, 'ì', 0.005, 950, c => c === '.', (x, y) => high(x, y) || nearRoad(id, x, y, 2.5));
     sow(g, 5, 5, W - 6, H - 6, 'Ó', 0.004, 949, c => c === '.' || c === ',', (x, y) => nearRoad(id, x, y, 2.5));
     // belvédère : une longue-vue sur le plus haut plateau de la crête

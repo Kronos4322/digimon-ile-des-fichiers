@@ -117,7 +117,7 @@
       if (Q) { solNaturel(Q[0], Q[1], px, py); r = NAT[0]; g = NAT[1]; b = NAT[2]; }
       else { const q = texO(TX_HERBE, px, py), d = TX_HERBE.d; r = d[q]; g = d[q + 1]; b = d[q + 2]; }
       if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) { const q2 = texO(TX_CHEMIN, px, py), d2 = TX_CHEMIN.d; r = r + (d2[q2] - r) * 0.55; g = g + (d2[q2 + 1] - g) * 0.55; b = b + (d2[q2 + 2] - b) * 0.55; }   // (bord de chemin)
-      const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (24 - r) * k; g = g + (50 - g) * k; b = b + (60 - b) * k; }
+      const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (OMB[0] - r) * k; g = g + (OMB[1] - g) * k; b = b + (OMB[2] - b) * k; }
       HC[0] = r; HC[1] = g; HC[2] = b; return HC;
     };
     const altCase = (x, y) => { const a = map.alt ? map.alt[DW.clamp(y, 0, map.h - 1) * map.w + DW.clamp(x, 0, map.w - 1)] : 0; return a === 255 ? 9 : a; };
@@ -151,6 +151,9 @@
     const L12 = half((x, y) => fbm(x * 0.04, y * 0.04, 12)), C21 = half((x, y) => fbm(x * 0.08, y * 0.08, 21));
     // thème de la zone (couleurs propres à chaque zone)
     const TH = World.themeOf ? World.themeOf(map) : World.THEMES && World.THEMES[map.theme];
+    // couleur vers laquelle tire l'ombre des arbres et des falaises : bleu-vert froid (forêts), sinon celle du thème (TH.ombre :
+    // brun chaud sur le volcan, sous les branches nues des arbres de cendres)
+    const OMB = (TH && TH.ombre) || [24, 50, 60];
     const GRASS = map.grass ? (World.seasonGrass ? World.seasonGrass(map, map.grass) : map.grass).map(Art.hex) : TH ? TH.grass.map(Art.hex) : map.ambient === 'forest' ? PAL.forest : PAL.grass;
     // map.lush : sol façon Digimon World 1 (herbe en brins fins, tons continus, chemins aux bords fondus, ombre de forêt sur les bords)
     // actif sur toutes les cartes extérieures (map.lush = false pour le désactiver), jamais en intérieur
@@ -489,7 +492,8 @@
           const p5 = G5(px, py), sh = SH[i];
           if (p5 > 0.55) { const w = (p5 - 0.55) * 0.55; col[0] += (236 - col[0]) * w; col[1] += (226 - col[1]) * w * 0.6; col[2] += (110 - col[2]) * w * 0.4; }   // nappe de soleil (jaune doré)
           const cool = Math.min(0.5, (p5 < 0.42 ? (0.42 - p5) * 1.2 : 0) + sh * 0.035);
-          if (cool > 0) { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; }   // ombre bleutée
+          if (cool > 0) { if (TH && TH.ombre) { col[0] += (OMB[0] - col[0]) * cool; col[1] += (OMB[1] - col[1]) * cool; col[2] += (OMB[2] - col[2]) * cool; }   // ombre du thème (volcan : brun chaud)
+            else { col[0] += (30 - col[0]) * cool; col[1] += (90 - col[1]) * cool * 0.5; col[2] += (100 - col[2]) * cool; } }   // ombre bleutée
         }
       } else if (t === TER.dirt && LUSH) {
         // bord du chemin : brins d'herbe qui débordent, terre un peu plus sombre

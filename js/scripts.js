@@ -81,7 +81,7 @@
     'gfx/hero.js': '97095308',
     'gfx/icons.js': 'a527443c',
     'gfx/objects.js': 'd0117709',
-    'gfx/textures.js': '7d365838',
+    'gfx/textures.js': '527fb5d8',
     'gfx/kit_donnees.js': '742be2d2',
     'gfx/persos.js': '22695c99',
     'gfx/pinceau.js': '7ee82687',
@@ -98,7 +98,7 @@
     'gfx/interior2.js': '3889db7e',
     'gfx/farm.js': 'babc55d6',
     'gfx/nursery.js': '5c60a6e4',
-    'gfx/biomes.js': 'ab63a8b3',
+    'gfx/biomes.js': '5accffa9',
     'gfx/peints.js': '66e7d8d9',
     'gfx/desert.js': '1bfe872d',
     'gfx/maisons.js': 'a8a3a7eb',
@@ -106,10 +106,10 @@
     'gfx/buildings2.js': 'fb684c59',
     'gfx/city.js': '95731dcd',
     'gfx/ponts.js': '1a0efd90',
-    'gfx/terrain.js': '43f9959e',
+    'gfx/terrain.js': 'd559e33d',
     'gfx/ambient.js': '2d139098',
     'gfx/vivant.js': '992ba20f',
-    'gfx/rendu.js': 'bee4520c',
+    'gfx/rendu.js': '8cd0343b',
     'gfx/regionfx.js': '745cc758',
     'gfx/battlebg.js': 'f8215486',
     'gfx/grandir.js': '6cd3075b',
@@ -180,7 +180,7 @@
     'maps/gymnase.js': '5a475b3f',
     'maps/relief.js': 'a472a6a7',
     'maps/monde.js': '2c5310a3',
-    'maps/miharashi.js': '68b025c1',
+    'maps/miharashi.js': '74e6b8e4',
     'maps/regions.js': 'c38ad84f',
     'maps/antre.js': '8f500972',
     'maps/yokomon.js': 'bb75718b',
@@ -206,9 +206,9 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: 'd097793d' },
+    { f: '../paquets/jeu-1.js', v: '17174085' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: '3648e487' },
+    { f: '../paquets/jeu-2.js', v: '780943fe' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

@@ -163,7 +163,8 @@
     // s'allonge, à midi elle est courte (un peu vers le bas, la lumière vient du sud), le soir elle part vers la droite.
     // Couleur de l'ombre : bleu froid à midi, violet le matin, brun pourpre au couchant.
     const dx = sun.dx, shear = dx * 0.85, sq = 0.22 + Math.abs(dx) * 0.38, a = Math.min(0.45, sun.a * 1.6);
-    const tint = dx < -0.4 ? '#241a3c' : dx > 0.4 ? '#2e1428' : '#0a1a2a';
+    // (thème qui a sa propre ombre — le volcan : brun sombre, sous les branches nues des arbres de cendres)
+    const TH = DW.World.themeOf && DW.World.themeOf(ow.map), tint = (TH && TH.ombreProjetee) || (dx < -0.4 ? '#241a3c' : dx > 0.4 ? '#2e1428' : '#0a1a2a');
     c.save(); c.globalAlpha = a;
     for (const o of list) {
       if (!o.spr || o.flat || o.spr.h < 34) continue;

@@ -94,6 +94,7 @@
     saule: ['arbre_saule'], pintordu: ['arbre_sapin'], bigtree: ['arbre_chene', 'arbre_chene_clair'],
     jungletree: ['arbre_vert', 'arbre_chene', 'arbre_vert_vif'], cycad: ['arbre_vert_vif', 'arbre_vert'], mangrove: ['arbre_saule'], swamptree: ['arbre_saule'],
     acacia: ['arbre_chene_clair', 'arbre_mi_automne'], baobab: ['arbre_chene'], deadtree: ['arbre_automne_brun'],
+    cendre: ['arbre_neige_nu'],   // (arbre de cendres des volcans : ton arbre nu enneigé, passé en gris cendre — CENDRE ci-dessous)
     candytree: ['arbre_cerisier', 'arbre_mauve', 'arbre_fleurs'],
     // DÉCORS : buissons, fougères, rochers, souches, troncs, champignons lumineux, objets de forêt
     bush: ['buisson', 'buisson_baies', 'buisson_fleuri', 'buisson_baies2'], hedge: ['buisson'], junglebush: ['buisson', 'buisson_baies2'],
@@ -135,7 +136,7 @@
   const HEROS = DW.World.HEROS_VISIBLE;   // hauteur visible du héros (sprite de marche), en pixels du jeu
   const HAUTEUR = {
     // (règle du joueur : TOUS les arbres font 3 fois la hauteur du héros, quelle que soit l'espèce)
-    tree: 3, oak: 3, birch: 3, pine: 3, saule: 3, pintordu: 3, bigtree: 3, jungletree: 3, cycad: 3, mangrove: 3, swamptree: 3, acacia: 3, baobab: 3, deadtree: 3, candytree: 3,
+    tree: 3, oak: 3, birch: 3, pine: 3, saule: 3, pintordu: 3, bigtree: 3, jungletree: 3, cycad: 3, mangrove: 3, swamptree: 3, acacia: 3, baobab: 3, deadtree: 3, candytree: 3, cendre: 3,
     bush: 0.85, hedge: 0.85, junglebush: 0.9, buissonfleuri: 0.85, rosebush: 0.8, flowerbed: 0.55, fern: 0.75, bigfern: 0.9, fougeres: 0.8, giantflower: 1.4,
     glowshroom: 0.9, giantshroom: 1.7, champignons: 0.5, mossrock: 0.8, rock: 0.6, boulder: 1, rochersmousse: 1, rubble: 0.8, cairn: 0.9,
     stump: 0.6, giantstump: 1, log: 0.5, hollowlog: 0.55, troncouche: 0.6, treeroots: 1, monolith: 1.6, totem: 1.7, crystal: 1, datacrystal: 1.9,
@@ -224,12 +225,20 @@
   };
   // image d'arbre pour (type, variante), prête à poser dans le cadre de l'objet (w x h, agrandi S fois) ; null sinon
   const arbres = {};
+  // ARBRE DE CENDRES (volcans) : l'image passée en gris cendre, pixel par pixel (la neige devient de la cendre, les branches
+  // du charbon ; sans « filter » de canvas : il manque à certains Safari)
+  function cendre(cv) {
+    const x = cv.getContext('2d'), D = x.getImageData(0, 0, cv.width, cv.height), d = D.data;
+    for (let i = 0; i < d.length; i += 4) { const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]; d[i] = l * 0.5 + 24; d[i + 1] = l * 0.45 + 19; d[i + 2] = l * 0.41 + 17; }
+    x.putImageData(D, 0, 0);
+  }
   T.arbre = (kind, v, w, h, S) => {
     const n = nomArbre(kind, v); if (!n) return null;
     const im = T.a('commun/' + n); if (!im) return null;
     const k = kind + v; if (arbres[k]) return arbres[k];
     const f = Math.min(w / im.naturalWidth, h / im.naturalHeight), dw = im.naturalWidth * f, dh = im.naturalHeight * f, q = (DW.Art.HD || 1) * (S || 1);
     const net = reduire(im, 0, 0, im.naturalWidth, im.naturalHeight, Math.max(1, Math.round(dw * q)), Math.max(1, Math.round(dh * q)));
+    if (kind === 'cendre') cendre(net);
     return (arbres[k] = { net, x: (w - dw) / 2, y: h - dh, w: dw, h: dh });
   };
   // fleurs du sol : quelle image pour cette case (null = pas d'images) ; selon le thème (des champs, des sous-bois...)

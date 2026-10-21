@@ -36,7 +36,7 @@
     // Mont Panorama : volcan, cendres, coulées de lave
     volcano: { grass: ['#3a302c', '#463a34', '#54463e', '#64544a', '#766456', '#8a7864'], canopy: ['#1a1210', '#261a16', '#34241e', '#463028', '#5a3e32', '#72503e'], canopyStyle: 'rock',
       dirt: ['#3a2218', '#4c2c1e', '#5e3826', '#72462e', '#885638', '#9e6a46'], cliff: ['#2a1c18', '#3a2620', '#4c322a', '#604036', '#765044', '#8e6454'], water: LAVA, foam: ['#fffbe0', '#ffe070'],
-      tall: ['#4a3a2a', '#7a6040', '#b89a60'], trees: [[0, 1]], objMap: { tree: 'pine', bush: 'lavarock', mossrock: 'lavarock', fern: 'steamvent', glowshroom: 'steamvent', hollowlog: 'lavarock', stump: 'lavarock' }, trees2: [[2, 1]],
+      tall: ['#4a3a2a', '#7a6040', '#b89a60'], trees: [[0, 1]], ombre: [34, 20, 14], ombreProjetee: '#1c100a', objMap: { tree: 'cendre', bush: 'lavarock', mossrock: 'lavarock', fern: 'steamvent', glowshroom: 'steamvent', hollowlog: 'lavarock', stump: 'lavarock' }, trees2: [[2, 1]],
       litter: ['#2a2420', '#6a5a4a'], particle: 'ember', leaves: ['#ffb040', '#ff7020', '#ffe080'], noFlowers: true, noFlies: true, tint: 'rgba(255,100,40,0.05)', sky: ['#a8502e', '#f4b878'], marks: ['steamvent', 'lavarock'] },
     // Savane des Engrenages
     savanna: { grass: ['#8a7830', '#9e8a38', '#b49e44', '#c8b252', '#d8c464', '#e8d67e'], canopy: ['#3a3618', '#4a461e', '#5c5824', '#6e6a2c', '#828036', '#9a9644'],
@@ -112,6 +112,7 @@
     // ---------------------------------------------------------- végétation des biomes
     // sapin : 0 vert, 1 enneigé, 2 mort (images : gfx/textures.js, avec 3 enneigé l'hiver et 4 mort enneigé des sommets)
     pine: { w: 26, h: 46, n: 3, big: true, draw: DW.World.secours.arbre(26, 46) },
+    cendre: { w: 30, h: 46, n: 1, big: true, draw: DW.World.secours.arbre(30, 46) },   // (arbre de cendres des volcans : gfx/textures.js)
     // rocher arrondi (montagne, grottes)
     boulder: { w: 22, h: 18, n: 3, draw: DW.World.secours.rocher(22, 18) },
     // cairn de pierres empilées
