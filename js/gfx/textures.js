@@ -267,6 +267,18 @@
     for (let i = 0; i < d.length; i += 4) { const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]; d[i] = l * 0.5 + 24; d[i + 1] = l * 0.45 + 19; d[i + 2] = l * 0.41 + 17; }
     x.putImageData(D, 0, 0);
   }
+  // la grande fontaine de la place À SEC (variante 2 : avant l'arrivée de Betamon) : l'eau de l'image du joueur devient le
+  // fond poussiéreux du bassin, ses jets se fondent dans la pierre (avant, l'image avec de l'eau servait aussi « à sec »)
+  function assecher(cv) {
+    const x = cv.getContext('2d'), D = x.getImageData(0, 0, cv.width, cv.height), d = D.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i + 1], b = d[i + 2];
+      if (d[i + 3] < 20 || !(b > r + 18 && b >= g - 6)) continue;   // (l'eau, l'écume et les jets : bleus)
+      const k = Math.min(1, (0.3 * r + 0.59 * g + 0.11 * b) / 255);
+      d[i] = 70 + 70 * k; d[i + 1] = 62 + 60 * k; d[i + 2] = 52 + 46 * k;
+    }
+    x.putImageData(D, 0, 0);
+  }
   T.arbre = (kind, v, w, h, S) => {
     const n = nomArbre(kind, v); if (!n) return null;
     const im = T.a('commun/' + n); if (!im) return null;
@@ -274,6 +286,7 @@
     const f = Math.min(w / im.naturalWidth, h / im.naturalHeight), dw = im.naturalWidth * f, dh = im.naturalHeight * f, q = (DW.Art.HD || 1) * (S || 1);
     const net = reduire(im, 0, 0, im.naturalWidth, im.naturalHeight, Math.max(1, Math.round(dw * q)), Math.max(1, Math.round(dh * q)));
     if (kind === 'cendre') cendre(net);
+    if (kind === 'bigfountain' && v === 2) assecher(net);
     return (arbres[k] = { net, x: (w - dw) / 2, y: h - dh, w: dw, h: dh });
   };
   // fleurs du sol : quelle image pour cette case (null = pas d'images) ; selon le thème (des champs, des sous-bois...)

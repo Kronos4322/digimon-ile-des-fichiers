@@ -30,7 +30,7 @@
     // un distributeur déjà là (posé ou déplacé dans l'atelier des cartes) : il garde sa boutique, même sur une carte hors
     // de la liste (avant : celui posé au Terrain d'entraînement ne répondait pas) — là, celui de la ville
     const deja = (m.objects || []).find(o => o.kind === 'vending');
-    if (deja) { m._distribFor = m.rows; brancher(m, deja.x, deja.y, MACHINES[id === 'village' || i < 0 ? 3 : i % 3]); return; }
+    if (deja) { m._distribFor = m.rows; brancher(m, deja.x, deja.y, MACHINES[id === 'village' || i < 0 ? 3 : i % 3], deja.w || 1); return; }
     if (i < 0) return;
     m._distribFor = m.rows;
     const H = m.rows.length, W = m.rows[0].length, occ = new Set();
@@ -60,14 +60,15 @@
     if (m.gfx) DW.World.unprepare(m);
   }
   // la machine répond quand on lui parle (sa boutique)
-  function brancher(m, x, y, M) {
+  // (sur toute sa largeur : celui du Terrain d'entraînement fait deux cases, et ne répondait que sur celle de gauche)
+  function brancher(m, x, y, M, w = 1) {
     m.signs = m.signs || {};
-    if (m.signs[`${x},${y}`]) return;
-    m.signs[`${x},${y}`] = Object.assign(async () => {
+    const vendre = Object.assign(async () => {
       DW.Audio.sfx('select');
       await DW.say(`${M.name}. Insère tes Bits !`);
       await DW.Game.push(new DW.ShopScene(M.stock));
     }, { vending: true });
+    for (let i = 0; i < w; i++) if (!m.signs[`${x + i},${y}`]) m.signs[`${x + i},${y}`] = vendre;
   }
   // PANNEAUX bien placés : un panneau perdu dans l'herbe est déplacé au bord du chemin le plus proche
   // (case d'herbe touchant le chemin, devant dégagé), son texte le suit. Une seule fois par carte.

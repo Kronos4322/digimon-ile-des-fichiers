@@ -12,11 +12,12 @@
     objects: [
       { kind: 'tableau', x: 6, y: 1, w: 3, h: 2, back: true },
       { kind: 'stationsign', v: 4, x: 7, y: 4, w: 2, h: 1, small: true },   // (w: 2 : solide sur toute sa largeur)
-      { kind: 'bookshelf', v: 0, x: 1, y: 3, w: 2, h: 1 }, { kind: 'bookshelf', v: 1, x: 13, y: 3, w: 2, h: 1 },
+      // (contre le mur du fond : les bibliothèques, l'horloge debout, le tableau de mémoire entre la bibliothèque et le tableau)
+      { kind: 'bookshelf', v: 0, x: 1, y: 2, w: 2, h: 1 }, { kind: 'bookshelf', v: 1, x: 13, y: 2, w: 2, h: 1 },
       ...[[3, 6], [6, 6], [9, 6], [12, 6], [3, 8], [6, 8], [9, 8], [12, 8]].map(([x, y], i) => ({ kind: 'pupitre', v: i % 2, x, y, w: 1, h: 1, small: true })),
-      { kind: 'bigplant', x: 14, y: 9, w: 1, h: 1, small: true }, { kind: 'clock', x: 11, y: 1, w: 1, h: 1, back: true },
+      { kind: 'bigplant', x: 14, y: 9, w: 1, h: 1, small: true }, { kind: 'clock', x: 11, y: 2, w: 1, h: 1 },
       // matériel d'étude (images du joueur, dossier SPORT) : tableau de mémoire, longue-vue, blocs de formes
-      { kind: 'tableaumemoire', x: 3, y: 2, w: 1, h: 1, small: true }, { kind: 'telescope', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'formes', x: 1, y: 7, w: 1, h: 1, small: true },
+      { kind: 'tableaumemoire', x: 4, y: 2, w: 1, h: 1, small: true }, { kind: 'telescope', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'formes', x: 1, y: 7, w: 1, h: 1, small: true },
     ] });
   room.calm = true;
   // le poste d'Intelligence de la salle s'appelle « Étude » (et non « Méditation », le nom de la stat : game/training.js, poste)

@@ -18,7 +18,7 @@
     const W = DW.W, H = DW.H, HZ = 100;
     const cv = Art.canvas(W, H), c = cv.getContext('2d');
     c.imageSmoothingEnabled = false;
-    const sky = (TH && TH.sky) || (theme && SKY[theme]) || { foret: ['#6cb8f0', '#cfeef0'], plage: ['#4aa8f4', '#d4f0ff'], village: ['#f0a8d8', '#fff2f0'] }[type];
+    const sky = (TH && TH.sky) || (theme && SKY[theme]) || { foret: ['#6cb8f0', '#cfeef0'], plage: ['#4aa8f4', '#d4f0ff'], mer: ['#4aa2ee', '#d8f2ff'], village: ['#f0a8d8', '#fff2f0'] }[type] || ['#6cb8f0', '#cfeef0'];
     let g = c.createLinearGradient(0, 0, 0, HZ);
     g.addColorStop(0, sky[0]); g.addColorStop(1, sky[1]);
     c.fillStyle = g; c.fillRect(0, 0, W, HZ);
@@ -108,18 +108,34 @@
       place('steamvent', 0, 112, HZ + 12); place('steamvent', 0, 214, HZ + 16); place('lavarock', 1, 150, HZ + 10);
       place('aiguille', 1, 6, 228, 1.7); place('lavarock', 0, W - 12, 222, 2);
     } else if (type === 'plage') {
+      // LA PLAGE (les objets prennent les images de la planche PLAGE du joueur : palmiers, rochers, arche, bois flotté, oyats ;
+      // les cabines téléphoniques de l'épisode 2 restent)
       g = c.createLinearGradient(0, 70, 0, HZ);
       g.addColorStop(0, '#2a74c8'); g.addColorStop(1, '#4ab4e8');
       c.fillStyle = g; c.fillRect(0, 70, W, HZ - 70);
-      c.fillStyle = '#5a8a6a'; c.beginPath(); c.ellipse(250, 72, 34, 7, 0, Math.PI, 0); c.fill();
-      c.fillStyle = '#7aaa78'; c.beginPath(); c.ellipse(244, 72, 18, 4, 0, Math.PI, 0); c.fill();
+      place('rockarch', 0, 254, 86, 0.6);
       ground(PAL.sand, 41, true);
       g = c.createLinearGradient(0, HZ, 0, HZ + 10);
       g.addColorStop(0, 'rgba(240,255,255,0.9)'); g.addColorStop(1, 'rgba(240,255,255,0)');
       c.fillStyle = g; c.fillRect(0, HZ, W, 10);
       place('booth', 0, 140, 104); place('booth', 0, 154, 104); place('booth', 0, 168, 104);
-      place('palm', 0, 10, 232, 2); place('palm', 1, W - 10, 226, 2);
-      place('rock', 1, 290, 118);
+      place('oyats', 0, 72, HZ + 14, 0.9); place('driftwood', 0, 226, HZ + 22, 0.9);
+      place('cocotier', 0, 12, 232, 1.6); place('palm', 1, W - 12, 226, 1.6);
+      place('searock', 1, 292, 122, 0.8);
+    } else if (type === 'mer') {
+      // EN PLEINE MER (Whamon, épisode 14) : la crique au loin, puis la mer jusqu'au bas de l'écran ; les deux Digimon nagent
+      // (World.platform, World.remous)
+      c.fillStyle = '#d8c89a'; c.fillRect(0, HZ - 9, W, 4);   // (le sable de la crique, très loin)
+      for (const [x, k, v] of [[34, 'palm', 0], [58, 'palm', 1], [292, 'cocotier', 0]]) place(k, v, x, HZ - 7, 0.32);
+      g = c.createLinearGradient(0, HZ - 5, 0, HZ); g.addColorStop(0, '#2a6ab8'); g.addColorStop(1, '#2f78c2');
+      c.fillStyle = g; c.fillRect(0, HZ - 5, W, 5);
+      ground(['#174684', '#1d5698', '#2468ac', '#2e7cbe', '#3e92d0', '#5aaade', '#86c6ea'].map(Art.hex), 61, true);
+      for (let i = 0; i < 70; i++) {   // (moutons d'écume)
+        const y = HZ + 4 + Math.floor(hash(i, 2, 61) * (H - HZ - 8)), k = (y - HZ) / (H - HZ), x = Math.floor(hash(i, 1, 61) * W);
+        c.fillStyle = `rgba(235,248,255,${(0.35 + 0.4 * k).toFixed(2)})`; c.fillRect(x, y, 2 + Math.floor(k * 9), 1);
+      }
+      place('rockarch', 0, 44, HZ + 6, 0.45); place('searock', 2, 206, HZ + 4, 0.45);
+      place('searock', 0, 304, 200, 1.2);
     } else {
       c.fillStyle = '#e8c0ec';
       for (let i = 0; i < 6; i++) { c.beginPath(); c.ellipse(i * 64 + 20, HZ, 50, 30, 0, Math.PI, 0); c.fill(); }
@@ -130,14 +146,28 @@
       place('crib', 0, 120, 112); place('crib', 1, 150, 112); place('block', 0, 200, 114); place('block', 2, 214, 116);
       place('candytree', 0, -4, 230, 2); place('candytree', 2, W + 4, 224, 2);
     }
+    // (gardé seulement une fois les images du jeu chargées : avant, ce sont les dessins de secours)
+    if (DW.Textures && !DW.Textures.fini) return cv;
     return (bgCache[key] = cv);
   };
-  World.platform = (c, key, x, y, rx, ry) => {
+  World.platform = (c, key, x, y, rx, ry, cote) => {
     const [type, theme] = key.split('@'), TH = theme && World.THEMES[theme];
+    if (type === 'mer') {
+      ecume(c, x, y, rx, ry, 0, Math.PI * 2);   // (pas de sol en mer : l'arrière du remous ; l'avant passe devant le Digimon : remous)
+      return;
+    }
     const cols = TH && type === 'mont' && TH.rock ? [TH.rock[3], TH.rock[5], TH.rock[6]] : TH && (type === 'foret' || type === 'lac' || type === 'desert') ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
     c.fillStyle = 'rgba(0,0,0,0.22)'; c.beginPath(); c.ellipse(x, y + 3, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[0]; c.beginPath(); c.ellipse(x, y + 1, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[1]; c.beginPath(); c.ellipse(x, y, rx - 2, ry - 2, 0, 0, 7); c.fill();
     c.fillStyle = cols[2]; c.beginPath(); c.ellipse(x - rx * 0.2, y - ry * 0.25, rx * 0.55, ry * 0.4, 0, 0, 7); c.fill();
   };
+  // remous d'écume autour d'un Digimon qui nage (de a à b, en radians : la moitié avant passe devant lui)
+  function ecume(c, x, y, rx, ry, a, b, t = 0) {
+    c.fillStyle = 'rgba(20,70,130,0.45)'; c.beginPath(); c.ellipse(x, y + 1, rx, ry, 0, a, b); c.fill();
+    c.lineWidth = 2; c.strokeStyle = 'rgba(235,250,255,0.85)'; c.beginPath(); c.ellipse(x, y, rx - 2 + Math.sin(t * 3) * 2, ry - 1, 0, a, b); c.stroke();
+    c.lineWidth = 1; c.strokeStyle = 'rgba(200,235,255,0.6)'; c.beginPath(); c.ellipse(x, y + 2, rx + 6 + Math.sin(t * 2 + 1) * 3, ry + 3, 0, a, b); c.stroke();
+  }
+  // l'avant du remous, dessiné devant un Digimon qui nage (fond « mer ») : le bas de son corps est dans l'eau
+  World.remous = (c, x, y, rx, ry, t) => ecume(c, x, y, rx, ry, 0, Math.PI, t);
 })();

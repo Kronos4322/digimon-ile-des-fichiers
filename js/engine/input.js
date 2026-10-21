@@ -106,7 +106,9 @@
     DW.Audio.init();
     if (Input.textMode) {
       if (e.target && e.target.dataset && e.target.dataset.saisie) return; // champ de saisie tactile (ui/touch.js)
-      if (e.key.length === 1 || ['Backspace', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Escape'].includes(e.key)) { Input.typed.push(e.key); e.preventDefault(); }
+      // (Retour arrière gardé enfoncé : ses répétitions effacent, mais ne font jamais quitter la saisie)
+      if (e.key === 'Backspace' && e.repeat) { Input.typed.push('BackspaceRepeat'); e.preventDefault(); }
+      else if (e.key.length === 1 || ['Backspace', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Escape', 'Delete'].includes(e.key)) { Input.typed.push(e.key); e.preventDefault(); }
       return;
     }
     const a = KEYMAP[e.code];

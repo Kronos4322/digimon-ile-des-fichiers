@@ -70,7 +70,7 @@
       await say("La mer se soulève ! Une baleine gigantesque surgit et manque d'avaler le radeau tout entier !");
       const pn = (s.party.find(m => m.hp > 0) || s.party[0]).name;
       await say("C'est Whamon ! Regarde son dos... un Engrenage Noir ! Il ne sait plus ce qu'il fait !", pn);
-      const res = await ow.battle({ enemy: new DW.Digimon('whamon', 24), boss: true, canLose: true, intro: 'Whamon fait déferler une vague géante !' });   // boss facultatif redoutable
+      const res = await ow.battle({ enemy: new DW.Digimon('whamon', 24), boss: true, canLose: true, bg: 'mer', intro: 'Whamon fait déferler une vague géante !' });   // boss facultatif redoutable
       if (res !== 'win') { await say('Whamon replonge dans les profondeurs... Il reviendra. Entraîne-toi et retente ta chance.'); await ow.bossDefeat("Hohoho... Des Bukamon t'ont tiré de l'eau. Whamon ? Ce géant est bien trop fort pour l'instant !"); return; }
       s.flags.whamon = true;
       DW.Audio.sfx('super'); ow.shake = 0.6;

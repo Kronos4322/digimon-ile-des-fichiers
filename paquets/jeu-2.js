@@ -1048,7 +1048,7 @@
       await say("La mer se soulève ! Une baleine gigantesque surgit et manque d'avaler le radeau tout entier !");
       const pn = (s.party.find(m => m.hp > 0) || s.party[0]).name;
       await say("C'est Whamon ! Regarde son dos... un Engrenage Noir ! Il ne sait plus ce qu'il fait !", pn);
-      const res = await ow.battle({ enemy: new DW.Digimon('whamon', 24), boss: true, canLose: true, intro: 'Whamon fait déferler une vague géante !' });   // boss facultatif redoutable
+      const res = await ow.battle({ enemy: new DW.Digimon('whamon', 24), boss: true, canLose: true, bg: 'mer', intro: 'Whamon fait déferler une vague géante !' });   // boss facultatif redoutable
       if (res !== 'win') { await say('Whamon replonge dans les profondeurs... Il reviendra. Entraîne-toi et retente ta chance.'); await ow.bossDefeat("Hohoho... Des Bukamon t'ont tiré de l'eau. Whamon ? Ce géant est bien trop fort pour l'instant !"); return; }
       s.flags.whamon = true;
       DW.Audio.sfx('super'); ow.shake = 0.6;
@@ -3269,7 +3269,7 @@
 //    dalle violette (sud-ouest)  : Ψ cristal de données (PM)
 //    jardin zen (sud-est) ; l'Intelligence s'apprend à l'école (maps/classe.js), les résistances au Gymnase (maps/gymnase.js)
 //  Chaque poste a son panneau à pictogramme juste à sa gauche. Appareils : images du joueur (dossier SPORT : gfx/textures.js).
-//  + allées pavées, torches, toilettes (y), panneau
+//  + allées pavées, torches, panneau
 // =====================================================================
 (function () {
   const { say, paint, st } = DW.MapKit;
@@ -3297,8 +3297,8 @@
     g.set(27, 9, 'A');
     // (l'Intelligence s'entraîne désormais dans la salle de classe : maps/classe.js)
     g.set(10, 16, 'Ψ');   // cristal de données (PM)
-    // toilettes (hors de l'ombre des grands arbres du bas, qui les cachaient) et panneau
-    g.set(4, 14, 'y'); g.set(14, 6, 'S');
+    // panneau (plus de toilettes ici, règle du joueur : celles du village, juste au-dessus, suffisent)
+    g.set(14, 6, 'S');
   });
 
   // ------------------------------------------------------------ sol du centre sportif, peint au pixel
@@ -4649,11 +4649,12 @@
     objects: [
       { kind: 'tableau', x: 6, y: 1, w: 3, h: 2, back: true },
       { kind: 'stationsign', v: 4, x: 7, y: 4, w: 2, h: 1, small: true },   // (w: 2 : solide sur toute sa largeur)
-      { kind: 'bookshelf', v: 0, x: 1, y: 3, w: 2, h: 1 }, { kind: 'bookshelf', v: 1, x: 13, y: 3, w: 2, h: 1 },
+      // (contre le mur du fond : les bibliothèques, l'horloge debout, le tableau de mémoire entre la bibliothèque et le tableau)
+      { kind: 'bookshelf', v: 0, x: 1, y: 2, w: 2, h: 1 }, { kind: 'bookshelf', v: 1, x: 13, y: 2, w: 2, h: 1 },
       ...[[3, 6], [6, 6], [9, 6], [12, 6], [3, 8], [6, 8], [9, 8], [12, 8]].map(([x, y], i) => ({ kind: 'pupitre', v: i % 2, x, y, w: 1, h: 1, small: true })),
-      { kind: 'bigplant', x: 14, y: 9, w: 1, h: 1, small: true }, { kind: 'clock', x: 11, y: 1, w: 1, h: 1, back: true },
+      { kind: 'bigplant', x: 14, y: 9, w: 1, h: 1, small: true }, { kind: 'clock', x: 11, y: 2, w: 1, h: 1 },
       // matériel d'étude (images du joueur, dossier SPORT) : tableau de mémoire, longue-vue, blocs de formes
-      { kind: 'tableaumemoire', x: 3, y: 2, w: 1, h: 1, small: true }, { kind: 'telescope', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'formes', x: 1, y: 7, w: 1, h: 1, small: true },
+      { kind: 'tableaumemoire', x: 4, y: 2, w: 1, h: 1, small: true }, { kind: 'telescope', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'formes', x: 1, y: 7, w: 1, h: 1, small: true },
     ] });
   room.calm = true;
   // le poste d'Intelligence de la salle s'appelle « Étude » (et non « Méditation », le nom de la stat : game/training.js, poste)
@@ -8069,7 +8070,7 @@
     // un distributeur déjà là (posé ou déplacé dans l'atelier des cartes) : il garde sa boutique, même sur une carte hors
     // de la liste (avant : celui posé au Terrain d'entraînement ne répondait pas) — là, celui de la ville
     const deja = (m.objects || []).find(o => o.kind === 'vending');
-    if (deja) { m._distribFor = m.rows; brancher(m, deja.x, deja.y, MACHINES[id === 'village' || i < 0 ? 3 : i % 3]); return; }
+    if (deja) { m._distribFor = m.rows; brancher(m, deja.x, deja.y, MACHINES[id === 'village' || i < 0 ? 3 : i % 3], deja.w || 1); return; }
     if (i < 0) return;
     m._distribFor = m.rows;
     const H = m.rows.length, W = m.rows[0].length, occ = new Set();
@@ -8099,14 +8100,15 @@
     if (m.gfx) DW.World.unprepare(m);
   }
   // la machine répond quand on lui parle (sa boutique)
-  function brancher(m, x, y, M) {
+  // (sur toute sa largeur : celui du Terrain d'entraînement fait deux cases, et ne répondait que sur celle de gauche)
+  function brancher(m, x, y, M, w = 1) {
     m.signs = m.signs || {};
-    if (m.signs[`${x},${y}`]) return;
-    m.signs[`${x},${y}`] = Object.assign(async () => {
+    const vendre = Object.assign(async () => {
       DW.Audio.sfx('select');
       await DW.say(`${M.name}. Insère tes Bits !`);
       await DW.Game.push(new DW.ShopScene(M.stock));
     }, { vending: true });
+    for (let i = 0; i < w; i++) if (!m.signs[`${x + i},${y}`]) m.signs[`${x + i},${y}`] = vendre;
   }
   // PANNEAUX bien placés : un panneau perdu dans l'herbe est déplacé au bord du chemin le plus proche
   // (case d'herbe touchant le chemin, devant dégagé), son texte le suit. Une seule fois par carte.
@@ -9463,7 +9465,7 @@
     const baby = DW.state.party[0] ? DW.state.party[0].name : 'Ton Digimon';
     await say('Mmh... Où est-ce que je suis ?');
     await say(`${baby} est blotti contre toi. Il ouvre les yeux en même temps que toi.`);
-    await say(`Tu es ${DW.gn('réveillé', 'réveillée')} ! Moi c'est ${baby} ! Je ne t'ai pas quitté une seconde !`, baby);
+    await say(`Tu es ${DW.gn('réveillé', 'réveillée')} ! Moi c'est ${baby} ! Je ne t'ai pas ${DW.gn('quitté', 'quittée')} une seconde !`, baby);
     await say("Hohoho ! Doucement... Je suis Jijimon. Je vous ai trouvés tous les deux à l'entrée de la ville, épuisés, comme si vous aviez fui un monstre.", J);
     await say(`Un insecte rouge géant, dis-tu ? Kuwagamon... Il terrorise la forêt depuis quelque temps. Vous avez eu de la chance !`, J);
     await say(`Un humain... Je n'en avais jamais vu. Tu t'appelles ${hero()} ? Et d'où viens-tu ?... Tu ne sais pas non plus. Hohoho, nous voilà bien.`, J);

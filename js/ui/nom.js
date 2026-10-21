@@ -68,8 +68,10 @@
         if (k === 'Enter') { if (this.act(this.sel)) return; continue; }
         if (k === 'ArrowLeft') this.move(-1, 0); else if (k === 'ArrowRight' || k === 'Tab') this.move(1, 0);
         else if (k === 'ArrowUp') this.move(0, -1); else if (k === 'ArrowDown') this.move(0, 1);
-        else if (k === 'Escape' || (k === 'Backspace' && !this.name)) { Input.textMode = false; Audio.sfx('back'); this.close(null); return; }   // (retour à la création)
-        else if (k === 'Backspace') this.name = this.name.slice(0, -1);
+        // (retour à la création : ÉCHAP, SUPPR, ou un nouvel appui sur Retour arrière quand le nom est vide — pas ses
+        //  répétitions quand on le garde enfoncé pour effacer : on en sortait sans le vouloir)
+        else if (k === 'Escape' || k === 'Delete' || (k === 'Backspace' && !this.name)) { Input.textMode = false; Audio.sfx('back'); this.close(null); return; }
+        else if (k === 'Backspace' || k === 'BackspaceRepeat') this.name = this.name.slice(0, -1);
         else if (this.name.length < 10 && /^[\p{L}\p{N} '\-]$/u.test(k)) { this.name += k; this.sel = NAMES.length + 1; Audio.sfx('text'); }
       }
       Input.textValue = this.name;   // (recopié dans le champ de saisie du téléphone)

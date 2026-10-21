@@ -29,10 +29,10 @@
         c.beginPath(); c.ellipse(cl.x, cl.y, 20 * cl.s + 8, 5 * cl.s + 3, 0, 0, 7); c.ellipse(cl.x + 10, cl.y - 4, 11 * cl.s + 4, 6 * cl.s + 2, 0, 0, 7); c.fill();
         c.fillStyle = 'rgba(200,220,255,0.6)'; c.fillRect(cl.x - 18 * cl.s - 6, cl.y + 2, 36 * cl.s + 14, 2); c.fillStyle = 'rgba(255,255,255,0.9)';
       });
-      if (base === 'plage') {
+      if (base === 'plage' || base === 'mer') {
         c.fillStyle = 'rgba(200,240,255,0.8)';
         for (let i = 0; i < 18; i++) {
-          const x = ((i * 53 + t * (6 + (i % 3) * 3)) % (W + 20)) - 10, y = 72 + (i % 6) * 4.5;
+          const x = ((i * 53 + t * (6 + (i % 3) * 3)) % (W + 20)) - 10, y = base === 'mer' ? 104 + (i % 9) * 14 : 72 + (i % 6) * 4.5;
           if (Math.sin(t * 2 + i) > -0.2) c.fillRect(Math.round(x), Math.round(y), 4 + (i % 3) * 2, 1);
         }
       } else if (base === 'foret') {
@@ -62,8 +62,8 @@
           c.fillRect(Math.round(x), Math.round(y), 2, 1);
         }
       }
-      DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12);
-      DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14);
+      DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12, 'e');
+      DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14, 'p');
     },
     // l'ALLIÉ (l'enfant délivré et son Digimon : game/battle.js, allyTurn) : à côté du partenaire, un peu en retrait
     drawAlly(c) {
@@ -191,9 +191,12 @@
       const sx = this.shake > 0 ? Math.round((Math.random() - 0.5) * 8 * this.shake) : 0;
       c.save(); c.translate(sx, 0);
       this.drawBg(c);
+      const mer = this.bg.split('@')[0] === 'mer';   // (en pleine mer, les deux Digimon nagent : le remous passe devant eux)
       this.drawMon(c, 'e');
+      if (mer && this.spr.e.vis) DW.World.remous(c, POS.e.x + this.spr.e.dx, POS.e.y - 3, 56, 12, this.t);
       this.drawAlly(c);
       this.drawMon(c, 'p');
+      if (mer && this.spr.p.vis) DW.World.remous(c, POS.p.x + this.spr.p.dx, POS.p.y - 3, 64, 14, this.t + 1);
       for (const f of this.fx) {
         if (f.t < 0) continue;
         const k = f.t / f.dur;

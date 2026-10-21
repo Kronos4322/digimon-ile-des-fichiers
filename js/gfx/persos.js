@@ -404,12 +404,12 @@
   // (sans chapeau : ceux du kit se posent mal sur les têtes — règle du joueur ; bf : les garçons aussi portent un bas complet
   //  du kit, jambes et chaussures dessinées avec — règle du joueur, 21/10 : « un ensemble homogène et unique »)
   const PRESETS = [
-    { nom: 'Inspiré de Tai', bebe: 'tai', ch: { g: 0, corps: 1, tete: 0, haut: 11, bas: 0, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: 5 } },
+    { nom: 'Inspiré de Tai', bebe: 'tai', ch: { g: 0, corps: 1, tete: 0, haut: 11, bas: 5, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: 5 } },
     { nom: 'Inspiré de Matt', bebe: 'matt', ch: { g: 0, corps: 0, tete: 1, haut: 22, bas: 3, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspirée de Sora', bebe: 'sora', ch: { g: 1, corps: 2, tete: 26, haut: 14, bas: 0, chaus: 11, chapeau: -1, sac: -1, acc: 5 } },
     { nom: 'Inspiré d’Izzy', bebe: 'izzy', ch: { g: 0, corps: 7, tete: 6, haut: 15, bas: 2, bf: 1, chaus: -1, chapeau: -1, sac: 3, acc: 9 } },
     { nom: 'Inspirée de Mimi', bebe: 'mimi', ch: { g: 1, corps: 3, tete: 23, haut: 18, bas: 6, chaus: 7, chapeau: -1, sac: -1, acc: -1 } },
-    { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 5, bf: 1, chaus: -1, chapeau: -1, sac: 13, acc: 0 } },
+    { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 3, bf: 1, chaus: -1, chapeau: -1, sac: 13, acc: 0 } },
     { nom: 'Inspiré de T.K.', bebe: 'tk', ch: { g: 0, corps: 4, tete: 1, haut: 12, bas: 9, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspirée de Kari', bebe: 'kari', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
   ];

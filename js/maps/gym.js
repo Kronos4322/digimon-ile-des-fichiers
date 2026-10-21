@@ -8,7 +8,7 @@
 //    dalle violette (sud-ouest)  : Ψ cristal de données (PM)
 //    jardin zen (sud-est) ; l'Intelligence s'apprend à l'école (maps/classe.js), les résistances au Gymnase (maps/gymnase.js)
 //  Chaque poste a son panneau à pictogramme juste à sa gauche. Appareils : images du joueur (dossier SPORT : gfx/textures.js).
-//  + allées pavées, torches, toilettes (y), panneau
+//  + allées pavées, torches, panneau
 // =====================================================================
 (function () {
   const { say, paint, st } = DW.MapKit;
@@ -36,8 +36,8 @@
     g.set(27, 9, 'A');
     // (l'Intelligence s'entraîne désormais dans la salle de classe : maps/classe.js)
     g.set(10, 16, 'Ψ');   // cristal de données (PM)
-    // toilettes (hors de l'ombre des grands arbres du bas, qui les cachaient) et panneau
-    g.set(4, 14, 'y'); g.set(14, 6, 'S');
+    // panneau (plus de toilettes ici, règle du joueur : celles du village, juste au-dessus, suffisent)
+    g.set(14, 6, 'S');
   });
 
   // ------------------------------------------------------------ sol du centre sportif, peint au pixel

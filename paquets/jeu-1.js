@@ -315,7 +315,9 @@ window.DW = window.DW || {};
     DW.Audio.init();
     if (Input.textMode) {
       if (e.target && e.target.dataset && e.target.dataset.saisie) return; // champ de saisie tactile (ui/touch.js)
-      if (e.key.length === 1 || ['Backspace', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Escape'].includes(e.key)) { Input.typed.push(e.key); e.preventDefault(); }
+      // (Retour arrière gardé enfoncé : ses répétitions effacent, mais ne font jamais quitter la saisie)
+      if (e.key === 'Backspace' && e.repeat) { Input.typed.push('BackspaceRepeat'); e.preventDefault(); }
+      else if (e.key.length === 1 || ['Backspace', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Escape', 'Delete'].includes(e.key)) { Input.typed.push(e.key); e.preventDefault(); }
       return;
     }
     const a = KEYMAP[e.code];
@@ -3321,7 +3323,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
     // (21/10 : Botamon, Pichimon et YukimiBotamon en pixel art ; Yuramon, Disciples et Champions peints)
     botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yukimibotamon: { taille: 0.58 }, yuramon: { taille: 0.72 },
-    betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.79 }, palmon: { taille: 0.97 },
+    betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.92 }, palmon: { taille: 0.97 },
     kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
   };
   const imageDe = (sp, vue) => (IMAGES[sp] && DW.Textures && DW.Textures.a('commun/digi_' + sp + '_' + vue)) || null;
@@ -3364,8 +3366,10 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   const cache = {};
   // résolutions de rendu (plus grand = plus de détails : les dessins sont des formes, pas des pixels étirés)
   // chaque stade est nettement plus grand que le précédent (Bébé < Entraînement < Disciple < Champion < Ultime < Méga)
-  const RES_BATTLE = { 'Bébé': 42, 'Entraînement': 56, 'Disciple': 74, 'Champion': 102, 'Ultime': 114, 'Méga': 124 };
-  const RES_OW = { 'Bébé': 22, 'Entraînement': 27, 'Disciple': 33, 'Champion': 46, 'Ultime': 54, 'Méga': 60 };   // bien visibles, surtout sur téléphone
+  // (21/10, le joueur : « les Digimon sont trop petits » — sur la carte +30 % ; en combat, les petits stades grandissent, les
+  //  grands restent sous le haut de l'écran)
+  const RES_BATTLE = { 'Bébé': 50, 'Entraînement': 66, 'Disciple': 86, 'Champion': 108, 'Ultime': 118, 'Méga': 126 };
+  const RES_OW = { 'Bébé': 28, 'Entraînement': 35, 'Disciple': 43, 'Champion': 58, 'Ultime': 68, 'Méga': 76 };   // bien visibles, surtout sur téléphone
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
   const S = DW.Sprites = {
     IMAGES, VUES,
@@ -7385,6 +7389,18 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
     for (let i = 0; i < d.length; i += 4) { const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]; d[i] = l * 0.5 + 24; d[i + 1] = l * 0.45 + 19; d[i + 2] = l * 0.41 + 17; }
     x.putImageData(D, 0, 0);
   }
+  // la grande fontaine de la place À SEC (variante 2 : avant l'arrivée de Betamon) : l'eau de l'image du joueur devient le
+  // fond poussiéreux du bassin, ses jets se fondent dans la pierre (avant, l'image avec de l'eau servait aussi « à sec »)
+  function assecher(cv) {
+    const x = cv.getContext('2d'), D = x.getImageData(0, 0, cv.width, cv.height), d = D.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i + 1], b = d[i + 2];
+      if (d[i + 3] < 20 || !(b > r + 18 && b >= g - 6)) continue;   // (l'eau, l'écume et les jets : bleus)
+      const k = Math.min(1, (0.3 * r + 0.59 * g + 0.11 * b) / 255);
+      d[i] = 70 + 70 * k; d[i + 1] = 62 + 60 * k; d[i + 2] = 52 + 46 * k;
+    }
+    x.putImageData(D, 0, 0);
+  }
   T.arbre = (kind, v, w, h, S) => {
     const n = nomArbre(kind, v); if (!n) return null;
     const im = T.a('commun/' + n); if (!im) return null;
@@ -7392,6 +7408,7 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
     const f = Math.min(w / im.naturalWidth, h / im.naturalHeight), dw = im.naturalWidth * f, dh = im.naturalHeight * f, q = (DW.Art.HD || 1) * (S || 1);
     const net = reduire(im, 0, 0, im.naturalWidth, im.naturalHeight, Math.max(1, Math.round(dw * q)), Math.max(1, Math.round(dh * q)));
     if (kind === 'cendre') cendre(net);
+    if (kind === 'bigfountain' && v === 2) assecher(net);
     return (arbres[k] = { net, x: (w - dw) / 2, y: h - dh, w: dw, h: dh });
   };
   // fleurs du sol : quelle image pour cette case (null = pas d'images) ; selon le thème (des champs, des sous-bois...)
@@ -7917,12 +7934,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // (sans chapeau : ceux du kit se posent mal sur les têtes — règle du joueur ; bf : les garçons aussi portent un bas complet
   //  du kit, jambes et chaussures dessinées avec — règle du joueur, 21/10 : « un ensemble homogène et unique »)
   const PRESETS = [
-    { nom: 'Inspiré de Tai', bebe: 'tai', ch: { g: 0, corps: 1, tete: 0, haut: 11, bas: 0, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: 5 } },
+    { nom: 'Inspiré de Tai', bebe: 'tai', ch: { g: 0, corps: 1, tete: 0, haut: 11, bas: 5, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: 5 } },
     { nom: 'Inspiré de Matt', bebe: 'matt', ch: { g: 0, corps: 0, tete: 1, haut: 22, bas: 3, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspirée de Sora', bebe: 'sora', ch: { g: 1, corps: 2, tete: 26, haut: 14, bas: 0, chaus: 11, chapeau: -1, sac: -1, acc: 5 } },
     { nom: 'Inspiré d’Izzy', bebe: 'izzy', ch: { g: 0, corps: 7, tete: 6, haut: 15, bas: 2, bf: 1, chaus: -1, chapeau: -1, sac: 3, acc: 9 } },
     { nom: 'Inspirée de Mimi', bebe: 'mimi', ch: { g: 1, corps: 3, tete: 23, haut: 18, bas: 6, chaus: 7, chapeau: -1, sac: -1, acc: -1 } },
-    { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 5, bf: 1, chaus: -1, chapeau: -1, sac: 13, acc: 0 } },
+    { nom: 'Inspiré de Joe', bebe: 'joe', ch: { g: 0, corps: 3, tete: 8, haut: 13, bas: 3, bf: 1, chaus: -1, chapeau: -1, sac: 13, acc: 0 } },
     { nom: 'Inspiré de T.K.', bebe: 'tk', ch: { g: 0, corps: 4, tete: 1, haut: 12, bas: 9, bf: 1, chaus: -1, chapeau: -1, sac: -1, acc: -1 } },
     { nom: 'Inspirée de Kari', bebe: 'kari', ch: { g: 1, corps: 0, tete: 20, haut: 4, bas: 8, chaus: 12, chapeau: -1, sac: -1, acc: 10 } },
   ];
@@ -14165,7 +14182,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const W = DW.W, H = DW.H, HZ = 100;
     const cv = Art.canvas(W, H), c = cv.getContext('2d');
     c.imageSmoothingEnabled = false;
-    const sky = (TH && TH.sky) || (theme && SKY[theme]) || { foret: ['#6cb8f0', '#cfeef0'], plage: ['#4aa8f4', '#d4f0ff'], village: ['#f0a8d8', '#fff2f0'] }[type];
+    const sky = (TH && TH.sky) || (theme && SKY[theme]) || { foret: ['#6cb8f0', '#cfeef0'], plage: ['#4aa8f4', '#d4f0ff'], mer: ['#4aa2ee', '#d8f2ff'], village: ['#f0a8d8', '#fff2f0'] }[type] || ['#6cb8f0', '#cfeef0'];
     let g = c.createLinearGradient(0, 0, 0, HZ);
     g.addColorStop(0, sky[0]); g.addColorStop(1, sky[1]);
     c.fillStyle = g; c.fillRect(0, 0, W, HZ);
@@ -14255,18 +14272,34 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       place('steamvent', 0, 112, HZ + 12); place('steamvent', 0, 214, HZ + 16); place('lavarock', 1, 150, HZ + 10);
       place('aiguille', 1, 6, 228, 1.7); place('lavarock', 0, W - 12, 222, 2);
     } else if (type === 'plage') {
+      // LA PLAGE (les objets prennent les images de la planche PLAGE du joueur : palmiers, rochers, arche, bois flotté, oyats ;
+      // les cabines téléphoniques de l'épisode 2 restent)
       g = c.createLinearGradient(0, 70, 0, HZ);
       g.addColorStop(0, '#2a74c8'); g.addColorStop(1, '#4ab4e8');
       c.fillStyle = g; c.fillRect(0, 70, W, HZ - 70);
-      c.fillStyle = '#5a8a6a'; c.beginPath(); c.ellipse(250, 72, 34, 7, 0, Math.PI, 0); c.fill();
-      c.fillStyle = '#7aaa78'; c.beginPath(); c.ellipse(244, 72, 18, 4, 0, Math.PI, 0); c.fill();
+      place('rockarch', 0, 254, 86, 0.6);
       ground(PAL.sand, 41, true);
       g = c.createLinearGradient(0, HZ, 0, HZ + 10);
       g.addColorStop(0, 'rgba(240,255,255,0.9)'); g.addColorStop(1, 'rgba(240,255,255,0)');
       c.fillStyle = g; c.fillRect(0, HZ, W, 10);
       place('booth', 0, 140, 104); place('booth', 0, 154, 104); place('booth', 0, 168, 104);
-      place('palm', 0, 10, 232, 2); place('palm', 1, W - 10, 226, 2);
-      place('rock', 1, 290, 118);
+      place('oyats', 0, 72, HZ + 14, 0.9); place('driftwood', 0, 226, HZ + 22, 0.9);
+      place('cocotier', 0, 12, 232, 1.6); place('palm', 1, W - 12, 226, 1.6);
+      place('searock', 1, 292, 122, 0.8);
+    } else if (type === 'mer') {
+      // EN PLEINE MER (Whamon, épisode 14) : la crique au loin, puis la mer jusqu'au bas de l'écran ; les deux Digimon nagent
+      // (World.platform, World.remous)
+      c.fillStyle = '#d8c89a'; c.fillRect(0, HZ - 9, W, 4);   // (le sable de la crique, très loin)
+      for (const [x, k, v] of [[34, 'palm', 0], [58, 'palm', 1], [292, 'cocotier', 0]]) place(k, v, x, HZ - 7, 0.32);
+      g = c.createLinearGradient(0, HZ - 5, 0, HZ); g.addColorStop(0, '#2a6ab8'); g.addColorStop(1, '#2f78c2');
+      c.fillStyle = g; c.fillRect(0, HZ - 5, W, 5);
+      ground(['#174684', '#1d5698', '#2468ac', '#2e7cbe', '#3e92d0', '#5aaade', '#86c6ea'].map(Art.hex), 61, true);
+      for (let i = 0; i < 70; i++) {   // (moutons d'écume)
+        const y = HZ + 4 + Math.floor(hash(i, 2, 61) * (H - HZ - 8)), k = (y - HZ) / (H - HZ), x = Math.floor(hash(i, 1, 61) * W);
+        c.fillStyle = `rgba(235,248,255,${(0.35 + 0.4 * k).toFixed(2)})`; c.fillRect(x, y, 2 + Math.floor(k * 9), 1);
+      }
+      place('rockarch', 0, 44, HZ + 6, 0.45); place('searock', 2, 206, HZ + 4, 0.45);
+      place('searock', 0, 304, 200, 1.2);
     } else {
       c.fillStyle = '#e8c0ec';
       for (let i = 0; i < 6; i++) { c.beginPath(); c.ellipse(i * 64 + 20, HZ, 50, 30, 0, Math.PI, 0); c.fill(); }
@@ -14277,16 +14310,30 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       place('crib', 0, 120, 112); place('crib', 1, 150, 112); place('block', 0, 200, 114); place('block', 2, 214, 116);
       place('candytree', 0, -4, 230, 2); place('candytree', 2, W + 4, 224, 2);
     }
+    // (gardé seulement une fois les images du jeu chargées : avant, ce sont les dessins de secours)
+    if (DW.Textures && !DW.Textures.fini) return cv;
     return (bgCache[key] = cv);
   };
-  World.platform = (c, key, x, y, rx, ry) => {
+  World.platform = (c, key, x, y, rx, ry, cote) => {
     const [type, theme] = key.split('@'), TH = theme && World.THEMES[theme];
+    if (type === 'mer') {
+      ecume(c, x, y, rx, ry, 0, Math.PI * 2);   // (pas de sol en mer : l'arrière du remous ; l'avant passe devant le Digimon : remous)
+      return;
+    }
     const cols = TH && type === 'mont' && TH.rock ? [TH.rock[3], TH.rock[5], TH.rock[6]] : TH && (type === 'foret' || type === 'lac' || type === 'desert') ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
     c.fillStyle = 'rgba(0,0,0,0.22)'; c.beginPath(); c.ellipse(x, y + 3, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[0]; c.beginPath(); c.ellipse(x, y + 1, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[1]; c.beginPath(); c.ellipse(x, y, rx - 2, ry - 2, 0, 0, 7); c.fill();
     c.fillStyle = cols[2]; c.beginPath(); c.ellipse(x - rx * 0.2, y - ry * 0.25, rx * 0.55, ry * 0.4, 0, 0, 7); c.fill();
   };
+  // remous d'écume autour d'un Digimon qui nage (de a à b, en radians : la moitié avant passe devant lui)
+  function ecume(c, x, y, rx, ry, a, b, t = 0) {
+    c.fillStyle = 'rgba(20,70,130,0.45)'; c.beginPath(); c.ellipse(x, y + 1, rx, ry, 0, a, b); c.fill();
+    c.lineWidth = 2; c.strokeStyle = 'rgba(235,250,255,0.85)'; c.beginPath(); c.ellipse(x, y, rx - 2 + Math.sin(t * 3) * 2, ry - 1, 0, a, b); c.stroke();
+    c.lineWidth = 1; c.strokeStyle = 'rgba(200,235,255,0.6)'; c.beginPath(); c.ellipse(x, y + 2, rx + 6 + Math.sin(t * 2 + 1) * 3, ry + 3, 0, a, b); c.stroke();
+  }
+  // l'avant du remous, dessiné devant un Digimon qui nage (fond « mer ») : le bas de son corps est dans l'eau
+  World.remous = (c, x, y, rx, ry, t) => ecume(c, x, y, rx, ry, 0, Math.PI, t);
 })();
 ;
 
@@ -22319,8 +22366,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         if (k === 'Enter') { if (this.act(this.sel)) return; continue; }
         if (k === 'ArrowLeft') this.move(-1, 0); else if (k === 'ArrowRight' || k === 'Tab') this.move(1, 0);
         else if (k === 'ArrowUp') this.move(0, -1); else if (k === 'ArrowDown') this.move(0, 1);
-        else if (k === 'Escape' || (k === 'Backspace' && !this.name)) { Input.textMode = false; Audio.sfx('back'); this.close(null); return; }   // (retour à la création)
-        else if (k === 'Backspace') this.name = this.name.slice(0, -1);
+        // (retour à la création : ÉCHAP, SUPPR, ou un nouvel appui sur Retour arrière quand le nom est vide — pas ses
+        //  répétitions quand on le garde enfoncé pour effacer : on en sortait sans le vouloir)
+        else if (k === 'Escape' || k === 'Delete' || (k === 'Backspace' && !this.name)) { Input.textMode = false; Audio.sfx('back'); this.close(null); return; }
+        else if (k === 'Backspace' || k === 'BackspaceRepeat') this.name = this.name.slice(0, -1);
         else if (this.name.length < 10 && /^[\p{L}\p{N} '\-]$/u.test(k)) { this.name += k; this.sel = NAMES.length + 1; Audio.sfx('text'); }
       }
       Input.textValue = this.name;   // (recopié dans le champ de saisie du téléphone)
@@ -22862,10 +22911,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         c.beginPath(); c.ellipse(cl.x, cl.y, 20 * cl.s + 8, 5 * cl.s + 3, 0, 0, 7); c.ellipse(cl.x + 10, cl.y - 4, 11 * cl.s + 4, 6 * cl.s + 2, 0, 0, 7); c.fill();
         c.fillStyle = 'rgba(200,220,255,0.6)'; c.fillRect(cl.x - 18 * cl.s - 6, cl.y + 2, 36 * cl.s + 14, 2); c.fillStyle = 'rgba(255,255,255,0.9)';
       });
-      if (base === 'plage') {
+      if (base === 'plage' || base === 'mer') {
         c.fillStyle = 'rgba(200,240,255,0.8)';
         for (let i = 0; i < 18; i++) {
-          const x = ((i * 53 + t * (6 + (i % 3) * 3)) % (W + 20)) - 10, y = 72 + (i % 6) * 4.5;
+          const x = ((i * 53 + t * (6 + (i % 3) * 3)) % (W + 20)) - 10, y = base === 'mer' ? 104 + (i % 9) * 14 : 72 + (i % 6) * 4.5;
           if (Math.sin(t * 2 + i) > -0.2) c.fillRect(Math.round(x), Math.round(y), 4 + (i % 3) * 2, 1);
         }
       } else if (base === 'foret') {
@@ -22895,8 +22944,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
           c.fillRect(Math.round(x), Math.round(y), 2, 1);
         }
       }
-      DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12);
-      DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14);
+      DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12, 'e');
+      DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14, 'p');
     },
     // l'ALLIÉ (l'enfant délivré et son Digimon : game/battle.js, allyTurn) : à côté du partenaire, un peu en retrait
     drawAlly(c) {
@@ -23024,9 +23073,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const sx = this.shake > 0 ? Math.round((Math.random() - 0.5) * 8 * this.shake) : 0;
       c.save(); c.translate(sx, 0);
       this.drawBg(c);
+      const mer = this.bg.split('@')[0] === 'mer';   // (en pleine mer, les deux Digimon nagent : le remous passe devant eux)
       this.drawMon(c, 'e');
+      if (mer && this.spr.e.vis) DW.World.remous(c, POS.e.x + this.spr.e.dx, POS.e.y - 3, 56, 12, this.t);
       this.drawAlly(c);
       this.drawMon(c, 'p');
+      if (mer && this.spr.p.vis) DW.World.remous(c, POS.p.x + this.spr.p.dx, POS.p.y - 3, 64, 14, this.t + 1);
       for (const f of this.fx) {
         if (f.t < 0) continue;
         const k = f.t / f.dur;
@@ -24502,10 +24554,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // (règle du joueur : des personnages FIXES inspirés des DigiSauveurs ; on choisit l'un d'eux, puis son DigiŒuf)
   const LIGNES = [['Personnage', 'perso'], ['DigiŒuf', 'bebe'], ["C'est moi !", null]];
   class CreateScene extends DW.Scene {
-    constructor() {
+    constructor(memo) {
       super();
-      this.r = 0; this.ip = 0; this.ch = DW.Perso.valide(DW.Perso.PRESETS[0].ch);
-      this.bebe = Math.max(0, Object.keys(DW.HERO_LINE).indexOf(DW.Perso.PRESETS[0].bebe)); this.flash = { v: 0 };
+      // (memo : le choix d'avant, quand on revient de la saisie du prénom — on le retrouve tel quel)
+      this.memo = memo || {}; this.r = 0; this.ip = this.memo.ip || 0; this.ch = DW.Perso.valide(DW.Perso.PRESETS[this.ip].ch);
+      this.bebe = this.memo.bebe != null ? this.memo.bebe : Math.max(0, Object.keys(DW.HERO_LINE).indexOf(DW.Perso.PRESETS[this.ip].bebe)); this.flash = { v: 0 };
       this.pts = Array.from({ length: 22 }, (_, i) => ({ a: i / 22 * Math.PI * 2, s: 0.5 + (i * 37 % 10) / 20, y: (i * 53 % 100) / 100 }));
       DW.state.hero = 'perso'; this.apply();
       DW.Perso.charger();
@@ -24528,7 +24581,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const d = Input.hit('left') ? -1 : Input.hit('right') ? 1 : 0;
       if (d && k) this.change(k, d);
       if (Input.hit('ok')) {
-        if (!k) { Audio.sfx('select'); this.close('perso'); }
+        if (!k) { Audio.sfx('select'); this.memo.ip = this.ip; this.memo.bebe = this.bebe; this.close('perso'); }
         else { this.r++; Audio.sfx('select'); }
       }
     }
@@ -24640,8 +24693,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const st = DW.state;
       // 1) qui es-tu ? (un enfant qui n'est pas dans l'animé : il va délivrer les autres) ; RETOUR : de la saisie du nom à
       //    la création, de la création à l'écran titre
+      const memo = {};
       for (;;) {
-        const h = await Game.push(new CreateScene());
+        const h = await Game.push(new CreateScene(memo));
         if (!h) { Input.textMode = false; Game.replaceAll(new DW.TitleScene()); DW.fade(0, 0.3); return; }
         st.hero = h;
         const nom = await Game.push(new DW.NameScene(st.look && st.look.gender ? 'Aiko' : 'Kenji'));
@@ -24660,7 +24714,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (peint('camp')) { this.mode = 'campPeint'; this.capHaut = true; }
       await this.show("Été. Un camp de vacances au cœur des montagnes.");
       await this.show(`Huit enfants autour du feu : toi, ${st.name}... et sept autres.`, 2.6);
-      if (this.mode === 'campPeint') { this.cut('camp', 1.2); this.capHaut = false; await DW.wait(0.6); }
+      // (la neige et l'aurore tombent sur le feu de camp peint : plus de retour sur l'ancien camp dessiné par le code)
       this.snowOn = true;
       await this.show("Soudain... il se met à neiger, en plein mois d'août.");
       DW.tween(this.aurora, { v: 1 }, 2.5);
@@ -24669,7 +24723,6 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (peint('digivices')) {
         this.cut('pluiePeint', 1.0); this.capHaut = true; Audio.sfx('swoosh');
         await this.show('Puis, des lumières tombent du ciel... des Digivices !', 2.8);
-        this.cut('camp', 0.8); this.capHaut = false; await DW.wait(0.5);
       }
       this.dv.on = true; Audio.sfx('capsule');
       await DW.tween(this.dv, { y: 194 }, 1.3, t => t * t);
@@ -24983,7 +25036,22 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       for (let i = 0; i < 9; i++) { const p = ((t * 0.6 + i / 9) % 1), x = fx + Math.sin(i * 2.3 + t * 2) * 8 * p, y = fy - 6 - p * 46; c.fillStyle = `rgba(255,${180 + i * 6},90,${(0.8 * (1 - p)).toFixed(2)})`; c.fillRect(Math.round(x), Math.round(y), 1, 1); }
       for (const s of this.stars) { const a = Math.max(0, Math.sin(t * 1.6 + s.p * 3)); if (a > 0.82) { c.fillStyle = `rgba(255,255,240,${((a - 0.82) * 3).toFixed(2)})`; c.fillRect(Math.round(s.x), Math.round(s.y * 0.7), 1, 1); } }
       c.restore();
+      this.aurorePeinte(c); this.neige(c);
     }
+    // l'aurore étrange, en rubans au-dessus des montagnes peintes
+    aurorePeinte(c) {
+      const A = this.aurora.v, t = this.t; if (!(A > 0)) return;
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 5; i++) {
+        c.fillStyle = `rgba(${60 + i * 36},255,${190 - i * 24},${(0.09 * A).toFixed(3)})`;
+        c.beginPath(); c.moveTo(0, 18 + i * 8);
+        for (let x = 0; x <= W; x += 8) c.lineTo(x, 18 + i * 8 + Math.sin(x / 38 + t * 0.8 + i) * 12 + Math.sin(x / 13 + t) * 3);
+        c.lineTo(W, 0); c.lineTo(0, 0); c.fill();
+      }
+      c.restore();
+    }
+    // la neige d'août, sur les images peintes
+    neige(c) { if (this.snowOn) { c.fillStyle = 'rgba(255,255,255,0.9)'; this.snow.forEach(s => c.fillRect(Math.round(s.x), Math.round(s.y), s.s > 20 ? 2 : 1, s.s > 20 ? 2 : 1)); } }
     // la pluie de lumières : l'image descend lentement (on regarde le ciel puis le camp), les traînées de lumière pulsent
     drawPluiePeint(c) {
       const t = this.t, im = peint('digivices'); if (!im) { this.drawCamp(c); return; }
@@ -24991,29 +25059,49 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       c.save(); c.imageSmoothingEnabled = true; c.translate(W / 2, H / 2); c.scale(k, k); c.drawImage(im, -W / 2, -H / 2, W, H); c.restore();
       c.save(); c.globalCompositeOperation = 'lighter';
       for (const [x0, y0] of [[39, 76], [83, 51], [116, 91], [161, 119], [228, 67], [266, 105], [290, 60]]) {   // (les Digivices de l'image)
-        const x = W / 2 + (x0 - W / 2) * k, y = H / 2 + (y0 - H / 2) * k, a = 0.25 + Math.max(0, Math.sin(t * 3 + x)) * 0.35, g = c.createRadialGradient(x, y, 1, x, y, 16);
+        const x = W / 2 + (x0 - W / 2) * k, y = H / 2 + (y0 - H / 2) * k, a = Math.min(1, 0.25 + Math.max(0, Math.sin(t * 3 + x)) * 0.35 + this.dv.glow * 0.5), r = 16 + this.dv.glow * 14, g = c.createRadialGradient(x, y, 1, x, y, r);
         g.addColorStop(0, `rgba(170,230,255,${a.toFixed(2)})`); g.addColorStop(1, 'rgba(120,200,255,0)');
-        c.fillStyle = g; c.fillRect(x - 16, y - 16, 32, 32);
+        c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+      // le Digivice du héros (l'enfant de dos, au centre de l'image) : traînée en tombant, puis éclat à ses pieds
+      if (this.dv.on && this.lift.v < 0.5) {
+        const dx = 152, dy = Math.min(this.dv.y, 186), gl = 0.5 + 0.5 * this.dv.glow;
+        if (!this.dv.landed) { const tg = c.createLinearGradient(0, dy - 60, 0, dy); tg.addColorStop(0, 'rgba(160,255,210,0)'); tg.addColorStop(1, 'rgba(200,255,230,0.9)'); c.fillStyle = tg; c.fillRect(dx - 1, dy - 60, 3, 60); }
+        const rg = c.createRadialGradient(dx, dy, 1, dx, dy, 10 + 26 * this.dv.glow + Math.sin(t * 8) * 3);
+        rg.addColorStop(0, `rgba(200,255,230,${gl.toFixed(2)})`); rg.addColorStop(1, 'rgba(80,255,160,0)');
+        c.fillStyle = rg; c.fillRect(dx - 50, dy - 50, 100, 100);
+        for (let i = 0; i < 3 && this.dv.glow > 0; i++) { const q = (t * 0.8 + i / 3) % 1; c.strokeStyle = `rgba(150,255,200,${((1 - q) * this.dv.glow).toFixed(2)})`; c.lineWidth = 1; c.beginPath(); c.ellipse(dx, dy, 6 + q * 40, 2 + q * 10, 0, 0, 7); c.stroke(); }
+      }
+      // les faisceaux qui emportent les huit enfants
+      if (this.beam.v > 0) for (const kx of [31, 123, 152, 184, 210, 235, 263, 292]) {
+        const bw = 9 + 6 * this.beam.v + Math.sin(t * 20 + kx) * 1.5, bg = c.createLinearGradient(kx - bw, 0, kx + bw, 0);
+        bg.addColorStop(0, 'rgba(120,255,200,0)'); bg.addColorStop(0.5, `rgba(200,255,230,${(0.7 * this.beam.v).toFixed(2)})`); bg.addColorStop(1, 'rgba(120,255,200,0)');
+        c.fillStyle = bg; c.fillRect(kx - bw, 0, bw * 2, 196);
       }
       c.restore();
+      if (this.lift.v > 0) { c.fillStyle = `rgba(225,255,240,${(0.55 * this.lift.v).toFixed(2)})`; c.fillRect(0, 0, W, H); }   // (la lumière envahit tout)
+      this.neige(c);
     }
 
-    draw(c) {
-      if (this.mode === 'black') { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); return; }
+    // la scène du moment (camp peint, pluie peinte, camp dessiné si les images manquent, tunnel, ciel)
+    drawScene(c) {
       if (this.mode === 'campPeint') this.drawCampPeint(c);
       else if (this.mode === 'pluiePeint') this.drawPluiePeint(c);
-      else if (this.mode === 'camp') {
-        if (this.pix.v > 0) {
-          // le camp se décompose en pixels avant le passage dans le Digimonde
-          const bc = this.buf.getContext('2d'); this.drawCamp(bc);
-          const b = 1 + Math.floor(this.pix.v * 18), sw = Math.ceil(W / b), sh = Math.ceil(H / b);
-          const sc = this.small.getContext('2d'); sc.imageSmoothingEnabled = true;
-          sc.clearRect(0, 0, W, H); sc.drawImage(this.buf, 0, 0, sw, sh);
-          c.imageSmoothingEnabled = false; c.drawImage(this.small, 0, 0, sw, sh, 0, 0, sw * b, sh * b);
-          c.fillStyle = `rgba(210,255,235,${this.pix.v * 0.85})`; c.fillRect(0, 0, W, H);
-        } else this.drawCamp(c);
-      } else if (this.mode === 'tunnel') this.drawTunnel(c);
+      else if (this.mode === 'camp') this.drawCamp(c);
+      else if (this.mode === 'tunnel') this.drawTunnel(c);
       else this.drawSky(c);
+    }
+    draw(c) {
+      if (this.mode === 'black') { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); return; }
+      if (this.pix.v > 0 && (this.mode === 'camp' || this.mode === 'campPeint' || this.mode === 'pluiePeint')) {
+        // le camp se décompose en pixels avant le passage dans le Digimonde
+        const bc = this.buf.getContext('2d'); this.drawScene(bc);
+        const b = 1 + Math.floor(this.pix.v * 18), sw = Math.ceil(W / b), sh = Math.ceil(H / b);
+        const sc = this.small.getContext('2d'); sc.imageSmoothingEnabled = true;
+        sc.clearRect(0, 0, W, H); sc.drawImage(this.buf, 0, 0, sw, sh);
+        c.imageSmoothingEnabled = false; c.drawImage(this.small, 0, 0, sw, sh, 0, 0, sw * b, sh * b);
+        c.fillStyle = `rgba(210,255,235,${this.pix.v * 0.85})`; c.fillRect(0, 0, W, H);
+      } else this.drawScene(c);
       if (this.xf && this.xf.v > 0) { c.globalAlpha = this.xf.v; c.drawImage(this.xbuf, 0, 0); c.globalAlpha = 1; }
       if (this.flash > 0) { c.fillStyle = `rgba(255,255,255,${Math.min(1, this.flash)})`; c.fillRect(0, 0, W, H); }
       // bandes cinéma + légende

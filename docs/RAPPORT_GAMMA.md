@@ -217,26 +217,25 @@ constructeur du radeau à la Crique, coffre caché du Bosquet, ombre de Kuwagamo
 vers l'île du tramway, Sora qui suit vraiment au pied du Mont, records du Terrain, coach du matin, cultures de saison,
 jour de marché, tour de piste chronométré, étals du Marché vivants.
 
-**Non résolu (il faut tes images ou ta décision)** :
-- Planche de Bukamon à refaire ; tailles des bébés et de Motimon à harmoniser (4 vues par Digimon : liste P1 à P4).
-- Décor automatique gommé remplacé ailleurs (lac11 : 20 retraits de bottes de foin) : la correction changerait des
-  cartes validées.
-- Mont Panorama : il n'a plus de Digimon possédé (c'était un double du Meramon du chapitre 3) ; si tu veux un boss là,
-  choisis lequel.
-- Gabumon de type Glace alors que son Souffle Bleu est un feu bleu : à arbitrer.
-- Gymnase : il n'ouvre qu'avec Leomon en ville, qui n'arrive pas avant l'ouverture de la Montagne (réglée au chapitre 10
-  dans l'atelier) : il reste donc fermé aux chapitres 1 à 3. Le garder ainsi, ou l'ouvrir autrement ?
+**Tranché par le joueur (21/10, soir)** :
+- Bukamon : on garde son dessin actuel (« le lézard »).
+- Gabumon : type Glace, avec son Souffle Bleu (un feu bleu) : on garde.
+- Gymnase : il reste fermé aux chapitres 1 à 3.
+- Mont Panorama : son boss attendra.
+- Combat : le cadre de ton Digimon est en bas à droite (fait le 21/10, ed5a499) ; vérifié en image contre Kuwagamon, Meramon,
+  Seadramon, Shellmon, Whamon, Monochromon, MetalGreymon et Omegamon : plus aucune tête cachée.
+- Carte du monde : à finir (en cours).
+
+**Encore ouvert (il faut tes images ou ta décision)** :
+- Tailles des bébés et de Motimon à harmoniser (4 vues par Digimon : liste P1 à P4).
 - Repères automatiques « Le Phare du lac » sur la Rive Sud et le Pont Numérique (en plus du vrai phare) ; boules de lave
   collées à Meramon dans tes retouches du Mont Miharashi : à revoir dans l'atelier.
-- Combat : un grand Champion (Meramon, Greymon...) a la tête cachée par le cadre de ton partenaire, en haut à droite.
-  Changer la disposition des cadres (par exemple le tien en bas à droite) est possible, mais c'est un choix d'interface.
-- Carte du monde : reportée (branche `carte-monde-vraie`).
 
 ## 17. Pour reprendre
 1. Lancer le jeu en ligne une fois (la nouvelle version s'installe toute seule).
 2. Atelier des cartes : le relancer (LANCER_ATELIER.bat) pour avoir le nouveau serveur ; s'il dit « NON ENREGISTRÉ : le
    fichier des retouches a changé ailleurs », recharger la page (F5).
-3. Me dire tes choix pour les points « Non résolu » ci-dessus, et m'envoyer les images de Digimon quand elles sont
+3. Me dire tes choix pour les points « Encore ouvert » ci-dessus, et m'envoyer les images de Digimon quand elles sont
    prêtes (liste dans docs/audits_gamma/digimon.md).
 
 ## 18. Dernier lot (publié : commit 0fffa96)

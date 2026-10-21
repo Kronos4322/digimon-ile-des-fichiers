@@ -35,10 +35,11 @@
   // (règle du joueur : des personnages FIXES inspirés des DigiSauveurs ; on choisit l'un d'eux, puis son DigiŒuf)
   const LIGNES = [['Personnage', 'perso'], ['DigiŒuf', 'bebe'], ["C'est moi !", null]];
   class CreateScene extends DW.Scene {
-    constructor() {
+    constructor(memo) {
       super();
-      this.r = 0; this.ip = 0; this.ch = DW.Perso.valide(DW.Perso.PRESETS[0].ch);
-      this.bebe = Math.max(0, Object.keys(DW.HERO_LINE).indexOf(DW.Perso.PRESETS[0].bebe)); this.flash = { v: 0 };
+      // (memo : le choix d'avant, quand on revient de la saisie du prénom — on le retrouve tel quel)
+      this.memo = memo || {}; this.r = 0; this.ip = this.memo.ip || 0; this.ch = DW.Perso.valide(DW.Perso.PRESETS[this.ip].ch);
+      this.bebe = this.memo.bebe != null ? this.memo.bebe : Math.max(0, Object.keys(DW.HERO_LINE).indexOf(DW.Perso.PRESETS[this.ip].bebe)); this.flash = { v: 0 };
       this.pts = Array.from({ length: 22 }, (_, i) => ({ a: i / 22 * Math.PI * 2, s: 0.5 + (i * 37 % 10) / 20, y: (i * 53 % 100) / 100 }));
       DW.state.hero = 'perso'; this.apply();
       DW.Perso.charger();
@@ -61,7 +62,7 @@
       const d = Input.hit('left') ? -1 : Input.hit('right') ? 1 : 0;
       if (d && k) this.change(k, d);
       if (Input.hit('ok')) {
-        if (!k) { Audio.sfx('select'); this.close('perso'); }
+        if (!k) { Audio.sfx('select'); this.memo.ip = this.ip; this.memo.bebe = this.bebe; this.close('perso'); }
         else { this.r++; Audio.sfx('select'); }
       }
     }
@@ -173,8 +174,9 @@
       const st = DW.state;
       // 1) qui es-tu ? (un enfant qui n'est pas dans l'animé : il va délivrer les autres) ; RETOUR : de la saisie du nom à
       //    la création, de la création à l'écran titre
+      const memo = {};
       for (;;) {
-        const h = await Game.push(new CreateScene());
+        const h = await Game.push(new CreateScene(memo));
         if (!h) { Input.textMode = false; Game.replaceAll(new DW.TitleScene()); DW.fade(0, 0.3); return; }
         st.hero = h;
         const nom = await Game.push(new DW.NameScene(st.look && st.look.gender ? 'Aiko' : 'Kenji'));
@@ -193,7 +195,7 @@
       if (peint('camp')) { this.mode = 'campPeint'; this.capHaut = true; }
       await this.show("Été. Un camp de vacances au cœur des montagnes.");
       await this.show(`Huit enfants autour du feu : toi, ${st.name}... et sept autres.`, 2.6);
-      if (this.mode === 'campPeint') { this.cut('camp', 1.2); this.capHaut = false; await DW.wait(0.6); }
+      // (la neige et l'aurore tombent sur le feu de camp peint : plus de retour sur l'ancien camp dessiné par le code)
       this.snowOn = true;
       await this.show("Soudain... il se met à neiger, en plein mois d'août.");
       DW.tween(this.aurora, { v: 1 }, 2.5);
@@ -202,7 +204,6 @@
       if (peint('digivices')) {
         this.cut('pluiePeint', 1.0); this.capHaut = true; Audio.sfx('swoosh');
         await this.show('Puis, des lumières tombent du ciel... des Digivices !', 2.8);
-        this.cut('camp', 0.8); this.capHaut = false; await DW.wait(0.5);
       }
       this.dv.on = true; Audio.sfx('capsule');
       await DW.tween(this.dv, { y: 194 }, 1.3, t => t * t);
@@ -516,7 +517,22 @@
       for (let i = 0; i < 9; i++) { const p = ((t * 0.6 + i / 9) % 1), x = fx + Math.sin(i * 2.3 + t * 2) * 8 * p, y = fy - 6 - p * 46; c.fillStyle = `rgba(255,${180 + i * 6},90,${(0.8 * (1 - p)).toFixed(2)})`; c.fillRect(Math.round(x), Math.round(y), 1, 1); }
       for (const s of this.stars) { const a = Math.max(0, Math.sin(t * 1.6 + s.p * 3)); if (a > 0.82) { c.fillStyle = `rgba(255,255,240,${((a - 0.82) * 3).toFixed(2)})`; c.fillRect(Math.round(s.x), Math.round(s.y * 0.7), 1, 1); } }
       c.restore();
+      this.aurorePeinte(c); this.neige(c);
     }
+    // l'aurore étrange, en rubans au-dessus des montagnes peintes
+    aurorePeinte(c) {
+      const A = this.aurora.v, t = this.t; if (!(A > 0)) return;
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 5; i++) {
+        c.fillStyle = `rgba(${60 + i * 36},255,${190 - i * 24},${(0.09 * A).toFixed(3)})`;
+        c.beginPath(); c.moveTo(0, 18 + i * 8);
+        for (let x = 0; x <= W; x += 8) c.lineTo(x, 18 + i * 8 + Math.sin(x / 38 + t * 0.8 + i) * 12 + Math.sin(x / 13 + t) * 3);
+        c.lineTo(W, 0); c.lineTo(0, 0); c.fill();
+      }
+      c.restore();
+    }
+    // la neige d'août, sur les images peintes
+    neige(c) { if (this.snowOn) { c.fillStyle = 'rgba(255,255,255,0.9)'; this.snow.forEach(s => c.fillRect(Math.round(s.x), Math.round(s.y), s.s > 20 ? 2 : 1, s.s > 20 ? 2 : 1)); } }
     // la pluie de lumières : l'image descend lentement (on regarde le ciel puis le camp), les traînées de lumière pulsent
     drawPluiePeint(c) {
       const t = this.t, im = peint('digivices'); if (!im) { this.drawCamp(c); return; }
@@ -524,29 +540,49 @@
       c.save(); c.imageSmoothingEnabled = true; c.translate(W / 2, H / 2); c.scale(k, k); c.drawImage(im, -W / 2, -H / 2, W, H); c.restore();
       c.save(); c.globalCompositeOperation = 'lighter';
       for (const [x0, y0] of [[39, 76], [83, 51], [116, 91], [161, 119], [228, 67], [266, 105], [290, 60]]) {   // (les Digivices de l'image)
-        const x = W / 2 + (x0 - W / 2) * k, y = H / 2 + (y0 - H / 2) * k, a = 0.25 + Math.max(0, Math.sin(t * 3 + x)) * 0.35, g = c.createRadialGradient(x, y, 1, x, y, 16);
+        const x = W / 2 + (x0 - W / 2) * k, y = H / 2 + (y0 - H / 2) * k, a = Math.min(1, 0.25 + Math.max(0, Math.sin(t * 3 + x)) * 0.35 + this.dv.glow * 0.5), r = 16 + this.dv.glow * 14, g = c.createRadialGradient(x, y, 1, x, y, r);
         g.addColorStop(0, `rgba(170,230,255,${a.toFixed(2)})`); g.addColorStop(1, 'rgba(120,200,255,0)');
-        c.fillStyle = g; c.fillRect(x - 16, y - 16, 32, 32);
+        c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+      // le Digivice du héros (l'enfant de dos, au centre de l'image) : traînée en tombant, puis éclat à ses pieds
+      if (this.dv.on && this.lift.v < 0.5) {
+        const dx = 152, dy = Math.min(this.dv.y, 186), gl = 0.5 + 0.5 * this.dv.glow;
+        if (!this.dv.landed) { const tg = c.createLinearGradient(0, dy - 60, 0, dy); tg.addColorStop(0, 'rgba(160,255,210,0)'); tg.addColorStop(1, 'rgba(200,255,230,0.9)'); c.fillStyle = tg; c.fillRect(dx - 1, dy - 60, 3, 60); }
+        const rg = c.createRadialGradient(dx, dy, 1, dx, dy, 10 + 26 * this.dv.glow + Math.sin(t * 8) * 3);
+        rg.addColorStop(0, `rgba(200,255,230,${gl.toFixed(2)})`); rg.addColorStop(1, 'rgba(80,255,160,0)');
+        c.fillStyle = rg; c.fillRect(dx - 50, dy - 50, 100, 100);
+        for (let i = 0; i < 3 && this.dv.glow > 0; i++) { const q = (t * 0.8 + i / 3) % 1; c.strokeStyle = `rgba(150,255,200,${((1 - q) * this.dv.glow).toFixed(2)})`; c.lineWidth = 1; c.beginPath(); c.ellipse(dx, dy, 6 + q * 40, 2 + q * 10, 0, 0, 7); c.stroke(); }
+      }
+      // les faisceaux qui emportent les huit enfants
+      if (this.beam.v > 0) for (const kx of [31, 123, 152, 184, 210, 235, 263, 292]) {
+        const bw = 9 + 6 * this.beam.v + Math.sin(t * 20 + kx) * 1.5, bg = c.createLinearGradient(kx - bw, 0, kx + bw, 0);
+        bg.addColorStop(0, 'rgba(120,255,200,0)'); bg.addColorStop(0.5, `rgba(200,255,230,${(0.7 * this.beam.v).toFixed(2)})`); bg.addColorStop(1, 'rgba(120,255,200,0)');
+        c.fillStyle = bg; c.fillRect(kx - bw, 0, bw * 2, 196);
       }
       c.restore();
+      if (this.lift.v > 0) { c.fillStyle = `rgba(225,255,240,${(0.55 * this.lift.v).toFixed(2)})`; c.fillRect(0, 0, W, H); }   // (la lumière envahit tout)
+      this.neige(c);
     }
 
-    draw(c) {
-      if (this.mode === 'black') { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); return; }
+    // la scène du moment (camp peint, pluie peinte, camp dessiné si les images manquent, tunnel, ciel)
+    drawScene(c) {
       if (this.mode === 'campPeint') this.drawCampPeint(c);
       else if (this.mode === 'pluiePeint') this.drawPluiePeint(c);
-      else if (this.mode === 'camp') {
-        if (this.pix.v > 0) {
-          // le camp se décompose en pixels avant le passage dans le Digimonde
-          const bc = this.buf.getContext('2d'); this.drawCamp(bc);
-          const b = 1 + Math.floor(this.pix.v * 18), sw = Math.ceil(W / b), sh = Math.ceil(H / b);
-          const sc = this.small.getContext('2d'); sc.imageSmoothingEnabled = true;
-          sc.clearRect(0, 0, W, H); sc.drawImage(this.buf, 0, 0, sw, sh);
-          c.imageSmoothingEnabled = false; c.drawImage(this.small, 0, 0, sw, sh, 0, 0, sw * b, sh * b);
-          c.fillStyle = `rgba(210,255,235,${this.pix.v * 0.85})`; c.fillRect(0, 0, W, H);
-        } else this.drawCamp(c);
-      } else if (this.mode === 'tunnel') this.drawTunnel(c);
+      else if (this.mode === 'camp') this.drawCamp(c);
+      else if (this.mode === 'tunnel') this.drawTunnel(c);
       else this.drawSky(c);
+    }
+    draw(c) {
+      if (this.mode === 'black') { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); return; }
+      if (this.pix.v > 0 && (this.mode === 'camp' || this.mode === 'campPeint' || this.mode === 'pluiePeint')) {
+        // le camp se décompose en pixels avant le passage dans le Digimonde
+        const bc = this.buf.getContext('2d'); this.drawScene(bc);
+        const b = 1 + Math.floor(this.pix.v * 18), sw = Math.ceil(W / b), sh = Math.ceil(H / b);
+        const sc = this.small.getContext('2d'); sc.imageSmoothingEnabled = true;
+        sc.clearRect(0, 0, W, H); sc.drawImage(this.buf, 0, 0, sw, sh);
+        c.imageSmoothingEnabled = false; c.drawImage(this.small, 0, 0, sw, sh, 0, 0, sw * b, sh * b);
+        c.fillStyle = `rgba(210,255,235,${this.pix.v * 0.85})`; c.fillRect(0, 0, W, H);
+      } else this.drawScene(c);
       if (this.xf && this.xf.v > 0) { c.globalAlpha = this.xf.v; c.drawImage(this.xbuf, 0, 0); c.globalAlpha = 1; }
       if (this.flash > 0) { c.fillStyle = `rgba(255,255,255,${Math.min(1, this.flash)})`; c.fillRect(0, 0, W, H); }
       // bandes cinéma + légende

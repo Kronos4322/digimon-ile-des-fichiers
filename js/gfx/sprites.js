@@ -23,7 +23,7 @@
     koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95 },
     // (21/10 : Botamon, Pichimon et YukimiBotamon en pixel art ; Yuramon, Disciples et Champions peints)
     botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yukimibotamon: { taille: 0.58 }, yuramon: { taille: 0.72 },
-    betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.79 }, palmon: { taille: 0.97 },
+    betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.92 }, palmon: { taille: 0.97 },
     kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
   };
   const imageDe = (sp, vue) => (IMAGES[sp] && DW.Textures && DW.Textures.a('commun/digi_' + sp + '_' + vue)) || null;
@@ -66,8 +66,10 @@
   const cache = {};
   // résolutions de rendu (plus grand = plus de détails : les dessins sont des formes, pas des pixels étirés)
   // chaque stade est nettement plus grand que le précédent (Bébé < Entraînement < Disciple < Champion < Ultime < Méga)
-  const RES_BATTLE = { 'Bébé': 42, 'Entraînement': 56, 'Disciple': 74, 'Champion': 102, 'Ultime': 114, 'Méga': 124 };
-  const RES_OW = { 'Bébé': 22, 'Entraînement': 27, 'Disciple': 33, 'Champion': 46, 'Ultime': 54, 'Méga': 60 };   // bien visibles, surtout sur téléphone
+  // (21/10, le joueur : « les Digimon sont trop petits » — sur la carte +30 % ; en combat, les petits stades grandissent, les
+  //  grands restent sous le haut de l'écran)
+  const RES_BATTLE = { 'Bébé': 50, 'Entraînement': 66, 'Disciple': 86, 'Champion': 108, 'Ultime': 118, 'Méga': 126 };
+  const RES_OW = { 'Bébé': 28, 'Entraînement': 35, 'Disciple': 43, 'Champion': 58, 'Ultime': 68, 'Méga': 76 };   // bien visibles, surtout sur téléphone
   const BREATH = [1, 1.028, 1, 0.975], BREATH_OW = [1, 1.07];
   const S = DW.Sprites = {
     IMAGES, VUES,
