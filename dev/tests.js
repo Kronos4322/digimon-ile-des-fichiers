@@ -428,6 +428,84 @@ test("crypte des gardiens : la porte scellée ne s'ouvre qu'une fois les trois a
   yes(passage.cond(DW.state) && porte().block.length === 2 && porte().kind === 'tex_grotte_porte_temple', 'porte toujours scellée après les trois ankhs');
   yes(ow.shake > 0, "pas de secousse à l'ouverture");
 });
+// SOUS LE MONT MIHARASHI (maps/sous_volcan.js) : les cinq cercles de la grotte de Sora
+const SV = i => 'sous_volcan' + i;
+// cases atteintes à pied depuis l'arrivée (décors, côtés bloqués des portes ; PNJ visibles)
+function atteintes(id) {
+  const m = DW.preparerCarte(id), occ = new Set();
+  for (const o of m.objects) { if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y); for (const [bx, by] of o.block || []) occ.add((o.x + bx) + ',' + (o.y + by)); }
+  for (const n of m.npcs) if (!n.cond || n.cond(DW.state)) occ.add(n.x + ',' + n.y);
+  const free = (x, y) => m.rows[y] && m.rows[y][x] !== undefined && !DW.SOLID.has(m.rows[y][x]) && !occ.has(x + ',' + y);
+  const seen = new Set([m.entry.x + ',' + m.entry.y]), q = [[m.entry.x, m.entry.y]];
+  while (q.length) { const [x, y] = q.shift(); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (x + a) + ',' + (y + b); if (!seen.has(k) && free(x + a, y + b)) { seen.add(k); q.push([x + a, y + b]); } } }
+  return seen;
+}
+test("souterrains du Mont Miharashi : chaque cercle se traverse de l'arrivée à la sortie ; le gros rocher ferme le trésor des foreurs", () => {
+  fresh();
+  for (let i = 1; i <= 5; i++) {
+    const m = DW.MAPS[SV(i)], seen = atteintes(SV(i));
+    yes(seen.has(m.exitAt.x + ',' + m.exitAt.y), `${SV(i)} : sortie inaccessible`);
+    yes(Math.abs(m.entry.x - m.exitAt.x) + Math.abs(m.entry.y - m.exitAt.y) > 9, `${SV(i)} : l'arrivée et la sortie sont trop proches`);
+    for (const t of m.triggers) { let ok = false; for (let x = t.x; x < t.x + (t.w || 1); x++) if (seen.has(x + ',' + t.y)) ok = true; yes(ok, `${SV(i)} : passage inaccessible en ${t.x},${t.y}`); }
+  }
+  const coffre = DW.MAPS[SV(1)].objects.find(o => o.kind === 'tex_grotte_coffre'), pres = s => [[0, 1], [1, 0], [-1, 0], [0, -1]].some(([a, b]) => s.has((coffre.x + a) + ',' + (coffre.y + b)));
+  yes(!pres(atteintes(SV(1))), 'le trésor des foreurs est accessible sans pousser le rocher');
+  DW.state.flags.svRocher = true;
+  yes(pres(atteintes(SV(1))), 'rocher poussé : le trésor des foreurs reste inaccessible');
+});
+test("souterrains : la grotte du Mont Miharashi → cercle 1 → 2 → 3 → 4 → 5, et chaque escalier ramène au cercle d'avant", async () => {
+  fresh();
+  const fade = DW.fade; DW.fade = async () => {};
+  try {
+    const va = async (id, i) => { let to = null; await DW.MAPS[id].triggers[i].run({ charger: async t => { to = t; } }); return to; };
+    eq(await va(SV(1), 0), 'miharashi4', "cercle 1 : l'escalier remonte au pied du mont");
+    for (let k = 1; k < 5; k++) {
+      eq(await va(SV(k), 1), SV(k + 1), SV(k) + ' : passage du fond');
+      eq(await va(SV(k + 1), 0), SV(k), SV(k + 1) + " : escalier d'arrivée");
+    }
+    // l'entrée : la grotte au pied du Mont Miharashi (posée avec l'image du joueur : absente ici, sans images) ; fermée
+    // avant le chapitre 3
+    let to = null; const ow = { charger: async t => { to = t; } };
+    DW.state.flags.chapter = 2; await DW.SousVolcan.entrer(ow); eq(to, null, 'les souterrains sont ouverts avant le chapitre 3');
+    DW.state.flags.chapter = 3; await DW.SousVolcan.entrer(ow); eq(to, SV(1), 'la grotte du Mont Miharashi ne mène pas aux souterrains');
+  } finally { DW.fade = fade; }
+});
+test("sauvetage de Sora : Biyomon seule à la fontaine, Sora au fond ; le gardien vaincu, Sora retrouvée et l'échelle des foreurs ouverte", async () => {
+  fresh();
+  const f = DW.state.flags; DW.state.hero = 'perso'; f.chapter = 3;
+  const V = DW.preparerCarte('miharashi1'), M5 = DW.preparerCarte(SV(5)), vis = (m, k) => m.npcs.filter(n => (n.hero === k || n.sp === k) && (!n.cond || n.cond(DW.state)));
+  yes(vis(V, 'biyomon').length === 1 && !vis(V, 'sora').length, 'avant : Biyomon seule à la fontaine');
+  yes(vis(M5, 'sora').length === 1 && vis(M5, 'drimogemon').some(n => n.gear), 'avant : Sora prisonnière au fond, le gardien possédé sur le pont');
+  yes(!M5.objects.some(o => o.echelle) && !DW.preparerCarte(SV(1)).objects.some(o => o.echelle), "l'échelle des foreurs est là avant le gardien");
+  const fade = DW.fade; DW.fade = async () => {};
+  try { await DW.SousVolcan.delivrance({ p: { x: 32, y: 31 }, solid: () => false, map: { npcs: [] }, shake: 0 }); } finally { DW.fade = fade; }
+  yes(f.soraMet && f.svGardien, 'après le gardien : Sora pas retrouvée');
+  yes(!vis(M5, 'sora').length && vis(V, 'sora').length === 1 && vis(V, 'biyomon').length === 1, 'après : Sora et Biyomon pas réunies à la fontaine');
+  yes(DW.preparerCarte(SV(5)).objects.some(o => o.echelle) && DW.preparerCarte(SV(1)).objects.some(o => o.echelle), "l'échelle des foreurs ne s'ouvre pas");
+  yes(!vis(M5, 'drimogemon').some(n => n.gear), 'le gardien est toujours possédé');
+});
+test("périls des souterrains : un rocher coûte des PV sans K.O., les gravats bloquent un moment, un partenaire à bout de forces s'évanouit", async () => {
+  fresh();
+  const m = new DW.Digimon('agumon', 20); DW.state.party = [m];
+  const M = DW.preparerCarte(SV(1)), P = { x: 30, y: 40, tx: 30, ty: 40, moving: false, t: 0 }, F = { x: 31, y: 40, tx: 31, ty: 40 };
+  let to = null;
+  const ow = { map: M, mapId: SV(1), gfx: { solid: new Set() }, p: P, f: F, locked: false, shake: 0, t: 0, partner: m,
+    npcAt: () => null, solid: () => false, falaise: () => false, pos: e => ({ x: e.x, y: e.y }), camera: () => ({ cx: 0, cy: 0 }),
+    runScript: async fn => fn(ow), forceStep: async () => {}, charger: async (id, x, y) => { to = [id, x, y]; } };
+  const fade = DW.fade, wait = DW.wait; DW.fade = async () => {}; DW.wait = async () => {};
+  try {
+    DW.Perils.entree(ow); const S = DW.Perils.etat(M); S.grace = 0;
+    S.chutes.push({ x: 30, y: 40, t: 2, k: 'rocher' }); DW.Perils.update(ow, 0.01); await DW.wait();
+    yes(m.hp < m.maxHp && m.hp >= 1, 'le rocher ne fait pas perdre de PV (ou met K.O.)');
+    S.grace = 0; S.chutes.push({ x: 34, y: 40, t: 2, k: 'rocher' }); DW.Perils.update(ow, 0.01);
+    yes(DW.Perils.bloque(ow, 34, 40), 'pas de gravats après la chute');
+    DW.Perils.update(ow, 12); yes(!DW.Perils.bloque(ow, 34, 40), 'les gravats ne s\'effritent pas');
+    m.hp = 1; S.grace = 0; S.chutes.push({ x: 30, y: 40, t: 2, k: 'rocher' }); DW.Perils.update(ow, 0.01);
+    for (let i = 0; i < 5 && !to; i++) await new Promise(r => setTimeout(r, 0));
+    yes(m.hp === 1, 'un partenaire à bout de forces tombe K.O. au lieu de s\'évanouir');
+    yes(to && to[0] === SV(1) && to[1] === M.entry.x && to[2] === M.entry.y, "évanoui : pas ramené au début du cercle");
+  } finally { DW.fade = fade; DW.wait = wait; }
+});
 test("Shellmon : Tai et son Digimon (devenu Greymon) rejoignent le combat à mi-vie et frappent seuls (tour par tour)", async () => {
   fresh();
   const B = new DW.BattleScene({ enemy: new DW.Digimon('shellmon', 16), boss: true, ally: { at: 0.5, sp: 'greymon', lvl: 16, move: 'mega_flamme' } });

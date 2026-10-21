@@ -3,7 +3,9 @@
 //  CHAPITRE 3 — « La Montagne de Feu » (saison 1, épisode 4 : Birdramon)
 //  1) À l'ouest de la forêt, les déserts aux poteaux télégraphiques mènent au Village des Yokomon.
 //  2) La fontaine du village est à sec, le petit lac presque vide autour de la vieille épave :
-//     Meramon, le gardien du Mont Miharashi, est devenu fou et brûle tout. Sora et Biyomon aident les Yokomon.
+//     Meramon, le gardien du Mont Miharashi, est devenu fou et brûle tout. Sora est descendue sous la montagne chercher
+//     la source de la fontaine ; Biyomon est remontée seule et supplie le héros d'aller la chercher. Sora est retrouvée
+//     au fond des souterrains, cinq cercles plus bas (maps/sous_volcan.js) ; ensemble, ils montent affronter Meramon.
 //  3) Au sommet du Mont Miharashi, combat contre Meramon ; Biyomon digivolue en Birdramon (à 40 % des PV)
 //     et vient t'aider. L'Engrenage Noir se brise, Meramon s'excuse et part ouvrir le Restaurant en ville.
 //  4) L'eau revient au village, Sora s'installe chez toi. Bilan, puis le carton du chapitre 4.
@@ -39,8 +41,9 @@
         folk(52, 41, () => ["Les poteaux du désert ? Ils étaient là avant nous. Leur vieille ligne arrive jusqu'au village... mais personne ne sait d'où elle part.", "Bienvenue au Village des Yokomon !"]),
         // la jardinière : une fois l'eau revenue, le mini-jeu d'arrosage (game/minijeux.js)
         { sp: 'yokomon', x: at(40, 37)[0], y: at(40, 37)[1], face: 'right', cond: () => freed(), talk: () => DW.MiniJeux.arrosage('Yokomon jardinière') },
-        { hero: 'sora', x: at(43, 32)[0], y: at(43, 32)[1], face: 'right', cond: soraHere, talk: ow => soraTalk(ow) },
-        { sp: 'biyomon', x: at(44, 33)[0], y: at(44, 33)[1], face: 'left', cond: soraHere, talk: async () => { await say(st().flags.soraMet ? "Je protégerai Sora ! Même contre Meramon !" : "Cui ! Tu viens de la forêt ? Va parler à Sora, elle cherche de l'aide !", 'Biyomon'); } },
+        // (Sora n'est à la fontaine qu'une fois retrouvée au fond des souterrains ; Biyomon, elle, y attend depuis le début)
+        { hero: 'sora', x: at(43, 32)[0], y: at(43, 32)[1], face: 'right', cond: s => soraHere(s) && !!s.flags.soraMet, talk: ow => soraTalk(ow) },
+        { sp: 'biyomon', x: at(44, 33)[0], y: at(44, 33)[1], face: 'left', cond: soraHere, talk: () => biyoTalk() },
       );
     };
     V.onEnter = async ow => {
@@ -50,7 +53,7 @@
       ow.cine = true;
       await say("Des huttes de chaume rondes autour d'une fontaine de pierre... Des dizaines de Yokomon lèvent la tête vers toi.");
       await say("Un visiteur ! Bienvenue au Village des Yokomon ! ...Pardon pour l'accueil, on n'a plus une goutte d'eau à t'offrir.", 'Yokomon');
-      if (soraHere(s)) await say("Près de la fontaine, une fille au chapeau bleu aide les Yokomon à arroser leurs fleurs avec un seau presque vide...");
+      if (soraHere(s) && !s.flags.soraMet) await say("Près de la fontaine à sec, un petit oiseau rose est recroquevillé, couvert de suie. Il lève vers toi des yeux pleins de larmes...");
       ow.cine = false;
     };
   }
@@ -63,21 +66,25 @@
     await say("Je suis l'ancien du village. Écoute bien : Meramon, le gardien du Mont Miharashi, a perdu la tête.", 'Yokomon');
     await say("Ses flammes ont tari notre source. La fontaine est à sec, et le petit lac a presque disparu autour de la vieille épave.", 'Yokomon');
     await say("Le Mont Miharashi est à l'ouest, au bout de la route. Si tu y montes... sois prudent. Meramon grandit à chaque coup qu'il reçoit !", 'Yokomon');
-    if (!s.flags.soraMet && soraHere(s)) await say("Parle donc à la jeune fille près de la fontaine. Elle et son oiseau rose nous aident depuis des jours.", 'Yokomon');
+    if (!s.flags.soraMet && soraHere(s)) await say("Une jeune humaine au chapeau bleu nous aidait... Elle est descendue sous la montagne chercher notre source, et elle n'est jamais remontée. Son oiseau rose est revenu seul : il est près de la fontaine. Va lui parler.", 'Yokomon');
   }
+  // Biyomon, remontée seule des souterrains : elle supplie le héros d'aller chercher Sora (game/perils.js, maps/sous_volcan.js)
+  async function biyoTalk() {
+    const f = st().flags;
+    if (f.soraMet) { await say("Je protégerai Sora ! Même contre Meramon !", 'Biyomon'); return; }
+    if (!f.biyoAide) {
+      await say("Cui... Tu viens de la forêt ? Aide-moi, je t'en supplie ! Mon amie Sora est descendue sous le Mont Miharashi chercher la source de la fontaine...", 'Biyomon');
+      await say("Là-dessous, tout s'écroule, des chauves-souris attaquent, il y a de la lave partout... Un gros Drimogemon a bloqué le chemin. Je n'ai pas pu la ramener !", 'Biyomon');
+      await say("La grotte s'ouvre au pied du Mont Miharashi, tout près de l'arrivée de la route. Je t'en prie... ramène Sora !", 'Biyomon');
+      f.biyoAide = true; DW.autosave();
+      return;
+    }
+    await say("Sora est tout au fond, sous la montagne, au bord d'un lac qui bout... Fais attention : regarde le sol, écoute les cris, et prends des RAM !", 'Biyomon');
+  }
+  // (Sora retrouvée au fond des souterrains : leur rencontre se joue là-bas, maps/sous_volcan.js)
   async function soraTalk() {
-    const s = st(), f = s.flags;
-    if (!f.soraMet) {
-      await say("Oh ! Un humain ! Toi aussi, tu es tombé sur cette île ? Je m'appelle Sora. Et voici Biyomon.", 'Sora');
-      await say('Cui ! Enchantée !', 'Biyomon');
-      await say(`${s.name}... C'est joli. Moi, j'étais au camp d'été avec les autres. On a tous été séparés.`, 'Sora');
-      if ((s.kids || {}).tai) await say("Tai est chez toi ? Ça ne m'étonne pas qu'il ait foncé droit dans les ennuis... Je suis contente qu'il aille bien.", 'Sora');
-      if ((s.kids || {}).matt) await say("Et Matt aussi ? Il doit être soulagé... même s'il ne le montrera jamais.", 'Sora');
-      await say("Les Yokomon n'ont plus d'eau à cause de Meramon. Je ne peux pas les laisser tomber.", 'Sora');
-      await say("Biyomon n'arrive pas encore à digivoluer... Mais si on monte ensemble au Mont Miharashi, on peut y arriver. Je viens avec toi !", 'Sora');
-      f.soraMet = true;
-      DW.autosave();
-    } else await say("On y va quand tu veux. Le Mont Miharashi est à l'ouest, après la route. Biyomon et moi, on te suit !", 'Sora');
+    if (st().flags.svGardien) await say("Merci encore d'être venu me chercher sous la montagne. Biyomon n'en revenait pas !", 'Sora');
+    await say("On y va quand tu veux. Le Mont Miharashi est à l'ouest, après la route. Biyomon et moi, on te suit !", 'Sora');
   }
 
   // ------------------------------------------------------------ 3) le Mont Miharashi et Meramon
@@ -148,7 +155,8 @@
     await say("Au village, la fontaine se met à gargouiller... puis l'eau jaillit en deux grands arcs ! Les Yokomon dansent autour, en criant de joie.");
     await say("Meramon est descendu de la montagne pour s'excuser. Le feu qui asséchait la source s'est éteint pour de bon... et pour se faire pardonner, il veut cuisiner pour tout le monde, à la Ville des Fichiers !");
     if (perso() && !withSora && !(s.kids || {}).sora) {   // (vaincu sans elle : Sora et Biyomon accourent quand même)
-      await say("Une fille au chapeau bleu accourt avec un oiseau rose : « Tu as calmé Meramon tout seul ?! Je m'appelle Sora, et voici Biyomon. On aidait les Yokomon... »", 'Sora');
+      await say(s.flags.soraMet ? "Sora accourt avec Biyomon : « Tu as calmé Meramon tout seul ?! On aidait les Yokomon... »"
+        : "Une fille au chapeau bleu accourt avec Biyomon, couverte de suie : « Le feu s'est éteint, le lac sous la montagne a refroidi... j'ai pu remonter ! Tu as calmé Meramon tout seul ?! Je m'appelle Sora. »", 'Sora');
       DW.Crests.freeKid('sora');
       withSora = true;
     }
@@ -207,7 +215,8 @@
     if (!ch3() || !perso()) return obj2();
     if (f.meramon) return "Meramon est calmé, l'eau coule de nouveau au Village des Yokomon." + ((s.kids || {}).sora ? ' Sora et Biyomon vivent chez toi.' : '');
     if (!f.yokoVillage) return "À l'ouest de la Clairière de l'Arrivée et du Sentier des Murmures, la forêt s'ouvre sur un désert hérissé de poteaux... Un village se cache au-delà.";
-    if (!f.soraMet) return "Au Village des Yokomon, la fontaine est à sec. Une fille au chapeau bleu aide les habitants : va lui parler.";
+    if (!f.soraMet && !f.biyoAide) return "Au Village des Yokomon, la fontaine est à sec. Un petit oiseau rose attend près d'elle, épuisé : va lui parler.";
+    if (!f.soraMet) return "Sora est descendue sous le Mont Miharashi chercher la source du village, et n'est jamais remontée. La grotte s'ouvre au pied du mont : descends la chercher, tout au fond !";
     return "Meramon, fou de rage, brûle tout depuis le sommet du Mont Miharashi, à l'ouest du Village des Yokomon. Monte le calmer avec Sora et Biyomon !";
   };
   Object.assign(DW.Chapter, { end3, meramonFight });

@@ -103,6 +103,7 @@
         case 'slash': this.noise(t, 0.08, 0.4, 7000); this.tone(1400, t, 0.08, 'square', 0.06, null, 600); break;
         case 'flush': this.noise(t, 0.9, 0.35, 1400); for (let i = 0; i < 6; i++) this.tone(500 - i * 50, t + 0.1 + i * 0.1, 0.12, 'sine', 0.06, null, 300 - i * 30); break;
         case 'door': this.tone(240, t, 0.12, 'triangle', 0.12, null, 180); this.noise(t + 0.1, 0.12, 0.15, 900); this.tone(160, t + 0.18, 0.08, 'square', 0.08); break;
+        case 'chauvesouris': for (let i = 0; i < 7; i++) this.tone(2300 + Math.random() * 1100, t + i * 0.05 + Math.random() * 0.02, 0.03, 'square', 0.05, null, 3400); this.noise(t, 0.4, 0.12, 7000); break;   // (cris aigus et battements d'ailes : game/perils.js)
       }
     },
     play(name) {

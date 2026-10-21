@@ -25,6 +25,10 @@
     pnjHorsDecor(map);
     return map;
   };
+  // DOSSIERS D'IMAGES chargés à part (gfx/textures.js, TARDIFS) dont une carte a besoin : celui de ses sols
+  // (map.textures) et ceux de ses décors (map.dossiers : les souterrains du Mont Miharashi mêlent grotte et désert)
+  DW.dossiersCarte = mapId => { const M = DW.MAPS[mapId]; return M ? [M.textures, ...(M.dossiers || [])].filter(Boolean) : []; };
+  DW.attendreDossiers = mapId => (DW.Textures && DW.Textures.dossier ? Promise.all(DW.dossiersCarte(mapId).map(d => DW.Textures.dossier(d))) : Promise.resolve());
   // un personnage n'est jamais DANS le décor : un rocher ou un arbre posé dans l'éditeur de cartes peut avoir pris sa
   // place ; il se décale alors sur la case libre la plus proche (vérifié une fois par état de la carte)
   function pnjHorsDecor(map) {
@@ -53,8 +57,7 @@
     // (« Chargement... » : core.js), puis on y entre ; déjà prête (préparée à l'avance) = immédiat
     async charger(mapId, x, y, dir = 'down') {
       // (carte dont les images sont chargées à part — la grotte de Shellmon : gfx/textures.js, TARDIFS — on les attend)
-      const dossier = DW.MAPS[mapId] && DW.MAPS[mapId].textures;
-      if (dossier && DW.Textures && DW.Textures.dossier) { DW.chargement = { texte: 'Chargement...' }; try { await DW.Textures.dossier(dossier); } finally { DW.chargement = null; } }
+      if (DW.dossiersCarte(mapId).length) { DW.chargement = { texte: 'Chargement...' }; try { await DW.attendreDossiers(mapId); } finally { DW.chargement = null; } }
       const M = DW.preparerCarte(mapId);
       if (!DW.World.pret(M)) {
         // gros morceaux (~50 ms) : entre deux, seulement l'écran de chargement (core.js), et aucune préparation de fond
@@ -110,6 +113,7 @@
         }
       }
       DW.Wild.spawn(this);
+      if (DW.Perils) DW.Perils.entree(this);   // (éboulis, chauves-souris... : rien dans les premières secondes, game/perils.js)
       this.banner = { t: 0 };
       this.bannerT = 2.6;
       Audio.play(this.map.music);
@@ -146,7 +150,8 @@
       const m = this.map, k = x + ',' + y;   // (collisions choisies dans l'éditeur de cartes : maps/retouches.js)
       if (m.forceBloque && m.forceBloque.has(k)) return true;
       if (m.forceLibre && m.forceLibre.has(k)) return this.npcBlocks(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y);
-      return DW.SOLID.has(this.tileAt(x, y)) || this.gfx.solid.has(x + ',' + y) || this.npcBlocks(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y);
+      return DW.SOLID.has(this.tileAt(x, y)) || this.gfx.solid.has(x + ',' + y) || this.npcBlocks(x, y) || DW.Care.poopAt(this.mapId, x, y) || !!DW.Wild.at(this, x, y)
+        || (!!DW.Perils && DW.Perils.bloque(this, x, y));   // (gravats d'un éboulis : game/perils.js)
     }
     // relief retouché dans l'éditeur (maps/retouches.js) : on ne change de niveau que par un escalier
     falaise(ax, ay, bx, by) {
@@ -160,6 +165,7 @@
     update(dt) {
       if (DW.Relief) DW.Relief.track(this);   // altitude logique du héros (maps/relief.js)
       if (DW.Lave) DW.Lave.update(this, dt);   // coulées de lave du Mont Miharashi (game/lave.js)
+      if (DW.Perils) DW.Perils.update(this, dt);   // éboulis, chauves-souris, braises, tombeaux de feu (game/perils.js)
       const P = this.p;
       if (P.moving) {
         P.t += dt / P.dur;
@@ -592,6 +598,7 @@
       if (this.wet > 0.02 && g.puddles) this.drawPuddles(c, g.puddles, vx0, vx1, vy0, vy1);
       DW.Vivant.drawGround(this, c, vx0, vx1, vy0, vy1);
       if (DW.Lave) DW.Lave.draw(this, c);   // coulées de lave (sous les personnages)
+      if (DW.Perils) DW.Perils.draw(this, c);   // ombres des éboulis, lueurs des braises, gravats (game/perils.js)
       // herbes hautes (couche arrière)
       const tallFrame = (tx, ty) => this.rustle[tx + ',' + ty] ? Math.floor(this.t * 14) % 3 : [0, 1, 2, 1][Math.floor(this.t * 1.6 + tx * 0.4 + ty * 0.25) % 4];
       for (const tg of g.tall) {
@@ -711,6 +718,7 @@
       }
       if (DW.Relief && DW.Relief.debug) DW.Relief.drawDebug(this, c, vx0, vx1, vy0, vy1);   // vue de développement (?debug=geo puis G)
       if (DW.Lave) DW.Lave.drawTop(this, c);   // PV perdus dans la lave
+      if (DW.Perils) DW.Perils.drawTop(this, c);   // rochers qui tombent, flammes, chauves-souris (game/perils.js)
       // barrières de données sur les passages encore fermés
       for (const w of this.map.warps || []) if (w.cond && !w.cond(DW.state)) {
         for (let yy = w.y; yy < w.y + (w.h || 1); yy++) for (let xx = w.x; xx < w.x + (w.w || 1); xx++) {
@@ -732,8 +740,8 @@
       DW.Rendu.scene(this, c, cam);   // rais de lumière
       if (!this.map.indoor) this.weather.draw(c);
       // lumières en coordonnées écran ; celles qui ne touchent pas l'écran sont ignorées (même rendu, moins de calcul)
-      const lights = [];
-      for (const L of this.amb.lights()) {
+      const lights = [], lp = DW.Perils && DW.Perils.lights(this);   // (la lave des souterrains éclaire la grotte : game/perils.js)
+      for (const L of lp ? this.amb.lights().concat(lp) : this.amb.lights()) {
         const x = L.x - cx, y = L.y - cy, r = L.r || 0;
         if (x + r < 0 || y + r < 0 || x - r > W || y - r > H) continue;
         lights.push({ ...L, x, y });
