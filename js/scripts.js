@@ -45,7 +45,7 @@
   const VERSIONS = {
     'engine/core.js': '32d8cccd',
     'engine/input.js': 'a4caafad',
-    'engine/audio.js': 'fa226099',
+    'engine/audio.js': '9198f50d',
     'engine/art.js': 'afb33d8b',
     'ui/widgets.js': '952c1225',
     'ui/dialog.js': '14e36076',
@@ -64,7 +64,7 @@
     'data/equipements.js': '617199cb',
     'data/music.js': '54b59a41',
     'data/musiques_regions.js': '7e295f8a',
-    'data/flags.js': 'e3827426',
+    'data/flags.js': '67149737',
     'gfx/sprites.js': '62a5b55e',
     'gfx/digimon/entrainement.js': '5ff5b75d',
     'gfx/digimon/disciples.js': '7661fcb8',
@@ -137,10 +137,11 @@
     'game/collab.js': '3dbfcea2',
     'game/fx.js': '7d0c799b',
     'game/lave.js': '4707b259',
+    'game/perils.js': '3f4aedab',
     'game/fxelem.js': 'd31e22e7',
     'game/battle.js': 'b68e92af',
     'game/evolution.js': 'bacb6c98',
-    'game/overworld.js': 'aa20158f',
+    'game/overworld.js': '6b8a0ff1',
     'ui/menus.js': '08d5836f',
     'ui/sac.js': 'b47c2aed',
     'ui/boutique.js': 'c35b5720',
@@ -183,6 +184,7 @@
     'maps/miharashi.js': '317b8801',
     'maps/regions.js': '3142c5d4',
     'maps/antre.js': '1f0e280f',
+    'maps/sous_volcan.js': '9c5252de',
     'maps/yokomon.js': '44c78810',
     'maps/souterrain.js': '2c2d919b',
     'maps/distrib.js': '657c1c97',
@@ -198,17 +200,17 @@
     'game/debut.js': '152dcb8b',
     'game/trophees.js': '0ae21ace',
     'game/chapitre2.js': 'f7753b5d',
-    'game/chapitre3.js': '0ea76579',
+    'game/chapitre3.js': '7553c625',
     'game/quetes.js': '4336958c',
     'game/minijeux.js': 'be70ba3d',
-    'main.js': 'b4b3e189',
+    'main.js': '7f49e2c5',
   };   // (fin des versions)
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: 'def15079' },
+    { f: '../paquets/jeu-1.js', v: 'b0e8c6ac' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: 'd1471818' },
+    { f: '../paquets/jeu-2.js', v: '1e2861bb' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.
