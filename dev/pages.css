@@ -1,0 +1,31 @@
+/* =====================================================================
+   PAGES D'OUTILS DE dev/ (check.html, gallery.html) — jamais chargées par le jeu
+   Elles chargent les scripts du jeu (js/scripts.js, sans main.js) : son canvas #game existe mais reste caché.
+   ===================================================================== */
+#game {
+  display: none;
+}
+
+/* check.html : vérification des cartes (checkmaps.js) */
+body.verif {
+  padding: 12px;
+  background: #0c1a24;
+  color: #cfe;
+  font: 13px monospace;
+}
+.ok {
+  color: #7f7;
+}
+.ko {
+  color: #f77;
+}
+
+/* gallery.html : galerie des sprites (gallery.js) */
+body.galerie {
+  margin: 0;
+  background: #5a8ad0;
+}
+body.galerie canvas {
+  display: block;
+  image-rendering: pixelated;
+}

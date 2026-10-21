@@ -1,6 +1,9 @@
-# Serveur de développement local sans cache (python dev/serve.py [port])
-# POST /dev/save?name=xxx.png  : enregistre le corps (image PNG ou fichier texte) dans le dossier dev/captures/
-#                                (utilisé par dev/captures.js pour la galerie de captures d'écran)
+# Serveur de développement local sans cache (python dev/serve.py [port] ; 8765 par défaut, celui de l'atelier)
+# Pour JOUER, pas besoin de serveur : JOUER.bat ouvre le jeu en ligne. Celui-ci sert à essayer une modification avant
+# de la publier (http://localhost:8766 avec « python dev/serve.py 8766 »), aux pages et outils de dev/ et à l'atelier.
+# POST /dev/save?name=xxx.png  : enregistre le corps (image PNG ou page HTML) dans le dossier dev/captures/
+#                                (captures des outils de dev/ : captures.js, domaine.js, assemblage.js, islandmap.js,
+#                                guide.js, avantapres.js ; bouton « Image » de l'atelier)
 # ATELIER DES CARTES (dossier dev/editeur/, seulement sur ce PC : le serveur n'écoute que 127.0.0.1)
 # POST /dev/retouches            : réécrit js/maps/retouches_donnees.js (les cartes retouchées) ; copie de sûreté
 #                                  de l'ancienne version dans dev/editeur/sauvegardes/. En-tête X-Version : la version

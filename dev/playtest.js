@@ -26,7 +26,7 @@
     // instantanés : fondus, dialogues et choix (le joueur répond « oui »)
     DW.fade = async () => {}; DW.say = async () => {}; DW.ask = async q => (/Digivice vibre/.test(q) ? 1 : 0); DW.choose = async () => 0;
 
-    // pilote : fait avancer les scènes (combats au tour par tour ou dans l'arène, cinématiques) jusqu'à la fin d'une promesse
+    // pilote : fait avancer les scènes (combats au tour par tour, cinématiques) jusqu'à la fin d'une promesse
     const drive = async (p, max = 1500) => {
       let done = false, res; p.then(r => { done = true; res = r; }, e => { done = true; res = 'error'; log('ERREUR ' + e); });
       for (let i = 0; i < max && !done; i++) {
