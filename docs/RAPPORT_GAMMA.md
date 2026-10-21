@@ -252,3 +252,15 @@ jour de marché, tour de piste chronométré, étals du Marché vivants.
   sauvegarde échoue ; une partie refusée par le navigateur (mémoire pleine) part quand même dans FICHIER.
 - Téléphone : commandes dans les bandes libres en 16:9 ; en 4:3, celles qui couvrent la boîte de dialogue s'effacent
   presque pendant les dialogues.
+
+## 19. Après le rapport : standard artistique, villages et nouvelles cartes (21/10, publiés)
+- Plus de bottes de foin ; cadre du Digimon en combat en bas à droite (il cachait la tête des grands ennemis).
+- Forêts en bosquets (cerisiers ensemble, bouleaux ensemble) ; Route du Mont Miharashi en vrais bosquets ; Mont Panorama
+  en forêt calcinée ; Plaine des Panneaux plus verte que le Désert des Poteaux.
+- Planches DESERT et VILLAGE BEBE du créateur (198 objets, chargés après le démarrage) : le désert prend ses poteaux
+  télégraphiques (deux fois moins nombreux), panneaux, rochers, cactus et sols ; toutes les toilettes du jeu sont sa
+  cabane au toit bleu (69 cartes ; celles du Terrain d'entraînement sorties de l'ombre des arbres).
+- Villages : Poyomon (agrandi, maisons, portail, aire de jeux...), Bébés (maison de Penguinmon avec intérieur douillet,
+  une quarantaine d'objets), Yokomon (tipis, feux de camp, aire de jeux, kiosque, moulin), Rosière (maisons et mobilier).
+- Chemin de Shellmon en 5 cartes : la Lagune des Cristaux et la Crypte des Gardiens (porte scellée, trois ankhs).
+- En cours : la grotte de Sora (chapitre 3), 5 cartes ultra dangereuses sous le volcan (lave, éboulis, chauves-souris).
