@@ -85,14 +85,15 @@
         const r = await DW.ask('Sauvegarder ta progression ?');
         if (r === 0) {
           const ok = DW.save();
-          Audio.sfx('save');
-          await DW.say(ok ? `${st.name} sauvegarde sa partie dans le Digivice !` : 'Erreur : impossible de sauvegarder.');
+          Audio.sfx(ok ? 'save' : 'bump');
+          await DW.say(ok ? `${st.name} sauvegarde sa partie dans le Digivice !` : DW.SAVE_ECHEC);
         }
       } else if (k === 'options') await Game.push(new OptionsScene());
       else if (k === 'titre') {
         const r = await DW.ask("Retourner à l'écran titre ?", ['Sauvegarder et quitter', 'Quitter sans sauvegarder', 'Annuler']);
         if (r === 2 || r < 0) return;
-        if (r === 0) DW.save();
+        // (sauvegarde refusée : on ne quitte pas, la partie serait perdue — FICHIER peut encore la télécharger)
+        if (r === 0 && !DW.save()) { Audio.sfx('bump'); await DW.say(DW.SAVE_ECHEC + ' Tu restes dans ta partie.'); return; }
         await DW.fade(1, 0.4);
         Audio.stop();
         DW.ow = null;

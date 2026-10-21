@@ -77,9 +77,18 @@
         level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
     } catch (e) { return null; } finally { DW.slot = keep; }
   };
-  // sauvegarde automatique silencieuse (changement de zone, après un combat)
+  // sauvegarde automatique silencieuse (changement de zone, après un combat) ; renvoie true si elle a vraiment réussi
+  // (« Sauvegardé » seulement si c'est vrai ; sinon un avertissement qui ne bloque pas le jeu, au plus toutes les 2 minutes)
   const warnedFlags = new Set();
-  DW.autosave = () => { if (DW.state.flags.starter && DW.save()) DW.saveFlash = 2; };   // (« Sauvegardé » seulement si c'est vrai)
+  DW.SAVE_ECHEC = "La sauvegarde a échoué : mémoire du navigateur pleine ? Utilise FICHIER (menu Système, « Fichier sur l'ordinateur ») pour télécharger ta partie.";
+  let averti = 0;
+  DW.autosave = () => {
+    if (!DW.state.flags.starter) return null;   // (pas encore de partenaire : rien n'est sauvegardé, ce n'est pas un échec)
+    const ok = DW.save();
+    if (ok) DW.saveFlash = 2;
+    else if (DW.Care && DW.Care.toast && Date.now() - averti > 120000) { averti = Date.now(); DW.Care.toast('Sauvegarde impossible : mémoire du navigateur pleine ?', '#ff8a8a'); }
+    return ok;
+  };
   DW.save = () => {
     const st = DW.state;
     if (DW.ow) { st.map = DW.ow.mapId; st.x = DW.ow.p.x; st.y = DW.ow.p.y; st.dir = DW.ow.p.dir; }
@@ -91,7 +100,10 @@
     const old = read(K.KEY);
     if (old && old !== json) write(K.BAK, old);
     const ok = write(K.KEY, json);
-    if (ok && DW.SaveFile) DW.SaveFile.afterSave();   // copie dans le fichier de l'ordinateur (game/fichier.js)
+    // écriture refusée (mémoire du navigateur pleine...) : la partie est gardée à part, pour que FICHIER la télécharge
+    // quand même — sinon le fichier ne contenait que l'ancienne sauvegarde (game/fichier.js, bundle)
+    DW.saveRefusee = ok ? null : { k: K.KEY, json };
+    if (DW.SaveFile) DW.SaveFile.afterSave();   // copie dans le fichier de l'ordinateur (game/fichier.js)
     // stockage « persistant » demandé une fois : le navigateur n'efface plus les parties pour faire de la place
     if (ok && !persiste) { persiste = true; try { navigator.storage.persist().catch(() => {}); } catch (e) { /* non disponible */ } }
     return ok;

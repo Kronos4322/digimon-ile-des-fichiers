@@ -13351,6 +13351,34 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       for (let i = 0; i < 7; i++) place('reeds', i % 2, 18 + i * 47 + Math.floor(hash(i, 6, 71) * 12), HZ + 12);
       const TK = (TH && TH.objMap && TH.objMap.tree) || 'tree';
       place(TK, 0, -6, 214, 2); place(TK, 1, W + 4, 206, 2);
+    } else if (type === 'desert') {
+      // DÉSERT DES POTEAUX : mesas de roche basse au loin, terre pâle, vieux poteaux télégraphiques penchés, buissons secs
+      const RC = (TH && TH.cliff) || ['#5a4e3c', '#6c5e48', '#807056', '#948466', '#a89878', '#bcae8e'];
+      c.fillStyle = RC[4]; c.globalAlpha = 0.75;
+      for (let i = 0; i < 7; i++) {
+        const x0 = i * 52 - 14 + hash(i, 3, 81) * 12, w = 54 + hash(i, 1, 81) * 40, h = 8 + hash(i, 2, 81) * 16;
+        c.beginPath(); c.moveTo(x0, HZ); c.lineTo(x0 + w * 0.22, HZ - h); c.lineTo(x0 + w * 0.78, HZ - h); c.lineTo(x0 + w, HZ); c.fill();
+      }
+      c.globalAlpha = 1;
+      ground(TH ? TH.grass.map(Art.hex) : PAL.sand, 43, false);
+      for (const [x, v] of [[52, 0], [120, 2], [204, 1], [262, 3]]) place('telpole', v, x, HZ + 2 + (v & 1), 0.6);   // (la vieille ligne, au loin)
+      place('drybush', 0, 96, HZ + 14); place('drybush', 2, 228, HZ + 16);
+      place('boulder', 1, 8, 222, 2); place('roadsign', 0, W - 18, 218, 1.6);
+    } else if (type === 'mont') {
+      // SOMMET DU MONT MIHARASHI : la crête du cratère qui rougeoie, fumées, roche brune, aiguilles et fumerolles
+      c.fillStyle = 'rgba(255,130,50,0.22)'; c.fillRect(0, 0, W, HZ);   // (ciel teinté par le cratère)
+      const RK = (TH && TH.rock) || ['#2e2a24', '#423a30', '#584c3c', '#6e5e4a', '#86725a', '#a08a6c', '#b8a282', '#d0bc9c'];
+      g = c.createRadialGradient(W / 2, HZ - 6, 6, W / 2, HZ - 6, 150);
+      g.addColorStop(0, 'rgba(255,110,30,0.75)'); g.addColorStop(1, 'rgba(255,110,30,0)');
+      c.fillStyle = g; c.fillRect(0, 30, W, HZ - 30);
+      for (let i = 0; i < 6; i++) { c.fillStyle = `rgba(110,100,92,${0.18 + hash(i, 2, 91) * 0.12})`; c.beginPath(); c.ellipse(40 + i * 52 + hash(i, 1, 91) * 20, 46 - (i % 3) * 8, 30, 12, 0, 0, 7); c.fill(); }   // (fumées)
+      c.fillStyle = RK[3];
+      c.beginPath(); c.moveTo(0, HZ); c.lineTo(0, 76); c.lineTo(46, 66); c.lineTo(104, 72); c.lineTo(150, 62); c.lineTo(206, 70); c.lineTo(262, 60); c.lineTo(W, 70); c.lineTo(W, HZ); c.fill();
+      c.fillStyle = RK[2]; c.beginPath(); c.moveTo(0, HZ); c.lineTo(0, 86); c.lineTo(70, 80); c.lineTo(140, 88); c.lineTo(214, 78); c.lineTo(W, 86); c.lineTo(W, HZ); c.fill();
+      ground(RK.slice(2, 8).map(Art.hex), 47, false);
+      place('aiguille', 0, 64, HZ + 4, 0.8); place('aiguille', 2, 244, HZ + 2, 0.7);
+      place('steamvent', 0, 112, HZ + 12); place('steamvent', 0, 214, HZ + 16); place('lavarock', 1, 150, HZ + 10);
+      place('aiguille', 1, 6, 228, 1.7); place('lavarock', 0, W - 12, 222, 2);
     } else if (type === 'plage') {
       g = c.createLinearGradient(0, 70, 0, HZ);
       g.addColorStop(0, '#2a74c8'); g.addColorStop(1, '#4ab4e8');
@@ -13378,7 +13406,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   };
   World.platform = (c, key, x, y, rx, ry) => {
     const [type, theme] = key.split('@'), TH = theme && World.THEMES[theme];
-    const cols = TH && (type === 'foret' || type === 'lac') ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
+    const cols = TH && type === 'mont' && TH.rock ? [TH.rock[3], TH.rock[5], TH.rock[6]] : TH && (type === 'foret' || type === 'lac' || type === 'desert') ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
     c.fillStyle = 'rgba(0,0,0,0.22)'; c.beginPath(); c.ellipse(x, y + 3, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[0]; c.beginPath(); c.ellipse(x, y + 1, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[1]; c.beginPath(); c.ellipse(x, y, rx - 2, ry - 2, 0, 0, 7); c.fill();
@@ -15012,9 +15040,18 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
     } catch (e) { return null; } finally { DW.slot = keep; }
   };
-  // sauvegarde automatique silencieuse (changement de zone, après un combat)
+  // sauvegarde automatique silencieuse (changement de zone, après un combat) ; renvoie true si elle a vraiment réussi
+  // (« Sauvegardé » seulement si c'est vrai ; sinon un avertissement qui ne bloque pas le jeu, au plus toutes les 2 minutes)
   const warnedFlags = new Set();
-  DW.autosave = () => { if (DW.state.flags.starter && DW.save()) DW.saveFlash = 2; };   // (« Sauvegardé » seulement si c'est vrai)
+  DW.SAVE_ECHEC = "La sauvegarde a échoué : mémoire du navigateur pleine ? Utilise FICHIER (menu Système, « Fichier sur l'ordinateur ») pour télécharger ta partie.";
+  let averti = 0;
+  DW.autosave = () => {
+    if (!DW.state.flags.starter) return null;   // (pas encore de partenaire : rien n'est sauvegardé, ce n'est pas un échec)
+    const ok = DW.save();
+    if (ok) DW.saveFlash = 2;
+    else if (DW.Care && DW.Care.toast && Date.now() - averti > 120000) { averti = Date.now(); DW.Care.toast('Sauvegarde impossible : mémoire du navigateur pleine ?', '#ff8a8a'); }
+    return ok;
+  };
   DW.save = () => {
     const st = DW.state;
     if (DW.ow) { st.map = DW.ow.mapId; st.x = DW.ow.p.x; st.y = DW.ow.p.y; st.dir = DW.ow.p.dir; }
@@ -15026,7 +15063,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const old = read(K.KEY);
     if (old && old !== json) write(K.BAK, old);
     const ok = write(K.KEY, json);
-    if (ok && DW.SaveFile) DW.SaveFile.afterSave();   // copie dans le fichier de l'ordinateur (game/fichier.js)
+    // écriture refusée (mémoire du navigateur pleine...) : la partie est gardée à part, pour que FICHIER la télécharge
+    // quand même — sinon le fichier ne contenait que l'ancienne sauvegarde (game/fichier.js, bundle)
+    DW.saveRefusee = ok ? null : { k: K.KEY, json };
+    if (DW.SaveFile) DW.SaveFile.afterSave();   // copie dans le fichier de l'ordinateur (game/fichier.js)
     // stockage « persistant » demandé une fois : le navigateur n'efface plus les parties pour faire de la place
     if (ok && !persiste) { persiste = true; try { navigator.storage.persist().catch(() => {}); } catch (e) { /* non disponible */ } }
     return ok;
@@ -15136,6 +15176,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   function bundle() {
     const S = ls(), slots = {};
     if (S) for (let i = 0; i < S.length; i++) { const k = S.key(i); if (k && k.startsWith(PREFIX)) slots[k] = S.getItem(k); }
+    // (la dernière sauvegarde refusée par le navigateur — mémoire pleine — : c'est elle, la partie en cours, qui part dans le
+    //  fichier ; game/sauvegarde.js)
+    const R = DW.saveRefusee; if (R && R.k && typeof R.json === 'string') slots[R.k] = R.json;
     return JSON.stringify({ jeu: 'Digimon — L\'Aventure de l\'Île des Fichiers', format: 1, ecrit: Date.now(), slots }, null, 1);
   }
   const savedAt = v => { try { const o = JSON.parse(v); return (o && o.savedAt) || 0; } catch (e) { return 0; } };
@@ -15329,6 +15372,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 
   const Training = DW.Training = {
     STATS, POSTES, TOTAL,
+    // NOM D'UN POSTE (étiquette, questions, écran de la séance) : celui de l'appareil (« Traîneau »), sinon celui que lui
+    // donne sa carte (map.postes : la salle de classe appelle « Étude » son poste d'Intelligence), sinon celui de la stat
+    poste(k, eq, map) {
+      const P = (eq && POSTES[eq]) || (map && map.postes && map.postes[k]);
+      return P ? { nom: P.nom, desc: P.desc || STATS[k].desc } : { nom: STATS[k].name, desc: STATS[k].desc };
+    },
     // potentiel : ce que le niveau (gagné en combat) permet d'atteindre
     cap: m => Math.min(99, 10 + m.level * 3 + (m.abi || 0) * 4),
     total: m => Object.values(m.tr).reduce((a, b) => a + b, 0),
@@ -15412,7 +15461,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu ; un appareil
       // (traîneau, sac de frappe...) donne son nom au poste
       const at = spot && DW.ow && DW.FieldTrainingScene ? (spot.eq ? { x: spot.x, y: spot.y, eq: spot.eq } : this.station(DW.ow, k, spot)) : null;
-      const nom = at && at.eq && POSTES[at.eq] ? POSTES[at.eq].nom : S.name;
+      const nom = this.poste(k, at && at.eq, at ? DW.ow.map : null).nom;
       let m = st.party[0];
       if (st.party.length > 1) {
         const r = await DW.ask(`Poste « ${nom} » (${S.stat}). Qui s'entraîne ?`, [m.name, 'Un autre Digimon', 'Annuler']);
@@ -15963,8 +16012,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       this.oc = DW.Art.canvas(W, H);
       this.anim = null;   // geste en cours : { res, t }
       this.eq = spot.eq || (DW.World.info(this.ow.tileAt(spot.x, spot.y)).obj) || k;   // l'équipement du poste
-      const P = DW.Training.POSTES[this.eq];
-      if (P) this.S = { ...this.S, name: P.nom, desc: P.desc };
+      // (son nom : l'appareil, sinon celui que lui donne la carte — « Étude » en salle de classe —, sinon la stat)
+      const N = DW.Training.poste(k, this.eq, this.ow.map);
+      this.S = { ...this.S, name: N.nom, desc: N.desc };
       this.tap = 0;
     }
     enter() {
@@ -17237,18 +17287,52 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const extra = DW.giveItem(id, 1); DW.Audio.sfx('buy');
     await say(`Tu ramasses ${id === 'viande' ? 'de la Digiviande' : 'un DigiChampignon'} !${DW.extraMsg(extra)}`);
   } });
+  // CASES ACCESSIBLES : celles qu'on atteint à pied depuis une entrée de la carte (passages du bord, devant les portes,
+  // autour des portails) ou depuis le héros. Une trouvaille ne tombe plus dans un coin fermé par une clôture, une haie ou des
+  // maisons (avant : une trentaine de cases possibles en ville, davantage aux Champs). Parcours en largeur sur les obstacles
+  // FIXES (sol, décor, collisions de l'atelier, falaises : comme Overworld.solid, sans les personnages ni les Digimon
+  // sauvages qui passent) ; refait seulement quand la carte ou ses obstacles changent.
+  let acces = null;
+  function accessibles(ow) {
+    const m = ow.map, W = m.w, H = m.h, ici = ow.p ? ow.p.y * W + ow.p.x : -1;
+    // (le héros arrivé dans un coin que les entrées ne rejoignent pas — après un vol, une scène — : on refait le parcours avec lui)
+    if (acces && acces.m === m && acces.rows === m.rows && acces.gfx === ow.gfx && acces.fb === m.forceBloque && acces.fl === m.forceLibre && (ici < 0 || acces.vu[ici])) return acces.vu;
+    const DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+    const libre = (x, y) => {
+      if (x < 0 || y < 0 || x >= W || y >= H) return false;
+      const k = x + ',' + y;
+      if (m.forceBloque && m.forceBloque.has(k)) return false;
+      if (m.forceLibre && m.forceLibre.has(k)) return true;
+      return !DW.SOLID.has(ow.tileAt(x, y)) && !(ow.gfx && ow.gfx.solid && ow.gfx.solid.has(k));
+    };
+    const vu = new Uint8Array(W * H), file = [];
+    const graine = (x, y) => { if (libre(x, y) && !vu[y * W + x]) { vu[y * W + x] = 1; file.push(y * W + x); } };
+    for (const w of m.warps || []) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) graine(x, y);
+    for (const d of m.doors || []) { const [dx, dy] = DIR[d.dir] || DIR.up; for (let x = d.x; x < d.x + (d.w || 1); x++) graine(x - dx, d.y - dy); }   // (on y entre en marchant dans sa direction)
+    for (const o of m.portails || []) for (let y = o.y - 1; y <= o.y + (o.h || 1); y++) for (let x = o.x - 1; x <= o.x + (o.w || 1); x++) graine(x, y);
+    if (ici >= 0 && ici < W * H && !vu[ici]) { vu[ici] = 1; file.push(ici); }   // (là où il se tient, il y est bien arrivé)
+    for (let i = 0; i < file.length; i++) {
+      const k = file[i], x = k % W, y = (k - x) / W;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (libre(nx, ny) && !vu[ny * W + nx] && !ow.falaise(x, y, nx, ny)) { vu[ny * W + nx] = 1; file.push(ny * W + nx); }
+      }
+    }
+    acces = { m, rows: m.rows, gfx: ow.gfx, fb: m.forceBloque, fl: m.forceLibre, vu };
+    return vu;
+  }
   DW.Ground = {
     // à l'arrivée sur une carte : les trouvailles du jour qui y sont encore
     decorate(ow) {
       ow.map.npcs = (ow.map.npcs || []).filter(n => !n.ground);
       for (const [x, y, id] of listOf(ow.mapId)) ow.map.npcs.push(npcFor(ow.mapId, x, y, id));
     },
-    // une trouvaille apparaît près du héros (appelé en marchant, voir game/companion.js)
+    // une trouvaille apparaît près du héros (appelé en marchant, voir game/companion.js), sur une case qu'on peut atteindre
     spawn(ow) {
-      const P = ow.p, cand = [];
+      const P = ow.p, cand = [], vu = accessibles(ow), W = ow.map.w;
       for (let dy = -5; dy <= 5; dy++) for (let dx = -7; dx <= 7; dx++) {
         const x = P.x + dx, y = P.y + dy, d = Math.abs(dx) + Math.abs(dy);
-        if (d < 3 || ow.solid(x, y) || DW.World.isTall(ow.tileAt(x, y)) || '~w_'.includes(ow.tileAt(x, y)) || (ow.map.signs || {})[x + ',' + y]) continue;
+        if (d < 3 || ow.solid(x, y) || !vu[y * W + x] || DW.World.isTall(ow.tileAt(x, y)) || '~w_'.includes(ow.tileAt(x, y)) || (ow.map.signs || {})[x + ',' + y]) continue;
         cand.push([x, y]);
       }
       if (!cand.length) return false;
@@ -17576,7 +17660,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 //  COLLABORATIONS : des habitants qui travaillent ENSEMBLE au même endroit débloquent une amélioration.
 //  Quand les deux sont installés en ville, le second rejoint le lieu du premier (on le voit sur place)
 //  et l'amélioration est annoncée à l'arrivée en ville.
-//    Comptoir du Bazar   (Gotsumon + Kunemon)  : tous les prix -15 % (boutiques et distributeurs)
+//    Comptoir du Bazar   (Gotsumon + Kunemon)  : tous les prix -15 % (boutiques, meubles du Bazar et distributeurs)
 //    Salle de musculation (Elecmon + Gotsumon) : +1 point par séance d'entraînement
 //    Serre des Champs     (Palmon + Yokomon)   : récolte quotidienne doublée
 //    Bains de la fontaine (Betamon + Gomamon)  : la fontaine efface aussi la fatigue
@@ -19950,8 +20034,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 
     // ---------------------------------------------------------- combats
     // éclairs de rencontre ; on en profite pour dessiner les sprites du combat (évite un gel au 1er affichage)
-    // fond du combat : celui de la carte ; au bord de l'eau (lac, île, rivière), la rive plutôt que la forêt (gfx/battlebg.js)
-    battleKey() { const m = this.map; return m.bg === 'foret' && m.theme ? (this.eauProche() ? 'lac@' : 'foret@') + m.theme : m.bg; }
+    // fond du combat : celui de la carte (gfx/battlebg.js) ; un sommet de volcan (de la lave sur la carte : le Mont
+    // Miharashi), un désert, ou au bord de l'eau (lac, île, rivière) : le sien plutôt que la forêt
+    battleKey() {
+      const m = this.map; if (m.bg !== 'foret' || !m.theme) return m.bg;
+      if (m._laveFor !== m.rows) { m._laveFor = m.rows; m._lave = m.rows.some(r => [...r].some(ch => { const I = DW.World.info(ch); return I && I.t === 'water' && I.eau === 5; })); }
+      return (m._lave ? 'mont@' : m.theme === 'desert' ? 'desert@' : this.eauProche() ? 'lac@' : 'foret@') + m.theme;
+    }
     eauProche() {
       const TH = DW.World.themeOf(this.map); if (TH && TH.water === DW.World.LAVA) return false;   // (volcan : c'est de la lave)
       if (this.map.region === 'lac') return true;   // (le Grand Lac : 21 à 95 % d'eau sur chaque carte)
@@ -20171,8 +20260,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       // étiquette au-dessus du poste d'entraînement qu'on peut utiliser
       const ts = !this.locked && Game.top() === this && this.trainSpot();
       if (ts) {
-        const poste = ts.eq && DW.Training.POSTES[ts.eq];   // (un appareil : son nom, « Traîneau », plutôt que celui de la stat)
-        const label = 'ESPACE : ' + (poste ? poste.nom : DW.Training.STATS[ts.k].name), w = UI.measure(c, label, 7) + 10;
+        // (un appareil : son nom, « Traîneau », plutôt que celui de la stat ; un poste que sa carte nomme : « Étude » en classe)
+        const label = 'ESPACE : ' + DW.Training.poste(ts.k, ts.eq, this.map).nom, w = UI.measure(c, label, 7) + 10;
         const X = Math.round(ts.x * TS + 8 - w / 2), Y = Math.round(ts.y * TS - 18 + Math.sin(this.t * 4) * 1.5);
         c.fillStyle = 'rgba(8,20,40,0.85)'; c.fillRect(X, Y, w, 12);
         c.fillStyle = '#ffe070'; c.fillRect(X, Y + 11, w, 1);
@@ -20385,14 +20474,15 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         const r = await DW.ask('Sauvegarder ta progression ?');
         if (r === 0) {
           const ok = DW.save();
-          Audio.sfx('save');
-          await DW.say(ok ? `${st.name} sauvegarde sa partie dans le Digivice !` : 'Erreur : impossible de sauvegarder.');
+          Audio.sfx(ok ? 'save' : 'bump');
+          await DW.say(ok ? `${st.name} sauvegarde sa partie dans le Digivice !` : DW.SAVE_ECHEC);
         }
       } else if (k === 'options') await Game.push(new OptionsScene());
       else if (k === 'titre') {
         const r = await DW.ask("Retourner à l'écran titre ?", ['Sauvegarder et quitter', 'Quitter sans sauvegarder', 'Annuler']);
         if (r === 2 || r < 0) return;
-        if (r === 0) DW.save();
+        // (sauvegarde refusée : on ne quitte pas, la partie serait perdue — FICHIER peut encore la télécharger)
+        if (r === 0 && !DW.save()) { Audio.sfx('bump'); await DW.say(DW.SAVE_ECHEC + ' Tu restes dans ta partie.'); return; }
         await DW.fade(1, 0.4);
         Audio.stop();
         DW.ow = null;
@@ -21514,13 +21604,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     drawBg(c) {
       const t = this.t;
       c.drawImage(DW.World.battleBg(this.bg), 0, 0);
-      // nuages
+      const base = this.bg.split('@')[0];
+      // nuages (pas au sommet du volcan : ses fumées)
       c.fillStyle = 'rgba(255,255,255,0.9)';
-      this.clouds.forEach(cl => {
+      if (base !== 'mont') this.clouds.forEach(cl => {
         c.beginPath(); c.ellipse(cl.x, cl.y, 20 * cl.s + 8, 5 * cl.s + 3, 0, 0, 7); c.ellipse(cl.x + 10, cl.y - 4, 11 * cl.s + 4, 6 * cl.s + 2, 0, 0, 7); c.fill();
         c.fillStyle = 'rgba(200,220,255,0.6)'; c.fillRect(cl.x - 18 * cl.s - 6, cl.y + 2, 36 * cl.s + 14, 2); c.fillStyle = 'rgba(255,255,255,0.9)';
       });
-      const base = this.bg.split('@')[0];
       if (base === 'plage') {
         c.fillStyle = 'rgba(200,240,255,0.8)';
         for (let i = 0; i < 18; i++) {
@@ -21536,6 +21626,23 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
           c.fillStyle = g; c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 24, 0); c.lineTo(x - 40, 200); c.lineTo(x - 80, 200); c.fill();
         }
         c.restore();
+      } else if (base === 'lac') {   // reflets qui glissent sur le lac
+        c.fillStyle = 'rgba(230,250,255,0.75)';
+        for (let i = 0; i < 14; i++) {
+          const x = ((i * 47 + t * (4 + (i % 3) * 2)) % (W + 20)) - 10, y = 83 + (i % 5) * 3.4;
+          if (Math.sin(t * 2.2 + i) > -0.1) c.fillRect(Math.round(x), Math.round(y), 3 + (i % 3) * 2, 1);
+        }
+      } else if (base === 'mont') {   // braises qui montent du cratère
+        for (let i = 0; i < 16; i++) {
+          const y = 200 - ((t * (14 + (i % 4) * 5) + i * 37) % 200), x = ((i * 61 + Math.sin(t + i) * 10) % W + W) % W;
+          c.fillStyle = i % 3 ? 'rgba(255,150,50,0.8)' : 'rgba(255,220,120,0.9)'; c.fillRect(Math.round(x), Math.round(y), 1 + (i % 2), 1 + (i % 2));
+        }
+      } else if (base === 'desert') {   // poussière qui file au ras du sol
+        c.fillStyle = 'rgba(240,230,200,0.55)';
+        for (let i = 0; i < 10; i++) {
+          const x = ((i * 71 + t * (18 + (i % 3) * 8)) % (W + 30)) - 15, y = 110 + (i % 5) * 18 + Math.sin(t * 1.5 + i) * 3;
+          c.fillRect(Math.round(x), Math.round(y), 2, 1);
+        }
       }
       DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12);
       DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14);
@@ -23699,7 +23806,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   #touch{position:fixed;inset:0;pointer-events:none;z-index:5;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;font-family:'Press Start 2P',monospace}
   #touch .t{position:absolute;pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;
     color:#e8f4ff;background:rgba(30,60,120,.42);border:2px solid rgba(160,200,255,.6);box-sizing:border-box;border-radius:50%;
-    box-shadow:0 0 10px rgba(60,120,255,.35) inset}
+    box-shadow:0 0 10px rgba(60,120,255,.35) inset;transition:opacity .15s}
+  #touch.dialogue .t.surdlg{opacity:.2!important}
   #touch .t.on{background:rgba(255,220,100,.5);border-color:#ffe680}
   #touch .stick .knob{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;
     background:radial-gradient(circle at 35% 35%,#9ac8ff,#2a5ab8);border:2px solid #cfe4ff;box-sizing:border-box;pointer-events:none;transition:transform .05s}
@@ -23798,14 +23906,37 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       place(R, vw / 2 - 96, py, 90, 34);
     } else {
       // paysage : sur les côtés de l'écran de jeu (par-dessus, un peu transparents, si la place manque)
-      const room = side > 110, u = Math.min(room ? side * 0.8 : vh * 0.28, vh * 0.34, 140), m = room ? (side - u) / 2 : 10;
-      place(S, m + Z.l, vh - u - 14 - Z.b, u, u);
-      const a = Math.max(48, u * 0.5), b = Math.max(44, u * 0.42);
-      place(A, vw - a - m - Z.r, vh - u * 0.95 - 14 - Z.b, a, a);
-      place(B, vw - a - b - m - 6 - Z.r, vh - b - 14 - Z.b, b, b);
-      place(M, vw - 100 - m - Z.r, 10 + Z.t, 100, 34);
-      place(R, m + Z.l, 10 + Z.t, 100, 34);
-      if (!room) for (const el of [S, A, B, M, R]) el.style.opacity = '0.55';   // par-dessus le jeu : discrets
+      const room = side > 110;
+      // bandes libres mais étroites (écran 16:9 de 640 × 360 : 80 px de chaque côté) : des commandes plus petites, A et B
+      // l'un au-dessus de l'autre, MENU et COURIR rétrécis, toutes DANS les bandes (avant : par-dessus le jeu, le bouton B
+      // cachait la fin des dialogues) ; boutons d'au moins 44 px, zone sûre comprise
+      const bG = c.left - Z.l, bD = vw - c.right - Z.r, bande = Math.min(bG, bD), etroit = !room && bande >= 66 && vh - Z.t - Z.b >= 230;
+      if (etroit) {
+        const w = bande - 12, xG = (Z.l + c.left) / 2, xD = (c.right + vw - Z.r) / 2;   // (largeur utile, milieu de chaque bande)
+        const u = Math.min(w, vh * 0.34, 140), a = Math.min(w, 70), b = Math.min(w, 60), p = Math.min(w, 100);
+        place(S, xG - u / 2, vh - u - 14 - Z.b, u, u);
+        place(B, xD - b / 2, vh - b - 14 - Z.b, b, b);
+        place(A, xD - a / 2, vh - b - a - 24 - Z.b, a, a);
+        place(M, xD - p / 2, 10 + Z.t, p, 34);
+        place(R, xG - p / 2, 10 + Z.t, p, 34);
+      } else {
+        const u = Math.min(room ? side * 0.8 : vh * 0.28, vh * 0.34, 140), m = room ? (side - u) / 2 : 10;
+        place(S, m + Z.l, vh - u - 14 - Z.b, u, u);
+        const a = Math.max(48, u * 0.5), b = Math.max(44, u * 0.42);
+        place(A, vw - a - m - Z.r, vh - u * 0.95 - 14 - Z.b, a, a);
+        place(B, vw - a - b - m - 6 - Z.r, vh - b - 14 - Z.b, b, b);
+        place(M, vw - 100 - m - Z.r, 10 + Z.t, 100, 34);
+        place(R, m + Z.l, 10 + Z.t, 100, 34);
+        if (!room) for (const el of [S, A, B, M, R]) el.style.opacity = '0.55';   // par-dessus le jeu : discrets
+      }
+    }
+    // commandes posées sur l'image du jeu (écran 4:3 : aucune bande libre) : celles qui couvrent la boîte de dialogue
+    // (en bas de l'écran de jeu, 6 à 314 × 167 à 236) s'effacent presque pendant les dialogues — on lit le début et la fin
+    // des répliques (avant : le stick cachait leur début) ; elles marchent toujours (classe « dialogue » : build)
+    const kx = c.width / DW.W, ky = c.height / DW.H, dl = c.left + 6 * kx, dr = c.left + 314 * kx, dt = c.top + 167 * ky, db = c.top + 236 * ky;
+    for (const el of [S, A, B, M, R]) {
+      const x = parseFloat(el.style.left), y = parseFloat(el.style.top), w = parseFloat(el.style.width), h = parseFloat(el.style.height);
+      el.classList.toggle('surdlg', x < dr && x + w > dl && y < db && y + h > dt);
     }
   }
 
@@ -23858,6 +23989,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const show = Input.textMode;
       if ((field.style.display === 'block') !== show) { field.style.display = show ? 'block' : 'none'; if (!show) field.blur(); }
       if (show) { placeChamp(); if (document.activeElement !== field && field.value !== (Input.textValue || '')) field.value = Input.textValue || ''; }
+      // pendant un dialogue, les commandes posées sur sa boîte s'effacent presque (layout : surdlg)
+      root.classList.toggle('dialogue', !!DW.DialogScene && DW.Game.top() instanceof DW.DialogScene);
       // bouton Retour du téléphone (Android) : prêt dès qu'on quitte l'écran titre (voir plus bas)
       if (!surTitre() && !(history.state && history.state.jeu)) try { history.pushState({ jeu: 1 }, ''); } catch (e) { /* sans historique */ }
     }, 150);

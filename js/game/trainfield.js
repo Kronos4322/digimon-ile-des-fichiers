@@ -142,8 +142,9 @@
       this.oc = DW.Art.canvas(W, H);
       this.anim = null;   // geste en cours : { res, t }
       this.eq = spot.eq || (DW.World.info(this.ow.tileAt(spot.x, spot.y)).obj) || k;   // l'équipement du poste
-      const P = DW.Training.POSTES[this.eq];
-      if (P) this.S = { ...this.S, name: P.nom, desc: P.desc };
+      // (son nom : l'appareil, sinon celui que lui donne la carte — « Étude » en salle de classe —, sinon la stat)
+      const N = DW.Training.poste(k, this.eq, this.ow.map);
+      this.S = { ...this.S, name: N.nom, desc: N.desc };
       this.tap = 0;
     }
     enter() {

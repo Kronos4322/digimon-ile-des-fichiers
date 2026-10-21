@@ -19,11 +19,16 @@
       { kind: 'tableaumemoire', x: 3, y: 2, w: 1, h: 1, small: true }, { kind: 'telescope', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'formes', x: 1, y: 7, w: 1, h: 1, small: true },
     ] });
   room.calm = true;
+  // le poste d'Intelligence de la salle s'appelle « Étude » (et non « Méditation », le nom de la stat : game/training.js, poste)
+  room.postes = { int: { nom: 'Étude', desc: 'Étudier la leçon du tableau : bien se concentrer, et tout retenir.' } };
   DW.Palais.entrance('classe');
   for (const w of room.warps) if (w.to === '?') Object.assign(w, { to: 'gym', tx: 22, ty: 5 });
-  room.signs['3,2'] = "Un tableau de mémoire : des symboles à retenir, puis à retrouver. Ça muscle l'esprit !";
-  room.signs['14,6'] = 'Une longue-vue tournée vers la fenêtre. Observer le ciel et compter les étoiles, voilà une bonne leçon.';
-  room.signs['1,7'] = 'Des blocs de formes à ranger dans leurs trous : rond, triangle, carré. Les Bébés adorent.';
+  // (textes posés sur la vraie place des objets : une pièce ne pose rien au-dessus de sa 3e rangée, maps/palais.js — le
+  //  tableau de mémoire, prévu en y 2, est en y 3, et son texte en 3,2 tombait dans le mur, illisible)
+  const sur = kind => { const o = room.objects.find(q => q.kind === kind); return o ? o.x + ',' + o.y : null; };
+  room.signs[sur('tableaumemoire')] = "Un tableau de mémoire : des symboles à retenir, puis à retrouver. Ça muscle l'esprit !";
+  room.signs[sur('telescope')] = 'Une longue-vue tournée vers la fenêtre. Observer le ciel et compter les étoiles, voilà une bonne leçon.';
+  room.signs[sur('formes')] = 'Des blocs de formes à ranger dans leurs trous : rond, triangle, carré. Les Bébés adorent.';
   room.signs['6,2'] = room.signs['7,2'] = room.signs['8,2'] = "Au tableau : « Leçon du jour — Plus un Digimon étudie, plus il retient de techniques. Chaque élément a les siennes ! »";
 
   // ------------------------------------------------------------ apprendre une technique en étudiant

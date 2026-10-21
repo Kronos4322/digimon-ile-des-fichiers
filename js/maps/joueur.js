@@ -140,8 +140,9 @@
       if (r === 'sleep') {
         if (owned('tapis')) s.party.forEach(m => m.addHappy(5));
         await healAll('Bonne nuit... Toute l\'équipe se réveille en pleine forme !');
-        DW.autosave();
-        await say('(Partie sauvegardée.)');
+        // (« Partie sauvegardée » seulement si c'est vrai : game/sauvegarde.js)
+        const ok = DW.autosave();
+        if (ok) await say('(Partie sauvegardée.)'); else if (ok === false) await say(DW.SAVE_ECHEC);
       }
     },
     async chambre_digi() { const m = lead(); if (m) m.addHappy(1); await DW.Life.restOrSleep(); },
@@ -383,6 +384,9 @@
   // les meubles arrivent au Bazar au fil du développement de la ville (niveau de la ville requis)
   const TIER = { sport2: 5, sport3: 8, plantes: 0, tele: 1, tableau: 1, tapis: 2, toilettes: 2, frigo: 3, biblio: 3, sac1: 3, aquarium: 4, cuisine: 4, chambre_digi: 4, halteres: 5, ordi: 6, sac2: 6 };
   const tierOf = id => TIER[id] || 0;
+  // prix d'un meuble : le Comptoir du Bazar (Gotsumon et Kunemon ensemble : « tous les prix baissent de 15 % », game/collab.js)
+  // vaut aussi pour le rayon des meubles, comme pour la boutique d'objets (ui/boutique.js)
+  const prixDe = id => Math.ceil(FURN[id].price * (DW.Collab ? DW.Collab.priceMult() : 1));
   // écran du rayon « Meubles » : même présentation que la boutique d'objets (icônes, prix, Bits, description)
   // ENTRÉE (ou ESPACE) : choisir puis confirmer ; SUPPR : annuler / sortir
   class FurnitureScene extends DW.Scene {
@@ -394,10 +398,10 @@
       if (this.confirm) {
         if (Input.hit('back')) { this.confirm = false; Audio.sfx('back'); return; }
         if (Input.hit('ok')) {
-          const id = L[this.i], F = FURN[id];
+          const id = L[this.i], F = FURN[id], prix = prixDe(id);
           this.confirm = false;
-          if (s.bits < F.price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
-          s.bits -= F.price; s.home.owned[id] = true; Audio.sfx('buy');
+          if (s.bits < prix) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+          s.bits -= prix; s.home.owned[id] = true; Audio.sfx('buy');
           (this.bought = this.bought || []).push(id);
           this.msg = `Livré chez toi : ${F.name} !`; this.msgT = 2.2;
           this.i = Math.min(this.i, this.list.length);
@@ -411,7 +415,7 @@
         if (this.i >= L.length) { Audio.sfx('back'); this.close(this.bought || []); return; }
         const id = L[this.i];
         if (!this.ok(id)) { Audio.sfx('bump'); this.msg = `Pas encore en rayon : la ville doit être « ${DW.Town.LEVELS[tierOf(id)]} ».`; this.msgT = 2.4; return; }
-        if (s.bits < FURN[id].price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+        if (s.bits < prixDe(id)) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
         Audio.sfx('select'); this.confirm = true;
       }
       if (this.i < this.top) this.top = this.i; if (this.i > this.top + 7) this.top = this.i - 7;
@@ -437,7 +441,7 @@
         const F = FURN[id], ok = this.ok(id);
         this.thumb(c, id, 11, y - 12, 13, !ok);
         UI.text(c, UI.fit(c, F.name, 128, 9).s, 26, y, { size: 9, color: ok ? '#ffffff' : '#7a88a8' });
-        UI.text(c, ok ? `${F.price} B` : `niv. ${tierOf(id)}`, 210, y, { size: 9, align: 'right', color: ok ? (s.bits >= F.price ? '#ffd860' : '#c87a5a') : '#7a88a8' });
+        UI.text(c, ok ? `${prixDe(id)} B` : `niv. ${tierOf(id)}`, 210, y, { size: 9, align: 'right', color: ok ? (s.bits >= prixDe(id) ? '#ffd860' : '#c87a5a') : '#7a88a8' });
       });
       if (this.top > 0) UI.text(c, '▲', 113, 34, { size: 7, align: 'center', color: '#ffe070' });
       if (this.top + 8 < L.length + 1) UI.text(c, '▼', 113, 174, { size: 7, align: 'center', color: '#ffe070' });
@@ -454,7 +458,7 @@
       else UI.text(c, L.length ? 'À bientôt !' : 'Ta maison est entièrement meublée ! Bravo !', 16, 200, { size: 8, color: '#c8f0ff' });
       if (this.confirm && id) {
         UI.box(c, 40, 92, 240, 46);
-        UI.text(c, `Acheter « ${FURN[id].name} » (${FURN[id].price} B) ?`, 160, 110, { size: 9, align: 'center', color: '#ffffff' });
+        UI.text(c, `Acheter « ${FURN[id].name} » (${prixDe(id)} B) ?`, 160, 110, { size: 9, align: 'center', color: '#ffffff' });
         const N = DW.Input.names();
         UI.text(c, `${N.ok} : oui    ${N.back} : non`, 160, 128, { size: 8, align: 'center', color: '#ffe070' });
       }

@@ -57,7 +57,9 @@
   async function chief() {
     const s = st();
     if (!ch3()) { await say("Bienvenue au Village des Yokomon ! On vit tranquilles, ici, entre le désert et la montagne.", 'Yokomon'); return; }
-    if (freed()) { await say("La fontaine coule, le lac se remplit ! Tout ça grâce à toi. Le Village des Yokomon ne t'oubliera jamais !", 'Yokomon'); return; }
+    // (seule la fontaine change à l'écran : le petit lac, lui, se remplira avec le temps — comme le disent l'épave et la
+    //  quête du trésor, game/quetes.js)
+    if (freed()) { await say("La fontaine coule de nouveau ! Et notre source recommence à remplir le petit lac, goutte après goutte : il lui faudra du temps. Tout ça grâce à toi. Le Village des Yokomon ne t'oubliera jamais !", 'Yokomon'); return; }
     await say("Je suis l'ancien du village. Écoute bien : Meramon, le gardien du Mont Miharashi, a perdu la tête.", 'Yokomon');
     await say("Ses flammes ont tari notre source. La fontaine est à sec, et le petit lac a presque disparu autour de la vieille épave.", 'Yokomon');
     await say("Le Mont Miharashi est à l'ouest, au bout de la route. Si tu y montes... sois prudent. Meramon grandit à chaque coup qu'il reçoit !", 'Yokomon');

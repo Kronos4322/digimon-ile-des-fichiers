@@ -35,6 +35,12 @@
 
   const Training = DW.Training = {
     STATS, POSTES, TOTAL,
+    // NOM D'UN POSTE (étiquette, questions, écran de la séance) : celui de l'appareil (« Traîneau »), sinon celui que lui
+    // donne sa carte (map.postes : la salle de classe appelle « Étude » son poste d'Intelligence), sinon celui de la stat
+    poste(k, eq, map) {
+      const P = (eq && POSTES[eq]) || (map && map.postes && map.postes[k]);
+      return P ? { nom: P.nom, desc: P.desc || STATS[k].desc } : { nom: STATS[k].name, desc: STATS[k].desc };
+    },
     // potentiel : ce que le niveau (gagné en combat) permet d'atteindre
     cap: m => Math.min(99, 10 + m.level * 3 + (m.abi || 0) * 4),
     total: m => Object.values(m.tr).reduce((a, b) => a + b, 0),
@@ -118,7 +124,7 @@
       // sur la carte : la séance se joue au poste même (game/trainfield.js), sinon l'écran de mini-jeu ; un appareil
       // (traîneau, sac de frappe...) donne son nom au poste
       const at = spot && DW.ow && DW.FieldTrainingScene ? (spot.eq ? { x: spot.x, y: spot.y, eq: spot.eq } : this.station(DW.ow, k, spot)) : null;
-      const nom = at && at.eq && POSTES[at.eq] ? POSTES[at.eq].nom : S.name;
+      const nom = this.poste(k, at && at.eq, at ? DW.ow.map : null).nom;
       let m = st.party[0];
       if (st.party.length > 1) {
         const r = await DW.ask(`Poste « ${nom} » (${S.stat}). Qui s'entraîne ?`, [m.name, 'Un autre Digimon', 'Annuler']);

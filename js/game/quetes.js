@@ -67,14 +67,15 @@
   // ------------------------------------------------------------ chapitre 3 : le trésor de l'épave (quand l'eau est revenue)
   async function yokomonEpave() {
     if ((st().chests || {}).epave_coffre) { await say("Un Disque de défense, dans la vieille épave ? Garde-le, tu l'as bien mérité !", 'Yokomon'); return; }
-    await say("Depuis que l'eau est revenue, quelque chose brille dans la vieille épave, au milieu du lac... Mais nous, on ne sait pas nager !", 'Yokomon');
+    await say("Depuis que l'eau revient dans le lac, quelque chose brille dans la vieille épave, au milieu... Mais nous, on ne sait pas nager !", 'Yokomon');
     await say("Il y a un passage de planches, au sud du lac, jusqu'au banc de sable. Tu veux bien aller voir ?", 'Yokomon');
   }
   // l'épave : son panneau, et le coffre que le courant a déposé à côté (une fois l'eau revenue)
   const EPAVE = { x: 25, y: 51 };
   function epave(m) {
     m.signs = m.signs || {};
-    for (let x = 21; x <= 27; x++) m.signs[`${x},49`] = () => say(f().meramon ? "La vieille épave, couverte de coquillages. L'eau est revenue autour d'elle ; le courant a déposé un coffre sur le sable." : "La vieille épave, posée sur le fond presque sec du lac. Sur la coque, un nom à moitié effacé... Personne ne sait d'où elle vient.");
+    // (le petit lac garde son banc de sable à l'écran : l'eau « revient peu à peu », elle n'a pas encore tout recouvert)
+    for (let x = 21; x <= 27; x++) m.signs[`${x},49`] = () => say(f().meramon ? "La vieille épave, couverte de coquillages. L'eau revient peu à peu autour d'elle ; le courant de la source a déposé un coffre sur le sable." : "La vieille épave, posée sur le fond presque sec du lac. Sur la coque, un nom à moitié effacé... Personne ne sait d'où elle vient.");
     if (!f().meramon || m.objects.some(o => o.epave)) return;
     DW.Palais.treasure('miharashi1', 'epave_coffre', null, [['disque_def', 1], ['cartes', 2]], EPAVE.x, EPAVE.y);
     const o = m.objects.find(c => c.kind === 'chest' && c.x === EPAVE.x && c.y === EPAVE.y); if (o) o.epave = true;

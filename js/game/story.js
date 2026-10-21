@@ -54,7 +54,7 @@
     garurumon: ["Garurumon court avec ton Digimon : +1 point par séance de Sprint.", 'spd'],
     megadramon: ["Megadramon fait la course dans le ciel : +1 point par séance de Sprint.", 'spd'],
     greymon: ["Greymon soulève les poids avec ton Digimon : +1 point par séance d'Endurance.", 'hp'],
-    unimon: ["Unimon guide la méditation : +1 point par séance de Méditation.", 'int'],
+    unimon: ["Unimon aide ton Digimon à se concentrer : +1 point par séance d'Étude (salle de classe).", 'int'],   // (le poste d'Intelligence est celui de la classe : maps/classe.js)
     piximon: ["Piximon propose un entraînement spécial, une fois par jour.", 'int'],
     centarumon: ['Centarumon ouvre une Clinique : soins complets, maladies et blessures (6 h - 22 h).'],
     andromon: ["Andromon vend des puces de données qui augmentent les statistiques pour toujours."],

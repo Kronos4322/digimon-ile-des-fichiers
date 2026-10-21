@@ -437,7 +437,10 @@
       while (q.length) { const [x, y] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (x + dx) + ',' + (y + dy), c = g.get(x + dx, y + dy); if (reach.has(k) || c === undefined || DW.SOLID.has(c)) continue; reach.add(k); q.push([x + dx, y + dy]); } }
       let best = null; for (const C of R.comps) { if (!C.cells.some(([x, y]) => reach.has(x + ',' + y))) continue; if (!best || C.L > best.L || (C.L === best.L && C.cells.length > best.cells.length)) best = C; }
       const c = best && best.cells.filter(([x, y]) => WALK(g.get(x, y)) && g.get(x, y) !== '=' && reach.has(x + ',' + y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => reach.has((x + dx) + ',' + (y + dy)) && WALK(g.get(x + dx, y + dy)))).sort((a, b) => Math.abs(a[0] - W * 0.55) - Math.abs(b[0] - W * 0.55))[0];
-      if (c) { g.set(c[0], c[1], 'Đ'); m.signs[c[0] + ',' + c[1]] = "Une longue-vue. À l'ouest, le Mont Miharashi fume... Une silhouette de flammes s'agite tout là-haut."; }
+      // (son texte suit l'histoire : Meramon calmé, il est redescendu de sa montagne — le volcan, lui, fume toujours)
+      if (c) { g.set(c[0], c[1], 'Đ'); m.signs[c[0] + ',' + c[1]] = () => DW.say(DW.state.flags.meramon
+        ? "Une longue-vue. À l'ouest, le Mont Miharashi fume toujours... mais plus aucune silhouette de flammes ne s'agite là-haut : Meramon est redescendu de sa montagne."
+        : "Une longue-vue. À l'ouest, le Mont Miharashi fume... Une silhouette de flammes s'agite tout là-haut."); }
     }
     const e = exitCenter(m, 'right'), sx = e[0] - 4, sy = Math.round(e[1]) - 3;
     if (WALK(g.get(sx, sy))) { g.set(sx, sy, 'S'); m.signs[sx + ',' + sy] = '← Mont Miharashi · → Village des Yokomon'; }

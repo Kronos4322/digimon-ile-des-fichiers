@@ -46,8 +46,16 @@
   // rencontré, le logement reste vide avant
   const ownerOf = seed => CITIZENS[Math.floor(Hh(seed, 7, 801) * CITIZENS.length)];
   const homeNpc = (sp, seed, x, y, line, flavor) => (!known(sp) ? [] :
-    [{ sp, x, y, face: 'left', wander: 1, talk: async () => { await say(line, nameOf(sp)); if (flavor && Hh(seed, 5, 807) < 0.5) await say(flavor, nameOf(sp)); } }]);
+    [{ sp, x, y, face: 'left', wander: 1, talk: async () => { const a = dite(line, seed), b = flavor && dite(flavor, seed + 17); await say(a, nameOf(sp)); if (b && b !== a && Hh(seed, 5, 807) < 0.5) await say(b, nameOf(sp)); } }]);
   const lineOf = seed => LINES[Math.floor(Hh(seed, 9, 802) * LINES.length)];
+  // (comme le panneau du Résidentiel : on ne parle pas d'un quartier pas encore construit — la réplique en laisse dire une autre)
+  const CITES = [[/Marché/, 'marche'], [/Quartier Numérique/, 'numerique']];
+  const dite = (line, seed) => {
+    const absente = t => CITES.some(([re, q]) => re.test(t) && !(DW.Quartiers && DW.Quartiers.open(q)));
+    if (!absente(line)) return line;
+    const ok = LINES.filter(t => !absente(t));
+    return ok[Math.floor(Hh(seed, 9, 808) * ok.length)];
+  };
   const nameOf = sp => (DW.SPECIES[sp] ? DW.SPECIES[sp].name : sp);
 
   // ------------------------------------------------------------ intérieurs des maisons (générés)
@@ -353,7 +361,7 @@
         const lv = level(), S = this.walkSpots || [], n = Math.max(0, Math.min(S.length, 12, Math.floor((lv - def.open) / 2) + 1));
         this.npcs = S.slice(0, n).map(([x, y], i) => {
           const sp = citizenOf(def.seed + i * 31), line = lineOf(def.seed + i * 29);
-          return sp && { sp, x, y, face: i % 2 ? 'left' : 'right', wander: 2, citizen: true, talk: () => say(line, nameOf(sp)) };
+          return sp && { sp, x, y, face: i % 2 ? 'left' : 'right', wander: 2, citizen: true, talk: () => say(dite(line, def.seed + i * 29), nameOf(sp)) };
         }).filter(Boolean);
       },
       rows: null, objects: [], npcs: [], doors: [], signs: {}, warps: def.warps,
@@ -407,7 +415,8 @@
         { kind: 'flowerbed', v: 2, x: z(23.5) - 5, y: H - 8, w: 1, h: 1, small: true }, { kind: 'bench', v: 0, x: z(23.5) + 4, y: H - 8, w: 2, h: 1 },
         { kind: 'digistatue', v: 0, x: z(20), y: z(13), w: 3, h: 1 },
       ],
-      signs: () => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length} habitants en ville. Est : Quartier du Marché. Ouest : Quartier Numérique.` }),
+      // (le panneau n'annonce un quartier voisin qu'une fois construit : avant, son chemin n'existe pas — exits)
+      signs: lv => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length} habitants en ville.${lv >= OPEN.marche ? ' Est : Quartier du Marché.' : ''}${lv >= OPEN.numerique ? ' Ouest : Quartier Numérique.' : ''}` }),
       warps: [{ x: z(23.5) - 1, y: H - 1, w: 2, h: 1, dir: 'down', to: 'village', tx: 11, ty: 0 },
         { x: 0, y: EXIT_Y, w: 1, h: 3, dir: 'left', to: 'numerique', tx: W - 1, ty: EXIT_Y },
         { x: W - 1, y: EXIT_Y, w: 1, h: 3, dir: 'right', to: 'marche', tx: 0, ty: EXIT_Y }],

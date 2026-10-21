@@ -476,8 +476,13 @@
 
     // ---------------------------------------------------------- combats
     // éclairs de rencontre ; on en profite pour dessiner les sprites du combat (évite un gel au 1er affichage)
-    // fond du combat : celui de la carte ; au bord de l'eau (lac, île, rivière), la rive plutôt que la forêt (gfx/battlebg.js)
-    battleKey() { const m = this.map; return m.bg === 'foret' && m.theme ? (this.eauProche() ? 'lac@' : 'foret@') + m.theme : m.bg; }
+    // fond du combat : celui de la carte (gfx/battlebg.js) ; un sommet de volcan (de la lave sur la carte : le Mont
+    // Miharashi), un désert, ou au bord de l'eau (lac, île, rivière) : le sien plutôt que la forêt
+    battleKey() {
+      const m = this.map; if (m.bg !== 'foret' || !m.theme) return m.bg;
+      if (m._laveFor !== m.rows) { m._laveFor = m.rows; m._lave = m.rows.some(r => [...r].some(ch => { const I = DW.World.info(ch); return I && I.t === 'water' && I.eau === 5; })); }
+      return (m._lave ? 'mont@' : m.theme === 'desert' ? 'desert@' : this.eauProche() ? 'lac@' : 'foret@') + m.theme;
+    }
     eauProche() {
       const TH = DW.World.themeOf(this.map); if (TH && TH.water === DW.World.LAVA) return false;   // (volcan : c'est de la lave)
       if (this.map.region === 'lac') return true;   // (le Grand Lac : 21 à 95 % d'eau sur chaque carte)
@@ -697,8 +702,8 @@
       // étiquette au-dessus du poste d'entraînement qu'on peut utiliser
       const ts = !this.locked && Game.top() === this && this.trainSpot();
       if (ts) {
-        const poste = ts.eq && DW.Training.POSTES[ts.eq];   // (un appareil : son nom, « Traîneau », plutôt que celui de la stat)
-        const label = 'ESPACE : ' + (poste ? poste.nom : DW.Training.STATS[ts.k].name), w = UI.measure(c, label, 7) + 10;
+        // (un appareil : son nom, « Traîneau », plutôt que celui de la stat ; un poste que sa carte nomme : « Étude » en classe)
+        const label = 'ESPACE : ' + DW.Training.poste(ts.k, ts.eq, this.map).nom, w = UI.measure(c, label, 7) + 10;
         const X = Math.round(ts.x * TS + 8 - w / 2), Y = Math.round(ts.y * TS - 18 + Math.sin(this.t * 4) * 1.5);
         c.fillStyle = 'rgba(8,20,40,0.85)'; c.fillRect(X, Y, w, 12);
         c.fillStyle = '#ffe070'; c.fillRect(X, Y + 11, w, 1);

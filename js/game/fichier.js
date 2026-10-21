@@ -24,6 +24,9 @@
   function bundle() {
     const S = ls(), slots = {};
     if (S) for (let i = 0; i < S.length; i++) { const k = S.key(i); if (k && k.startsWith(PREFIX)) slots[k] = S.getItem(k); }
+    // (la dernière sauvegarde refusée par le navigateur — mémoire pleine — : c'est elle, la partie en cours, qui part dans le
+    //  fichier ; game/sauvegarde.js)
+    const R = DW.saveRefusee; if (R && R.k && typeof R.json === 'string') slots[R.k] = R.json;
     return JSON.stringify({ jeu: 'Digimon — L\'Aventure de l\'Île des Fichiers', format: 1, ecrit: Date.now(), slots }, null, 1);
   }
   const savedAt = v => { try { const o = JSON.parse(v); return (o && o.savedAt) || 0; } catch (e) { return 0; } };

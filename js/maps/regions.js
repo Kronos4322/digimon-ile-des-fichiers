@@ -566,6 +566,12 @@
     ['Prairie des Falaises', 'plaza', { theme: 'meadow', coast: { up: 'cliff', left: 'cliff' } }],
     ['Falaises du Couchant', 'plaza', { theme: 'meadow', coast: { left: 'cliff', up: 'cliff', down: 'cliff' } }],
   ] });
+  // le Phare du Lac (lac9) : on le lit par-devant, sur le rang du bas du phare lui-même (seulement un texte : la carte et
+  // son décor restent les mêmes ; le repère automatique « Le Phare du lac » des autres rives, maps/decor.js, a le sien)
+  { const M = MAPS.lac9, P = M && M.piece, phare = () => DW.say(DW.Time.isNight()
+      ? "Le Phare du Lac. Tout là-haut, sa lanterne brille dans la nuit et veille sur le grand lac."
+      : "Le Phare du Lac, blanc et rouge, dressé au bord de la falaise. Sa petite porte de bois est fermée... Le soir venu, sa lanterne s'allume et veille sur le grand lac.");
+    if (P) for (let x = P.x; x < P.x + P.w; x++) M.signs[x + ',' + (P.y + P.h - 1)] = phare; }
   // ------------------------------------------------------------ CHAPITRE 3 : le pays de Meramon (épisode 4 de la saison 1)
   // À la sortie ouest de la forêt, des déserts hérissés de poteaux télégraphiques et de panneaux routiers ;
   // au centre, le Village des Yokomon (huttes de chaume, fontaine, petit lac où dort une épave) ;

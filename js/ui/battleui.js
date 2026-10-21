@@ -22,13 +22,13 @@
     drawBg(c) {
       const t = this.t;
       c.drawImage(DW.World.battleBg(this.bg), 0, 0);
-      // nuages
+      const base = this.bg.split('@')[0];
+      // nuages (pas au sommet du volcan : ses fumées)
       c.fillStyle = 'rgba(255,255,255,0.9)';
-      this.clouds.forEach(cl => {
+      if (base !== 'mont') this.clouds.forEach(cl => {
         c.beginPath(); c.ellipse(cl.x, cl.y, 20 * cl.s + 8, 5 * cl.s + 3, 0, 0, 7); c.ellipse(cl.x + 10, cl.y - 4, 11 * cl.s + 4, 6 * cl.s + 2, 0, 0, 7); c.fill();
         c.fillStyle = 'rgba(200,220,255,0.6)'; c.fillRect(cl.x - 18 * cl.s - 6, cl.y + 2, 36 * cl.s + 14, 2); c.fillStyle = 'rgba(255,255,255,0.9)';
       });
-      const base = this.bg.split('@')[0];
       if (base === 'plage') {
         c.fillStyle = 'rgba(200,240,255,0.8)';
         for (let i = 0; i < 18; i++) {
@@ -44,6 +44,23 @@
           c.fillStyle = g; c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 24, 0); c.lineTo(x - 40, 200); c.lineTo(x - 80, 200); c.fill();
         }
         c.restore();
+      } else if (base === 'lac') {   // reflets qui glissent sur le lac
+        c.fillStyle = 'rgba(230,250,255,0.75)';
+        for (let i = 0; i < 14; i++) {
+          const x = ((i * 47 + t * (4 + (i % 3) * 2)) % (W + 20)) - 10, y = 83 + (i % 5) * 3.4;
+          if (Math.sin(t * 2.2 + i) > -0.1) c.fillRect(Math.round(x), Math.round(y), 3 + (i % 3) * 2, 1);
+        }
+      } else if (base === 'mont') {   // braises qui montent du cratère
+        for (let i = 0; i < 16; i++) {
+          const y = 200 - ((t * (14 + (i % 4) * 5) + i * 37) % 200), x = ((i * 61 + Math.sin(t + i) * 10) % W + W) % W;
+          c.fillStyle = i % 3 ? 'rgba(255,150,50,0.8)' : 'rgba(255,220,120,0.9)'; c.fillRect(Math.round(x), Math.round(y), 1 + (i % 2), 1 + (i % 2));
+        }
+      } else if (base === 'desert') {   // poussière qui file au ras du sol
+        c.fillStyle = 'rgba(240,230,200,0.55)';
+        for (let i = 0; i < 10; i++) {
+          const x = ((i * 71 + t * (18 + (i % 3) * 8)) % (W + 30)) - 15, y = 110 + (i % 5) * 18 + Math.sin(t * 1.5 + i) * 3;
+          c.fillRect(Math.round(x), Math.round(y), 2, 1);
+        }
       }
       DW.World.platform(c, this.bg, POS.e.x, POS.e.y - 3, 56, 12);
       DW.World.platform(c, this.bg, POS.p.x, POS.p.y - 3, 64, 14);

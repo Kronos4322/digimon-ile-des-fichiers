@@ -76,6 +76,34 @@
       for (let i = 0; i < 7; i++) place('reeds', i % 2, 18 + i * 47 + Math.floor(hash(i, 6, 71) * 12), HZ + 12);
       const TK = (TH && TH.objMap && TH.objMap.tree) || 'tree';
       place(TK, 0, -6, 214, 2); place(TK, 1, W + 4, 206, 2);
+    } else if (type === 'desert') {
+      // DÉSERT DES POTEAUX : mesas de roche basse au loin, terre pâle, vieux poteaux télégraphiques penchés, buissons secs
+      const RC = (TH && TH.cliff) || ['#5a4e3c', '#6c5e48', '#807056', '#948466', '#a89878', '#bcae8e'];
+      c.fillStyle = RC[4]; c.globalAlpha = 0.75;
+      for (let i = 0; i < 7; i++) {
+        const x0 = i * 52 - 14 + hash(i, 3, 81) * 12, w = 54 + hash(i, 1, 81) * 40, h = 8 + hash(i, 2, 81) * 16;
+        c.beginPath(); c.moveTo(x0, HZ); c.lineTo(x0 + w * 0.22, HZ - h); c.lineTo(x0 + w * 0.78, HZ - h); c.lineTo(x0 + w, HZ); c.fill();
+      }
+      c.globalAlpha = 1;
+      ground(TH ? TH.grass.map(Art.hex) : PAL.sand, 43, false);
+      for (const [x, v] of [[52, 0], [120, 2], [204, 1], [262, 3]]) place('telpole', v, x, HZ + 2 + (v & 1), 0.6);   // (la vieille ligne, au loin)
+      place('drybush', 0, 96, HZ + 14); place('drybush', 2, 228, HZ + 16);
+      place('boulder', 1, 8, 222, 2); place('roadsign', 0, W - 18, 218, 1.6);
+    } else if (type === 'mont') {
+      // SOMMET DU MONT MIHARASHI : la crête du cratère qui rougeoie, fumées, roche brune, aiguilles et fumerolles
+      c.fillStyle = 'rgba(255,130,50,0.22)'; c.fillRect(0, 0, W, HZ);   // (ciel teinté par le cratère)
+      const RK = (TH && TH.rock) || ['#2e2a24', '#423a30', '#584c3c', '#6e5e4a', '#86725a', '#a08a6c', '#b8a282', '#d0bc9c'];
+      g = c.createRadialGradient(W / 2, HZ - 6, 6, W / 2, HZ - 6, 150);
+      g.addColorStop(0, 'rgba(255,110,30,0.75)'); g.addColorStop(1, 'rgba(255,110,30,0)');
+      c.fillStyle = g; c.fillRect(0, 30, W, HZ - 30);
+      for (let i = 0; i < 6; i++) { c.fillStyle = `rgba(110,100,92,${0.18 + hash(i, 2, 91) * 0.12})`; c.beginPath(); c.ellipse(40 + i * 52 + hash(i, 1, 91) * 20, 46 - (i % 3) * 8, 30, 12, 0, 0, 7); c.fill(); }   // (fumées)
+      c.fillStyle = RK[3];
+      c.beginPath(); c.moveTo(0, HZ); c.lineTo(0, 76); c.lineTo(46, 66); c.lineTo(104, 72); c.lineTo(150, 62); c.lineTo(206, 70); c.lineTo(262, 60); c.lineTo(W, 70); c.lineTo(W, HZ); c.fill();
+      c.fillStyle = RK[2]; c.beginPath(); c.moveTo(0, HZ); c.lineTo(0, 86); c.lineTo(70, 80); c.lineTo(140, 88); c.lineTo(214, 78); c.lineTo(W, 86); c.lineTo(W, HZ); c.fill();
+      ground(RK.slice(2, 8).map(Art.hex), 47, false);
+      place('aiguille', 0, 64, HZ + 4, 0.8); place('aiguille', 2, 244, HZ + 2, 0.7);
+      place('steamvent', 0, 112, HZ + 12); place('steamvent', 0, 214, HZ + 16); place('lavarock', 1, 150, HZ + 10);
+      place('aiguille', 1, 6, 228, 1.7); place('lavarock', 0, W - 12, 222, 2);
     } else if (type === 'plage') {
       g = c.createLinearGradient(0, 70, 0, HZ);
       g.addColorStop(0, '#2a74c8'); g.addColorStop(1, '#4ab4e8');
@@ -103,7 +131,7 @@
   };
   World.platform = (c, key, x, y, rx, ry) => {
     const [type, theme] = key.split('@'), TH = theme && World.THEMES[theme];
-    const cols = TH && (type === 'foret' || type === 'lac') ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
+    const cols = TH && type === 'mont' && TH.rock ? [TH.rock[3], TH.rock[5], TH.rock[6]] : TH && (type === 'foret' || type === 'lac' || type === 'desert') ? [TH.grass[1], TH.grass[3], TH.grass[4]] : { foret: ['#3a8a3a', '#5cb452', '#74c860'], plage: ['#c8a468', '#e6ca8e', '#f8eac6'], village: ['#76c488', '#a8e4ac', '#ddfad8'] }[type] || ['#555', '#777', '#999'];
     c.fillStyle = 'rgba(0,0,0,0.22)'; c.beginPath(); c.ellipse(x, y + 3, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[0]; c.beginPath(); c.ellipse(x, y + 1, rx, ry, 0, 0, 7); c.fill();
     c.fillStyle = cols[1]; c.beginPath(); c.ellipse(x, y, rx - 2, ry - 2, 0, 0, 7); c.fill();

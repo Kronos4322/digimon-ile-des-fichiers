@@ -2,7 +2,7 @@
 // =====================================================================
 //  ACTIVITÉS (comme dans Digimon World 1)
 //  - TOURNOIS au Colisée des Scarabées : 4 coupes (Junior, Disciple, Champion, Ultime), 3 manches,
-//    une fois par jour et par coupe ; trophées, Bits et cartes à gagner.
+//    une fois par jour et par coupe, chacune réservée à ses stades ; trophées, Bits et cartes à gagner.
 //  - CURLING dans la Plaine des Bonshommes (Terre Gelée) : 3 lancers, viser le centre.
 //  - CHASSE AU TRÉSOR dans les Rails Abandonnés (Tunnel Foreur) : 6 coups de pioche, indices chaud / froid.
 //  - PÊCHE au Ponton des Pêcheurs (Lac du Tramway) : ferrer au bon moment, 3 fois par jour.
@@ -99,6 +99,9 @@
     { name: 'Coupe Ultime', stages: ['Ultime'], lv: [34, 38, 42], prize: 2500 },
   ];
   const ORDER = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
+  // (chaque coupe est réservée à ses stades : un Champion ne gagne plus la Coupe Junior tous les jours)
+  const PLURIEL = { 'Bébé': 'Bébés', 'Entraînement': 'Digimon du stade Entraînement', 'Disciple': 'Disciples', 'Champion': 'Champions', 'Ultime': 'Ultimes' };
+  const reservee = cup => cup.stages.map((s, i) => (i ? 'aux ' : '') + PLURIEL[s]).join(' et ');
   // 1re victoire dans une coupe : un équipement en prime (data/equipements.js)
   const CUP_GEAR = { 'Coupe Junior': 'bandeau', 'Coupe Disciple': 'crocs_acier', 'Coupe Champion': 'armure_digitale', 'Coupe Ultime': 'pendentif' };
   async function tournament(place = 'au Colisée des Scarabées') {
@@ -111,6 +114,14 @@
     if (r < 0 || r >= CUPS.length) return;
     const cup = CUPS[r];
     if (ORDER.indexOf(cup.stages[0]) > maxStage) { await say(`Ton équipe n'est pas encore assez évoluée pour la ${cup.name}.`); return; }
+    // (toute l'équipe peut entrer dans l'arène, en cours de combat : aucun de ses Digimon ne doit dépasser les stades de la coupe)
+    const top = ORDER.indexOf(cup.stages[cup.stages.length - 1]), trop = st.party.filter(p => ORDER.indexOf(p.d.stage) > top);
+    if (trop.length) {
+      const qui = trop.map(p => `${p.name} (${p.d.stage})`), liste = qui.length > 1 ? qui.slice(0, -1).join(', ') + ' et ' + qui[qui.length - 1] : qui[0];
+      const conseil = !DW.Town.has('yokomon') ? '' : trop.length < st.party.length ? ` Laisse-${trop.length > 1 ? 'les' : 'le'} se reposer à la DigiFerme (Jardin de Yokomon) pour t'inscrire avec les autres.` : ' Reviens avec un Digimon moins évolué : il en attend peut-être un à la DigiFerme (Jardin de Yokomon).';
+      await say(`La ${cup.name} est réservée aux ${reservee(cup)} : ${liste} ${trop.length > 1 ? 'sont trop évolués' : 'est trop évolué'} pour y combattre.${conseil}`);
+      return;
+    }
     if (!once('cup_' + r)) { await say(`La ${cup.name} a déjà eu lieu aujourd'hui. Reviens demain !`); return; }
     once('cup_' + r).n++;
     const pool = Object.keys(DW.SPECIES).filter(sp => cup.stages.includes(DW.SPECIES[sp].stage) && !DW.SPECIES[sp].npc);

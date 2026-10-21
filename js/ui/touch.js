@@ -17,7 +17,8 @@
   #touch{position:fixed;inset:0;pointer-events:none;z-index:5;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;font-family:'Press Start 2P',monospace}
   #touch .t{position:absolute;pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;
     color:#e8f4ff;background:rgba(30,60,120,.42);border:2px solid rgba(160,200,255,.6);box-sizing:border-box;border-radius:50%;
-    box-shadow:0 0 10px rgba(60,120,255,.35) inset}
+    box-shadow:0 0 10px rgba(60,120,255,.35) inset;transition:opacity .15s}
+  #touch.dialogue .t.surdlg{opacity:.2!important}
   #touch .t.on{background:rgba(255,220,100,.5);border-color:#ffe680}
   #touch .stick .knob{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;
     background:radial-gradient(circle at 35% 35%,#9ac8ff,#2a5ab8);border:2px solid #cfe4ff;box-sizing:border-box;pointer-events:none;transition:transform .05s}
@@ -116,14 +117,37 @@
       place(R, vw / 2 - 96, py, 90, 34);
     } else {
       // paysage : sur les côtés de l'écran de jeu (par-dessus, un peu transparents, si la place manque)
-      const room = side > 110, u = Math.min(room ? side * 0.8 : vh * 0.28, vh * 0.34, 140), m = room ? (side - u) / 2 : 10;
-      place(S, m + Z.l, vh - u - 14 - Z.b, u, u);
-      const a = Math.max(48, u * 0.5), b = Math.max(44, u * 0.42);
-      place(A, vw - a - m - Z.r, vh - u * 0.95 - 14 - Z.b, a, a);
-      place(B, vw - a - b - m - 6 - Z.r, vh - b - 14 - Z.b, b, b);
-      place(M, vw - 100 - m - Z.r, 10 + Z.t, 100, 34);
-      place(R, m + Z.l, 10 + Z.t, 100, 34);
-      if (!room) for (const el of [S, A, B, M, R]) el.style.opacity = '0.55';   // par-dessus le jeu : discrets
+      const room = side > 110;
+      // bandes libres mais étroites (écran 16:9 de 640 × 360 : 80 px de chaque côté) : des commandes plus petites, A et B
+      // l'un au-dessus de l'autre, MENU et COURIR rétrécis, toutes DANS les bandes (avant : par-dessus le jeu, le bouton B
+      // cachait la fin des dialogues) ; boutons d'au moins 44 px, zone sûre comprise
+      const bG = c.left - Z.l, bD = vw - c.right - Z.r, bande = Math.min(bG, bD), etroit = !room && bande >= 66 && vh - Z.t - Z.b >= 230;
+      if (etroit) {
+        const w = bande - 12, xG = (Z.l + c.left) / 2, xD = (c.right + vw - Z.r) / 2;   // (largeur utile, milieu de chaque bande)
+        const u = Math.min(w, vh * 0.34, 140), a = Math.min(w, 70), b = Math.min(w, 60), p = Math.min(w, 100);
+        place(S, xG - u / 2, vh - u - 14 - Z.b, u, u);
+        place(B, xD - b / 2, vh - b - 14 - Z.b, b, b);
+        place(A, xD - a / 2, vh - b - a - 24 - Z.b, a, a);
+        place(M, xD - p / 2, 10 + Z.t, p, 34);
+        place(R, xG - p / 2, 10 + Z.t, p, 34);
+      } else {
+        const u = Math.min(room ? side * 0.8 : vh * 0.28, vh * 0.34, 140), m = room ? (side - u) / 2 : 10;
+        place(S, m + Z.l, vh - u - 14 - Z.b, u, u);
+        const a = Math.max(48, u * 0.5), b = Math.max(44, u * 0.42);
+        place(A, vw - a - m - Z.r, vh - u * 0.95 - 14 - Z.b, a, a);
+        place(B, vw - a - b - m - 6 - Z.r, vh - b - 14 - Z.b, b, b);
+        place(M, vw - 100 - m - Z.r, 10 + Z.t, 100, 34);
+        place(R, m + Z.l, 10 + Z.t, 100, 34);
+        if (!room) for (const el of [S, A, B, M, R]) el.style.opacity = '0.55';   // par-dessus le jeu : discrets
+      }
+    }
+    // commandes posées sur l'image du jeu (écran 4:3 : aucune bande libre) : celles qui couvrent la boîte de dialogue
+    // (en bas de l'écran de jeu, 6 à 314 × 167 à 236) s'effacent presque pendant les dialogues — on lit le début et la fin
+    // des répliques (avant : le stick cachait leur début) ; elles marchent toujours (classe « dialogue » : build)
+    const kx = c.width / DW.W, ky = c.height / DW.H, dl = c.left + 6 * kx, dr = c.left + 314 * kx, dt = c.top + 167 * ky, db = c.top + 236 * ky;
+    for (const el of [S, A, B, M, R]) {
+      const x = parseFloat(el.style.left), y = parseFloat(el.style.top), w = parseFloat(el.style.width), h = parseFloat(el.style.height);
+      el.classList.toggle('surdlg', x < dr && x + w > dl && y < db && y + h > dt);
     }
   }
 
@@ -176,6 +200,8 @@
       const show = Input.textMode;
       if ((field.style.display === 'block') !== show) { field.style.display = show ? 'block' : 'none'; if (!show) field.blur(); }
       if (show) { placeChamp(); if (document.activeElement !== field && field.value !== (Input.textValue || '')) field.value = Input.textValue || ''; }
+      // pendant un dialogue, les commandes posées sur sa boîte s'effacent presque (layout : surdlg)
+      root.classList.toggle('dialogue', !!DW.DialogScene && DW.Game.top() instanceof DW.DialogScene);
       // bouton Retour du téléphone (Android) : prêt dès qu'on quitte l'écran titre (voir plus bas)
       if (!surTitre() && !(history.state && history.state.jeu)) try { history.pushState({ jeu: 1 }, ''); } catch (e) { /* sans historique */ }
     }, 150);

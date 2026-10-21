@@ -1861,6 +1861,10 @@
         // chapitre 2 (game/chapitre2.js)
         (f.chapter || 1) >= 2 && !f.monoCh2 && { boss: true, say: "Sur la Rive Sud du grand lac, au nord de la Clairière, deux Monochromon se disputent le chemin à grands coups de cornes ! Leur carapace est dure comme le diamant... mais l'eau la traverse sans peine !" },
         (f.chapter || 1) >= 2 && f.monoCh2 && !f.seadramon && st().hero === 'perso' && { boss: true, say: "Au Lac du Tramway, une île porte un vieux tramway. La nuit (20 h - 5 h), on y entend un harmonica... Un garçon blond y campe avec un Digimon à fourrure. Mais méfie-toi de la grande feuille rouge, sur la rive de l'île !" },
+        // chapitre 3 : le Pays de Meramon (game/chapitre3.js ; la soif des Yokomon et le trésor de l'épave : game/quetes.js)
+        (f.chapter || 1) >= 3 && !f.yokoVillage && { boss: true, say: "À l'ouest de la Clairière de l'Arrivée, le voile de données s'est levé sur un désert hérissé de vieux poteaux télégraphiques. Leur ligne mène jusqu'au Village des Yokomon !" + (!f.meramon && !f.yokoSoif ? " Un Yokomon parti chercher de l'eau n'y serait jamais rentré : ouvre l'œil près de l'oasis du désert." : '') },
+        (f.chapter || 1) >= 3 && !f.meramon && { boss: true, say: "Au Village des Yokomon, la fontaine est à sec et le petit lac a presque disparu ! Meramon, le gardien du Mont Miharashi, brûle tout depuis qu'une chose noire lui est tombée dessus." + (st().hero === 'perso' && !(st().kids || {}).sora && !f.soraMet ? " Une fille au chapeau bleu et une Biyomon, comme moi, aident les Yokomon : va les voir !" : '') + " Méfie-toi, c'est un Champion de feu !" },
+        f.meramon && !(st().chests || {}).epave_coffre && { boss: true, say: "Au Village des Yokomon, l'eau revient peu à peu dans le petit lac... et quelque chose brille dans la vieille épave ! Les Yokomon ne savent pas nager : un passage de planches, au sud du lac, mène jusqu'au banc de sable." },
       ].filter(Boolean);
       const reach = BOSS.concat(all.filter(x => !lock || !lock(x.zone)));
       if (!reach.length && !all.length) { await say(T().RECRUITS.some(x => !T().has(x.id)) ? "Les Digimon d'ici sont tous rentrés ! Les autres sont plus loin, dans les régions de l'île..." : 'Tout le monde est rentré en ville ! Quelle joie !', 'Biyomon'); return; }
@@ -2122,8 +2126,9 @@
       if (r === 'sleep') {
         if (owned('tapis')) s.party.forEach(m => m.addHappy(5));
         await healAll('Bonne nuit... Toute l\'équipe se réveille en pleine forme !');
-        DW.autosave();
-        await say('(Partie sauvegardée.)');
+        // (« Partie sauvegardée » seulement si c'est vrai : game/sauvegarde.js)
+        const ok = DW.autosave();
+        if (ok) await say('(Partie sauvegardée.)'); else if (ok === false) await say(DW.SAVE_ECHEC);
       }
     },
     async chambre_digi() { const m = lead(); if (m) m.addHappy(1); await DW.Life.restOrSleep(); },
@@ -2365,6 +2370,9 @@
   // les meubles arrivent au Bazar au fil du développement de la ville (niveau de la ville requis)
   const TIER = { sport2: 5, sport3: 8, plantes: 0, tele: 1, tableau: 1, tapis: 2, toilettes: 2, frigo: 3, biblio: 3, sac1: 3, aquarium: 4, cuisine: 4, chambre_digi: 4, halteres: 5, ordi: 6, sac2: 6 };
   const tierOf = id => TIER[id] || 0;
+  // prix d'un meuble : le Comptoir du Bazar (Gotsumon et Kunemon ensemble : « tous les prix baissent de 15 % », game/collab.js)
+  // vaut aussi pour le rayon des meubles, comme pour la boutique d'objets (ui/boutique.js)
+  const prixDe = id => Math.ceil(FURN[id].price * (DW.Collab ? DW.Collab.priceMult() : 1));
   // écran du rayon « Meubles » : même présentation que la boutique d'objets (icônes, prix, Bits, description)
   // ENTRÉE (ou ESPACE) : choisir puis confirmer ; SUPPR : annuler / sortir
   class FurnitureScene extends DW.Scene {
@@ -2376,10 +2384,10 @@
       if (this.confirm) {
         if (Input.hit('back')) { this.confirm = false; Audio.sfx('back'); return; }
         if (Input.hit('ok')) {
-          const id = L[this.i], F = FURN[id];
+          const id = L[this.i], F = FURN[id], prix = prixDe(id);
           this.confirm = false;
-          if (s.bits < F.price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
-          s.bits -= F.price; s.home.owned[id] = true; Audio.sfx('buy');
+          if (s.bits < prix) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+          s.bits -= prix; s.home.owned[id] = true; Audio.sfx('buy');
           (this.bought = this.bought || []).push(id);
           this.msg = `Livré chez toi : ${F.name} !`; this.msgT = 2.2;
           this.i = Math.min(this.i, this.list.length);
@@ -2393,7 +2401,7 @@
         if (this.i >= L.length) { Audio.sfx('back'); this.close(this.bought || []); return; }
         const id = L[this.i];
         if (!this.ok(id)) { Audio.sfx('bump'); this.msg = `Pas encore en rayon : la ville doit être « ${DW.Town.LEVELS[tierOf(id)]} ».`; this.msgT = 2.4; return; }
-        if (s.bits < FURN[id].price) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
+        if (s.bits < prixDe(id)) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
         Audio.sfx('select'); this.confirm = true;
       }
       if (this.i < this.top) this.top = this.i; if (this.i > this.top + 7) this.top = this.i - 7;
@@ -2419,7 +2427,7 @@
         const F = FURN[id], ok = this.ok(id);
         this.thumb(c, id, 11, y - 12, 13, !ok);
         UI.text(c, UI.fit(c, F.name, 128, 9).s, 26, y, { size: 9, color: ok ? '#ffffff' : '#7a88a8' });
-        UI.text(c, ok ? `${F.price} B` : `niv. ${tierOf(id)}`, 210, y, { size: 9, align: 'right', color: ok ? (s.bits >= F.price ? '#ffd860' : '#c87a5a') : '#7a88a8' });
+        UI.text(c, ok ? `${prixDe(id)} B` : `niv. ${tierOf(id)}`, 210, y, { size: 9, align: 'right', color: ok ? (s.bits >= prixDe(id) ? '#ffd860' : '#c87a5a') : '#7a88a8' });
       });
       if (this.top > 0) UI.text(c, '▲', 113, 34, { size: 7, align: 'center', color: '#ffe070' });
       if (this.top + 8 < L.length + 1) UI.text(c, '▼', 113, 174, { size: 7, align: 'center', color: '#ffe070' });
@@ -2436,7 +2444,7 @@
       else UI.text(c, L.length ? 'À bientôt !' : 'Ta maison est entièrement meublée ! Bravo !', 16, 200, { size: 8, color: '#c8f0ff' });
       if (this.confirm && id) {
         UI.box(c, 40, 92, 240, 46);
-        UI.text(c, `Acheter « ${FURN[id].name} » (${FURN[id].price} B) ?`, 160, 110, { size: 9, align: 'center', color: '#ffffff' });
+        UI.text(c, `Acheter « ${FURN[id].name} » (${prixDe(id)} B) ?`, 160, 110, { size: 9, align: 'center', color: '#ffffff' });
         const N = DW.Input.names();
         UI.text(c, `${N.ok} : oui    ${N.back} : non`, 160, 128, { size: 8, align: 'center', color: '#ffe070' });
       }
@@ -3662,8 +3670,16 @@
   // rencontré, le logement reste vide avant
   const ownerOf = seed => CITIZENS[Math.floor(Hh(seed, 7, 801) * CITIZENS.length)];
   const homeNpc = (sp, seed, x, y, line, flavor) => (!known(sp) ? [] :
-    [{ sp, x, y, face: 'left', wander: 1, talk: async () => { await say(line, nameOf(sp)); if (flavor && Hh(seed, 5, 807) < 0.5) await say(flavor, nameOf(sp)); } }]);
+    [{ sp, x, y, face: 'left', wander: 1, talk: async () => { const a = dite(line, seed), b = flavor && dite(flavor, seed + 17); await say(a, nameOf(sp)); if (b && b !== a && Hh(seed, 5, 807) < 0.5) await say(b, nameOf(sp)); } }]);
   const lineOf = seed => LINES[Math.floor(Hh(seed, 9, 802) * LINES.length)];
+  // (comme le panneau du Résidentiel : on ne parle pas d'un quartier pas encore construit — la réplique en laisse dire une autre)
+  const CITES = [[/Marché/, 'marche'], [/Quartier Numérique/, 'numerique']];
+  const dite = (line, seed) => {
+    const absente = t => CITES.some(([re, q]) => re.test(t) && !(DW.Quartiers && DW.Quartiers.open(q)));
+    if (!absente(line)) return line;
+    const ok = LINES.filter(t => !absente(t));
+    return ok[Math.floor(Hh(seed, 9, 808) * ok.length)];
+  };
   const nameOf = sp => (DW.SPECIES[sp] ? DW.SPECIES[sp].name : sp);
 
   // ------------------------------------------------------------ intérieurs des maisons (générés)
@@ -3969,7 +3985,7 @@
         const lv = level(), S = this.walkSpots || [], n = Math.max(0, Math.min(S.length, 12, Math.floor((lv - def.open) / 2) + 1));
         this.npcs = S.slice(0, n).map(([x, y], i) => {
           const sp = citizenOf(def.seed + i * 31), line = lineOf(def.seed + i * 29);
-          return sp && { sp, x, y, face: i % 2 ? 'left' : 'right', wander: 2, citizen: true, talk: () => say(line, nameOf(sp)) };
+          return sp && { sp, x, y, face: i % 2 ? 'left' : 'right', wander: 2, citizen: true, talk: () => say(dite(line, def.seed + i * 29), nameOf(sp)) };
         }).filter(Boolean);
       },
       rows: null, objects: [], npcs: [], doors: [], signs: {}, warps: def.warps,
@@ -4023,7 +4039,8 @@
         { kind: 'flowerbed', v: 2, x: z(23.5) - 5, y: H - 8, w: 1, h: 1, small: true }, { kind: 'bench', v: 0, x: z(23.5) + 4, y: H - 8, w: 2, h: 1 },
         { kind: 'digistatue', v: 0, x: z(20), y: z(13), w: 3, h: 1 },
       ],
-      signs: () => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length} habitants en ville. Est : Quartier du Marché. Ouest : Quartier Numérique.` }),
+      // (le panneau n'annonce un quartier voisin qu'une fois construit : avant, son chemin n'existe pas — exits)
+      signs: lv => ({ [`${z(21)},${z(31)}`]: `Quartier Résidentiel — ${DW.Town.RECRUITS.filter(r => DW.Town.has(r.id)).length} habitants en ville.${lv >= OPEN.marche ? ' Est : Quartier du Marché.' : ''}${lv >= OPEN.numerique ? ' Ouest : Quartier Numérique.' : ''}` }),
       warps: [{ x: z(23.5) - 1, y: H - 1, w: 2, h: 1, dir: 'down', to: 'village', tx: 11, ty: 0 },
         { x: 0, y: EXIT_Y, w: 1, h: 3, dir: 'left', to: 'numerique', tx: W - 1, ty: EXIT_Y },
         { x: W - 1, y: EXIT_Y, w: 1, h: 3, dir: 'right', to: 'marche', tx: 0, ty: EXIT_Y }],
@@ -4563,11 +4580,16 @@
       { kind: 'tableaumemoire', x: 3, y: 2, w: 1, h: 1, small: true }, { kind: 'telescope', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'formes', x: 1, y: 7, w: 1, h: 1, small: true },
     ] });
   room.calm = true;
+  // le poste d'Intelligence de la salle s'appelle « Étude » (et non « Méditation », le nom de la stat : game/training.js, poste)
+  room.postes = { int: { nom: 'Étude', desc: 'Étudier la leçon du tableau : bien se concentrer, et tout retenir.' } };
   DW.Palais.entrance('classe');
   for (const w of room.warps) if (w.to === '?') Object.assign(w, { to: 'gym', tx: 22, ty: 5 });
-  room.signs['3,2'] = "Un tableau de mémoire : des symboles à retenir, puis à retrouver. Ça muscle l'esprit !";
-  room.signs['14,6'] = 'Une longue-vue tournée vers la fenêtre. Observer le ciel et compter les étoiles, voilà une bonne leçon.';
-  room.signs['1,7'] = 'Des blocs de formes à ranger dans leurs trous : rond, triangle, carré. Les Bébés adorent.';
+  // (textes posés sur la vraie place des objets : une pièce ne pose rien au-dessus de sa 3e rangée, maps/palais.js — le
+  //  tableau de mémoire, prévu en y 2, est en y 3, et son texte en 3,2 tombait dans le mur, illisible)
+  const sur = kind => { const o = room.objects.find(q => q.kind === kind); return o ? o.x + ',' + o.y : null; };
+  room.signs[sur('tableaumemoire')] = "Un tableau de mémoire : des symboles à retenir, puis à retrouver. Ça muscle l'esprit !";
+  room.signs[sur('telescope')] = 'Une longue-vue tournée vers la fenêtre. Observer le ciel et compter les étoiles, voilà une bonne leçon.';
+  room.signs[sur('formes')] = 'Des blocs de formes à ranger dans leurs trous : rond, triangle, carré. Les Bébés adorent.';
   room.signs['6,2'] = room.signs['7,2'] = room.signs['8,2'] = "Au tableau : « Leçon du jour — Plus un Digimon étudie, plus il retient de techniques. Chaque élément a les siennes ! »";
 
   // ------------------------------------------------------------ apprendre une technique en étudiant
@@ -5739,7 +5761,10 @@
       while (q.length) { const [x, y] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (x + dx) + ',' + (y + dy), c = g.get(x + dx, y + dy); if (reach.has(k) || c === undefined || DW.SOLID.has(c)) continue; reach.add(k); q.push([x + dx, y + dy]); } }
       let best = null; for (const C of R.comps) { if (!C.cells.some(([x, y]) => reach.has(x + ',' + y))) continue; if (!best || C.L > best.L || (C.L === best.L && C.cells.length > best.cells.length)) best = C; }
       const c = best && best.cells.filter(([x, y]) => WALK(g.get(x, y)) && g.get(x, y) !== '=' && reach.has(x + ',' + y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => reach.has((x + dx) + ',' + (y + dy)) && WALK(g.get(x + dx, y + dy)))).sort((a, b) => Math.abs(a[0] - W * 0.55) - Math.abs(b[0] - W * 0.55))[0];
-      if (c) { g.set(c[0], c[1], 'Đ'); m.signs[c[0] + ',' + c[1]] = "Une longue-vue. À l'ouest, le Mont Miharashi fume... Une silhouette de flammes s'agite tout là-haut."; }
+      // (son texte suit l'histoire : Meramon calmé, il est redescendu de sa montagne — le volcan, lui, fume toujours)
+      if (c) { g.set(c[0], c[1], 'Đ'); m.signs[c[0] + ',' + c[1]] = () => DW.say(DW.state.flags.meramon
+        ? "Une longue-vue. À l'ouest, le Mont Miharashi fume toujours... mais plus aucune silhouette de flammes ne s'agite là-haut : Meramon est redescendu de sa montagne."
+        : "Une longue-vue. À l'ouest, le Mont Miharashi fume... Une silhouette de flammes s'agite tout là-haut."); }
     }
     const e = exitCenter(m, 'right'), sx = e[0] - 4, sy = Math.round(e[1]) - 3;
     if (WALK(g.get(sx, sy))) { g.set(sx, sy, 'S'); m.signs[sx + ',' + sy] = '← Mont Miharashi · → Village des Yokomon'; }
@@ -6429,6 +6454,12 @@
     ['Prairie des Falaises', 'plaza', { theme: 'meadow', coast: { up: 'cliff', left: 'cliff' } }],
     ['Falaises du Couchant', 'plaza', { theme: 'meadow', coast: { left: 'cliff', up: 'cliff', down: 'cliff' } }],
   ] });
+  // le Phare du Lac (lac9) : on le lit par-devant, sur le rang du bas du phare lui-même (seulement un texte : la carte et
+  // son décor restent les mêmes ; le repère automatique « Le Phare du lac » des autres rives, maps/decor.js, a le sien)
+  { const M = MAPS.lac9, P = M && M.piece, phare = () => DW.say(DW.Time.isNight()
+      ? "Le Phare du Lac. Tout là-haut, sa lanterne brille dans la nuit et veille sur le grand lac."
+      : "Le Phare du Lac, blanc et rouge, dressé au bord de la falaise. Sa petite porte de bois est fermée... Le soir venu, sa lanterne s'allume et veille sur le grand lac.");
+    if (P) for (let x = P.x; x < P.x + P.w; x++) M.signs[x + ',' + (P.y + P.h - 1)] = phare; }
   // ------------------------------------------------------------ CHAPITRE 3 : le pays de Meramon (épisode 4 de la saison 1)
   // À la sortie ouest de la forêt, des déserts hérissés de poteaux télégraphiques et de panneaux routiers ;
   // au centre, le Village des Yokomon (huttes de chaume, fontaine, petit lac où dort une épave) ;
@@ -7289,7 +7320,7 @@
 // =====================================================================
 //  ACTIVITÉS (comme dans Digimon World 1)
 //  - TOURNOIS au Colisée des Scarabées : 4 coupes (Junior, Disciple, Champion, Ultime), 3 manches,
-//    une fois par jour et par coupe ; trophées, Bits et cartes à gagner.
+//    une fois par jour et par coupe, chacune réservée à ses stades ; trophées, Bits et cartes à gagner.
 //  - CURLING dans la Plaine des Bonshommes (Terre Gelée) : 3 lancers, viser le centre.
 //  - CHASSE AU TRÉSOR dans les Rails Abandonnés (Tunnel Foreur) : 6 coups de pioche, indices chaud / froid.
 //  - PÊCHE au Ponton des Pêcheurs (Lac du Tramway) : ferrer au bon moment, 3 fois par jour.
@@ -7386,6 +7417,9 @@
     { name: 'Coupe Ultime', stages: ['Ultime'], lv: [34, 38, 42], prize: 2500 },
   ];
   const ORDER = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
+  // (chaque coupe est réservée à ses stades : un Champion ne gagne plus la Coupe Junior tous les jours)
+  const PLURIEL = { 'Bébé': 'Bébés', 'Entraînement': 'Digimon du stade Entraînement', 'Disciple': 'Disciples', 'Champion': 'Champions', 'Ultime': 'Ultimes' };
+  const reservee = cup => cup.stages.map((s, i) => (i ? 'aux ' : '') + PLURIEL[s]).join(' et ');
   // 1re victoire dans une coupe : un équipement en prime (data/equipements.js)
   const CUP_GEAR = { 'Coupe Junior': 'bandeau', 'Coupe Disciple': 'crocs_acier', 'Coupe Champion': 'armure_digitale', 'Coupe Ultime': 'pendentif' };
   async function tournament(place = 'au Colisée des Scarabées') {
@@ -7398,6 +7432,14 @@
     if (r < 0 || r >= CUPS.length) return;
     const cup = CUPS[r];
     if (ORDER.indexOf(cup.stages[0]) > maxStage) { await say(`Ton équipe n'est pas encore assez évoluée pour la ${cup.name}.`); return; }
+    // (toute l'équipe peut entrer dans l'arène, en cours de combat : aucun de ses Digimon ne doit dépasser les stades de la coupe)
+    const top = ORDER.indexOf(cup.stages[cup.stages.length - 1]), trop = st.party.filter(p => ORDER.indexOf(p.d.stage) > top);
+    if (trop.length) {
+      const qui = trop.map(p => `${p.name} (${p.d.stage})`), liste = qui.length > 1 ? qui.slice(0, -1).join(', ') + ' et ' + qui[qui.length - 1] : qui[0];
+      const conseil = !DW.Town.has('yokomon') ? '' : trop.length < st.party.length ? ` Laisse-${trop.length > 1 ? 'les' : 'le'} se reposer à la DigiFerme (Jardin de Yokomon) pour t'inscrire avec les autres.` : ' Reviens avec un Digimon moins évolué : il en attend peut-être un à la DigiFerme (Jardin de Yokomon).';
+      await say(`La ${cup.name} est réservée aux ${reservee(cup)} : ${liste} ${trop.length > 1 ? 'sont trop évolués' : 'est trop évolué'} pour y combattre.${conseil}`);
+      return;
+    }
     if (!once('cup_' + r)) { await say(`La ${cup.name} a déjà eu lieu aujourd'hui. Reviens demain !`); return; }
     once('cup_' + r).n++;
     const pool = Object.keys(DW.SPECIES).filter(sp => cup.stages.includes(DW.SPECIES[sp].stage) && !DW.SPECIES[sp].npc);
@@ -7870,7 +7912,7 @@
     garurumon: ["Garurumon court avec ton Digimon : +1 point par séance de Sprint.", 'spd'],
     megadramon: ["Megadramon fait la course dans le ciel : +1 point par séance de Sprint.", 'spd'],
     greymon: ["Greymon soulève les poids avec ton Digimon : +1 point par séance d'Endurance.", 'hp'],
-    unimon: ["Unimon guide la méditation : +1 point par séance de Méditation.", 'int'],
+    unimon: ["Unimon aide ton Digimon à se concentrer : +1 point par séance d'Étude (salle de classe).", 'int'],   // (le poste d'Intelligence est celui de la classe : maps/classe.js)
     piximon: ["Piximon propose un entraînement spécial, une fois par jour.", 'int'],
     centarumon: ['Centarumon ouvre une Clinique : soins complets, maladies et blessures (6 h - 22 h).'],
     andromon: ["Andromon vend des puces de données qui augmentent les statistiques pour toujours."],
@@ -8778,7 +8820,13 @@
       const rid = m.region;
       if (!rid || CH1.has(rid) || !(DW.REGION_ENTRY && rid in DW.REGION_ENTRY)) return null;
       if (OPENS[rid] && ch >= OPENS[rid]) return null;
-      return `Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.${ch === 2 ? " Pour l'instant, c'est vers le grand lac, au nord de la Clairière de l'Arrivée, qu'il faut aller." : ch === 3 ? " Pour l'instant, c'est à l'ouest de la forêt, vers le désert et le Mont Miharashi, qu'il faut aller." : ''}`;
+      // (le conseil dépend d'où l'on bute : au chapitre 2, le Pays de Meramon touche la Rosière, au bord du grand lac —
+      //  on y est déjà, on ne renvoie donc plus « vers le grand lac » ; de même au chapitre 3, depuis le Pays de Meramon)
+      const ici = DW.ow && DW.ow.map && DW.ow.map.region;
+      const avant = ch === 2 && rid === 'miharashi' ? " Au-delà, l'air est sec et brûlant, comme au bord d'un désert." : '';
+      const conseil = ch === 2 ? (ici === 'lac' ? " Pour l'instant, c'est autour du grand lac que l'aventure se joue." : " Pour l'instant, c'est vers le grand lac, au nord de la Clairière de l'Arrivée, qu'il faut aller.")
+        : ch === 3 ? (ici === 'miharashi' ? " Pour l'instant, c'est au Pays de Meramon, vers le Village des Yokomon et le Mont Miharashi, que l'aventure se joue." : " Pour l'instant, c'est à l'ouest de la forêt, vers le désert et le Mont Miharashi, qu'il faut aller.") : '';
+      return `Un voile de données bloque le chemin...${avant} Cette partie de l'île s'ouvrira plus tard dans l'aventure.${conseil}`;
     }
     if (CH1.has(m.region) && !CH1_CLOSED.has(to)) return null;
     return "Un étrange voile de données bloque le passage... Il est apparu en même temps que les monstres de la forêt et de la plage. Il faut d'abord rétablir le calme sur cette partie de l'île.";
@@ -9600,7 +9648,9 @@
   async function chief() {
     const s = st();
     if (!ch3()) { await say("Bienvenue au Village des Yokomon ! On vit tranquilles, ici, entre le désert et la montagne.", 'Yokomon'); return; }
-    if (freed()) { await say("La fontaine coule, le lac se remplit ! Tout ça grâce à toi. Le Village des Yokomon ne t'oubliera jamais !", 'Yokomon'); return; }
+    // (seule la fontaine change à l'écran : le petit lac, lui, se remplira avec le temps — comme le disent l'épave et la
+    //  quête du trésor, game/quetes.js)
+    if (freed()) { await say("La fontaine coule de nouveau ! Et notre source recommence à remplir le petit lac, goutte après goutte : il lui faudra du temps. Tout ça grâce à toi. Le Village des Yokomon ne t'oubliera jamais !", 'Yokomon'); return; }
     await say("Je suis l'ancien du village. Écoute bien : Meramon, le gardien du Mont Miharashi, a perdu la tête.", 'Yokomon');
     await say("Ses flammes ont tari notre source. La fontaine est à sec, et le petit lac a presque disparu autour de la vieille épave.", 'Yokomon');
     await say("Le Mont Miharashi est à l'ouest, au bout de la route. Si tu y montes... sois prudent. Meramon grandit à chaque coup qu'il reçoit !", 'Yokomon');
@@ -9825,14 +9875,15 @@
   // ------------------------------------------------------------ chapitre 3 : le trésor de l'épave (quand l'eau est revenue)
   async function yokomonEpave() {
     if ((st().chests || {}).epave_coffre) { await say("Un Disque de défense, dans la vieille épave ? Garde-le, tu l'as bien mérité !", 'Yokomon'); return; }
-    await say("Depuis que l'eau est revenue, quelque chose brille dans la vieille épave, au milieu du lac... Mais nous, on ne sait pas nager !", 'Yokomon');
+    await say("Depuis que l'eau revient dans le lac, quelque chose brille dans la vieille épave, au milieu... Mais nous, on ne sait pas nager !", 'Yokomon');
     await say("Il y a un passage de planches, au sud du lac, jusqu'au banc de sable. Tu veux bien aller voir ?", 'Yokomon');
   }
   // l'épave : son panneau, et le coffre que le courant a déposé à côté (une fois l'eau revenue)
   const EPAVE = { x: 25, y: 51 };
   function epave(m) {
     m.signs = m.signs || {};
-    for (let x = 21; x <= 27; x++) m.signs[`${x},49`] = () => say(f().meramon ? "La vieille épave, couverte de coquillages. L'eau est revenue autour d'elle ; le courant a déposé un coffre sur le sable." : "La vieille épave, posée sur le fond presque sec du lac. Sur la coque, un nom à moitié effacé... Personne ne sait d'où elle vient.");
+    // (le petit lac garde son banc de sable à l'écran : l'eau « revient peu à peu », elle n'a pas encore tout recouvert)
+    for (let x = 21; x <= 27; x++) m.signs[`${x},49`] = () => say(f().meramon ? "La vieille épave, couverte de coquillages. L'eau revient peu à peu autour d'elle ; le courant de la source a déposé un coffre sur le sable." : "La vieille épave, posée sur le fond presque sec du lac. Sur la coque, un nom à moitié effacé... Personne ne sait d'où elle vient.");
     if (!f().meramon || m.objects.some(o => o.epave)) return;
     DW.Palais.treasure('miharashi1', 'epave_coffre', null, [['disque_def', 1], ['cartes', 2]], EPAVE.x, EPAVE.y);
     const o = m.objects.find(c => c.kind === 'chest' && c.x === EPAVE.x && c.y === EPAVE.y); if (o) o.epave = true;

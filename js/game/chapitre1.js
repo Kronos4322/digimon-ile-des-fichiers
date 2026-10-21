@@ -175,7 +175,13 @@
       const rid = m.region;
       if (!rid || CH1.has(rid) || !(DW.REGION_ENTRY && rid in DW.REGION_ENTRY)) return null;
       if (OPENS[rid] && ch >= OPENS[rid]) return null;
-      return `Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.${ch === 2 ? " Pour l'instant, c'est vers le grand lac, au nord de la Clairière de l'Arrivée, qu'il faut aller." : ch === 3 ? " Pour l'instant, c'est à l'ouest de la forêt, vers le désert et le Mont Miharashi, qu'il faut aller." : ''}`;
+      // (le conseil dépend d'où l'on bute : au chapitre 2, le Pays de Meramon touche la Rosière, au bord du grand lac —
+      //  on y est déjà, on ne renvoie donc plus « vers le grand lac » ; de même au chapitre 3, depuis le Pays de Meramon)
+      const ici = DW.ow && DW.ow.map && DW.ow.map.region;
+      const avant = ch === 2 && rid === 'miharashi' ? " Au-delà, l'air est sec et brûlant, comme au bord d'un désert." : '';
+      const conseil = ch === 2 ? (ici === 'lac' ? " Pour l'instant, c'est autour du grand lac que l'aventure se joue." : " Pour l'instant, c'est vers le grand lac, au nord de la Clairière de l'Arrivée, qu'il faut aller.")
+        : ch === 3 ? (ici === 'miharashi' ? " Pour l'instant, c'est au Pays de Meramon, vers le Village des Yokomon et le Mont Miharashi, que l'aventure se joue." : " Pour l'instant, c'est à l'ouest de la forêt, vers le désert et le Mont Miharashi, qu'il faut aller.") : '';
+      return `Un voile de données bloque le chemin...${avant} Cette partie de l'île s'ouvrira plus tard dans l'aventure.${conseil}`;
     }
     if (CH1.has(m.region) && !CH1_CLOSED.has(to)) return null;
     return "Un étrange voile de données bloque le passage... Il est apparu en même temps que les monstres de la forêt et de la plage. Il faut d'abord rétablir le calme sur cette partie de l'île.";

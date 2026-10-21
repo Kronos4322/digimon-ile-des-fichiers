@@ -3,7 +3,7 @@
 //  COLLABORATIONS : des habitants qui travaillent ENSEMBLE au même endroit débloquent une amélioration.
 //  Quand les deux sont installés en ville, le second rejoint le lieu du premier (on le voit sur place)
 //  et l'amélioration est annoncée à l'arrivée en ville.
-//    Comptoir du Bazar   (Gotsumon + Kunemon)  : tous les prix -15 % (boutiques et distributeurs)
+//    Comptoir du Bazar   (Gotsumon + Kunemon)  : tous les prix -15 % (boutiques, meubles du Bazar et distributeurs)
 //    Salle de musculation (Elecmon + Gotsumon) : +1 point par séance d'entraînement
 //    Serre des Champs     (Palmon + Yokomon)   : récolte quotidienne doublée
 //    Bains de la fontaine (Betamon + Gomamon)  : la fontaine efface aussi la fatigue
