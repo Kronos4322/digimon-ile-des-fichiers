@@ -8580,10 +8580,29 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 //    v0 : écorce gravée ; v1, v2 : une, puis deux fissures (énigmes résolues) ; v3 : écorce éclatée, passage ouvert
 //  - treeroots, kuwanest : décor du Cœur du Grand Arbre
 //  - trophystand (1×1) : présentoir de trophée de la cave du joueur ; v0 vide, v1 Kuwagamon (et les suivants, v5 Meramon)
+//  - arbrecreux (1×1) : le vieil arbre creux de la Prairie des Lucioles, entrée du village des Poyomon (maps/yokomon.js)
 // =====================================================================
 (function () {
   const OBJ = DW.World.OBJ;
+  // (le grand chêne, avec l'image du joueur si elle est chargée : gfx/textures.js, bigtree)
+  const chene = () => DW.World.obj('bigtree', 0);
   Object.assign(OBJ, {
+    // LE VIEIL ARBRE CREUX : le grand chêne (3 fois le héros, comme tous les arbres) et, au pied de son tronc, une ouverture
+    // sombre où l'on se faufile (remarque du joueur : la petite bûche couchée d'avant n'était « pas assez grosse »)
+    arbrecreux: { w: () => chene().w - 2, h: () => chene().h - 2, n: 1, paint(x) {
+      const B = chene(), iw = B.w - 2, ih = B.h - 2;
+      x.drawImage(B.img, -1, -1, B.w, B.h);
+      // le tronc de l'image (chêne de 112 × 111 posé en bas, sur toute la largeur) : centre à 57,5 / 112 ; dessin de secours
+      // (image absente) : tronc au milieu
+      const im = DW.Textures && DW.Textures.a('commun/arbre_chene'), s = iw / (im ? im.naturalWidth : 112);
+      const cx = im ? 57.5 * s : iw / 2, bas = ih - 3 * s, hw = 6.5 * s, hh = 16 * s;
+      const arche = (dx, dy, r, h) => { x.beginPath(); x.moveTo(dx - r, dy); x.lineTo(dx - r, dy - h + r); x.ellipse(dx, dy - h + r, r, r, 0, Math.PI, 0); x.lineTo(dx + r, dy); x.closePath(); x.fill(); };
+      x.fillStyle = 'rgba(20,12,6,0.45)'; x.beginPath(); x.ellipse(cx, bas + 0.8, hw + 3, 2, 0, 0, 7); x.fill();   // ombre au pied
+      x.fillStyle = '#6a4424'; arche(cx, bas + 0.6, hw + 1.6, hh + 1.6);   // bord d'écorce relevé
+      const g = x.createLinearGradient(0, bas - hh, 0, bas); g.addColorStop(0, '#2a180c'); g.addColorStop(1, '#070302');
+      x.fillStyle = g; arche(cx, bas, hw, hh);   // le creux, noir au fond
+      x.strokeStyle = 'rgba(232,200,140,0.55)'; x.lineWidth = 0.8; x.beginPath(); x.ellipse(cx, bas - hh + hw, hw + 0.8, hw + 0.8, 0, Math.PI * 1.05, Math.PI * 1.95); x.stroke();   // lumière sur l'arête
+    } },
     grandarbre: { w: 132, h: 150, n: 4 },   // (peint : gfx/peints.js ; avec l'image du joueur : gfx/textures.js)
     // racines qui pendent du plafond, gouttes de sève lumineuse (décor mural du Cœur du Grand Arbre)
     treeroots: { w: 40, h: 44, n: 2, draw: DW.World.secours.bois(40, 44) },
@@ -8630,6 +8649,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     } },
   });
   OBJ.grandarbre.scale = 1.15;
+  // (dessiné pendant le chargement avec le chêne de secours : redessiné dès que les images du joueur sont là)
+  if (DW.Textures && DW.Textures.charge) DW.Textures.charge.then(() => DW.World.oublierObjet('arbrecreux'));
 })();
 ;
 
@@ -11668,6 +11689,80 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // Générateur : rend la main régulièrement (yield) pour pouvoir préparer une carte
   // par petites tranches pendant le jeu (cartes voisines préparées à l'avance).
   const NATURAL = new Set(['tree', 'bush', 'rock', 'boulder', 'mossrock', 'fern', 'stump', 'log', 'hollowlog', 'palm', 'bigtree']);
+  // PIED D'UN DESSIN : où sa base touche le sol (ses PIED derniers pixels opaques), de son bord gauche à son bord droit, en
+  // pixels du jeu depuis son centre ; mesuré une fois par image. null sans pixels lisibles (faux navigateur des tests)
+  // (SEUIL_PIED : une case recouverte d'au moins 8 pixels sur 16 — la moitié du héros, qui y passerait derrière le bas de
+  //  l'objet, comme dedans — est « dans » l'objet ; SEUIL_ARBRE : les arbres de la grille, dont le tronc déborde d'au plus
+  //  11 pixels, gardent leur case — seuls les pieds très larges, comme les sapins aux branches basses, s'élargissent ;
+  //  SEUIL_CHEMIN : sur un chemin, seulement une case presque entièrement recouverte — un chemin ne rétrécit pas pour un
+  //  buisson qui déborde un peu, mais on ne passe plus au travers d'un sarcophage posé sur les pavés d'une grotte)
+  const PIED = 10, SEUIL_PIED = 8, SEUIL_ARBRE = 13, SEUIL_CHEMIN = 14;
+  function piedDe(spr) {
+    if (spr._pied !== undefined) return spr._pied;
+    let r = null;
+    try {
+      // (on ne lit que le bas de l'image, un tiers : lire tout le dessin d'un arbre ou d'une maison coûtait cher au premier
+      //  passage ; tout, seulement si ce bas est vide)
+      const c = spr.img, W = c.width, H = c.height, k = W / spr.w, b = Math.round(PIED * k), g = c.getContext('2d');
+      for (const h0 of [Math.min(H, Math.ceil(H / 3) + b), H]) {
+        const top = H - h0, d = g.getImageData(0, top, W, h0).data;
+        let y1 = -1;
+        for (let y = h0 - 1; y >= 0 && y1 < 0; y--) for (let i = y * W * 4 + 3, e = i + W * 4; i < e; i += 4) if (d[i] > 100) { y1 = y; break; }
+        if (y1 < 0 || (y1 - b < 0 && top > 0)) { if (h0 === H) break; continue; }
+        let x0 = W, x1 = -1;
+        for (let y = Math.max(0, y1 - b); y <= y1; y++) for (let x = 0, i = y * W * 4 + 3; x < W; x++, i += 4) if (d[i] > 100) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
+        r = [x0 / k - spr.w / 2, (x1 + 1) / k - spr.w / 2];
+        break;
+      }
+    } catch (e) { r = null; }
+    return (spr._pied = r);
+  }
+  // LES PIEDS DE TOUTE UNE CARTE EN UNE SEULE LECTURE : chaque lecture de pixels force la carte graphique à finir son
+  // travail (3 à 7 ms, des centaines au premier dessin d'une carte) ; le bas de chaque dessin (un tiers, à la taille du jeu)
+  // est recopié dans une seule image, lue une fois. Un dessin dont le bas est vide est mesuré seul ensuite (piedDe)
+  let planchePieds = null;
+  function mesurerPieds(sprs) {
+    const L = [...new Set(sprs)].filter(s => s._pied === undefined && s.img && s.w > 0 && s.h > 0); if (!L.length) return;
+    const bande = s => Math.min(Math.ceil(s.h), Math.ceil(s.h / 3) + PIED + 2);
+    let W = 0, H = 0; for (const s of L) { W = Math.max(W, Math.ceil(s.w)); H += bande(s) + 1; }
+    try {
+      if (!planchePieds || planchePieds.width < W || planchePieds.height < H) planchePieds = DW.Art.canvas(Math.max(W, planchePieds ? planchePieds.width : 0), Math.max(H, planchePieds ? planchePieds.height : 0));
+      const c = planchePieds, g = c.getContext('2d'), CW = c.width, pos = [];
+      g.clearRect(0, 0, CW, H);
+      let y = 0;
+      // (Art.drawRaw : en pixels réels de l'image haute définition — le drawImage du jeu compte en pixels du jeu : engine/art.js)
+      for (const s of L) { const hb = bande(s), k = s.img.width / s.w; DW.Art.drawRaw(g, s.img, 0, s.img.height - hb * k, s.img.width, hb * k, 0, y, s.w, hb); pos.push(y); y += hb + 1; }
+      const d = g.getImageData(0, 0, CW, H).data;
+      L.forEach((s, j) => {
+        const y0 = pos[j], hb = bande(s), sw = Math.ceil(s.w); let y1 = -1;
+        for (let yy = y0 + hb - 1; yy >= y0 && y1 < 0; yy--) for (let x = 0, i = yy * CW * 4 + 3; x < sw; x++, i += 4) if (d[i] > 100) { y1 = yy; break; }
+        if (y1 < 0 || (y1 - PIED < y0 && hb < Math.ceil(s.h))) return;
+        let x0 = sw, x1 = -1;
+        for (let yy = Math.max(y0, y1 - PIED); yy <= y1; yy++) for (let x = 0, i = yy * CW * 4 + 3; x < sw; x++, i += 4) if (d[i] > 100) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
+        s._pied = [x0 - s.w / 2, x1 + 1 - s.w / 2];
+      });
+    } catch (e) { /* (canvas illisible, faux navigateur des tests : chaque dessin est mesuré seul, piedDe) */ }
+  }
+  // ON NE TRAVERSE PAS UN DÉCOR : les cases de la rangée du bas d'un objet solide (x0 à x1, rangée y) que la base de son
+  // dessin (posé centré en cx, retourné ou non) recouvre d'au moins « seuil » pixels deviennent bloquantes, à gauche et à
+  // droite (un groupe par côté : ajoutés à la fin de la préparation, jamais sur un chemin ni en coupant un passage). Sans
+  // mesure (pas de pixels) : l'ancienne règle d'après la boîte du dessin, pour les objets bas seulement (pas les arbres)
+  function elargir(widen, spr, cx, flip, x0, x1, y, arbre) {
+    const P = piedDe(spr), seuil = arbre ? SEUIL_ARBRE : SEUIL_PIED;
+    if (!P) {
+      if (arbre || spr.h > 34 || spr.w <= (x1 - x0 + 1) * 16 + 6) return;
+      const k = Math.round((spr.w - (x1 - x0 + 1) * 16) / 32), grp = [];
+      for (let xx = 1; xx <= k; xx++) grp.push((x0 - xx) + ',' + y, (x1 + xx) + ',' + y);
+      if (grp.length) widen.push(grp);
+      return;
+    }
+    // (chaque case : [clé, pixels recouverts], pour la règle des chemins)
+    const L = cx + (flip ? -P[1] : P[0]), R = cx + (flip ? -P[0] : P[1]), g = [], d = [];
+    for (let x = x0 - 1; (x + 1) * 16 - L >= seuil; x--) g.push([x + ',' + y, (x + 1) * 16 - L]);
+    for (let x = x1 + 1; R - x * 16 >= seuil; x++) d.push([x + ',' + y, R - x * 16]);
+    if (g.length) widen.push(g);
+    if (d.length) widen.push(d);
+  }
   function* prep(map) {
     if (World.fixBridges) World.fixBridges(map);   // ponts utiles redressés, ponts inutiles enlevés (gfx/ponts.js)
     if (!map.rows && map.build) map.build();
@@ -12531,6 +12626,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // objets
     const objs = [];
     const solid = new Set(), widen = [];   // widen : largeur des objets bas et larges (ajoutée à la fin, sans jamais couper un passage)
+    const aElargir = [];   // (objets solides dont on mesurera le pied, tous ensemble : mesurerPieds, puis elargir)
     for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
       const inf = World.info(map.rows[ty][tx]);
       if (!inf.obj) continue;
@@ -12549,11 +12645,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const jx = inf.obj === 'tree' || inf.obj === 'fern' ? Math.round((hash(tx, ty, 61) - 0.5) * 4) : 0;
       if (!World.objReady(kind, v)) { if (o.frames) for (let fr = 0; fr < o.frames; fr++) { World.objFrame(kind, v, fr); yield; } else { World.obj(kind, v); yield; } }
       const anim = o.frames ? World.objFrames(kind, v) : null;
-      // objets bas et larges posés au sol (bûches, troncs creux, bois flotté, rochers) : toute leur largeur bloque
-      // le passage, pas seulement leur case (on ne traverse plus le bout d'une bûche)
-      { const sp0 = anim ? anim[0] : World.obj(kind, v); if (inf.solid && inf.obj !== 'tree' && sp0.h <= 34 && sp0.w > 22) { const k = Math.round((sp0.w - 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((tx - xx) + ',' + ty, (tx + xx) + ',' + ty); widen.push(grp); } }
       // décor naturel retourné une fois sur deux (gauche / droite) : les rangées d'arbres ne se répètent plus à l'identique
       const flip = !anim && NATURAL.has(inf.obj) && hash(tx, ty, 63) < 0.5;
+      // objets plus larges que leur case (buissons, rochers, bûches, bois flotté, dalles, appareils d'entraînement) : toute
+      // la largeur de leur pied bloque le passage, pas seulement leur case (on ne traverse plus le bout d'une bûche ni le
+      // bord d'un buisson) ; les arbres seulement si leur pied est très large (sapins)
+      if (inf.solid) aElargir.push([anim ? anim[0] : World.obj(kind, v), tx * TS + 8 + jx, flip, tx, tx, ty, inf.obj === 'tree']);
       objs.push({ kind, v, flip, spr: anim ? anim[0] : World.obj(kind, v), sprs: anim, fps: o.fps || 4, x: tx * TS + 8 + jx, y: ty * TS + 15 + (inf.obj === 'tree' ? 1 : 0), sort: inf.under ? -10 + ty * 0.01 : ty + (inf.solid ? 0.5 : 0.6), big: ['tree', 'palm', 'bigtree'].includes(inf.obj) || !!o.big, tx, ty, flat: !inf.solid });
     }
     // bouche du volcan (dessinée par game/lave.js) : ses images sont préparées avec la carte
@@ -12586,7 +12683,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       }
     }
     // objets posés : walk = on marche dessus (tapis), back = accroché au mur (dessiné derrière tout)
-    for (const o0 of map.objects || []) {
+    for (const o1 of map.objects || []) {
+      // (un objet posé sans taille compte pour une case : sinon il n'était ni dessiné ni bloquant, et on le traversait)
+      const o0 = o1.w == null || o1.h == null ? { ...o1, w: o1.w || 1, h: o1.h || 1 } : o1;
       const R = TX && TX.objet(map, o0.kind, o0.x, o0.y, o0.v), o = R ? { ...o0, kind: R, v: 0 } : o0;   // (image dessinée : gfx/textures.js)
       const D = OBJ[o.kind], vv = o.v || 0;
       // sorte inconnue (une image du joueur, « tex_… », pas chargée : réseau coupé) : rien n'est dessiné, ses cases restent bloquées
@@ -12597,8 +12696,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (!o.walk && !o.top) for (let yy = 0; yy < o.h; yy++) for (let xx = 0; xx < o.w; xx++) solid.add((o.x + xx) + ',' + (o.y + yy));
       // cases bloquées autour d'un objet qu'on traverse en son centre (ex. les piliers d'une porte de temple)
       for (const [bx, by] of o.block || []) solid.add((o.x + bx) + ',' + (o.y + by));
-      // pareil pour les objets posés plus larges que leur emprise (bas : bûches, piliers tombés...)
-      if (!o.walk && !o.top && !o.back && spr.h <= 34 && spr.w > o.w * 16 + 6) { const k = Math.round((spr.w - o.w * 16) / 32); const grp = []; for (let xx = 1; xx <= k; xx++) grp.push((o.x - xx) + ',' + (o.y + o.h - 1), (o.x + o.w - 1 + xx) + ',' + (o.y + o.h - 1)); widen.push(grp); }
+      // pareil pour les objets posés plus larges que leur emprise (bûches, piliers tombés, meubles, appareils, rochers peints...)
+      if (!o.walk && !o.top && !o.back) aElargir.push([spr, (o.x + o.w / 2) * TS + (o.ox || 0), !!o.flip, o.x, o.x + o.w - 1, o.y + o.h - 1, false]);
       // BÂTIMENT mis à l'échelle du héros (gfx/objects.js : TAILLE_HEROS) plus large que son emprise : ses murs bloquent
       // aussi sur les côtés (une colonne à la fois, jamais sur un chemin ni si cela coupe un passage)
       if (World.TAILLE_HEROS[o.kind] && !o.walk && !o.top) {
@@ -12707,6 +12806,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // sol peint à la main par la carte (ex. la piste et les aires du terrain d'entraînement)
     if (map.paintGround) map.paintGround(ground.getContext('2d'), GW, GH);
     const water = WI.length ? { x: wx0, y: wy0, frames: [] } : null;
+    // pieds de tous les objets solides (une seule lecture), puis les cases qu'ils recouvrent (elargir)
+    mesurerPieds(aElargir.map(a => a[0]));
+    for (const a of aElargir) elargir(widen, ...a);
     if (widen.length) {
       // (parcours en tableaux d'octets : une exploration de la carte par groupe d'objets, il faut qu'elle soit rapide)
       const MW = map.w, MH = map.h, NB = MW * MH, BLK = new Uint8Array(NB), EXTRA = new Uint8Array(NB), SEEN = new Uint8Array(NB), STK = new Int32Array(NB);
@@ -12716,6 +12818,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const goals = [];
       for (const w of [...(map.warps || []), ...(map.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) goals.push([x, y + (map.doors && map.doors.includes(w) ? 1 : 0)]);
       for (const k in map.signs || {}) { const [x, y] = k.split(',').map(Number); goals.push([x, y + 1]); }
+      // (les personnages et les déclencheurs de la carte restent eux aussi accessibles)
+      for (const n of map.npcs || []) goals.push([n.x, n.y]);
+      for (const t of map.triggers || []) for (let y = t.y; y < t.y + (t.h || 1); y++) for (let x = t.x; x < t.x + (t.w || 1); x++) goals.push([x, y]);
+      // cases jamais bloquées par un élargissement : sorties, portes (et la case devant), personnages, déclencheurs, la case
+      // devant un panneau
+      const garder = new Set(goals.map(([x, y]) => x + ',' + y));
+      for (const w of [...(map.warps || []), ...(map.doors || [])]) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) garder.add(x + ',' + y);
       // cases atteignables depuis le premier but libre (SEEN), false si aucun but n'est libre
       const reach = () => {
         const st = goals.find(([x, y]) => !blocked(x, y)); if (!st) return false;
@@ -12729,18 +12838,54 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         }
         return true;
       };
-      const need = reach() ? goals.filter(([x, y]) => inside(x, y) && SEEN[y * MW + x]) : [];
-      // (jamais sur un chemin : un rocher ou un tuyau au bord du sentier ne doit pas le rétrécir)
+      // (pas sur un chemin : un rocher ou un tuyau au bord du sentier ne doit pas le rétrécir — sauf une case que le pied de
+      //  l'objet recouvre presque entièrement, SEUIL_CHEMIN : elle n'est déjà plus le chemin)
       const onPath = (x, y) => { const ch = (map.rows[y] || '')[x]; return ch === '=' || ch === 'z'; };
+      // deux sortes de groupes : les anciens (murs des bâtiments, objets bas mesurés à leur boîte : des clés) et les pieds
+      // mesurés (elargir : [clé, pixels recouverts])
+      const anciens = [], pieds = [];
       for (const grp of widen) {
         const cells = [];
-        for (const k of grp) { if (solid.has(k)) continue; const [x, y] = k.split(',').map(Number); if (!onPath(x, y)) cells.push([x, y, k]); }
-        if (!cells.length) continue;
-        for (const [x, y] of cells) if (inside(x, y)) EXTRA[y * MW + x] = 1;
-        const ok = reach() && need.every(([x, y]) => SEEN[y * MW + x] || EXTRA[y * MW + x]);
-        for (const [x, y] of cells) if (inside(x, y)) EXTRA[y * MW + x] = 0;
-        if (ok) for (const [x, y, k] of cells) { solid.add(k); if (inside(x, y)) BLK[y * MW + x] = 1; }
+        for (const e of grp) {
+          const k = typeof e === 'string' ? e : e[0]; if (solid.has(k) || garder.has(k)) continue;
+          const [x, y] = k.split(',').map(Number);
+          if (!onPath(x, y) || (typeof e !== 'string' && e[1] >= SEUIL_CHEMIN)) cells.push([x, y, k]);
+        }
+        if (cells.length) (typeof grp[0] === 'string' ? anciens : pieds).push(cells);
       }
+      // d'abord tous ensemble (une seule exploration : le cas courant) ; si un passage se ferme, par moitiés, jusqu'aux
+      // groupes fautifs, laissés de côté (quelques explorations au lieu d'une par groupe). recoin : taille d'un coin fermé
+      // toléré (0 : aucun)
+      const PERDU = new Uint8Array(NB);
+      const recoinsOk = (perdus, recoin) => {   // (chaque coin fermé, d'un seul tenant, fait au plus « recoin » cases)
+        if (perdus.length > 0 && !recoin) return false;
+        for (const i of perdus) PERDU[i] = 1;
+        let ok = true;
+        for (const i0 of perdus) {
+          if (PERDU[i0] !== 1) continue;
+          let n = 0, sp = 0; STK[sp++] = i0; PERDU[i0] = 2;
+          while (sp) { const i = STK[--sp], x = i % MW; n++; for (const j of [x + 1 < MW ? i + 1 : -1, x > 0 ? i - 1 : -1, i + MW < NB ? i + MW : -1, i - MW]) if (j >= 0 && PERDU[j] === 1) { PERDU[j] = 2; STK[sp++] = j; } }
+          if (n > recoin) { ok = false; break; }
+        }
+        for (const i of perdus) PERDU[i] = 0;
+        return ok;
+      };
+      const buts = new Set(goals.filter(([x, y]) => inside(x, y)).map(([x, y]) => y * MW + x));
+      const essai = (L, need, recoin) => {
+        for (const cells of L) for (const [x, y] of cells) if (inside(x, y)) EXTRA[y * MW + x] = 1;
+        let ok = reach();
+        if (ok) { const perdus = need.filter(i => !SEEN[i] && !EXTRA[i]); ok = !perdus.some(i => buts.has(i)) && recoinsOk(perdus, recoin); }
+        for (const cells of L) for (const [x, y] of cells) if (inside(x, y)) EXTRA[y * MW + x] = 0;
+        if (ok) for (const cells of L) for (const [x, y, k] of cells) { solid.add(k); if (inside(x, y)) BLK[y * MW + x] = 1; }
+        return ok;
+      };
+      const parMoities = (L, need, recoin) => { if (!L.length || essai(L, need, recoin) || L.length === 1) return; const m = L.length >> 1; parMoities(L.slice(0, m), need, recoin); parMoities(L.slice(m), need, recoin); };
+      // les anciens : sans couper le chemin des sorties, portes, panneaux, personnages
+      if (reach()) parMoities(anciens, goals.filter(([x, y]) => inside(x, y) && SEEN[y * MW + x]).map(([x, y]) => y * MW + x), 0);
+      // les pieds mesurés : sans couper ces chemins, ni fermer un coin de la carte où l'on pouvait aller (seulement un recoin
+      // de 3 cases au plus, entre deux décors : on n'y voyait déjà que leurs pieds)
+      const tout = []; if (reach()) for (let i = 0; i < NB; i++) if (SEEN[i]) tout.push(i);
+      parMoities(pieds, tout, 3);
     }
     const bridges = !DOCK && World.paintBridges ? World.paintBridges(map) : null;   // ponts de pierre peints (gfx/ponts.js)
     if (bridges) for (const k of bridges.walls) solid.add(k);   // (les murets bloquent le passage)
@@ -17549,11 +17694,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (r < 0.32) { F.face = F.face === 'left' ? 'right' : 'left'; F.back = false; F.front = false; }
       else if (r < 0.52) { C.hop = 0.5; Audio.sfx('text'); }
       else if (r < 0.78) {
-        // petit pas vers une case libre à côté du héros
+        // petit pas vers une case libre à côté du héros : un seul pas, jamais à travers le héros ni un décor (même coin)
+        // (avant : jusqu'à deux cases d'un coup, en ligne droite par-dessus le héros ou un rocher)
         const cand = [];
         for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
           const x = P.x + dx, y = P.y + dy;
-          if ((dx || dy) && !(x === F.x && y === F.y) && Math.abs(x - F.x) + Math.abs(y - F.y) <= 2 && !ow.solid(x, y)) cand.push([x, y]);
+          if ((dx || dy) && ow.pasPartenaire(F.x, F.y, x, y, P.x, P.y)) cand.push([x, y]);
         }
         if (cand.length) {
           const [x, y] = DW.pick(cand);
@@ -20307,7 +20453,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     if (DW.MapKit.dress) DW.MapKit.dress(map, mapId);   // ensembles de décor par région, posés à la première visite (maps/decor.js)
     if (DW.Distrib) { DW.Distrib.signs(map, mapId); DW.Distrib.place(map, mapId); }   // panneaux au bord des chemins, distributeurs (maps/distrib.js)
     if (DW.Antre) DW.Antre.hole(map, mapId);   // le trou entre les cabines de la plage (maps/antre.js)
-    if (DW.YokoVillage) DW.YokoVillage.place(map, mapId);   // le tronc creux vers le village des Poyomon (maps/yokomon.js)
+    if (DW.YokoVillage) DW.YokoVillage.place(map, mapId);   // le vieil arbre creux vers le village des Poyomon (maps/yokomon.js)
     pnjHorsDecor(map);
     return map;
   };
@@ -20500,6 +20646,17 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const door = (x, y) => (this.map.doors || []).some(o => y === o.y && x >= o.x && x < o.x + (o.w || 1));
       return !door(nx, ny) && !door(P.x + dx, P.y) && !door(P.x, P.y + dy);
     }
+    // UN PAS DU PARTENAIRE de (ax, ay) vers (bx, by) : une case voisine (diagonale comprise), libre, hors de la case où va
+    // le héros (hx, hy) ; en diagonale, comme le héros (canDiag), les deux cases d'angle sont libres : il ne coupe jamais le
+    // coin d'un décor et ne passe pas au travers du héros (game/companion.js : ses pas de côté suivent la même règle)
+    pasPartenaire(ax, ay, bx, by, hx, hy) {
+      const dx = bx - ax, dy = by - ay;
+      if ((!dx && !dy) || Math.abs(dx) > 1 || Math.abs(dy) > 1 || (bx === hx && by === hy)) return false;
+      if (this.solid(bx, by) || this.falaise(ax, ay, bx, by)) return false;
+      if (!dx || !dy) return true;
+      return !this.solid(bx, ay) && !this.solid(ax, by) && !(bx === hx && ay === hy) && !(ax === hx && by === hy)
+        && !this.falaise(ax, ay, bx, ay) && !this.falaise(ax, ay, ax, by);
+    }
     // un pas dans la direction v (8 directions) ; contre un obstacle en diagonale, on glisse le long
     walk(v, over) {
       const P = this.p, run = Input.isDown('run') || Input.runLock || Input.analogRun();
@@ -20622,18 +20779,25 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (DW.World.isTall(this.tileAt(nx, ny))) this.rustle[nx + ',' + ny] = 0.5;
       if (!this.partner) Object.assign(F, { moving: false, x: P.x, y: P.y, sx: P.x, sy: P.y, tx: P.x, ty: P.y });   // sans partenaire : la place reste collée au héros
       else if (F.x !== P.sx || F.y !== P.sy) {
-        // le partenaire suit pas à pas, sans jamais traverser le héros ni sauter deux cases d'un coup :
-        // - demi-tour (le héros vient sur sa case) : il s'écarte sur le côté au lieu de passer au travers
-        // - trop loin (après un pas de côté) : il avance d'une seule case vers le héros
-        let tx = P.sx, ty = P.sy;
+        // le partenaire suit pas à pas, sans jamais traverser un décor, ni le héros, ni sauter deux cases d'un coup
+        // (chaque pas : pasPartenaire, une case libre voisine, sans couper le coin d'un décor) :
+        // - en temps normal : sur la case que le héros quitte (son chemin est praticable) ; en diagonale contre un coin de
+        //   décor, il passe par la case d'angle libre
+        // - demi-tour (le héros vient sur sa case) : il s'écarte sur le côté ; dans un couloir, il échange sa place
+        // - trop loin (après un pas de côté) : il avance d'une seule case vers le héros, en contournant le décor
+        const ok = (x, y) => this.pasPartenaire(F.x, F.y, x, y, nx, ny);
+        let T = null;
         if (F.x === nx && F.y === ny) {
-          const dx = nx - P.sx, dy = ny - P.sy, side = [[dy, dx], [-dy, -dx], [-dx, -dy]].map(([a, b]) => [P.sx + a, P.sy + b]);
-          const free = side.find(([x, y]) => (x !== nx || y !== ny) && !this.solid(x, y));
-          if (free) [tx, ty] = free; else { tx = F.x; ty = F.y; }
-        } else if (Math.max(Math.abs(F.x - P.sx), Math.abs(F.y - P.sy)) > 1) {
-          tx = F.x + Math.sign(P.sx - F.x); ty = F.y + Math.sign(P.sy - F.y);
-          if (tx === nx && ty === ny) { tx = F.x; ty = F.y; }
-        }
+          const dx = nx - P.sx, dy = ny - P.sy;   // (côtés : perpendiculaires au pas du héros, d'abord depuis sa propre case)
+          T = [[F.x - dy, F.y + dx], [F.x + dy, F.y - dx], [P.sx - dy, P.sy + dx], [P.sx + dy, P.sy - dx]].find(([x, y]) => ok(x, y)) || [P.sx, P.sy];
+        } else if (Math.max(Math.abs(F.x - P.sx), Math.abs(F.y - P.sy)) <= 1) {
+          T = ok(P.sx, P.sy) ? [P.sx, P.sy] : [[P.sx, F.y], [F.x, P.sy]].find(([x, y]) => (x !== F.x || y !== F.y) && ok(x, y));
+        } else if (Math.max(Math.abs(F.x - P.sx), Math.abs(F.y - P.sy)) <= 3) {
+          const sx = Math.sign(P.sx - F.x), sy = Math.sign(P.sy - F.y);
+          T = [[F.x + sx, F.y + sy], [F.x + sx, F.y], [F.x, F.y + sy]].find(([x, y]) => (x !== F.x || y !== F.y) && ok(x, y));
+        } else T = [P.sx, P.sy];   // (resté coincé loin derrière : il reparaît sur la case que le héros quitte)
+        const [tx, ty] = T || [F.x, F.y], loin = Math.max(Math.abs(tx - F.x), Math.abs(ty - F.y)) > 1;
+        if (loin) Object.assign(F, { x: tx, y: ty });   // (jamais une glissade de plusieurs cases à travers le décor)
         Object.assign(F, { moving: tx !== F.x || ty !== F.y, sx: F.x, sy: F.y, tx, ty, t: over });
         // regard : dans le sens de sa marche ; s'il monte, descend ou attend, il se tourne vers le héros
         if (tx > F.sx) F.face = 'right'; else if (tx < F.sx) F.face = 'left';

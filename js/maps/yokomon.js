@@ -2,7 +2,7 @@
 // =====================================================================
 //  VILLAGE DES POYOMON — un hameau caché dans la forêt (le Village des Yokomon de l'animé est au Mont Miharashi,
 //  chapitre 3 : maps/miharashi.js)
-//  On y entre en se faufilant dans un tronc creux, au bord de la Prairie des Lucioles.
+//  On y entre en se faufilant dans le tronc d'un vieil arbre creux, au bord de la Prairie des Lucioles.
 //  Les Poyomon vivent dans des nids et de petites maisons autour d'un vieux puits... à sec. Quête : rapporter 3 bouteilles
 //  d'eau (Eau fraîche ou Eau de source). Récompense : cartes Digimon, Pomme bleue, et un puits qui
 //  désaltère gratuitement ensuite. Les Poyomon parlent aussi de la menace de la forêt.
@@ -25,7 +25,7 @@
   });
   MAPS.village_yokomon = {
     name: 'Village des Poyomon', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'foret', textures: 'bebe',
-    rows, encounters: [], wildN: 0, dress: false, secretEntry: true,   // (on y entre par le tronc creux de la Prairie : pas de passage normal)
+    rows, encounters: [], wildN: 0, dress: false, secretEntry: true,   // (on y entre par l'arbre creux de la Prairie : pas de passage normal)
     objects: [
       { kind: 'well', x: 17, y: 11, w: 1, h: 1 },
       { kind: 'giantnest', x: 6, y: 7, w: 3, h: 1 }, { kind: 'giantnest', x: 9, y: 15, w: 3, h: 1 }, { kind: 'giantnest', x: 23, y: 14, w: 3, h: 1 },
@@ -54,12 +54,12 @@
     ],
     npcs: [],
     signs: {
-      '20,17': '« VILLAGE DES POYOMON » — ↓ Prairie des Lucioles (par le tronc creux). Une petite main a dessiné des gouttes d\'eau tout autour.',
+      '20,17': '« VILLAGE DES POYOMON » — ↓ Prairie des Lucioles (par le vieil arbre creux). Une petite main a dessiné des gouttes d\'eau tout autour.',
       '8,13': () => say(st().flags.yokoWell ? 'Le tableau du village : « LE PUITS CHANTE DE NOUVEAU ! Merci à l\'humain et à son Digimon ! Grande fête ce soir autour du puits. »'
         : 'Le tableau du village : « Puits à sec... Qui pourra nous rapporter de l\'eau ? Demandez à la doyenne, près du puits. »'),
       '9,13': () => MAPS.village_yokomon.signs['8,13'](),
     },
-    // (l'arrivée est réglée sur le tronc creux à la première visite ; en attendant, près de l'entrée de la Prairie)
+    // (l'arrivée est réglée sur l'arbre creux à la première visite ; en attendant, près de l'entrée de la Prairie)
     warps: [(() => {
       // arrivée par défaut : là où l'on arrive dans la Prairie depuis une autre carte (une case sûre)
       // (recopiée d'une sortie peut-être déjà convertie à la taille de la Prairie agrandie : son marqueur _zt suit)
@@ -68,7 +68,7 @@
     })()],
     entry: { x: 17, y: H - 2 },
     populate() {
-      // la sortie ramène toujours devant le tronc creux de la Prairie (même après un chargement de partie ici)
+      // la sortie ramène toujours devant l'arbre creux de la Prairie (même après un chargement de partie ici)
       const pm = DW.getMap('prairie'); DW.YokoVillage.place(pm, 'prairie');
       const log = (pm.objects || []).find(o => o.yoko); if (log) Object.assign(this.warps[0], { tx: log.x, ty: log.y + 1, _zt: true });   // (déjà en coordonnées de la carte agrandie)
       const done = !!st().flags.yokoWell;
@@ -132,47 +132,83 @@
     DW.autosave();
   }
 
-  // ------------------------------------------------------------ l'entrée : un tronc creux au bord de la Prairie des Lucioles
-  // (placé à la première visite contre la lisière d'arbres, loin des sorties ; on s'y faufile en lui parlant)
+  // ------------------------------------------------------------ l'entrée : un vieil arbre creux au bord de la Prairie des Lucioles
+  // (placé à la première visite, au bord du chemin, loin des sorties ; on se faufile dans son tronc en lui parlant)
+  // Remarques du joueur : le panneau était collé aux troncs de la lisière, mal placé, et le « tronc creux » (une petite
+  // bûche couchée, plus petite que le héros) pas assez gros. Désormais : un grand chêne au tronc creusé (gfx/chapitre1.js,
+  // arbrecreux), seul au bord du chemin, au nord-est, et son panneau AU BORD DU CHEMIN ; ni l'un ni l'autre sous le
+  // feuillage des arbres (un arbre, 3 fois le héros, cache 5 à 7 rangées au-dessus de son pied : la lisière du bas de la
+  // prairie couvrait tout le chemin de l'est, et le tronc d'avant)
+  const FEUILLAGE = new Set(['T', '#', 'Y', 'p', 'h', '|']), GRANDS = new Set(['tree', 'oak', 'birch', 'bigtree', 'pine', 'palm', 'cocotier', 'candytree', 'deadtree', 'arbrecreux']);
   DW.YokoVillage = {
     place(m, id) {
       if (id !== 'prairie' || m._yokoFor === m.rows) return;
       m._yokoFor = m.rows;
-      const H2 = m.rows.length, W2 = m.rows[0].length, solid = ch => DW.SOLID.has(ch);
+      const H2 = m.rows.length, W2 = m.rows[0].length, solid = ch => DW.SOLID.has(ch), at = (x, y) => (m.rows[y] || '')[x];
       const occ = new Set(); for (const o of m.objects || []) if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
       const near = (x, y) => [...(m.warps || [])].some(w => Math.abs(w.x - x) < 8 && Math.abs(w.y - y) < 8);
-      // (seulement là où l'on peut aller : les cases reliées aux sorties de la carte ; sinon le tronc pouvait tomber
+      // (seulement là où l'on peut aller : les cases reliées aux sorties de la carte ; sinon l'entrée pouvait tomber
       //  dans une clairière fermée par les arbres, impossible à atteindre)
-      const libre = (x, y) => m.rows[y] && m.rows[y][x] !== undefined && !solid(m.rows[y][x]) && !occ.has(x + ',' + y);
+      const libre = (x, y) => at(x, y) !== undefined && !solid(at(x, y)) && !occ.has(x + ',' + y);
       const vu = new Set(), file = [];
       for (const w of m.warps || []) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) if (libre(x, y) && !vu.has(x + ',' + y)) { vu.add(x + ',' + y); file.push([x, y]); }
       while (file.length) {
         const [x, y] = file.pop();
         for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, k = nx + ',' + ny; if (!vu.has(k) && libre(nx, ny)) { vu.add(k); file.push([nx, ny]); } }
       }
-      let best = null, bs = 2;
-      for (let y = 4; y < H2 - 4; y++) for (let x = 4; x < W2 - 4; x++) {
-        if (!solid(m.rows[y - 1][x]) || solid(m.rows[y][x]) || occ.has(x + ',' + y) || near(x, y)) continue;
-        if (solid(m.rows[y + 1][x]) || solid(m.rows[y + 2][x]) || occ.has(x + ',' + (y + 1)) || !vu.has(x + ',' + (y + 1))) continue;
-        const sc = Hh(x, y, 4242); if (sc < bs) { bs = sc; best = [x, y]; }
+      // case cachée par le feuillage d'un grand arbre planté dans les 7 rangées du dessous, à 2 colonnes près (case ou objet)
+      const grands = new Set(); for (const o of m.objects || []) if (GRANDS.has(o.kind)) grands.add(o.x + ',' + (o.y + (o.h || 1) - 1));
+      const cache = (x, y) => { for (let yy = y + 1; yy <= y + 7; yy++) for (let xx = x - 2; xx <= x + 2; xx++) if (FEUILLAGE.has(at(xx, yy)) || grands.has(xx + ',' + yy)) return true; return false; };
+      // distance de marche jusqu'au chemin VISIBLE le plus proche (cases « = » hors du feuillage), depuis chaque case
+      const dist = new Map(), q = [];
+      for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) if (at(x, y) === '=' && vu.has(x + ',' + y) && !cache(x, y)) { dist.set(x + ',' + y, 0); q.push([x, y]); }
+      for (let i = 0; i < q.length; i++) {
+        const [x, y] = q[i], d = dist.get(x + ',' + y); if (d >= 6) continue;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (x + dx) + ',' + (y + dy); if (!dist.has(k) && vu.has(k)) { dist.set(k, d + 1); q.push([x + dx, y + dy]); } }
+      }
+      // l'arbre : devant lui deux cases libres et accessibles, lui et elles visibles, rien d'important sous sa couronne
+      // (personnage, panneau, sortie : 3 cases de part et d'autre, 7 rangées au-dessus) ; de préférence au nord-est (les
+      // conseils de la ville l'y situent : maps/village.js), le plus près du chemin, en terrain dégagé
+      const dessous = new Set([...Object.keys(m.signs || {}), ...(m.npcs || []).map(n => n.x + ',' + n.y)]);
+      for (const w of m.warps || []) for (let yy = w.y; yy < w.y + (w.h || 1); yy++) for (let xx = w.x; xx < w.x + (w.w || 1); xx++) dessous.add(xx + ',' + yy);
+      let best = null, bs = Infinity;
+      for (let y = 8; y < H2 - 4; y++) for (let x = 4; x < W2 - 4; x++) {
+        if (solid(at(x, y)) || occ.has(x + ',' + y) || near(x, y) || at(x, y) === '=' || at(x, y + 1) === '=') continue;   // (pas sur le chemin lui-même)
+        if (solid(at(x, y + 1)) || solid(at(x, y + 2)) || occ.has(x + ',' + (y + 1)) || !vu.has(x + ',' + (y + 1))) continue;
+        let gene = false, feuilles = 0, autour = 0;
+        for (let yy = y - 7; yy < y; yy++) for (let xx = x - 3; xx <= x + 3; xx++) { if (dessous.has(xx + ',' + yy)) gene = true; if (FEUILLAGE.has(at(xx, yy))) feuilles++; }
+        if (gene) continue;
+        // (rien de collé à son tronc : une fleur géante ou un buisson devant lui cachait l'entrée)
+        for (let yy = y - 2; yy <= y + 1; yy++) for (let xx = x - 2; xx <= x + 2; xx++) if ((xx !== x || yy !== y) && (DW.World.info(at(xx, yy)).obj || occ.has(xx + ',' + yy))) autour++;
+        const vis = !cache(x, y) && !cache(x, y + 1), d = dist.get(x + ',' + (y + 1));
+        const sc = (vis ? 0 : 1000) + (d == null ? 100 : d * 10) + (x >= W2 / 2 && y < H2 / 2 ? 0 : 50) + feuilles + autour * 8 + Hh(x, y, 4242);
+        if (sc < bs) { bs = sc; best = [x, y]; }
       }
       if (!best) return;
       const [x, y] = best;
-      m.objects.push({ kind: 'hollowlog', v: 0, x, y, w: 1, h: 1, small: true, yoko: true });
+      m.objects.push({ kind: 'arbrecreux', v: 0, x, y, w: 1, h: 1, yoko: true });
+      occ.add(x + ',' + y); grands.add(x + ',' + y);   // (son propre feuillage cache aussi le dessus)
       m.signs = m.signs || {};
       m.signs[`${x},${y}`] = async ow => {
-        if ((await DW.ask(st().flags.yokoQuest ? 'Le tronc creux qui mène au village des Poyomon. Se faufiler dedans ?' : "Un tronc creux couché contre les arbres... On entend des petites voix de l'autre côté. Se faufiler dedans ?")) !== 0) return;
+        if ((await DW.ask(st().flags.yokoQuest ? "Le vieil arbre creux qui mène au village des Poyomon. Se faufiler dans son tronc ?" : "Un vieil arbre au tronc creux... On entend des petites voix tout au fond. Se faufiler dedans ?")) !== 0) return;
         DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4);
         MAPS.village_yokomon.warps[0].tx = x; MAPS.village_yokomon.warps[0].ty = y + 1;
         await ow.charger('village_yokomon', 17, H - 2, 'up'); await DW.fade(0, 0.4);
       };
-      // un petit panneau à côté du tronc (sinon on passait devant sans le voir)
-      for (const sx of [x + 1, x - 1, x + 2, x - 2]) {
-        const ch = m.rows[y][sx];
-        if (!ch || solid(ch) || occ.has(sx + ',' + y) || solid(m.rows[y + 1][sx])) continue;
-        DW.MapKit.changerLignes(m, m.rows.map((r, yy) => (yy === y ? r.slice(0, sx) + 'S' + r.slice(sx + 1) : r)));
-        m.signs[`${sx},${y}`] = '« VILLAGE DES POYOMON » — une flèche gravée montre le tronc creux juste à côté. Parle au tronc pour t\'y faufiler.';
-        break;
+      // son panneau, au bord du chemin (sinon on passait devant sans le voir) : une case libre, accessible et visible, à côté
+      // d'une case de chemin (sans être dessus), tout près de l'arbre, jamais devant lui ni collé à son tronc (deux cases
+      // d'écart : le panneau, large de deux cases, mordait sur le tronc) ; sinon près de l'arbre
+      let ps = null, pb = Infinity;
+      for (let yy = y - 1; yy <= y + 4; yy++) for (let xx = x - 5; xx <= x + 5; xx++) {
+        if (!libre(xx, yy) || !vu.has(xx + ',' + yy) || cache(xx, yy) || Math.abs(xx - x) < 2 || at(xx, yy) === '=') continue;
+        const bord = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => at(xx + dx, yy + dy) === '=');
+        const sc = (bord ? 0 : 100) + Math.abs(xx - x) + Math.abs(yy - y) * 1.5 + (yy < y ? 20 : 0);
+        if (sc < pb) { pb = sc; ps = [xx, yy]; }
+      }
+      if (ps) {
+        const [sx, sy] = ps, fl = { '-1,-1': '↖', '0,-1': '↑', '1,-1': '↗', '-1,0': '←', '1,0': '→', '-1,1': '↙', '0,1': '↓', '1,1': '↘' }[Math.sign(x - sx) + ',' + Math.sign(y - sy)] || '↑';   // (la flèche montre l'arbre)
+        DW.MapKit.changerLignes(m, m.rows.map((r, yy) => (yy === sy ? r.slice(0, sx) + 'S' + r.slice(sx + 1) : r)));
+        m.signs[`${sx},${sy}`] = `« VILLAGE DES POYOMON ${fl} » — la flèche gravée montre le vieil arbre creux. Parle à l'arbre pour te faufiler dans son tronc.`;
       }
       m._yokoFor = m.rows;
       if (m.gfx) DW.World.unprepare(m);

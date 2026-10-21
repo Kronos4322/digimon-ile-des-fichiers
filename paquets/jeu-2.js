@@ -1861,7 +1861,7 @@
         f.kuwagamon && !f.shellmon && { boss: true, say: f.shellLair ? "Sous les cabines de la plage, le sable s'est ouvert. Tout au fond, un énorme coquillage, Shellmon, retient un enfant prisonnier ! Prends des RAM PV, c'est un Champion redoutable." : "Les cabines téléphoniques de la plage murmurent chacune un mot... Mises dans le bon ordre, elles forment un appel au secours. Un gros Digimon, Shellmon, se cache dessous !" },
         f.shellmon && !f.whamon && { boss: true, say: "Les pêcheurs de la Crique du Radeau ne sortent plus en mer... Au large, un jet d'eau gigantesque jaillit, et les vagues se soulèvent toutes seules, comme si quelque chose d'énorme se débattait sous la surface. Le vieux radeau de la crique pourrait t'y mener... si tu es prêt. Ce qui se cache là-dessous est bien plus fort que Shellmon." },
         // après Kuwagamon : le passage secret vers le Village des Yokomon (maps/yokomon.js)
-        f.kuwagamon && !(st().visited || {}).village_yokomon && { boss: true, say: "Au nord-est de la Prairie des Lucioles, contre les arbres, il y a un tronc creux couché, avec un petit panneau. On entend des petites voix de l'autre côté... Parle au tronc pour t'y faufiler !" },
+        f.kuwagamon && !(st().visited || {}).village_yokomon && { boss: true, say: "Au nord-est de la Prairie des Lucioles, au bord du chemin, il y a un vieil arbre au tronc creux, avec un panneau. On entend des petites voix tout au fond... Parle à l'arbre pour te faufiler dedans !" },
         // chapitre 2 (game/chapitre2.js)
         (f.chapter || 1) >= 2 && !f.monoCh2 && { boss: true, say: "Sur la Rive Sud du grand lac, au nord de la Clairière, deux Monochromon se disputent le chemin à grands coups de cornes ! Leur carapace est dure comme le diamant... mais l'eau la traverse sans peine !" },
         (f.chapter || 1) >= 2 && f.monoCh2 && !f.seadramon && st().hero === 'perso' && { boss: true, say: "Au Lac du Tramway, une île porte un vieux tramway. La nuit (20 h - 5 h), on y entend un harmonica... Un garçon blond y campe avec un Digimon à fourrure. Mais méfie-toi de la grande feuille rouge, sur la rive de l'île !" },
@@ -3268,7 +3268,8 @@
 //    tatami bleu de garde (est)  : A mur de pierre (Défense), râtelier à boucliers, mannequin de bois
 //    dalle violette (sud-ouest)  : Ψ cristal de données (PM)
 //    jardin zen (sud-est) ; l'Intelligence s'apprend à l'école (maps/classe.js), les résistances au Gymnase (maps/gymnase.js)
-//  Chaque poste a son panneau à pictogramme juste à sa gauche. Appareils : images du joueur (dossier SPORT : gfx/textures.js).
+//  Un panneau à pictogramme par stat, juste à gauche de son appareil (pas de panneaux en double : règle du joueur) ; les
+//  autres appareils se lancent en leur parlant. Appareils : images du joueur (dossier SPORT : gfx/textures.js).
 //  + allées pavées, torches, panneau
 // =====================================================================
 (function () {
@@ -3404,11 +3405,14 @@
       { kind: 'traineau', x: 7, y: 13, w: 1, h: 1, small: true }, { kind: 'punchbag', x: 7, y: 15, w: 1, h: 1, small: true },
       { kind: 'pneus', x: 20, y: 8, w: 1, h: 1, small: true },
       { kind: 'shieldrack', x: 25, y: 11, w: 1, h: 1, small: true }, { kind: 'mannequinbois', x: 27, y: 11, w: 1, h: 1, small: true },
-      // panneaux à pictogramme, chacun juste à gauche de son poste (w: 2 : solide sur toute sa largeur ; eq : son appareil)
-      { kind: 'stationsign', v: 0, x: 4, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 4, y: 11, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 0, eq: 'traineau', x: 4, y: 13, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 6, eq: 'punchbag', x: 4, y: 15, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 3, x: 8, y: 12, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 3, x: 23, y: 12, w: 2, h: 1, small: true },
-      { kind: 'stationsign', v: 3, eq: 'pneus', x: 18, y: 8, w: 2, h: 1, small: true },
+      // panneaux à pictogramme : UN SEUL par pictogramme (règle du joueur : « les panneaux en double, tu supprimes »), chacun
+      // juste à gauche de son appareil (plan agrandi : le panneau en x 11-12, l'appareil dessiné à partir de x 13) ;
+      // w: 2 : solide sur toute sa largeur ; eq : son appareil. Le traîneau, les pneus et la seconde haie n'ont pas de
+      // panneau (cœur et chevrons en double) : on leur parle directement (game/overworld.js, trainSpot)
+      { kind: 'stationsign', v: 0, x: 5, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 1, x: 5, y: 11, w: 2, h: 1, small: true },
+      { kind: 'stationsign', v: 6, eq: 'punchbag', x: 5, y: 15, w: 2, h: 1, small: true },
+      // (la haie de la piste : celle que l'atelier des cartes a posée en 22, 24 du plan agrandi ; le panneau en 19-20)
+      { kind: 'stationsign', v: 3, x: 9, y: 12, w: 2, h: 1, small: true },
       { kind: 'stationsign', v: 2, x: 25, y: 9, w: 2, h: 1, small: true }, { kind: 'stationsign', v: 5, x: 8, y: 16, w: 2, h: 1, small: true },
       // jardin zen : lanterne, rochers, le gros rocher peint de signes rouges
       { kind: 'stonelantern', x: 26, y: 16, w: 1, h: 1, small: true }, { kind: 'kanjirock', x: 23, y: 16, w: 2, h: 1 },
@@ -3418,7 +3422,7 @@
       { kind: 'bunting', v: 6, x: 13, y: 4, w: 6, h: 1, top: true, oy: -14 },
     ],
     warps: [{ x: 15, y: 0, w: 2, h: 1, dir: 'up', to: 'village', tx: 19, ty: 29 }],
-    doors: [{ x: 22, y: 4, w: 2, dir: 'up', to: 'classe', tx: 7, ty: 10 },
+    doors: [{ x: 22, y: 4, w: 2, dir: 'up', to: 'classe', tx: 8, ty: 11 },   // (devant la porte de la salle de classe : maps/classe.js)
       { x: 8, y: 4, w: 2, dir: 'up', to: 'gymnase', tx: 8, ty: 10, cond: () => !!(DW.Gymnase && DW.Gymnase.open()) }],
     signs: {
       '14,6': async () => {
@@ -3436,6 +3440,18 @@
     },
   };
   DW.MapKit.zoomMap(DW.MAPS.gym, 'gym');   // plan agrandi ×2 (maps/common.js)
+  // (agrandi, le bloc de 2 × 2 cases d'un appareil de la grille se complète avec la terre de son sol, « = » comme un chemin ;
+  //  or un décor ne s'élargit jamais sur un chemin (gfx/terrain.js) : on traversait le rocher et le mur de pierre par le
+  //  côté. Le sol des aires est peint (paintGround) : ces cases redeviennent de l'herbe, et l'appareil bloque sur toute
+  //  la largeur de son dessin)
+  {
+    const g = DW.MAPS.gym.rows.map(r => [...r]);
+    for (let y = 0; y < g.length; y++) for (let x = 0; x < g[y].length; x++) {
+      if (!DW.World.info(g[y][x]).train) continue;
+      for (const [dx, dy] of [[1, 0], [0, 1], [1, 1]]) if (g[y + dy] && g[y + dy][x + dx] === '=') g[y + dy][x + dx] = '.';
+    }
+    DW.MAPS.gym.rows = g.map(r => r.join(''));
+  }
 })();
 ;
 
@@ -4644,30 +4660,40 @@
 // =====================================================================
 (function () {
   const say = (t, s) => DW.say(t, s);
-  const room = DW.Palais.room('classe', 'village', { name: "Salle de classe", w: 16, h: 12, music: 'village',
+  // SALLE RANGÉE (règle du joueur : aucun meuble ne dépasse du mur ni de la pièce, aucun ne chevauche un autre) : 18 × 13
+  // cases, sol de x 1 à 16 et de y 3 à 11 (une pièce ne pose rien plus bas que y 10 : maps/palais.js), mur du fond en
+  // y 1-2. Chaque meuble a l'emprise de son dessin (w), donc il bloque sur toute sa largeur. Mesures des dessins (pixels
+  // du jeu, 16 par case) : tableau de mémoire et longue-vue 56 de haut (posés sur le sol devant le mur, en y 4 et plus : en
+  // y 3, contre le mur, ils dépassaient au-dessus), bibliothèques 47 de haut contre le mur (y 3), horloge 40.
+  const room = DW.Palais.room('classe', 'village', { name: "Salle de classe", w: 18, h: 13, music: 'village',
     floor: { type: 'herring', cols: ['#d8b070', '#b88e52', '#7a5a34'] }, wall: { base: '#f0e6c8', alt: '#e0d4b0', pattern: 'stripes', wood: '#8a5a32' },
     objects: [
-      { kind: 'tableau', x: 6, y: 1, w: 3, h: 2, back: true },
-      { kind: 'stationsign', v: 4, x: 7, y: 4, w: 2, h: 1, small: true },   // (w: 2 : solide sur toute sa largeur)
-      // (contre le mur du fond : les bibliothèques, l'horloge debout, le tableau de mémoire entre la bibliothèque et le tableau)
-      { kind: 'bookshelf', v: 0, x: 1, y: 2, w: 2, h: 1 }, { kind: 'bookshelf', v: 1, x: 13, y: 2, w: 2, h: 1 },
-      ...[[3, 6], [6, 6], [9, 6], [12, 6], [3, 8], [6, 8], [9, 8], [12, 8]].map(([x, y], i) => ({ kind: 'pupitre', v: i % 2, x, y, w: 1, h: 1, small: true })),
-      { kind: 'bigplant', x: 14, y: 9, w: 1, h: 1, small: true }, { kind: 'clock', x: 11, y: 2, w: 1, h: 1 },
-      // matériel d'étude (images du joueur, dossier SPORT) : tableau de mémoire, longue-vue, blocs de formes
-      { kind: 'tableaumemoire', x: 4, y: 2, w: 1, h: 1, small: true }, { kind: 'telescope', x: 14, y: 6, w: 1, h: 1, small: true }, { kind: 'formes', x: 1, y: 7, w: 1, h: 1, small: true },
+      // au mur du fond : le tableau au milieu (dans l'axe de la porte), les bibliothèques aux deux coins, l'horloge debout
+      { kind: 'tableau', x: 7, y: 1, w: 4, h: 2, back: true },
+      { kind: 'bookshelf', v: 0, x: 1, y: 3, w: 2, h: 1 }, { kind: 'bookshelf', v: 1, x: 15, y: 3, w: 2, h: 1 },
+      { kind: 'clock', x: 12, y: 3, w: 1, h: 1 },
+      // le poste « Étude » (panneau à l'œil) devant le tableau, une rangée plus bas que lui (sinon son cadre mordait sur le
+      // rebord du tableau)
+      { kind: 'stationsign', v: 4, x: 8, y: 5, w: 2, h: 1, small: true },
+      // deux rangées de quatre pupitres, une allée au milieu (de la porte au tableau)
+      ...[[4, 7], [6, 7], [11, 7], [13, 7], [4, 9], [6, 9], [11, 9], [13, 9]].map(([x, y], i) => ({ kind: 'pupitre', v: i % 2, x, y, w: 1, h: 1, small: true })),
+      // matériel d'étude (images du joueur, dossier SPORT) : le tableau de mémoire entre la bibliothèque et le tableau, les
+      // blocs de formes et la longue-vue le long des côtés (entre les pupitres et le bord), la grande plante dans un coin
+      { kind: 'tableaumemoire', x: 3, y: 4, w: 3, h: 1, small: true },
+      { kind: 'formes', x: 1, y: 8, w: 3, h: 1, small: true }, { kind: 'telescope', x: 14, y: 8, w: 3, h: 1, small: true },
+      { kind: 'bigplant', x: 15, y: 10, w: 2, h: 1, small: true },
     ] });
   room.calm = true;
   // le poste d'Intelligence de la salle s'appelle « Étude » (et non « Méditation », le nom de la stat : game/training.js, poste)
   room.postes = { int: { nom: 'Étude', desc: 'Étudier la leçon du tableau : bien se concentrer, et tout retenir.' } };
-  DW.Palais.entrance('classe');
+  DW.Palais.entrance('classe');   // (la porte : x 8-9, en bas ; le Terrain d'entraînement y arrive en 8, 11 : maps/gym.js)
   for (const w of room.warps) if (w.to === '?') Object.assign(w, { to: 'gym', tx: 22, ty: 5 });
-  // (textes posés sur la vraie place des objets : une pièce ne pose rien au-dessus de sa 3e rangée, maps/palais.js — le
-  //  tableau de mémoire, prévu en y 2, est en y 3, et son texte en 3,2 tombait dans le mur, illisible)
-  const sur = kind => { const o = room.objects.find(q => q.kind === kind); return o ? o.x + ',' + o.y : null; };
-  room.signs[sur('tableaumemoire')] = "Un tableau de mémoire : des symboles à retenir, puis à retrouver. Ça muscle l'esprit !";
-  room.signs[sur('telescope')] = 'Une longue-vue tournée vers la fenêtre. Observer le ciel et compter les étoiles, voilà une bonne leçon.';
-  room.signs[sur('formes')] = 'Des blocs de formes à ranger dans leurs trous : rond, triangle, carré. Les Bébés adorent.';
-  room.signs['6,2'] = room.signs['7,2'] = room.signs['8,2'] = "Au tableau : « Leçon du jour — Plus un Digimon étudie, plus il retient de techniques. Chaque élément a les siennes ! »";
+  // textes posés sur chaque case de l'objet (on peut lui parler de n'importe quel côté)
+  const texte = (kind, t) => { const o = room.objects.find(q => q.kind === kind); if (o) for (let x = o.x; x < o.x + o.w; x++) room.signs[x + ',' + o.y] = t; };
+  texte('tableaumemoire', "Un tableau de mémoire : des symboles à retenir, puis à retrouver. Ça muscle l'esprit !");
+  texte('telescope', 'Une longue-vue tournée vers la fenêtre. Observer le ciel et compter les étoiles, voilà une bonne leçon.');
+  texte('formes', 'Des blocs de formes à ranger dans leurs trous : rond, triangle, carré. Les Bébés adorent.');
+  for (let x = 7; x <= 10; x++) room.signs[x + ',2'] = "Au tableau : « Leçon du jour — Plus un Digimon étudie, plus il retient de techniques. Chaque élément a les siennes ! »";
 
   // ------------------------------------------------------------ apprendre une technique en étudiant
   const Classe = DW.Classe = {
@@ -7723,7 +7749,7 @@
 // =====================================================================
 //  VILLAGE DES POYOMON — un hameau caché dans la forêt (le Village des Yokomon de l'animé est au Mont Miharashi,
 //  chapitre 3 : maps/miharashi.js)
-//  On y entre en se faufilant dans un tronc creux, au bord de la Prairie des Lucioles.
+//  On y entre en se faufilant dans le tronc d'un vieil arbre creux, au bord de la Prairie des Lucioles.
 //  Les Poyomon vivent dans des nids et de petites maisons autour d'un vieux puits... à sec. Quête : rapporter 3 bouteilles
 //  d'eau (Eau fraîche ou Eau de source). Récompense : cartes Digimon, Pomme bleue, et un puits qui
 //  désaltère gratuitement ensuite. Les Poyomon parlent aussi de la menace de la forêt.
@@ -7746,7 +7772,7 @@
   });
   MAPS.village_yokomon = {
     name: 'Village des Poyomon', music: 'forest', bg: 'foret', ambient: 'forest', theme: 'meadow', climate: 'forest', region: 'foret', textures: 'bebe',
-    rows, encounters: [], wildN: 0, dress: false, secretEntry: true,   // (on y entre par le tronc creux de la Prairie : pas de passage normal)
+    rows, encounters: [], wildN: 0, dress: false, secretEntry: true,   // (on y entre par l'arbre creux de la Prairie : pas de passage normal)
     objects: [
       { kind: 'well', x: 17, y: 11, w: 1, h: 1 },
       { kind: 'giantnest', x: 6, y: 7, w: 3, h: 1 }, { kind: 'giantnest', x: 9, y: 15, w: 3, h: 1 }, { kind: 'giantnest', x: 23, y: 14, w: 3, h: 1 },
@@ -7775,12 +7801,12 @@
     ],
     npcs: [],
     signs: {
-      '20,17': '« VILLAGE DES POYOMON » — ↓ Prairie des Lucioles (par le tronc creux). Une petite main a dessiné des gouttes d\'eau tout autour.',
+      '20,17': '« VILLAGE DES POYOMON » — ↓ Prairie des Lucioles (par le vieil arbre creux). Une petite main a dessiné des gouttes d\'eau tout autour.',
       '8,13': () => say(st().flags.yokoWell ? 'Le tableau du village : « LE PUITS CHANTE DE NOUVEAU ! Merci à l\'humain et à son Digimon ! Grande fête ce soir autour du puits. »'
         : 'Le tableau du village : « Puits à sec... Qui pourra nous rapporter de l\'eau ? Demandez à la doyenne, près du puits. »'),
       '9,13': () => MAPS.village_yokomon.signs['8,13'](),
     },
-    // (l'arrivée est réglée sur le tronc creux à la première visite ; en attendant, près de l'entrée de la Prairie)
+    // (l'arrivée est réglée sur l'arbre creux à la première visite ; en attendant, près de l'entrée de la Prairie)
     warps: [(() => {
       // arrivée par défaut : là où l'on arrive dans la Prairie depuis une autre carte (une case sûre)
       // (recopiée d'une sortie peut-être déjà convertie à la taille de la Prairie agrandie : son marqueur _zt suit)
@@ -7789,7 +7815,7 @@
     })()],
     entry: { x: 17, y: H - 2 },
     populate() {
-      // la sortie ramène toujours devant le tronc creux de la Prairie (même après un chargement de partie ici)
+      // la sortie ramène toujours devant l'arbre creux de la Prairie (même après un chargement de partie ici)
       const pm = DW.getMap('prairie'); DW.YokoVillage.place(pm, 'prairie');
       const log = (pm.objects || []).find(o => o.yoko); if (log) Object.assign(this.warps[0], { tx: log.x, ty: log.y + 1, _zt: true });   // (déjà en coordonnées de la carte agrandie)
       const done = !!st().flags.yokoWell;
@@ -7853,47 +7879,83 @@
     DW.autosave();
   }
 
-  // ------------------------------------------------------------ l'entrée : un tronc creux au bord de la Prairie des Lucioles
-  // (placé à la première visite contre la lisière d'arbres, loin des sorties ; on s'y faufile en lui parlant)
+  // ------------------------------------------------------------ l'entrée : un vieil arbre creux au bord de la Prairie des Lucioles
+  // (placé à la première visite, au bord du chemin, loin des sorties ; on se faufile dans son tronc en lui parlant)
+  // Remarques du joueur : le panneau était collé aux troncs de la lisière, mal placé, et le « tronc creux » (une petite
+  // bûche couchée, plus petite que le héros) pas assez gros. Désormais : un grand chêne au tronc creusé (gfx/chapitre1.js,
+  // arbrecreux), seul au bord du chemin, au nord-est, et son panneau AU BORD DU CHEMIN ; ni l'un ni l'autre sous le
+  // feuillage des arbres (un arbre, 3 fois le héros, cache 5 à 7 rangées au-dessus de son pied : la lisière du bas de la
+  // prairie couvrait tout le chemin de l'est, et le tronc d'avant)
+  const FEUILLAGE = new Set(['T', '#', 'Y', 'p', 'h', '|']), GRANDS = new Set(['tree', 'oak', 'birch', 'bigtree', 'pine', 'palm', 'cocotier', 'candytree', 'deadtree', 'arbrecreux']);
   DW.YokoVillage = {
     place(m, id) {
       if (id !== 'prairie' || m._yokoFor === m.rows) return;
       m._yokoFor = m.rows;
-      const H2 = m.rows.length, W2 = m.rows[0].length, solid = ch => DW.SOLID.has(ch);
+      const H2 = m.rows.length, W2 = m.rows[0].length, solid = ch => DW.SOLID.has(ch), at = (x, y) => (m.rows[y] || '')[x];
       const occ = new Set(); for (const o of m.objects || []) if (!o.walk) for (let y = o.y; y < o.y + (o.h || 1); y++) for (let x = o.x; x < o.x + (o.w || 1); x++) occ.add(x + ',' + y);
       const near = (x, y) => [...(m.warps || [])].some(w => Math.abs(w.x - x) < 8 && Math.abs(w.y - y) < 8);
-      // (seulement là où l'on peut aller : les cases reliées aux sorties de la carte ; sinon le tronc pouvait tomber
+      // (seulement là où l'on peut aller : les cases reliées aux sorties de la carte ; sinon l'entrée pouvait tomber
       //  dans une clairière fermée par les arbres, impossible à atteindre)
-      const libre = (x, y) => m.rows[y] && m.rows[y][x] !== undefined && !solid(m.rows[y][x]) && !occ.has(x + ',' + y);
+      const libre = (x, y) => at(x, y) !== undefined && !solid(at(x, y)) && !occ.has(x + ',' + y);
       const vu = new Set(), file = [];
       for (const w of m.warps || []) for (let y = w.y; y < w.y + (w.h || 1); y++) for (let x = w.x; x < w.x + (w.w || 1); x++) if (libre(x, y) && !vu.has(x + ',' + y)) { vu.add(x + ',' + y); file.push([x, y]); }
       while (file.length) {
         const [x, y] = file.pop();
         for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, k = nx + ',' + ny; if (!vu.has(k) && libre(nx, ny)) { vu.add(k); file.push([nx, ny]); } }
       }
-      let best = null, bs = 2;
-      for (let y = 4; y < H2 - 4; y++) for (let x = 4; x < W2 - 4; x++) {
-        if (!solid(m.rows[y - 1][x]) || solid(m.rows[y][x]) || occ.has(x + ',' + y) || near(x, y)) continue;
-        if (solid(m.rows[y + 1][x]) || solid(m.rows[y + 2][x]) || occ.has(x + ',' + (y + 1)) || !vu.has(x + ',' + (y + 1))) continue;
-        const sc = Hh(x, y, 4242); if (sc < bs) { bs = sc; best = [x, y]; }
+      // case cachée par le feuillage d'un grand arbre planté dans les 7 rangées du dessous, à 2 colonnes près (case ou objet)
+      const grands = new Set(); for (const o of m.objects || []) if (GRANDS.has(o.kind)) grands.add(o.x + ',' + (o.y + (o.h || 1) - 1));
+      const cache = (x, y) => { for (let yy = y + 1; yy <= y + 7; yy++) for (let xx = x - 2; xx <= x + 2; xx++) if (FEUILLAGE.has(at(xx, yy)) || grands.has(xx + ',' + yy)) return true; return false; };
+      // distance de marche jusqu'au chemin VISIBLE le plus proche (cases « = » hors du feuillage), depuis chaque case
+      const dist = new Map(), q = [];
+      for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) if (at(x, y) === '=' && vu.has(x + ',' + y) && !cache(x, y)) { dist.set(x + ',' + y, 0); q.push([x, y]); }
+      for (let i = 0; i < q.length; i++) {
+        const [x, y] = q[i], d = dist.get(x + ',' + y); if (d >= 6) continue;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const k = (x + dx) + ',' + (y + dy); if (!dist.has(k) && vu.has(k)) { dist.set(k, d + 1); q.push([x + dx, y + dy]); } }
+      }
+      // l'arbre : devant lui deux cases libres et accessibles, lui et elles visibles, rien d'important sous sa couronne
+      // (personnage, panneau, sortie : 3 cases de part et d'autre, 7 rangées au-dessus) ; de préférence au nord-est (les
+      // conseils de la ville l'y situent : maps/village.js), le plus près du chemin, en terrain dégagé
+      const dessous = new Set([...Object.keys(m.signs || {}), ...(m.npcs || []).map(n => n.x + ',' + n.y)]);
+      for (const w of m.warps || []) for (let yy = w.y; yy < w.y + (w.h || 1); yy++) for (let xx = w.x; xx < w.x + (w.w || 1); xx++) dessous.add(xx + ',' + yy);
+      let best = null, bs = Infinity;
+      for (let y = 8; y < H2 - 4; y++) for (let x = 4; x < W2 - 4; x++) {
+        if (solid(at(x, y)) || occ.has(x + ',' + y) || near(x, y) || at(x, y) === '=' || at(x, y + 1) === '=') continue;   // (pas sur le chemin lui-même)
+        if (solid(at(x, y + 1)) || solid(at(x, y + 2)) || occ.has(x + ',' + (y + 1)) || !vu.has(x + ',' + (y + 1))) continue;
+        let gene = false, feuilles = 0, autour = 0;
+        for (let yy = y - 7; yy < y; yy++) for (let xx = x - 3; xx <= x + 3; xx++) { if (dessous.has(xx + ',' + yy)) gene = true; if (FEUILLAGE.has(at(xx, yy))) feuilles++; }
+        if (gene) continue;
+        // (rien de collé à son tronc : une fleur géante ou un buisson devant lui cachait l'entrée)
+        for (let yy = y - 2; yy <= y + 1; yy++) for (let xx = x - 2; xx <= x + 2; xx++) if ((xx !== x || yy !== y) && (DW.World.info(at(xx, yy)).obj || occ.has(xx + ',' + yy))) autour++;
+        const vis = !cache(x, y) && !cache(x, y + 1), d = dist.get(x + ',' + (y + 1));
+        const sc = (vis ? 0 : 1000) + (d == null ? 100 : d * 10) + (x >= W2 / 2 && y < H2 / 2 ? 0 : 50) + feuilles + autour * 8 + Hh(x, y, 4242);
+        if (sc < bs) { bs = sc; best = [x, y]; }
       }
       if (!best) return;
       const [x, y] = best;
-      m.objects.push({ kind: 'hollowlog', v: 0, x, y, w: 1, h: 1, small: true, yoko: true });
+      m.objects.push({ kind: 'arbrecreux', v: 0, x, y, w: 1, h: 1, yoko: true });
+      occ.add(x + ',' + y); grands.add(x + ',' + y);   // (son propre feuillage cache aussi le dessus)
       m.signs = m.signs || {};
       m.signs[`${x},${y}`] = async ow => {
-        if ((await DW.ask(st().flags.yokoQuest ? 'Le tronc creux qui mène au village des Poyomon. Se faufiler dedans ?' : "Un tronc creux couché contre les arbres... On entend des petites voix de l'autre côté. Se faufiler dedans ?")) !== 0) return;
+        if ((await DW.ask(st().flags.yokoQuest ? "Le vieil arbre creux qui mène au village des Poyomon. Se faufiler dans son tronc ?" : "Un vieil arbre au tronc creux... On entend des petites voix tout au fond. Se faufiler dedans ?")) !== 0) return;
         DW.Audio.sfx('swoosh'); await DW.fade(1, 0.4);
         MAPS.village_yokomon.warps[0].tx = x; MAPS.village_yokomon.warps[0].ty = y + 1;
         await ow.charger('village_yokomon', 17, H - 2, 'up'); await DW.fade(0, 0.4);
       };
-      // un petit panneau à côté du tronc (sinon on passait devant sans le voir)
-      for (const sx of [x + 1, x - 1, x + 2, x - 2]) {
-        const ch = m.rows[y][sx];
-        if (!ch || solid(ch) || occ.has(sx + ',' + y) || solid(m.rows[y + 1][sx])) continue;
-        DW.MapKit.changerLignes(m, m.rows.map((r, yy) => (yy === y ? r.slice(0, sx) + 'S' + r.slice(sx + 1) : r)));
-        m.signs[`${sx},${y}`] = '« VILLAGE DES POYOMON » — une flèche gravée montre le tronc creux juste à côté. Parle au tronc pour t\'y faufiler.';
-        break;
+      // son panneau, au bord du chemin (sinon on passait devant sans le voir) : une case libre, accessible et visible, à côté
+      // d'une case de chemin (sans être dessus), tout près de l'arbre, jamais devant lui ni collé à son tronc (deux cases
+      // d'écart : le panneau, large de deux cases, mordait sur le tronc) ; sinon près de l'arbre
+      let ps = null, pb = Infinity;
+      for (let yy = y - 1; yy <= y + 4; yy++) for (let xx = x - 5; xx <= x + 5; xx++) {
+        if (!libre(xx, yy) || !vu.has(xx + ',' + yy) || cache(xx, yy) || Math.abs(xx - x) < 2 || at(xx, yy) === '=') continue;
+        const bord = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => at(xx + dx, yy + dy) === '=');
+        const sc = (bord ? 0 : 100) + Math.abs(xx - x) + Math.abs(yy - y) * 1.5 + (yy < y ? 20 : 0);
+        if (sc < pb) { pb = sc; ps = [xx, yy]; }
+      }
+      if (ps) {
+        const [sx, sy] = ps, fl = { '-1,-1': '↖', '0,-1': '↑', '1,-1': '↗', '-1,0': '←', '1,0': '→', '-1,1': '↙', '0,1': '↓', '1,1': '↘' }[Math.sign(x - sx) + ',' + Math.sign(y - sy)] || '↑';   // (la flèche montre l'arbre)
+        DW.MapKit.changerLignes(m, m.rows.map((r, yy) => (yy === sy ? r.slice(0, sx) + 'S' + r.slice(sx + 1) : r)));
+        m.signs[`${sx},${sy}`] = `« VILLAGE DES POYOMON ${fl} » — la flèche gravée montre le vieil arbre creux. Parle à l'arbre pour te faufiler dans son tronc.`;
       }
       m._yokoFor = m.rows;
       if (m.gfx) DW.World.unprepare(m);
