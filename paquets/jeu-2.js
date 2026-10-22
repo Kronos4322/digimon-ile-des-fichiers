@@ -1736,7 +1736,7 @@
   }
   // premier échange : la visite guidée (game/chapitre1.js) ; ensuite, des conseils
   // passants (espèce, position d'origine) et leurs bavardages
-  const PASSERS = [['tokomon', 15, 12], ['tsunomon', 24, 16], ['agumon', 10, 14], ['gabumon', 29, 15], ['tentomon', 19, 21], ['patamon', 8, 18], ['bukamon', 31, 11], ['pagumon', 22, 23]];
+  const PASSERS = [['tokomon', 15, 12], ['tsunomon', 24, 16], ['agumon', 10, 14], ['gabumon', 29, 15], ['tentomon', 19, 21], ['patamon', 8, 18], ['bukamon', 31, 11]];   // (pagumon retiré : espèce absente du jeu, jamais affichée)
   async function passerTalk(sp) {
     const name = DW.SPECIES[sp].name, lv = T().level();
     const lines = lv < 4 ? ["La ville renaît peu à peu... C'est grâce à toi !", "Avant, il n'y avait que des ruines ici. Regarde maintenant !", "J'ai entendu dire que d'autres Digimon allaient revenir s'installer."]

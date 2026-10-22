@@ -49,7 +49,7 @@
     'engine/art.js': '2890e257',
     'ui/widgets.js': 'f4b99472',
     'ui/dialog.js': '337e232b',
-    'data/versions_images.js': 'dd040800',
+    'data/versions_images.js': '67c5a153',
     'data/types.js': '1b5d67d8',
     'data/moves.js': '179a8cef',
     'data/species.js': 'b840ee5a',
@@ -141,7 +141,7 @@
     'game/fxelem.js': 'e4da1d3e',
     'game/battle.js': '2d6c4618',
     'game/evolution.js': 'c99ac76a',
-    'game/overworld.js': '9a4cc5be',
+    'game/overworld.js': '566f2c5d',
     'ui/menus.js': '66bf84e7',
     'ui/sac.js': '4052cee2',
     'ui/boutique.js': '58809e49',
@@ -165,7 +165,7 @@
     'maps/foret.js': 'ef7e59a4',
     'maps/plage.js': 'a8c05d3b',
     'maps/rivage.js': '43b641ee',
-    'maps/village.js': '36d7d5e1',
+    'maps/village.js': 'ad46a7d2',
     'maps/joueur.js': '760d89cb',
     'maps/maison.js': '016e011f',
     'maps/interieurs.js': '83bfcda2',
@@ -208,9 +208,9 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '080f6869' },
+    { f: '../paquets/jeu-1.js', v: '6c487c1e' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: '1f19ea96' },
+    { f: '../paquets/jeu-2.js', v: '4ce14e2b' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

@@ -2,8 +2,11 @@
 
 Jeu de fan non officiel inspiré de la saison 1 de Digimon Adventure, dans l'esprit de **Digimon World 1**
 (élevage, ville à reconstruire) et de **Digimon World 2003** (décors denses, menus), avec des combats **au tour par
-tour** façon Pokémon. Aucune image officielle n'est utilisée : les décors et une partie des Digimon sont les images du
-créateur (`assets/*/jeu/`) ; les autres Digimon, le héros et les effets sont dessinés par le code.
+tour** façon Pokémon. Aucune image officielle n'est copiée : les décors et les Digimon (bébés, Disciples, Champions...)
+sont les images du créateur, peintes avec un outil de génération d'images (`assets/*/jeu/`, originaux dans
+`assets/ASSETS - Digimon`, jamais publiés) ; les autres Digimon, le héros et les effets sont dessinés par le code ; le
+titre est dessiné par le jeu (police Press Start 2P, licence OFL). Digimon, ses personnages et ses designs sont
+© Bandai / Toei Animation ; ce projet n'est ni affilié ni approuvé.
 
 ## Jouer
 - **Sur PC : double-cliquer sur `JOUER.bat`** (à la racine du dossier). Le jeu en ligne s'ouvre dans sa propre fenêtre,
@@ -57,7 +60,8 @@ l'écran titre (lien avec un fichier sur l'ordinateur, export / import sur tél�
 - **Monde vivant** : calendrier et saisons, température, orages, tempêtes, canicules, sécheresses ; échanges avec le décor
   (secouer les arbres avec un bâton, fouiller avec une pelle, s'asseoir, boire...).
 - **Carte du monde** : un grand plan qui se découvre petit à petit.
-- 79 espèces, 166 techniques, 153 objets.
+- 81 espèces (79 au DigiDex), 132 Digivolutions, 166 techniques, 153 objets, 351 cartes (inventaire complet :
+  [docs/audit/MATRICE_CONTENUS.md](docs/audit/MATRICE_CONTENUS.md)).
 
 ## Développement
 Jeu 100 % HTML5 / JavaScript, **sans outil de compilation**. Tout est décrit dans
@@ -78,9 +82,13 @@ Digimon, une attaque, une zone...), les règles de performance et de publication
 - **Tester** : `node dev/tests.js` (logique du jeu sans navigateur : sauvegarde, migrations, combat, drapeaux, chapitres,
   géographie du monde, liste des scripts, empreintes, fins de ligne... ; `SEUL=texte` pour quelques tests) ;
   `dev/check.html` avec le serveur local (toutes les cartes et l'arbre des Digivolutions ; `?seul=carte1,carte2`) ;
-  `dev/gallery.html` (sprites : `?sp=agumon,greymon`, `?hero`, `?icons`).
+  `dev/gallery.html` (sprites : `?sp=agumon,greymon`, `?hero`, `?icons`) ; dans un vrai Chrome : `node dev/e2e/parcours.js`
+  (une partie jouée au clavier, de l'écran titre à la reprise après rechargement ; `URL=<adresse>` pour le site en ligne)
+  et `node dev/e2e/ecrans.js` (6 formats d'écran) — `npm install` dans `dev/e2e` la première fois. Les tests sont
+  relancés par GitHub à chaque envoi (`.github/workflows/tests.yml`). Plan complet : `docs/audit/PLAN_DE_TESTS.md`.
 - **Publier** : `python dev/versions.py`, `node dev/tests.js`, commit, `python dev/versions.py --verifier`, puis
-  `git push` (GitHub Pages republie le site en une minute environ).
+  `git push` (GitHub Pages republie le site en une minute environ) ; liste complète : `docs/audit/RELEASE_CHECKLIST.md`,
+  journal des versions : `CHANGELOG.md`.
 - **Atelier des cartes** (`dev/editeur/`, seulement sur le PC du créateur, lancé par `dev/editeur/LANCER_ATELIER.bat`) :
   il montre chaque carte comme le jeu ; ses retouches sont écrites dans `js/maps/retouches_donnees.js`, vérifiées
   (« Faire valider ») avant la mise en ligne.

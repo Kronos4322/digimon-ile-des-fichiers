@@ -445,6 +445,214 @@ def morceau(f, k):
     return c.crop(box) if box else c
 
 
+# ---------------------------------------------------------------- DÉTOURAGE NET (audit graphique du 22/10, T1)
+# L'ancienne règle de fond (g > 150 et g - max(r, b) > 70) prend aussi les VERTS DU DESSIN : herbe, feuillage, trèfles,
+# auvents rayés... (jusqu'à 39 % d'un objet effacés). Ici, le fond n'est que la clé de la planche (≈ 2, 250, 4, mesurée sur
+# son tour), reliée au bord ; les zones de clé enfermées dans l'objet (entre deux poteaux) deviennent transparentes ; le
+# contour (4 px) est « démêlé » de la clé (opacité d'après l'excès de vert, couleur ramenée à la teinte de l'intérieur).
+# Chaque objet garde les pixels que lui donnait l'ancien découpage, plus ceux retrouvés de son côté.
+# Seulement pour les objets de DETOURAGE_NET, regardés un à un avant/après : les objets à LUEURS peintes sur le vert
+# (ankh lumineux, bobine de foudre, portail du désert, balise, téléporteur, cristal, tour-antenne) gardent l'ancien
+# détourage (leurs lueurs devenaient des plaques vert citron), comme l'arbuste sec et l'arbre mort (points de clé entre
+# les brindilles), les rochers de la plage (liseré vert autour du sable) et les herbes à brins fins — sèches, rousses,
+# hautes — (la clé prise entre les brins devenait des taches vert citron).
+CLE = (2, 250, 4)
+FOND_DIST, PUR_DIST = 60, 30
+DETOURAGE_NET = {
+    'commun/' + n for n in ('ext_jardiniere_verte', 'ext_jardiniere_blanche', 'ext_etal_fruits', 'sport_portail_vent', 'sport_vit_slalom',
+                            'plage_herbe_dune', 'plage_palmier')
+} | {
+    'bebe/' + n for n in ('trefles', 'tape_cul', 'trampoline', 'buisson_fleurs', 'pas_japonais', 'jeu_ressort', 'dome_grimpe', 'moulinets', 'haie',
+                          'tunnel', 'tourniquet', 'fontaine_bulles', 'balancoire', 'toboggan', 'fanions', 'maison_nid', 'lampadaire',
+                          'barriere_fleurs', 'bac_sable', 'tapis_patchwork', 'jardiniere', 'arche_lierre', 'maison_cubes')
+}
+
+
+def morceau_net(f, k):
+    """morceau(f, k) avec le détourage net (image RGBA recadrée)."""
+    return nouveau_morceau(f, k)[0]
+
+
+def cle_planche(a, graines):
+    import numpy as np
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    vif = (g > 150) & (g - np.maximum(r, b) > 0.6 * g)
+    for z in (graines & vif, vif):
+        if z.sum() > 200: return np.median(a[z], 0)
+    return np.array(CLE, float)
+
+
+def tour(shape, m=1):
+    import numpy as np
+    t = np.zeros(shape, bool); t[:m] = t[-m:] = True; t[:, :m] = t[:, -m:] = True
+    return t
+
+
+def fond_vert(a, graines):
+    import numpy as np
+    from scipy import ndimage
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    K = cle_planche(a, graines)
+    d = np.sqrt(((a - K) ** 2).sum(-1))
+    cle = d < FOND_DIST
+    rond = np.hypot(*np.mgrid[-2:3, -2:3]) <= 2
+    ombre = ndimage.binary_opening((r < 25) & (b < 25) & (r < 0.12 * g) & (b < 0.15 * g) & (g > 60), structure=rond)
+    lab, n = ndimage.label(cle | ombre)
+    ids = np.unique(lab[graines]); fond = np.isin(lab, ids[ids > 0])
+    lab2, n2 = ndimage.label(cle & ~fond)
+    if n2:
+        idx = np.arange(1, n2 + 1)
+        pur = ndimage.minimum(d, lab2, idx) < PUR_DIST
+        petit = ndimage.sum(cle, lab2, idx) < 30
+        fond |= np.concatenate([[False], pur | petit])[lab2]
+    return fond, K, d
+
+
+def demeler(a, fond, K, R=4):
+    """-> (couleurs float, opacité 0..1). Bande du contour (R px) : un pixel plus vert que l'objet juste à l'intérieur
+    contient de la clé ; son opacité = la part de l'objet, d'après cet excès de vert ; sa couleur : rouge et bleu démêlés,
+    vert ramené à la teinte de l'intérieur (un objet vert garde son vert, un objet jaune son jaune)."""
+    import numpy as np
+    from scipy import ndimage
+    a = a.astype(float); obj = ~fond; H, W = obj.shape
+    alpha = obj.astype(float)
+    if not obj.any() or not fond.any(): return a, alpha
+    ge = a[..., 1] - np.maximum(a[..., 0], a[..., 2])
+    dobj = ndimage.distance_transform_edt(obj)
+    bord = obj & (dobj <= R); prof = obj & (dobj > R)
+    dfond = ndimage.distance_transform_edt(fond)
+    pur = fond & (dfond >= 3)
+    if not pur.any(): pur = fond
+    _, (jy, jx) = ndimage.distance_transform_edt(~pur, return_indices=True)
+    ys, xs = np.nonzero(bord)
+    c = a[ys, xs]; Kl = a[jy[ys, xs], jx[ys, xs]]; geK = Kl[:, 1] - np.maximum(Kl[:, 0], Kl[:, 2])
+    # vert permis : le pixel le plus vert de l'intérieur profond à moins de 8 px ; teinte : le pixel profond le plus proche
+    disque = np.hypot(*np.mgrid[-8:9, -8:9]) <= 8
+    gm = ndimage.maximum_filter(np.where(prof, ge, -999.0), footprint=disque)[ys, xs]
+    if prof.any():
+        dp, (iy, ix) = ndimage.distance_transform_edt(~prof, return_indices=True)
+        F = a[iy[ys, xs], ix[ys, xs]]; loin = dp[ys, xs] > 8
+    else:
+        F = c.copy(); loin = np.ones(len(ys), bool)
+    # trait fin (pas d'intérieur profond à 8 px) : le pixel le plus profond de son voisinage (11 x 11), son axe
+    fin = np.nonzero(loin | (gm < -998))[0]
+    if len(fin):
+        fy, fx = ys[fin], xs[fin]; best = np.full(len(fin), -1.0); by, bx = fy.copy(), fx.copy()
+        for dy in range(-5, 6):
+            for dx in range(-5, 6):
+                yy = np.clip(fy + dy, 0, H - 1); xx = np.clip(fx + dx, 0, W - 1); v = np.where(obj[yy, xx], dobj[yy, xx], -1.0); m = v > best
+                best[m] = v[m]; by[m] = yy[m]; bx[m] = xx[m]
+        F[fin] = a[by, bx]; gm[fin] = ge[by, bx]
+    permis = np.maximum(gm, 0)
+    gec = c[:, 1] - np.maximum(c[:, 0], c[:, 2])
+    sale = gec > permis + 4
+    al = 1 - np.clip((gec - permis) / np.maximum(geK - permis, 1.0), 0, 1)
+    al = np.where(sale, al, 1.0); al[al < 0.1] = 0.0
+    k = np.maximum(al, 0.1)[:, None]
+    C = np.clip((c - (1 - al)[:, None] * Kl) / k, 0, 255)
+    mx = np.maximum(C[:, 0], C[:, 2])
+    geF = F[:, 1] - np.maximum(F[:, 0], F[:, 2])
+    ratio = np.clip(F[:, 1] / np.maximum(np.maximum(F[:, 0], F[:, 2]), 1.0), 0, 1)
+    gcible = np.where(geF > 0, mx + permis + 8, ratio * mx + 8)
+    C[:, 1] = np.minimum(C[:, 1], gcible)
+    C = np.where(sale[:, None], C, c)
+    out = a.copy(); out[ys, xs] = C; alpha[ys, xs] = al
+    return out, alpha
+
+
+_DET = {}
+def detourer_planche(cle_cache, a, graines):
+    if cle_cache not in _DET:
+        fond, K, d = fond_vert(a, graines)
+        rgb, al = demeler(a, fond, K)
+        _DET[cle_cache] = (rgb, al, K)
+    return _DET[cle_cache]
+
+
+def territoires(vis, graines_lab, dmax=48):
+    """vis : pixels visibles (nouveau détourage) ; graines_lab : 0 ou n° d'objet (ancien découpage) -> n° d'objet de
+    chaque pixel visible (0 : à personne) : le plus proche, s'il le touche (par des pixels visibles de son côté)"""
+    import numpy as np
+    from scipy import ndimage
+    dist, (iy, ix) = ndimage.distance_transform_edt(graines_lab == 0, return_indices=True)
+    terr = np.where(vis & (dist <= dmax), graines_lab[iy, ix], 0)
+    out = np.zeros_like(graines_lab)
+    for k in np.unique(terr[terr > 0]):
+        m = terr == k
+        lab, n = ndimage.label(m, structure=np.ones((3, 3), bool))
+        garde = np.unique(lab[(graines_lab == k) & m]); garde = garde[garde > 0]
+        out[np.isin(lab, garde)] = k
+    return out
+
+
+_TERR = {}
+def nouveau_morceau(f, k):
+    import numpy as np
+    from PIL import Image
+    if isinstance(k, tuple) and k[0] == 'panneau':
+        p, n = k[1], k[2]
+        cle = (f, 'p', p)
+        if cle not in _TERR:
+            a, obj0, boites, titre_cadre = panneau_info(f, p)
+            rgb, al, K = detourer_planche(cle, a, titre_cadre | tour(obj0.shape))
+            gl = np.zeros(obj0.shape, int)
+            for i, (y0, x0, y1, x1, lid) in enumerate(boites):
+                m = obj0[y0:y1, x0:x1] & (gl[y0:y1, x0:x1] == 0); gl[y0:y1, x0:x1][m] = i + 1
+            _TERR[cle] = (rgb, al, territoires(al > 0, gl))
+        rgb, al, T = _TERR[cle]; ids = [n + 1]
+    elif isinstance(k, tuple) and k[0] == 'case':
+        cle = (f, 'c')
+        if cle not in _TERR:
+            rgba, lab, res = cases(f)
+            a = np.array(Image.open(f).convert('RGB')).astype(int)
+            rgb, al, K = detourer_planche(cle, a, tour(a.shape[:2]))
+            gl = np.zeros(lab.shape, int)
+            for i, r in enumerate(res):
+                if r is None: continue
+                gl[np.isin(lab, r[1]) & (gl == 0)] = i + 1
+            _TERR[cle] = (rgb, al, territoires(al > 0, gl))
+        rgb, al, T = _TERR[cle]; ids = [k[1] + 1]
+    else:
+        cle = (f, 'l')
+        if cle not in _TERR:
+            im, ordre = planche(f)
+            a = np.array(Image.open(f).convert('RGB')).astype(int)
+            rgb, al, K = detourer_planche(cle, a, tour(a.shape[:2]))
+            vieux = np.array(im)[..., 3] > 0; gl = np.zeros(vieux.shape, int)
+            for i, (y0, x0, y1, x1) in enumerate(ordre):
+                m = vieux[y0:y1, x0:x1] & (gl[y0:y1, x0:x1] == 0); gl[y0:y1, x0:x1][m] = i + 1
+            _TERR[cle] = (rgb, al, territoires(al > 0, gl))
+        rgb, al, T = _TERR[cle]; ids = [i + 1 for i in (k if isinstance(k, list) else [k])]
+    m = np.isin(T, ids)
+    ys, xs = np.nonzero(m)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    out = np.dstack([rgb[y0:y1, x0:x1], np.where(m[y0:y1, x0:x1], al[y0:y1, x0:x1] * 255, 0)])
+    return Image.fromarray(np.round(out).clip(0, 255).astype('uint8'), 'RGBA'), (y0, x0, y1, x1)
+
+
+def panneau_info(f, p, cols=5, rows=2, titre=0.075):
+    """(panneau RGB, objets de l'ancien découpage, boîtes dans l'ordre de lecture, bandeau de titre et cadre)"""
+    import numpy as np
+    from scipy import ndimage
+    from PIL import Image
+    im = Image.open(f).convert('RGB'); W, H = im.size; pw, ph = W / cols, H / rows
+    x0, y0 = int((p % cols) * pw), int((p // cols) * ph)
+    a = np.array(im.crop((x0, y0, int(x0 + pw), int(y0 + ph)))).astype(int); r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    obj = ~((g > 140) & (g - np.maximum(r, b) > 60))
+    tc = np.zeros(obj.shape, bool); tc[:int(ph * titre) + 4] = True; tc[:, :6] = True; tc[:, -6:] = True; tc[-6:] = True
+    obj[tc] = False
+    obj = ndimage.binary_opening(obj, iterations=2)
+    lab, n = ndimage.label(ndimage.binary_dilation(obj, iterations=3))
+    bx = [(sl[0].start, sl[1].start, sl[0].stop, sl[1].stop, i + 1) for i, sl in enumerate(ndimage.find_objects(lab)) if int((obj[sl] & (lab[sl] == i + 1)).sum()) >= 150]
+    bx.sort(key=lambda q: (q[0] + q[2]) / 2); rg, cur = [], []
+    for q in bx:
+        if cur and (q[0] + q[2]) / 2 - (cur[-1][0] + cur[-1][2]) / 2 > (cur[-1][2] - cur[-1][0]) * 0.5: rg.append(cur); cur = []
+        cur.append(q)
+    if cur: rg.append(cur)
+    ordre = [q for R in rg for q in sorted(R, key=lambda q: q[1])]
+    return a, obj, ordre, tc
+
+
 def optimiser_commun():
     if not os.path.isdir(SOURCE_COMMUN):
         print('dossier introuvable :', SOURCE_COMMUN); return
@@ -463,7 +671,7 @@ def optimiser_commun():
             print('%-24s -> %4dx%-4d  %4d Ko (sol)' % (nom, out.width, out.height, os.path.getsize(cible) // 1024))
             continue
         if part is not None:   # objet d'une planche (fond vert)
-            im = morceau(f, part); w, h = im.size; k = ECHELLE.get(nom) or min(1.0, GRAND.get(nom, 160) / max(w, h))
+            im = (morceau_net if 'commun/' + nom in DETOURAGE_NET else morceau)(f, part); w, h = im.size; k = ECHELLE.get(nom) or min(1.0, GRAND.get(nom, 160) / max(w, h))
             out = im.resize((round(w * k), round(h * k)), Image.LANCZOS)
             out.save(cible, optimize=True)
             print('%-24s -> %4dx%-4d  %4d Ko' % (nom, out.width, out.height, os.path.getsize(cible) // 1024))
@@ -474,7 +682,7 @@ def optimiser_commun():
             box = im.getchannel('A').point(lambda a: 255 if a > 40 else 0).getbbox()
             if box: im = im.crop(box)
             w, h = im.size
-            if nom.startswith('arbre_'): k = min(36 * 1.55 * 2 / w, 46 * 1.55 * 2 / h)   # (taille affichée en haute définition)
+            if nom.startswith('arbre_'): k = min(1.0, 210 / h)   # (3 fois le héros en haute définition ; avant 111 à 143 px : flous)
             else: k = min(1.0, 128 / max(w, h))   # (les décors sont plus petits qu'un arbre)
             W, Hh = round(w * k), round(h * k)
         else:
@@ -508,7 +716,7 @@ DIGIMON = {
     'botamon':  ('botamon.jpg', _PIXEL),
     'pichimon': ('photo_2026-10-21_16-16-36 (3).jpg', _PIXEL),
     'yukimibotamon': ('yukimibotamon.jpg', _PIXEL),
-    'yuramon':  ('yuramon.jpg', {'combat': 1, 'profil': 2, 'face': 0, 'dos': 4}),
+    'yuramon':  ('yuramon.jpg', {'combat': (1, 'miroir'), 'profil': 2, 'face': 0, 'dos': 4}),   # (combat : il regardait à gauche)
     'betamon':  ('betamon.jpg', {'combat': 2, 'profil': (3, 'miroir'), 'face': 0, 'dos': 1}),
     'elecmon':  ('elecmon.jpg', {'combat': (3, 'miroir'), 'profil': 2, 'face': 0, 'dos': 1}),
     'mushroomon': ('muschroomon.jpg', {'combat': 2, 'profil': (3, 'miroir'), 'face': 0, 'dos': 1}),
@@ -522,7 +730,7 @@ DIGIMON = {
     'garurumon': ('Garururmon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 2}, 240),
     'birdramon': ('Birdramon.jpg', {'combat': 3, 'profil': 4, 'face': 0, 'dos': 1}, 240),
     'kabuterimon': ('Kabuterimon.jpg', {'combat': (2, 'miroir'), 'profil': 4, 'face': 0, 'dos': 1}, 240),
-    'togemon':  ('Togemon.jpg', {'combat': (4, 'miroir'), 'profil': 2, 'face': 0, 'dos': 1}, 240),
+    'togemon':  ('Togemon.jpg', {'combat': (4, 'miroir'), 'profil': (2, 'miroir'), 'face': 0, 'dos': 1}, 240),   # (profil : il regardait à gauche)
     'ikkakumon': ('Ikkakumon.jpg', {'combat': (4, 'miroir'), 'profil': 3, 'face': 0, 'dos': 1}, 240),
     'angemon':  ('Angémon.jpg', {'combat': 4, 'profil': 3, 'face': 0, 'dos': 1}, 240),
     'monochromon': ('Monochromon.jpg', {'combat': (2, 'miroir'), 'profil': 4, 'face': 0, 'dos': 1}, 240),
@@ -531,8 +739,9 @@ DIGIMON = {
 }
 HAUT_DIGIMON = 168   # hauteur des copies : le plus grand affichage d'un Bébé ou d'un Digimon d'entraînement (combat, en haute définition)
 # DÉTOURAGE propre à une planche : un Digimon VERT sur le fond vert (Betamon) — le fond, c'est seulement le vert pur
-# (seuil plus haut), et pas d'« ombres vertes » (ses rayures sombres en auraient fait partie)
-CLE_DIGIMON = {'betamon': {'seuil': 165, 'ombres': False}}
+# (seuil plus haut), et pas d'« ombres vertes » (ses rayures sombres en auraient fait partie) ; de même pour les yeux verts
+# d'Agumon et de Palmon (leur iris était pris pour le fond : on voyait le décor à travers l'œil) et les griffes de Palmon
+CLE_DIGIMON = {sp: {'seuil': 165, 'ombres': False} for sp in ('betamon', 'agumon', 'palmon')}
 
 
 def planche_digimon(f, seuil=100, ombres=True):
@@ -736,7 +945,7 @@ def optimiser_planches(d):
             if not nom: continue
             cible = os.path.join(dst, nom + '.webp')   # (WebP : 4 à 5 fois plus léger que le PNG pour ces images peintes)
             if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
-            im = morceau(f, ('case', k))
+            im = (morceau_net if d + '/' + nom in DETOURAGE_NET else morceau)(f, ('case', k))
             if nom in SOLS_D: out = raccordable(im)
             else: w, h = im.size; s = min(1.0, GRAND_D.get(nom, defaut) / max(w, h)); out = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
             out.save(cible, 'WEBP', quality=85, method=4)
