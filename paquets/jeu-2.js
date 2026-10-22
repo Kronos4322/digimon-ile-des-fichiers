@@ -3139,7 +3139,6 @@
     ORCHARD.forEach(([x, y, v], k) => { for (let i = 0; i < 2; i++) m.signs[`${x + i},${y}`] = () => pick('t' + k, FRUIT[v][0], FRUIT[v][1], true); });
     Object.assign(m.signs, {
       '15,14': "Un épouvantail coiffé d'un chapeau de paille. Les Digimon oiseaux le regardent de travers...",
-      '19,14': 'Des bottes de foin bien sèches. Ça sent bon l\'été.', '19,15': 'Des bottes de foin bien sèches. Ça sent bon l\'été.',
       '11,18': 'Une brouette pleine de légumes frais, prête pour le marché.',
       '8,24': () => hive(), '11,24': () => hive(),
       '3,3': () => stand(), '4,3': () => stand(),
@@ -3657,7 +3656,7 @@
       name: 'Maison de Penguinmon', music: 'village', bg: 'village', ambient: 'home', climate: 'village', region: 'foret', indoor: true, textures: 'bebe',
       floor: { type: 'herring', cols: ['#dcb48a', '#b48a62', '#7a5a3a'] }, wall: { base: '#fbe4ec', alt: '#f2c6d6', pattern: 'dots', wood: '#a87a52' },
       rows: P.rows, npcs: [], signs: {}, doors: [],
-      warps: [{ x: D, y: P.rows.length - 1, w: 2, h: 1, dir: 'down', to: 'berceau', tx: px, ty: py + 1 }],
+      warps: [{ x: D, y: P.rows.length - 1, w: 2, h: 1, dir: 'down', to: 'berceau', tx: px, ty: py + 1, _zt: true }],   // (px, py : déjà sur la carte agrandie)
       entry: { x: D, y: P.rows.length - 2 },
       objects: [
         // le mur du fond : fenêtres, étagères à biberons, armoire à pharmacie, étagère à jouets, garde-manger, lampe-fleur
@@ -7823,7 +7822,7 @@
     entry: { x: 17, y: H - 2 },
     populate() {
       // la sortie ramène toujours devant l'arbre creux de la Prairie (même après un chargement de partie ici)
-      const pm = DW.getMap('prairie'); DW.YokoVillage.place(pm, 'prairie');
+      const pm = DW.preparerCarte('prairie');   // (décor posé avant l'arbre, comme en arrivant dans la Prairie : même place à chaque partie)
       const log = (pm.objects || []).find(o => o.yoko); if (log) Object.assign(this.warps[0], { tx: log.x, ty: log.y + 1, _zt: true });   // (déjà en coordonnées de la carte agrandie)
       const done = !!st().flags.yokoWell;
       this.npcs = [
@@ -8019,11 +8018,11 @@
     name: 'Souterrain de Jijimon', music: 'temple', bg: 'foret', ambient: 'forest', theme: 'cave', climate: 'forest', region: 'foret', indoor: true,
     dark: { d: 0.5, col: '#141018' }, rows, objects, npcs: [], encounters: [], wildN: 0, rate: 0, calm: true, dress: false, secretEntry: true,   // (on y entre par la trappe ou le puits : pas de passage normal)
     signs: {
-      '6,3': "Des initiales gravées dans la roche : « J. — l'an 1 ». Jijimon a creusé ce tunnel il y a bien longtemps...",
+      '6,2': "Des initiales gravées dans la roche : « J. — l'an 1 ». Jijimon a creusé ce tunnel il y a bien longtemps...",
     },
     warps: [],
     doors: [
-      { x: 2, y: 2, w: 2, dir: 'up', to: 'maison', tx: TRAP[0], ty: TRAP[1] + 1 },
+      { x: 2, y: 2, w: 2, dir: 'up', to: 'maison', tx: TRAP[0] - 1, ty: TRAP[1] + 1 },   // (2 cases : la 2e arrivait dans le mur, à droite de la trappe)
       { x: W - 4, y: 2, w: 2, dir: 'up', to: 'village_yokomon', tx: WELL[0] + 1, ty: WELL[1] + 1 },
     ],
     onEnter: async () => {
@@ -9725,6 +9724,8 @@
   const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set();   // (la Crique du Radeau est ouverte dès le début : Whamon n'y apparaît qu'après Shellmon)
   // les régions de l'île s'ouvrent chapitre après chapitre, dans l'ordre de l'anime :
   // chapitre 2 (Garurumon) : le lac ; chapitre 3 (Birdramon) : le pays de Meramon (déserts, Village des Yokomon, Mont Miharashi) ; les autres attendent leur chapitre
+  // (volcan : 3, mais le Mont Panorama reste fermé pour l'instant — décision du joueur — : son seul accès, montagne8 → volcan0,
+  //  est dans une région encore fermée)
   const OPENS = { lac: 2, miharashi: 3, volcan: 3 };
   function lock(to) {
     const ch = st().flags.chapter || 1, m = DW.MAPS[to];

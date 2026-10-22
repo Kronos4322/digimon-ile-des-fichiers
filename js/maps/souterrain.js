@@ -45,11 +45,11 @@
     name: 'Souterrain de Jijimon', music: 'temple', bg: 'foret', ambient: 'forest', theme: 'cave', climate: 'forest', region: 'foret', indoor: true,
     dark: { d: 0.5, col: '#141018' }, rows, objects, npcs: [], encounters: [], wildN: 0, rate: 0, calm: true, dress: false, secretEntry: true,   // (on y entre par la trappe ou le puits : pas de passage normal)
     signs: {
-      '6,3': "Des initiales gravées dans la roche : « J. — l'an 1 ». Jijimon a creusé ce tunnel il y a bien longtemps...",
+      '6,2': "Des initiales gravées dans la roche : « J. — l'an 1 ». Jijimon a creusé ce tunnel il y a bien longtemps...",
     },
     warps: [],
     doors: [
-      { x: 2, y: 2, w: 2, dir: 'up', to: 'maison', tx: TRAP[0], ty: TRAP[1] + 1 },
+      { x: 2, y: 2, w: 2, dir: 'up', to: 'maison', tx: TRAP[0] - 1, ty: TRAP[1] + 1 },   // (2 cases : la 2e arrivait dans le mur, à droite de la trappe)
       { x: W - 4, y: 2, w: 2, dir: 'up', to: 'village_yokomon', tx: WELL[0] + 1, ty: WELL[1] + 1 },
     ],
     onEnter: async () => {

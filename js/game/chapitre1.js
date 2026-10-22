@@ -169,6 +169,8 @@
   const CH1 = new Set(['village', 'foret', 'plage']), CH1_CLOSED = new Set();   // (la Crique du Radeau est ouverte dès le début : Whamon n'y apparaît qu'après Shellmon)
   // les régions de l'île s'ouvrent chapitre après chapitre, dans l'ordre de l'anime :
   // chapitre 2 (Garurumon) : le lac ; chapitre 3 (Birdramon) : le pays de Meramon (déserts, Village des Yokomon, Mont Miharashi) ; les autres attendent leur chapitre
+  // (volcan : 3, mais le Mont Panorama reste fermé pour l'instant — décision du joueur — : son seul accès, montagne8 → volcan0,
+  //  est dans une région encore fermée)
   const OPENS = { lac: 2, miharashi: 3, volcan: 3 };
   function lock(to) {
     const ch = st().flags.chapter || 1, m = DW.MAPS[to];

@@ -170,9 +170,9 @@
     'maps/maison.js': '016e011f',
     'maps/interieurs.js': '83bfcda2',
     'maps/grandir.js': 'e559ba8f',
-    'maps/champs.js': '33f670d6',
+    'maps/champs.js': 'a1f6505e',
     'maps/gym.js': 'f88f751c',
-    'maps/berceau.js': 'abb2de5f',
+    'maps/berceau.js': '76402599',
     'maps/quartiers.js': '27c4d204',
     'maps/enigmes.js': 'd6a641db',
     'maps/donjons.js': 'ffb9dc0a',
@@ -185,8 +185,8 @@
     'maps/regions.js': 'cc9c856b',
     'maps/antre.js': '087663e8',
     'maps/sous_volcan.js': '62428bc1',
-    'maps/yokomon.js': '346db467',
-    'maps/souterrain.js': 'efd6b85d',
+    'maps/yokomon.js': '38b90619',
+    'maps/souterrain.js': '5874b351',
     'maps/distrib.js': '92218cb8',
     'game/activities.js': '5ce2d256',
     'game/peche.js': '8eb39372',
@@ -195,7 +195,7 @@
     'game/requests.js': '73005e63',
     'game/cuisine.js': '3d22e6e9',
     'game/guide.js': 'd110f7e5',
-    'game/chapitre1.js': '8f609ec0',
+    'game/chapitre1.js': '8490b1df',
     'game/cine_shellmon.js': '7bf12c26',
     'game/debut.js': 'bca8c6d2',
     'game/trophees.js': '2e3d2003',
@@ -210,7 +210,7 @@
   const PAQUETS = [
     { f: '../paquets/jeu-1.js', v: 'ea297db3' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: 'deb86bfd' },
+    { f: '../paquets/jeu-2.js', v: '08d0cfee' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

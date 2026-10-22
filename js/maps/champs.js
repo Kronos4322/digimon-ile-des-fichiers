@@ -97,7 +97,6 @@
     ORCHARD.forEach(([x, y, v], k) => { for (let i = 0; i < 2; i++) m.signs[`${x + i},${y}`] = () => pick('t' + k, FRUIT[v][0], FRUIT[v][1], true); });
     Object.assign(m.signs, {
       '15,14': "Un épouvantail coiffé d'un chapeau de paille. Les Digimon oiseaux le regardent de travers...",
-      '19,14': 'Des bottes de foin bien sèches. Ça sent bon l\'été.', '19,15': 'Des bottes de foin bien sèches. Ça sent bon l\'été.',
       '11,18': 'Une brouette pleine de légumes frais, prête pour le marché.',
       '8,24': () => hive(), '11,24': () => hive(),
       '3,3': () => stand(), '4,3': () => stand(),

@@ -69,7 +69,7 @@
     entry: { x: 17, y: H - 2 },
     populate() {
       // la sortie ramène toujours devant l'arbre creux de la Prairie (même après un chargement de partie ici)
-      const pm = DW.getMap('prairie'); DW.YokoVillage.place(pm, 'prairie');
+      const pm = DW.preparerCarte('prairie');   // (décor posé avant l'arbre, comme en arrivant dans la Prairie : même place à chaque partie)
       const log = (pm.objects || []).find(o => o.yoko); if (log) Object.assign(this.warps[0], { tx: log.x, ty: log.y + 1, _zt: true });   // (déjà en coordonnées de la carte agrandie)
       const done = !!st().flags.yokoWell;
       this.npcs = [

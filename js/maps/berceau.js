@@ -197,7 +197,7 @@
       name: 'Maison de Penguinmon', music: 'village', bg: 'village', ambient: 'home', climate: 'village', region: 'foret', indoor: true, textures: 'bebe',
       floor: { type: 'herring', cols: ['#dcb48a', '#b48a62', '#7a5a3a'] }, wall: { base: '#fbe4ec', alt: '#f2c6d6', pattern: 'dots', wood: '#a87a52' },
       rows: P.rows, npcs: [], signs: {}, doors: [],
-      warps: [{ x: D, y: P.rows.length - 1, w: 2, h: 1, dir: 'down', to: 'berceau', tx: px, ty: py + 1 }],
+      warps: [{ x: D, y: P.rows.length - 1, w: 2, h: 1, dir: 'down', to: 'berceau', tx: px, ty: py + 1, _zt: true }],   // (px, py : déjà sur la carte agrandie)
       entry: { x: D, y: P.rows.length - 2 },
       objects: [
         // le mur du fond : fenêtres, étagères à biberons, armoire à pharmacie, étagère à jouets, garde-manger, lampe-fleur

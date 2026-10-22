@@ -302,6 +302,9 @@ test('arrivées vers les cartes agrandies converties une seule fois', () => {
   const m = DW.getMap('maison'), w = m.warps.find(w => w.to === 'village');
   eq(w.tx, 38); eq(w.ty, 12);
   DW.getMap('maison'); eq(w.tx, 38);
+  // la sortie de chez Penguinmon ramène devant sa porte, au Village des Bébés (avant : ~37 cases plus loin)
+  const B = DW.getMap('berceau'), porte = B.doors.find(d => d.to === 'berceau_maison'), s = DW.getMap('berceau_maison').warps[0];
+  yes(Math.abs(s.tx - porte.x) <= 1 && s.ty - porte.y >= 0 && s.ty - porte.y <= 2, `sortie en ${s.tx},${s.ty}, porte en ${porte.x},${porte.y}`);
 });
 // (chaque étape de la génération qui remplace les lignes passe par DW.MapKit.changerLignes : sinon les étapes suivantes
 //  et le décor se refaisaient à chaque préparation, et une carte voisine préparée en fond n'était jamais finie)
