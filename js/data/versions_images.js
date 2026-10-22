@@ -675,7 +675,7 @@ DW.VERSIONS_IMAGES = {
   "grotte/jeu/vasque.webp": "787f276c",
   "intro/jeu/camp.webp": "5c8fe64c",
   "intro/jeu/digivices.webp": "a36c8fd7",
-  "intro/jeu/titre.webp": "f2c8c2cb",
+  "intro/jeu/titre.webp": "1ff8912d",
   "volcan/jeu/cone_lave.png": "d1958aa0",
   "volcan/jeu/dessus_falaise.png": "c0960a6f",
   "volcan/jeu/escalier.png": "2402aa8d",

@@ -760,6 +760,50 @@ INTRO = {
 }
 
 
+# le titre peint portait un écusson « DIGITAL DIGIMON MONSTERS ™ » qui imitait le logo officiel (droits) : il est effacé, avec
+# le sous-titre peint, et le jeu dessine son propre titre (ui/title.js). La zone (en 640 x 480) est remplie par diffusion
+# depuis le ciel autour, du grossier au fin ; le masque grandit sur le contour sombre du logo ; les traits clairs qui
+# partaient de ses côtés sont fondus ; un léger grain et quelques étoiles évitent une plage trop lisse. Le trait orné et son
+# losange, sous le sous-titre, sont gardés.
+LOGO_PEINT = [(139, 60), (248, 40), (254, 24), (386, 24), (392, 40), (501, 60), (501, 130), (402, 148), (402, 160), (238, 160), (238, 148), (139, 130)]
+SOUS_TITRE_PEINT = (156, 150, 485, 189)
+
+
+def effacer_logo(img):
+    import numpy as np
+    from PIL import ImageDraw
+    a = np.asarray(img.convert('RGB')).astype(float); H, W = a.shape[:2]
+    m = Image.new('L', (W, H), 0); ImageDraw.Draw(m).polygon(LOGO_PEINT, fill=255); ImageDraw.Draw(m).rectangle(SOUS_TITRE_PEINT, fill=255)
+    m = np.asarray(m) > 0
+    sombre = a.mean(axis=2) < 75
+    for _ in range(6):
+        g = m | np.roll(m, 1, 0) | np.roll(m, -1, 0) | np.roll(m, 1, 1) | np.roll(m, -1, 1)
+        m = m | (g & sombre)
+
+    def diffuser(x, mm, n):
+        for _ in range(n):
+            moy = (np.roll(x, 1, 0) + np.roll(x, -1, 0) + np.roll(x, 1, 1) + np.roll(x, -1, 1)) / 4
+            x[mm] = moy[mm]
+        return x
+    for e in (8, 4, 2):
+        p = np.asarray(Image.fromarray(a.clip(0, 255).astype('uint8')).resize((W // e, H // e), Image.BILINEAR)).astype(float)
+        pm = np.asarray(Image.fromarray(m.astype('uint8') * 255).resize((W // e, H // e), Image.NEAREST)) > 0
+        p = diffuser(p, pm, 400)
+        g = np.asarray(Image.fromarray(p.clip(0, 255).astype('uint8')).resize((W, H), Image.BILINEAR)).astype(float)
+        a[m] = g[m]
+    a = diffuser(a, m, 600)
+    lum = a.mean(axis=2)
+    for x in list(range(0, LOGO_PEINT[0][0])) + list(range(LOGO_PEINT[5][0] - 2, W)):
+        for y in (94, 95, 96):
+            if lum[y, x] > (lum[92, x] + lum[98, x]) / 2 + 10:
+                k = (y - 92) / 6; a[y, x] = a[92, x] * (1 - k) + a[98, x] * k
+    rng = np.random.default_rng(7)
+    a[m] += rng.normal(0, 2.2, (int(m.sum()), 3))
+    et = m & (rng.random((H, W)) < 0.0035) & (np.arange(H)[:, None] < 120)
+    a[et] = a[et] * 0.3 + np.array([255, 250, 235]) * 0.7
+    return Image.fromarray(a.clip(0, 255).astype('uint8'))
+
+
 def optimiser_intro():
     import numpy as np
     dst = os.path.join(RACINE, 'intro', 'jeu'); os.makedirs(dst, exist_ok=True)
@@ -783,7 +827,9 @@ def optimiser_intro():
                 k = np.clip(bord / 10, 0, 1)[..., None]
                 a[y0:y1, x0:x1] = src * k + a[y0:y1, x0:x1] * (1 - k)
             im = Image.fromarray(a.clip(0, 255).astype('uint8'))
-        out = im.resize((640, 480), Image.LANCZOS); out.save(cible, 'WEBP', quality=88, method=4)
+        out = im.resize((640, 480), Image.LANCZOS)
+        if nom == 'titre': out = effacer_logo(out)
+        out.save(cible, 'WEBP', quality=88, method=4)
         print('intro/%-12s -> 640x480  %4d Ko' % (nom, os.path.getsize(cible) // 1024))
 
 

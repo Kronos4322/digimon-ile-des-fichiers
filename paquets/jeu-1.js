@@ -1927,7 +1927,7 @@ DW.VERSIONS_IMAGES = {
   "grotte/jeu/vasque.webp": "787f276c",
   "intro/jeu/camp.webp": "5c8fe64c",
   "intro/jeu/digivices.webp": "a36c8fd7",
-  "intro/jeu/titre.webp": "f2c8c2cb",
+  "intro/jeu/titre.webp": "1ff8912d",
   "volcan/jeu/cone_lave.png": "d1958aa0",
   "volcan/jeu/dessus_falaise.png": "c0960a6f",
   "volcan/jeu/escalier.png": "2402aa8d",
@@ -23786,10 +23786,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 //  2) panorama de l'Île des Fichiers au crépuscule, en couches (parallaxe) :
 //     ciel, nuages, Montagne de l'Infini, ville et moulin, mer scintillante,
 //     héros et partenaire au premier plan, oiseaux, Birdramon, données qui montent
-//  3) logo qui arrive avec un choc lumineux, reflet qui balaie l'écusson
+//  3) titre qui arrive avec un choc lumineux, reflet qui balaie ses lettres
 //  4) menu qui glisse ; transition « numérique » en cases de données
-//  Le panorama et le logo sont l'image PEINTE du joueur dès qu'elle est chargée (maquette du dossier « Générique,
-//  introduction » : assets/intro/jeu/titre.webp) — reflets sur la mer, éclat sur le logo ; avant, le décor par le code.
+//  Le panorama est l'image PEINTE du joueur dès qu'elle est chargée (maquette du dossier « Générique, introduction » :
+//  assets/intro/jeu/titre.webp) — reflets sur la mer ; avant, le décor par le code. Le titre est toujours dessiné ici :
+//  l'écusson peint (« DIGITAL DIGIMON MONSTERS ™ », imitation du logo officiel) est effacé de l'image.
 // =====================================================================
 (function () {
   const { UI, Input, Audio, Game } = DW;
@@ -23930,53 +23931,48 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const millFrames = () => layer('mill', () => DW.World.objFrames('windmill', 1).map(f => DW.Art.tint(f.img, '#1a1030')));
   const birdramon = () => layer('bird', () => DW.Art.tint(DW.Sprites.battle('birdramon').img, '#2a1438'));
 
-  // ------------------------------------------------------------ logo (écusson style Digimon World)
+  // ------------------------------------------------------------ titre du jeu
+  // (dessiné ici, en pixel art : l'ancien écusson « DIGITAL DIGIMON MONSTERS ™ » imitait le logo officiel — il est aussi
+  //  effacé de l'image peinte, dev/optimiser_textures.py) « UNE AVENTURE DIGIMON » en petit entre deux traits de données,
+  //  « L'ÎLE DES / FICHIERS » en lettres d'or ; police Press Start 2P (licence OFL), à sa taille nette (8 et 16 px)
+  const LW = 200, LH = 64;
   function logo() {
     return layer('logo', () => {
-      const LW = 280, LH = 100, c0 = DW.Art.canvas(LW, LH), c = c0.getContext('2d');
-      const cx = LW / 2, cy = 50;
-      const shield = (pad, fill, stroke, lw) => {
-        c.beginPath();
-        c.moveTo(cx - 118 + pad, cy - 18 + pad * 0.3);
-        c.quadraticCurveTo(cx - 70, cy - 34 + pad, cx, cy - 46 + pad);
-        c.quadraticCurveTo(cx + 70, cy - 34 + pad, cx + 118 - pad, cy - 18 + pad * 0.3);
-        c.lineTo(cx + 118 - pad, cy + 18 - pad * 0.3);
-        c.quadraticCurveTo(cx + 70, cy + 34 - pad, cx, cy + 46 - pad);
-        c.quadraticCurveTo(cx - 70, cy + 34 - pad, cx - 118 + pad, cy + 18 - pad * 0.3);
-        c.closePath();
-        if (fill) { c.fillStyle = fill; c.fill(); }
-        if (stroke) { c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); }
+      const c0 = DW.Art.canvas(LW, LH), c = c0.getContext('2d'), cx = LW / 2;
+      c.textAlign = 'center'; c.lineJoin = 'round';
+      c.font = '8px "Press Start 2P", monospace';
+      const sous = 'UNE AVENTURE DIGIMON', sw = Math.round(c.measureText(sous).width);
+      c.fillStyle = '#5ad8f0'; c.fillRect(cx - sw / 2 - 26, 6, 18, 1); c.fillRect(cx + sw / 2 + 8, 6, 18, 1);
+      c.fillRect(cx - sw / 2 - 30, 6, 2, 1); c.fillRect(cx + sw / 2 + 28, 6, 2, 1);
+      c.lineWidth = 3; c.strokeStyle = '#120624'; c.strokeText(sous, cx, 10);
+      c.fillStyle = '#c8f6ff'; c.fillText(sous, cx, 10);
+      c.font = '16px "Press Start 2P", monospace';
+      const ligne = (txt, y) => {
+        c.lineWidth = 6; c.strokeStyle = '#1a0a2a'; c.strokeText(txt, cx, y);
+        c.lineWidth = 3; c.strokeStyle = '#8a3010'; c.strokeText(txt, cx, y);
+        const g = c.createLinearGradient(0, y - 16, 0, y);
+        g.addColorStop(0, '#fff8c8'); g.addColorStop(0.45, '#ffd848'); g.addColorStop(0.55, '#f4a020'); g.addColorStop(1, '#ffc848');
+        c.fillStyle = g; c.fillText(txt, cx, y);
       };
-      shield(0, '#0a1440', '#050a20', 3);
-      shield(3, null, '#f0c030', 2.4);
-      const g = c.createLinearGradient(0, cy - 40, 0, cy + 40);
-      g.addColorStop(0, '#3a7ae8'); g.addColorStop(0.5, '#1a3aa8'); g.addColorStop(1, '#0c1a66');
-      shield(6, g, '#7ab0ff', 1);
-      c.fillStyle = '#f0c030';
-      c.beginPath(); c.ellipse(cx, cy - 33, 38, 8, 0, 0, Math.PI * 2); c.fill();
-      c.beginPath(); c.ellipse(cx, cy + 33, 44, 8, 0, 0, Math.PI * 2); c.fill();
-      c.font = '7px "Press Start 2P", monospace'; c.textAlign = 'center'; c.fillStyle = '#1a2a6a';
-      c.fillText('DIGITAL', cx, cy - 29.5); c.fillText('MONSTERS', cx, cy + 36.5);
-      c.font = '26px "Press Start 2P", monospace'; c.lineJoin = 'round';
-      c.lineWidth = 8; c.strokeStyle = '#06102e'; c.strokeText('DIGIMON', cx, cy + 13);
-      c.lineWidth = 4; c.strokeStyle = '#2a5ad8'; c.strokeText('DIGIMON', cx, cy + 13);
-      const tg = c.createLinearGradient(0, cy - 12, 0, cy + 14);
-      tg.addColorStop(0, '#fff6a0'); tg.addColorStop(0.45, '#ffd030'); tg.addColorStop(0.55, '#f0a018'); tg.addColorStop(1, '#ffcf40');
-      c.fillStyle = tg; c.fillText('DIGIMON', cx, cy + 13);
-      c.fillStyle = 'rgba(255,255,255,0.45)'; c.fillRect(cx - 104, cy - 1, 208, 1.5);
+      ligne("L'ILE DES", 37); ligne('FICHIERS', 59);
+      // accent circonflexe sur le I de « L'ILE » (dessiné : la police n'a pas de majuscules accentuées nettes)
+      const ix = Math.round(cx - c.measureText("L'ILE DES").width / 2 + c.measureText("L'").width + c.measureText('I').width / 2);
+      const ACCENT = [[-1, 0], [0, 0], [-2, 1], [-1, 1], [0, 1], [1, 1], [-3, 2], [-2, 2], [1, 2], [2, 2]];   // ..XX.. / .XXXX. / XX..XX
+      c.fillStyle = '#1a0a2a'; for (const [dx, dy] of ACCENT) c.fillRect(ix + dx - 1, 15 + dy, 3, 3);
+      c.fillStyle = '#ffe680'; for (const [dx, dy] of ACCENT) c.fillRect(ix + dx, 16 + dy, 1, 1);
       return c0;
     });
   }
-  // reflet qui balaie le logo (limité à la forme du logo)
-  const shineCv = DW.Art.canvas(280, 100), shineCtx = shineCv.getContext('2d');
+  // reflet qui balaie le titre (limité aux lettres)
+  const shineCv = DW.Art.canvas(LW, LH), shineCtx = shineCv.getContext('2d');
   function logoShine(k) {
     const L = logo(), c = shineCtx;
-    c.clearRect(0, 0, 280, 100);
+    c.clearRect(0, 0, LW, LH);
     c.drawImage(L, 0, 0);
     c.globalCompositeOperation = 'source-atop';
-    const x = -60 + k * 400, g = c.createLinearGradient(x - 30, 0, x + 30, 100);
+    const x = -40 + k * (LW + 80), g = c.createLinearGradient(x - 24, 0, x + 24, LH);
     g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,255,255,0.7)'); g.addColorStop(1, 'rgba(255,255,255,0)');
-    c.fillStyle = g; c.fillRect(0, 0, 280, 100);
+    c.fillStyle = g; c.fillRect(0, 0, LW, LH);
     c.globalCompositeOperation = 'source-over';
     return shineCv;
   }
@@ -24232,8 +24228,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     drawLogo(c) {
       const t = this.t, k = this.logoIn.v, e = 1 - Math.pow(1 - k, 3);
       const up = this.menuIn.v * 6, cx = W / 2, cy = 44 - up;
-      const sc = (1 + (1 - e) * 1.4) * 0.78;
-      // halo derrière le logo
+      const sc = (1 + (1 - e) * 1.4) * 1.1;
+      // halo derrière le titre
       c.save(); c.globalCompositeOperation = 'lighter';
       const g = c.createRadialGradient(cx, cy, 6, cx, cy, 120);
       g.addColorStop(0, `rgba(160,255,200,${0.45 * e})`); g.addColorStop(1, 'rgba(0,80,40,0)');
@@ -24241,16 +24237,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       c.restore();
       const sw = (t * 0.35) % 1.6, L = sw < 1 ? logoShine(sw) : logo();
       c.save(); c.globalAlpha = Math.min(1, k * 2); c.translate(cx, cy + Math.sin(t * 1.5) * 1.2); c.scale(sc, sc);
-      c.drawImage(L, -140, -50);
+      c.drawImage(L, -LW / 2, -LH / 2);
       c.restore();
-      c.globalAlpha = Math.min(1, Math.max(0, k * 2 - 1));
-      c.font = '10px "Press Start 2P", monospace'; c.textAlign = 'center'; c.lineJoin = 'round';
-      c.lineWidth = 4; c.strokeStyle = '#06102e'; c.strokeText("L'ILE DES FICHIERS", cx, cy + 52);
-      const sg = c.createLinearGradient(0, cy + 42, 0, cy + 53); sg.addColorStop(0, '#fff6a0'); sg.addColorStop(1, '#f0a018');
-      c.fillStyle = sg; c.fillText("L'ILE DES FICHIERS", cx, cy + 52);
-      const ix = cx - c.measureText("L'ILE DES FICHIERS").width / 2 + c.measureText("L'").width + c.measureText('I').width / 2;
-      c.fillStyle = '#06102e'; c.fillRect(ix - 4, cy + 37, 8, 4);
-      c.fillStyle = '#fff6a0'; c.fillRect(ix - 3, cy + 39, 2, 1); c.fillRect(ix - 1, cy + 38, 2, 1); c.fillRect(ix + 1, cy + 39, 2, 1);
       c.globalAlpha = 1;
     }
     drawMenu(c) {
@@ -24309,13 +24297,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         const x = (i * 53 + Math.sin(t * 0.3 + i) * 6) % W, y = 166 + (i * 29 % 30), a = Math.max(0, Math.sin(t * 2.2 + i * 1.7));
         c.fillStyle = `rgba(255,${200 + (i % 3) * 20},150,${(0.35 * a).toFixed(2)})`; c.fillRect(Math.round(x), y, 2 + (i % 3), 1);
       }
-      const sw = (t * 0.35) % 1.6;   // éclat qui traverse le logo
-      if (sw < 1 && e > 0.5) {
-        const x = 70 + sw * 200, g = c.createLinearGradient(x - 18, 0, x + 18, 0);
-        g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,250,220,0.32)'); g.addColorStop(1, 'rgba(255,255,255,0)');
-        c.fillStyle = g; c.fillRect(70, 14, 180, 52);
-      }
       c.restore();
+      // le titre, à la place de l'écusson effacé de l'image (avec le choc lumineux de son arrivée, puis l'éclat qui le balaie)
+      const sw = (t * 0.35) % 1.6, L = sw < 1 && e > 0.5 ? logoShine(sw) : logo();
+      c.globalAlpha = e; c.drawImage(L, Math.round(W / 2 - LW / 2), Math.round(16 + Math.sin(t * 1.5))); c.globalAlpha = 1;
       // (le logo peint apparaît avec le choc lumineux : avant, l'écran est plus sombre)
       if (e < 1) { c.fillStyle = `rgba(6,4,20,${(0.55 * (1 - e)).toFixed(2)})`; c.fillRect(0, 0, W, H); }
     }
