@@ -3424,7 +3424,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     // (echelle : l'espèce entière plus grande que son stade — Bukamon, « toujours trop petit » pour le joueur)
     koromon: { taille: 0.79 }, tsunomon: { taille: 0.95 }, bukamon: { taille: 0.95, echelle: 1.3 },
     // (21/10 : Botamon, Pichimon et YukimiBotamon en pixel art ; Yuramon, Disciples et Champions peints)
-    botamon: { taille: 0.58 }, pichimon: { taille: 0.58 }, yukimibotamon: { taille: 0.58 }, yuramon: { taille: 0.72 },
+    botamon: { taille: 0.72 }, pichimon: { taille: 0.72 }, yukimibotamon: { taille: 0.72 }, yuramon: { taille: 0.72 },   // (bébés en pixel art : 0,58 avant, plus petits que les autres bébés)
     betamon: { taille: 0.79 }, elecmon: { taille: 0.87 }, mushroomon: { taille: 0.92 }, palmon: { taille: 0.97 },
     kuwagamon: { taille: 0.98 }, shellmon: { taille: 0.96 }, whamon: { taille: 0.95 },
     // (21/10 au soir : Agumon et les Champions de la série, peints ; Koromon a sa nouvelle planche)
