@@ -33,13 +33,13 @@ Les fiches complètes (fichier:ligne, reproduction, impact) sont dans `rapports/
 | SYS-08 | P2 | Champignon de luxe à 20 % (≈ 10 par jour dès le chapitre 1) | corrigé (e862fe0) : 2 % |
 | SYS-09 | P2 | Après un chargement de secours, la copie de secours devient illisible | corrigé (e862fe0), test |
 | SYS-10 | P2 | Séquenceur : notes en retard jouées toutes à la fois | corrigé (e862fe0), test |
-| SYS-11 | P3 | Description cassée du Gâteau de fête | voir l'agent Digimon (§ Digimon et combats) |
-| SYS-12 | P3 | Fruits à 1000 Bits sans effet propre | voir l'agent Digimon |
-| SYS-13 | P3 | Chiffres des descriptions justes seulement pour un Disciple | voir l'agent Digimon (D10) |
+| SYS-11 | P3 | Description cassée du Gâteau de fête | corrigé (52ebfcc) |
+| SYS-12 | P3 | Fruits à 1000 Bits sans effet propre | corrigé (52ebfcc) : bonheur, discipline, fatigue |
+| SYS-13 | P3 | Chiffres des descriptions justes seulement pour un Disciple | corrigé (52ebfcc) : gains par stade dans les textes |
 | SYS-14 | P3 | Village des Yokomon : Viande géante deux fois en boutique | corrigé (e862fe0) |
 | SYS-15 | P3 | « Sac plein (10 max) » quand ce sont les 20 sortes qui manquent | corrigé (e862fe0) |
 | SYS-16 | P3 | Manuel de technique en plein combat, sur le premier Digimon seulement | corrigé (e862fe0) |
-| SYS-17 | P3 | Gants de flamme (cadeau unique) vendables | voir l'agent Digimon |
+| SYS-17 | P3 | Gants de flamme (cadeau unique) vendables | corrigé (52ebfcc) |
 | SYS-18 | P3 | Boutique « fruits » jamais ouverte | non corrigé : contenu d'un chapitre futur (aucun marchand de fruits avant le chapitre 4) |
 | SYS-19 | P3 | Coffre de la maison et Banque : un seul stock, jamais dit | corrigé (e862fe0) : annoncé par Kunemon et dans l'écran |
 | SYS-20 | P3 | Textes de la quête des Bukamon (« Disque PM », Seadramon après sa défaite) | corrigé (e862fe0) |
@@ -70,19 +70,19 @@ Les fiches complètes (fichier:ligne, reproduction, impact) sont dans `rapports/
 |---|---|---|---|
 | C-P2-1 | P2 | Maison de Penguinmon : la sortie renvoie à ~37 cases de la porte | corrigé (94b9945), test |
 | C-P2-2 | P2 | L'arbre creux de la Prairie change de place selon l'ordre de préparation | corrigé (94b9945) : (62,25) dans les trois ordres essayés |
-| C-P3-1 | P3 | Clairière → Sentier : un arbre de l'atelier sur une voie de sortie | décision du joueur : retouche de l'atelier (l'arrivée est décalée d'une case, sans blocage) |
-| C-P3-2 | P3 | Prairie → Sentier : un arbre de l'atelier sur une voie de sortie | décision du joueur : idem |
-| C-P3-3 | P3 | Prairie ↔ Village des Bébés : une voie morte (collision forcée de l'atelier) | décision du joueur : retouche de l'atelier |
-| C-P3-4 | P3 | Ville → Terrain d'entraînement : sortie de 5 cases pour une entrée de 4 | décision du joueur : retouche de l'atelier (la 5e voie arrive décalée d'une case) |
+| C-P3-1 | P3 | Clairière → Sentier : un arbre de l'atelier sur une voie de sortie | corrigé (a4e0391) : arbre retiré |
+| C-P3-2 | P3 | Prairie → Sentier : un arbre de l'atelier sur une voie de sortie | corrigé (a4e0391) : arbre retiré |
+| C-P3-3 | P3 | Prairie ↔ Village des Bébés : une voie morte (collision forcée de l'atelier) | corrigé (a4e0391) : passage de 5 voies, toutes praticables |
+| C-P3-4 | P3 | Ville → Terrain d'entraînement : sortie de 5 cases pour une entrée de 4 | corrigé (a4e0391) : 4 cases |
 | C-P3-5 | P3 | Souterrain de Jijimon : la 2e case de l'escalier arrive dans un mur | corrigé (94b9945) |
 | C-P3-6 | P3 | Village des Bébés : 2e voie de la sortie de chez Penguinmon sur un obstacle | corrigé avec C-P2-1 |
-| C-P3-7 | P3 | Atelier : lac1 ↔ lac0 se ferme à partir du chapitre 4 (`jusqua: 3`) | décision du joueur : sans effet tant que le chapitre 4 n'existe pas |
+| C-P3-7 | P3 | Atelier : lac1 ↔ lac0 se ferme à partir du chapitre 4 (`jusqua: 3`) | corrigé (a4e0391) : ouvert à partir du chapitre 2 |
 | C-P3-8 | P3 | Champs : textes de bottes de foin sans bottes de foin | corrigé (94b9945) |
-| C-P3-9 | P3 | Ville : deux poteaux effacés dans l'atelier, leurs textes restés | décision du joueur : remettre les poteaux ou retirer les textes dans l'atelier |
-| C-P3-10 | P3 | Textes posés sur le sol au lieu du décor | en partie (94b9945) : souterrain corrigé ; pont de lave de la grotte de Sora en attente (fichier modifié par l'agent images) |
-| C-P3-11 | P3 | Grotte de Sora : rocher et échelle suivis par une comparaison de longueurs | non corrigé pour l'instant (même fichier) : sans effet en partie normale |
-| C-P3-12 | P3 | `OPENS volcan: 3` alors que le Mont Panorama reste fermé | commenté (94b9945) ; la fermeture est ta décision |
-| C-P3-13 | P3 | Grille du monde : 23 chevauchements | non corrigé : carte du monde mise en pause à ta demande |
+| C-P3-9 | P3 | Ville : deux poteaux effacés dans l'atelier, leurs textes restés | corrigé (a4e0391) : textes retirés (tes nouveaux panneaux les remplacent) |
+| C-P3-10 | P3 | Textes posés sur le sol au lieu du décor | corrigé (94b9945, a4e0391) : initiales sur la roche, texte du pont lu depuis le pont |
+| C-P3-11 | P3 | Grotte de Sora : rocher et échelle suivis par une comparaison de longueurs | corrigé (a4e0391) : on compare quels objets sont là |
+| C-P3-12 | P3 | `OPENS volcan: 3` alors que le Mont Panorama reste fermé | décision du joueur : Mont Panorama fermé pour l'instant ; configuration commentée (94b9945) |
+| C-P3-13 | P3 | Grille du monde : 23 chevauchements | décision du joueur : carte du monde mise en pause à ta demande |
 
 Autres constats sur les cartes, relevés avant l'audit :
 - 68 bords de décor débordent légèrement de leur case (P3) : non corrigé ;
@@ -90,8 +90,81 @@ Autres constats sur les cartes, relevés avant l'audit :
 
 ## Digimon et combats (32 anomalies : 0 P0, 1 P1, 10 P2, 21 P3)
 
-En cours de correction (agent Digimon) : tableau rempli à la fusion de ses corrections.
+| N° | Gr. | Anomalie | État |
+|---|---|---|---|
+| D1 | P1 | L'ABI se gagne en boucle (Digivolution ↔ dé-digivolution) : plafond de 99 par stat dès le N.7 | corrigé (52ebfcc), test : une fois par forme (10 allers-retours : ABI 30 → 3) |
+| D2 | P2 | Mode « Statistique » : difficulté figée, gains démesurés (Att +384 en 12 séances) | corrigé (52ebfcc), test : 1,25 fois le mode Digivolution |
+| D3 | P2 | Bandage X : n'importe quel Champion devient Monzaemon sans écusson | corrigé (e862fe0, avec SYS-05), test |
+| D4 | P2 | MegaKabuterimon, MagnaAngemon et Angewomon sans écusson | corrigé (52ebfcc), test ; Angewomon prend l'écusson de T.K. en attendant celui de Kari |
+| D5 | P2 | Un objet de Digivolution fait changer de lignée (dé-digivolution, renaissance) | corrigé (52ebfcc), test |
+| D6 | P2 | Ogremon → Etemon et Devimon → Megadramon impossibles | corrigé (52ebfcc), test |
+| E1 | P2 | Koromon sans technique de Feu : 21 % de victoires contre les autres Entraînement | corrigé (52ebfcc), test : 79 % |
+| E2 | P2 | Birdramon, Garurumon... demandent d'affamer son Digimon | corrigé (52ebfcc), test |
+| E3 | P2 | Les éléments décident presque seuls des combats | décision du joueur (pas encore tranchée) |
+| E4 | P2 | Les Méga atteignent 999 partout dès leur arrivée | décision du joueur : « pour plus tard » (hors des chapitres 1 à 3) |
+| E5 | P2 | Revanche de Shellmon : environ 2 000 Bits à volonté | corrigé (e862fe0, avec SYS-25) |
+| D7 | P3 | Un Digimon K.O. digivolue depuis sa fiche et se relève | corrigé (52ebfcc), test |
+| D8 | P3 | Une puce relève un Digimon K.O. | corrigé (e862fe0), test |
+| D9 | P3 | Le sommeil ne fait perdre qu'une action | corrigé (52ebfcc), test : 2 actions |
+| D10 | P3 | Gain des puces faux hors du stade Disciple | corrigé (52ebfcc) |
+| D11 | P3 | « Suivant : 24 240 » au N.100 | corrigé (52ebfcc) |
+| D12 | P3 | PV non bornés au chargement | corrigé (52ebfcc), test |
+| D13 | P3 | Références mortes (tyrannomon, kunemon2, pagumon) | corrigé (52ebfcc, 7b2ae96) ; la liste des Digimon nocturnes garde des espèces futures |
+| D14 | P3 | Pièce de métal et Miroir de lune introuvables | corrigé (52ebfcc) : vendus quand la ville est à 100 % |
+| D15 | P3 | Dé-digivolution d'Omegamon : partenaire de fusion perdu | corrigé (52ebfcc) : refusée, avec un message |
+| D16 | P3 | La Lutte n'est pas proposée tant qu'une technique de statut est payable | corrigé (52ebfcc), test ; menu à 7 choix regardé à l'écran |
+| D17 | P3 | Combat du Dojo d'Elecmon traité comme un combat sauvage | corrigé (52ebfcc, 7b2ae96) : combat amical, plus compté parmi les Digimon de la zone |
+| D18 | P3 | Bits selon le Digimon actif au K.O. | corrigé (52ebfcc), test |
+| D19 | P3 | Statistiques négatives (Gymnase) | corrigé (52ebfcc), test |
+| D20 | P3 | Gomamon → Shellmon sans victoire | corrigé (52ebfcc), test |
+| D21 | P3 | 29 espèces sans dessin de secours | non corrigé : le jeu attend toutes les images avant de laisser jouer ; reste le cas d'une image qui ne se télécharge pas |
+| D22 | P3 | Le test « Shellmon à mi-vie » ne lisait pas la vraie valeur | corrigé (52ebfcc) |
+| D23 | P3 | README périmé (70 espèces) | corrigé (7b2ae96) : 81 espèces, 132 Digivolutions |
+| D24 | P3 | La renaissance remet l'ABI à 0 | décision du joueur (pas encore tranchée) |
+| D25 | P3 | Pas de technique de classe Poison | non corrigé : contenu à créer |
+| E6 | P3 | EXP entière pour les Digimon restés au fond | corrigé (52ebfcc), test : la moitié |
+| E7 | P3 | L'allié frappe à un pourcentage fixe des PV du boss | gardé : voulu, simple |
 
 ## Graphismes (36 anomalies : 0 P0, 3 P1, 9 P2, 24 P3)
 
-En cours de correction (agent images) : tableau rempli à la fusion de ses corrections.
+Les identifiants de l'audit graphique qui commencent par D (Digimon) sont suffixés ici par « g » pour ne pas se confondre
+avec ceux de l'audit des Digimon.
+
+| N° | Gr. | Anomalie | État |
+|---|---|---|---|
+| T1 | P1 | Le détourage efface les verts du dessin (45 objets perdent 5 % ou plus) | en partie (7b2ae96) : 30 objets refaits avec un détourage net et regardés un à un (jardinières, trèfles, trampoline, buisson fleuri, haie, jeux des villages de bébés, étal de fruits, portail du vent, palmier...) ; 15 gardent l'ancien détourage : objets à lueurs peintes, brindilles, herbes à brins fins, rochers de la plage (le nouveau y laissait du vert citron) |
+| T2 | P1 | Yeux d'Agumon et de Palmon troués, griffes de Palmon effilochées | corrigé (7b2ae96) |
+| R1 | P1 | L'écran titre imite le logo officiel (™) | corrigé (a66a8c0) : écusson effacé, titre dessiné par le jeu |
+| D1g | P2 | Yuramon : vue combat tournée à gauche | corrigé (7b2ae96) |
+| D2g | P2 | Togemon : vue profil tournée à gauche | corrigé (7b2ae96) |
+| D4g | P2 | Bukamon plus grand que les Disciples | décision du joueur : garder (demandé plusieurs fois) |
+| S1 | P2 | Parois des souterrains du volcan rayées | agent volcan (en cours) |
+| S2 | P2 | `grotte/dalles_fissurees` : couture horizontale | agent volcan (en cours) |
+| Z1 | P2 | Arbres et étals flous | en partie (7b2ae96) : les 23 arbres refaits à 210 px (au lieu de 111 à 143) ; étals : leur dessin d'origine est trop petit pour faire mieux |
+| Z2 | P2 | Volcan : 2,96 Mo de PNG chargés au démarrage | agent volcan (en cours) |
+| R2 | P2 | Nom de l'application et icônes sous la marque | décision du joueur : jeu de fan, « non officiel » écrit à l'écran titre et dans le README |
+| R3 | P2 | Personnages et univers de la franchise | propre à un jeu de fan : mention © Bandai / Toei (écran titre, README) |
+| T3 | P3 | La compression WebP verdit le contour | en partie (7b2ae96) : contour démêlé sur les 30 objets refaits |
+| T4 | P3 | Trous d'épingle au contour des Digimon | non corrigé |
+| T5 | P3 | Poussière verte dans le kit du personnage | non corrigé (presque invisible) |
+| T6 | P3 | Lueurs peintes sur le vert, perdues ou trouées | non corrigé : ces objets gardent l'ancien détourage |
+| T7 | P3 | `grotte/porte_tombeau` : trait d'une voisine collé | non corrigé (image jamais placée sur une carte) |
+| D5g | P3 | Bébés en pixel art plus petits que les autres | non corrigé |
+| D6g | P3 | Poses d'attaque coupées par le cadre (jusqu'à 2,9 %) | non corrigé |
+| D7g | P3 | Birdramon et Meramon touchent le bord de leur planche | non corrigé (planche d'origine) |
+| D8g | P3 | Liseré olive sur les Digimon orange | non corrigé |
+| S3 | P3 | Coutures sur des textures jamais employées | non corrigé (jamais employées) |
+| S4 | P3 | Répétition visible des sols raccordables | non corrigé |
+| S5 | P3 | `grotte/herbe` : petite couture | non corrigé |
+| S6 | P3 | Herbe ↔ sable sans fondu | non vérifié en jeu |
+| S7 | P3 | Fondus entre cartes calculés sur les palettes | non vérifié en jeu |
+| Z3 | P3 | 100 images (1,1 Mo) téléchargées sans être placées | gardé : bibliothèque de l'atelier des cartes (chargée en arrière-plan, après le démarrage) |
+| Z4 | P3 | Petits objets trop définis | non corrigé |
+| Z5 | P3 | Images HD 2 dans un écran x3 : pixels inégaux | non corrigé |
+| O1 | P3 | Fougère dessinée sur le héros | non corrigé |
+| O2 | P3 | Base d'un objet sur le haut des herbes hautes | non corrigé |
+| O3 | P3 | Silhouette translucide pour le héros seulement | non corrigé |
+| O4 | P3 | Objets « walk » triés à −10 | non corrigé |
+| O5 | P3 | Grands Digimon de profil : un objet passe devant leurs côtés | non corrigé |
+| R4 | P3 | Mentions légales incomplètes, README inexact | corrigé (7b2ae96) : README réécrit (© Bandai / Toei, provenance des images, police) |
+| R6 | P3 | Images générées par une IA : traçabilité | documenté (README) |

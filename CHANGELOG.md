@@ -6,13 +6,13 @@ l'autre. Le détail de chaque correction est dans `docs/audit/BUGS_ET_CORRECTION
 
 ## 22/10/2026 — Audit intégral : corrections
 
-### Images (en cours)
+### Images (7b2ae96)
 - Yeux d'Agumon et de Palmon : l'iris vert n'est plus troué (on voyait le décor à travers l'œil) ; griffes de Palmon nettes.
 - Yuramon (combat) et Togemon (profil) regardent du bon côté.
-- 35 objets ne perdent plus leurs verts au détourage : jardinières de la ville, trèfles, trampoline, buisson fleuri,
-  haie, tape-cul, toboggan, balançoire, herbes de la montagne et de la plage, palmier, auvent de l'étal de fruits,
-  portail du vent du Gymnase...
-- Arbres plus nets (copies à la taille où ils sont dessinés).
+- 30 objets ne perdent plus leurs verts au détourage : jardinières de la ville, trèfles, trampoline, buisson fleuri,
+  haie, tape-cul, toboggan, balançoire, tunnel, herbe des dunes, palmier, auvent de l'étal de fruits, portail du vent du
+  Gymnase...
+- Arbres nets : copiés à la taille où le jeu les dessine (210 px de haut au lieu de 111 à 143).
 
 ### Écran titre (a66a8c0)
 - L'écusson « DIGITAL DIGIMON MONSTERS ™ », qui imitait le logo officiel, est effacé de l'image peinte ; le jeu dessine
