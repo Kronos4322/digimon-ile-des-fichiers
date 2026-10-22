@@ -57,8 +57,14 @@
   function roll(sp) {
     const P = prof(sp), r = R(), cur = r[sp] || { count: 0 };
     const [k, a, n] = P.asks[(cur.count + today()) % P.asks.length];
-    const lv = st().party[0] ? st().party[0].level : 5, scale = k === 'stat' ? Math.max(0.5, Math.min(2.5, lv / 20)) : 1;
-    r[sp] = { k, a, n: k === 'stat' ? Math.round(n * scale) : n, prog: 0, accepted: false, done: false, day: today(), count: cur.count, evoDue: cur.evoDue || undefined };
+    // stat : 25 % de plus qu'un Digimon de la même espèce et du même niveau, sans entraînement (avant : seuils écrits avant
+    //  l'échelle ×4 des stats, DW.SCALE — un Greymon jamais entraîné remplissait d'avance toutes les demandes de Birdramon)
+    const lead = st().party[0], seuil = () => {
+      if (!lead) return n;
+      const t = new DW.Digimon(lead.sp, lead.level, { iv: { hp: 0, atk: 0, def: 0, spd: 0, int: 0 } });
+      return Math.ceil(t.stat(a) * 1.25 / 5) * 5;
+    };
+    r[sp] = { k, a, n: k === 'stat' ? seuil() : n, prog: 0, accepted: false, done: false, day: today(), count: cur.count, evoDue: cur.evoDue || undefined };
     return r[sp];
   }
   function current(sp) { const q = R()[sp]; return q && q.day === today() ? q : null; }

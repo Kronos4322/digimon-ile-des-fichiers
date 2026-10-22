@@ -20,6 +20,9 @@
   // (check.html?seul=village,montagne0 : seulement ces cartes, pour vérifier vite une retouche)
   const ONLY = (new URLSearchParams(location.search).get('seul') || '').split(',').filter(Boolean);
   for (const id of Object.keys(DW.MAPS).filter(k => !ONLY.length || ONLY.includes(k))) {
+    // (les dossiers d'images chargés à part — bébés, grotte, désert... — sont attendus comme en jeu : avant, les cartes
+    //  de ces dossiers étaient vérifiées avec des décors sans leur taille)
+    if (DW.attendreDossiers) await DW.attendreDossiers(id);
     // la carte telle que le jeu la prépare (décors en kits, distributeurs, personnages hors du décor : game/overworld.js)
     const m = DW.preparerCarte ? DW.preparerCarte(id) : DW.getMap(id); if (!DW.preparerCarte && DW.MapKit.dress) DW.MapKit.dress(m, id);
     const g = DW.World.prepare(m), p = [];
