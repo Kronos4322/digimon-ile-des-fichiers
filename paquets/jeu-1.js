@@ -1996,7 +1996,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   // pow: puissance, acc: précision (null = toujours), pp, pri: priorité, contact: animation au corps à corps
   // st: {s: statut, ch: chance}  sc: {who: 'self'|'foe', s: stat, n: crans, ch}
   const M = DW.MOVES = {
-    lutte:          { name: 'Lutte', type: 'Neutre', pow: 40, acc: null, contact: true, desc: "Utilisée quand il n'y a plus assez de PM." },
+    lutte:          { name: 'Lutte', type: 'Neutre', pow: 40, acc: null, contact: true, desc: "Toujours possible, sans PM (dernier choix du menu Combat) : le Digimon se blesse d'un quart de ses PV max." },
     // (les signatures des lignées de Kari, de Sora, d'Izzy et de T.K., et d'Omegamon)
     cri_chiot:      { name: 'Cri du Chiot', type: 'Lumière', pow: 45, acc: 100, sc: { who: 'foe', s: 'atk', n: -1, ch: 0.3 }, desc: "Salamon pousse un cri aigu plein de lumière. Peut baisser l'Attaque de l'ennemi." },
     griffe_eclair:  { name: 'Griffe Éclair', type: 'Lumière', pow: 85, acc: 95, contact: true, desc: 'Gatomon frappe à la vitesse de la lumière avec les griffes de ses gants.' },
@@ -2108,7 +2108,9 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   DW.SIG = {
     botamon: 'bulles_acides', punimon: 'bulles', pichimon: 'bulles', yuramon: 'bulles', nyokimon: 'bulles', wargreymon: 'force_gaia', metalgarurumon: 'souffle_cocyte',
     numemon: 'gadoue_nume', sukamon: 'ordure_toxique', monzaemon: 'attaque_coeur', weregarurumon: 'griffe_garuru', skullmeramon: 'feu_metal', garudamon: 'ombre_ailee', okuwamon: 'double_ciseaux',
-    koromon: 'bulles', tsunomon: 'bulles', bukamon: 'bulles', tanemon: 'bulles', yokomon: 'bulles',
+    // (Koromon : Étincelle, de son élément — ses Bulles d'Eau ne servaient à rien contre Bukamon et les Digimon Plante ;
+    //  Bulles reste de l'Eau : Neutre, Bukamon perdait sa seule technique d'Eau et les Plante ne la craignaient plus)
+    koromon: 'etincelle', tsunomon: 'bulles', bukamon: 'bulles', tanemon: 'bulles', yokomon: 'bulles',
     agumon: 'flamme_bebe', greymon: 'mega_flamme', metalgreymon: 'giga_destruction', gabumon: 'souffle_bleu', garurumon: 'flamme_bleue',
     meramon: 'poing_ardent', gomamon: 'banc_poissons', ikkakumon: 'torpille_harpon', zudomon: 'marteau_vulcain',
     palmon: 'lierre', togemon: 'pluie_epines', lillymon: 'canon_floral', biyomon: 'flamme_spirale', birdramon: 'meteore',
@@ -2150,11 +2152,14 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     learn: [[1, 'charge'], [1, 'bulles'], [3, 'parfum'], [5, 'feuille']],
     desc: "Un petit bourgeon sur pattes. La fleur sur sa tête s'ouvre quand il est heureux." });
 
+  // (chaque Digimon d'Entraînement a une technique de son élément au N.1 : il la sait d'instinct en digivoluant —
+  //  DW.learnEvoMoves. Sans elle, Koromon ne frappait qu'en Neutre ou en Eau et perdait presque tous ses combats :
+  //  Étincelle, son coup spécial, data/moves.js ; Tsunomon n'avait sa Glace qu'au N.8 : Flocon)
   def('koromon', { name: 'Koromon', stage: 'Entraînement', types: ['Feu'], attr: 'Vaccin', base: { hp: 45, atk: 46, def: 40, spd: 50, int: 44 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'vive_attaque'], [8, 'bulle_explosive'], [10, 'coup_tete']], evo: { to: 'agumon', lvl: 8 }, rate: 190, xp: 45,
-    desc: 'Une petite boule rose pleine d\'énergie. Il souffle des bulles pour se défendre et rêve de devenir fort.' });
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'etincelle'], [4, 'grondement'], [6, 'vive_attaque'], [8, 'bulle_explosive'], [10, 'coup_tete']], evo: { to: 'agumon', lvl: 8 }, rate: 190, xp: 45,
+    desc: 'Une petite boule rose pleine d\'énergie. Il souffle des bulles et des étincelles pour se défendre, et rêve de devenir fort.' });
   def('tsunomon', { name: 'Tsunomon', stage: 'Entraînement', types: ['Glace'], attr: 'Données', base: { hp: 46, atk: 44, def: 48, spd: 46, int: 44 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'garde'], [6, 'vive_attaque'], [8, 'souffle_glace'], [10, 'coup_tete']], evo: { to: 'gabumon', lvl: 8 }, rate: 190, xp: 45,
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'flocon'], [4, 'garde'], [6, 'vive_attaque'], [8, 'souffle_glace'], [10, 'coup_tete']], evo: { to: 'gabumon', lvl: 8 }, rate: 190, xp: 45,
     desc: "Une petite boule de poils à la corne pointue. Un peu timide, mais d'une loyauté sans faille envers son partenaire." });
   def('bukamon', { name: 'Bukamon', stage: 'Entraînement', types: ['Eau'], attr: 'Vaccin', base: { hp: 48, atk: 42, def: 46, spd: 45, int: 46 }, kg: 5,
     learn: [[1, 'charge'], [1, 'bulles'], [4, 'garde'], [6, 'vive_attaque'], [8, 'jet_hydro'], [10, 'coup_tete']], evo: { to: 'gomamon', lvl: 8 }, rate: 190, xp: 45,
@@ -2363,7 +2368,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     penguinmon: [r('frigimon', 15, { hp: 26, wins: 10 })], gabumon: [r('frigimon', 18, { hp: 28, def: 14, wins: 10 }), r('ogremon', 18, { atk: 24, mistakes: 3 })],
     elecmon: [r('leomon', 18, { atk: 28, wins: 12 }), r('centarumon', 18, { int: 26, def: 14, wins: 10 })], agumon: [r('monochromon', 18, { def: 28, hp: 14, wins: 10 })],
     betamon: [r('seadramon', 18, { int: 28, wins: 10 }), r('gekomon', 18, { int: 22, hp: 18, wins: 10 })], gomamon: [r('seadramon', 18, { int: 26, spd: 14, wins: 10 })],
-    biyomon: [r('unimon', 18, { spd: 26, int: 14, wins: 10 })], mushroomon: [r('bakemon', 18, { int: 26, wins: 10 })], kunemon2: [],
+    biyomon: [r('unimon', 18, { spd: 26, int: 14, wins: 10 })], mushroomon: [r('bakemon', 18, { int: 26, wins: 10 })],
     kabuterimon: [r('andromon', 32, { def: 50, int: 30, happy: 60, wins: 40 })], centarumon: [r('andromon', 32, { int: 50, def: 30, happy: 60, wins: 40 })],
     drimogemon: [r('andromon', 32, { atk: 48, def: 40, wins: 40 })], monochromon: [r('megadramon', 32, { atk: 50, def: 30, wins: 40 })],
     seadramon: [r('megadramon', 32, { int: 50, spd: 30, wins: 40 })], devimon: [r('megadramon', 32, { atk: 50, int: 30, wins: 40 })],
@@ -2372,7 +2377,6 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     frigimon: [r('zudomon', 32, { hp: 50, def: 30, happy: 60, wins: 40 })], gekomon: [r('zudomon', 32, { int: 46, def: 30, wins: 40 })],
     bakemon: [r('skullmeramon', 32, { int: 50, wins: 40 })], greymon: [r('skullgreymon', 32, { atk: 50, mistakes: 3 })],
   };
-  delete DW.EVO_EXTRA.kunemon2;
 })();
 ;
 
@@ -2441,11 +2445,13 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   baby('poyomon', { name: 'Poyomon', types: ['Neutre'], base: { hp: 42, atk: 34, def: 36, spd: 42, int: 38 },
     learn: [[1, 'charge'], [1, 'bulles'], [3, 'grondement'], [5, 'bulles_acides']],
     desc: "Un bébé translucide qui flotte comme une méduse. Il crache des bulles acides pour se défendre." });
+  // (Décharge et Rayon Doux au N.1 : leur technique d'élément, apprise d'instinct en digivoluant — DW.learnEvoMoves ;
+  //  avant, ni Mochimon ni Tokomon n'en avaient aucune)
   def('motimon', { name: 'Motimon', stage: 'Entraînement', types: ['Électrique'], attr: 'Données', base: { hp: 44, atk: 40, def: 44, spd: 44, int: 52 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'garde'], [6, 'bulle_explosive'], [8, 'vive_attaque'], [10, 'coup_tete']], rate: 190, xp: 45,
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'decharge'], [4, 'garde'], [6, 'bulle_explosive'], [8, 'vive_attaque'], [10, 'coup_tete']], rate: 190, xp: 45,
     desc: "Un Digimon tout mou comme une pâte de riz. Il comprend le langage des humains et adore apprendre." });
   def('tokomon', { name: 'Tokomon', stage: 'Entraînement', types: ['Lumière'], attr: 'Vaccin', base: { hp: 48, atk: 46, def: 42, spd: 48, int: 42 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'morsure'], [8, 'vive_attaque'], [10, 'bulle_explosive']], rate: 190, xp: 45,
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'rayon'], [4, 'grondement'], [6, 'morsure'], [8, 'vive_attaque'], [10, 'bulle_explosive']], rate: 190, xp: 45,
     desc: "Une adorable boule blanche aux longues oreilles... qui cache une bouche immense pleine de dents !" });
 
   // la lignée de Kari (et les formes qui manquaient aux autres lignées)
@@ -2559,7 +2565,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     yokomon: [{ to: "biyomon", lvl: 8, req: { spd: 12, wins: 3 } }, { to: 'kunemon', lvl: 8, req: { int: 12, wins: 3 } }],
     agumon: [{ to: "greymon", lvl: 15, req: { atk: 28, wins: 10 } }, { to: "meramon", lvl: 15, req: { int: 28, wins: 10 } }],
     gabumon: [{ to: "garurumon", lvl: 15, req: { spd: 26, def: 12, wins: 10 } }],
-    gomamon: [{ to: "ikkakumon", lvl: 15, req: { def: 28, wins: 10 } }, { to: "shellmon", lvl: 15, req: { def: 24, hp: 24 } }],
+    gomamon: [{ to: "ikkakumon", lvl: 15, req: { def: 28, wins: 10 } }, { to: "shellmon", lvl: 15, req: { def: 24, hp: 24, wins: 10 } }],   // (10 victoires, comme Betamon → Shellmon)
     palmon: [{ to: "togemon", lvl: 15, req: { int: 28, wins: 10 } }],
     biyomon: [{ to: "birdramon", lvl: 15, req: { spd: 28, wins: 10 } }, { to: "meramon", lvl: 15, req: { atk: 28, wins: 10 } }],
     betamon: [{ to: 'shellmon', lvl: 15, req: { hp: 24, wins: 10 } }],
@@ -2593,11 +2599,15 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   // espèces de l'île (species2.js)
   for (const sp in DW.EVO_EXTRA || {}) EVO[sp] = (EVO[sp] || []).concat(DW.EVO_EXTRA[sp]);
   const BAD = ['numemon', 'sukamon', 'monzaemon'];
+  // formes « de négligence » (atteintes avec au moins N erreurs de soin : Ogremon, Devimon, SkullGreymon) : les erreurs ne
+  // baissent jamais, leurs Digivolutions ne les plafonnent donc pas (Ogremon → Etemon et Devimon → Megadramon étaient impossibles)
+  const NEGLIGE = new Set();
+  for (const sp in EVO) for (const o of EVO[sp]) if (o.req && o.req.mistakes != null) NEGLIGE.add(o.to);
   for (const sp in EVO) for (const o of EVO[sp]) {
-    const st = DW.SPECIES[o.to] && DW.SPECIES[o.to].stage, r = o.req = o.req || {};
+    const st = DW.SPECIES[o.to] && DW.SPECIES[o.to].stage, r = o.req = o.req || {}, plafond = !NEGLIGE.has(sp);
     if (BAD.includes(o.to) || r.mistakes != null) continue; // évolutions « de négligence » : pas de plafond d'erreurs
-    if (st === 'Champion' && r.mistakesMax == null) r.mistakesMax = 4;
-    if (st === 'Ultime') { if (r.mistakesMax == null) r.mistakesMax = 2; if (r.disc == null) r.disc = 50; }
+    if (st === 'Champion' && r.mistakesMax == null && plafond) r.mistakesMax = 4;
+    if (st === 'Ultime') { if (r.mistakesMax == null && plafond) r.mistakesMax = 2; if (r.disc == null) r.disc = 50; }
     if (st === 'Méga') { if (r.mistakesMax == null) r.mistakesMax = 1; if (r.disc == null) r.disc = 80; }
   }
   // tout Disciple trop négligé peut devenir Numemon (≥ 5 erreurs) ou Sukamon (≥ 8 erreurs)
@@ -2606,27 +2616,36 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     EVO[sp].push({ to: 'numemon', lvl: 14, req: { mistakes: 5 } }, { to: 'sukamon', lvl: 14, req: { mistakes: 8 } });
   }
   // un peu de corpulence dans les conditions
+  // (formes agiles : seuils relevés d'un cran — avant 2, 3, 3, 1, 2, 2 — avec la perte de poids des séances, game/training.js :
+  //  un Digimon nourri à la demande et entraîné 4 fois par jour les remplit ; avant, il fallait l'affamer)
   const fat = (from, to, k, v) => { const o = (EVO[from] || []).find(e => e.to === to); if (o) o.req[k] = v; };
-  fat('palmon', 'togemon', 'fatMin', 2); fat('gabumon', 'garurumon', 'fatMax', 3); fat('elecmon', 'garurumon', 'fatMax', 3);
-  fat('biyomon', 'birdramon', 'fatMax', 2);
+  fat('palmon', 'togemon', 'fatMin', 2); fat('gabumon', 'garurumon', 'fatMax', 4); fat('elecmon', 'garurumon', 'fatMax', 4);
+  fat('biyomon', 'birdramon', 'fatMax', 3);
   // gros gabarits : il faut un Digimon bien nourri ; formes agiles : il doit rester léger
-  fat('agumon', 'greymon', 'fatMin', 0); fat('agumon', 'meramon', 'fatMax', 1); fat('gotsumon', 'meramon', 'fatMax', 2);
-  fat('betamon', 'shellmon', 'fatMin', 3); fat('gomamon', 'shellmon', 'fatMin', 3); fat('kunemon', 'kuwagamon', 'fatMax', 2); fat('mushroomon', 'togemon', 'fatMin', 1); fat('gomamon', 'ikkakumon', 'fatMin', 1); fat('ikkakumon', 'zudomon', 'fatMin', 3);
+  fat('agumon', 'greymon', 'fatMin', 0); fat('agumon', 'meramon', 'fatMax', 2); fat('gotsumon', 'meramon', 'fatMax', 3);
+  fat('betamon', 'shellmon', 'fatMin', 3); fat('gomamon', 'shellmon', 'fatMin', 3); fat('kunemon', 'kuwagamon', 'fatMax', 3); fat('mushroomon', 'togemon', 'fatMin', 1); fat('gomamon', 'ikkakumon', 'fatMin', 1); fat('ikkakumon', 'zudomon', 'fatMin', 3);
 
   const LABEL = { hp: 'Entr. PV', atk: 'Entr. Attaque', def: 'Entr. Défense', spd: 'Entr. Vitesse', int: 'Entr. Intell.', happy: 'Bonheur', wins: 'Victoires',
     disc: 'Discipline', mistakes: 'Erreurs de soin', mistakesMax: 'Erreurs de soin', fatMin: 'Corpulence', fatMax: 'Corpulence', fusion: 'Fusion' };
   const MAXK = ['mistakesMax', 'fatMax'];
 
+  const RANG = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'], rang = sp => RANG.indexOf(DW.SPECIES[sp].stage);
   DW.Evo = {
     options: sp => EVO[sp] || [],
     // formes précédentes (pour la dé-digivolution)
     prev: sp => Object.keys(EVO).filter(k => EVO[k].some(e => e.to === sp)),
-    // LA forme précédente : celle qu'il a vraiment été (passe : m.parcours), sinon celle dont il est l'évolution principale
-    // (Gabumon ← Tsunomon et non Koromon, Tentomon ← Motimon, Patamon ← Tokomon : les lignées de l'animé)
+    // LA forme précédente : celle qu'il a vraiment été (passe : m.parcours, la dernière forme d'un stade inférieur — même hors
+    // de la table : le Gabumon de Matt devenu Birdramon par l'Aile de flammes redevient Gabumon, et renaît en Punimon),
+    // sinon celle dont il est l'évolution principale (Gabumon ← Tsunomon et non Koromon, Tentomon ← Motimon, Patamon ← Tokomon :
+    // les lignées de l'animé)
     prev1(sp, passe) {
-      const p = this.prev(sp), v = passe && passe[passe.length - 1];
-      return p.includes(v) ? v : p.find(k => EVO[k][0].to === sp) || p[0] || null;
+      const v = passe && passe[passe.length - 1];
+      if (v && DW.SPECIES[v] && DW.SPECIES[sp] && rang(v) < rang(sp)) return v;
+      const p = this.prev(sp);
+      return p.find(k => EVO[k][0].to === sp) || p[0] || null;
     },
+    // forme née d'une fusion (Omegamon : WarGreymon + MetalGarurumon) : elle ne dé-digivolue pas (ui/evotable.js)
+    estFusion: sp => Object.keys(EVO).some(k => EVO[k].some(e => e.to === sp && e.req && e.req.fusion)),
     // bébé à l'origine de sa lignée (renaissance) : Greymon → Agumon → Koromon → Botamon
     bebe(sp, passe = []) {
       const P = passe.slice();
@@ -2673,10 +2692,12 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     tai: ['metalgreymon', 'skullgreymon', 'etemon'],   // Courage
     matt: ['weregarurumon', 'megadramon'],             // Amitié
     sora: ['garudamon', 'skullmeramon'],               // Amour
-    izzy: ['andromon', 'okuwamon'],                    // Savoir
+    izzy: ['andromon', 'okuwamon', 'megakabuterimon'], // Savoir
     mimi: ['lillymon', 'monzaemon'],                   // Pureté
     joe: ['zudomon'],                                  // Sincérité
-    tk: ['piximon'],                                   // Espoir
+    // Espoir ; Angewomon (lignée de Kari) prend l'écusson de T.K. en attendant celui de Kari, la Lumière (pas encore dans
+    // ORDER : il n'y a que 7 écussons à trouver)
+    tk: ['piximon', 'magnaangemon', 'angewomon'],
   };
   const ORDER = ['tai', 'matt', 'sora', 'izzy', 'mimi', 'joe', 'tk'];
   const OF = {};   // Ultime → écusson
@@ -2850,7 +2871,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     ikkakumon: [[30, 'raz_de_maree']], gomamon: [[20, 'raz_de_maree']], betamon: [[22, 'raz_de_maree']], shellmon: [[28, 'raz_de_maree']],
     kabuterimon: [[30, 'orage']], elecmon: [[21, 'orage']], tentomon: [[22, 'orage']],
     gabumon: [[20, 'pics_glace']], garurumon: [[28, 'pics_glace']], frigimon: [[26, 'pics_glace']],
-    gotsumon: [[19, 'seisme']], monochromon: [[30, 'seisme']], tyrannomon: [[32, 'seisme']],
+    gotsumon: [[19, 'seisme']], monochromon: [[30, 'seisme']],
     patamon: [[22, 'rayon_sacre']], angemon: [[28, 'rayon_sacre']],
     devimon: [[0, 'sphere_obscure']], bakemon: [[24, 'sphere_obscure']],
     palmon: [[20, 'tempete_petales']], togemon: [[28, 'tempete_petales']], biyomon: [[24, 'tempete_petales']],
@@ -2897,15 +2918,17 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     s_disque_def: { name: 'Super disque Défense', price: 4000, tier: 14, use: 'buff', st: { def: 2 }, icon: ['disk', '#1a5ab0'], desc: 'En combat : augmente fortement la Défense.' },
     s_disque_vit: { name: 'Super disque Vitesse', price: 4000, tier: 14, use: 'buff', st: { spd: 2 }, icon: ['disk', '#1a9050'], desc: 'En combat : augmente fortement la Vitesse.' },
     // ------------------------------------------------------------ puces (bonus permanents)
-    puce_atk:     { name: 'Puce Attaque', price: 7500, tier: 10, use: 'chip', chip: { atk: 12.5 }, icon: ['chip', '#f08a30'], desc: "Attaque +50, pour toujours." },
-    puce_def:     { name: 'Puce Défense', price: 7500, tier: 10, use: 'chip', chip: { def: 12.5 }, icon: ['chip', '#3a8ae0'], desc: 'Défense +50, pour toujours.' },
-    puce_int:     { name: 'Puce Cerveau', price: 9999, tier: 16, use: 'chip', chip: { int: 12.5 }, icon: ['chip', '#a05ae0'], desc: 'Intelligence +50, pour toujours.' },
-    puce_spd:     { name: 'Puce Vitesse', price: 9999, tier: 16, use: 'chip', chip: { spd: 12.5 }, icon: ['chip', '#3ac070'], desc: 'Vitesse +50, pour toujours.' },
-    puce_pv:      { name: 'Puce PV', price: 5000, tier: 6, use: 'chip', chip: { hp: 25 }, icon: ['chip', '#e04848'], desc: 'PV max +500, pour toujours.' },
-    puce_pm:      { name: 'Puce PM', price: 5000, tier: 6, use: 'chip', chip: { mp: 25 }, icon: ['chip', '#4ae0f0'], desc: 'PM max +500, pour toujours.' },
-    puce_dva:     { name: 'Puce DV A', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, int: 25 }, icon: ['chip', '#ffd040'], desc: 'Attaque et Intelligence +100, pour toujours.' },
-    puce_dvd:     { name: 'Puce DV D', price: 5000, tier: 20, use: 'chip', chip: { def: 25, spd: 25 }, icon: ['chip', '#80e0ff'], desc: 'Défense et Vitesse +100, pour toujours.' },
-    puce_dve:     { name: 'Puce DV E', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, spd: 25 }, icon: ['chip', '#ff80c0'], desc: 'Attaque et Vitesse +100, pour toujours.' },
+    // (le stade multiplie le gain, sauf pour les PM — Disciple ×1, Champion ×1,55, Ultime ×2 : game/monster.js ; avant, les
+    //  textes ne donnaient que celui d'un Disciple)
+    puce_atk:     { name: 'Puce Attaque', price: 7500, tier: 10, use: 'chip', chip: { atk: 12.5 }, icon: ['chip', '#f08a30'], desc: 'Attaque en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_def:     { name: 'Puce Défense', price: 7500, tier: 10, use: 'chip', chip: { def: 12.5 }, icon: ['chip', '#3a8ae0'], desc: 'Défense en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_int:     { name: 'Puce Cerveau', price: 9999, tier: 16, use: 'chip', chip: { int: 12.5 }, icon: ['chip', '#a05ae0'], desc: 'Intelligence en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_spd:     { name: 'Puce Vitesse', price: 9999, tier: 16, use: 'chip', chip: { spd: 12.5 }, icon: ['chip', '#3ac070'], desc: 'Vitesse en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_pv:      { name: 'Puce PV', price: 5000, tier: 6, use: 'chip', chip: { hp: 25 }, icon: ['chip', '#e04848'], desc: 'PV max en hausse pour toujours : +500 pour un Disciple, +775 pour un Champion, +1000 pour un Ultime.' },
+    puce_pm:      { name: 'Puce PM', price: 5000, tier: 6, use: 'chip', chip: { mp: 25 }, icon: ['chip', '#4ae0f0'], desc: 'PM max +500, pour toujours (à tous les stades).' },
+    puce_dva:     { name: 'Puce DV A', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, int: 25 }, icon: ['chip', '#ffd040'], desc: 'Attaque et Intelligence en hausse pour toujours : +100 pour un Disciple, +155 pour un Champion, +200 pour un Ultime.' },
+    puce_dvd:     { name: 'Puce DV D', price: 5000, tier: 20, use: 'chip', chip: { def: 25, spd: 25 }, icon: ['chip', '#80e0ff'], desc: 'Défense et Vitesse en hausse pour toujours : +100 pour un Disciple, +155 pour un Champion, +200 pour un Ultime.' },
+    puce_dve:     { name: 'Puce DV E', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, spd: 25 }, icon: ['chip', '#ff80c0'], desc: 'Attaque et Vitesse en hausse pour toujours : +100 pour un Disciple, +155 pour un Champion, +200 pour un Ultime.' },
     // ------------------------------------------------------------ outils
     pilote_auto:  { name: 'Pilote automatique', price: 300, tier: 2, use: 'home', icon: ['tool', '#5ab0ff'], desc: 'Te ramène aussitôt à la Ville des Fichiers.' },
     pot_portable: { name: 'Pot portable', price: 300, tier: 2, use: 'potty', icon: ['tool', '#f0f0f0'], desc: 'Ton Digimon peut faire ses besoins n\'importe où.' },
@@ -2927,7 +2950,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     steak:        { name: 'Steak', price: 1000, tier: 9, use: 'heal', amt: 2500, food: 100, icon: ['meat', '#7a3a2a'], desc: 'Rassasie complètement, restaure 2500 PV.' },
     digichampi:   { name: 'Digichampignon', price: 100, tier: 0, use: 'heal', amt: 300, food: 40, icon: ['mush', '#d84a3a'], desc: 'Calme un peu la faim, 300 PV.' },
     champi_glace: { name: 'Champignon glacé', price: 1000, tier: 16, use: 'heal', food: 20, disc: 15, icon: ['mush', '#7ad0ff'], desc: 'Augmente beaucoup la discipline.' },
-    champi_luxe:  { name: 'Champignon de luxe', price: 5000, tier: 20, use: 'heal', food: 30, chip: { atk: 1, def: 1, spd: 1, int: 1 }, icon: ['mush', '#f0c030'], desc: 'Attaque, Défense, Vitesse et Intelligence +4, pour toujours.' },
+    champi_luxe:  { name: 'Champignon de luxe', price: 5000, tier: 20, use: 'heal', food: 30, chip: { atk: 1, def: 1, spd: 1, int: 1 }, icon: ['mush', '#f0c030'], desc: 'Attaque, Défense, Vitesse et Intelligence en hausse pour toujours : +4 pour un Disciple, environ +6 pour un Champion, +8 pour un Ultime.' },
     champi_joie:  { name: 'Champignon joyeux', price: 1000, tier: 12, use: 'heal', food: 20, happy: 20, risky: 0.3, icon: ['mush', '#f080c0'], desc: 'Rend très heureux... mais peut rendre malade.' },
     super_carotte:{ name: 'Super carotte', price: 500, tier: 6, use: 'heal', food: 30, boost: 1, icon: ['veg', '#f08a20'], desc: 'La prochaine séance d\'entraînement rapporte 1 point de plus.' },
     radis:        { name: 'Radis faucon', price: 500, tier: 6, use: 'heal', food: 30, boost: 1, icon: ['veg', '#f0f0f0'], desc: 'La prochaine séance d\'entraînement rapporte 1 point de plus.' },
@@ -2937,15 +2960,17 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     baie_rouge:   { name: 'Baie rouge', price: 1000, tier: 9, use: 'heal', food: 20, tired: 100, disc: 5, happy: 5, icon: ['fruit', '#e03a3a'], desc: 'Repose, et augmente discipline et bonheur.' },
     gland_or:     { name: "Gland d'or", price: 8000, sell: 6000, use: 'none', icon: ['fruit', '#f0c030'], desc: 'Ne se mange pas... mais se revend très cher !' },
     grosse_baie:  { name: 'Grosse baie', price: 1000, tier: 9, use: 'heal', food: 100, fat: 3, icon: ['fruit', '#a03ac0'], desc: 'Rassasie et fait prendre du poids.' },
-    noix_douce:   { name: 'Noix douce', price: 1000, tier: 12, use: 'heal', full: true, food: 30, icon: ['fruit', '#c88a4a'], desc: 'Restaure tous les PV !' },
-    super_legume: { name: 'Super légume', price: 1000, tier: 12, use: 'heal', amt: 2500, food: 30, icon: ['veg', '#5ad040'], desc: 'Un légume énorme : rassasie et rend 2500 PV.' },
+    // (Noix douce, Super légume, Orange-banane : la nourriture ne soigne plus — DW.foodRule — et ces trois-là ne faisaient plus
+    //  que calmer la faim, pour 1000 Bits : chacune a retrouvé un petit effet à elle, le bonheur, la fatigue ou la discipline)
+    noix_douce:   { name: 'Noix douce', price: 1000, tier: 12, use: 'heal', food: 30, happy: 10, disc: 3, icon: ['fruit', '#c88a4a'], desc: 'Une noix toute sucrée. Calme la faim, rend heureux et aide un peu la discipline.' },
+    super_legume: { name: 'Super légume', price: 1000, tier: 12, use: 'heal', food: 60, tired: 60, icon: ['veg', '#5ad040'], desc: "Un légume énorme, plein d'énergie. Rassasie bien et chasse une bonne partie de la fatigue." },
     figue:        { name: 'Figue de Barbarie', price: 1000, tier: 9, use: 'heal', food: 20, fat: -3, icon: ['fruit', '#e05a8a'], desc: 'Fait perdre du poids.' },
-    orange_bana:  { name: 'Orange-banane', price: 1000, tier: 12, use: 'heal', full: true, mpFull: true, food: 40, icon: ['fruit', '#f0a020'], desc: 'Restaure tous les PV et PM.' },
-    fruit_force:  { name: 'Fruit de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { atk: 5 }, icon: ['fruit', '#f05a30'], desc: 'Attaque +20, pour toujours !' },
-    glace_force:  { name: 'Glace de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { def: 5 }, icon: ['fruit', '#7ad0ff'], desc: 'Défense +20, pour toujours !' },
-    feuille_vite: { name: 'Feuille de vitesse', price: 5000, tier: 18, use: 'heal', food: 20, chip: { spd: 5 }, icon: ['veg', '#5ae08a'], desc: 'Vitesse +20, pour toujours !' },
-    fruit_sage:   { name: 'Fruit du sage', price: 5000, tier: 18, use: 'heal', food: 20, chip: { int: 5 }, icon: ['fruit', '#a05ae0'], desc: 'Intelligence +20, pour toujours !' },
-    igname:       { name: 'Igname musclée', price: 5000, tier: 18, use: 'heal', food: 40, chip: { hp: 10 }, icon: ['veg', '#c8a070'], desc: 'PV max +200, pour toujours !' },
+    orange_bana:  { name: 'Orange-banane', price: 1000, tier: 12, use: 'heal', food: 40, disc: 10, icon: ['fruit', '#f0a020'], desc: 'Un fruit étrange qui donne envie de bien se tenir. Calme la faim et aide la discipline.' },
+    fruit_force:  { name: 'Fruit de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { atk: 5 }, icon: ['fruit', '#f05a30'], desc: 'Attaque en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    glace_force:  { name: 'Glace de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { def: 5 }, icon: ['fruit', '#7ad0ff'], desc: 'Défense en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    feuille_vite: { name: 'Feuille de vitesse', price: 5000, tier: 18, use: 'heal', food: 20, chip: { spd: 5 }, icon: ['veg', '#5ae08a'], desc: 'Vitesse en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    fruit_sage:   { name: 'Fruit du sage', price: 5000, tier: 18, use: 'heal', food: 20, chip: { int: 5 }, icon: ['fruit', '#a05ae0'], desc: 'Intelligence en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    igname:       { name: 'Igname musclée', price: 5000, tier: 18, use: 'heal', food: 40, chip: { hp: 10 }, icon: ['veg', '#c8a070'], desc: 'PV max en hausse pour toujours : +200 pour un Disciple, +310 pour un Champion, +400 pour un Ultime !' },
     baie_calme:   { name: 'Baie calme', price: 5000, tier: 18, use: 'heal', food: 20, chip: { mp: 10 }, icon: ['fruit', '#5ab0ff'], desc: 'PM max +200, pour toujours !' },
     melon:        { name: 'Melon chaîne', price: 5000, tier: 20, use: 'heal', full: true, mpFull: true, food: 100, happy: 10, disc: 5, tired: 100, icon: ['fruit', '#8ad040'], desc: 'Bon pour tout : PV, PM, faim, fatigue, bonheur et discipline.' },
     viande_moisie:{ name: 'Viande moisie', price: 50, tier: 0, use: 'heal', amt: 300, food: 50, risky: 0.3, icon: ['meat', '#7a8a4a'], desc: 'Rassasie un peu... mais peut rendre malade.' },
@@ -2957,7 +2982,8 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     macaron:      { name: 'Macaron', price: 150, tier: 0, use: 'heal', amt: 100, food: 10, happy: 6, icon: ['cake', '#f08ab0'], desc: 'Petit et coloré. Rend heureux.' },
     eclair:       { name: 'Éclair au chocolat', price: 250, tier: 0, use: 'heal', amt: 200, food: 20, happy: 10, icon: ['cake', '#7a4a2a'], desc: 'Fondant au chocolat. Très bon pour le moral.' },
     tarte:        { name: 'Tarte aux fruits', price: 400, tier: 0, use: 'heal', amt: 1000, food: 60, happy: 8, icon: ['cake', '#e05a3a'], desc: 'Une belle tarte. 1000 PV et de la bonne humeur.' },
-    gateau_fete:  { name: 'Gâteau de fête', price: 900, tier: 0, use: 'heal', full: true, food: 80, happy: 20, fat: 2, icon: ['cake', '#ffffff'], desc: 'Tous les PV et beaucoup de bonheur... mais il fait grossir.' },
+    // (sans « PV » dans le texte : DW.foodRule ne garde que les phrases sans soin, il laissait « mais il fait grossir... » en tête)
+    gateau_fete:  { name: 'Gâteau de fête', price: 900, tier: 0, use: 'heal', food: 80, happy: 20, fat: 2, icon: ['cake', '#ffffff'], desc: 'Le gâteau des grands jours. Rassasie bien et rend très heureux... mais il fait grossir.' },
     // ------------------------------------------------------------ poissons (pêche)
     digianchois:  { name: 'Digi-anchois', price: 50, use: 'heal', amt: 300, food: 30, icon: ['fish', '#b8c8d8'], desc: 'Calme un peu la faim.' },
     digivivaneau: { name: 'Digi-vivaneau', price: 100, use: 'heal', amt: 800, food: 60, icon: ['fish', '#e07a5a'], desc: 'Rassasie bien.' },
@@ -2981,10 +3007,14 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
     ['banane_or', 'Banane dorée', 'etemon'], ['miroir_lune', 'Miroir de lune', 'weregarurumon'],
   ];
   const STAGES = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
+  // (la Pièce de métal et le Miroir de lune n'ont ni coffre ni quête : rang 20, Piximon les vend en ville — game/services.js —
+  //  une fois la ville au bout de sa croissance ; au rang 24, jamais en vente, ils étaient introuvables. Ils ne servent
+  //  qu'avec l'écusson de leur famille)
+  const RANG = { piece_metal: 20, miroir_lune: 20 };
   for (const [id, name, to] of EVO_ITEMS) {
     const S = DW.SPECIES[to]; if (!S) continue;
     const ult = S.stage === 'Ultime';
-    I[id] = { name, price: ult ? 9999 : 5000, tier: ult ? 24 : 14, use: 'evo', to, from: STAGES[STAGES.indexOf(S.stage) - 1], icon: ['evo', ult ? '#ffd040' : '#c8d0e0'],
+    I[id] = { name, price: ult ? 9999 : 5000, tier: RANG[id] != null ? RANG[id] : ult ? 24 : 14, use: 'evo', to, from: STAGES[STAGES.indexOf(S.stage) - 1], icon: ['evo', ult ? '#ffd040' : '#c8d0e0'],
       desc: `Fait digivoluer un ${STAGES[STAGES.indexOf(S.stage) - 1]} en ${S.name} !` };
   }
 
@@ -3074,11 +3104,19 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   // (échelle de DW.SCALE, game/monster.js : 1 point = +4 en stat, +20 PV / PM)
   const NAMES = { hp: 'PV', mp: 'PM', atk: 'Att', def: 'Déf', spd: 'Vit', int: 'Int' };
   DW.equipText = st => Object.entries(st).map(([k, v]) => `${NAMES[k]} ${v > 0 ? '+' : ''}${v * (k === 'hp' || k === 'mp' ? 20 : 4)}`).join(', ');
+  // dans la description : le stade multiplie tout sauf les PM (Champion ×1,55, Ultime ×2 : game/monster.js) — les valeurs
+  // sont donc celles d'un Disciple (avant, « Att +16 » sans plus de précision était faux pour un Champion ou un Ultime)
+  const gainTxt = st => {
+    const part = ks => DW.equipText(Object.fromEntries(Object.entries(st).filter(([k]) => ks.includes(k))));
+    const pm = part(['mp']), autres = part(['hp', 'atk', 'def', 'spd', 'int']);
+    return [pm, autres && `${autres} pour un Disciple, davantage aux stades suivants`].filter(Boolean).join(' ; ');
+  };
   for (const id in E) {
     const [slot, name, price, tier, st, col, desc] = E[id], ic = DW.EQUIP_SLOTS.find(s => s[0] === slot)[2];
-    I[id] = { name, price, tier, use: 'equip', slot, st, icon: [ic, col], desc: `${desc} (${DW.equipText(st)})` };
+    I[id] = { name, price, tier, use: 'equip', slot, st, icon: [ic, col], desc: `${desc} (${gainTxt(st)})` };
     DW.ITEM_ORDER.push(id);
   }
+  I.gants_flamme.sell = 0;   // (cadeau unique de Meramon : il ne se revend pas, comme la Canne à pêche de Gomamon)
   // le Bazar les vend (les meilleurs seulement quand la ville a grandi, et selon le chapitre)
   DW.SHOPS.bazar.push(...Object.keys(E).filter(id => E[id][3] < 99));
   // bonus d'équipement d'un Digimon (points de puce)
@@ -15207,6 +15245,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       this.born = o.born != null ? o.born : (DW.state ? DW.state.clock : 0); // date d'arrivée (minutes de jeu)
       this.evoAt = o.evoAt != null ? o.evoAt : this.born;                      // date de la dernière Digivolution
       this.parcours = (o.parcours || []).slice();          // formes passées, la plus ancienne d'abord (renaissance, dé-digivolution)
+      // ABI gagné une seule fois par forme (evolve) : les formes qu'il a déjà eues, et celles depuis lesquelles il a déjà
+      // dé-digivolué (une ancienne sauvegarde, sans ces listes, repart de son parcours et de sa forme actuelle)
+      this.formes = Array.isArray(o.formes) ? o.formes.slice() : [...new Set([...this.parcours, sp])];
+      this.dedigiDe = Array.isArray(o.dedigiDe) ? o.dedigiDe.slice() : [];
       this.wins = o.wins || 0;
       this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
       this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
@@ -15244,15 +15286,16 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     bonus(k) { const t = (this.tr && this.tr[k]) || 0, r = (this.raw && this.raw[k]) || 0; return t * this.level / 100 + t / 3 + r * 0.8 + ((this.chips && this.chips[k]) || 0) + (DW.equipBonus ? DW.equipBonus(this, k) : 0); }
     // STADE : un vrai fossé entre les stades (un Champion écrase un Disciple du même niveau), comme dans Digimon World
     get stageMult() { return DW.STAGE_MULT[this.d.stage] || 1; }
+    // (au moins 1 : une stat baissée au Gymnase — m.raw négatif, maps/gymnase.js — s'affichait en négatif)
     stat(k) {
       if (k === 'mp') return this.maxMp;
       const S = DW.SCALE, b = this.d.base[k] || 50, iv = this.iv[k] || 0, bonus = this.bonus(k), g = this.stageMult;
-      if (k === 'hp') return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp * g));
-      return Math.min(S.capStat, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat * g));
+      if (k === 'hp') return Math.max(1, Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp * g)));
+      return Math.max(1, Math.min(S.capStat, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat * g)));
     }
     get maxHp() { return this.stat('hp'); }
     // PM : dépendent de l'Intelligence et du niveau, et de l'entraînement PM ; rendus par le repos et le sommeil
-    get maxMp() { const S = DW.SCALE, b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + this.bonus('mp')) * S.mp)); }
+    get maxMp() { const S = DW.SCALE, b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.max(1, Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + this.bonus('mp')) * S.mp))); }
     canPay(id) { return this.mp >= DW.mpCost(id); }
     // âge en jours de jeu depuis l'arrivée dans l'équipe
     get age() { return Math.max(0, Math.floor(((DW.state ? DW.state.clock : 0) - this.born) / 1440)); }
@@ -15292,18 +15335,25 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       return a.length ? a[0].to : null;
     }
     // après un changement des PV / PM maximum (Digivolution, équipement) : PV et PM suivent l'écart, dans leurs bornes
+    // (un Digimon K.O. le reste : avant, digivoluer le relevait, et sa dé-digivolution le laissait à 1 PV)
     reajuster(hp0, mp0) {
-      this.hp = DW.clamp(this.hp + this.maxHp - hp0, this.hp > 0 ? 1 : 0, this.maxHp);
+      this.hp = this.hp > 0 ? DW.clamp(this.hp + this.maxHp - hp0, 1, this.maxHp) : 0;
       this.mp = DW.clamp(this.mp + this.maxMp - mp0, 0, this.maxMp);
     }
+    // passer à la forme « to » est-il une dé-digivolution ? (le stade d'arrivée est plus bas)
+    descend(to) { const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga']; return ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage); }
+    // ABI (Cyber Sleuth) que rapporterait le passage à « to » : +1 la première fois qu'il atteint cette forme, +2 la première
+    // fois qu'il dé-digivolue depuis sa forme actuelle, rien ensuite (avant : à chaque fois — digivoluer et dé-digivoluer en
+    // boucle repoussait sans fin les plafonds d'entraînement, game/training.js)
+    abiGain(to) { return this.descend(to) ? (this.dedigiDe.includes(this.sp) ? 0 : 2) : (this.formes.includes(to) ? 0 : 1); }
     evolve(to) {
       const hp0 = this.maxHp, mp0 = this.maxMp;
       // une forme obtenue est débloquée dans la table des Digivolutions (l'avoir seulement croisée ne suffit pas)
       if (DW.state) { DW.state.seen[to] = true; DW.state.owned = DW.state.owned || {}; DW.state.owned[to] = true; }
-      // ABI (Cyber Sleuth) : +1 en digivoluant, +2 en dé-digivoluant (le stade d'arrivée est plus bas)
-      const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
-      const bas = ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage);
-      this.abi = (this.abi || 0) + (bas ? 2 : 1);
+      const bas = this.descend(to);
+      this.abi = (this.abi || 0) + this.abiGain(to);
+      if (bas && !this.dedigiDe.includes(this.sp)) this.dedigiDe.push(this.sp);
+      if (!this.formes.includes(to)) this.formes.push(to);
       // parcours : une dé-digivolution revient sur ses pas (les formes d'avant restent connues)
       if (bas) { const i = this.parcours.lastIndexOf(to); this.parcours = i >= 0 ? this.parcours.slice(0, i) : []; }
       else this.parcours.push(this.sp);
@@ -15314,11 +15364,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, formes: this.formes, dedigiDe: this.dedigiDe, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);
-      m.xp = o.xp; m.hp = o.hp; m.status = o.status || null; m.slp = o.slp || 0;
+      // PV bornés comme les PM (une sauvegarde abîmée, ou des stats en baisse d'une version à l'autre)
+      m.xp = o.xp; m.hp = Number.isFinite(o.hp) ? DW.clamp(o.hp, 0, m.maxHp) : m.maxHp; m.status = o.status || null; m.slp = o.slp || 0;
       return m;
     }
   }
@@ -15942,8 +15993,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 //  ENTRAÎNEMENT (Terrain d'entraînement, au sud de la ville)
 //  - Les COMBATS font monter le niveau → le niveau fixe le POTENTIEL :
 //    plafond de points d'entraînement par stat = 10 + 3 × niveau + 4 × ABI (max 99).
-//  - ABI (comme dans Cyber Sleuth) : +1 à chaque Digivolution, +2 à chaque dé-digivolution ;
-//    dé-digivoluer permet donc de dépasser un plafond trop bas.
+//  - ABI (comme dans Cyber Sleuth) : +1 la première fois qu'il atteint une forme, +2 la première fois qu'il dé-digivolue
+//    depuis une forme (game/monster.js) ; dé-digivoluer permet donc de dépasser un plafond trop bas, une fois par forme.
 //  - L'ENTRAÎNEMENT remplit ce potentiel : les points augmentent les stats
 //    et sont la condition principale des Digivolutions.
 //  - Une séance = un mini-jeu propre au poste, en 3 essais (game/trainingames.js) :
@@ -15974,6 +16025,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
 
   const Training = DW.Training = {
     STATS, POSTES, TOTAL,
+    // corpulence perdue à chaque séance : nourri à la demande, il prend environ +1,4 par jour (game/care.js) ; 4 séances par
+    // jour le gardent alors stable, autour de 0 — les formes agiles (Birdramon, Garurumon...) restent possibles sans l'affamer,
+    // et Greymon aussi (au moins 0). Moins d'entraînement, ou plus à manger : les formes « costaudes ». (0,2 avant : même
+    // entraîné 4 fois par jour, il était « Enrobé » en 5 jours et « Gros » en 9.)
+    FAT: 0.35,
     // NOM D'UN POSTE (étiquette, questions, écran de la séance) : celui de l'appareil (« Traîneau »), sinon celui que lui
     // donne sa carte (map.postes : la salle de classe appelle « Étude » son poste d'Intelligence), sinon celui de la stat
     poste(k, eq, map) {
@@ -16000,7 +16056,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // ---------- objectif « Statistique » : formule de Digimon World 1 (digiworldwiki.com, Training tips)
     // gain = base du poste × bonus (stade, Manuel, coachs) × objet (Super carotte...) × réussite (×0,5 à ×4), arrondi
     // chaque poste monte une stat principale et une secondaire (valeurs affichées, échelle 999 / 9999)
-    BASE: { atk: { atk: 8, spd: 2 }, spd: { spd: 8, hp: 10 }, hp: { hp: 45, atk: 2 }, def: { def: 8, int: 2 }, mp: { mp: 45, def: 2 }, int: { int: 8, mp: 10 } },   // (PV / PM : 45, sinon un bébé doublait ses PV en 3 séances)
+    // PLAFOND des points « bruts » d'une stat (m.raw) : à la mesure de ce que rapporte, sur cette stat, le plafond de l'objectif
+    // « Digivolution » — au plus RAW_K fois (un point d'entraînement vaut niveau/100 + 1/3 de bonus, un point brut 0,8 :
+    // game/monster.js). Avant : 2,5 × le plafond, hors du total de 300 — Attaque 72 → 456 en 6 séances au N.10, contre 155
+    // pour l'objectif « Digivolution ».
+    RAW_K: 1.25,
+    rawCap(m, cap = this.cap(m)) { return cap * (m.level / 100 + 1 / 3) * this.RAW_K / 0.8; },
+    BASE:{ atk: { atk: 8, spd: 2 }, spd: { spd: 8, hp: 10 }, hp: { hp: 45, atk: 2 }, def: { def: 8, int: 2 }, mp: { mp: 45, def: 2 }, int: { int: 8, mp: 10 } },   // (PV / PM : 45, sinon un bébé doublait ses PV en 3 séances)
     STAGE_BONUS: { 'Bébé': -0.55, 'Entraînement': -0.35, 'Disciple': 0, 'Champion': 0.15, 'Ultime': 0.25, 'Méga': 0.35 },   // les petits stades progressent bien moins vite
     // réussite des 3 essais (score 0 à 6) → multiplicateur final (comme le « Bonus Try »)
     tryMult: score => score === 0 ? 0.5 : score <= 2 ? 1 : score <= 4 ? 2 : score === 5 ? 3 : 4,
@@ -16013,9 +16075,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       for (const s in B) {
         const n = Math.floor(Math.floor(Math.floor(B[s] * up) * item) * this.tryMult(score) * L.mul);
         if (n <= 0) continue;
-        // valeur affichée → points « bruts » (bonus = brut × 0,8, puis × l'échelle de la stat)
-        const unit = 0.8 * (s === 'hp' ? S.hp : s === 'mp' ? S.mp : S.stat), cap = this.cap(m) * 2.5;
-        const before = m.raw[s] || 0, after = Math.min(cap, before + n / unit);
+        // valeur affichée → points « bruts » (bonus = brut × 0,8, puis × l'échelle de la stat) ; jamais de baisse (des points
+        // gagnés avant le nouveau plafond restent acquis)
+        const unit = 0.8 * (s === 'hp' ? S.hp : s === 'mp' ? S.mp : S.stat), cap = this.rawCap(m);
+        const before = m.raw[s] || 0, after = Math.max(before, Math.min(cap, before + n / unit));
         m.raw[s] = after;
         const real = Math.round((after - before) * unit);
         if (real > 0) parts[s] = real;
@@ -16024,8 +16087,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     },
     // niveaux de difficulté des séances : facile (moins de points), moyen, difficile (deux fois plus de points)
     LEVELS: [{ name: 'Facile', dif: -0.35, mul: 0.5, tire: 20 }, { name: 'Moyen', dif: 0, mul: 1, tire: 30 }, { name: 'Difficile', dif: 0.3, mul: 2, tire: 40 }],
-    // difficulté du mini-jeu selon les points déjà acquis (0 facile → 1 très dur)
-    difficulty: (m, k) => Math.min(1, m.tr[k] / 48),
+    // difficulté du mini-jeu selon ce qui est vraiment entraîné (0 facile → 1 très dur, à 48 points d'entraînement) : les
+    // points de l'objectif « Digivolution » (tr), ou les points bruts (raw) ramenés à la même échelle pour l'objectif
+    // « Statistique » (avant : toujours tr, que cet objectif ne change pas — sa difficulté restait figée)
+    difficulty(m, k, mode = 'evo') { return Math.min(1, mode === 'stat' ? ((m.raw && m.raw[k]) || 0) / this.rawCap(m, 48) : m.tr[k] / 48); },
     // raison qui empêche une séance (null : tout va bien)
     blocked(m, k) {
       const S = STATS[k];
@@ -16033,8 +16098,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (m.sick) return `${m.name} est malade... Donne-lui un Médicament avant de l'entraîner.`;
       if (m.hurt) return `${m.name} est blessé... Soigne-le avec un Bandage d'abord.`;
       if (m.tired >= 100) return `${m.name} est épuisé... Fais-le dormir${DW.Town.has('mushroomon') ? ' ou mange au Restaurant' : ''}.`;
-      if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat, ou dé-digivolue-le (son ABI monte) pour l'augmenter !`;
-      if (this.total(m) >= this.totalCap(m)) return `${m.name} ne peut plus progresser davantage... Dé-digivoluer (table des Digivolutions) augmente son ABI et repousse cette limite.`;
+      // (la dé-digivolution n'est conseillée que si elle fait encore monter l'ABI : une fois par forme, game/monster.js)
+      const prev = DW.Evo.prev1(m.sp, m.parcours), abi = !!prev && !DW.Evo.estFusion(m.sp) && m.abiGain(prev) > 0;
+      if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat${abi ? ', ou dé-digivolue-le (son ABI monte),' : ''} pour l'augmenter !`;
+      if (this.total(m) >= this.totalCap(m)) return `${m.name} ne peut plus progresser davantage... ${abi ? 'Dé-digivoluer (table des Digivolutions) augmente son ABI et repousse cette limite.' : 'Son ABI repousse cette limite : il monte quand il atteint une forme nouvelle.'}`;
       if (DW.Care && DW.Care.tooHungry(m)) return `${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`;
       return null;
     },
@@ -16094,7 +16161,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       this.m = m; this.k = k; this.S = STATS[k];
       this.hits = []; this.pt = []; this.flash = 0; this.shake = 0;
       this.opts = Training.opts || { mode: 'evo', level: Training.LEVELS[1] };
-      this.dif = DW.clamp(Training.difficulty(m, k) + this.opts.level.dif, 0, 1);
+      this.dif = DW.clamp(Training.difficulty(m, k, this.opts.mode) + this.opts.level.dif, 0, 1);
       this.before = m.stat(k);
       this.state = 'ready';   // ready → play (3 essais) → done
     }
@@ -16135,7 +16202,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       else this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
       m.tired = Math.min(100, m.tired + L.tire);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);
-      DW.Life.addFat(m, -0.2);   // (une séance fait un peu maigrir ; trop, et les Digivolutions « costaudes » devenaient impossibles)
+      DW.Life.addFat(m, -Training.FAT);   // (une séance fait maigrir : Training.FAT)
       DW.state.clock += MINUTES;
       this.after = m.stat(k);
       if (k === 'hp') m.hp = Math.min(m.maxHp, m.hp + (this.after - this.before));
@@ -17021,7 +17088,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const LIFESPAN = 30, KO_MAX = 3;
   // rythmes de sommeil (heures) : coucher, effondrement si pas couché, réveil
   const DAY = { bed: 21, late: 2, wake: 7, name: 'diurne' }, NIGHT = { bed: 8, late: 13, wake: 16, name: 'nocturne' };
-  const NOCTURNAL = new Set(['mushroomon', 'bakemon', 'gazimon', 'tsukaimon', 'demidevimon', 'pagumon', 'candlemon', 'devimon', 'vampiremon', 'myotismon', 'phantomon', 'soulmon', 'wizardmon', 'pumpkinmon', 'impmon', 'keramon', 'kuramon', 'yuramon', 'tanemon']);
+  // (la liste prépare aussi des espèces à venir, pas encore dans le jeu : Gazimon, Tsukaimon, DemiDevimon, Pagumon, Vampiremon,
+  //  Myotismon, Phantomon, Soulmon, Wizardmon, Pumpkinmon, Impmon, Keramon, Kuramon — sans effet tant qu'elles n'existent pas)
+  const NOCTURNAL = new Set(['mushroomon', 'bakemon', 'gazimon','tsukaimon', 'demidevimon', 'pagumon', 'candlemon', 'devimon', 'vampiremon', 'myotismon', 'phantomon', 'soulmon', 'wizardmon', 'pumpkinmon', 'impmon', 'keramon', 'kuramon', 'yuramon', 'tanemon']);
   // h dans [a, b[ sur un cadran de 24 h (gère minuit)
   const between = (h, a, b) => (a <= b ? h >= a && h < b : h >= a || h < b);
 
@@ -19655,9 +19724,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const MP_REGEN = 0.06;   // PM rendus à la fin de chaque tour (part des PM max) : on n'est jamais à sec bien longtemps
 
   class BattleScene extends DW.Scene {
+    // o.amical : combat d'entraînement (Dojo d'Elecmon, maps/grandir.js) — ni « sauvage » dans les textes, ni fuite, ni bonus
+    // de dégâts des sauvages ; ses récompenses restent celles d'un combat ordinaire
     constructor(o) {
       super();
-      this.o = o; this.enemy = o.enemy; this.wild = !o.boss; this.st = DW.state;
+      this.o = o; this.enemy = o.enemy; this.amical = !!o.amical; this.wild = !o.boss && !this.amical; this.st = DW.state;
       this.active = null; this.activeIdx = 0; this.parts = new Set(); this.runTries = 0;
       this.text = ''; this.shown = 0; this.mode = 'none'; this.cursor = 0; this.mcursor = 0;
       this.spr = {
@@ -19719,11 +19790,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         if (Input.hit('ok')) { Audio.sfx('select'); this.resolveMenu(this.cursor); }
         if (Input.hit('back') && this.cursor !== 3) { this.cursor = 3; Audio.sfx('move'); }
       } else if (this.mode === 'moves') {
-        const n = this.active.moves.length;
+        // ses techniques, puis la Lutte, toujours proposée en dernier (2 colonnes ; une 4e rangée avec 6 techniques)
+        const n = this.active.moves.length + 1, cells = Math.ceil(n / 2) * 2;
         let c = this.mcursor;
         if (Input.hit('left') || Input.hit('right')) c ^= 1;
-        if (Input.hit('up')) c = (c - 2 + 6) % 6;
-        if (Input.hit('down')) c = (c + 2) % 6;
+        if (Input.hit('up')) { c = (c - 2 + cells) % cells; if (c >= n) c = n - 1; }
+        if (Input.hit('down')) { c = (c + 2) % cells; if (c >= n) c = n - 1; }
         if (c < n && c !== this.mcursor) { this.mcursor = c; Audio.sfx('move'); }
         if (Input.hit('ok')) { Audio.sfx('select'); this.resolveMenu(this.mcursor); }
         if (Input.hit('menu') && this.energy.p >= 100 && DW.sigOf(this.active)) { Audio.sfx('evolve'); this.resolveMenu('special'); }
@@ -19738,7 +19810,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       while (true) {
         const action = await this.playerTurn();
         if (action.type === 'run') {
-          if (!this.wild) { await this.msg('Impossible de fuir ce combat !'); continue; }
+          if (!this.wild) { await this.msg(this.amical ? "C'est un combat d'entraînement : on va jusqu'au bout !" : 'Impossible de fuir ce combat !'); continue; }
           this.runTries++;
           const ps = this.eff('p', 'spd'), es = this.eff('e', 'spd');
           const ch = DW.clamp(0.5 + (ps - es) / (es * 2) + this.runTries * 0.12, 0.25, 1);
@@ -19774,7 +19846,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       await DW.tween(this.bars, { v: 0 }, 0.5);
       await DW.tween(this.spr.e, { dx: 0 }, 0.55);
       this.hud.e = true;
-      await this.msg(this.o.intro || (this.wild ? `Un ${this.enemy.name} sauvage apparaît !` : `${this.enemy.name} attaque !`));
+      await this.msg(this.o.intro || (this.wild ? `Un ${this.enemy.name} sauvage apparaît !` : this.amical ? `${this.enemy.name} salue, puis se met en garde !` : `${this.enemy.name} attaque !`));
       const idx = this.st.party.findIndex(m => m.hp > 0);
       if (idx < 0) throw new Error('aucun Digimon en état de se battre');
       await this.sendOut(idx);
@@ -19807,10 +19879,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         const c = await this.menu('cmd');
         if (c === 0) {
           if (P.moves.every(m => !P.canPay(m.id))) { await this.msg(`${P.name} n'a plus assez de PM !`); return { type: 'move', slot: -1 }; }
-          if (this.mcursor >= P.moves.length) this.mcursor = 0;
+          if (this.mcursor > P.moves.length) this.mcursor = 0;
           const m = await this.menu('moves');
           if (m === 'special') return { type: 'move', special: true };
           if (m < 0) continue;
+          // la Lutte (dernier choix, gratuite : avant, elle ne venait qu'à court de PM — un Digimon réduit à Garde et
+          // Intimidation ne pouvait plus frapper qu'avec son coup spécial)
+          if (m >= P.moves.length) return { type: 'move', slot: -1 };
           if (!P.canPay(P.moves[m].id)) { await this.msg(`Pas assez de PM ! (${DW.mpCost(P.moves[m].id)} PM nécessaires)`); continue; }
           return { type: 'move', slot: m };
         }
@@ -20006,10 +20081,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     async useMove(uSide, slot) {
       const user = this.mon(uSide), tSide = uSide === 'p' ? 'e' : 'p', tgt = this.mon(tSide);
       const mv = DW.MOVES[slot.id], who = this.label(uSide);
+      // sommeil : le réveil prend aussi son action — il dort exactement 2 tours (STATUS_TURNS.slp ; avant, il se réveillait
+      // et jouait dès le 2e : une seule action perdue)
       if (user.status === 'slp') {
         user.slp--;
         if (user.slp <= 0) { user.status = null; await this.msg(`${who} se réveille !`); }
-        else { await this.msg(`${who} dort profondément...`); return; }
+        else await this.msg(`${who} dort profondément...`);
+        return;
       }
       if (user.status === 'par' && Math.random() < 0.2) {
         this.sparkle(uSide, '#ffe030');
@@ -20080,7 +20158,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (side === 'p' && this.protect) { if (announce) await this.msg(`La Protection repousse l'altération !`); return; }
       if (m.status || immune) { if (announce) await this.msg(`Ça n'a aucun effet sur ${this.label(side)}...`); return; }
       m.status = s;
-      if (s === 'slp') m.slp = STATUS_TURNS.slp;   // dort exactement 2 tours
+      if (s === 'slp') m.slp = STATUS_TURNS.slp;   // dort exactement 2 tours (le réveil compte : useMove)
       m.stT = STATUS_TURNS[s];
       Audio.sfx('status');
       this.sparkle(side, DW.STATUS_COL[s]);
@@ -20108,17 +20186,18 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // ---------------------------------------------------------- expérience
     async giveXp() {
       const E = this.enemy;
-      // EXPÉRIENCE PARTAGÉE : toute l'équipe (sauf les K.O.) gagne autant que le Digimon qui a combattu ;
-      // la victoire, le bonheur et l'effort ne comptent que pour ceux qui ont combattu (l'entraînement reste individuel)
+      // EXPÉRIENCE PARTAGÉE : toute l'équipe (sauf les K.O.) gagne de l'expérience — la moitié pour ceux qui n'ont pas combattu
+      // (avant : autant, un Botamon jamais envoyé gagnait 2 niveaux) ; la victoire, le bonheur et l'effort ne comptent que
+      // pour ceux qui ont combattu (l'entraînement reste individuel)
       const fought = new Set([...this.parts].filter(m => m.hp > 0));
       const alive = this.st.party.filter(m => m.hp > 0);
       if (alive.length) {
-        const total = Math.floor(E.d.xp * E.level / 7 * (this.wild ? 1 : 1.5));
+        const total = Math.floor(E.d.xp * E.level / 7 * (this.wild || this.amical ? 1 : 1.5));
         for (const m of alive) {
           // contre un adversaire plus faible, on apprend peu (on ne monte plus de niveau en écrasant les petits)
           // (le stade compte : un Champion vaut 3 niveaux de plus qu'un Disciple, etc. — un jeune Kuwagamon rapporte gros)
           const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'], sg = (ST.indexOf(E.d.stage) - ST.indexOf(m.d.stage)) * 3;
-          const gap = DW.clamp(1 - (m.level - E.level - sg) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total * gap));
+          const gap = DW.clamp(1 - (m.level - E.level - sg) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total * gap * (fought.has(m) ? 1 : 0.5)));
           if (fought.has(m)) { m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.02); }   // (un combat fait à peine maigrir : 200 combats ne doivent pas affamer)
           await this.msg(`${m.name} gagne ${each} points d'EXP !`, 0.8);
           const events = m.addXp(each);
@@ -20145,10 +20224,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         }
       }
       // Bits selon l'écart de niveau (comme l'expérience) : un adversaire de ton niveau ou plus fort paie bien,
-      // écraser les petits ne rapporte presque rien (partie test : pas assez au début, beaucoup trop ensuite)
-      const lv = this.active ? this.active.level : E.level, gapB = DW.clamp(1 + (E.level - lv) * 0.2, 0.2, 1.8);
-      // (défi d'un Digimon à ramener en ville : à peine plus qu'un sauvage — il rejoint la ville, ce n'est pas un boss)
-      const perLv = this.wild ? 6 : this.o.recruit ? 9 : 25;
+      // écraser les petits ne rapporte presque rien (partie test : pas assez au début, beaucoup trop ensuite) ;
+      // l'écart se compte avec le plus haut niveau de ceux qui ont combattu (avant : le Digimon en jeu au K.O. — envoyer un
+      // bébé pour le dernier coup faisait passer les Bits de ×0,2 à ×1,8)
+      const lv = this.parts.size ? Math.max(...[...this.parts].map(m => m.level)) : E.level, gapB = DW.clamp(1 + (E.level - lv) * 0.2, 0.2, 1.8);
+      // (défi d'un Digimon à ramener en ville : à peine plus qu'un sauvage — il rejoint la ville, ce n'est pas un boss ;
+      //  combat d'entraînement du dojo : comme un combat ordinaire)
+      const perLv = this.wild || this.amical ? 6 : this.o.recruit ? 9 : 25;
       const bits = Math.max(1, Math.floor((E.level * perLv + DW.rand(0, E.level * 2)) * 2 * gapB));
       this.st.bits += bits;
       await this.msg(`Tu récupères ${bits} Bits !`, 0.9);
@@ -22293,7 +22375,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       UI.bar(c, 18, 151, 60, 4, m.happy / 100, '#ff6ab0');
       UI.text(c, 'EXP', 18, 165, { size: 7, color: '#7ab8ff' });
       UI.bar(c, 18, 168, 60, 4, m.xpRatio(), '#48a8f8');
-      UI.text(c, `Suivant : ${Math.max(0, DW.xpForLevel(m.level + 1) - m.xp)}`, 18, 182, { size: 7, color: '#c8f0ff' });
+      UI.text(c, `Suivant : ${m.level >= 100 ? '—' : Math.max(0, DW.xpForLevel(m.level + 1) - m.xp)}`, 18, 182, { size: 7, color: '#c8f0ff' });   // (N.100 : le niveau maximal)
       if (m === DW.state.party[0]) {
         UI.text(c, `Faim ${Math.round(m.hunger)} %`, 18, 196, { size: 7, color: m.hunger >= 70 ? '#ff7a7a' : '#ffd070' });
         UI.bar(c, 18, 199, 60, 4, m.hunger / 100, m.hunger >= 70 ? '#ff5a5a' : '#f0b040');
@@ -22364,6 +22446,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     get m() { return DW.state.party[this.i]; }
     get opts() { return DW.Evo.options(this.m.sp); }
     get prev() { return DW.Evo.prev1(this.m.sp, this.m.parcours); }
+    // né d'une fusion (Omegamon) : il ne dé-digivolue pas (avant, il redevenait WarGreymon et MetalGarurumon était perdu)
+    get fusion() { return DW.Evo.estFusion(this.m.sp); }
+    // ce que la dé-digivolution apporte à l'ABI (+2 la première fois depuis cette forme seulement : game/monster.js)
+    abiTxt(to) { return this.m.abiGain(to) > 0 ? 'ABI +2 : son potentiel augmente' : "pas d'ABI en plus : il a déjà dé-digivolué depuis cette forme"; }
     update() {
       const n = this.opts.length;
       if (Input.hit('menu')) { this.i = (this.i + 1) % DW.state.party.length; this.sel = 0; this.col = this.opts.length ? 1 : 0; Audio.sfx('move'); }
@@ -22380,8 +22466,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const m = this.m, st = DW.state;
       if (this.col === 0 && this.prev) {
         const to = this.prev;
+        if (this.fusion) { Audio.sfx('bump'); await DW.say(`${m.name} est né de la fusion de deux Digimon : ils ne font plus qu'un. Il ne peut pas dé-digivoluer.`); return; }
         Audio.sfx('select');
-        const r = await DW.ask(`Faire dé-digivoluer ${m.name} en ${DW.SPECIES[to].name} ? (niveau et entraînement conservés, ABI +2 : son potentiel augmente)`);
+        const r = await DW.ask(`Faire dé-digivoluer ${m.name} en ${DW.SPECIES[to].name} ? (niveau et entraînement conservés, ${this.abiTxt(to)})`);
         if (r !== 0) return;
         await Game.push(new DW.EvolutionScene(m, to, { dedigi: true }));
         m.evolve(to);
@@ -22391,6 +22478,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       }
       const o = this.opts[this.sel];
       if (!o) return;
+      // (un Digimon K.O. ne digivolue pas : la Digivolution le relevait, sans objet)
+      if (m.hp <= 0) { Audio.sfx('bump'); await DW.say(`${m.name} est K.O. ! Soigne-le avant de le faire digivoluer.`); return; }
       const chk = DW.Evo.check(m, o);
       if (!chk.ok) { Audio.sfx('bump'); await DW.say('Les conditions ne sont pas encore remplies. Entraîne-toi et gagne des combats !'); return; }
       Audio.sfx('select');
@@ -22447,7 +22536,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         UI.box(c, 6, 52, 96, 28, sel ? 'dwsel' : 'dw');
         this.icon(c, prev, 20, 77, true);
         UI.text(c, DW.SPECIES[prev].name, 34, 64, { size: 8, color: sel ? '#ffffff' : '#c8f0ff' });
-        UI.text(c, 'Possible !', 34, 75, { size: 7, color: OK });
+        UI.text(c, this.fusion ? 'Impossible' : 'Possible !', 34, 75, { size: 7, color: this.fusion ? NO : OK });
       } else UI.text(c, '—', 54, 66, { size: 9, align: 'center', color: '#5a8aa0' });
       // digivolutions
       if (top > 0) UI.text(c, '▲', 306, 50, { size: 7, color: '#8ae0f0' });
@@ -22465,7 +22554,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       UI.box(c, 6, 168, W - 12, 66);
       if (this.col === 0 && prev) {
         UI.label(c, 'DÉ-DIGIVOLUTION', 12, 173);
-        UI.wrap(c, `${m.name} redevient ${DW.SPECIES[prev].name}. Son niveau, ses attaques et son entraînement sont conservés.`, 290, 9)
+        UI.wrap(c, this.fusion ? `${m.name} est né de la fusion de deux Digimon : ils ne font plus qu'un, il ne peut pas dé-digivoluer.`
+          : `${m.name} redevient ${DW.SPECIES[prev].name}. Son niveau, ses attaques et son entraînement sont conservés (${this.abiTxt(prev)}).`, 290, 9)
           .forEach((l, j) => UI.text(c, l, 14, 198 + j * 12, { size: 9 }));
       } else if (opts[this.sel]) {
         const o = opts[this.sel], chk = DW.Evo.check(m, o);
@@ -22758,19 +22848,23 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (this.mode === 'moves') {
         UI.box(c, 4, 180, 206, 56);
         const P = this.active;
+        // ses techniques, puis la Lutte, toujours en dernier (avec 6 techniques : 4 rangées plus serrées)
+        const n = P.moves.length + 1, dy = n > 6 ? 12 : 16, y0 = n > 6 ? 191 : 194, at = i => [20 + (i % 2) * 96, y0 + (i >> 1) * dy];
         P.moves.forEach((m, i) => {
-          const x = 20 + (i % 2) * 96, y = 194 + (i >> 1) * 16;
+          const [x, y] = at(i);
           UI.text(c, DW.MOVES[m.id].name, x, y, { size: 8, color: P.canPay(m.id) ? '#fff' : '#8a8aa0' });
         });
-        UI.cursor(c, 10 + (this.mcursor % 2) * 96, 190.5 + (this.mcursor >> 1) * 16, this.t);
-        const mm = P.moves[this.mcursor], mv = DW.MOVES[mm.id];
+        { const [x, y] = at(n - 1); UI.text(c, DW.MOVES.lutte.name, x, y, { size: 8, color: '#ffc8a0' }); }
+        UI.cursor(c, 10 + (this.mcursor % 2) * 96, y0 - 3.5 + (this.mcursor >> 1) * dy, this.t);
+        const mm = P.moves[this.mcursor] || { id: 'lutte' }, mv = DW.MOVES[mm.id];
         UI.box(c, 212, 180, 104, 56);
         const cost = DW.mpCost(mm.id);
         UI.text(c, cost ? `${cost} PM` : 'Gratuit', 220, 196, { size: 9, color: P.canPay(mm.id) ? '#9ad0ff' : '#f05050' });
         UI.text(c, `${P.mp}/${P.maxMp}`, 308, 196, { size: 8, align: 'right', color: '#c8d4ff' });
         UI.typeTag(c, mv.type, 220, 202, 7);
         const tm = DW.typeMult(mv.type, this.enemy.d.types);
-        if (mv.pow && this.st.seen[this.enemy.sp] && tm !== 1)
+        if (mm.id === 'lutte') UI.text(c, 'Il se blesse !', 308, 210, { size: 7, align: 'right', color: '#ffa080' });
+        else if (mv.pow && this.st.seen[this.enemy.sp] && tm !== 1)
           UI.text(c, tm > 1 ? 'Efficace !' : 'Peu efficace', 308, 210, { size: 7, align: 'right', color: tm > 1 ? '#80ff80' : '#ffa080' });
         UI.text(c, mv.pow ? `Puissance ${mv.pow}` : 'Attaque de statut', 220, 229, { size: 8, color: '#c8d4ff' });
         const sig = DW.sigOf(P);

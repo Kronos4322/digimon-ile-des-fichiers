@@ -33,11 +33,19 @@
   // (échelle de DW.SCALE, game/monster.js : 1 point = +4 en stat, +20 PV / PM)
   const NAMES = { hp: 'PV', mp: 'PM', atk: 'Att', def: 'Déf', spd: 'Vit', int: 'Int' };
   DW.equipText = st => Object.entries(st).map(([k, v]) => `${NAMES[k]} ${v > 0 ? '+' : ''}${v * (k === 'hp' || k === 'mp' ? 20 : 4)}`).join(', ');
+  // dans la description : le stade multiplie tout sauf les PM (Champion ×1,55, Ultime ×2 : game/monster.js) — les valeurs
+  // sont donc celles d'un Disciple (avant, « Att +16 » sans plus de précision était faux pour un Champion ou un Ultime)
+  const gainTxt = st => {
+    const part = ks => DW.equipText(Object.fromEntries(Object.entries(st).filter(([k]) => ks.includes(k))));
+    const pm = part(['mp']), autres = part(['hp', 'atk', 'def', 'spd', 'int']);
+    return [pm, autres && `${autres} pour un Disciple, davantage aux stades suivants`].filter(Boolean).join(' ; ');
+  };
   for (const id in E) {
     const [slot, name, price, tier, st, col, desc] = E[id], ic = DW.EQUIP_SLOTS.find(s => s[0] === slot)[2];
-    I[id] = { name, price, tier, use: 'equip', slot, st, icon: [ic, col], desc: `${desc} (${DW.equipText(st)})` };
+    I[id] = { name, price, tier, use: 'equip', slot, st, icon: [ic, col], desc: `${desc} (${gainTxt(st)})` };
     DW.ITEM_ORDER.push(id);
   }
+  I.gants_flamme.sell = 0;   // (cadeau unique de Meramon : il ne se revend pas, comme la Canne à pêche de Gomamon)
   // le Bazar les vend (les meilleurs seulement quand la ville a grandi, et selon le chapitre)
   DW.SHOPS.bazar.push(...Object.keys(E).filter(id => E[id][3] < 99));
   // bonus d'équipement d'un Digimon (points de puce)

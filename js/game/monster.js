@@ -16,6 +16,10 @@
       this.born = o.born != null ? o.born : (DW.state ? DW.state.clock : 0); // date d'arrivée (minutes de jeu)
       this.evoAt = o.evoAt != null ? o.evoAt : this.born;                      // date de la dernière Digivolution
       this.parcours = (o.parcours || []).slice();          // formes passées, la plus ancienne d'abord (renaissance, dé-digivolution)
+      // ABI gagné une seule fois par forme (evolve) : les formes qu'il a déjà eues, et celles depuis lesquelles il a déjà
+      // dé-digivolué (une ancienne sauvegarde, sans ces listes, repart de son parcours et de sa forme actuelle)
+      this.formes = Array.isArray(o.formes) ? o.formes.slice() : [...new Set([...this.parcours, sp])];
+      this.dedigiDe = Array.isArray(o.dedigiDe) ? o.dedigiDe.slice() : [];
       this.wins = o.wins || 0;
       this.tr = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.tr || {}); // points d'entraînement
       this.chips = Object.assign({ hp: 0, mp: 0, atk: 0, def: 0, spd: 0, int: 0 }, o.chips || {}); // puces (bonus permanents)
@@ -53,15 +57,16 @@
     bonus(k) { const t = (this.tr && this.tr[k]) || 0, r = (this.raw && this.raw[k]) || 0; return t * this.level / 100 + t / 3 + r * 0.8 + ((this.chips && this.chips[k]) || 0) + (DW.equipBonus ? DW.equipBonus(this, k) : 0); }
     // STADE : un vrai fossé entre les stades (un Champion écrase un Disciple du même niveau), comme dans Digimon World
     get stageMult() { return DW.STAGE_MULT[this.d.stage] || 1; }
+    // (au moins 1 : une stat baissée au Gymnase — m.raw négatif, maps/gymnase.js — s'affichait en négatif)
     stat(k) {
       if (k === 'mp') return this.maxMp;
       const S = DW.SCALE, b = this.d.base[k] || 50, iv = this.iv[k] || 0, bonus = this.bonus(k), g = this.stageMult;
-      if (k === 'hp') return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp * g));
-      return Math.min(S.capStat, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat * g));
+      if (k === 'hp') return Math.max(1, Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + bonus) * S.hp * g)));
+      return Math.max(1, Math.min(S.capStat, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + 5 + bonus) * S.stat * g)));
     }
     get maxHp() { return this.stat('hp'); }
     // PM : dépendent de l'Intelligence et du niveau, et de l'entraînement PM ; rendus par le repos et le sommeil
-    get maxMp() { const S = DW.SCALE, b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + this.bonus('mp')) * S.mp)); }
+    get maxMp() { const S = DW.SCALE, b = this.d.base.int || 50, iv = this.iv.int || 0; return Math.max(1, Math.min(S.capHp, Math.floor((Math.floor((2 * b + iv) * this.level / 100) + this.level + 10 + this.bonus('mp')) * S.mp))); }
     canPay(id) { return this.mp >= DW.mpCost(id); }
     // âge en jours de jeu depuis l'arrivée dans l'équipe
     get age() { return Math.max(0, Math.floor(((DW.state ? DW.state.clock : 0) - this.born) / 1440)); }
@@ -101,18 +106,25 @@
       return a.length ? a[0].to : null;
     }
     // après un changement des PV / PM maximum (Digivolution, équipement) : PV et PM suivent l'écart, dans leurs bornes
+    // (un Digimon K.O. le reste : avant, digivoluer le relevait, et sa dé-digivolution le laissait à 1 PV)
     reajuster(hp0, mp0) {
-      this.hp = DW.clamp(this.hp + this.maxHp - hp0, this.hp > 0 ? 1 : 0, this.maxHp);
+      this.hp = this.hp > 0 ? DW.clamp(this.hp + this.maxHp - hp0, 1, this.maxHp) : 0;
       this.mp = DW.clamp(this.mp + this.maxMp - mp0, 0, this.maxMp);
     }
+    // passer à la forme « to » est-il une dé-digivolution ? (le stade d'arrivée est plus bas)
+    descend(to) { const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga']; return ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage); }
+    // ABI (Cyber Sleuth) que rapporterait le passage à « to » : +1 la première fois qu'il atteint cette forme, +2 la première
+    // fois qu'il dé-digivolue depuis sa forme actuelle, rien ensuite (avant : à chaque fois — digivoluer et dé-digivoluer en
+    // boucle repoussait sans fin les plafonds d'entraînement, game/training.js)
+    abiGain(to) { return this.descend(to) ? (this.dedigiDe.includes(this.sp) ? 0 : 2) : (this.formes.includes(to) ? 0 : 1); }
     evolve(to) {
       const hp0 = this.maxHp, mp0 = this.maxMp;
       // une forme obtenue est débloquée dans la table des Digivolutions (l'avoir seulement croisée ne suffit pas)
       if (DW.state) { DW.state.seen[to] = true; DW.state.owned = DW.state.owned || {}; DW.state.owned[to] = true; }
-      // ABI (Cyber Sleuth) : +1 en digivoluant, +2 en dé-digivoluant (le stade d'arrivée est plus bas)
-      const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
-      const bas = ST.indexOf(DW.SPECIES[to].stage) < ST.indexOf(this.d.stage);
-      this.abi = (this.abi || 0) + (bas ? 2 : 1);
+      const bas = this.descend(to);
+      this.abi = (this.abi || 0) + this.abiGain(to);
+      if (bas && !this.dedigiDe.includes(this.sp)) this.dedigiDe.push(this.sp);
+      if (!this.formes.includes(to)) this.formes.push(to);
       // parcours : une dé-digivolution revient sur ses pas (les formes d'avant restent connues)
       if (bas) { const i = this.parcours.lastIndexOf(to); this.parcours = i >= 0 ? this.parcours.slice(0, i) : []; }
       else this.parcours.push(this.sp);
@@ -123,11 +135,12 @@
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, formes: this.formes, dedigiDe: this.dedigiDe, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);
-      m.xp = o.xp; m.hp = o.hp; m.status = o.status || null; m.slp = o.slp || 0;
+      // PV bornés comme les PM (une sauvegarde abîmée, ou des stats en baisse d'une version à l'autre)
+      m.xp = o.xp; m.hp = Number.isFinite(o.hp) ? DW.clamp(o.hp, 0, m.maxHp) : m.maxHp; m.status = o.status || null; m.slp = o.slp || 0;
       return m;
     }
   }

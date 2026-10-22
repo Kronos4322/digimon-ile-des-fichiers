@@ -3,8 +3,8 @@
 //  ENTRAÎNEMENT (Terrain d'entraînement, au sud de la ville)
 //  - Les COMBATS font monter le niveau → le niveau fixe le POTENTIEL :
 //    plafond de points d'entraînement par stat = 10 + 3 × niveau + 4 × ABI (max 99).
-//  - ABI (comme dans Cyber Sleuth) : +1 à chaque Digivolution, +2 à chaque dé-digivolution ;
-//    dé-digivoluer permet donc de dépasser un plafond trop bas.
+//  - ABI (comme dans Cyber Sleuth) : +1 la première fois qu'il atteint une forme, +2 la première fois qu'il dé-digivolue
+//    depuis une forme (game/monster.js) ; dé-digivoluer permet donc de dépasser un plafond trop bas, une fois par forme.
 //  - L'ENTRAÎNEMENT remplit ce potentiel : les points augmentent les stats
 //    et sont la condition principale des Digivolutions.
 //  - Une séance = un mini-jeu propre au poste, en 3 essais (game/trainingames.js) :
@@ -35,6 +35,11 @@
 
   const Training = DW.Training = {
     STATS, POSTES, TOTAL,
+    // corpulence perdue à chaque séance : nourri à la demande, il prend environ +1,4 par jour (game/care.js) ; 4 séances par
+    // jour le gardent alors stable, autour de 0 — les formes agiles (Birdramon, Garurumon...) restent possibles sans l'affamer,
+    // et Greymon aussi (au moins 0). Moins d'entraînement, ou plus à manger : les formes « costaudes ». (0,2 avant : même
+    // entraîné 4 fois par jour, il était « Enrobé » en 5 jours et « Gros » en 9.)
+    FAT: 0.35,
     // NOM D'UN POSTE (étiquette, questions, écran de la séance) : celui de l'appareil (« Traîneau »), sinon celui que lui
     // donne sa carte (map.postes : la salle de classe appelle « Étude » son poste d'Intelligence), sinon celui de la stat
     poste(k, eq, map) {
@@ -61,7 +66,13 @@
     // ---------- objectif « Statistique » : formule de Digimon World 1 (digiworldwiki.com, Training tips)
     // gain = base du poste × bonus (stade, Manuel, coachs) × objet (Super carotte...) × réussite (×0,5 à ×4), arrondi
     // chaque poste monte une stat principale et une secondaire (valeurs affichées, échelle 999 / 9999)
-    BASE: { atk: { atk: 8, spd: 2 }, spd: { spd: 8, hp: 10 }, hp: { hp: 45, atk: 2 }, def: { def: 8, int: 2 }, mp: { mp: 45, def: 2 }, int: { int: 8, mp: 10 } },   // (PV / PM : 45, sinon un bébé doublait ses PV en 3 séances)
+    // PLAFOND des points « bruts » d'une stat (m.raw) : à la mesure de ce que rapporte, sur cette stat, le plafond de l'objectif
+    // « Digivolution » — au plus RAW_K fois (un point d'entraînement vaut niveau/100 + 1/3 de bonus, un point brut 0,8 :
+    // game/monster.js). Avant : 2,5 × le plafond, hors du total de 300 — Attaque 72 → 456 en 6 séances au N.10, contre 155
+    // pour l'objectif « Digivolution ».
+    RAW_K: 1.25,
+    rawCap(m, cap = this.cap(m)) { return cap * (m.level / 100 + 1 / 3) * this.RAW_K / 0.8; },
+    BASE:{ atk: { atk: 8, spd: 2 }, spd: { spd: 8, hp: 10 }, hp: { hp: 45, atk: 2 }, def: { def: 8, int: 2 }, mp: { mp: 45, def: 2 }, int: { int: 8, mp: 10 } },   // (PV / PM : 45, sinon un bébé doublait ses PV en 3 séances)
     STAGE_BONUS: { 'Bébé': -0.55, 'Entraînement': -0.35, 'Disciple': 0, 'Champion': 0.15, 'Ultime': 0.25, 'Méga': 0.35 },   // les petits stades progressent bien moins vite
     // réussite des 3 essais (score 0 à 6) → multiplicateur final (comme le « Bonus Try »)
     tryMult: score => score === 0 ? 0.5 : score <= 2 ? 1 : score <= 4 ? 2 : score === 5 ? 3 : 4,
@@ -74,9 +85,10 @@
       for (const s in B) {
         const n = Math.floor(Math.floor(Math.floor(B[s] * up) * item) * this.tryMult(score) * L.mul);
         if (n <= 0) continue;
-        // valeur affichée → points « bruts » (bonus = brut × 0,8, puis × l'échelle de la stat)
-        const unit = 0.8 * (s === 'hp' ? S.hp : s === 'mp' ? S.mp : S.stat), cap = this.cap(m) * 2.5;
-        const before = m.raw[s] || 0, after = Math.min(cap, before + n / unit);
+        // valeur affichée → points « bruts » (bonus = brut × 0,8, puis × l'échelle de la stat) ; jamais de baisse (des points
+        // gagnés avant le nouveau plafond restent acquis)
+        const unit = 0.8 * (s === 'hp' ? S.hp : s === 'mp' ? S.mp : S.stat), cap = this.rawCap(m);
+        const before = m.raw[s] || 0, after = Math.max(before, Math.min(cap, before + n / unit));
         m.raw[s] = after;
         const real = Math.round((after - before) * unit);
         if (real > 0) parts[s] = real;
@@ -85,8 +97,10 @@
     },
     // niveaux de difficulté des séances : facile (moins de points), moyen, difficile (deux fois plus de points)
     LEVELS: [{ name: 'Facile', dif: -0.35, mul: 0.5, tire: 20 }, { name: 'Moyen', dif: 0, mul: 1, tire: 30 }, { name: 'Difficile', dif: 0.3, mul: 2, tire: 40 }],
-    // difficulté du mini-jeu selon les points déjà acquis (0 facile → 1 très dur)
-    difficulty: (m, k) => Math.min(1, m.tr[k] / 48),
+    // difficulté du mini-jeu selon ce qui est vraiment entraîné (0 facile → 1 très dur, à 48 points d'entraînement) : les
+    // points de l'objectif « Digivolution » (tr), ou les points bruts (raw) ramenés à la même échelle pour l'objectif
+    // « Statistique » (avant : toujours tr, que cet objectif ne change pas — sa difficulté restait figée)
+    difficulty(m, k, mode = 'evo') { return Math.min(1, mode === 'stat' ? ((m.raw && m.raw[k]) || 0) / this.rawCap(m, 48) : m.tr[k] / 48); },
     // raison qui empêche une séance (null : tout va bien)
     blocked(m, k) {
       const S = STATS[k];
@@ -94,8 +108,10 @@
       if (m.sick) return `${m.name} est malade... Donne-lui un Médicament avant de l'entraîner.`;
       if (m.hurt) return `${m.name} est blessé... Soigne-le avec un Bandage d'abord.`;
       if (m.tired >= 100) return `${m.name} est épuisé... Fais-le dormir${DW.Town.has('mushroomon') ? ' ou mange au Restaurant' : ''}.`;
-      if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat, ou dé-digivolue-le (son ABI monte) pour l'augmenter !`;
-      if (this.total(m) >= this.totalCap(m)) return `${m.name} ne peut plus progresser davantage... Dé-digivoluer (table des Digivolutions) augmente son ABI et repousse cette limite.`;
+      // (la dé-digivolution n'est conseillée que si elle fait encore monter l'ABI : une fois par forme, game/monster.js)
+      const prev = DW.Evo.prev1(m.sp, m.parcours), abi = !!prev && !DW.Evo.estFusion(m.sp) && m.abiGain(prev) > 0;
+      if (m.tr[k] >= this.cap(m)) return `${m.name} a atteint son potentiel en ${S.stat} (${this.cap(m)} points). Gagne des niveaux en combat${abi ? ', ou dé-digivolue-le (son ABI monte),' : ''} pour l'augmenter !`;
+      if (this.total(m) >= this.totalCap(m)) return `${m.name} ne peut plus progresser davantage... ${abi ? 'Dé-digivoluer (table des Digivolutions) augmente son ABI et repousse cette limite.' : 'Son ABI repousse cette limite : il monte quand il atteint une forme nouvelle.'}`;
       if (DW.Care && DW.Care.tooHungry(m)) return `${m.name} a trop faim pour s'entraîner... Donne-lui à manger !`;
       return null;
     },
@@ -155,7 +171,7 @@
       this.m = m; this.k = k; this.S = STATS[k];
       this.hits = []; this.pt = []; this.flash = 0; this.shake = 0;
       this.opts = Training.opts || { mode: 'evo', level: Training.LEVELS[1] };
-      this.dif = DW.clamp(Training.difficulty(m, k) + this.opts.level.dif, 0, 1);
+      this.dif = DW.clamp(Training.difficulty(m, k, this.opts.mode) + this.opts.level.dif, 0, 1);
       this.before = m.stat(k);
       this.state = 'ready';   // ready → play (3 essais) → done
     }
@@ -196,7 +212,7 @@
       else this.g = Training.gain(m, k, raw ? Math.max(1, Math.round(raw * L.mul)) : 0, this.opts.mode);
       m.tired = Math.min(100, m.tired + L.tire);
       if (score >= 5) { m.addHappy(2); DW.Life.moment('good', 'une super séance'); } else if (score === 0) m.addHappy(-2);
-      DW.Life.addFat(m, -0.2);   // (une séance fait un peu maigrir ; trop, et les Digivolutions « costaudes » devenaient impossibles)
+      DW.Life.addFat(m, -Training.FAT);   // (une séance fait maigrir : Training.FAT)
       DW.state.clock += MINUTES;
       this.after = m.stat(k);
       if (k === 'hp') m.hp = Math.min(m.maxHp, m.hp + (this.after - this.before));

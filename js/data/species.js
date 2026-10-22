@@ -26,11 +26,14 @@
     learn: [[1, 'charge'], [1, 'bulles'], [3, 'parfum'], [5, 'feuille']],
     desc: "Un petit bourgeon sur pattes. La fleur sur sa tête s'ouvre quand il est heureux." });
 
+  // (chaque Digimon d'Entraînement a une technique de son élément au N.1 : il la sait d'instinct en digivoluant —
+  //  DW.learnEvoMoves. Sans elle, Koromon ne frappait qu'en Neutre ou en Eau et perdait presque tous ses combats :
+  //  Étincelle, son coup spécial, data/moves.js ; Tsunomon n'avait sa Glace qu'au N.8 : Flocon)
   def('koromon', { name: 'Koromon', stage: 'Entraînement', types: ['Feu'], attr: 'Vaccin', base: { hp: 45, atk: 46, def: 40, spd: 50, int: 44 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'vive_attaque'], [8, 'bulle_explosive'], [10, 'coup_tete']], evo: { to: 'agumon', lvl: 8 }, rate: 190, xp: 45,
-    desc: 'Une petite boule rose pleine d\'énergie. Il souffle des bulles pour se défendre et rêve de devenir fort.' });
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'etincelle'], [4, 'grondement'], [6, 'vive_attaque'], [8, 'bulle_explosive'], [10, 'coup_tete']], evo: { to: 'agumon', lvl: 8 }, rate: 190, xp: 45,
+    desc: 'Une petite boule rose pleine d\'énergie. Il souffle des bulles et des étincelles pour se défendre, et rêve de devenir fort.' });
   def('tsunomon', { name: 'Tsunomon', stage: 'Entraînement', types: ['Glace'], attr: 'Données', base: { hp: 46, atk: 44, def: 48, spd: 46, int: 44 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'garde'], [6, 'vive_attaque'], [8, 'souffle_glace'], [10, 'coup_tete']], evo: { to: 'gabumon', lvl: 8 }, rate: 190, xp: 45,
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'flocon'], [4, 'garde'], [6, 'vive_attaque'], [8, 'souffle_glace'], [10, 'coup_tete']], evo: { to: 'gabumon', lvl: 8 }, rate: 190, xp: 45,
     desc: "Une petite boule de poils à la corne pointue. Un peu timide, mais d'une loyauté sans faille envers son partenaire." });
   def('bukamon', { name: 'Bukamon', stage: 'Entraînement', types: ['Eau'], attr: 'Vaccin', base: { hp: 48, atk: 42, def: 46, spd: 45, int: 46 }, kg: 5,
     learn: [[1, 'charge'], [1, 'bulles'], [4, 'garde'], [6, 'vive_attaque'], [8, 'jet_hydro'], [10, 'coup_tete']], evo: { to: 'gomamon', lvl: 8 }, rate: 190, xp: 45,

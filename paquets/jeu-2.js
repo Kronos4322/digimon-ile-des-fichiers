@@ -2976,7 +2976,8 @@
       const sp = DW.pick(list.length ? list : ['agumon']);
       await say(`Un combat d'entraînement contre ${DW.SPECIES[sp].name} ! Ici, personne ne risque rien : on s'arrête avant le K.O.`, n);
       if ((await DW.ask('Combattre ?')) !== 0) { s.flags.dojoDay.combat = null; return; }
-      const res = await ow.battle({ enemy: new DW.Digimon(sp, top), canLose: true, intro: `${DW.SPECIES[sp].name} salue, puis se met en garde !` });
+      // (combat amical : pas « sauvage », pas de fuite, pas de bonus de dégâts des sauvages — game/battle.js)
+      const res = await ow.battle({ enemy: new DW.Digimon(sp, top), canLose: true, amical: true, intro: `${DW.SPECIES[sp].name} salue, puis se met en garde !` });
       s.party.forEach(m => { if (m.hp <= 0) m.hp = 1; });
       await say(res === 'win' ? 'Bravo ! Un beau combat. Elecmon serait fier de toi !' : 'Pas mal du tout ! Tu feras mieux demain.', n);
     } });

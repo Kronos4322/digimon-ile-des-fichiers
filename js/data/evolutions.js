@@ -26,7 +26,7 @@
     yokomon: [{ to: "biyomon", lvl: 8, req: { spd: 12, wins: 3 } }, { to: 'kunemon', lvl: 8, req: { int: 12, wins: 3 } }],
     agumon: [{ to: "greymon", lvl: 15, req: { atk: 28, wins: 10 } }, { to: "meramon", lvl: 15, req: { int: 28, wins: 10 } }],
     gabumon: [{ to: "garurumon", lvl: 15, req: { spd: 26, def: 12, wins: 10 } }],
-    gomamon: [{ to: "ikkakumon", lvl: 15, req: { def: 28, wins: 10 } }, { to: "shellmon", lvl: 15, req: { def: 24, hp: 24 } }],
+    gomamon: [{ to: "ikkakumon", lvl: 15, req: { def: 28, wins: 10 } }, { to: "shellmon", lvl: 15, req: { def: 24, hp: 24, wins: 10 } }],   // (10 victoires, comme Betamon → Shellmon)
     palmon: [{ to: "togemon", lvl: 15, req: { int: 28, wins: 10 } }],
     biyomon: [{ to: "birdramon", lvl: 15, req: { spd: 28, wins: 10 } }, { to: "meramon", lvl: 15, req: { atk: 28, wins: 10 } }],
     betamon: [{ to: 'shellmon', lvl: 15, req: { hp: 24, wins: 10 } }],
@@ -60,11 +60,15 @@
   // espèces de l'île (species2.js)
   for (const sp in DW.EVO_EXTRA || {}) EVO[sp] = (EVO[sp] || []).concat(DW.EVO_EXTRA[sp]);
   const BAD = ['numemon', 'sukamon', 'monzaemon'];
+  // formes « de négligence » (atteintes avec au moins N erreurs de soin : Ogremon, Devimon, SkullGreymon) : les erreurs ne
+  // baissent jamais, leurs Digivolutions ne les plafonnent donc pas (Ogremon → Etemon et Devimon → Megadramon étaient impossibles)
+  const NEGLIGE = new Set();
+  for (const sp in EVO) for (const o of EVO[sp]) if (o.req && o.req.mistakes != null) NEGLIGE.add(o.to);
   for (const sp in EVO) for (const o of EVO[sp]) {
-    const st = DW.SPECIES[o.to] && DW.SPECIES[o.to].stage, r = o.req = o.req || {};
+    const st = DW.SPECIES[o.to] && DW.SPECIES[o.to].stage, r = o.req = o.req || {}, plafond = !NEGLIGE.has(sp);
     if (BAD.includes(o.to) || r.mistakes != null) continue; // évolutions « de négligence » : pas de plafond d'erreurs
-    if (st === 'Champion' && r.mistakesMax == null) r.mistakesMax = 4;
-    if (st === 'Ultime') { if (r.mistakesMax == null) r.mistakesMax = 2; if (r.disc == null) r.disc = 50; }
+    if (st === 'Champion' && r.mistakesMax == null && plafond) r.mistakesMax = 4;
+    if (st === 'Ultime') { if (r.mistakesMax == null && plafond) r.mistakesMax = 2; if (r.disc == null) r.disc = 50; }
     if (st === 'Méga') { if (r.mistakesMax == null) r.mistakesMax = 1; if (r.disc == null) r.disc = 80; }
   }
   // tout Disciple trop négligé peut devenir Numemon (≥ 5 erreurs) ou Sukamon (≥ 8 erreurs)
@@ -73,27 +77,36 @@
     EVO[sp].push({ to: 'numemon', lvl: 14, req: { mistakes: 5 } }, { to: 'sukamon', lvl: 14, req: { mistakes: 8 } });
   }
   // un peu de corpulence dans les conditions
+  // (formes agiles : seuils relevés d'un cran — avant 2, 3, 3, 1, 2, 2 — avec la perte de poids des séances, game/training.js :
+  //  un Digimon nourri à la demande et entraîné 4 fois par jour les remplit ; avant, il fallait l'affamer)
   const fat = (from, to, k, v) => { const o = (EVO[from] || []).find(e => e.to === to); if (o) o.req[k] = v; };
-  fat('palmon', 'togemon', 'fatMin', 2); fat('gabumon', 'garurumon', 'fatMax', 3); fat('elecmon', 'garurumon', 'fatMax', 3);
-  fat('biyomon', 'birdramon', 'fatMax', 2);
+  fat('palmon', 'togemon', 'fatMin', 2); fat('gabumon', 'garurumon', 'fatMax', 4); fat('elecmon', 'garurumon', 'fatMax', 4);
+  fat('biyomon', 'birdramon', 'fatMax', 3);
   // gros gabarits : il faut un Digimon bien nourri ; formes agiles : il doit rester léger
-  fat('agumon', 'greymon', 'fatMin', 0); fat('agumon', 'meramon', 'fatMax', 1); fat('gotsumon', 'meramon', 'fatMax', 2);
-  fat('betamon', 'shellmon', 'fatMin', 3); fat('gomamon', 'shellmon', 'fatMin', 3); fat('kunemon', 'kuwagamon', 'fatMax', 2); fat('mushroomon', 'togemon', 'fatMin', 1); fat('gomamon', 'ikkakumon', 'fatMin', 1); fat('ikkakumon', 'zudomon', 'fatMin', 3);
+  fat('agumon', 'greymon', 'fatMin', 0); fat('agumon', 'meramon', 'fatMax', 2); fat('gotsumon', 'meramon', 'fatMax', 3);
+  fat('betamon', 'shellmon', 'fatMin', 3); fat('gomamon', 'shellmon', 'fatMin', 3); fat('kunemon', 'kuwagamon', 'fatMax', 3); fat('mushroomon', 'togemon', 'fatMin', 1); fat('gomamon', 'ikkakumon', 'fatMin', 1); fat('ikkakumon', 'zudomon', 'fatMin', 3);
 
   const LABEL = { hp: 'Entr. PV', atk: 'Entr. Attaque', def: 'Entr. Défense', spd: 'Entr. Vitesse', int: 'Entr. Intell.', happy: 'Bonheur', wins: 'Victoires',
     disc: 'Discipline', mistakes: 'Erreurs de soin', mistakesMax: 'Erreurs de soin', fatMin: 'Corpulence', fatMax: 'Corpulence', fusion: 'Fusion' };
   const MAXK = ['mistakesMax', 'fatMax'];
 
+  const RANG = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'], rang = sp => RANG.indexOf(DW.SPECIES[sp].stage);
   DW.Evo = {
     options: sp => EVO[sp] || [],
     // formes précédentes (pour la dé-digivolution)
     prev: sp => Object.keys(EVO).filter(k => EVO[k].some(e => e.to === sp)),
-    // LA forme précédente : celle qu'il a vraiment été (passe : m.parcours), sinon celle dont il est l'évolution principale
-    // (Gabumon ← Tsunomon et non Koromon, Tentomon ← Motimon, Patamon ← Tokomon : les lignées de l'animé)
+    // LA forme précédente : celle qu'il a vraiment été (passe : m.parcours, la dernière forme d'un stade inférieur — même hors
+    // de la table : le Gabumon de Matt devenu Birdramon par l'Aile de flammes redevient Gabumon, et renaît en Punimon),
+    // sinon celle dont il est l'évolution principale (Gabumon ← Tsunomon et non Koromon, Tentomon ← Motimon, Patamon ← Tokomon :
+    // les lignées de l'animé)
     prev1(sp, passe) {
-      const p = this.prev(sp), v = passe && passe[passe.length - 1];
-      return p.includes(v) ? v : p.find(k => EVO[k][0].to === sp) || p[0] || null;
+      const v = passe && passe[passe.length - 1];
+      if (v && DW.SPECIES[v] && DW.SPECIES[sp] && rang(v) < rang(sp)) return v;
+      const p = this.prev(sp);
+      return p.find(k => EVO[k][0].to === sp) || p[0] || null;
     },
+    // forme née d'une fusion (Omegamon : WarGreymon + MetalGarurumon) : elle ne dé-digivolue pas (ui/evotable.js)
+    estFusion: sp => Object.keys(EVO).some(k => EVO[k].some(e => e.to === sp && e.req && e.req.fusion)),
     // bébé à l'origine de sa lignée (renaissance) : Greymon → Agumon → Koromon → Botamon
     bebe(sp, passe = []) {
       const P = passe.slice();
