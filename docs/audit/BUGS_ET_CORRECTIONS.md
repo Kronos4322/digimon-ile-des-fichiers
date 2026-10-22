@@ -100,7 +100,7 @@ Autres constats sur les cartes, relevés avant l'audit :
 | D6 | P2 | Ogremon → Etemon et Devimon → Megadramon impossibles | corrigé (52ebfcc), test |
 | E1 | P2 | Koromon sans technique de Feu : 21 % de victoires contre les autres Entraînement | corrigé (52ebfcc), test : 79 % |
 | E2 | P2 | Birdramon, Garurumon... demandent d'affamer son Digimon | corrigé (52ebfcc), test |
-| E3 | P2 | Les éléments décident presque seuls des combats | décision du joueur (pas encore tranchée) |
+| E3 | P2 | Les éléments décident presque seuls des combats | décision du joueur : gardé tel quel (« Greymon est un Digimon de Feu, c'est normal ») |
 | E4 | P2 | Les Méga atteignent 999 partout dès leur arrivée | décision du joueur : « pour plus tard » (hors des chapitres 1 à 3) |
 | E5 | P2 | Revanche de Shellmon : environ 2 000 Bits à volonté | corrigé (e862fe0, avec SYS-25) |
 | D7 | P3 | Un Digimon K.O. digivolue depuis sa fiche et se relève | corrigé (52ebfcc), test |
@@ -120,7 +120,7 @@ Autres constats sur les cartes, relevés avant l'audit :
 | D21 | P3 | 29 espèces sans dessin de secours | non corrigé : le jeu attend toutes les images avant de laisser jouer ; reste le cas d'une image qui ne se télécharge pas |
 | D22 | P3 | Le test « Shellmon à mi-vie » ne lisait pas la vraie valeur | corrigé (52ebfcc) |
 | D23 | P3 | README périmé (70 espèces) | corrigé (7b2ae96) : 81 espèces, 132 Digivolutions |
-| D24 | P3 | La renaissance remet l'ABI à 0 | décision du joueur (pas encore tranchée) |
+| D24 | P3 | La renaissance remet l'ABI à 0 | corrigé, décision du joueur (« on ne remet pas les ABI à zéro ») : l'ABI est gardé à la renaissance, test |
 | D25 | P3 | Pas de technique de classe Poison | non corrigé : contenu à créer |
 | E6 | P3 | EXP entière pour les Digimon restés au fond | corrigé (52ebfcc), test : la moitié |
 | E7 | P3 | L'allié frappe à un pourcentage fixe des PV du boss | gardé : voulu, simple |

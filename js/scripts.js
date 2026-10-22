@@ -126,7 +126,7 @@
     'game/trainingames.js': 'ae59e5d7',
     'game/trainfield.js': '688da91e',
     'game/care.js': '964b2f0d',
-    'game/life.js': '621fb4b7',
+    'game/life.js': 'e71435c9',
     'game/calendrier.js': '7da7eb86',
     'game/abri.js': 'c17d2ce2',
     'game/paysage.js': '8999c16a',
@@ -208,7 +208,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '554517e8' },
+    { f: '../paquets/jeu-1.js', v: '509cdf2d' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '81e643a1' },
   ];   // (fin des paquets)

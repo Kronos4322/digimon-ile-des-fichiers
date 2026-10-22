@@ -17311,7 +17311,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       const iv = {}; for (const k in m.iv) iv[k] = Math.min(15, m.iv[k] + 2);
       const tr = {}; for (const k in m.tr) tr[k] = Math.floor(m.tr[k] / 2);
       // même lignée : il garde ses techniques et son surnom ; nouvelle lignée : un nouveau Digimon qui hérite d'une partie de la force
-      const nm = new DW.Digimon(sp, 4, same ? { iv, tr, happy: Math.max(50, m.happy), wins: m.wins, moves: m.moves.slice(0, DW.MAX_MOVES), nick: m.nick, uid: m.uid } : { iv, tr, happy: 60 });
+      // l'ABI est gardé dans les deux cas (règle du joueur, 22/10/2026 : « on ne remet pas les ABI à zéro ») — chaque vie
+      // repart de ce potentiel et l'augmente encore par ses Digivolutions
+      const abi = m.abi || 0;
+      const nm = new DW.Digimon(sp, 4, same ? { iv, tr, abi, happy: Math.max(50, m.happy), wins: m.wins, moves: m.moves.slice(0, DW.MAX_MOVES), nick: m.nick, uid: m.uid } : { iv, tr, abi, happy: 60 });
       nm.equip = Object.assign({}, m.equip || {});   // (il garde son équipement)
       nm.lives = m.lives + 1; nm.lifespan = LIFESPAN + 2 * nm.lives; nm.disc = Math.round(m.disc / 2); nm.mistakes = 0; nm.fat = 0;
       return nm;

@@ -24,9 +24,9 @@ Documents liés, dans ce dossier :
 | | Nombre |
 |---|---|
 | Anomalies relevées | **123** : 1 P0, 7 P1, 27 P2, 88 P3 |
-| Corrigées | **83** |
+| Corrigées | **84** |
 | Corrigées en partie | **4** |
-| Laissées à ta décision, ou gardées exprès | **11** |
+| Laissées à ta décision, ou gardées exprès | **10** |
 | Pas encore traitées (P3 surtout), ou non vérifiables sans essai réel | **25** |
 | Tests automatiques | **71**, tous réussis, sur le PC et sur GitHub (53 au départ) |
 | Parcours de joueur dans un vrai Chrome | **13 étapes sur 13**, en local et sur le site en ligne |
@@ -104,10 +104,10 @@ Ce qui est corrigé (26 anomalies) :
 - les formes agiles inaccessibles sans affamer le Digimon ;
 - divers cas limites : K.O., sommeil, Lutte, Dojo, Bits, EXP partagée...
 
-Laissés à ta décision :
-- le poids des éléments dans les combats ;
-- les Méga, « pour plus tard » ;
-- l'ABI remis à zéro à la renaissance.
+Tes décisions :
+- le poids des éléments dans les combats est gardé (« Greymon est un Digimon de Feu, c'est normal ») ;
+- les Méga : « pour plus tard » ;
+- l'ABI n'est plus remis à zéro à la renaissance (corrigé).
 
 ### Systèmes : sauvegardes, objets, quêtes, sons
 
@@ -173,4 +173,4 @@ Laissés à ta décision :
 - **Ce qui reste** :
   - les réserves ci-dessus ;
   - les P3 non traitées ;
-  - les choix d'équilibrage qui t'attendent.
+  - les Méga, laissées pour plus tard.

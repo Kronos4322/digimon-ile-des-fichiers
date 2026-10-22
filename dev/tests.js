@@ -915,6 +915,13 @@ test('chargement : champs abîmés remis à leur valeur de départ ; objets inco
     yes(DW.state.party[0].moves.some(t => t.id === 'technique_future'), 'technique pas rendue'); eq(DW.state.party[0].techInconnues, undefined);
   } finally { delete DW.ITEMS.objet_futur; delete DW.MOVES.technique_future; }
 });
+test("renaissance : le Digimon garde son ABI, dans sa lignée comme dans une autre (règle du joueur)", () => {
+  fresh();
+  const m = new DW.Digimon('greymon', 30); m.abi = 7;
+  eq(DW.Life.reborn(m).abi, 7, 'même lignée');
+  const autre = DW.EGG_ORDER.find(e => e !== DW.Life.babyOf(m));
+  eq(DW.Life.reborn(m, autre).abi, 7, 'autre lignée (' + autre + ')');
+});
 test("musique : une minuterie en retard ne joue pas d'un coup les notes manquées ; la musique de la carte revient après un jingle", () => {
   const A = DW.Audio, ctx0 = A.ctx, tone0 = A.tone, stack0 = DW.Game.stack, ow0 = DW.ow;
   let notes = [];
