@@ -45,7 +45,7 @@
   const VERSIONS = {
     'engine/core.js': 'dafd2845',
     'engine/input.js': '39aa703e',
-    'engine/audio.js': '73c83863',
+    'engine/audio.js': '020b0685',
     'engine/art.js': '2890e257',
     'ui/widgets.js': 'f4b99472',
     'ui/dialog.js': '337e232b',
@@ -117,7 +117,7 @@
     'engine/time.js': '263928e5',
     'gfx/ciel.js': 'b93a095d',
     'gfx/meteo.js': '93a8f7c8',
-    'game/options.js': 'b6bf17f8',
+    'game/options.js': '0ab4b015',
     'game/monster.js': '9da5b39d',
     'game/objets.js': '8ac3869b',
     'game/sauvegarde.js': '22e452d2',
@@ -142,7 +142,7 @@
     'game/battle.js': '2d6c4618',
     'game/evolution.js': 'c99ac76a',
     'game/overworld.js': '566f2c5d',
-    'ui/menus.js': '66bf84e7',
+    'ui/menus.js': '4024d5da',
     'ui/sac.js': '4052cee2',
     'ui/boutique.js': '58809e49',
     'ui/nom.js': '1b0eeb7a',
@@ -176,7 +176,7 @@
     'maps/quartiers.js': '27c4d204',
     'maps/enigmes.js': 'd6a641db',
     'maps/donjons.js': 'ffb9dc0a',
-    'maps/kuwagamon.js': '2fe66a21',
+    'maps/kuwagamon.js': '84b25e8f',
     'maps/classe.js': '28f81188',
     'maps/gymnase.js': '7b6c7ccf',
     'maps/relief.js': '451a7b36',
@@ -208,9 +208,9 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '6c487c1e' },
+    { f: '../paquets/jeu-1.js', v: '7ab78aa0' },
     { f: 'maps/retouches_donnees.js' },
-    { f: '../paquets/jeu-2.js', v: '4ce14e2b' },
+    { f: '../paquets/jeu-2.js', v: '869b2a80' },
   ];   // (fin des paquets)
   // document.write garde l'ordre d'exécution ET passe avant les scripts suivants de la page
   // (ex. checkmaps.js ou le script de la galerie), ce que ne garantit pas un ajout dynamique.

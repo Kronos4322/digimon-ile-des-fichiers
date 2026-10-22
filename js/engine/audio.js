@@ -20,6 +20,7 @@
   }
   DW.Audio = {
     ctx: null, muted: false, cur: null, timer: null, pending: null, vol: 0.22,
+    volMus: 0.5, volFx: 0.9,   // (réglables dans les Options : musique et bruitages à part — game/options.js)
     init() {
       if (this.ctx) { if (this.ctx.state !== 'running' && !document.hidden) this.ctx.resume().catch(() => {}); return; }
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -27,13 +28,18 @@
       this.ctx = new AC();
       this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : this.vol;
       this.master.connect(this.ctx.destination);
-      this.mus = this.ctx.createGain(); this.mus.gain.value = 0.5; this.mus.connect(this.master);
-      this.fx = this.ctx.createGain(); this.fx.gain.value = 0.9; this.fx.connect(this.master);
+      this.mus = this.ctx.createGain(); this.mus.gain.value = this.volMus; this.mus.connect(this.master);
+      this.fx = this.ctx.createGain(); this.fx.gain.value = this.volFx; this.fx.connect(this.master);
       const len = this.ctx.sampleRate;
       this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       if (this.pending) { const p = this.pending; this.pending = null; this.play(p); }
+    },
+    volumes(mus, fx) {
+      this.volMus = mus; this.volFx = fx;
+      if (this.mus) this.mus.gain.value = mus;
+      if (this.fx) this.fx.gain.value = fx;
     },
     toggleMute() {
       this.muted = !this.muted;

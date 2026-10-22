@@ -214,11 +214,20 @@
       if (d) {
         if (this.i === 0) O.textSpeed = (O.textSpeed + d + O.SPEEDS.length) % O.SPEEDS.length;
         else if (this.i === 1) Audio.toggleMute();
+        else {   // (musique, bruitages : de 0 à 100 %, par pas de 10 ; ESPACE fait le tour)
+          const pas = v => Math.round(Math.min(1, Math.max(0, v)) * 10) / 10, mus = this.i === 2;
+          let v = (mus ? Audio.volMus : Audio.volFx) + d * 0.1;
+          if (Input.hit('ok') && v > 1.001) v = 0;
+          if (mus) Audio.volumes(pas(v), Audio.volFx); else Audio.volumes(Audio.volMus, pas(v));
+        }
         Audio.sfx('move'); O.save();
       }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
     }
-    rows() { const O = DW.Options; return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé']]; }
+    rows() {
+      const O = DW.Options, pc = v => Math.round(v * 100) + ' %';
+      return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé'], ['Musique', pc(Audio.volMus)], ['Bruitages', pc(Audio.volFx)]];
+    }
     draw(c) {
       const x = 40, rows = this.rows(), y = 70;
       UI.box(c, x, y, 240, 76 + rows.length * 20);

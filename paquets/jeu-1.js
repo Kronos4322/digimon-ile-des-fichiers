@@ -407,6 +407,7 @@ window.DW = window.DW || {};
   }
   DW.Audio = {
     ctx: null, muted: false, cur: null, timer: null, pending: null, vol: 0.22,
+    volMus: 0.5, volFx: 0.9,   // (réglables dans les Options : musique et bruitages à part — game/options.js)
     init() {
       if (this.ctx) { if (this.ctx.state !== 'running' && !document.hidden) this.ctx.resume().catch(() => {}); return; }
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -414,13 +415,18 @@ window.DW = window.DW || {};
       this.ctx = new AC();
       this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : this.vol;
       this.master.connect(this.ctx.destination);
-      this.mus = this.ctx.createGain(); this.mus.gain.value = 0.5; this.mus.connect(this.master);
-      this.fx = this.ctx.createGain(); this.fx.gain.value = 0.9; this.fx.connect(this.master);
+      this.mus = this.ctx.createGain(); this.mus.gain.value = this.volMus; this.mus.connect(this.master);
+      this.fx = this.ctx.createGain(); this.fx.gain.value = this.volFx; this.fx.connect(this.master);
       const len = this.ctx.sampleRate;
       this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       if (this.pending) { const p = this.pending; this.pending = null; this.play(p); }
+    },
+    volumes(mus, fx) {
+      this.volMus = mus; this.volFx = fx;
+      if (this.mus) this.mus.gain.value = mus;
+      if (this.fx) this.fx.gain.value = fx;
     },
     toggleMute() {
       this.muted = !this.muted;
@@ -15218,11 +15224,14 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     // avance rapide : Maj maintenu (ou ESPACE maintenu un instant) ; l'interrupteur COURIR du téléphone n'en est pas un
     fastForward(holdOk) { return DW.Input.isDown('run') || holdOk > 0.35; },
     load() { try { Object.assign(this, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) { /* options par défaut */ } },
-    save() { try { localStorage.setItem(KEY, JSON.stringify({ textSpeed: this.textSpeed, muted: DW.Audio.muted })); } catch (e) { /* stockage indisponible */ } },
+    save() { try { localStorage.setItem(KEY, JSON.stringify({ textSpeed: this.textSpeed, muted: DW.Audio.muted, musique: DW.Audio.volMus, bruitages: DW.Audio.volFx })); } catch (e) { /* stockage indisponible */ } },
   };
   O.load();
   delete O.classic; delete O.battleMode;   // anciens réglages retirés (arène temps réel, mode « Ordres »)
   if (O.muted) DW.Audio.muted = true;
+  // volumes de la musique et des bruitages (0 à 1 ; par défaut 0,5 et 0,9 : les réglages d'avant)
+  const vol = (v, d) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : d);
+  DW.Audio.volumes(vol(O.musique, 0.5), vol(O.bruitages, 0.9));
 })();
 ;
 
@@ -21693,11 +21702,20 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (d) {
         if (this.i === 0) O.textSpeed = (O.textSpeed + d + O.SPEEDS.length) % O.SPEEDS.length;
         else if (this.i === 1) Audio.toggleMute();
+        else {   // (musique, bruitages : de 0 à 100 %, par pas de 10 ; ESPACE fait le tour)
+          const pas = v => Math.round(Math.min(1, Math.max(0, v)) * 10) / 10, mus = this.i === 2;
+          let v = (mus ? Audio.volMus : Audio.volFx) + d * 0.1;
+          if (Input.hit('ok') && v > 1.001) v = 0;
+          if (mus) Audio.volumes(pas(v), Audio.volFx); else Audio.volumes(Audio.volMus, pas(v));
+        }
         Audio.sfx('move'); O.save();
       }
       if (Input.hit('back')) { Audio.sfx('back'); this.close(); }
     }
-    rows() { const O = DW.Options; return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé']]; }
+    rows() {
+      const O = DW.Options, pc = v => Math.round(v * 100) + ' %';
+      return [['Vitesse du texte', O.SPEEDS[O.textSpeed].name], ['Son', Audio.muted ? 'Coupé' : 'Activé'], ['Musique', pc(Audio.volMus)], ['Bruitages', pc(Audio.volFx)]];
+    }
     draw(c) {
       const x = 40, rows = this.rows(), y = 70;
       UI.box(c, x, y, 240, 76 + rows.length * 20);

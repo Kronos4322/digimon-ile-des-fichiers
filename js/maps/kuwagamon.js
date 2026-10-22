@@ -41,7 +41,8 @@
       Audio.sfx('bump'); ow.shake = 0.6;
       await say("Les mots virent au rouge ! Le bourdonnement enfle... et quelque chose tombe des branches !");
       const list = (DW.getMap('clairiere').encounters || []).filter(e => !e.night && e.sp !== 'kuwagamon'), e = list.length ? DW.weighted(list.map(x => ({ ...x, w: x.w || 1 }))) : { sp: 'kunemon', min: 10, max: 12 };
-      if (s.party.some(m => m.hp > 0)) await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)), intro: "Un Digimon gardien de l'arbre t'attaque !" });
+      // (vaincu, il compte pour les demandes « vaincre » des habitants, comme les rencontres visibles : game/wild.js)
+      if (s.party.some(m => m.hp > 0) && (await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)), intro: "Un Digimon gardien de l'arbre t'attaque !" })) === 'win' && DW.Requests) DW.Requests.onWin(e.sp);
       await say(`(Indice : ${R.hint})`);
       return;
     }
