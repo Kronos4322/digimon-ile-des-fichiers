@@ -708,6 +708,32 @@ GROTTE_NOMS = {
     19: ['torche', 'brasero_colonne', 'torche_anubis', 'lampe', None, 'flamme_bleue', None, 'torche_plantee', 'coupe_feu', 'braises'],
 }
 GROTTE_SOLS = {'herbe', 'sable', 'chemin', 'paves', 'dalles_fissurees', 'sol_roche', 'terre_sombre'}
+
+
+def raccord_vertical(im, n=256, fondu=0.22):
+    """Carreau de sol d'une planche qui se raccorde déjà en largeur, mais pas en hauteur -> texture raccordable, sans
+    décalage ni miroir (ni dessin dédoublé, ni hiéroglyphe à l'envers). Le bord irrégulier est rogné ; on cherche la
+    PÉRIODE du dessin, la hauteur après laquelle il se reproduit le mieux (dalles_fissurees : ses colonnes d'ankhs) ; le
+    carreau garde cette hauteur et ses premières rangées (fondu : 22 %) sont fondues avec celles qui suivent la période :
+    son bas continue exactement dans son haut. Réduit à n de large en gardant ses proportions, avec les pixels d'en face
+    au-delà des bords ; hauteur multiple de 4 (la taille de jeu, n / 4 de large : TAILLES_DOSSIER de gfx/textures.js)."""
+    import numpy as np
+    w, h = im.size; m = int(min(w, h) * 0.09)
+    a = np.asarray(im.convert('RGB').crop((m, m, w - m, h - m))).astype(float)
+    H, W = a.shape[:2]; L = int(H * fondu)
+    P = min(range(H // 2, H - L + 1), key=lambda p: np.abs(a[:L] - a[p:p + L]).mean())
+    s = (np.arange(L)[:, None, None] + 0.5) / L; s = s * s * (3 - 2 * s)
+    t = a[:P].copy(); t[:L] = a[:L] * s + a[P:P + L] * (1 - s)
+    G = round(n / 4 * P / W)
+    my, mx = P // 4, W // 4
+    t = np.pad(t.clip(0, 255).astype('uint8'), ((my, my), (mx, mx), (0, 0)), mode='wrap')
+    print('   (période %d rangées sur %d, fondu %d : %dx%d, %dx%d pixels du jeu)' % (P, H, L, n, G * 4, n // 4, G))
+    return Image.fromarray(t, 'RGB').resize((n, G * 4), Image.LANCZOS, box=(mx, my, mx + W, my + P))
+
+
+# sols d'une planche raccordés autrement que par raccordable() : (dossier, nom) -> fonction
+# (dalles_fissurees : une couture horizontale nette, le bas de ses dalles et de ses colonnes ne continuait pas dans le haut)
+RACCORDS_PLANCHES = {('grotte', 'dalles_fissurees'): raccord_vertical}
 GROTTE_GRAND = {'porte_gardiens': 260, 'porte_bannieres': 240, 'arche_ruine': 220, 'dais': 220, 'anubis_geant': 240, 'entree_temple': 220,
                 'autel_soleil': 240, 'porte_temple': 220, 'porte_grotte': 220, 'porte_scellee': 220, 'porte_arche': 200, 'porte_ruine': 200,
                 'porte_torches': 220, 'gres_entree': 200, 'gres_arche': 200, 'entree': 200, 'entree_mousse': 200, 'arche': 200,
@@ -783,7 +809,7 @@ def optimiser_planches(d):
             cible = os.path.join(dst, nom + '.webp')   # (WebP : 4 à 5 fois plus léger que le PNG pour ces images peintes)
             if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
             im = morceau(f, ('case', k))
-            if nom in SOLS_D: out = raccordable(im)
+            if nom in SOLS_D: out = RACCORDS_PLANCHES.get((d, nom), raccordable)(im)
             else: w, h = im.size; s = min(1.0, GRAND_D.get(nom, defaut) / max(w, h)); out = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
             out.save(cible, 'WEBP', quality=85, method=4)
             if os.path.exists(cible[:-5] + '.png'): os.remove(cible[:-5] + '.png')
