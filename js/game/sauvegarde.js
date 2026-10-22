@@ -139,8 +139,13 @@
   // Un Digimon d'espèce inconnue est gardé tel quel dans st.orphans (et rendu si l'espèce revient).
   function revive(o) {
     if (!o || !DW.SPECIES[o.sp]) return null;
-    const moves = (o.moves || []).filter(m => m && DW.MOVES[m.id]).map(m => ({ id: m.id }));
+    // techniques d'une version plus récente (ou retirées) : gardées à part sur le Digimon et rendues quand elles existent de
+    // nouveau (avant : effacées à la sauvegarde suivante) ; une technique rendue sans place libre reste de côté
+    const toutes = [...(o.moves || []), ...(Array.isArray(o.techInconnues) ? o.techInconnues : []).map(id => ({ id }))].filter(t => t && t.id);
+    const connues = toutes.filter(t => DW.MOVES[t.id]), moves = connues.slice(0, DW.MAX_MOVES).map(t => ({ id: t.id }));
+    const deCote = [...new Set([...toutes.filter(t => !DW.MOVES[t.id]), ...connues.slice(DW.MAX_MOVES)].map(t => t.id))];
     const m = Digimon.from({ ...o, moves: moves.length ? moves : null });
+    if (deCote.length) m.techInconnues = deCote;
     if (!Number.isFinite(m.hp)) m.hp = m.maxHp;
     m.hp = DW.clamp(m.hp, 0, m.maxHp);
     return m;

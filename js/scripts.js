@@ -118,9 +118,9 @@
     'gfx/ciel.js': 'b93a095d',
     'gfx/meteo.js': '93a8f7c8',
     'game/options.js': '0ab4b015',
-    'game/monster.js': '9da5b39d',
+    'game/monster.js': '26bc6571',
     'game/objets.js': '8ac3869b',
-    'game/sauvegarde.js': '22e452d2',
+    'game/sauvegarde.js': '88b4f958',
     'game/fichier.js': '5acb3743',
     'game/training.js': '376260c4',
     'game/trainingames.js': 'ae59e5d7',
@@ -208,7 +208,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '7ab78aa0' },
+    { f: '../paquets/jeu-1.js', v: '7bd9b551' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '869b2a80' },
   ];   // (fin des paquets)

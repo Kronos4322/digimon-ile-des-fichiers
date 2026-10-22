@@ -15373,7 +15373,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     toJSON() {
       return { sp: this.sp, level: this.level, xp: this.xp, iv: this.iv, moves: this.moves, hp: this.hp,
         status: this.status, slp: this.slp, nick: this.nick, uid: this.uid, happy: this.happy, born: this.born, wins: this.wins, tr: this.tr, tired: this.tired, hunger: Math.round(this.hunger), need: Math.round(this.need), thirst: Math.round(this.thirst || 0), mp: this.mp,
-        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, formes: this.formes, dedigiDe: this.dedigiDe, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0 };
+        mistakes: this.mistakes, kos: this.kos || 0, disc: this.disc, fat: this.fat, lives: this.lives, lifespan: this.lifespan, life2: !!this.life2, slept: this.slept, sick: this.sick, hurt: this.hurt, germs: Math.round(this.germs || 0), chips: this.chips, evoAt: this.evoAt, parcours: this.parcours, formes: this.formes, dedigiDe: this.dedigiDe, abi: this.abi || 0, raw: this.raw || {}, res: this.res || {}, equip: this.equip || {}, boost: this.boost || 0, techInconnues: this.techInconnues };   // (techInconnues : game/sauvegarde.js, revive)
     }
     static from(o) {
       const m = new Digimon(o.sp, o.level, o);
@@ -15711,8 +15711,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // Un Digimon d'espèce inconnue est gardé tel quel dans st.orphans (et rendu si l'espèce revient).
   function revive(o) {
     if (!o || !DW.SPECIES[o.sp]) return null;
-    const moves = (o.moves || []).filter(m => m && DW.MOVES[m.id]).map(m => ({ id: m.id }));
+    // techniques d'une version plus récente (ou retirées) : gardées à part sur le Digimon et rendues quand elles existent de
+    // nouveau (avant : effacées à la sauvegarde suivante) ; une technique rendue sans place libre reste de côté
+    const toutes = [...(o.moves || []), ...(Array.isArray(o.techInconnues) ? o.techInconnues : []).map(id => ({ id }))].filter(t => t && t.id);
+    const connues = toutes.filter(t => DW.MOVES[t.id]), moves = connues.slice(0, DW.MAX_MOVES).map(t => ({ id: t.id }));
+    const deCote = [...new Set([...toutes.filter(t => !DW.MOVES[t.id]), ...connues.slice(DW.MAX_MOVES)].map(t => t.id))];
     const m = Digimon.from({ ...o, moves: moves.length ? moves : null });
+    if (deCote.length) m.techInconnues = deCote;
     if (!Number.isFinite(m.hp)) m.hp = m.maxHp;
     m.hp = DW.clamp(m.hp, 0, m.maxHp);
     return m;

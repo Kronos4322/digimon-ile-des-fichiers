@@ -903,12 +903,17 @@ test("sac plein : une récompense part au coffre (message juste), une trouvaille
 });
 test('chargement : champs abîmés remis à leur valeur de départ ; objets inconnus gardés à part, puis rendus', () => {
   fresh();
-  const o = { ...DW.newState(), bits: 'beaucoup', clock: null, x: 'a', bag: { viande: 2, objet_futur: 3 }, party: [new DW.Digimon('agumon', 5).toJSON()], v: 99 };
+  const ag = new DW.Digimon('agumon', 5).toJSON(); ag.moves = [...ag.moves.slice(0, 3), { id: 'technique_future' }];
+  const o = { ...DW.newState(), bits: 'beaucoup', clock: null, x: 'a', bag: { viande: 2, objet_futur: 3 }, party: [ag], v: 99 };
   store.set(SAVE, JSON.stringify(o)); yes(DW.load());
   eq(DW.state.bits, 300); eq(DW.state.clock, 8 * 60); yes(Number.isFinite(DW.state.x), 'position'); eq(DW.state.bag.viande, 2);
   eq(DW.state.bag.objet_futur, undefined); eq(DW.state.orphanItems.bag.objet_futur, 3); yes(/plus récente/.test(DW.loadNote || ''), 'pas de message');
-  DW.ITEMS.objet_futur = DW.ITEMS.viande; DW.save();
-  try { yes(DW.load()); eq(DW.state.bag.objet_futur, 3); eq(DW.state.orphanItems, undefined); } finally { delete DW.ITEMS.objet_futur; }
+  eq(DW.state.party[0].moves.some(t => t.id === 'technique_future'), false); eq(DW.state.party[0].techInconnues.join(), 'technique_future');
+  DW.ITEMS.objet_futur = DW.ITEMS.viande; DW.MOVES.technique_future = DW.MOVES[DW.state.party[0].moves[0].id]; DW.save();
+  try {
+    yes(DW.load()); eq(DW.state.bag.objet_futur, 3); eq(DW.state.orphanItems, undefined);
+    yes(DW.state.party[0].moves.some(t => t.id === 'technique_future'), 'technique pas rendue'); eq(DW.state.party[0].techInconnues, undefined);
+  } finally { delete DW.ITEMS.objet_futur; delete DW.MOVES.technique_future; }
 });
 test("musique : une minuterie en retard ne joue pas d'un coup les notes manquées ; la musique de la carte revient après un jingle", () => {
   const A = DW.Audio, ctx0 = A.ctx, tone0 = A.tone, stack0 = DW.Game.stack, ow0 = DW.ow;
