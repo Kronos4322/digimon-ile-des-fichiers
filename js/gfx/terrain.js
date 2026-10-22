@@ -414,6 +414,34 @@
       k = 0; for (let py = GH - 1, i = py * GW + px; py >= 0; py--, i -= GW) { if (T[i] === RK) RD[i] = k++; else k = 0; }
     } };
     for (let px = 0; px < GW; px += 128) { paroiCols(px, Math.min(GW, px + 128)); yield; }
+    // PAROIS EN BANDE des grottes (map.paroi : falaise_basalte, paroi_cratere — faites pour se répéter en LARGEUR seulement,
+    // assets/volcan/LISEZ-MOI.txt ; répétées aussi en hauteur, elles rayaient les murs des souterrains du Mont Miharashi
+    // d'une bande claire toutes les 64 pixels) : pour chaque pixel de roche, sa distance au bas de son mur (PB ; un mur qui
+    // touche le bas de la carte n'a pas de bas : « très loin »). La bande y est posée comme une falaise : paroiTx
+    const PAROI_BANDE = !!TX_PAROI && (map.paroi === 'falaise_basalte' || map.paroi === 'paroi_cratere');
+    let PB = null;
+    if (PAROI_BANDE) {
+      PB = new Uint16Array(N); const CA = TER.canopy;
+      const basCols = (xa, xb) => { for (let px = xa; px < xb; px++) {
+        let k = 4096; for (let py = GH - 1, i = py * GW + px; py >= 0; py--, i -= GW) { if (T[i] === CA) PB[i] = k++; else k = 0; }
+      } };
+      for (let px = 0; px < GW; px += 128) { basCols(px, Math.min(GW, px + 128)); yield; }
+    }
+    // pixel de la bande pour un pixel de roche (écrit dans TC, comme texel) : en bas du mur, la bande posée comme une
+    // falaise, son pied contre le sol (éboulis, lueur de la lave), sur 3 cases ; plus haut, le cœur de la roche : les
+    // rangées du milieu de la bande, choisies par un bruit lent — des colonnes de basalte, aucune rangée répétée en ligne ;
+    // les deux fondus sur 8 pixels. (Le liseré du haut de la bande — terre et mousse, le bord d'un plateau — n'est pas
+    // posé : dans une grotte, la roche continue au-dessus.)
+    const paroiTx = (px, py, i) => {
+      const P = TX_PAROI, FH = P.h, b = PB[i], d = P.d;
+      const qf = b < FH - 16 ? texO(P, px, FH - 1 - b) : -1;
+      const qc = b >= FH - 24 ? texO(P, px, 16 + DW.clamp(Math.floor(noise(px * 0.015, py * 0.03, 641) * (FH - 32)), 0, FH - 33)) : -1;
+      if (qc < 0) { TC[0] = d[qf]; TC[1] = d[qf + 1]; TC[2] = d[qf + 2]; return TC; }
+      if (qf < 0) { TC[0] = d[qc]; TC[1] = d[qc + 1]; TC[2] = d[qc + 2]; return TC; }
+      const w = (b - (FH - 24)) / 8;
+      TC[0] = d[qf] + (d[qc] - d[qf]) * w; TC[1] = d[qf + 1] + (d[qc + 1] - d[qf + 1]) * w; TC[2] = d[qf + 2] + (d[qc + 2] - d[qf + 2]) * w;
+      return TC;
+    };
     // SOLS SPÉCIAUX AUX CONTOURS NATURELS (rocaille, cendres, terre ordinaire) : la limite ondule (vote entre les cases
     // voisines, comme entre deux terrains) au lieu de suivre les cases
     let SOLKP = null;
@@ -680,8 +708,8 @@
           if (d2 - d1 < 1) v -= 2;
         } else if (d2 - d1 < 1.2) v -= 1.3;
         col = CANOPY[DW.clamp(Math.round(v), 0, 5)];
-        // (paroi dessinée : l'image choisie par la carte, éclairée par les mêmes facettes)
-        if (ROCKY && TX_PAROI) { const t = texel(TX_PAROI, px, py), s = 0.3 + DW.clamp(v, 0, 5) * 0.12; col = [Math.min(255, t[0] * s), Math.min(255, t[1] * s), Math.min(255, t[2] * s)]; }
+        // (paroi dessinée : l'image choisie par la carte, éclairée par les mêmes facettes ; une bande, posée en falaise : paroiTx)
+        if (ROCKY && TX_PAROI) { const t = PB ? paroiTx(px, py, i) : texel(TX_PAROI, px, py), s = 0.3 + DW.clamp(v, 0, 5) * 0.12; col = [Math.min(255, t[0] * s), Math.min(255, t[1] * s), Math.min(255, t[2] * s)]; }
       } else if (t === TER.pastel) {
         const cx = Math.floor(px / 8), cy = Math.floor(py / 8);
         let d1 = 99, d2 = 99, ox = 0, oy = 0, cell = 0;
