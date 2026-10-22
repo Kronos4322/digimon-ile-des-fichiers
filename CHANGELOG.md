@@ -6,6 +6,10 @@ l'autre. Le détail de chaque correction est dans `docs/audit/BUGS_ET_CORRECTION
 
 ## 22/10/2026 — Audit intégral : corrections
 
+### Falaises de la plage (32798c7)
+- Plage des Cabines, Crique, Dunes : une vraie falaise de grès en couches, avec son rebord d'herbe et son pied dans le
+  sable (avant : une bande d'herbe unie au-dessus d'un muret de pavés gris).
+
 ### Renaissance
 - Un Digimon qui renaît garde son ABI (avant : remis à zéro), dans sa lignée comme dans une autre.
 
