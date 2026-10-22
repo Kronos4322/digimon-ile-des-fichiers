@@ -11957,6 +11957,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const DIRT = map.dirt ? map.dirt.map(Art.hex) : TH && TH.dirt ? TH.dirt.map(Art.hex) : PAL.dirt, SAND = TH && TH.sand ? TH.sand.map(Art.hex) : PAL.sand;
     const WET = TH && TH.wet ? TH.wet.map(Art.hex) : PAL.wet, WATER = TH && TH.water ? TH.water.map(Art.hex) : PAL.water;
     const CLIFF = TH && TH.cliff ? TH.cliff.map(Art.hex) : PAL.cliff, ROCKY = TH && TH.canopyStyle === 'rock';
+    const CLIFF_HAUTE = map.theme === 'beach';   // (falaises de la plage : une paroi sur toute leur hauteur — cases « C »)
+    const GRES = ['#3e2c1c', '#584026', '#745632', '#906c3e', '#ac864e', '#c4a064', '#d8ba80', '#ead2a0'].map(Art.hex);   // (grès chaud, assorti au sable)
     // intérieurs : style du sol (map.floor) et des murs (map.wall) ; sans style = parquet et enduit d'origine
     const FLOOR = map.floor ? { ...map.floor, c: (map.floor.cols || []).map(Art.hex) } : null;
     const WALL = map.wall ? { ...map.wall, base: Art.hex(map.wall.base || '#ead8b4'), alt: Art.hex(map.wall.alt || map.wall.base || '#ead8b4'), wood: map.wall.wood ? Art.hex(map.wall.wood) : null } : null;
@@ -12466,24 +12468,54 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       } else if (t === TER.cliff) {
         const face = tAt(tx, ty + 1) !== TER.cliff;
         const above = tAt(tx, ty - 1) !== TER.cliff;
-        if (face) {
-          // FALAISE DE BORD DE MER (et des prairies) : blocs de roche claire irréguliers (cellules de 13 px), éclairés en haut
-          // à gauche, fissures sombres entre eux ; un bord d'herbe irrégulier qui déborde en haut, des brins qui pendent ;
-          // le pied plus sombre dans le sable
-          const cx = Math.floor(px / 13), cy = Math.floor(py / 13);
-          let d1 = 99, d2 = 99, ox = 0, oy = 0, kc = 0;
-          for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
-            const k = cell13(cx + xx, cy + yy), ex = px - CF13[k], ey = py - CF13[k + 1], dd = Math.sqrt(ex * ex + ey * ey * 1.6);
-            if (dd < d1) { d2 = d1; d1 = dd; ox = ex; oy = ey; kc = k; } else if (dd < d2) d2 = dd;
-          }
+        // PLAGE : la falaise est une paroi sur TOUTE sa hauteur (avant : seule la rangée du bas était de la roche, les rangées
+        // au-dessus une bande d'herbe unie — un muret sous une bande verte plate) ; ailleurs (Champs, Lisière), comme avant
+        let up = 0, dn = 0;
+        if (CLIFF_HAUTE) { while (up < 6 && tAt(tx, ty - up - 1) === TER.cliff) up++; while (dn < 6 && tAt(tx, ty + dn + 1) === TER.cliff) dn++; }
+        if (face || CLIFF_HAUTE) {
+          const wy = up * 16 + ly, Hpx = (up + dn + 1) * 16;   // (position dans la paroi entière, et sa hauteur)
           const lip = above ? 3 + Math.floor(noise(px * 0.2, ty, 66) * 4) : 0, drip = above && hash(px >> 2, ty, 67) < 0.18 ? lip + 2 + Math.floor(hash(px >> 2, ty, 68) * 6) : 0;
-          let v = 4.2 - d1 * 0.09 - (ox + oy) * 0.06 + (hash(kc, 3, 62) - 0.5) * 1.2 - (ly / 16) * 1.3 + (noise(px * 0.35, py * 0.35, 70) - 0.5) * 0.8 + b * 0.4;
-          if (d2 - d1 < 1.5) v -= 1.8 * (1 - (d2 - d1) / 1.5);                                  // fissure entre deux blocs
-          col = lerpPal(CLIFF, v);
-          if (ly < lip) col = lerpPal(GRASS, 3.6 - ly * 0.55 + b * 0.6);                        // herbe du haut qui déborde
+          if (CLIFF_HAUTE) {
+            // FALAISE DE LA PLAGE : grès en STRATES horizontales ondulées (5 à 8 px), chacune avec sa teinte ; le dessus de
+            // chaque strate avance et prend la lumière, son dessous est dans l'ombre ; l'érosion creuse des encoches, des
+            // fissures verticales traversent une ou deux strates ; le haut de la falaise est clair, le pied sombre
+            const t0 = ty - up;   // (la rangée du haut de la falaise : les strates continuent d'une rangée à l'autre)
+            const wave = (noise(px * 0.035, t0 * 5, 75) - 0.5) * 6 + (noise(px * 0.11, t0 * 5, 76) - 0.5) * 2;
+            const sy = wy + wave + 40, L = Math.floor(sy / 6.5), f = sy / 6.5 - L;
+            let v = 4.4 + (hash(L, t0, 79) - 0.5) * 1.6;                                  // teinte de la strate
+            if (f < 0.2) v += 1.3;                                                       // dessus de la strate, éclairé
+            else if (f > 0.82) v -= 1.5;                                                 // dessous, dans l'ombre
+            const creux = noise(px * 0.07, L * 3.7, 80);                                 // érosion : encoches
+            if (creux > 0.72) v -= 1.2 + (creux - 0.72) * 4;
+            const col9 = Math.floor((px + hash(L, 0, 81) * 9) / 11);
+            if (hash(col9, L, 82) < 0.16 && Math.abs(((px + hash(L, 0, 81) * 9) % 11) - 5) < 0.8) v -= 1.6;   // fissure
+            v += (noise(px * 0.4, py * 0.4, 70) - 0.5) * 0.9 + b * 0.4;                  // grain du grès
+            v += 0.8 - (wy / Hpx) * 1.8;                                                 // haut clair, bas sombre
+            col = lerpPal(GRES, v);
+            if (f < 0.12 && hash(px >> 1, L, 72) < 0.12) col = lerpPal(GRASS, 1.9 + b);   // touffes d'herbe sur les corniches
+          } else {
+            // FALAISE DES PRAIRIES (Champs, Lisière...) : blocs de roche claire irréguliers (cellules de 13 px), éclairés en
+            // haut à gauche, fissures sombres entre eux
+            const cx = Math.floor(px / 13), cy = Math.floor(py / 13);
+            let d1 = 99, d2 = 99, ox = 0, oy = 0, kc = 0;
+            for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) {
+              const k = cell13(cx + xx, cy + yy), ex = px - CF13[k], ey = py - CF13[k + 1], dd = Math.sqrt(ex * ex + ey * ey * 1.6);
+              if (dd < d1) { d2 = d1; d1 = dd; ox = ex; oy = ey; kc = k; } else if (dd < d2) d2 = dd;
+            }
+            let v = 4.2 - d1 * 0.09 - (ox + oy) * 0.06 + (hash(kc, 3, 62) - 0.5) * 1.2 - (wy / Hpx) * 1.3 + (noise(px * 0.35, py * 0.35, 70) - 0.5) * 0.8 + b * 0.4;
+            if (d2 - d1 < 1.5) v -= 1.8 * (1 - (d2 - d1) / 1.5);                                // fissure entre deux blocs
+            col = lerpPal(CLIFF, v);
+          }
+          // un bord d'herbe irrégulier qui déborde en haut, des brins qui pendent ; le pied dans l'ombre
+          if (ly < lip) col = lerpPal(GRASS, 3.6 - ly * 0.55 + b * 0.6);
           else if (ly === lip && above) col = lerpPal(GRASS, 0.5);
-          else if (ly < drip) col = lerpPal(GRASS, 1.4 + b * 0.5);                              // brins qui pendent
-          if (ly >= 13) col = Art.mix(col, [30, 22, 16], 0.12 * (ly - 12));                     // pied dans l'ombre
+          else if (ly < drip) col = lerpPal(GRASS, 1.4 + b * 0.5);
+          if (Hpx - wy <= 3) col = Art.mix(col, [30, 22, 16], 0.12 * (wy - Hpx + 4));
+          if (CLIFF_HAUTE && Hpx - wy <= 4) {   // (plage : le sable remonte au pied, en ondulant ; quelques galets)
+            const r = hash(px, py, 77), bord = 1 + noise(px * 0.09, ty, 78) * 3.2;
+            if (Hpx - wy <= bord) col = lerpPal(SAND, 1.5 + r * 1.2);
+            else if (r < 0.06) col = lerpPal(GRES, 4.4 + r * 12);
+          }
         } else {
           let v = 2.6 + (C21(px, py) - 0.5) * 2 + b;
           col = GRASS[DW.clamp(Math.round(v), 0, 4)];
