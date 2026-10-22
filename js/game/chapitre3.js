@@ -197,6 +197,7 @@
     const s = st();
     if ((s.flags.chapter || 1) >= 4) return;
     s.flags.chapter = 4;
+    DW.autosave();   // (tout de suite, avant le bilan : voir end1, game/chapitre1.js)
     Audio.play('victory');
     await DW.wait(0.8);
     await Game.push(new DW.ChapterScene('FIN DU CHAPITRE 3', 'La Montagne de Feu', "Birdramon a calmé Meramon. L'eau coule de nouveau au Village des Yokomon."));

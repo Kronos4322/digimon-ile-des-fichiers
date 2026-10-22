@@ -319,7 +319,7 @@
     }
     if (!spots.length) return;
     const name = DW.SPECIES[folk].name;
-    const shop = ['viande', 'soin_p', 'disque_pm', 'remede', 'bandage', 'super_viande', ...special].filter(id => DW.ITEMS[id]);
+    const shop = [...new Set(['viande', 'soin_p', 'disque_pm', 'remede', 'bandage', 'super_viande', ...special])].filter(id => DW.ITEMS[id]);
     spots.forEach(([x, y], i) => {
       for (let yy = y; yy < y + 3; yy++) for (let xx = x; xx < x + 4; xx++) { g.set(xx, yy, '.'); occ.add(xx + ',' + yy); }
       for (let xx = x; xx < x + 4; xx++) if (g.get(xx, y + 3) !== '=') g.set(xx, y + 3, '=');   // parvis

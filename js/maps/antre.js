@@ -418,7 +418,12 @@
       await ow.bossDefeat(first ? "Hohoho... Des Bukamon t'ont trouvé sur la plage, à côté des cabines. Ce Shellmon est redoutable : prépare-toi bien, et emporte des RAM !" : null);
       return;
     }
-    if (!first) { s.bits += 30 * lvl; await say(`Shellmon s'enfonce dans le sable en grommelant. (+${30 * lvl} Bits)`); return; }
+    // (la prime de revanche : une fois par jour — avant, ~2 000 Bits à chaque combat, sans fin ; l'expérience reste à volonté)
+    if (!first) {
+      const d = s.daily = s.daily || {}, jour = DW.Time.day(), prime = d.shellRevanche !== jour;
+      if (prime) { d.shellRevanche = jour; s.bits += 30 * lvl; }
+      await say(`Shellmon s'enfonce dans le sable en grommelant.${prime ? ` (+${30 * lvl} Bits)` : ''}`); return;
+    }
     s.flags.shellmon = true;
     if (perso()) {
       // la cinématique (comme l'introduction), puis retour dans la grande coquille, la cage ouverte

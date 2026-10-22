@@ -100,6 +100,6 @@
   DW.REGION_MUSIC = {
     foret: 'forest', montagne: 'mountain', volcan: 'volcano', savane: 'savanna', usine: 'factory', decharge: 'trash',
     canyon: 'canyon', dino: 'dino', jungle: 'jungle', overdell: 'cemetery', brumes: 'fog', jouets: 'toy', gel: 'snow',
-    lac: 'lake', marais: 'swamp', tunnel: 'cave', scarabees: 'beetle',
+    lac: 'lake', marais: 'swamp', tunnel: 'cave', scarabees: 'beetle', miharashi: 'canyon',
   };
 })();

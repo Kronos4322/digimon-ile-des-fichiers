@@ -30,41 +30,46 @@
     return JSON.stringify({ jeu: 'Digimon — L\'Aventure de l\'Île des Fichiers', format: 1, ecrit: Date.now(), slots }, null, 1);
   }
   const savedAt = v => { try { const o = JSON.parse(v); return (o && o.savedAt) || 0; } catch (e) { return 0; } };
-  // fusion : pour chaque emplacement, la partie la plus récente gagne ; rien n'est perdu (la partie locale remplacée
-  // devient la « version précédente » de l'emplacement)
+  // fusion : pour chaque emplacement, la partie la plus récente gagne ; rien n'est perdu (la partie locale remplacée est mise
+  // de côté : « Partie d'avant ta reprise », à reprendre depuis CONTINUER — avant, elle devenait la « version précédente »,
+  // que la sauvegarde suivante écrasait). F.echecs : écritures refusées (mémoire du navigateur pleine)
   function merge(text) {
     const o = JSON.parse(text);
     if (!o || !o.slots || typeof o.slots !== 'object') throw new Error('fichier de sauvegarde invalide');
     const S = ls(); if (!S) return 0;
-    let n = 0;
+    let n = 0, echecs = 0;
     for (const [k, v] of Object.entries(o.slots)) {
       if (!k.startsWith(PREFIX) || typeof v !== 'string') continue;
       const cur = S.getItem(k);
       if (cur === v) continue;
-      const main = !/_(precedente|ancienne|illisible)$/.test(k);
+      const main = !/_(precedente|ancienne|ancienne_2|illisible|illisible_2|remplacee)$/.test(k);
       if (cur == null || (main && savedAt(v) > savedAt(cur))) {
-        if (cur != null && main) S.setItem(k + '_precedente', cur);
-        S.setItem(k, v); n++;
+        try {
+          if (cur != null && main) S.setItem(k + '_remplacee', cur);
+          S.setItem(k, v); n++;
+        } catch (e) { echecs++; }
       }
     }
+    F.echecs = echecs;
     return n;
   }
 
   // ------------------------------------------------------------ écriture (après chaque sauvegarde), groupée
-  let handle = null, pending = null, writing = false;
+  let handle = null, pending = null, writing = false, encore = false;
   async function writeNow() {
-    if (!handle || writing) return;
+    if (!handle) return;
+    if (writing) { encore = true; return; }   // (une sauvegarde arrivée pendant l'écriture : récrite juste après)
     writing = true;
     try {
       if ((await handle.queryPermission({ mode: 'readwrite' })) !== 'granted') return;
       const w = await handle.createWritable(); await w.write(bundle()); await w.close();
       F.lastWrite = Date.now();
-    } catch (e) { /* fichier déplacé ou verrouillé : on réessaiera à la prochaine sauvegarde */ } finally { writing = false; }
+    } catch (e) { /* fichier déplacé ou verrouillé : on réessaiera à la prochaine sauvegarde */ } finally { writing = false; if (encore) { encore = false; schedule(); } }
   }
   const schedule = () => { clearTimeout(pending); pending = setTimeout(writeNow, 400); };
 
   const F = DW.SaveFile = {
-    can, lastWrite: 0,
+    can, lastWrite: 0, echecs: 0,
     name: () => (handle ? handle.name : null),
     // au démarrage : retrouver le fichier relié ; si l'accès est déjà permis, reprendre les parties plus récentes
     async init() {
@@ -146,12 +151,13 @@
   // (le menu s'ouvre aussi depuis l'écran titre, où aucune partie n'est chargée : on n'enregistre que s'il y en a une,
   //  sinon l'emplacement de la vraie partie était écrasé par une partie vide)
   const enregistrerPartie = () => { if (DW.state && DW.state.party && DW.state.party.length) DW.save(); };
+  const plein = () => (F.echecs ? ` Attention : mémoire du navigateur pleine, ${F.echecs} partie${F.echecs > 1 ? 's' : ''} du fichier n'${F.echecs > 1 ? 'ont' : 'a'} pas pu être reprise${F.echecs > 1 ? 's' : ''}.` : '');
   DW.saveFileMenu = async () => {
     const say = DW.say;
     if (!can) {
       const r = await DW.ask('Sauvegarde sur l\'ordinateur : ce navigateur ne peut pas écrire directement dans un fichier. Tu peux télécharger tes parties, puis les recharger ailleurs.', ['Télécharger mes parties', 'Charger un fichier', 'Retour']);
       if (r === 0) { enregistrerPartie(); await F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » prêt. Garde-le précieusement !'); }
-      else if (r === 1) { const res = await F.importFile(); if (!res.annule) await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
+      else if (r === 1) { const res = await F.importFile(); if (!res.annule) await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).${plein()}` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
       return;
     }
     if (handle && F.needsPermission) {

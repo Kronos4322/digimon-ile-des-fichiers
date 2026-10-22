@@ -95,8 +95,9 @@
         if (st().party[0]) st().party[0].addHappy(3);
         // (l'objet de Digivolution, à la 3e demande ; sac plein : il attend la prochaine demande réussie)
         if (P.evo && (q.count === 3 || q.evoDue) && DW.ITEMS[P.evo]) {
-          const reste = DW.giveItem(P.evo, 1); q.evoDue = reste > 0; DW.Audio.sfx('fanfare');
-          await say(`Tu m'as tellement aidé... ${reste ? 'Je voulais te donner' : 'Prends ceci :'} ${DW.ITEMS[P.evo].name}. C'est le secret de ma propre Digivolution. Il fera de ton partenaire un ${DW.SPECIES[DW.ITEMS[P.evo].to].name} !${reste ? ' Mais ton sac est plein... Reviens me voir avec de la place !' : ''}`, name);
+          // (sac plein : il part au coffre de ta maison — game/objets.js)
+          const reste = DW.giveItem(P.evo, 1); q.evoDue = false; DW.Audio.sfx('fanfare');
+          await say(`Tu m'as tellement aidé... Prends ceci : ${DW.ITEMS[P.evo].name}. C'est le secret de ma propre Digivolution. Il fera de ton partenaire un ${DW.SPECIES[DW.ITEMS[P.evo].to].name} !${DW.extraMsg(reste)}`, name);
         }
         DW.autosave();
         return true;

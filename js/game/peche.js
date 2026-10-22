@@ -58,7 +58,7 @@
       const T = CATCH[kind] || CATCH.riviere, tot = T.reduce((a, x) => a + x[big ? 2 : 1], 0);
       let k = Math.random() * tot, id = T[0][0];
       for (const x of T) { k -= x[big ? 2 : 1]; if (k <= 0) { id = x[0]; break; } }
-      const extra = DW.giveItem(id, 1); DW.Audio.sfx('buy');
+      const extra = DW.giveItem(id, 1, false); DW.Audio.sfx('buy');
       await say(`Tu remontes : ${DW.ITEMS[id].name} !${DW.extraMsg(extra)}`);
       const pt = ow.partner;
       if (pt && Math.random() < 0.3) { pt.addHappy(1); await say(`${pt.name} applaudit ta prise ! (bonheur +1)`); }

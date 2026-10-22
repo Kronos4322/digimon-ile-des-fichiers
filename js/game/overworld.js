@@ -116,7 +116,7 @@
       if (DW.Perils) DW.Perils.entree(this);   // (éboulis, chauves-souris... : rien dans les premières secondes, game/perils.js)
       this.banner = { t: 0 };
       this.bannerT = 2.6;
-      Audio.play(this.map.music);
+      Audio.play(this.musique());
       // script d'arrivée (lancé dès que la scène est libre)
       this.onEnter = this.map.onEnter || null;
     }
@@ -529,7 +529,7 @@
       // toute l'équipe K.O. (après une défaite sans conséquence) : pas de combat possible
       if (!st.party.some(m => m.hp > 0)) {
         await DW.say("Tes Digimon sont trop épuisés pour se battre... Fais-les soigner d'abord !");
-        Audio.play(this.map.music);
+        Audio.play(this.musique());
         return 'none';
       }
       Audio.play(o.music || (o.boss ? 'boss' : 'battle'));
@@ -547,7 +547,7 @@
         const r = await DW.ask(`Le Digivice vibre ! ${m.name} peut digivoluer. Ouvrir la table des Digivolutions ?`);
         if (r === 0) await Game.push(new DW.EvoTableScene(st.party.indexOf(m)));
       }
-      Audio.play(this.map.music);
+      Audio.play(this.musique());
       const lead = DW.state.party[0];
       if (lead && res === 'win') DW.Life.moment('good', 'une belle victoire');
       // conseil aux débutants : PV bas après le combat
@@ -562,6 +562,9 @@
     }
     // défaite contre un boss (combat « canLose ») : pas de K.O. compté ni de Bits perdus, mais on se réveille chez Jijimon,
     // soigné (sinon on restait coincé : dans le Grand Arbre, les racines ne se rouvrent qu'après la victoire)
+    // musique de la carte en ce moment (map.musicNow : l'harmonica de Matt au Lac du Tramway, la nuit — game/chapitre2.js ;
+    // avant, un combat la remplaçait pour de bon par celle du lac)
+    musique() { return (this.map.musicNow && this.map.musicNow()) || this.map.music; }
     async bossDefeat(line) {
       const st = DW.state;
       await DW.fade(1, 0.6);
@@ -581,6 +584,7 @@
       st.party.forEach(m => m.heal());
       // toujours chez Jijimon (combat ordinaire ou boss) : il te ramène et soigne ton équipe
       await this.charger('maison', 12, 5, 'down');
+      DW.autosave();   // (tout de suite : le K.O. compté et les Bits perdus ne s'effacent plus si le jeu est fermé pendant Jijimon)
       await DW.wait(0.5);
       await DW.fade(0, 0.6);
       await DW.say("Hohoho... Te voilà réveillé ! On t'a retrouvé évanoui, ton Digimon à tes côtés. Je vous ai ramenés ici et soignés.", 'Jijimon');
@@ -844,6 +848,12 @@
   const objRect = o => ({ x: o.x - o.spr.w / 2, y: o.y - o.spr.h, w: o.spr.w, h: o.spr.h * 0.8 });
   const overlap = (a, b) => a.x + 3 < b.x + b.w && a.x + a.w - 3 > b.x && a.y + 4 < b.y + b.h && a.y + a.h > b.y;
   DW.Overworld = Overworld;
+  // fin d'un morceau sans boucle (« victory » d'une recrue, d'une fin de chapitre, d'une Digivolution...) : la musique de la
+  // carte revient (avant : silence jusqu'au changement de carte suivant) ; pas pendant un combat, qui mène sa musique
+  Audio.onEnd = () => {
+    const ow = DW.ow;
+    if (ow && Game.stack.includes(ow) && !Game.stack.some(s => DW.BattleScene && s instanceof DW.BattleScene)) Audio.play(ow.musique());
+  };
 
   DW.learnEvoMoves = async m => {
     for (const [l, id] of m.d.learn) if ((l === 0 || l === m.level) && !m.knows(id)) await DW.learnMove(m, id);

@@ -135,6 +135,8 @@
     const s = st();
     if (s.flags.chapter >= 2) return;
     s.flags.chapter = 2;
+    // (sauvegardé tout de suite : un jeu fermé pendant le bilan rouvrait au chapitre 1, Shellmon vaincu et le voile fermé à jamais)
+    DW.autosave();
     Audio.play('victory');
     await DW.wait(0.8);
     await Game.push(new ChapterScene('FIN DU CHAPITRE 1', "L'Île des Fichiers", s.kids && s.kids.tai ? 'Tai et Greymon sont libres. Mais où sont les autres enfants ?' : 'Shellmon est vaincu. Mais pourquoi les Digimon ont-ils tout oublié ?'));

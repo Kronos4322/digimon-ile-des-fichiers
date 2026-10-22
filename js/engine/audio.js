@@ -124,6 +124,11 @@
       const c = this.cur;
       if (!c) return;
       const now = this.ctx.currentTime;
+      // (minuterie en retard — onglet en arrière-plan, préparation d'une carte sur un PC lent — : toutes les voix sont recalées
+      //  du même écart ; avant, toutes les notes manquées, déjà passées, étaient jouées d'un coup)
+      let t0 = Infinity;
+      for (const ch of c.ch) if (!ch.done && ch.time < t0) t0 = ch.time;
+      if (t0 < now) for (const ch of c.ch) ch.time += now - t0;
       let alldone = true;
       for (const ch of c.ch) {
         while (!ch.done && ch.time < now + 0.25) {
@@ -135,8 +140,16 @@
         }
         if (!ch.done) alldone = false;
       }
-      if (alldone) this.stop();
+      if (alldone) { this.stop(); if (this.onEnd) this.onEnd(c.name); }   // (fin d'un morceau sans boucle : game/overworld.js)
     },
-    stop() { clearInterval(this.timer); this.timer = null; this.cur = null; },
+    // (vide aussi la musique en attente du premier geste : sinon elle démarrait quand même après un stop)
+    stop() { clearInterval(this.timer); this.timer = null; this.cur = null; this.pending = null; },
   };
+  // jeu caché (autre onglet, appli en arrière-plan, écran éteint) : le son est suspendu, puis repris au retour
+  // (sinon la musique continuait onglet caché, et la minuterie ralentie la faisait bégayer)
+  if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', () => {
+    const c = DW.Audio.ctx; if (!c) return;
+    if (document.hidden) { if (c.state === 'running') c.suspend().catch(() => {}); }
+    else if (c.state !== 'running') c.resume().catch(() => {});
+  });
 })();

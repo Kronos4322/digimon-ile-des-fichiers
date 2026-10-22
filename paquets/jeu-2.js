@@ -1879,8 +1879,8 @@
       if (list.length > 1) await say(`(J'ai encore ${list.length - 1} autre${list.length > 2 ? 's' : ''} nouvelle${list.length > 2 ? 's' : ''} pour toi. Reviens me voir !)`, 'Biyomon');
     },
     async kunemon() {
-      await say('Bzzz... Bienvenue à la Banque ! Je garde tout ce que ton sac ne peut pas porter.', 'Kunemon');
-      await DW.Game.push(new DW.BankScene());
+      await say('Bzzz... Bienvenue à la Banque ! Je garde tout ce que ton sac ne peut pas porter. (La Banque et le coffre de ta maison, c\'est le même coffre !)', 'Kunemon');
+      await DW.Game.push(new DW.BankScene({ note: 'Relié au coffre de ta maison.' }));
       await say('À bientôt, bzzz !', 'Kunemon');
     },
     async betamon() {
@@ -2136,7 +2136,7 @@
       }
     },
     async chambre_digi() { const m = lead(); if (m) m.addHappy(1); await DW.Life.restOrSleep(); },
-    async coffre() { await DW.Game.push(new DW.BankScene({ title: 'COFFRE' })); },   // tout sauf la nourriture
+    async coffre() { await DW.Game.push(new DW.BankScene({ title: 'COFFRE', note: 'Relié à la Banque de Kunemon.' })); },   // tout sauf la nourriture
     async toilettes() { await DW.Care.toilet(); },
     async plantes() {
       if (!once('plantes')) { await say('Les plantes sont bien arrosées. Elles ont l\'air heureuses.'); return; }
@@ -3157,7 +3157,7 @@
     if (s.harvest.got.length >= PICKS) { await say('Tu as les bras chargés ! Reviens demain pour cueillir encore.'); return; }
     if ((await DW.ask(tree ? `${name} chargé de fruits. Cueillir ?` : `${name} bien mûrs. Récolter ?`, ['Oui', 'Non'])) !== 0) return;
     s.harvest.got.push(key);
-    const extra = DW.giveItem(item); DW.Audio.sfx('buy');
+    const extra = DW.giveItem(item, 1, false); DW.Audio.sfx('buy');
     await say(`Tu récoltes : ${DW.ITEMS[item].name} !${DW.extraMsg(extra)}`);
   }
   async function hive() {
@@ -3214,10 +3214,12 @@
   async function gomamonTalk() {
     const s = st(), hr = Math.floor(s.clock / 60);
     // la première fois, Gomamon offre sa canne à pêche (game/peche.js : pêcher partout où il y a de l'eau)
-    if (!(s.bag || {}).canne && !s.flags.canne) {
-      await say("Hé ! Avant tout... tiens, prends ça ! C'est ma vieille canne à pêche. Moi, je pêche avec les nageoires !", 'Gomamon');
-      s.flags.canne = true; DW.giveItem('canne', 1); DW.Audio.sfx('fanfare');
-      await say("Tu reçois la Canne à pêche ! Face à l'eau (rivière, lac, mer), choisis « Pêcher ».");
+    // (ni dans le sac ni au coffre : une partie d'avant la correction a pu la perdre, sac plein — Gomamon en redonne une)
+    if (!(s.bag || {}).canne && !(s.bank || {}).canne) {
+      const encore = !!s.flags.canne;
+      await say(encore ? "Hé ! Tu as perdu ta canne à pêche ? Tiens, j'en avais une autre !" : "Hé ! Avant tout... tiens, prends ça ! C'est ma vieille canne à pêche. Moi, je pêche avec les nageoires !", 'Gomamon');
+      s.flags.canne = true; const extra = DW.giveItem('canne', 1); DW.Audio.sfx('fanfare');
+      await say(`Tu reçois la Canne à pêche !${DW.extraMsg(extra)} Face à l'eau (rivière, lac, mer), choisis « Pêcher ».`);
       await say("Chaque eau a ses poissons : la mer, les rivières, les lacs... Et les plus gros sortent la nuit ou au petit matin !", 'Gomamon');
     }
     await say('Hé ! Tu veux pêcher avec moi ?', 'Gomamon');
@@ -3228,7 +3230,7 @@
     const r = Math.random();
     const got = r < 0.45 ? 'viande' : r < 0.6 ? 'super_viande' : r < 0.8 ? 'remede' : null;
     if (!got) { await say('Rien cette fois... Les poissons sont malins !', 'Gomamon'); return; }
-    const extra = DW.giveItem(got); DW.Audio.sfx('buy');
+    const extra = DW.giveItem(got, 1, false); DW.Audio.sfx('buy');
     await say(`Ça mord ! Tu obtiens : ${DW.ITEMS[got].name} !${DW.extraMsg(extra)}`);
   }
 
@@ -6354,7 +6356,7 @@
     }
     if (!spots.length) return;
     const name = DW.SPECIES[folk].name;
-    const shop = ['viande', 'soin_p', 'disque_pm', 'remede', 'bandage', 'super_viande', ...special].filter(id => DW.ITEMS[id]);
+    const shop = [...new Set(['viande', 'soin_p', 'disque_pm', 'remede', 'bandage', 'super_viande', ...special])].filter(id => DW.ITEMS[id]);
     spots.forEach(([x, y], i) => {
       for (let yy = y; yy < y + 3; yy++) for (let xx = x; xx < x + 4; xx++) { g.set(xx, yy, '.'); occ.add(xx + ',' + yy); }
       for (let xx = x; xx < x + 4; xx++) if (g.get(xx, y + 3) !== '=') g.set(xx, y + 3, '=');   // parvis
@@ -7157,7 +7159,12 @@
       await ow.bossDefeat(first ? "Hohoho... Des Bukamon t'ont trouvé sur la plage, à côté des cabines. Ce Shellmon est redoutable : prépare-toi bien, et emporte des RAM !" : null);
       return;
     }
-    if (!first) { s.bits += 30 * lvl; await say(`Shellmon s'enfonce dans le sable en grommelant. (+${30 * lvl} Bits)`); return; }
+    // (la prime de revanche : une fois par jour — avant, ~2 000 Bits à chaque combat, sans fin ; l'expérience reste à volonté)
+    if (!first) {
+      const d = s.daily = s.daily || {}, jour = DW.Time.day(), prime = d.shellRevanche !== jour;
+      if (prime) { d.shellRevanche = jour; s.bits += 30 * lvl; }
+      await say(`Shellmon s'enfonce dans le sable en grommelant.${prime ? ` (+${30 * lvl} Bits)` : ''}`); return;
+    }
     s.flags.shellmon = true;
     if (perso()) {
       // la cinématique (comme l'introduction), puis retour dans la grande coquille, la cage ouverte
@@ -8556,7 +8563,7 @@
       const T = CATCH[kind] || CATCH.riviere, tot = T.reduce((a, x) => a + x[big ? 2 : 1], 0);
       let k = Math.random() * tot, id = T[0][0];
       for (const x of T) { k -= x[big ? 2 : 1]; if (k <= 0) { id = x[0]; break; } }
-      const extra = DW.giveItem(id, 1); DW.Audio.sfx('buy');
+      const extra = DW.giveItem(id, 1, false); DW.Audio.sfx('buy');
       await say(`Tu remontes : ${DW.ITEMS[id].name} !${DW.extraMsg(extra)}`);
       const pt = ow.partner;
       if (pt && Math.random() < 0.3) { pt.addHappy(1); await say(`${pt.name} applaudit ta prise ! (bonheur +1)`); }
@@ -9194,8 +9201,9 @@
         if (st().party[0]) st().party[0].addHappy(3);
         // (l'objet de Digivolution, à la 3e demande ; sac plein : il attend la prochaine demande réussie)
         if (P.evo && (q.count === 3 || q.evoDue) && DW.ITEMS[P.evo]) {
-          const reste = DW.giveItem(P.evo, 1); q.evoDue = reste > 0; DW.Audio.sfx('fanfare');
-          await say(`Tu m'as tellement aidé... ${reste ? 'Je voulais te donner' : 'Prends ceci :'} ${DW.ITEMS[P.evo].name}. C'est le secret de ma propre Digivolution. Il fera de ton partenaire un ${DW.SPECIES[DW.ITEMS[P.evo].to].name} !${reste ? ' Mais ton sac est plein... Reviens me voir avec de la place !' : ''}`, name);
+          // (sac plein : il part au coffre de ta maison — game/objets.js)
+          const reste = DW.giveItem(P.evo, 1); q.evoDue = false; DW.Audio.sfx('fanfare');
+          await say(`Tu m'as tellement aidé... Prends ceci : ${DW.ITEMS[P.evo].name}. C'est le secret de ma propre Digivolution. Il fera de ton partenaire un ${DW.SPECIES[DW.ITEMS[P.evo].to].name} !${DW.extraMsg(reste)}`, name);
         }
         DW.autosave();
         return true;
@@ -9368,7 +9376,7 @@
         if (this.i >= RECIPES.length) { Audio.sfx('back'); this.close(); return; }
         const r = RECIPES[this.i];
         if (!can(r)) { Audio.sfx('bump'); this.msg = 'Il manque des ingrédients !'; this.msgT = 2; return; }
-        if (!DW.bagRoom(r[0])) { Audio.sfx('bump'); this.msg = `Sac plein (${DW.BAG_MAX} max) !`; this.msgT = 2; return; }
+        if (!DW.bagRoom(r[0])) { Audio.sfx('bump'); this.msg = DW.bagFullMsg(r[0]); this.msgT = 2; return; }
         for (const [id, k] of Object.entries(r[1])) st().bag[id] -= k;
         Audio.sfx('select'); this.cook = 1.4; this.dish = r[0];
       }
@@ -9683,6 +9691,8 @@
     const s = st();
     if (s.flags.chapter >= 2) return;
     s.flags.chapter = 2;
+    // (sauvegardé tout de suite : un jeu fermé pendant le bilan rouvrait au chapitre 1, Shellmon vaincu et le voile fermé à jamais)
+    DW.autosave();
     Audio.play('victory');
     await DW.wait(0.8);
     await Game.push(new ChapterScene('FIN DU CHAPITRE 1', "L'Île des Fichiers", s.kids && s.kids.tai ? 'Tai et Greymon sont libres. Mais où sont les autres enfants ?' : 'Shellmon est vaincu. Mais pourquoi les Digimon ont-ils tout oublié ?'));
@@ -10162,7 +10172,8 @@
       { hero: 'matt', x: 45, y: 48, face: 'right', cond: visible, talk: ow => mattScene(ow) },
       { sp: 'gabumon', x: 49, y: 48, face: 'left', cond: visible, talk: async () => { await say(st().flags.mattMet ? "Matt ne dort plus depuis qu'on est arrivés... Il pense à TK tout le temps." : "Bonsoir ! Tu es un ami de Matt ? Va lui parler, il est près du feu.", 'Gabumon'); } },
     );
-    // l'harmonica, la nuit, tant que Matt campe ici
+    // l'harmonica, la nuit, tant que Matt campe ici (aussi après un combat : game/overworld.js, musique)
+    L.musicNow = () => (visible(st()) ? 'harmonica' : null);
     L.onEnter = async ow => {
       if (!visible(st())) return;
       Audio.play('harmonica');
@@ -10450,6 +10461,7 @@
     const s = st();
     if ((s.flags.chapter || 1) >= 3) return;
     s.flags.chapter = 3;
+    DW.autosave();   // (tout de suite, avant le bilan : voir end1, game/chapitre1.js)
     Audio.play('victory');
     await DW.wait(0.8);
     await Game.push(new DW.ChapterScene('FIN DU CHAPITRE 2', 'Le Lac et le Loup', s.hero === 'perso' ? 'Matt et Garurumon sont libres. Mais où est TK ?' : 'Seadramon est libéré : le lac respire de nouveau.'));
@@ -10691,6 +10703,7 @@
     const s = st();
     if ((s.flags.chapter || 1) >= 4) return;
     s.flags.chapter = 4;
+    DW.autosave();   // (tout de suite, avant le bilan : voir end1, game/chapitre1.js)
     Audio.play('victory');
     await DW.wait(0.8);
     await Game.push(new DW.ChapterScene('FIN DU CHAPITRE 3', 'La Montagne de Feu', "Birdramon a calmé Meramon. L'eau coule de nouveau au Village des Yokomon."));
@@ -10760,7 +10773,7 @@
     const F = f();
     if (!F.bukaQuete) {
       await say("Hé, toi ! C'est toi qui as fait fuir Monochromon ? Alors tu es courageux... Mes trois petits Bukamon ont suivi un banc de poissons le long des rives, vers l'ouest.", 'Gomamon');
-      await say("Avec Seadramon qui rôde dans le lac, j'ai peur pour eux... Je ne peux pas quitter la rive : les autres petits comptent sur moi.", 'Gomamon');
+      await say(F.seadramon ? "Le lac est grand, et ils sont si petits... Je ne peux pas quitter la rive : les autres petits comptent sur moi." : "Avec Seadramon qui rôde dans le lac, j'ai peur pour eux... Je ne peux pas quitter la rive : les autres petits comptent sur moi.", 'Gomamon');
       if ((await DW.ask('Retrouver les trois Bukamon ?', ['Oui', 'Non'], null, 0)) !== 0) { await say("Si tu changes d'avis, je suis là, sur la rive.", 'Gomamon'); return; }
       F.bukaQuete = 1;
       await say("Merci ! Ils ne s'éloignent jamais de l'eau. Cherche-les sur les rives, en allant vers l'ouest... jusqu'à la Cascade du Dragon, s'il le faut !", 'Gomamon');
@@ -10772,7 +10785,7 @@
       F.bukaQuete = 2; Audio.sfx('fanfare');
       await say("Mes petits ! Ils sont tous revenus ! Merci, merci !", 'Gomamon');
       const extra = DW.giveItem('digianchois', 3) + DW.giveItem('disque_pm', 1); st().bits += 300;
-      await say(`Tu reçois 3 Digianchois, 1 Disque PM et 300 Bits !${DW.extraMsg(extra)}`);
+      await say(`Tu reçois 3 ${DW.ITEMS.digianchois.name}, 1 ${DW.ITEMS.disque_pm.name} et 300 Bits !${DW.extraMsg(extra)}`);
       if (DW.Cards && DW.Cards.give('bukamon')) await say("Les Bukamon t'offrent aussi une carte : Bukamon ! (Album)");
       await say((st().kids || {}).matt ? "Et puis... ce garçon blond à l'harmonica, tu l'as trouvé ? Tant mieux. Il avait l'air si seul, sur son île." : "Un secret, pour te remercier : la nuit, l'eau baisse à la Cascade du Dragon, et une langue de sable mène à l'île du vieux tramway. Les Bukamon disent qu'on y entend un harmonica...", 'Gomamon');
       return;
@@ -10788,13 +10801,17 @@
 
   // ------------------------------------------------------------ chapitre 3 : la soif des Yokomon
   async function yokomonAssoiffe() {
-    await say("...De l'eau... s'il te plaît... (Un Yokomon tout desséché s'est effondré au bord de l'oasis. Avec la chaleur de la montagne, son eau est tiède et boueuse.)", 'Yokomon');
+    const calme = !!f().meramon;   // (Meramon calmé avant : l'eau est revenue au village, mais il n'a plus la force d'y aller)
+    await say(calme ? "...De l'eau... s'il te plaît... (Un Yokomon tout desséché s'est effondré au bord de l'oasis. Il n'a plus la force de rentrer à son village.)" : "...De l'eau... s'il te plaît... (Un Yokomon tout desséché s'est effondré au bord de l'oasis. Avec la chaleur de la montagne, son eau est tiède et boueuse.)", 'Yokomon');
     if (!(st().bag.eau_fraiche > 0)) { await say("(Il lui faudrait de l'Eau fraîche : le Bazar et les distributeurs en vendent.)"); return; }
     if ((await DW.ask('Donner une Eau fraîche au Yokomon ?', ['Oui', 'Non'], null, 0)) !== 0) return;
     const sac = st().bag; sac.eau_fraiche -= 1; if (sac.eau_fraiche <= 0) delete sac.eau_fraiche;
     f().yokoSoif = true; Audio.sfx('heal');
-    await say("Glou glou... Ah ! Je revis ! Merci ! J'étais parti chercher de l'eau pour mon village : la fontaine est à sec depuis que Meramon brûle tout, là-haut, sur le Mont Miharashi.", 'Yokomon');
-    await say("Le Village des Yokomon est par là : suis les poteaux du désert ! Prends ça, c'est tout ce que j'ai.", 'Yokomon');
+    if (calme) await say("Glou glou... Ah ! Je revis ! Merci ! J'étais parti chercher de l'eau pour mon village... Elle y coule de nouveau, il paraît ? Grâce à toi ? Prends ça, c'est tout ce que j'ai.", 'Yokomon');
+    else {
+      await say("Glou glou... Ah ! Je revis ! Merci ! J'étais parti chercher de l'eau pour mon village : la fontaine est à sec depuis que Meramon brûle tout, là-haut, sur le Mont Miharashi.", 'Yokomon');
+      await say("Le Village des Yokomon est par là : suis les poteaux du désert ! Prends ça, c'est tout ce que j'ai.", 'Yokomon');
+    }
     const extra = DW.giveItem('pomme_bleue', 1); st().bits += 150;
     await say(`Tu reçois 1 Pomme bleue et 150 Bits !${DW.extraMsg(extra)}`);
   }
@@ -10822,7 +10839,7 @@
   const PNJ = [
     ['lac0', s => perso() && ch() >= 2 && !!s.flags.monoCh2 && (s.flags.bukaQuete || 0) < 2, 'gomamon', () => gomamon()],
     ...Object.keys(BUKA).map(id => [id, s => s.flags.bukaQuete === 1 && !((s.flags.bukaTrouves || 0) & BUKA[id]), 'bukamon', () => bukamon(id)]),
-    ['miharashi0', s => ch() >= 3 && !s.flags.meramon && !s.flags.yokoSoif, 'yokomon', () => yokomonAssoiffe(), [40, 30]],
+    ['miharashi0', s => ch() >= 3 && !s.flags.yokoSoif, 'yokomon', () => yokomonAssoiffe(), [40, 30]],
     ['miharashi1', s => !!s.flags.meramon && !(s.chests || {}).epave_coffre, 'yokomon', () => yokomonEpave(), [30, 42]],
   ];
   { const V = DW.MAPS.miharashi1, pop0 = V && V.populate; if (V) V.populate = function () { epave(this); if (pop0) return pop0.call(this); }; }

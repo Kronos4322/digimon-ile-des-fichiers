@@ -339,7 +339,7 @@
           await DW.say('Impossible de lire la sauvegarde... Elle est conservée telle quelle : rien n\'a été effacé.');
           return;
         }
-        if (!cont && had && (await DW.ask(`L'emplacement ${slot} contient déjà une partie (${had.name}). Elle sera remplacée dès ta prochaine sauvegarde. Commencer quand même ?`, ['Non', 'Oui'], null, 0)) !== 1) return;
+        if (!cont && had && (await DW.ask(`L'emplacement ${slot} contient déjà une partie (${had.name}). Elle sera mise de côté : tu pourras la reprendre depuis CONTINUER (◀ ▶). Commencer quand même ?`, ['Non', 'Oui'], null, 0)) !== 1) return;
         Audio.sfx('evolve');
         this.wipe = { t: 0, done: () => {
           if (cont) {

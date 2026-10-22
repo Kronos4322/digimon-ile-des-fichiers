@@ -15,7 +15,7 @@
   const st = () => DW.state;
   const day = () => Math.floor(st().clock / 1440);
   const once = (ow, x, y) => { const s = st().scenery = st().scenery || {}, k = `${ow.mapId}:${x},${y}`; if (s[k] === day()) return false; s[k] = day(); return true; };
-  const give = async (id, n = 1) => { const extra = DW.giveItem(id, n); DW.Audio.sfx('buy'); await say(`Tu trouves : ${DW.ITEMS[id].name}${n > 1 ? ' ×' + n : ''} !${DW.extraMsg(extra)}`); };
+  const give = async (id, n = 1) => { const extra = DW.giveItem(id, n, false); DW.Audio.sfx('buy'); await say(`Tu trouves : ${DW.ITEMS[id].name}${n > 1 ? ' ×' + n : ''} !${DW.extraMsg(extra)}`); };
   const pt = () => DW.Care.lead();
   const emote = (ow, k) => { if (DW.Companion) DW.Companion.emote(ow, k, 2); };
   // Digimon sauvage caché dans le décor (s'il y en a dans la zone)
@@ -24,7 +24,8 @@
     if (!enc.length || !pt() || pt().hp <= 0) return false;
     const e = DW.weighted(enc.map(x => ({ ...x, w: x.w || 1 })));
     await say(line.replace('%s', DW.SPECIES[e.sp].name));
-    await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)) });
+    const res = await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)) });
+    if (res === 'win' && DW.Requests) DW.Requests.onWin(e.sp);   // (comme les rencontres visibles : game/wild.js)
     return true;
   }
   // usure des outils : un coup de plus ; prévient quand l'outil faiblit, le casse au bout de sa vie
@@ -62,7 +63,7 @@
     },
     async pick(ow, x, y) {
       if (!once(ow, x, y)) { await say('Le champignon brille doucement. Il repoussera demain.'); return; }
-      await say('Tu cueilles délicatement le champignon lumineux.'); await give(Math.random() < 0.2 ? 'champi_luxe' : 'digichampi');
+      await say('Tu cueilles délicatement le champignon lumineux.'); await give(Math.random() < 0.02 ? 'champi_luxe' : 'digichampi');   // (2 % : à 20 %, ~10 Champignons de luxe par jour dès le chapitre 1)
     },
     async sit(ow) {
       const m = pt();

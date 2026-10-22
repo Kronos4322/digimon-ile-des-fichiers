@@ -28,31 +28,49 @@
   };
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const write = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  // une sauvegarde LISIBLE : du JSON d'un objet dont l'équipe et la boîte sont des listes (ce que parseState sait charger)
+  const objetDe = json => {
+    if (typeof json !== 'string' || !json) return null;
+    try { const o = JSON.parse(json); return o && typeof o === 'object' && !Array.isArray(o) && (o.party == null || Array.isArray(o.party)) && (o.box == null || Array.isArray(o.box)) ? o : null; } catch (e) { return null; }
+  };
+  const lisible = json => !!objetDe(json);
+  // une sauvegarde illisible est mise de côté (les deux dernières : « _illisible », puis « _illisible_2 ») ; jamais effacée
+  // par une autre (avant : la 2e copie abîmée écrasait la 1re)
+  const deCote = json => { const b = read(K.BROKEN); if (b === json) return; if (b) write(K.BROKEN + '_2', b); write(K.BROKEN, json); };
   // supprimer un emplacement (la sauvegarde et sa copie précédente)
   // (toutes ses versions : sinon l'emplacement vide dans NOUVELLE PARTIE restait plein dans CONTINUER)
-  DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { for (const k of [K.KEY, K.BAK, K.BROKEN, OLD(n), SWAP(n)]) localStorage.removeItem(k); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
+  DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { for (const k of [K.KEY, K.BAK, K.BROKEN, K.BROKEN + '_2', OLD(n), OLD2(n), SWAP(n)]) localStorage.removeItem(k); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
   // VERSIONS d'un emplacement : la partie actuelle, la version précédente (avant la dernière sauvegarde)
   // et l'ANCIENNE partie (mise de côté quand on commence une nouvelle partie sur cet emplacement)
   const infoOf = json => {
-    try {
-      const o = JSON.parse(json); if (!o) return null;
-      const m = DW.MAPS[o.map], lead = o.party && o.party[0];
-      return { name: o.name, time: o.time || 0, place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
-        level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
-    } catch (e) { return null; }
+    const o = objetDe(json); if (!o) return null;
+    const m = DW.MAPS[o.map], lead = o.party && o.party[0], num = v => (Number.isFinite(v) ? v : 0);
+    return { name: String(o.name || '?'), time: num(o.time), place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
+      level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor(num(o.clock) / 1440) + 1, savedAt: o.savedAt };
   };
-  const OLD = n => keyOf(n) + '_ancienne', SWAP = n => keyOf(n) + '_remplacee';
-  DW.archiveSave = n => { const keep = DW.slot; DW.slot = n; try { const cur = read(K.KEY) || read(K.BAK); if (cur) write(OLD(n), cur); } finally { DW.slot = keep; } };
+  const OLD = n => keyOf(n) + '_ancienne', OLD2 = n => keyOf(n) + '_ancienne_2', SWAP = n => keyOf(n) + '_remplacee';
+  // mettre de côté la partie d'un emplacement (nouvelle partie dessus) : sa dernière version LISIBLE ; les deux dernières
+  // parties mises de côté sont gardées (avant : une 2e nouvelle partie effaçait la 1re, pourtant annoncée récupérable)
+  DW.archiveSave = n => {
+    const keep = DW.slot; DW.slot = n;
+    try {
+      const cur = [read(K.KEY), read(K.BAK)].find(lisible), old = read(OLD(n));
+      if (!cur || cur === old) return;
+      if (old) write(OLD2(n), old);
+      write(OLD(n), cur);
+    } finally { DW.slot = keep; }
+  };
   DW.saveVariants = n => {
     const keep = DW.slot; DW.slot = n;
     try {
-      const cur = read(K.KEY), bak = read(K.BAK), old = read(OLD(n)), out = [];
-      if (cur) out.push({ kind: 'actuelle', label: 'Partie actuelle', info: infoOf(cur) });
-      if (bak && bak !== cur) out.push({ kind: 'precedente', label: 'Version précédente', info: infoOf(bak) });
-      if (old && old !== cur && old !== bak) out.push({ kind: 'ancienne', label: 'Ancienne partie (mise de côté)', info: infoOf(old) });
-      const rem = read(SWAP(n));
-      if (rem && rem !== cur && rem !== bak && rem !== old) out.push({ kind: 'remplacee', label: 'Partie d\'avant ta reprise', info: infoOf(rem) });
-      return out.filter(v => v.info);
+      const L = [['actuelle', 'Partie actuelle', K.KEY], ['precedente', 'Version précédente', K.BAK], ['ancienne', 'Ancienne partie (mise de côté)', OLD(n)],
+        ['ancienne_2', 'Partie mise de côté avant', OLD2(n)], ['remplacee', 'Partie d\'avant ta reprise', SWAP(n)]];
+      const vues = new Set(), out = [];
+      for (const [kind, label, k] of L) {
+        const j = read(k); if (!j || vues.has(j)) continue;
+        vues.add(j); const info = infoOf(j); if (info) out.push({ kind, label, info });
+      }
+      return out;
     } finally { DW.slot = keep; }
   };
   // reprendre une autre version : elle devient la partie de l'emplacement ; la partie remplacée est mise de côté à part
@@ -60,33 +78,30 @@
   DW.restoreVariant = (n, kind) => {
     const keep = DW.slot; DW.slot = n;
     try {
-      const cur = read(K.KEY), pick = { precedente: read(K.BAK), ancienne: read(OLD(n)), remplacee: read(SWAP(n)) }[kind] || cur;
+      const cur = read(K.KEY), pick = { precedente: read(K.BAK), ancienne: read(OLD(n)), ancienne_2: read(OLD2(n)), remplacee: read(SWAP(n)) }[kind] || cur;
       if (!pick || pick === cur) return;
-      if (cur) write(SWAP(n), cur);
+      if (cur) { if (lisible(cur)) write(SWAP(n), cur); else deCote(cur); }
       write(K.KEY, pick);
     } finally { DW.slot = keep; }
   };
   // résumé affiché sur l'écran titre
+  // (la principale, sinon la précédente lisible : avant, une principale abîmée cachait la précédente encore bonne,
+  //  NOUVELLE PARTIE montrait l'emplacement « vide », le choisissait d'office, et la vraie partie était écrasée)
   DW.saveInfo = (slot = DW.slot) => {
     const keep = DW.slot; DW.slot = slot;
-    try {
-      const o = JSON.parse(read(K.KEY) || read(K.BAK));
-      if (!o) return null;
-      const m = DW.MAPS[o.map], lead = o.party && o.party[0];
-      return { name: o.name, time: o.time || 0, place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
-        level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
-    } catch (e) { return null; } finally { DW.slot = keep; }
+    try { return infoOf(read(K.KEY)) || infoOf(read(K.BAK)); } finally { DW.slot = keep; }
   };
   // sauvegarde automatique silencieuse (changement de zone, après un combat) ; renvoie true si elle a vraiment réussi
   // (« Sauvegardé » seulement si c'est vrai ; sinon un avertissement qui ne bloque pas le jeu, au plus toutes les 2 minutes)
   const warnedFlags = new Set();
   DW.SAVE_ECHEC = "La sauvegarde a échoué : mémoire du navigateur pleine ? Utilise FICHIER (menu Système, « Fichier sur l'ordinateur ») pour télécharger ta partie.";
   let averti = 0;
+  const prevenir = msg => { if (DW.Care && DW.Care.toast && Date.now() - averti > 120000) { averti = Date.now(); DW.Care.toast(msg, '#ff8a8a'); } };
   DW.autosave = () => {
     if (!DW.state.flags.starter) return null;   // (pas encore de partenaire : rien n'est sauvegardé, ce n'est pas un échec)
     const ok = DW.save();
     if (ok) DW.saveFlash = 2;
-    else if (DW.Care && DW.Care.toast && Date.now() - averti > 120000) { averti = Date.now(); DW.Care.toast('Sauvegarde impossible : mémoire du navigateur pleine ?', '#ff8a8a'); }
+    else prevenir('Sauvegarde impossible : mémoire du navigateur pleine ?');
     return ok;
   };
   DW.save = () => {
@@ -97,9 +112,13 @@
     if (unknown.length) { unknown.forEach(k => warnedFlags.add(k)); console.warn('Drapeaux non déclarés dans js/data/flags.js :', unknown.join(', ')); }
     let json;
     try { json = JSON.stringify(st); } catch (e) { DW.reportError(e, 'sauvegarde'); return false; }
+    // la copie « précédente » n'est faite que d'une principale LISIBLE ; une principale abîmée est mise de côté à part (avant :
+    //  elle remplaçait la précédente encore bonne, et deux sauvegardes plus tard il ne restait plus rien de lisible)
     const old = read(K.KEY);
-    if (old && old !== json) write(K.BAK, old);
+    let copie = true;
+    if (old && old !== json) { if (lisible(old)) copie = write(K.BAK, old); else deCote(old); }
     const ok = write(K.KEY, json);
+    if (ok && !copie) prevenir('Copie de secours impossible : mémoire du navigateur presque pleine. FICHIER peut garder ta partie.');
     // écriture refusée (mémoire du navigateur pleine...) : la partie est gardée à part, pour que FICHIER la télécharge
     // quand même — sinon le fichier ne contenait que l'ancienne sauvegarde (game/fichier.js, bundle)
     DW.saveRefusee = ok ? null : { k: K.KEY, json };
@@ -129,10 +148,20 @@
   function parseState(raw) {
     const o = JSON.parse(raw);
     if (!o || typeof o !== 'object') throw new Error('sauvegarde vide');
-    const st = Object.assign(DW.newState(), o);
-    if (!DW.MAPS[st.map]) Object.assign(st, { map: 'maison', x: 12, y: 5 });
-    if (!st.heal || !DW.MAPS[st.heal.map]) st.heal = { map: 'maison', x: 12, y: 5 };
-    st.recruits = st.recruits || {}; st.flags = st.flags || {}; st.bag = st.bag || {}; st.bank = st.bank || {};
+    const st = Object.assign(DW.newState(), o), d = DW.newState(), num = Number.isFinite;
+    // champs simples abîmés (texte, null, liste...) : valeur de départ (avant : des Bits en texte, puis « bits -= prix » = NaN)
+    for (const k of ['bits', 'clock', 'time']) if (!num(st[k])) st[k] = d[k];
+    for (const k of ['flags', 'bag', 'bank', 'seen', 'owned', 'recruits', 'visited', 'zoneSeen', 'poops', 'wildGone', 'gears', 'daily'])
+      if (!st[k] || typeof st[k] !== 'object' || Array.isArray(st[k])) st[k] = d[k];
+    if (st.fridge != null && (typeof st.fridge !== 'object' || Array.isArray(st.fridge))) st.fridge = {};
+    if (!st.heal || !DW.MAPS[st.heal.map] || !num(st.heal.x) || !num(st.heal.y)) st.heal = { map: 'maison', x: 12, y: 5 };
+    if (!DW.MAPS[st.map] || !num(st.x) || !num(st.y)) Object.assign(st, { map: st.heal.map, x: st.heal.x, y: st.heal.y });
+    // fin de chapitre interrompue (jeu fermé pendant le bilan, avant la sauvegarde du nouveau chapitre — corrigé en 10/2026) :
+    //  le boss vaincu fait foi, sinon le voile restait fermé et rien ne relançait la fin du chapitre
+    const f = st.flags, ch = () => f.chapter || 1;
+    if (f.shellmon && ch() < 2) f.chapter = 2;
+    if ((f.seadramon || st.gears.lac) && ch() === 2) f.chapter = 3;
+    if (f.meramon && ch() === 3) f.chapter = 4;
     // migration des anciennes sauvegardes
     const v = o.v || 1;
     if (v < 2) { st.wildGone = {}; st.gears = st.gears || {}; }
@@ -150,8 +179,20 @@
     //  désormais pour le Pays de Meramon (game/story.js). Seulement si Meramon a bien été calmé au Mont Miharashi ; l'ancien
     //  engrenage n'est retiré que s'il ne peut pas venir de l'ancien boss du Mont Panorama (son Belvédère jamais visité)
     if (v < 7 && st.flags.meramon) { st.gears = st.gears || {}; st.gears.miharashi = true; if (!(st.visited || {}).volcan7) delete st.gears.volcan; }
+    futur = v > DW.SAVE_V;   // (partie d'une version plus récente du jeu : DW.load le dit)
     st.v = DW.SAVE_V;
-    for (const box of [st.bag, st.bank, st.fridge || {}]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
+    // objets inconnus de cette version (plus récente, ou objet retiré) : gardés à part et rendus quand ils existent de nouveau
+    //  (avant : effacés du sac, du coffre et du frigo à la sauvegarde suivante)
+    const OI = st.orphanItems = st.orphanItems && typeof st.orphanItems === 'object' ? st.orphanItems : {};
+    for (const nom of ['bag', 'bank', 'fridge']) {
+      const box = st[nom];
+      if (!box) continue;
+      const mis = OI[nom] = OI[nom] || {};
+      for (const k in mis) if (DW.ITEMS[k]) { box[k] = (box[k] || 0) + mis[k]; delete mis[k]; }
+      for (const k in box) if (!DW.ITEMS[k]) { mis[k] = (mis[k] || 0) + (num(box[k]) ? box[k] : 0); delete box[k]; }
+      if (!Object.keys(mis).length) delete OI[nom];
+    }
+    if (!Object.keys(OI).length) delete st.orphanItems;
     const orphans = (st.orphans || []).slice();
     st.orphans = [];
     // v5 : PV et PM passent à l'échelle Digimon World (×20) ; les PV restants suivent
@@ -164,18 +205,24 @@
   }
   // message à afficher après le chargement (copie de secours utilisée, Digimon mis de côté...)
   DW.loadNote = null;
+  let futur = false;
   DW.load = () => {
-    DW.loadNote = null;
+    DW.loadNote = null; futur = false;
     const main = read(K.KEY);
     try {
       if (!main) throw new Error('aucune sauvegarde');
       DW.state = parseState(main);
     } catch (e) {
       const bak = read(K.BAK);
-      if (main) { write(K.BROKEN, main); DW.reportError(e, 'chargement'); }
+      if (main) { deCote(main); DW.reportError(e, 'chargement'); }
       try { DW.state = parseState(bak); } catch (e2) { return false; }
-      DW.loadNote = 'La dernière sauvegarde était illisible : la sauvegarde précédente a été chargée (l\'autre est conservée à part).';
+      // (la précédente redevient la principale : sinon la sauvegarde suivante recopiait la principale abîmée dans la
+      //  précédente, et une 2e panne ne laissait plus rien)
+      write(K.KEY, bak);
+      DW.loadNote = main ? 'La dernière sauvegarde était illisible : la sauvegarde précédente a été chargée (l\'autre est conservée à part).'
+        : 'La sauvegarde principale manquait : la sauvegarde précédente a été chargée.';
     }
+    if (futur) DW.loadNote = (DW.loadNote ? DW.loadNote + ' ' : '') + "Cette partie vient d'une version plus récente du jeu : recharge la page pour l'avoir (ce que cette version ne connaît pas est gardé de côté).";
     if (DW.state.orphans.length) {
       const n = DW.state.orphans.length;
       DW.loadNote = (DW.loadNote ? DW.loadNote + ' ' : '') +

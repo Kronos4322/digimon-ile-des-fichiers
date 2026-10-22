@@ -25,7 +25,7 @@
     const F = f();
     if (!F.bukaQuete) {
       await say("Hé, toi ! C'est toi qui as fait fuir Monochromon ? Alors tu es courageux... Mes trois petits Bukamon ont suivi un banc de poissons le long des rives, vers l'ouest.", 'Gomamon');
-      await say("Avec Seadramon qui rôde dans le lac, j'ai peur pour eux... Je ne peux pas quitter la rive : les autres petits comptent sur moi.", 'Gomamon');
+      await say(F.seadramon ? "Le lac est grand, et ils sont si petits... Je ne peux pas quitter la rive : les autres petits comptent sur moi." : "Avec Seadramon qui rôde dans le lac, j'ai peur pour eux... Je ne peux pas quitter la rive : les autres petits comptent sur moi.", 'Gomamon');
       if ((await DW.ask('Retrouver les trois Bukamon ?', ['Oui', 'Non'], null, 0)) !== 0) { await say("Si tu changes d'avis, je suis là, sur la rive.", 'Gomamon'); return; }
       F.bukaQuete = 1;
       await say("Merci ! Ils ne s'éloignent jamais de l'eau. Cherche-les sur les rives, en allant vers l'ouest... jusqu'à la Cascade du Dragon, s'il le faut !", 'Gomamon');
@@ -37,7 +37,7 @@
       F.bukaQuete = 2; Audio.sfx('fanfare');
       await say("Mes petits ! Ils sont tous revenus ! Merci, merci !", 'Gomamon');
       const extra = DW.giveItem('digianchois', 3) + DW.giveItem('disque_pm', 1); st().bits += 300;
-      await say(`Tu reçois 3 Digianchois, 1 Disque PM et 300 Bits !${DW.extraMsg(extra)}`);
+      await say(`Tu reçois 3 ${DW.ITEMS.digianchois.name}, 1 ${DW.ITEMS.disque_pm.name} et 300 Bits !${DW.extraMsg(extra)}`);
       if (DW.Cards && DW.Cards.give('bukamon')) await say("Les Bukamon t'offrent aussi une carte : Bukamon ! (Album)");
       await say((st().kids || {}).matt ? "Et puis... ce garçon blond à l'harmonica, tu l'as trouvé ? Tant mieux. Il avait l'air si seul, sur son île." : "Un secret, pour te remercier : la nuit, l'eau baisse à la Cascade du Dragon, et une langue de sable mène à l'île du vieux tramway. Les Bukamon disent qu'on y entend un harmonica...", 'Gomamon');
       return;
@@ -53,13 +53,17 @@
 
   // ------------------------------------------------------------ chapitre 3 : la soif des Yokomon
   async function yokomonAssoiffe() {
-    await say("...De l'eau... s'il te plaît... (Un Yokomon tout desséché s'est effondré au bord de l'oasis. Avec la chaleur de la montagne, son eau est tiède et boueuse.)", 'Yokomon');
+    const calme = !!f().meramon;   // (Meramon calmé avant : l'eau est revenue au village, mais il n'a plus la force d'y aller)
+    await say(calme ? "...De l'eau... s'il te plaît... (Un Yokomon tout desséché s'est effondré au bord de l'oasis. Il n'a plus la force de rentrer à son village.)" : "...De l'eau... s'il te plaît... (Un Yokomon tout desséché s'est effondré au bord de l'oasis. Avec la chaleur de la montagne, son eau est tiède et boueuse.)", 'Yokomon');
     if (!(st().bag.eau_fraiche > 0)) { await say("(Il lui faudrait de l'Eau fraîche : le Bazar et les distributeurs en vendent.)"); return; }
     if ((await DW.ask('Donner une Eau fraîche au Yokomon ?', ['Oui', 'Non'], null, 0)) !== 0) return;
     const sac = st().bag; sac.eau_fraiche -= 1; if (sac.eau_fraiche <= 0) delete sac.eau_fraiche;
     f().yokoSoif = true; Audio.sfx('heal');
-    await say("Glou glou... Ah ! Je revis ! Merci ! J'étais parti chercher de l'eau pour mon village : la fontaine est à sec depuis que Meramon brûle tout, là-haut, sur le Mont Miharashi.", 'Yokomon');
-    await say("Le Village des Yokomon est par là : suis les poteaux du désert ! Prends ça, c'est tout ce que j'ai.", 'Yokomon');
+    if (calme) await say("Glou glou... Ah ! Je revis ! Merci ! J'étais parti chercher de l'eau pour mon village... Elle y coule de nouveau, il paraît ? Grâce à toi ? Prends ça, c'est tout ce que j'ai.", 'Yokomon');
+    else {
+      await say("Glou glou... Ah ! Je revis ! Merci ! J'étais parti chercher de l'eau pour mon village : la fontaine est à sec depuis que Meramon brûle tout, là-haut, sur le Mont Miharashi.", 'Yokomon');
+      await say("Le Village des Yokomon est par là : suis les poteaux du désert ! Prends ça, c'est tout ce que j'ai.", 'Yokomon');
+    }
     const extra = DW.giveItem('pomme_bleue', 1); st().bits += 150;
     await say(`Tu reçois 1 Pomme bleue et 150 Bits !${DW.extraMsg(extra)}`);
   }
@@ -87,7 +91,7 @@
   const PNJ = [
     ['lac0', s => perso() && ch() >= 2 && !!s.flags.monoCh2 && (s.flags.bukaQuete || 0) < 2, 'gomamon', () => gomamon()],
     ...Object.keys(BUKA).map(id => [id, s => s.flags.bukaQuete === 1 && !((s.flags.bukaTrouves || 0) & BUKA[id]), 'bukamon', () => bukamon(id)]),
-    ['miharashi0', s => ch() >= 3 && !s.flags.meramon && !s.flags.yokoSoif, 'yokomon', () => yokomonAssoiffe(), [40, 30]],
+    ['miharashi0', s => ch() >= 3 && !s.flags.yokoSoif, 'yokomon', () => yokomonAssoiffe(), [40, 30]],
     ['miharashi1', s => !!s.flags.meramon && !(s.chests || {}).epave_coffre, 'yokomon', () => yokomonEpave(), [30, 42]],
   ];
   { const V = DW.MAPS.miharashi1, pop0 = V && V.populate; if (V) V.populate = function () { epave(this); if (pop0) return pop0.call(this); }; }

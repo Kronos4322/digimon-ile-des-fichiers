@@ -88,7 +88,8 @@
       { hero: 'matt', x: 45, y: 48, face: 'right', cond: visible, talk: ow => mattScene(ow) },
       { sp: 'gabumon', x: 49, y: 48, face: 'left', cond: visible, talk: async () => { await say(st().flags.mattMet ? "Matt ne dort plus depuis qu'on est arrivés... Il pense à TK tout le temps." : "Bonsoir ! Tu es un ami de Matt ? Va lui parler, il est près du feu.", 'Gabumon'); } },
     );
-    // l'harmonica, la nuit, tant que Matt campe ici
+    // l'harmonica, la nuit, tant que Matt campe ici (aussi après un combat : game/overworld.js, musique)
+    L.musicNow = () => (visible(st()) ? 'harmonica' : null);
     L.onEnter = async ow => {
       if (!visible(st())) return;
       Audio.play('harmonica');
@@ -376,6 +377,7 @@
     const s = st();
     if ((s.flags.chapter || 1) >= 3) return;
     s.flags.chapter = 3;
+    DW.autosave();   // (tout de suite, avant le bilan : voir end1, game/chapitre1.js)
     Audio.play('victory');
     await DW.wait(0.8);
     await Game.push(new DW.ChapterScene('FIN DU CHAPITRE 2', 'Le Lac et le Loup', s.hero === 'perso' ? 'Matt et Garurumon sont libres. Mais où est TK ?' : 'Seadramon est libéré : le lac respire de nouveau.'));

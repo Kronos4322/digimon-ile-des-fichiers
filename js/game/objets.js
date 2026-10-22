@@ -20,10 +20,11 @@
       case 'revive': return m.hp <= 0;
       case 'sick': return !!m.sick || !!m.hurt || (m.germs || 0) >= 50;   // aussi en prévention, quand la santé flanche
       case 'hurt': return !!m.hurt;
-      case 'chip': return !battle;
+      case 'chip': return !battle && m.hp > 0;   // (sur un Digimon K.O., les PV gagnés le relevaient)
       case 'manual': return !battle && !!DW.nextMove(m);
       case 'buff': case 'protect': return !!battle && m.hp > 0;
-      case 'evo': return !battle && m.hp > 0 && m.d.stage === it.from;
+      // (l'écusson aussi : un objet d'Ultime faisait un Ultime de n'importe quel Champion, sans écusson — data/ecussons.js)
+      case 'evo': { const q = DW.Crests && DW.Crests.requirement(it.to); return !battle && m.hp > 0 && m.d.stage === it.from && (!q || q.ok); }
       case 'equip': {   // (remplace celui du même emplacement, qui revient dans le sac : il faut de la place)
         const old = m.equip && m.equip[it.slot];
         return !battle && (!old || DW.bagRoom(old) > 0 || (DW.state.bag[id] || 0) === 1);
@@ -104,12 +105,39 @@
   DW.bagUsed = () => Object.keys(DW.state.bag).filter(k => DW.state.bag[k] > 0).length;
   DW.bagRoom = id => (DW.state.bag[id] || 0) > 0 || DW.bagUsed() < DW.bagSlots() ? Math.max(0, DW.BAG_MAX - (DW.state.bag[id] || 0)) : 0;
   DW.isFood = id => DW.ITEMS[id] && DW.ITEMS[id].food != null;
-  // renvoie le nombre d'objets laissés sur place (0 si tout tient dans le sac)
-  DW.giveItem = (id, n = 1) => {
+  // pourquoi l'objet ne rentre pas (avant : « Sac plein (10 max) ! », même quand c'était les 20 sortes qui manquaient)
+  DW.bagFullMsg = id => ((DW.state.bag[id] || 0) >= DW.BAG_MAX ? `Tu en as déjà ${DW.BAG_MAX}, le maximum !` : `Plus de place dans le sac (${DW.bagSlots()} sortes d'objets) !`);
+  // renvoie le nombre d'objets qui n'ont pas tenu dans le sac (0 si tout tient). Ceux-là partent au COFFRE de la maison (tout
+  // sauf la nourriture, sans limite : c'est aussi la Banque de Kunemon), la nourriture au FRIGO s'il y en a un (20 de chaque).
+  // Avant, ils étaient perdus, même un objet unique (Canne à pêche, Gants de flamme, puces), avec « laissé sur place » alors
+  // que rien n'était posé. Trouvailles du hasard (ranger = false : fouille, pêche, cueillette) : sac plein, on les laisse.
+  const surplus = { t: 0, coffre: 0, frigo: 0, laisse: 0 }, vider = () => Object.assign(surplus, { coffre: 0, frigo: 0, laisse: 0 });
+  DW.giveItem = (id, n = 1, ranger = true) => {
     const st = DW.state, add = Math.min(n, DW.bagRoom(id)), extra = n - add;
     st.bag[id] = (st.bag[id] || 0) + add;
+    if (extra > 0) {
+      // (le message suit aussitôt le don : DW.extraMsg ; un surplus resté sans message ne compte plus après 1,5 s)
+      if (Date.now() - surplus.t > 1500) vider();
+      surplus.t = Date.now();
+      let reste = extra;
+      if (ranger && !DW.isFood(id)) { st.bank = st.bank || {}; st.bank[id] = (st.bank[id] || 0) + reste; surplus.coffre += reste; reste = 0; }
+      else if (ranger && DW.Home && DW.Home.owned && DW.Home.owned('frigo')) {
+        const F = st.fridge = st.fridge || {}, k = Math.min(reste, Math.max(0, 20 - (F[id] || 0)));
+        F[id] = (F[id] || 0) + k; surplus.frigo += k; reste -= k;
+      }
+      surplus.laisse += reste;
+    }
     return extra;
   };
-  DW.extraMsg = extra => (extra ? `  (Ton sac est plein : ${extra} laissé${extra > 1 ? 's' : ''} sur place... Range tes affaires à la maison !)` : '');
+  DW.extraMsg = extra => {
+    if (!extra) return '';
+    const s = Date.now() - surplus.t <= 1500 && surplus.coffre + surplus.frigo + surplus.laisse ? { ...surplus } : { coffre: 0, frigo: 0, laisse: extra };
+    vider();
+    const out = [];
+    if (s.coffre) out.push(`${s.coffre} ${s.coffre > 1 ? 'partent' : 'part'} au coffre de ta maison`);
+    if (s.frigo) out.push(`${s.frigo} ${s.frigo > 1 ? 'vont' : 'va'} dans ton frigo`);
+    if (s.laisse) out.push(`tu dois en laisser ${s.laisse}`);
+    return `  (Ton sac est plein : ${out.join(', ')}${s.laisse ? '... Range tes affaires à la maison !' : '.'})`;
+  };
 
 })();

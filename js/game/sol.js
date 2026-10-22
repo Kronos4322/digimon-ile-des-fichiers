@@ -16,10 +16,12 @@
     return g[mapId].list;
   };
   const npcFor = (mapId, x, y, id) => ({ item: id, x, y, walk: false, ground: true, talk: async ow => {
+    // (sac plein : la trouvaille reste par terre, comme dans Digimon World 1 — avant, elle disparaissait)
+    if (!DW.bagRoom(id)) { DW.Audio.sfx('bump'); await say(`Ton sac est plein : impossible de ramasser ${id === 'viande' ? 'cette Digiviande' : 'ce DigiChampignon'}. Range tes affaires à la maison !`); return; }
     const L = listOf(mapId), k = L.findIndex(([a, b]) => a === x && b === y);
     if (k >= 0) L.splice(k, 1);
     ow.map.npcs = ow.map.npcs.filter(n => !(n.ground && n.x === x && n.y === y));
-    const extra = DW.giveItem(id, 1); DW.Audio.sfx('buy');
+    const extra = DW.giveItem(id, 1, false); DW.Audio.sfx('buy');
     await say(`Tu ramasses ${id === 'viande' ? 'de la Digiviande' : 'un DigiChampignon'} !${DW.extraMsg(extra)}`);
   } });
   // CASES ACCESSIBLES : celles qu'on atteint à pied depuis une entrée de la carte (passages du bord, devant les portes,

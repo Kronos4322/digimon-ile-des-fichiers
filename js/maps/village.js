@@ -530,8 +530,8 @@
       if (list.length > 1) await say(`(J'ai encore ${list.length - 1} autre${list.length > 2 ? 's' : ''} nouvelle${list.length > 2 ? 's' : ''} pour toi. Reviens me voir !)`, 'Biyomon');
     },
     async kunemon() {
-      await say('Bzzz... Bienvenue à la Banque ! Je garde tout ce que ton sac ne peut pas porter.', 'Kunemon');
-      await DW.Game.push(new DW.BankScene());
+      await say('Bzzz... Bienvenue à la Banque ! Je garde tout ce que ton sac ne peut pas porter. (La Banque et le coffre de ta maison, c\'est le même coffre !)', 'Kunemon');
+      await DW.Game.push(new DW.BankScene({ note: 'Relié au coffre de ta maison.' }));
       await say('À bientôt, bzzz !', 'Kunemon');
     },
     async betamon() {

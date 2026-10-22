@@ -511,6 +511,11 @@ window.DW = window.DW || {};
       const c = this.cur;
       if (!c) return;
       const now = this.ctx.currentTime;
+      // (minuterie en retard — onglet en arrière-plan, préparation d'une carte sur un PC lent — : toutes les voix sont recalées
+      //  du même écart ; avant, toutes les notes manquées, déjà passées, étaient jouées d'un coup)
+      let t0 = Infinity;
+      for (const ch of c.ch) if (!ch.done && ch.time < t0) t0 = ch.time;
+      if (t0 < now) for (const ch of c.ch) ch.time += now - t0;
       let alldone = true;
       for (const ch of c.ch) {
         while (!ch.done && ch.time < now + 0.25) {
@@ -522,10 +527,18 @@ window.DW = window.DW || {};
         }
         if (!ch.done) alldone = false;
       }
-      if (alldone) this.stop();
+      if (alldone) { this.stop(); if (this.onEnd) this.onEnd(c.name); }   // (fin d'un morceau sans boucle : game/overworld.js)
     },
-    stop() { clearInterval(this.timer); this.timer = null; this.cur = null; },
+    // (vide aussi la musique en attente du premier geste : sinon elle démarrait quand même après un stop)
+    stop() { clearInterval(this.timer); this.timer = null; this.cur = null; this.pending = null; },
   };
+  // jeu caché (autre onglet, appli en arrière-plan, écran éteint) : le son est suspendu, puis repris au retour
+  // (sinon la musique continuait onglet caché, et la minuterie ralentie la faisait bégayer)
+  if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', () => {
+    const c = DW.Audio.ctx; if (!c) return;
+    if (document.hidden) { if (c.state === 'running') c.suspend().catch(() => {}); }
+    else if (c.state !== 'running') c.resume().catch(() => {});
+  });
 })();
 ;
 
@@ -3243,7 +3256,7 @@ DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IM
   DW.REGION_MUSIC = {
     foret: 'forest', montagne: 'mountain', volcan: 'volcano', savane: 'savanna', usine: 'factory', decharge: 'trash',
     canyon: 'canyon', dino: 'dino', jungle: 'jungle', overdell: 'cemetery', brumes: 'fog', jouets: 'toy', gel: 'snow',
-    lac: 'lake', marais: 'swamp', tunnel: 'cave', scarabees: 'beetle',
+    lac: 'lake', marais: 'swamp', tunnel: 'cave', scarabees: 'beetle', miharashi: 'canyon',
   };
 })();
 ;
@@ -15373,10 +15386,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       case 'revive': return m.hp <= 0;
       case 'sick': return !!m.sick || !!m.hurt || (m.germs || 0) >= 50;   // aussi en prévention, quand la santé flanche
       case 'hurt': return !!m.hurt;
-      case 'chip': return !battle;
+      case 'chip': return !battle && m.hp > 0;   // (sur un Digimon K.O., les PV gagnés le relevaient)
       case 'manual': return !battle && !!DW.nextMove(m);
       case 'buff': case 'protect': return !!battle && m.hp > 0;
-      case 'evo': return !battle && m.hp > 0 && m.d.stage === it.from;
+      // (l'écusson aussi : un objet d'Ultime faisait un Ultime de n'importe quel Champion, sans écusson — data/ecussons.js)
+      case 'evo': { const q = DW.Crests && DW.Crests.requirement(it.to); return !battle && m.hp > 0 && m.d.stage === it.from && (!q || q.ok); }
       case 'equip': {   // (remplace celui du même emplacement, qui revient dans le sac : il faut de la place)
         const old = m.equip && m.equip[it.slot];
         return !battle && (!old || DW.bagRoom(old) > 0 || (DW.state.bag[id] || 0) === 1);
@@ -15457,13 +15471,40 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   DW.bagUsed = () => Object.keys(DW.state.bag).filter(k => DW.state.bag[k] > 0).length;
   DW.bagRoom = id => (DW.state.bag[id] || 0) > 0 || DW.bagUsed() < DW.bagSlots() ? Math.max(0, DW.BAG_MAX - (DW.state.bag[id] || 0)) : 0;
   DW.isFood = id => DW.ITEMS[id] && DW.ITEMS[id].food != null;
-  // renvoie le nombre d'objets laissés sur place (0 si tout tient dans le sac)
-  DW.giveItem = (id, n = 1) => {
+  // pourquoi l'objet ne rentre pas (avant : « Sac plein (10 max) ! », même quand c'était les 20 sortes qui manquaient)
+  DW.bagFullMsg = id => ((DW.state.bag[id] || 0) >= DW.BAG_MAX ? `Tu en as déjà ${DW.BAG_MAX}, le maximum !` : `Plus de place dans le sac (${DW.bagSlots()} sortes d'objets) !`);
+  // renvoie le nombre d'objets qui n'ont pas tenu dans le sac (0 si tout tient). Ceux-là partent au COFFRE de la maison (tout
+  // sauf la nourriture, sans limite : c'est aussi la Banque de Kunemon), la nourriture au FRIGO s'il y en a un (20 de chaque).
+  // Avant, ils étaient perdus, même un objet unique (Canne à pêche, Gants de flamme, puces), avec « laissé sur place » alors
+  // que rien n'était posé. Trouvailles du hasard (ranger = false : fouille, pêche, cueillette) : sac plein, on les laisse.
+  const surplus = { t: 0, coffre: 0, frigo: 0, laisse: 0 }, vider = () => Object.assign(surplus, { coffre: 0, frigo: 0, laisse: 0 });
+  DW.giveItem = (id, n = 1, ranger = true) => {
     const st = DW.state, add = Math.min(n, DW.bagRoom(id)), extra = n - add;
     st.bag[id] = (st.bag[id] || 0) + add;
+    if (extra > 0) {
+      // (le message suit aussitôt le don : DW.extraMsg ; un surplus resté sans message ne compte plus après 1,5 s)
+      if (Date.now() - surplus.t > 1500) vider();
+      surplus.t = Date.now();
+      let reste = extra;
+      if (ranger && !DW.isFood(id)) { st.bank = st.bank || {}; st.bank[id] = (st.bank[id] || 0) + reste; surplus.coffre += reste; reste = 0; }
+      else if (ranger && DW.Home && DW.Home.owned && DW.Home.owned('frigo')) {
+        const F = st.fridge = st.fridge || {}, k = Math.min(reste, Math.max(0, 20 - (F[id] || 0)));
+        F[id] = (F[id] || 0) + k; surplus.frigo += k; reste -= k;
+      }
+      surplus.laisse += reste;
+    }
     return extra;
   };
-  DW.extraMsg = extra => (extra ? `  (Ton sac est plein : ${extra} laissé${extra > 1 ? 's' : ''} sur place... Range tes affaires à la maison !)` : '');
+  DW.extraMsg = extra => {
+    if (!extra) return '';
+    const s = Date.now() - surplus.t <= 1500 && surplus.coffre + surplus.frigo + surplus.laisse ? { ...surplus } : { coffre: 0, frigo: 0, laisse: extra };
+    vider();
+    const out = [];
+    if (s.coffre) out.push(`${s.coffre} ${s.coffre > 1 ? 'partent' : 'part'} au coffre de ta maison`);
+    if (s.frigo) out.push(`${s.frigo} ${s.frigo > 1 ? 'vont' : 'va'} dans ton frigo`);
+    if (s.laisse) out.push(`tu dois en laisser ${s.laisse}`);
+    return `  (Ton sac est plein : ${out.join(', ')}${s.laisse ? '... Range tes affaires à la maison !' : '.'})`;
+  };
 
 })();
 ;
@@ -15499,31 +15540,49 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   };
   const read = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const write = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  // une sauvegarde LISIBLE : du JSON d'un objet dont l'équipe et la boîte sont des listes (ce que parseState sait charger)
+  const objetDe = json => {
+    if (typeof json !== 'string' || !json) return null;
+    try { const o = JSON.parse(json); return o && typeof o === 'object' && !Array.isArray(o) && (o.party == null || Array.isArray(o.party)) && (o.box == null || Array.isArray(o.box)) ? o : null; } catch (e) { return null; }
+  };
+  const lisible = json => !!objetDe(json);
+  // une sauvegarde illisible est mise de côté (les deux dernières : « _illisible », puis « _illisible_2 ») ; jamais effacée
+  // par une autre (avant : la 2e copie abîmée écrasait la 1re)
+  const deCote = json => { const b = read(K.BROKEN); if (b === json) return; if (b) write(K.BROKEN + '_2', b); write(K.BROKEN, json); };
   // supprimer un emplacement (la sauvegarde et sa copie précédente)
   // (toutes ses versions : sinon l'emplacement vide dans NOUVELLE PARTIE restait plein dans CONTINUER)
-  DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { for (const k of [K.KEY, K.BAK, K.BROKEN, OLD(n), SWAP(n)]) localStorage.removeItem(k); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
+  DW.deleteSave = n => { const keep = DW.slot; DW.slot = n; try { for (const k of [K.KEY, K.BAK, K.BROKEN, K.BROKEN + '_2', OLD(n), OLD2(n), SWAP(n)]) localStorage.removeItem(k); } catch (e) { /* stockage indisponible */ } finally { DW.slot = keep; } };
   // VERSIONS d'un emplacement : la partie actuelle, la version précédente (avant la dernière sauvegarde)
   // et l'ANCIENNE partie (mise de côté quand on commence une nouvelle partie sur cet emplacement)
   const infoOf = json => {
-    try {
-      const o = JSON.parse(json); if (!o) return null;
-      const m = DW.MAPS[o.map], lead = o.party && o.party[0];
-      return { name: o.name, time: o.time || 0, place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
-        level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
-    } catch (e) { return null; }
+    const o = objetDe(json); if (!o) return null;
+    const m = DW.MAPS[o.map], lead = o.party && o.party[0], num = v => (Number.isFinite(v) ? v : 0);
+    return { name: String(o.name || '?'), time: num(o.time), place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
+      level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor(num(o.clock) / 1440) + 1, savedAt: o.savedAt };
   };
-  const OLD = n => keyOf(n) + '_ancienne', SWAP = n => keyOf(n) + '_remplacee';
-  DW.archiveSave = n => { const keep = DW.slot; DW.slot = n; try { const cur = read(K.KEY) || read(K.BAK); if (cur) write(OLD(n), cur); } finally { DW.slot = keep; } };
+  const OLD = n => keyOf(n) + '_ancienne', OLD2 = n => keyOf(n) + '_ancienne_2', SWAP = n => keyOf(n) + '_remplacee';
+  // mettre de côté la partie d'un emplacement (nouvelle partie dessus) : sa dernière version LISIBLE ; les deux dernières
+  // parties mises de côté sont gardées (avant : une 2e nouvelle partie effaçait la 1re, pourtant annoncée récupérable)
+  DW.archiveSave = n => {
+    const keep = DW.slot; DW.slot = n;
+    try {
+      const cur = [read(K.KEY), read(K.BAK)].find(lisible), old = read(OLD(n));
+      if (!cur || cur === old) return;
+      if (old) write(OLD2(n), old);
+      write(OLD(n), cur);
+    } finally { DW.slot = keep; }
+  };
   DW.saveVariants = n => {
     const keep = DW.slot; DW.slot = n;
     try {
-      const cur = read(K.KEY), bak = read(K.BAK), old = read(OLD(n)), out = [];
-      if (cur) out.push({ kind: 'actuelle', label: 'Partie actuelle', info: infoOf(cur) });
-      if (bak && bak !== cur) out.push({ kind: 'precedente', label: 'Version précédente', info: infoOf(bak) });
-      if (old && old !== cur && old !== bak) out.push({ kind: 'ancienne', label: 'Ancienne partie (mise de côté)', info: infoOf(old) });
-      const rem = read(SWAP(n));
-      if (rem && rem !== cur && rem !== bak && rem !== old) out.push({ kind: 'remplacee', label: 'Partie d\'avant ta reprise', info: infoOf(rem) });
-      return out.filter(v => v.info);
+      const L = [['actuelle', 'Partie actuelle', K.KEY], ['precedente', 'Version précédente', K.BAK], ['ancienne', 'Ancienne partie (mise de côté)', OLD(n)],
+        ['ancienne_2', 'Partie mise de côté avant', OLD2(n)], ['remplacee', 'Partie d\'avant ta reprise', SWAP(n)]];
+      const vues = new Set(), out = [];
+      for (const [kind, label, k] of L) {
+        const j = read(k); if (!j || vues.has(j)) continue;
+        vues.add(j); const info = infoOf(j); if (info) out.push({ kind, label, info });
+      }
+      return out;
     } finally { DW.slot = keep; }
   };
   // reprendre une autre version : elle devient la partie de l'emplacement ; la partie remplacée est mise de côté à part
@@ -15531,33 +15590,30 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   DW.restoreVariant = (n, kind) => {
     const keep = DW.slot; DW.slot = n;
     try {
-      const cur = read(K.KEY), pick = { precedente: read(K.BAK), ancienne: read(OLD(n)), remplacee: read(SWAP(n)) }[kind] || cur;
+      const cur = read(K.KEY), pick = { precedente: read(K.BAK), ancienne: read(OLD(n)), ancienne_2: read(OLD2(n)), remplacee: read(SWAP(n)) }[kind] || cur;
       if (!pick || pick === cur) return;
-      if (cur) write(SWAP(n), cur);
+      if (cur) { if (lisible(cur)) write(SWAP(n), cur); else deCote(cur); }
       write(K.KEY, pick);
     } finally { DW.slot = keep; }
   };
   // résumé affiché sur l'écran titre
+  // (la principale, sinon la précédente lisible : avant, une principale abîmée cachait la précédente encore bonne,
+  //  NOUVELLE PARTIE montrait l'emplacement « vide », le choisissait d'office, et la vraie partie était écrasée)
   DW.saveInfo = (slot = DW.slot) => {
     const keep = DW.slot; DW.slot = slot;
-    try {
-      const o = JSON.parse(read(K.KEY) || read(K.BAK));
-      if (!o) return null;
-      const m = DW.MAPS[o.map], lead = o.party && o.party[0];
-      return { name: o.name, time: o.time || 0, place: m ? m.name : '?', partner: lead && DW.SPECIES[lead.sp] ? lead.sp : null,
-        level: lead ? lead.level : 0, dex: Object.keys(o.owned || o.caught || {}).length, day: Math.floor((o.clock || 0) / 1440) + 1, savedAt: o.savedAt };
-    } catch (e) { return null; } finally { DW.slot = keep; }
+    try { return infoOf(read(K.KEY)) || infoOf(read(K.BAK)); } finally { DW.slot = keep; }
   };
   // sauvegarde automatique silencieuse (changement de zone, après un combat) ; renvoie true si elle a vraiment réussi
   // (« Sauvegardé » seulement si c'est vrai ; sinon un avertissement qui ne bloque pas le jeu, au plus toutes les 2 minutes)
   const warnedFlags = new Set();
   DW.SAVE_ECHEC = "La sauvegarde a échoué : mémoire du navigateur pleine ? Utilise FICHIER (menu Système, « Fichier sur l'ordinateur ») pour télécharger ta partie.";
   let averti = 0;
+  const prevenir = msg => { if (DW.Care && DW.Care.toast && Date.now() - averti > 120000) { averti = Date.now(); DW.Care.toast(msg, '#ff8a8a'); } };
   DW.autosave = () => {
     if (!DW.state.flags.starter) return null;   // (pas encore de partenaire : rien n'est sauvegardé, ce n'est pas un échec)
     const ok = DW.save();
     if (ok) DW.saveFlash = 2;
-    else if (DW.Care && DW.Care.toast && Date.now() - averti > 120000) { averti = Date.now(); DW.Care.toast('Sauvegarde impossible : mémoire du navigateur pleine ?', '#ff8a8a'); }
+    else prevenir('Sauvegarde impossible : mémoire du navigateur pleine ?');
     return ok;
   };
   DW.save = () => {
@@ -15568,9 +15624,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     if (unknown.length) { unknown.forEach(k => warnedFlags.add(k)); console.warn('Drapeaux non déclarés dans js/data/flags.js :', unknown.join(', ')); }
     let json;
     try { json = JSON.stringify(st); } catch (e) { DW.reportError(e, 'sauvegarde'); return false; }
+    // la copie « précédente » n'est faite que d'une principale LISIBLE ; une principale abîmée est mise de côté à part (avant :
+    //  elle remplaçait la précédente encore bonne, et deux sauvegardes plus tard il ne restait plus rien de lisible)
     const old = read(K.KEY);
-    if (old && old !== json) write(K.BAK, old);
+    let copie = true;
+    if (old && old !== json) { if (lisible(old)) copie = write(K.BAK, old); else deCote(old); }
     const ok = write(K.KEY, json);
+    if (ok && !copie) prevenir('Copie de secours impossible : mémoire du navigateur presque pleine. FICHIER peut garder ta partie.');
     // écriture refusée (mémoire du navigateur pleine...) : la partie est gardée à part, pour que FICHIER la télécharge
     // quand même — sinon le fichier ne contenait que l'ancienne sauvegarde (game/fichier.js, bundle)
     DW.saveRefusee = ok ? null : { k: K.KEY, json };
@@ -15600,10 +15660,20 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   function parseState(raw) {
     const o = JSON.parse(raw);
     if (!o || typeof o !== 'object') throw new Error('sauvegarde vide');
-    const st = Object.assign(DW.newState(), o);
-    if (!DW.MAPS[st.map]) Object.assign(st, { map: 'maison', x: 12, y: 5 });
-    if (!st.heal || !DW.MAPS[st.heal.map]) st.heal = { map: 'maison', x: 12, y: 5 };
-    st.recruits = st.recruits || {}; st.flags = st.flags || {}; st.bag = st.bag || {}; st.bank = st.bank || {};
+    const st = Object.assign(DW.newState(), o), d = DW.newState(), num = Number.isFinite;
+    // champs simples abîmés (texte, null, liste...) : valeur de départ (avant : des Bits en texte, puis « bits -= prix » = NaN)
+    for (const k of ['bits', 'clock', 'time']) if (!num(st[k])) st[k] = d[k];
+    for (const k of ['flags', 'bag', 'bank', 'seen', 'owned', 'recruits', 'visited', 'zoneSeen', 'poops', 'wildGone', 'gears', 'daily'])
+      if (!st[k] || typeof st[k] !== 'object' || Array.isArray(st[k])) st[k] = d[k];
+    if (st.fridge != null && (typeof st.fridge !== 'object' || Array.isArray(st.fridge))) st.fridge = {};
+    if (!st.heal || !DW.MAPS[st.heal.map] || !num(st.heal.x) || !num(st.heal.y)) st.heal = { map: 'maison', x: 12, y: 5 };
+    if (!DW.MAPS[st.map] || !num(st.x) || !num(st.y)) Object.assign(st, { map: st.heal.map, x: st.heal.x, y: st.heal.y });
+    // fin de chapitre interrompue (jeu fermé pendant le bilan, avant la sauvegarde du nouveau chapitre — corrigé en 10/2026) :
+    //  le boss vaincu fait foi, sinon le voile restait fermé et rien ne relançait la fin du chapitre
+    const f = st.flags, ch = () => f.chapter || 1;
+    if (f.shellmon && ch() < 2) f.chapter = 2;
+    if ((f.seadramon || st.gears.lac) && ch() === 2) f.chapter = 3;
+    if (f.meramon && ch() === 3) f.chapter = 4;
     // migration des anciennes sauvegardes
     const v = o.v || 1;
     if (v < 2) { st.wildGone = {}; st.gears = st.gears || {}; }
@@ -15621,8 +15691,20 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     //  désormais pour le Pays de Meramon (game/story.js). Seulement si Meramon a bien été calmé au Mont Miharashi ; l'ancien
     //  engrenage n'est retiré que s'il ne peut pas venir de l'ancien boss du Mont Panorama (son Belvédère jamais visité)
     if (v < 7 && st.flags.meramon) { st.gears = st.gears || {}; st.gears.miharashi = true; if (!(st.visited || {}).volcan7) delete st.gears.volcan; }
+    futur = v > DW.SAVE_V;   // (partie d'une version plus récente du jeu : DW.load le dit)
     st.v = DW.SAVE_V;
-    for (const box of [st.bag, st.bank, st.fridge || {}]) for (const k in box) if (!DW.ITEMS[k]) delete box[k];
+    // objets inconnus de cette version (plus récente, ou objet retiré) : gardés à part et rendus quand ils existent de nouveau
+    //  (avant : effacés du sac, du coffre et du frigo à la sauvegarde suivante)
+    const OI = st.orphanItems = st.orphanItems && typeof st.orphanItems === 'object' ? st.orphanItems : {};
+    for (const nom of ['bag', 'bank', 'fridge']) {
+      const box = st[nom];
+      if (!box) continue;
+      const mis = OI[nom] = OI[nom] || {};
+      for (const k in mis) if (DW.ITEMS[k]) { box[k] = (box[k] || 0) + mis[k]; delete mis[k]; }
+      for (const k in box) if (!DW.ITEMS[k]) { mis[k] = (mis[k] || 0) + (num(box[k]) ? box[k] : 0); delete box[k]; }
+      if (!Object.keys(mis).length) delete OI[nom];
+    }
+    if (!Object.keys(OI).length) delete st.orphanItems;
     const orphans = (st.orphans || []).slice();
     st.orphans = [];
     // v5 : PV et PM passent à l'échelle Digimon World (×20) ; les PV restants suivent
@@ -15635,18 +15717,24 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   }
   // message à afficher après le chargement (copie de secours utilisée, Digimon mis de côté...)
   DW.loadNote = null;
+  let futur = false;
   DW.load = () => {
-    DW.loadNote = null;
+    DW.loadNote = null; futur = false;
     const main = read(K.KEY);
     try {
       if (!main) throw new Error('aucune sauvegarde');
       DW.state = parseState(main);
     } catch (e) {
       const bak = read(K.BAK);
-      if (main) { write(K.BROKEN, main); DW.reportError(e, 'chargement'); }
+      if (main) { deCote(main); DW.reportError(e, 'chargement'); }
       try { DW.state = parseState(bak); } catch (e2) { return false; }
-      DW.loadNote = 'La dernière sauvegarde était illisible : la sauvegarde précédente a été chargée (l\'autre est conservée à part).';
+      // (la précédente redevient la principale : sinon la sauvegarde suivante recopiait la principale abîmée dans la
+      //  précédente, et une 2e panne ne laissait plus rien)
+      write(K.KEY, bak);
+      DW.loadNote = main ? 'La dernière sauvegarde était illisible : la sauvegarde précédente a été chargée (l\'autre est conservée à part).'
+        : 'La sauvegarde principale manquait : la sauvegarde précédente a été chargée.';
     }
+    if (futur) DW.loadNote = (DW.loadNote ? DW.loadNote + ' ' : '') + "Cette partie vient d'une version plus récente du jeu : recharge la page pour l'avoir (ce que cette version ne connaît pas est gardé de côté).";
     if (DW.state.orphans.length) {
       const n = DW.state.orphans.length;
       DW.loadNote = (DW.loadNote ? DW.loadNote + ' ' : '') +
@@ -15690,41 +15778,46 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     return JSON.stringify({ jeu: 'Digimon — L\'Aventure de l\'Île des Fichiers', format: 1, ecrit: Date.now(), slots }, null, 1);
   }
   const savedAt = v => { try { const o = JSON.parse(v); return (o && o.savedAt) || 0; } catch (e) { return 0; } };
-  // fusion : pour chaque emplacement, la partie la plus récente gagne ; rien n'est perdu (la partie locale remplacée
-  // devient la « version précédente » de l'emplacement)
+  // fusion : pour chaque emplacement, la partie la plus récente gagne ; rien n'est perdu (la partie locale remplacée est mise
+  // de côté : « Partie d'avant ta reprise », à reprendre depuis CONTINUER — avant, elle devenait la « version précédente »,
+  // que la sauvegarde suivante écrasait). F.echecs : écritures refusées (mémoire du navigateur pleine)
   function merge(text) {
     const o = JSON.parse(text);
     if (!o || !o.slots || typeof o.slots !== 'object') throw new Error('fichier de sauvegarde invalide');
     const S = ls(); if (!S) return 0;
-    let n = 0;
+    let n = 0, echecs = 0;
     for (const [k, v] of Object.entries(o.slots)) {
       if (!k.startsWith(PREFIX) || typeof v !== 'string') continue;
       const cur = S.getItem(k);
       if (cur === v) continue;
-      const main = !/_(precedente|ancienne|illisible)$/.test(k);
+      const main = !/_(precedente|ancienne|ancienne_2|illisible|illisible_2|remplacee)$/.test(k);
       if (cur == null || (main && savedAt(v) > savedAt(cur))) {
-        if (cur != null && main) S.setItem(k + '_precedente', cur);
-        S.setItem(k, v); n++;
+        try {
+          if (cur != null && main) S.setItem(k + '_remplacee', cur);
+          S.setItem(k, v); n++;
+        } catch (e) { echecs++; }
       }
     }
+    F.echecs = echecs;
     return n;
   }
 
   // ------------------------------------------------------------ écriture (après chaque sauvegarde), groupée
-  let handle = null, pending = null, writing = false;
+  let handle = null, pending = null, writing = false, encore = false;
   async function writeNow() {
-    if (!handle || writing) return;
+    if (!handle) return;
+    if (writing) { encore = true; return; }   // (une sauvegarde arrivée pendant l'écriture : récrite juste après)
     writing = true;
     try {
       if ((await handle.queryPermission({ mode: 'readwrite' })) !== 'granted') return;
       const w = await handle.createWritable(); await w.write(bundle()); await w.close();
       F.lastWrite = Date.now();
-    } catch (e) { /* fichier déplacé ou verrouillé : on réessaiera à la prochaine sauvegarde */ } finally { writing = false; }
+    } catch (e) { /* fichier déplacé ou verrouillé : on réessaiera à la prochaine sauvegarde */ } finally { writing = false; if (encore) { encore = false; schedule(); } }
   }
   const schedule = () => { clearTimeout(pending); pending = setTimeout(writeNow, 400); };
 
   const F = DW.SaveFile = {
-    can, lastWrite: 0,
+    can, lastWrite: 0, echecs: 0,
     name: () => (handle ? handle.name : null),
     // au démarrage : retrouver le fichier relié ; si l'accès est déjà permis, reprendre les parties plus récentes
     async init() {
@@ -15806,12 +15899,13 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // (le menu s'ouvre aussi depuis l'écran titre, où aucune partie n'est chargée : on n'enregistre que s'il y en a une,
   //  sinon l'emplacement de la vraie partie était écrasé par une partie vide)
   const enregistrerPartie = () => { if (DW.state && DW.state.party && DW.state.party.length) DW.save(); };
+  const plein = () => (F.echecs ? ` Attention : mémoire du navigateur pleine, ${F.echecs} partie${F.echecs > 1 ? 's' : ''} du fichier n'${F.echecs > 1 ? 'ont' : 'a'} pas pu être reprise${F.echecs > 1 ? 's' : ''}.` : '');
   DW.saveFileMenu = async () => {
     const say = DW.say;
     if (!can) {
       const r = await DW.ask('Sauvegarde sur l\'ordinateur : ce navigateur ne peut pas écrire directement dans un fichier. Tu peux télécharger tes parties, puis les recharger ailleurs.', ['Télécharger mes parties', 'Charger un fichier', 'Retour']);
       if (r === 0) { enregistrerPartie(); await F.exportFile(); await say('Fichier « Digimon-sauvegarde.json » prêt. Garde-le précieusement !'); }
-      else if (r === 1) { const res = await F.importFile(); if (!res.annule) await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
+      else if (r === 1) { const res = await F.importFile(); if (!res.annule) await say(res.ok ? `Parties chargées depuis le fichier (${res.n} mise${res.n > 1 ? 's' : ''} à jour).${plein()}` : 'Ce fichier n\'est pas une sauvegarde du jeu.'); }
       return;
     }
     if (handle && F.needsPermission) {
@@ -17469,7 +17563,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const st = () => DW.state;
   const day = () => Math.floor(st().clock / 1440);
   const once = (ow, x, y) => { const s = st().scenery = st().scenery || {}, k = `${ow.mapId}:${x},${y}`; if (s[k] === day()) return false; s[k] = day(); return true; };
-  const give = async (id, n = 1) => { const extra = DW.giveItem(id, n); DW.Audio.sfx('buy'); await say(`Tu trouves : ${DW.ITEMS[id].name}${n > 1 ? ' ×' + n : ''} !${DW.extraMsg(extra)}`); };
+  const give = async (id, n = 1) => { const extra = DW.giveItem(id, n, false); DW.Audio.sfx('buy'); await say(`Tu trouves : ${DW.ITEMS[id].name}${n > 1 ? ' ×' + n : ''} !${DW.extraMsg(extra)}`); };
   const pt = () => DW.Care.lead();
   const emote = (ow, k) => { if (DW.Companion) DW.Companion.emote(ow, k, 2); };
   // Digimon sauvage caché dans le décor (s'il y en a dans la zone)
@@ -17478,7 +17572,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     if (!enc.length || !pt() || pt().hp <= 0) return false;
     const e = DW.weighted(enc.map(x => ({ ...x, w: x.w || 1 })));
     await say(line.replace('%s', DW.SPECIES[e.sp].name));
-    await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)) });
+    const res = await ow.battle({ enemy: new DW.Digimon(e.sp, DW.rand(e.min, e.max)) });
+    if (res === 'win' && DW.Requests) DW.Requests.onWin(e.sp);   // (comme les rencontres visibles : game/wild.js)
     return true;
   }
   // usure des outils : un coup de plus ; prévient quand l'outil faiblit, le casse au bout de sa vie
@@ -17516,7 +17611,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     },
     async pick(ow, x, y) {
       if (!once(ow, x, y)) { await say('Le champignon brille doucement. Il repoussera demain.'); return; }
-      await say('Tu cueilles délicatement le champignon lumineux.'); await give(Math.random() < 0.2 ? 'champi_luxe' : 'digichampi');
+      await say('Tu cueilles délicatement le champignon lumineux.'); await give(Math.random() < 0.02 ? 'champi_luxe' : 'digichampi');   // (2 % : à 20 %, ~10 Champignons de luxe par jour dès le chapitre 1)
     },
     async sit(ow) {
       const m = pt();
@@ -17790,10 +17885,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     return g[mapId].list;
   };
   const npcFor = (mapId, x, y, id) => ({ item: id, x, y, walk: false, ground: true, talk: async ow => {
+    // (sac plein : la trouvaille reste par terre, comme dans Digimon World 1 — avant, elle disparaissait)
+    if (!DW.bagRoom(id)) { DW.Audio.sfx('bump'); await say(`Ton sac est plein : impossible de ramasser ${id === 'viande' ? 'cette Digiviande' : 'ce DigiChampignon'}. Range tes affaires à la maison !`); return; }
     const L = listOf(mapId), k = L.findIndex(([a, b]) => a === x && b === y);
     if (k >= 0) L.splice(k, 1);
     ow.map.npcs = ow.map.npcs.filter(n => !(n.ground && n.x === x && n.y === y));
-    const extra = DW.giveItem(id, 1); DW.Audio.sfx('buy');
+    const extra = DW.giveItem(id, 1, false); DW.Audio.sfx('buy');
     await say(`Tu ramasses ${id === 'viande' ? 'de la Digiviande' : 'un DigiChampignon'} !${DW.extraMsg(extra)}`);
   } });
   // CASES ACCESSIBLES : celles qu'on atteint à pied depuis une entrée de la carte (passages du bord, devant les portes,
@@ -20548,7 +20645,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (DW.Perils) DW.Perils.entree(this);   // (éboulis, chauves-souris... : rien dans les premières secondes, game/perils.js)
       this.banner = { t: 0 };
       this.bannerT = 2.6;
-      Audio.play(this.map.music);
+      Audio.play(this.musique());
       // script d'arrivée (lancé dès que la scène est libre)
       this.onEnter = this.map.onEnter || null;
     }
@@ -20961,7 +21058,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       // toute l'équipe K.O. (après une défaite sans conséquence) : pas de combat possible
       if (!st.party.some(m => m.hp > 0)) {
         await DW.say("Tes Digimon sont trop épuisés pour se battre... Fais-les soigner d'abord !");
-        Audio.play(this.map.music);
+        Audio.play(this.musique());
         return 'none';
       }
       Audio.play(o.music || (o.boss ? 'boss' : 'battle'));
@@ -20979,7 +21076,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         const r = await DW.ask(`Le Digivice vibre ! ${m.name} peut digivoluer. Ouvrir la table des Digivolutions ?`);
         if (r === 0) await Game.push(new DW.EvoTableScene(st.party.indexOf(m)));
       }
-      Audio.play(this.map.music);
+      Audio.play(this.musique());
       const lead = DW.state.party[0];
       if (lead && res === 'win') DW.Life.moment('good', 'une belle victoire');
       // conseil aux débutants : PV bas après le combat
@@ -20994,6 +21091,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     }
     // défaite contre un boss (combat « canLose ») : pas de K.O. compté ni de Bits perdus, mais on se réveille chez Jijimon,
     // soigné (sinon on restait coincé : dans le Grand Arbre, les racines ne se rouvrent qu'après la victoire)
+    // musique de la carte en ce moment (map.musicNow : l'harmonica de Matt au Lac du Tramway, la nuit — game/chapitre2.js ;
+    // avant, un combat la remplaçait pour de bon par celle du lac)
+    musique() { return (this.map.musicNow && this.map.musicNow()) || this.map.music; }
     async bossDefeat(line) {
       const st = DW.state;
       await DW.fade(1, 0.6);
@@ -21013,6 +21113,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       st.party.forEach(m => m.heal());
       // toujours chez Jijimon (combat ordinaire ou boss) : il te ramène et soigne ton équipe
       await this.charger('maison', 12, 5, 'down');
+      DW.autosave();   // (tout de suite : le K.O. compté et les Bits perdus ne s'effacent plus si le jeu est fermé pendant Jijimon)
       await DW.wait(0.5);
       await DW.fade(0, 0.6);
       await DW.say("Hohoho... Te voilà réveillé ! On t'a retrouvé évanoui, ton Digimon à tes côtés. Je vous ai ramenés ici et soignés.", 'Jijimon');
@@ -21276,6 +21377,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   const objRect = o => ({ x: o.x - o.spr.w / 2, y: o.y - o.spr.h, w: o.spr.w, h: o.spr.h * 0.8 });
   const overlap = (a, b) => a.x + 3 < b.x + b.w && a.x + a.w - 3 > b.x && a.y + 4 < b.y + b.h && a.y + a.h > b.y;
   DW.Overworld = Overworld;
+  // fin d'un morceau sans boucle (« victory » d'une recrue, d'une fin de chapitre, d'une Digivolution...) : la musique de la
+  // carte revient (avant : silence jusqu'au changement de carte suivant) ; pas pendant un combat, qui mène sa musique
+  Audio.onEnd = () => {
+    const ow = DW.ow;
+    if (ow && Game.stack.includes(ow) && !Game.stack.some(s => DW.BattleScene && s instanceof DW.BattleScene)) Audio.play(ow.musique());
+  };
 
   DW.learnEvoMoves = async m => {
     for (const [l, id] of m.d.learn) if ((l === 0 || l === m.level) && !m.knows(id)) await DW.learnMove(m, id);
@@ -21324,11 +21431,19 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const k = await DW.choose(slots.map(([n, i]) => `Partie ${n} : ${i.name}, jour ${i.day}${n === DW.slot ? ' (en cours)' : ''}`).concat(['Annuler']));
     if (k < 0 || k >= slots.length) return;
     const [n, info] = slots[k];
-    if ((await DW.ask(`Supprimer la partie ${n} (${info.name}) ? Elle sera perdue pour toujours !`, ['Non', 'Oui, supprimer'], null, 0)) !== 1) return;
+    const enCours = n === DW.slot && !!DW.ow;
+    if ((await DW.ask(`Supprimer la partie ${n} (${info.name}) ? Elle sera perdue pour toujours !${enCours ? " C'est ta partie en cours : tu reviendras à l'écran titre." : ''}`, ['Non', 'Oui, supprimer'], null, 0)) !== 1) return;
     if ((await DW.ask('Vraiment ? Cette action est définitive.', ['Non', 'Oui, j\'en suis sûr'], null, 0)) !== 1) return;
     DW.deleteSave(n);
     Audio.sfx('bump');
-    await DW.say(n === DW.slot ? `Partie ${n} supprimée. (Ta partie en cours continue : sauvegarde-la si tu veux la garder.)` : `Partie ${n} supprimée.`);
+    if (!enCours) { await DW.say(`Partie ${n} supprimée.`); return; }
+    // (la partie en cours : retour à l'écran titre — avant, elle « continuait », et la sauvegarde automatique de la porte
+    //  suivante recréait l'emplacement qu'on venait de supprimer)
+    await DW.say(`Partie ${n} supprimée. Retour à l'écran titre.`);
+    await DW.fade(1, 0.4);
+    Audio.stop(); DW.ow = null; DW.state = DW.newState();
+    Game.replaceAll(new DW.TitleScene());
+    DW.fade(0, 0.4);
   }
   class MenuScene extends DW.Scene {
     constructor() { super(); this.overlay = true; this.i = 0; this.rot = 0; }
@@ -21661,15 +21776,18 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         if (this.o.battle) { await DW.say("Ça ne sert à rien en plein combat !"); return; }
         if (it.use === 'bell') { st.bag[id]--; st.bellUntil = st.clock + 120; st.repelUntil = 0; await DW.say('Ding ding ! Tous les Digimon sauvages des environs accourent...'); }
         if (it.use === 'potty') { if (!DW.Care || !st.party.length) return; this.close(null); if (await DW.Care.toilet()) st.bag[id]--; return; }
-        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); await DW.ow.charger('village', ...DW.MapKit.zpt('village', 20, 16), 'down'); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
+        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); await DW.ow.charger('village', ...DW.MapKit.zpt('village', 20, 16), 'down'); DW.autosave(); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
         this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (it.use === 'evo') {
         if (this.o.battle) { await DW.say("Ce n'est pas le moment !"); return; }
         const t = await Game.push(new DW.PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
         if (t == null || t < 0) return;
-        const mon = st.party[t];
-        if (!DW.canUse(id, mon)) { await DW.say(`Ça ne marche que sur un Digimon de stade ${it.from}.`); return; }
+        const mon = st.party[t], q = DW.Crests && DW.Crests.requirement(it.to);
+        if (mon.d.stage !== it.from) { await DW.say(`Ça ne marche que sur un Digimon de stade ${it.from}.`); return; }
+        if (mon.hp <= 0) { await DW.say(`${mon.name} est K.O. : soigne-le d'abord.`); return; }
+        if (q && !q.ok) { await DW.say(`${it.name} ne réagit pas... Pour devenir ${DW.SPECIES[it.to].name}, il faut d'abord ${q.crest ? `trouver l'écusson ${DW.Crests.of(q.crest)}` : `réunir les ${q.need} écussons`}.`); return; }
+        if (!DW.canUse(id, mon)) { await DW.say("Ça n'aura aucun effet."); return; }
         if ((await DW.ask(`Utiliser ${it.name} : ${mon.name} va digivoluer en ${DW.SPECIES[it.to].name}. D'accord ?`)) !== 0) return;
         st.bag[id]--; this.close(null);
         await Game.push(new DW.EvolutionScene(mon, it.to, { manual: true }));
@@ -21683,7 +21801,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (it.use === 'manual') {
-        const m = st.party[0]; if (!m) return;
+        // (hors combat seulement — il apprenait sans passer son tour —, et sur le Digimon choisi, plus seulement le premier)
+        if (this.o.battle) { await DW.say("Ce n'est pas le moment d'étudier !"); return; }
+        if (!st.party.length) { await DW.say("Tu n'as aucun Digimon !"); return; }
+        const t = st.party.length > 1 ? await Game.push(new DW.PartyScene({ mode: 'select', title: it.name.toUpperCase() })) : 0;
+        if (t == null || t < 0) return;
+        const m = st.party[t]; if (!m) return;
         const mv = DW.nextMove(m);
         if (!mv) { await DW.say(`${m.name} connaît déjà toutes les techniques de son espèce.`); return; }
         await DW.say(`${m.name} étudie le manuel...`);
@@ -21741,7 +21864,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // banque et coffre : seuls les objets que tu possèdes apparaissent ; le frigo montre aussi les nourritures qui manquent (grisées)
   class BankScene extends DW.Scene {
     // o.store : 'bank' (coffre, Banque : tout SAUF la nourriture) ou 'fridge' (frigo : la nourriture seulement, 20 de chaque)
-    constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; this.store = o.store || 'bank'; }
+    constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; this.store = o.store || 'bank'; this.note = o.note || ''; }
     get box() { const st = DW.state; return (st[this.store] = st[this.store] || {}); }
     accepts(id) { return this.store === 'fridge' ? DW.isFood(id) : !DW.isFood(id); }
     get list() {
@@ -21801,7 +21924,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         });
       }
       UI.box(c, 8, 182, W - 16, 52);
-      UI.text(c, this.msgT > 0 ? this.msg : (this.side ? 'Reprendre dans le sac.' : 'Ranger ici.'), 16, 200, { size: 10, color: this.msgT > 0 ? '#7aff8a' : '#ffffff' });
+      UI.text(c, this.msgT > 0 ? this.msg : (this.side ? 'Reprendre dans le sac.' : 'Ranger ici.') + (this.note ? '  ' + this.note : ''), 16, 200, { size: 10, color: this.msgT > 0 ? '#7aff8a' : '#ffffff' });
       UI.hints(c, [['ok', '1 objet'], ['menu', 'tout'], ['back', 'sortir']], W - 16, 222);
       UI.text(c, '←/→ : sac ou ' + this.title.toLowerCase(), 16, 222, { size: 7, color: '#6ab8d0' });
     }
@@ -21852,7 +21975,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         const id = L[this.i];
         if (!this.sell) {
           if (st.bits < this.price(id)) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
-          if (!DW.bagRoom(id)) { Audio.sfx('bump'); this.msg = `Sac plein (${DW.BAG_MAX} max) !`; this.msgT = 2; return; }
+          if (!DW.bagRoom(id)) { Audio.sfx('bump'); this.msg = DW.bagFullMsg(id); this.msgT = 2; return; }
         }
         Audio.sfx('select'); this.qty = 1;
       }
@@ -23903,7 +24026,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
           await DW.say('Impossible de lire la sauvegarde... Elle est conservée telle quelle : rien n\'a été effacé.');
           return;
         }
-        if (!cont && had && (await DW.ask(`L'emplacement ${slot} contient déjà une partie (${had.name}). Elle sera remplacée dès ta prochaine sauvegarde. Commencer quand même ?`, ['Non', 'Oui'], null, 0)) !== 1) return;
+        if (!cont && had && (await DW.ask(`L'emplacement ${slot} contient déjà une partie (${had.name}). Elle sera mise de côté : tu pourras la reprendre depuis CONTINUER (◀ ▶). Commencer quand même ?`, ['Non', 'Oui'], null, 0)) !== 1) return;
         Audio.sfx('evolve');
         this.wipe = { t: 0, done: () => {
           if (cont) {

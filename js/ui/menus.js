@@ -34,11 +34,19 @@
     const k = await DW.choose(slots.map(([n, i]) => `Partie ${n} : ${i.name}, jour ${i.day}${n === DW.slot ? ' (en cours)' : ''}`).concat(['Annuler']));
     if (k < 0 || k >= slots.length) return;
     const [n, info] = slots[k];
-    if ((await DW.ask(`Supprimer la partie ${n} (${info.name}) ? Elle sera perdue pour toujours !`, ['Non', 'Oui, supprimer'], null, 0)) !== 1) return;
+    const enCours = n === DW.slot && !!DW.ow;
+    if ((await DW.ask(`Supprimer la partie ${n} (${info.name}) ? Elle sera perdue pour toujours !${enCours ? " C'est ta partie en cours : tu reviendras à l'écran titre." : ''}`, ['Non', 'Oui, supprimer'], null, 0)) !== 1) return;
     if ((await DW.ask('Vraiment ? Cette action est définitive.', ['Non', 'Oui, j\'en suis sûr'], null, 0)) !== 1) return;
     DW.deleteSave(n);
     Audio.sfx('bump');
-    await DW.say(n === DW.slot ? `Partie ${n} supprimée. (Ta partie en cours continue : sauvegarde-la si tu veux la garder.)` : `Partie ${n} supprimée.`);
+    if (!enCours) { await DW.say(`Partie ${n} supprimée.`); return; }
+    // (la partie en cours : retour à l'écran titre — avant, elle « continuait », et la sauvegarde automatique de la porte
+    //  suivante recréait l'emplacement qu'on venait de supprimer)
+    await DW.say(`Partie ${n} supprimée. Retour à l'écran titre.`);
+    await DW.fade(1, 0.4);
+    Audio.stop(); DW.ow = null; DW.state = DW.newState();
+    Game.replaceAll(new DW.TitleScene());
+    DW.fade(0, 0.4);
   }
   class MenuScene extends DW.Scene {
     constructor() { super(); this.overlay = true; this.i = 0; this.rot = 0; }

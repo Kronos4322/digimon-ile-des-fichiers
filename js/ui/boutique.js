@@ -38,7 +38,7 @@
         const id = L[this.i];
         if (!this.sell) {
           if (st.bits < this.price(id)) { Audio.sfx('bump'); this.msg = "Tu n'as pas assez de Bits !"; this.msgT = 2; return; }
-          if (!DW.bagRoom(id)) { Audio.sfx('bump'); this.msg = `Sac plein (${DW.BAG_MAX} max) !`; this.msgT = 2; return; }
+          if (!DW.bagRoom(id)) { Audio.sfx('bump'); this.msg = DW.bagFullMsg(id); this.msgT = 2; return; }
         }
         Audio.sfx('select'); this.qty = 1;
       }

@@ -154,7 +154,7 @@
         if (this.i >= RECIPES.length) { Audio.sfx('back'); this.close(); return; }
         const r = RECIPES[this.i];
         if (!can(r)) { Audio.sfx('bump'); this.msg = 'Il manque des ingrédients !'; this.msgT = 2; return; }
-        if (!DW.bagRoom(r[0])) { Audio.sfx('bump'); this.msg = `Sac plein (${DW.BAG_MAX} max) !`; this.msgT = 2; return; }
+        if (!DW.bagRoom(r[0])) { Audio.sfx('bump'); this.msg = DW.bagFullMsg(r[0]); this.msgT = 2; return; }
         for (const [id, k] of Object.entries(r[1])) st().bag[id] -= k;
         Audio.sfx('select'); this.cook = 1.4; this.dish = r[0];
       }

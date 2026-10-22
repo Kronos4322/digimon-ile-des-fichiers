@@ -29,15 +29,18 @@
         if (this.o.battle) { await DW.say("Ça ne sert à rien en plein combat !"); return; }
         if (it.use === 'bell') { st.bag[id]--; st.bellUntil = st.clock + 120; st.repelUntil = 0; await DW.say('Ding ding ! Tous les Digimon sauvages des environs accourent...'); }
         if (it.use === 'potty') { if (!DW.Care || !st.party.length) return; this.close(null); if (await DW.Care.toilet()) st.bag[id]--; return; }
-        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); await DW.ow.charger('village', ...DW.MapKit.zpt('village', 20, 16), 'down'); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
+        if (it.use === 'home') { st.bag[id]--; this.close(null); DW.Audio.sfx('swoosh'); await DW.fade(1, 0.5, '#ffffff'); await DW.ow.charger('village', ...DW.MapKit.zpt('village', 20, 16), 'down'); DW.autosave(); await DW.fade(0, 0.5); await DW.say('Le Pilote automatique te ramène à la Ville des Fichiers !'); return; }
         this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (it.use === 'evo') {
         if (this.o.battle) { await DW.say("Ce n'est pas le moment !"); return; }
         const t = await Game.push(new DW.PartyScene({ mode: 'select', title: it.name.toUpperCase() }));
         if (t == null || t < 0) return;
-        const mon = st.party[t];
-        if (!DW.canUse(id, mon)) { await DW.say(`Ça ne marche que sur un Digimon de stade ${it.from}.`); return; }
+        const mon = st.party[t], q = DW.Crests && DW.Crests.requirement(it.to);
+        if (mon.d.stage !== it.from) { await DW.say(`Ça ne marche que sur un Digimon de stade ${it.from}.`); return; }
+        if (mon.hp <= 0) { await DW.say(`${mon.name} est K.O. : soigne-le d'abord.`); return; }
+        if (q && !q.ok) { await DW.say(`${it.name} ne réagit pas... Pour devenir ${DW.SPECIES[it.to].name}, il faut d'abord ${q.crest ? `trouver l'écusson ${DW.Crests.of(q.crest)}` : `réunir les ${q.need} écussons`}.`); return; }
+        if (!DW.canUse(id, mon)) { await DW.say("Ça n'aura aucun effet."); return; }
         if ((await DW.ask(`Utiliser ${it.name} : ${mon.name} va digivoluer en ${DW.SPECIES[it.to].name}. D'accord ?`)) !== 0) return;
         st.bag[id]--; this.close(null);
         await Game.push(new DW.EvolutionScene(mon, it.to, { manual: true }));
@@ -51,7 +54,12 @@
         this.i = DW.clamp(this.i, 0, Math.max(0, this.list.length - 1)); return;
       }
       if (it.use === 'manual') {
-        const m = st.party[0]; if (!m) return;
+        // (hors combat seulement — il apprenait sans passer son tour —, et sur le Digimon choisi, plus seulement le premier)
+        if (this.o.battle) { await DW.say("Ce n'est pas le moment d'étudier !"); return; }
+        if (!st.party.length) { await DW.say("Tu n'as aucun Digimon !"); return; }
+        const t = st.party.length > 1 ? await Game.push(new DW.PartyScene({ mode: 'select', title: it.name.toUpperCase() })) : 0;
+        if (t == null || t < 0) return;
+        const m = st.party[t]; if (!m) return;
         const mv = DW.nextMove(m);
         if (!mv) { await DW.say(`${m.name} connaît déjà toutes les techniques de son espèce.`); return; }
         await DW.say(`${m.name} étudie le manuel...`);
@@ -109,7 +117,7 @@
   // banque et coffre : seuls les objets que tu possèdes apparaissent ; le frigo montre aussi les nourritures qui manquent (grisées)
   class BankScene extends DW.Scene {
     // o.store : 'bank' (coffre, Banque : tout SAUF la nourriture) ou 'fridge' (frigo : la nourriture seulement, 20 de chaque)
-    constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; this.store = o.store || 'bank'; }
+    constructor(o = {}) { super(); this.i = 0; this.side = 0; this.title = o.title || 'BANQUE'; this.store = o.store || 'bank'; this.note = o.note || ''; }
     get box() { const st = DW.state; return (st[this.store] = st[this.store] || {}); }
     accepts(id) { return this.store === 'fridge' ? DW.isFood(id) : !DW.isFood(id); }
     get list() {
@@ -169,7 +177,7 @@
         });
       }
       UI.box(c, 8, 182, W - 16, 52);
-      UI.text(c, this.msgT > 0 ? this.msg : (this.side ? 'Reprendre dans le sac.' : 'Ranger ici.'), 16, 200, { size: 10, color: this.msgT > 0 ? '#7aff8a' : '#ffffff' });
+      UI.text(c, this.msgT > 0 ? this.msg : (this.side ? 'Reprendre dans le sac.' : 'Ranger ici.') + (this.note ? '  ' + this.note : ''), 16, 200, { size: 10, color: this.msgT > 0 ? '#7aff8a' : '#ffffff' });
       UI.hints(c, [['ok', '1 objet'], ['menu', 'tout'], ['back', 'sortir']], W - 16, 222);
       UI.text(c, '←/→ : sac ou ' + this.title.toLowerCase(), 16, 222, { size: 7, color: '#6ab8d0' });
     }

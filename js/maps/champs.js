@@ -115,7 +115,7 @@
     if (s.harvest.got.length >= PICKS) { await say('Tu as les bras chargés ! Reviens demain pour cueillir encore.'); return; }
     if ((await DW.ask(tree ? `${name} chargé de fruits. Cueillir ?` : `${name} bien mûrs. Récolter ?`, ['Oui', 'Non'])) !== 0) return;
     s.harvest.got.push(key);
-    const extra = DW.giveItem(item); DW.Audio.sfx('buy');
+    const extra = DW.giveItem(item, 1, false); DW.Audio.sfx('buy');
     await say(`Tu récoltes : ${DW.ITEMS[item].name} !${DW.extraMsg(extra)}`);
   }
   async function hive() {
@@ -172,10 +172,12 @@
   async function gomamonTalk() {
     const s = st(), hr = Math.floor(s.clock / 60);
     // la première fois, Gomamon offre sa canne à pêche (game/peche.js : pêcher partout où il y a de l'eau)
-    if (!(s.bag || {}).canne && !s.flags.canne) {
-      await say("Hé ! Avant tout... tiens, prends ça ! C'est ma vieille canne à pêche. Moi, je pêche avec les nageoires !", 'Gomamon');
-      s.flags.canne = true; DW.giveItem('canne', 1); DW.Audio.sfx('fanfare');
-      await say("Tu reçois la Canne à pêche ! Face à l'eau (rivière, lac, mer), choisis « Pêcher ».");
+    // (ni dans le sac ni au coffre : une partie d'avant la correction a pu la perdre, sac plein — Gomamon en redonne une)
+    if (!(s.bag || {}).canne && !(s.bank || {}).canne) {
+      const encore = !!s.flags.canne;
+      await say(encore ? "Hé ! Tu as perdu ta canne à pêche ? Tiens, j'en avais une autre !" : "Hé ! Avant tout... tiens, prends ça ! C'est ma vieille canne à pêche. Moi, je pêche avec les nageoires !", 'Gomamon');
+      s.flags.canne = true; const extra = DW.giveItem('canne', 1); DW.Audio.sfx('fanfare');
+      await say(`Tu reçois la Canne à pêche !${DW.extraMsg(extra)} Face à l'eau (rivière, lac, mer), choisis « Pêcher ».`);
       await say("Chaque eau a ses poissons : la mer, les rivières, les lacs... Et les plus gros sortent la nuit ou au petit matin !", 'Gomamon');
     }
     await say('Hé ! Tu veux pêcher avec moi ?', 'Gomamon');
@@ -186,7 +188,7 @@
     const r = Math.random();
     const got = r < 0.45 ? 'viande' : r < 0.6 ? 'super_viande' : r < 0.8 ? 'remede' : null;
     if (!got) { await say('Rien cette fois... Les poissons sont malins !', 'Gomamon'); return; }
-    const extra = DW.giveItem(got); DW.Audio.sfx('buy');
+    const extra = DW.giveItem(got, 1, false); DW.Audio.sfx('buy');
     await say(`Ça mord ! Tu obtiens : ${DW.ITEMS[got].name} !${DW.extraMsg(extra)}`);
   }
 

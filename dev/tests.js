@@ -222,7 +222,7 @@ test("boss avec toute l'équipe K.O. : combat refusé proprement (pas de blocage
   const m = new DW.Digimon('koromon', 8); m.hp = 0; DW.state.party = [m];
   let pushed = false; const push = DW.Game.push; DW.Game.push = () => { pushed = true; return Promise.resolve('win'); };
   try {
-    const fakeOw = { map: { music: 'foret' }, battleKey: () => 'foret' };
+    const fakeOw = { map: { music: 'foret' }, battleKey: () => 'foret', musique: DW.Overworld.prototype.musique };
     const res = await DW.Overworld.prototype.battle.call(fakeOw, { enemy: new DW.Digimon('kuwagamon', 9), boss: true });
     eq(res, 'none'); yes(!pushed, "l'écran de combat a été ouvert");
   } finally { DW.Game.push = push; }
@@ -649,6 +649,96 @@ test("lignées de la série (données par le joueur) : chaque enfant suit la sie
   const MG = new DW.Digimon('metalgarurumon', 60); DW.state.party.push(MG);
   yes(DW.Evo.partenaireFusion(W, o) === MG, "MetalGarurumon de l'équipe pas trouvé pour la fusion");
   yes(DW.Evo.check(W, o).rows.some(r => r.label === 'Avec MetalGarurumon' && r.ok), 'la condition de fusion ne se coche pas');
+});
+
+// ------------------------------------------------------------ audit des systèmes (10/2026) : sauvegardes, fins de chapitre, objets, musique
+test('fin de chapitre : sauvegardée dès le nouveau chapitre ; une partie fermée pendant le bilan est réparée au chargement', async () => {
+  fresh();
+  DW.state.party.push(new DW.Digimon('agumon', 12)); DW.state.flags.starter = 'koromon'; DW.state.flags.shellmon = true;
+  // la fin du chapitre 1 s'arrête au premier écran (le jeu est fermé là) : la partie sauvegardée est déjà au chapitre 2
+  const push = DW.Game.push, wait = DW.wait; DW.Game.push = () => new Promise(() => {}); DW.wait = () => Promise.resolve();
+  try { DW.Chapter.end1(); await Promise.resolve(); } finally { DW.Game.push = push; DW.wait = wait; }
+  eq(JSON.parse(store.get(SAVE)).flags.chapter, 2, 'chapitre sauvegardé');
+  // une partie d'avant la correction, restée au chapitre précédent avec le boss vaincu
+  for (const [boss, avant, apres] of [['shellmon', 1, 2], ['seadramon', 2, 3], ['meramon', 3, 4]]) {
+    const o = { ...DW.newState(), flags: { starter: 'koromon', chapter: avant, [boss]: true }, party: [new DW.Digimon('agumon', 12).toJSON()] };
+    store.set(SAVE, JSON.stringify(o)); yes(DW.load()); eq(DW.state.flags.chapter, apres, boss);
+  }
+});
+test("sauvegarde abîmée : l'emplacement montre la précédente, et la copie lisible n'est jamais remplacée par l'abîmée", () => {
+  fresh();
+  DW.state.party.push(new DW.Digimon('agumon', 10)); DW.state.name = 'Kenji'; DW.state.bits = 111; DW.save();
+  DW.state.bits = 222; DW.save();                       // principale : 222, précédente : 111
+  store.set(SAVE, '{ tronqué');                         // écriture interrompue
+  const info = DW.saveInfo(1); yes(info && info.name === 'Kenji', "l'emplacement paraît vide");
+  // nouvelle partie sauvegardée dessus : la précédente reste lisible, l'abîmée est mise à part
+  DW.state = DW.newState(); DW.state.party.push(new DW.Digimon('koromon', 3)); DW.state.name = 'Aiko'; DW.save();
+  eq(JSON.parse(store.get(SAVE + '_precedente')).bits, 111); eq(store.get(SAVE + '_illisible'), '{ tronqué');
+  // chargement de secours : la précédente redevient la principale ; les deux copies abîmées sont gardées
+  store.set(SAVE, '{ encore tronqué'); yes(quiet(DW.load)); eq(DW.state.bits, 111, 'précédente chargée');
+  eq(JSON.parse(store.get(SAVE)).bits, 111, 'principale pas réparée');
+  eq(store.get(SAVE + '_illisible'), '{ encore tronqué'); eq(store.get(SAVE + '_illisible_2'), '{ tronqué');
+});
+test('deux nouvelles parties sur le même emplacement : les deux parties mises de côté restent reprenables', () => {
+  fresh();
+  const partie = nom => { DW.state = DW.newState(); DW.state.name = nom; DW.state.party.push(new DW.Digimon('koromon', 3)); DW.save(); };
+  partie('P1'); DW.archiveSave(1); partie('B'); DW.archiveSave(1); partie('C');
+  const V = DW.saveVariants(1).map(v => v.info.name);
+  yes(['P1', 'B', 'C'].every(n => V.includes(n)), 'versions : ' + V.join(', '));
+  DW.restoreVariant(1, 'ancienne_2'); yes(DW.load()); eq(DW.state.name, 'P1');
+  yes(DW.saveVariants(1).some(v => v.info.name === 'C'), 'la partie quittée par la reprise est perdue');
+  DW.deleteSave(1); yes(![...store.keys()].some(k => k.startsWith(SAVE)), 'clés restantes : ' + [...store.keys()].join(', '));
+});
+test('FICHIER : la partie locale remplacée par une plus récente du fichier reste reprenable, même après deux sauvegardes', () => {
+  fresh();
+  DW.state.name = 'LOCALE'; DW.state.party.push(new DW.Digimon('koromon', 3)); DW.save();
+  const local = store.get(SAVE), recente = JSON.stringify({ ...JSON.parse(local), name: 'FICHIER', savedAt: Date.now() + 60000 });
+  eq(DW.SaveFile.merge(JSON.stringify({ slots: { [SAVE]: recente, [SAVE + '_remplacee']: 'autre' } })), 1);
+  eq(JSON.parse(store.get(SAVE)).name, 'FICHIER'); eq(store.get(SAVE + '_remplacee'), local);
+  yes(!store.has(SAVE + '_remplacee_precedente'), 'clé parasite');
+  yes(DW.load()); DW.save(); DW.save();
+  yes(DW.saveVariants(1).some(v => v.info.name === 'LOCALE'), 'partie locale perdue');
+});
+test("sac plein : une récompense part au coffre (message juste), une trouvaille du hasard est laissée ; objet d'Ultime refusé sans écusson", () => {
+  fresh();
+  const S = DW.state;
+  for (const id of DW.ITEM_ORDER) { if (DW.bagUsed() >= DW.bagSlots()) break; if (!DW.isFood(id) && !['gants_flamme', 'canne'].includes(id)) S.bag[id] = 1; }
+  eq(DW.bagUsed(), DW.bagSlots());
+  const extra = DW.giveItem('gants_flamme', 1), msg = DW.extraMsg(extra);
+  eq(extra, 1); eq(S.bank.gants_flamme, 1); yes(/coffre/.test(msg) && !/sur place/.test(msg), msg);
+  const autre = DW.ITEM_ORDER.find(id => !S.bag[id] && !S.bank[id] && !DW.isFood(id));
+  const e2 = DW.giveItem(autre, 1, false), m2 = DW.extraMsg(e2);
+  eq(e2, 1); eq((S.bank || {})[autre], undefined); yes(/laisser/.test(m2), m2);
+  // objets de Digivolution : un Champion par l'objet d'un Champion, oui ; un Ultime sans son écusson, non
+  yes(DW.canUse('aile_flamme', new DW.Digimon('biyomon', 15)), "l'Aile de flammes ne marche plus");
+  const G = new DW.Digimon('greymon', 26), q = DW.Crests.requirement('monzaemon');
+  yes(q && !DW.canUse('x_bandage', G), 'Bandage X sans écusson accepté');
+  DW.Crests.give(q.crest); yes(DW.canUse('x_bandage', G), "Bandage X refusé avec l'écusson");
+  const K = new DW.Digimon('agumon', 10); K.hp = 0; yes(!DW.canUse('puce_pv', K), 'une puce relève un Digimon K.O.');
+});
+test('chargement : champs abîmés remis à leur valeur de départ ; objets inconnus gardés à part, puis rendus', () => {
+  fresh();
+  const o = { ...DW.newState(), bits: 'beaucoup', clock: null, x: 'a', bag: { viande: 2, objet_futur: 3 }, party: [new DW.Digimon('agumon', 5).toJSON()], v: 99 };
+  store.set(SAVE, JSON.stringify(o)); yes(DW.load());
+  eq(DW.state.bits, 300); eq(DW.state.clock, 8 * 60); yes(Number.isFinite(DW.state.x), 'position'); eq(DW.state.bag.viande, 2);
+  eq(DW.state.bag.objet_futur, undefined); eq(DW.state.orphanItems.bag.objet_futur, 3); yes(/plus récente/.test(DW.loadNote || ''), 'pas de message');
+  DW.ITEMS.objet_futur = DW.ITEMS.viande; DW.save();
+  try { yes(DW.load()); eq(DW.state.bag.objet_futur, 3); eq(DW.state.orphanItems, undefined); } finally { delete DW.ITEMS.objet_futur; }
+});
+test("musique : une minuterie en retard ne joue pas d'un coup les notes manquées ; la musique de la carte revient après un jingle", () => {
+  const A = DW.Audio, ctx0 = A.ctx, tone0 = A.tone, stack0 = DW.Game.stack, ow0 = DW.ow;
+  let notes = [];
+  A.ctx = { currentTime: 0 }; A.tone = (f, t) => notes.push(t);
+  try {
+    A.cur = null; A.play('forest'); yes(notes.length, 'aucune note');
+    notes = []; A.ctx.currentTime = 2; A.sched();          // 2 s sans minuterie (onglet caché, PC occupé)
+    eq(notes.filter(t => t < 2).length, 0, 'notes jouées dans le passé');
+    const ow = Object.create(DW.Overworld.prototype); ow.map = { music: 'village' };
+    DW.ow = ow; DW.Game.stack = [ow];
+    A.play('victory');
+    for (let i = 0; i < 3000 && A.cur && A.cur.name === 'victory'; i++) { A.ctx.currentTime += 0.2; A.sched(); }
+    eq(A.cur && A.cur.name, 'village', 'musique après le jingle');
+  } finally { A.stop(); A.ctx = ctx0; A.tone = tone0; DW.Game.stack = stack0; DW.ow = ow0; }
 });
 
 // (une attente qui ne se termine jamais — une animation attendue sans boucle de jeu — vidait la file de Node : la suite

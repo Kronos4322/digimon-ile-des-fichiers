@@ -146,7 +146,7 @@
       }
     },
     async chambre_digi() { const m = lead(); if (m) m.addHappy(1); await DW.Life.restOrSleep(); },
-    async coffre() { await DW.Game.push(new DW.BankScene({ title: 'COFFRE' })); },   // tout sauf la nourriture
+    async coffre() { await DW.Game.push(new DW.BankScene({ title: 'COFFRE', note: 'Relié à la Banque de Kunemon.' })); },   // tout sauf la nourriture
     async toilettes() { await DW.Care.toilet(); },
     async plantes() {
       if (!once('plantes')) { await say('Les plantes sont bien arrosées. Elles ont l\'air heureuses.'); return; }
