@@ -44,13 +44,13 @@ Les fiches complètes (fichier:ligne, reproduction, impact) sont dans `rapports/
 | SYS-19 | P3 | Coffre de la maison et Banque : un seul stock, jamais dit | corrigé (e862fe0) : annoncé par Kunemon et dans l'écran |
 | SYS-20 | P3 | Textes de la quête des Bukamon (« Disque PM », Seadramon après sa défaite) | corrigé (e862fe0) |
 | SYS-21 | P3 | Demandes de statistiques remplies d'avance | corrigé (21a6651) : 25 % de plus qu'un Digimon jamais entraîné |
-| SYS-22 | P3 | Demandes « vaincre » : seules les rencontres visibles comptent | en partie (e862fe0) : les Digimon cachés dans le décor comptent ; le gardien du Grand Arbre non |
+| SYS-22 | P3 | Demandes « vaincre » : seules les rencontres visibles comptent | corrigé (e862fe0, 38a2614) : les Digimon cachés dans le décor et le gardien du Grand Arbre comptent aussi |
 | SYS-23 | P3 | La soif des Yokomon disparaît si Meramon est calmé avant | corrigé (e862fe0) |
 | SYS-24 | P3 | Code mort : le remerciement de Gomamon après la quête | non corrigé : un autre Gomamon vit en ville (pêche), le garder sur la rive en ferait deux |
 | SYS-25 | P3 | Revanches contre Shellmon : Bits illimités | corrigé (e862fe0) : prime une fois par jour (l'expérience reste à volonté) |
 | SYS-26 | P3 | Défaite et Pilote automatique pas sauvegardés tout de suite | corrigé (e862fe0) |
 | SYS-27 | P3 | Stockage presque plein : la copie de secours échoue sans le dire | corrigé (e862fe0) : avertissement |
-| SYS-28 | P3 | Objets et techniques inconnus effacés ; version plus récente rétrogradée sans message | en partie (e862fe0), test : objets gardés à part et rendus, message ; les techniques inconnues sont encore retirées (dans `game/monster.js`) |
+| SYS-28 | P3 | Objets et techniques inconnus effacés ; version plus récente rétrogradée sans message | corrigé (e862fe0, 69aeb0c), test : objets et techniques gardés à part puis rendus, message au chargement |
 | SYS-29 | P3 | Une 2e sauvegarde illisible écrase la 1re | corrigé (e862fe0), test : deux copies gardées |
 | SYS-30 | P3 | Supprimer la partie en cours : la sauvegarde automatique la recrée | corrigé (e862fe0) : retour à l'écran titre |
 | SYS-31 | P3 | Champs simples non vérifiés au chargement (Bits en texte → NaN) | corrigé (e862fe0), test |
@@ -60,7 +60,7 @@ Les fiches complètes (fichier:ligne, reproduction, impact) sont dans `rapports/
 | SYS-35 | P3 | Pays de Meramon : musique générique | corrigé (e862fe0) : musique du canyon |
 | SYS-36 | P3 | L'harmonica de Matt ne revient pas après un combat | corrigé (e862fe0) |
 | SYS-37 | P3 | `Audio.stop()` n'annule pas la musique en attente | corrigé (e862fe0) |
-| SYS-38 | P3 | Réglages du son limités ; le son continue onglet caché | en partie (e862fe0) : son suspendu quand le jeu est caché ; pas encore de réglage de volume |
+| SYS-38 | P3 | Réglages du son limités ; le son continue onglet caché | corrigé (e862fe0, 38a2614) : son suspendu quand le jeu est caché ; volumes de la musique et des bruitages dans les Options |
 | SYS-39 | P3 | Manette seule : peut-être aucun son | non vérifié (demande un essai réel avec une manette) |
 | SYS-40 | P3 | Distributeur prévu sur « tunnel0 » jamais posé | non corrigé : région d'un chapitre futur |
 
@@ -149,7 +149,7 @@ avec ceux de l'audit des Digimon.
 | T5 | P3 | Poussière verte dans le kit du personnage | non corrigé (presque invisible) |
 | T6 | P3 | Lueurs peintes sur le vert, perdues ou trouées | non corrigé : ces objets gardent l'ancien détourage |
 | T7 | P3 | `grotte/porte_tombeau` : trait d'une voisine collé | non corrigé (image jamais placée sur une carte) |
-| D5g | P3 | Bébés en pixel art plus petits que les autres | non corrigé |
+| D5g | P3 | Bébés en pixel art plus petits que les autres | corrigé (2220674) : à la taille des autres bébés |
 | D6g | P3 | Poses d'attaque coupées par le cadre (jusqu'à 2,9 %) | non corrigé |
 | D7g | P3 | Birdramon et Meramon touchent le bord de leur planche | non corrigé (planche d'origine) |
 | D8g | P3 | Liseré olive sur les Digimon orange | non corrigé |
