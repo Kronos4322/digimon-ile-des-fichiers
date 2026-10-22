@@ -1,0 +1,784 @@
+nature	de	région	position	vers	région arrivée	arrivée écrite	arrivée réelle	ouvert (1re étape où la carte est atteinte et le passage ouvert)	étapes où il est fermé	verrou / condition (texte)	retour	problèmes
+bord	brumes0	brumes	44,63 6x1 down	berceau	foret	46,0	46,0	jamais				
+bord	brumes0	brumes	87,29 1x6 right	brumes1	brumes	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes1	brumes	0,29 1x6 left	brumes0	brumes	87,29	87,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes1	brumes	93,30 1x6 right	brumes2	brumes	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes1	brumes	40,0 6x1 up	brumes6	brumes	40,71	40,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes2	brumes	0,30 1x6 left	brumes1	brumes	93,30	93,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes2	brumes	93,31 1x6 right	brumes3	brumes	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes2	brumes	45,0 6x1 up	brumes5	brumes	45,71	45,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes3	brumes	0,31 1x6 left	brumes2	brumes	93,31	93,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes3	brumes	40,0 6x1 up	brumes4	brumes	40,71	40,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes4	brumes	40,71 6x1 down	brumes3	brumes	40,0	40,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes4	brumes	0,31 1x6 left	brumes5	brumes	93,31	93,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes4	brumes	87,30 1x6 right	jouets0	jouets	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes5	brumes	45,71 6x1 down	brumes2	brumes	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes5	brumes	93,31 1x6 right	brumes4	brumes	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes5	brumes	0,35 1x6 left	brumes6	brumes	93,35	93,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes5	brumes	42,0 6x1 up	gel0	gel	43,63	43,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes6	brumes	40,71 6x1 down	brumes1	brumes	40,0	40,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes6	brumes	93,35 1x6 right	brumes5	brumes	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes6	brumes	0,30 1x6 left	brumes7	brumes	87,30	87,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes6	brumes	40,0 6x1 up	brumes9	brumes	40,71	40,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes7	brumes	87,30 1x6 right	brumes6	brumes	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes7	brumes	43,0 6x1 up	brumes8	brumes	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes8	brumes	43,71 6x1 down	brumes7	brumes	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes8	brumes	87,37 1x6 right	brumes9	brumes	0,37	0,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes9	brumes	40,71 6x1 down	brumes6	brumes	40,0	40,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	brumes9	brumes	0,37 1x6 left	brumes8	brumes	87,37	87,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	brumes9	brumes	4,5 2x1 up	donjon_tk_hall	brumes	9,13	9,13	jamais				
+bord	donjon_tk_galerie	brumes	0,7 1x2 left	donjon_tk_hall	brumes	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	donjon_tk_galerie	brumes	19,7 1x2 right	donjon_tk_sanctuaire	brumes	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_tk_hall	brumes	9,14 2x1 down	brumes9	brumes	4,6	4,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_tk_hall	brumes	19,7 1x2 right	donjon_tk_galerie	brumes	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_tk_sanctuaire	brumes	0,7 1x2 left	donjon_tk_galerie	brumes	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	canyon0	canyon	99,37 1x6 right	canyon1	canyon	0,37	0,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon0	canyon	51,0 6x1 up	savane5	savane	44,71	44,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon1	canyon	0,37 1x6 left	canyon0	canyon	99,37	99,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon1	canyon	87,37 1x6 right	canyon2	canyon	0,37	0,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon1	canyon	41,71 6x1 down	canyon6	canyon	41,0	41,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon2	canyon	0,37 1x6 left	canyon1	canyon	87,37	87,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon2	canyon	93,30 1x6 right	canyon3	canyon	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon2	canyon	45,71 6x1 down	canyon5	canyon	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon3	canyon	0,30 1x6 left	canyon2	canyon	93,30	93,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon3	canyon	41,71 6x1 down	canyon4	canyon	41,0	41,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon4	canyon	41,0 6x1 up	canyon3	canyon	41,71	41,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon4	canyon	0,33 1x6 left	canyon5	canyon	93,33	93,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon5	canyon	45,0 6x1 up	canyon2	canyon	45,71	45,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon5	canyon	93,33 1x6 right	canyon4	canyon	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon5	canyon	0,32 1x6 left	canyon6	canyon	87,32	87,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon6	canyon	41,0 6x1 up	canyon1	canyon	41,71	41,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon6	canyon	87,32 1x6 right	canyon5	canyon	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon6	canyon	0,36 1x6 left	canyon7	canyon	99,36	99,36	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon6	canyon	39,71 6x1 down	canyon9	canyon	39,0	39,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon7	canyon	99,36 1x6 right	canyon6	canyon	0,36	0,36	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon7	canyon	46,71 6x1 down	canyon8	canyon	46,0	46,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon7	canyon	0,35 1x6 left	dino0	dino	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon8	canyon	46,0 6x1 up	canyon7	canyon	46,71	46,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon8	canyon	99,31 1x6 right	canyon9	canyon	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon8	canyon	51,71 6x1 down	jungle0	jungle	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon9	canyon	39,0 6x1 up	canyon6	canyon	39,71	39,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	canyon9	canyon	0,31 1x6 left	canyon8	canyon	99,31	99,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge0	decharge	99,33 1x6 right	decharge1	decharge	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge0	decharge	0,32 1x6 left	savane4	savane	99,34	99,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge1	decharge	0,33 1x6 left	decharge0	decharge	99,33	99,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge1	decharge	99,35 1x6 right	decharge2	decharge	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge1	decharge	49,67 6x1 down	decharge6	decharge	49,0	49,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge2	decharge	0,35 1x6 left	decharge1	decharge	99,35	99,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge2	decharge	87,32 1x6 right	decharge3	decharge	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge2	decharge	40,67 6x1 down	decharge5	decharge	40,0	40,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge3	decharge	0,32 1x6 left	decharge2	decharge	87,32	87,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge3	decharge	41,67 6x1 down	decharge4	decharge	41,0	41,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge4	decharge	41,0 6x1 up	decharge3	decharge	41,67	41,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge4	decharge	0,32 1x6 left	decharge5	decharge	87,32	87,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge5	decharge	40,0 6x1 up	decharge2	decharge	40,67	40,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge5	decharge	87,32 1x6 right	decharge4	decharge	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge5	decharge	0,33 1x6 left	decharge6	decharge	99,33	99,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge6	decharge	49,0 6x1 up	decharge1	decharge	49,67	49,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge6	decharge	99,33 1x6 right	decharge5	decharge	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge6	decharge	0,30 1x6 left	decharge7	decharge	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge6	decharge	51,63 6x1 down	decharge9	decharge	51,0	51,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge7	decharge	99,30 1x6 right	decharge6	decharge	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge7	decharge	49,63 6x1 down	decharge8	decharge	49,0	49,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge8	decharge	49,0 6x1 up	decharge7	decharge	49,63	49,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge8	decharge	99,27 1x6 right	decharge9	decharge	0,27	0,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge9	decharge	51,0 6x1 up	decharge6	decharge	51,63	51,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	decharge9	decharge	0,27 1x6 left	decharge8	decharge	99,27	99,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino0	dino	99,30 1x6 right	canyon7	canyon	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino0	dino	0,35 1x6 left	dino1	dino	93,35	93,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino1	dino	93,35 1x6 right	dino0	dino	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino1	dino	0,30 1x6 left	dino2	dino	93,30	93,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino1	dino	41,71 6x1 down	dino6	dino	41,0	41,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino2	dino	93,30 1x6 right	dino1	dino	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino2	dino	0,33 1x6 left	dino3	dino	87,33	87,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino2	dino	43,71 6x1 down	dino5	dino	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino3	dino	87,33 1x6 right	dino2	dino	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino3	dino	44,71 6x1 down	dino4	dino	44,0	44,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino4	dino	44,0 6x1 up	dino3	dino	44,71	44,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino4	dino	87,31 1x6 right	dino5	dino	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino5	dino	43,0 6x1 up	dino2	dino	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino5	dino	0,31 1x6 left	dino4	dino	87,31	87,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino5	dino	93,31 1x6 right	dino6	dino	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino6	dino	41,0 6x1 up	dino1	dino	41,71	41,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino6	dino	0,31 1x6 left	dino5	dino	93,31	93,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino6	dino	93,37 1x6 right	dino7	dino	0,37	0,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino6	dino	43,71 6x1 down	dino9	dino	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino7	dino	0,37 1x6 left	dino6	dino	93,37	93,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino7	dino	50,71 6x1 down	dino8	dino	50,0	50,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino8	dino	50,0 6x1 up	dino7	dino	50,71	50,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino8	dino	0,33 1x6 left	dino9	dino	93,33	93,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	dino8	dino	4,5 2x1 up	donjon_tai_hall	dino	9,13	9,13	jamais				
+bord	dino9	dino	43,0 6x1 up	dino6	dino	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	dino9	dino	93,33 1x6 right	dino8	dino	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_tai_galerie	dino	0,7 1x2 left	donjon_tai_hall	dino	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	donjon_tai_galerie	dino	19,7 1x2 right	donjon_tai_sanctuaire	dino	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_tai_hall	dino	9,14 2x1 down	dino8	dino	4,6	4,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_tai_hall	dino	19,7 1x2 right	donjon_tai_galerie	dino	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_tai_sanctuaire	dino	0,7 1x2 left	donjon_tai_galerie	dino	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	arbre_kuwagamon	foret	9,14 2x1 down	clairiere	foret	54,22	54,22	ch1 (ch1_kuwagamon)	ch1_debut	Les racines se sont refermées derrière toi ! Kuwagamon ne te laissera pas repartir...	porte@55,19 à 2 case(s) ; ramène à 2 case(s) du départ	
+PNJ (script)	arbre_kuwagamon	foret	9,7	maison	village	10,8	10,8	jamais	ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+bord	berceau_maison	foret	7,12 2x1 down	berceau	foret	74,24	74,24	ch1 (ch1_debut)			porte@37,11 à 36 case(s) ; ramène à 1 case(s) du départ	arrivée déplacée (jusqu'à 1 case(s)) ; arrivée à 36 cases du passage de retour
+porte	berceau	foret	37,11 2x1 up	berceau_maison	foret	7,11	7,11	ch1 (ch1_debut)			warp@7,12 à 1 case(s) ; ramène à 37 case(s) du départ	retour à 37 cases du départ
+bord	berceau	foret	46,0 6x1 up	brumes0	brumes	44,63	44,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Le Bois Brumeux est plongé dans le noir total... Il faudrait quelqu'un pour rallumer les lanternes. (Recrute Elecmon)		
+bord	berceau	foret	0,23 1x6 left	prairie	foret	95,23	95,23	ch1 (ch1_debut)			warp@95,23 à 0 case(s) ; ramène à 0 case(s) du départ	1/6 cases de bord bloquées
+porte	clairiere	foret	55,19 2x1 up	arbre_kuwagamon	foret	9,12	9,12	ch1 (ch1_kuwagamon)	ch1_debut		warp@9,14 à 2 case(s) ; ramène à 2 case(s) du départ	
+bord	clairiere	foret	32,0 6x1 up	lac0	lac	32,71	32,71	ch2 (ch2_debut)	ch1_debut ch1_kuwagamon ch1_antre	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@32,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	clairiere	foret	0,27 1x6 left	miharashi0	miharashi	95,27	95,27	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@95,27 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	clairiere	foret	42,71 6x1 down	sentier	foret	42,0	43,0	ch1 (ch1_debut)			warp@42,0 à 0 case(s) ; ramène à 0 case(s) du départ	1/6 cases de bord bloquées
+bord	geants	foret	0,28 1x6 left	bosquet	plage	95,28	95,28	ch1 (ch1_debut)			warp@95,28 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	geants	foret	26,71 6x1 down	lisiere	foret	26,0	26,0	ch1 (ch1_debut)			warp@26,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	geants	foret	58,0 6x1 up	sentier	foret	58,71	58,71	ch1 (ch1_debut)			warp@58,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lisiere	foret	0,38 1x6 left	dunes	plage	95,38	95,38	ch1 (ch1_debut)			warp@95,38 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lisiere	foret	26,0 6x1 up	geants	foret	26,71	26,71	ch1 (ch1_debut)			warp@26,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lisiere	foret	32,71 10x1 down	plage	plage	32,0	32,0	ch1 (ch1_debut)			warp@32,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	prairie	foret	95,23 1x6 right	berceau	foret	0,23	0,23	ch1 (ch1_debut)			warp@0,23 à 0 case(s) ; ramène à 0 case(s) du départ	1/6 cases de bord bloquées
+bord	prairie	foret	0,23 1x8 left	sentier	foret	95,23	95,23	ch1 (ch1_debut)			warp@95,23 à 0 case(s) ; ramène à 0 case(s) du départ	1/8 cases de bord bloquées
+objet (panneau-script)	prairie	foret	62,25	village_yokomon	foret	17,30	17,30	ch1 (ch1_debut)			warp@17,31 à 1 case(s) ; ramène à 2 case(s) du départ	
+bord	sentier	foret	42,0 6x1 up	clairiere	foret	42,71	43,71	ch1 (ch1_debut)			warp@42,71 à 0 case(s) ; ramène à 1 case(s) du départ	arrivée déplacée (jusqu'à 1 case(s))
+bord	sentier	foret	58,71 6x1 down	geants	foret	58,0	58,0	ch1 (ch1_debut)			warp@58,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	sentier	foret	0,21 1x5 left	miharashi2	miharashi	95,21	95,21	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@95,21 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	sentier	foret	95,23 1x8 right	prairie	foret	0,23	0,23	ch1 (ch1_debut)			warp@0,23 à 0 case(s) ; ramène à 0 case(s) du départ	arrivée déplacée (jusqu'à 1 case(s))
+porte	souterrain_jiji	foret	2,2 2x1 up	maison	village	14,9	14,9	ch1 (ch1_antre)			script:panneau à 0 case(s) ; ramène à 0 case(s) du départ	arrivée déplacée (jusqu'à 1 case(s))
+porte	souterrain_jiji	foret	42,2 2x1 up	village_yokomon	foret	18,12	18,12	ch1 (ch1_antre)			script:panneau à 1 case(s) ; ramène à 0 case(s) du départ	
+bord	village_yokomon	foret	17,31 down	prairie	foret	62,26	62,26	ch1 (ch1_debut)			script:panneau à 0 case(s) ; ramène à 1 case(s) du départ	arrivée loin du bord up
+objet (panneau-script)	village_yokomon	foret	17,11	souterrain_jiji	foret	42,3	42,3	ch1 (ch1_antre)			porte@42,2 à 0 case(s) ; ramène à 2 case(s) du départ	
+bord	donjon_matt_galerie	gel	0,7 1x2 left	donjon_matt_hall	gel	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	donjon_matt_galerie	gel	19,7 1x2 right	donjon_matt_sanctuaire	gel	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_matt_hall	gel	19,7 1x2 right	donjon_matt_galerie	gel	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_matt_hall	gel	9,14 2x1 down	gel8	gel	4,6	4,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_matt_sanctuaire	gel	0,7 1x2 left	donjon_matt_galerie	gel	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	gel0	gel	43,63 6x1 down	brumes5	brumes	42,0	42,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel0	gel	87,26 1x6 right	gel1	gel	0,26	0,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel1	gel	0,26 1x6 left	gel0	gel	87,26	87,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel1	gel	99,30 1x6 right	gel2	gel	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel1	gel	47,0 6x1 up	gel6	gel	47,71	47,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel2	gel	0,30 1x6 left	gel1	gel	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel2	gel	99,29 1x6 right	gel3	gel	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel2	gel	49,0 6x1 up	gel5	gel	49,71	49,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel3	gel	0,29 1x6 left	gel2	gel	99,29	99,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel3	gel	45,0 6x1 up	gel4	gel	45,71	45,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel4	gel	45,71 6x1 down	gel3	gel	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel4	gel	0,35 1x6 left	gel5	gel	99,35	99,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel5	gel	49,71 6x1 down	gel2	gel	49,0	49,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel5	gel	99,35 1x6 right	gel4	gel	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel5	gel	0,31 1x6 left	gel6	gel	99,31	99,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel6	gel	47,71 6x1 down	gel1	gel	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel6	gel	99,31 1x6 right	gel5	gel	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel6	gel	0,34 1x6 left	gel7	gel	87,34	87,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel6	gel	43,0 6x1 up	gel9	gel	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel7	gel	87,34 1x6 right	gel6	gel	0,34	0,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel7	gel	38,0 6x1 up	gel8	gel	38,71	38,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	gel8	gel	4,5 2x1 up	donjon_matt_hall	gel	9,13	9,13	jamais				
+bord	gel8	gel	38,71 6x1 down	gel7	gel	38,0	38,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel8	gel	87,33 1x6 right	gel9	gel	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel9	gel	43,71 6x1 down	gel6	gel	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	gel9	gel	0,33 1x6 left	gel8	gel	87,33	87,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	chateau_bal	jouets	9,2 2x1 up	chateau_hall	jouets	4,3	4,3	jamais				
+bord	chateau_bal	jouets	19,7 1x2 right	chateau_royale	jouets	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	chateau_cuisine	jouets	0,7 1x2 left	chateau_hall	jouets	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	chateau_hall	jouets	4,2 2x1 up	chateau_bal	jouets	9,3	9,3	jamais				
+bord	chateau_hall	jouets	19,7 1x2 right	chateau_cuisine	jouets	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	chateau_hall	jouets	0,7 1x2 left	chateau_jouets	jouets	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	chateau_hall	jouets	15,2 2x1 up	chateau_oubliettes	jouets	9,3	9,3	jamais				
+bord	chateau_hall	jouets	9,14 2x1 down	jouets9	jouets	5,7	5,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	chateau_jouets	jouets	19,7 1x2 right	chateau_hall	jouets	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	chateau_oubliettes	jouets	9,2 2x1 up	chateau_hall	jouets	15,3	15,3	jamais				
+bord	chateau_royale	jouets	0,7 1x2 left	chateau_bal	jouets	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_mimi_galerie	jouets	0,7 1x2 left	donjon_mimi_hall	jouets	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	donjon_mimi_galerie	jouets	19,7 1x2 right	donjon_mimi_sanctuaire	jouets	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_mimi_hall	jouets	19,7 1x2 right	donjon_mimi_galerie	jouets	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_mimi_hall	jouets	9,14 2x1 down	jouets8	jouets	4,6	4,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_mimi_sanctuaire	jouets	0,7 1x2 left	donjon_mimi_galerie	jouets	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	jouets0	jouets	0,30 1x6 left	brumes4	brumes	87,30	87,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets0	jouets	99,34 1x6 right	jouets1	jouets	0,34	0,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets1	jouets	0,34 1x6 left	jouets0	jouets	99,34	99,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets1	jouets	99,35 1x6 right	jouets2	jouets	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets1	jouets	47,67 6x1 down	jouets6	jouets	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets2	jouets	0,35 1x6 left	jouets1	jouets	99,35	99,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets2	jouets	93,32 1x6 right	jouets3	jouets	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets2	jouets	47,67 6x1 down	jouets5	jouets	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets3	jouets	0,32 1x6 left	jouets2	jouets	93,32	93,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets3	jouets	51,67 6x1 down	jouets4	jouets	51,0	51,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets4	jouets	51,0 6x1 up	jouets3	jouets	51,67	51,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets4	jouets	0,31 1x6 left	jouets5	jouets	93,31	93,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets5	jouets	47,0 6x1 up	jouets2	jouets	47,67	47,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets5	jouets	93,31 1x6 right	jouets4	jouets	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets5	jouets	0,30 1x6 left	jouets6	jouets	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets6	jouets	47,0 6x1 up	jouets1	jouets	47,67	47,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets6	jouets	99,30 1x6 right	jouets5	jouets	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets6	jouets	0,30 1x6 left	jouets7	jouets	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets6	jouets	49,71 6x1 down	jouets9	jouets	49,0	49,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets7	jouets	99,30 1x6 right	jouets6	jouets	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets7	jouets	43,71 6x1 down	jouets8	jouets	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	jouets8	jouets	4,5 2x1 up	donjon_mimi_hall	jouets	9,13	9,13	jamais				
+bord	jouets8	jouets	43,0 6x1 up	jouets7	jouets	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets8	jouets	99,27 1x6 right	jouets9	jouets	0,27	0,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	jouets9	jouets	5,6 2x1 up	chateau_hall	jouets	9,13	9,13	jamais				
+bord	jouets9	jouets	49,0 6x1 up	jouets6	jouets	49,71	49,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jouets9	jouets	0,27 1x6 left	jouets8	jouets	99,27	99,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle0	jungle	47,0 6x1 up	canyon8	canyon	51,71	51,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle0	jungle	99,34 1x6 right	jungle1	jungle	0,34	0,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle1	jungle	0,34 1x6 left	jungle0	jungle	99,34	99,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle1	jungle	99,35 1x6 right	jungle2	jungle	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle1	jungle	47,67 6x1 down	jungle6	jungle	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle2	jungle	0,35 1x6 left	jungle1	jungle	99,35	99,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle2	jungle	93,32 1x6 right	jungle3	jungle	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle2	jungle	47,67 6x1 down	jungle5	jungle	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle3	jungle	0,32 1x6 left	jungle2	jungle	93,32	93,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle3	jungle	51,67 6x1 down	jungle4	jungle	51,0	51,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	jungle3	jungle	5,5 2x1 up	temple_parvis	jungle	9,13	9,13	jamais				
+bord	jungle4	jungle	51,0 6x1 up	jungle3	jungle	51,67	51,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle4	jungle	0,31 1x6 left	jungle5	jungle	93,31	93,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle5	jungle	47,0 6x1 up	jungle2	jungle	47,67	47,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle5	jungle	93,31 1x6 right	jungle4	jungle	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle5	jungle	0,30 1x6 left	jungle6	jungle	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle5	jungle	41,71 6x1 down	overdell0	overdell	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle6	jungle	47,0 6x1 up	jungle1	jungle	47,67	47,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle6	jungle	99,30 1x6 right	jungle5	jungle	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle6	jungle	0,30 1x6 left	jungle7	jungle	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle6	jungle	49,71 6x1 down	jungle9	jungle	49,0	49,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle7	jungle	99,30 1x6 right	jungle6	jungle	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle7	jungle	43,71 6x1 down	jungle8	jungle	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle8	jungle	43,0 6x1 up	jungle7	jungle	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle8	jungle	99,27 1x6 right	jungle9	jungle	0,27	0,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle9	jungle	49,0 6x1 up	jungle6	jungle	49,71	49,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	jungle9	jungle	0,27 1x6 left	jungle8	jungle	99,27	99,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	temple_colonnes	jungle	19,7 1x2 right	temple_galerie_e	jungle	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	temple_colonnes	jungle	0,7 1x2 left	temple_galerie_o	jungle	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	temple_colonnes	jungle	9,2 2x1 up	temple_parvis	jungle	9,3	9,3	jamais				
+porte	temple_colonnes	jungle	16,2 2x1 up	temple_sanctuaire	jungle	9,3	9,3	jamais				
+porte	temple_crypte	jungle	9,2 2x1 up	temple_parvis	jungle	3,3	3,3	jamais				
+bord	temple_galerie_e	jungle	0,7 1x2 left	temple_colonnes	jungle	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	temple_galerie_o	jungle	19,7 1x2 right	temple_colonnes	jungle	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	temple_parvis	jungle	9,14 2x1 down	jungle3	jungle	5,6	5,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	temple_parvis	jungle	9,2 2x1 up	temple_colonnes	jungle	9,3	9,3	jamais				
+porte	temple_parvis	jungle	3,2 2x1 up	temple_crypte	jungle	9,3	9,3	jamais				
+porte	temple_sanctuaire	jungle	9,2 2x1 up	temple_colonnes	jungle	16,3	16,3	jamais				
+bord	lac0	lac	32,71 6x1 down	clairiere	foret	32,0	32,0	ch2 (ch2_debut)	ch1_debut ch1_kuwagamon ch1_antre	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@32,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac0	lac	0,33 1x6 left	lac1	lac	95,33	95,33	ch2 (ch2_lac)	ch2_debut ch4	Un voile de données barre le sentier de l'ouest, vers la Rosière... Il s'est levé avec le combat des deux Monochromon : 	warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac0	lac	95,33 1x6 right	lac3	lac	0,33	0,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut	Monochromon te barre la route en grattant le sol de ses pattes. Impossible de passer tant qu'il garde les rives du lac !	warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac10	lac	45,71 6x1 down	lac7	lac	45,0	45,0	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac10	lac	95,33 1x6 right	lac9	lac	0,33	0,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac11	lac	95,33 1x6 right	lac7	lac	0,33	0,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac1	lac	95,33 1x6 right	lac0	lac	0,33	0,33	ch2 (ch2_lac)	ch4	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac1	lac	45,0 6x1 up	lac8	lac	45,71	45,71	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac1	lac	45,71 6x1 down	miharashi0	miharashi	45,0	45,0	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+PNJ (script)	lac2	lac	45,48	lac2	lac	47,49	47,49	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+bord	lac2	lac	45,0 6x1 up	lac6	lac	45,71	45,71	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac3	lac	0,33 1x6 left	lac0	lac	95,33	95,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac3	lac	45,0 6x1 up	lac4	lac	45,71	45,71	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac4	lac	45,71 6x1 down	lac3	lac	45,0	45,0	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac4	lac	45,0 6x1 up	lac5	lac	45,71	45,71	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac5	lac	45,71 6x1 down	lac4	lac	45,0	45,0	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac5	lac	0,33 1x6 left	lac6	lac	95,33	95,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac6	lac	45,71 6x1 down	lac2	lac	45,0	45,0	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac6	lac	95,33 1x6 right	lac5	lac	0,33	0,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac6	lac	0,33 1x6 left	lac7	lac	95,33	95,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac6	lac	45,0 6x1 up	lac9	lac	45,71	45,71	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac7	lac	45,0 6x1 up	lac10	lac	45,71	45,71	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac7	lac	0,33 1x6 left	lac11	lac	95,33	95,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac7	lac	95,33 1x6 right	lac6	lac	0,33	0,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac7	lac	45,71 6x1 down	lac8	lac	45,0	45,0	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac8	lac	45,71 6x1 down	lac1	lac	45,0	45,0	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac8	lac	45,0 6x1 up	lac7	lac	45,71	45,71	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac9	lac	0,33 1x6 left	lac10	lac	95,33	95,33	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	lac9	lac	45,71 6x1 down	lac6	lac	45,0	45,0	ch2 (ch2_lac)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	marais0	marais	99,32 1x6 right	champs	village	0,38	0,38	jamais				
+bord	marais0	marais	0,30 1x6 left	marais1	marais	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais1	marais	99,30 1x6 right	marais0	marais	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais1	marais	0,29 1x6 left	marais2	marais	99,29	99,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais1	marais	50,63 6x1 down	marais6	marais	50,0	50,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais2	marais	99,29 1x6 right	marais1	marais	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais2	marais	0,27 1x6 left	marais3	marais	87,27	87,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais2	marais	43,63 6x1 down	marais5	marais	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais3	marais	87,27 1x6 right	marais2	marais	0,27	0,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais3	marais	40,63 6x1 down	marais4	marais	40,0	40,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais4	marais	40,0 6x1 up	marais3	marais	40,63	40,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais4	marais	87,33 1x6 right	marais5	marais	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais5	marais	43,0 6x1 up	marais2	marais	43,63	43,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais5	marais	0,33 1x6 left	marais4	marais	87,33	87,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais5	marais	99,33 1x6 right	marais6	marais	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais6	marais	50,0 6x1 up	marais1	marais	50,63	50,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais6	marais	0,33 1x6 left	marais5	marais	99,33	99,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais6	marais	99,33 1x6 right	marais7	marais	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais6	marais	45,71 6x1 down	marais9	marais	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais7	marais	0,33 1x6 left	marais6	marais	99,33	99,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais7	marais	47,71 6x1 down	marais8	marais	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais8	marais	47,0 6x1 up	marais7	marais	47,71	47,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais8	marais	0,31 1x6 left	marais9	marais	99,31	99,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais9	marais	45,0 6x1 up	marais6	marais	45,71	45,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	marais9	marais	99,31 1x6 right	marais8	marais	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	miharashi0	miharashi	95,27 1x6 right	clairiere	foret	0,27	0,27	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@0,27 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi0	miharashi	45,0 6x1 up	lac1	lac	45,71	45,71	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi0	miharashi	0,33 1x6 left	miharashi1	miharashi	95,33	95,33	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi0	miharashi	45,71 6x1 down	miharashi2	miharashi	45,0	45,0	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@45,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi1	miharashi	95,33 1x6 right	miharashi0	miharashi	0,33	0,33	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi1	miharashi	0,33 1x6 left	miharashi3	miharashi	95,33	95,33	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi2	miharashi	38,71 6x1 down	bosquet	plage	38,0	38,0	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@38,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi2	miharashi	3,71 9x1 down	bosquet	plage	3,0	3,0	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@3,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi2	miharashi	45,0 6x1 up	miharashi0	miharashi	45,71	45,71	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@45,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi2	miharashi	95,21 1x5 right	sentier	foret	0,21	0,21	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@0,21 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi3	miharashi	95,33 1x6 right	miharashi1	miharashi	0,33	0,33	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	miharashi3	miharashi	0,33 1x6 left	miharashi4	miharashi	95,33	95,33	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@95,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+PNJ (script)	miharashi4	miharashi	48,30	miharashi1	miharashi	48,34	48,34	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch4			
+bord	miharashi4	miharashi	95,33 1x6 right	miharashi3	miharashi	0,33	0,33	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac		warp@0,33 à 0 case(s) ; ramène à 0 case(s) du départ	
+objet (panneau-script)	miharashi4	miharashi	80,54	sous_volcan1	miharashi	32,42	32,42	ch3 (ch3_debut)			script:declencheur à 3 case(s) ; ramène à 0 case(s) du départ	
+objet (panneau-script)	miharashi4	miharashi	81,54	sous_volcan1	miharashi	32,42	32,42	ch3 (ch3_debut)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+escalier/déclencheur	sous_volcan1	miharashi	31,45	miharashi4	miharashi	80,55	80,55	ch3 (ch3_debut)			script:panneau à 0 case(s) ; ramène à 3 case(s) du départ	
+escalier/déclencheur	sous_volcan1	miharashi	50,5	sous_volcan2	miharashi	32,50	32,50	ch3 (ch3_debut)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+objet (panneau-script)	sous_volcan1	miharashi	34,34	sous_volcan5	miharashi	27,37	27,37	ch3 (ch3_sora)			script:panneau à 0 case(s) ; ramène à 0 case(s) du départ	
+escalier/déclencheur	sous_volcan2	miharashi	31,53	sous_volcan1	miharashi	50,6	50,6	ch3 (ch3_debut)			script:declencheur à 1 case(s) ; ramène à 3 case(s) du départ	
+escalier/déclencheur	sous_volcan2	miharashi	32,26	sous_volcan3	miharashi	32,42	32,42	ch3 (ch3_debut)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+escalier/déclencheur	sous_volcan3	miharashi	31,45	sous_volcan2	miharashi	32,27	32,27	ch3 (ch3_debut)			script:declencheur à 1 case(s) ; ramène à 3 case(s) du départ	
+escalier/déclencheur	sous_volcan3	miharashi	32,5	sous_volcan4	miharashi	32,42	32,42	ch3 (ch3_debut)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+escalier/déclencheur	sous_volcan4	miharashi	31,45	sous_volcan3	miharashi	32,6	32,6	ch3 (ch3_debut)			script:declencheur à 1 case(s) ; ramène à 3 case(s) du départ	
+escalier/déclencheur	sous_volcan4	miharashi	50,6	sous_volcan5	miharashi	32,42	32,42	ch3 (ch3_debut)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+objet (panneau-script)	sous_volcan5	miharashi	27,36	sous_volcan1	miharashi	34,35	34,35	ch3 (ch3_sora)			script:panneau à 0 case(s) ; ramène à 2 case(s) du départ	
+escalier/déclencheur	sous_volcan5	miharashi	31,45	sous_volcan4	miharashi	50,7	50,7	ch3 (ch3_debut)			script:declencheur à 1 case(s) ; ramène à 3 case(s) du départ	
+bord	donjon_joe_galerie	montagne	0,7 1x2 left	donjon_joe_hall	montagne	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	donjon_joe_galerie	montagne	19,7 1x2 right	donjon_joe_sanctuaire	montagne	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_joe_hall	montagne	19,7 1x2 right	donjon_joe_galerie	montagne	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_joe_hall	montagne	9,14 2x1 down	montagne6	montagne	4,6	4,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_joe_sanctuaire	montagne	0,7 1x2 left	donjon_joe_galerie	montagne	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	montagne0	montagne	99,28 1x6 right	montagne1	montagne	0,28	0,28	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne0	montagne	0,30 1x6 left	village	village	95,26	95,26	jamais				
+bord	montagne1	montagne	0,28 1x6 left	montagne0	montagne	99,28	99,28	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne1	montagne	93,30 1x6 right	montagne2	montagne	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne1	montagne	45,67 6x1 down	montagne6	montagne	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne2	montagne	0,30 1x6 left	montagne1	montagne	93,30	93,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne2	montagne	93,29 1x6 right	montagne3	montagne	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne2	montagne	46,67 6x1 down	montagne5	montagne	46,0	46,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne3	montagne	0,29 1x6 left	montagne2	montagne	93,29	93,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne3	montagne	41,67 6x1 down	montagne4	montagne	41,0	41,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne3	montagne	93,29 1x6 right	savane0	savane	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne4	montagne	41,0 6x1 up	montagne3	montagne	41,67	41,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne4	montagne	0,35 1x6 left	montagne5	montagne	93,35	93,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne5	montagne	46,0 6x1 up	montagne2	montagne	46,67	46,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne5	montagne	93,35 1x6 right	montagne4	montagne	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne5	montagne	0,30 1x6 left	montagne6	montagne	93,30	93,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	montagne6	montagne	4,5 2x1 up	donjon_joe_hall	montagne	9,13	9,13	jamais				
+bord	montagne6	montagne	45,0 6x1 up	montagne1	montagne	45,67	45,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne6	montagne	93,30 1x6 right	montagne5	montagne	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne6	montagne	0,29 1x6 left	montagne7	montagne	99,29	99,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne6	montagne	47,67 6x1 down	montagne9	montagne	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne7	montagne	99,29 1x6 right	montagne6	montagne	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne7	montagne	46,67 6x1 down	montagne8	montagne	46,0	46,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne8	montagne	46,0 6x1 up	montagne7	montagne	46,67	46,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne8	montagne	99,33 1x6 right	montagne9	montagne	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne8	montagne	47,67 6x1 down	volcan0	volcan	48,0	48,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Une barrière de données bloque le sentier du Mont Panorama. Elle se dissipera quand la Ville des Fichiers sera devenue «		
+bord	montagne9	montagne	47,0 6x1 up	montagne6	montagne	47,67	47,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	montagne9	montagne	0,33 1x6 left	montagne8	montagne	99,33	99,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	manoir_biblio	overdell	19,7 1x2 right	manoir_hall	overdell	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	manoir_cave	overdell	0,7 1x2 left	manoir_crypte	overdell	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	manoir_cave	overdell	9,2 2x1 up	manoir_hall	overdell	15,3	15,3	jamais				
+bord	manoir_chambre	overdell	0,7 1x2 left	manoir_etage	overdell	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	manoir_crypte	overdell	19,7 1x2 right	manoir_cave	overdell	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	manoir_etage	overdell	19,7 1x2 right	manoir_chambre	overdell	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	manoir_etage	overdell	16,2 2x1 up	manoir_grenier	overdell	9,3	9,3	jamais				
+porte	manoir_etage	overdell	9,2 2x1 up	manoir_hall	overdell	4,3	4,3	jamais				
+porte	manoir_grenier	overdell	9,2 2x1 up	manoir_etage	overdell	16,3	16,3	jamais				
+bord	manoir_hall	overdell	0,7 1x2 left	manoir_biblio	overdell	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	manoir_hall	overdell	15,2 2x1 up	manoir_cave	overdell	9,3	9,3	jamais				
+porte	manoir_hall	overdell	4,2 2x1 up	manoir_etage	overdell	9,3	9,3	jamais				
+bord	manoir_hall	overdell	19,7 1x2 right	manoir_salle	overdell	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	manoir_hall	overdell	9,14 2x1 down	overdell9	overdell	6,8	6,8	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	manoir_salle	overdell	0,7 1x2 left	manoir_hall	overdell	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell0	overdell	47,0 6x1 up	jungle5	jungle	41,71	41,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell0	overdell	99,31 1x6 right	overdell1	overdell	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell1	overdell	0,31 1x6 left	overdell0	overdell	99,31	99,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell1	overdell	93,27 1x6 right	overdell2	overdell	0,27	0,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell1	overdell	46,63 6x1 down	overdell6	overdell	46,0	46,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell2	overdell	0,27 1x6 left	overdell1	overdell	93,27	93,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell2	overdell	87,31 1x6 right	overdell3	overdell	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell2	overdell	44,63 6x1 down	overdell5	overdell	44,0	44,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell3	overdell	0,31 1x6 left	overdell2	overdell	87,31	87,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell3	overdell	38,63 6x1 down	overdell4	overdell	38,0	38,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell4	overdell	38,0 6x1 up	overdell3	overdell	38,63	38,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell4	overdell	0,32 1x6 left	overdell5	overdell	87,32	87,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell5	overdell	44,0 6x1 up	overdell2	overdell	44,63	44,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell5	overdell	87,32 1x6 right	overdell4	overdell	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell5	overdell	0,34 1x6 left	overdell6	overdell	93,34	93,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell6	overdell	46,0 6x1 up	overdell1	overdell	46,63	46,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell6	overdell	93,34 1x6 right	overdell5	overdell	0,34	0,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell6	overdell	0,32 1x6 left	overdell7	overdell	99,32	99,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell6	overdell	47,67 6x1 down	overdell9	overdell	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell7	overdell	99,32 1x6 right	overdell6	overdell	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell7	overdell	45,67 6x1 down	overdell8	overdell	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell8	overdell	45,0 6x1 up	overdell7	overdell	45,67	45,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell8	overdell	99,29 1x6 right	overdell9	overdell	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	overdell9	overdell	6,7 2x1 up	manoir_hall	overdell	9,13	9,13	jamais				
+bord	overdell9	overdell	47,0 6x1 up	overdell6	overdell	47,67	47,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	overdell9	overdell	0,29 1x6 left	overdell8	overdell	99,29	99,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+escalier/déclencheur	antre1	plage	40,6	antre_lagune	plage	32,42	32,42	ch1 (ch1_antre)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+escalier/déclencheur	antre1	plage	31,45	plage	plage	36,54	36,54	ch1 (ch1_antre)			script:panneau à 0 case(s) ; ramène à 3 case(s) du départ	
+escalier/déclencheur	antre2	plage	32,5	antre_crypte	plage	32,43	32,43	ch1 (ch1_antre)			script:declencheur à 2 case(s) ; ramène à 1 case(s) du départ	
+escalier/déclencheur	antre2	plage	31,45	antre_lagune	plage	37,7	37,7	ch1 (ch1_antre)			script:declencheur à 1 case(s) ; ramène à 2 case(s) du départ	
+escalier/déclencheur	antre_crypte	plage	31,45	antre2	plage	32,6	32,6	ch1 (ch1_antre)			script:declencheur à 1 case(s) ; ramène à 2 case(s) du départ	
+escalier/déclencheur	antre_crypte	plage	32,5	antre_shellmon	plage	22,29	22,29	ch2 (ch2_debut)	ch1_debut ch1_kuwagamon ch1_antre		script:declencheur à 2 case(s) ; ramène à 1 case(s) du départ	
+escalier/déclencheur	antre_lagune	plage	31,45	antre1	plage	40,7	40,7	ch1 (ch1_antre)			script:declencheur à 1 case(s) ; ramène à 3 case(s) du départ	
+escalier/déclencheur	antre_lagune	plage	37,6	antre2	plage	32,43	32,43	ch1 (ch1_antre)			script:declencheur à 2 case(s) ; ramène à 1 case(s) du départ	
+escalier/déclencheur	antre_shellmon	plage	21,31	antre_crypte	plage	32,6	32,6	ch2 (ch2_debut)			script:declencheur à 1 case(s) ; ramène à 2 case(s) du départ	
+PNJ (script)	antre_shellmon	plage	22,13	antre_shellmon	plage	30,23	30,23	jamais				
+bord	bosquet	plage	38,71 6x1 down	dunes	plage	38,0	38,0	ch1 (ch1_debut)			warp@38,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	bosquet	plage	6,71 8x1 down	dunes	plage	6,0	6,0	ch1 (ch1_debut)			warp@6,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	bosquet	plage	95,28 1x6 right	geants	foret	0,28	0,28	ch1 (ch1_debut)			warp@0,28 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	bosquet	plage	38,0 6x1 up	miharashi2	miharashi	38,71	38,71	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@38,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	bosquet	plage	3,0 9x1 up	miharashi2	miharashi	3,71	3,71	ch3 (ch3_debut)	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.	warp@3,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	crique	plage	11,0 75x1 up	dunes	plage	11,71	11,71	ch1 (ch1_debut)			warp@11,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	crique	plage	95,10 1x16 right	plage	plage	0,10	0,10	ch1 (ch1_debut)			warp@0,10 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	crique	plage	95,3 1x6 right	plage	plage	0,3	0,3	ch1 (ch1_debut)			warp@0,3 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	dunes	plage	38,0 6x1 up	bosquet	plage	38,71	38,71	ch1 (ch1_debut)			warp@38,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	dunes	plage	6,0 8x1 up	bosquet	plage	6,71	6,71	ch1 (ch1_debut)			warp@6,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	dunes	plage	11,71 75x1 down	crique	plage	11,0	11,0	ch1 (ch1_debut)			warp@11,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	dunes	plage	95,38 1x6 right	lisiere	foret	0,38	0,38	ch1 (ch1_debut)			warp@0,38 à 0 case(s) ; ramène à 0 case(s) du départ	
+objet (panneau-script)	plage	plage	35,52	antre1	plage	32,42	32,42	ch1 (ch1_antre)			script:declencheur à 3 case(s) ; ramène à 3 case(s) du départ	
+objet (panneau-script)	plage	plage	36,52	antre1	plage	32,42	32,42	ch1 (ch1_antre)			script:declencheur à 3 case(s) ; ramène à 3 case(s) du départ	
+objet (panneau-script)	plage	plage	37,52	antre1	plage	32,42	32,42	ch1 (ch1_antre)			script:declencheur à 3 case(s) ; ramène à 3 case(s) du départ	
+objet (panneau-script)	plage	plage	35,53	antre1	plage	32,42	32,42	ch1 (ch1_antre)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+objet (panneau-script)	plage	plage	36,53	antre1	plage	32,42	32,42	ch1 (ch1_antre)			script:declencheur à 3 case(s) ; ramène à 0 case(s) du départ	
+objet (panneau-script)	plage	plage	37,53	antre1	plage	32,42	32,42	ch1 (ch1_antre)			script:declencheur à 3 case(s) ; ramène à 1 case(s) du départ	
+bord	plage	plage	0,10 1x16 left	crique	plage	95,10	95,10	ch1 (ch1_debut)			warp@95,10 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	plage	plage	0,3 1x6 left	crique	plage	95,3	95,3	ch1 (ch1_debut)			warp@95,3 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	plage	plage	32,0 10x1 up	lisiere	foret	32,71	32,71	ch1 (ch1_debut)			warp@32,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	plage	plage	95,2 1x6 right	village	village	0,2	0,2	ch1 (ch1_debut)			warp@0,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	savane0	savane	0,30 1x6 left	montagne3	montagne	93,29	93,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane0	savane	99,32 1x6 right	savane1	savane	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane1	savane	0,32 1x6 left	savane0	savane	99,32	99,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane1	savane	93,25 1x6 right	savane2	savane	0,25	0,25	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane1	savane	44,63 6x1 down	savane6	savane	44,0	44,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane1	savane	47,0 6x1 up	usine0	usine	42,67	42,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane2	savane	0,25 1x6 left	savane1	savane	93,25	93,25	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane2	savane	87,31 1x6 right	savane3	savane	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane2	savane	38,63 6x1 down	savane5	savane	38,0	38,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane3	savane	0,31 1x6 left	savane2	savane	87,31	87,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane3	savane	50,63 6x1 down	savane4	savane	50,0	50,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane4	savane	99,34 1x6 right	decharge0	decharge	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane4	savane	50,0 6x1 up	savane3	savane	50,63	50,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane4	savane	0,32 1x6 left	savane5	savane	87,32	87,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane5	savane	44,71 6x1 down	canyon0	canyon	51,0	51,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane5	savane	38,0 6x1 up	savane2	savane	38,63	38,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane5	savane	87,32 1x6 right	savane4	savane	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane5	savane	0,37 1x6 left	savane6	savane	93,37	93,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane6	savane	44,0 6x1 up	savane1	savane	44,63	44,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane6	savane	93,37 1x6 right	savane5	savane	0,37	0,37	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane6	savane	0,31 1x6 left	savane7	savane	99,31	99,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane6	savane	43,71 6x1 down	savane9	savane	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane7	savane	99,31 1x6 right	savane6	savane	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane7	savane	49,71 6x1 down	savane8	savane	49,0	49,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane8	savane	49,0 6x1 up	savane7	savane	49,71	49,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane8	savane	99,32 1x6 right	savane9	savane	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane9	savane	43,0 6x1 up	savane6	savane	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	savane9	savane	0,32 1x6 left	savane8	savane	99,32	99,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees0	scarabees	93,33 1x6 right	scarabees1	scarabees	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees1	scarabees	0,33 1x6 left	scarabees0	scarabees	93,33	93,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees1	scarabees	87,29 1x6 right	scarabees2	scarabees	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees1	scarabees	41,71 6x1 down	scarabees6	scarabees	41,0	41,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees2	scarabees	0,29 1x6 left	scarabees1	scarabees	87,29	87,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees2	scarabees	93,34 1x6 right	scarabees3	scarabees	0,34	0,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees2	scarabees	46,71 6x1 down	scarabees5	scarabees	46,0	46,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees3	scarabees	0,34 1x6 left	scarabees2	scarabees	93,34	93,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees3	scarabees	48,71 6x1 down	scarabees4	scarabees	48,0	48,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees4	scarabees	48,0 6x1 up	scarabees3	scarabees	48,71	48,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees4	scarabees	0,26 1x6 left	scarabees5	scarabees	93,26	93,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees5	scarabees	46,0 6x1 up	scarabees2	scarabees	46,71	46,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees5	scarabees	93,26 1x6 right	scarabees4	scarabees	0,26	0,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees5	scarabees	0,28 1x6 left	scarabees6	scarabees	87,28	87,28	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees6	scarabees	41,0 6x1 up	scarabees1	scarabees	41,71	41,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees6	scarabees	87,28 1x6 right	scarabees5	scarabees	0,28	0,28	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees6	scarabees	0,29 1x6 left	scarabees7	scarabees	93,29	93,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees6	scarabees	44,63 6x1 down	scarabees9	scarabees	44,0	44,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees7	scarabees	93,29 1x6 right	scarabees6	scarabees	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees7	scarabees	45,63 6x1 down	scarabees8	scarabees	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees8	scarabees	45,0 6x1 up	scarabees7	scarabees	45,63	45,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees8	scarabees	93,29 1x6 right	scarabees9	scarabees	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees9	scarabees	44,0 6x1 up	scarabees6	scarabees	44,63	44,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	scarabees9	scarabees	0,29 1x6 left	scarabees8	scarabees	93,29	93,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel0	tunnel	44,0 6x1 up	champs	village	40,55	40,55	jamais				
+bord	tunnel0	tunnel	99,35 1x6 right	tunnel1	tunnel	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel1	tunnel	0,35 1x6 left	tunnel0	tunnel	99,35	99,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel1	tunnel	87,30 1x6 right	tunnel2	tunnel	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel1	tunnel	39,71 6x1 down	tunnel6	tunnel	39,0	39,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel2	tunnel	0,30 1x6 left	tunnel1	tunnel	87,30	87,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel2	tunnel	99,30 1x6 right	tunnel3	tunnel	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel2	tunnel	44,71 6x1 down	tunnel5	tunnel	44,0	44,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel3	tunnel	0,30 1x6 left	tunnel2	tunnel	99,30	99,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel3	tunnel	43,71 6x1 down	tunnel4	tunnel	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel4	tunnel	43,0 6x1 up	tunnel3	tunnel	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel4	tunnel	0,35 1x6 left	tunnel5	tunnel	99,35	99,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel5	tunnel	44,0 6x1 up	tunnel2	tunnel	44,71	44,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel5	tunnel	99,35 1x6 right	tunnel4	tunnel	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel5	tunnel	0,35 1x6 left	tunnel6	tunnel	87,35	87,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel6	tunnel	39,0 6x1 up	tunnel1	tunnel	39,71	39,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel6	tunnel	87,35 1x6 right	tunnel5	tunnel	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel6	tunnel	0,36 1x6 left	tunnel7	tunnel	99,36	99,36	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel6	tunnel	44,71 6x1 down	tunnel9	tunnel	44,0	44,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel7	tunnel	99,36 1x6 right	tunnel6	tunnel	0,36	0,36	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel7	tunnel	43,71 6x1 down	tunnel8	tunnel	43,0	43,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel8	tunnel	43,0 6x1 up	tunnel7	tunnel	43,71	43,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel8	tunnel	99,33 1x6 right	tunnel9	tunnel	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel9	tunnel	44,0 6x1 up	tunnel6	tunnel	44,71	44,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	tunnel9	tunnel	0,33 1x6 left	tunnel8	tunnel	99,33	99,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_izzy_galerie	usine	0,7 1x2 left	donjon_izzy_hall	usine	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	donjon_izzy_galerie	usine	19,7 1x2 right	donjon_izzy_sanctuaire	usine	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_izzy_hall	usine	19,7 1x2 right	donjon_izzy_galerie	usine	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_izzy_hall	usine	9,14 2x1 down	usine6	usine	4,6	4,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	donjon_izzy_sanctuaire	usine	0,7 1x2 left	donjon_izzy_galerie	usine	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		arrivée déplacée (jusqu'à 1 case(s))
+bord	usine0	usine	42,67 6x1 down	savane1	savane	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine0	usine	93,27 1x6 right	usine1	usine	0,27	0,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine1	usine	0,27 1x6 left	usine0	usine	93,27	93,27	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine1	usine	99,35 1x6 right	usine2	usine	0,35	0,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine1	usine	48,0 6x1 up	usine6	usine	48,63	48,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine2	usine	0,35 1x6 left	usine1	usine	99,35	99,35	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine2	usine	93,30 1x6 right	usine3	usine	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine2	usine	42,0 6x1 up	usine5	usine	42,63	42,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine3	usine	0,30 1x6 left	usine2	usine	93,30	93,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine3	usine	45,0 6x1 up	usine4	usine	45,63	45,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine4	usine	45,63 6x1 down	usine3	usine	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine4	usine	0,31 1x6 left	usine5	usine	93,31	93,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine5	usine	42,63 6x1 down	usine2	usine	42,0	42,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine5	usine	93,31 1x6 right	usine4	usine	0,31	0,31	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine5	usine	0,28 1x6 left	usine6	usine	99,28	99,28	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	usine6	usine	4,5 2x1 up	donjon_izzy_hall	usine	9,13	9,13	jamais				
+bord	usine6	usine	48,63 6x1 down	usine1	usine	48,0	48,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine6	usine	99,28 1x6 right	usine5	usine	0,28	0,28	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine6	usine	0,26 1x6 left	usine7	usine	93,26	93,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine6	usine	49,0 6x1 up	usine9	usine	49,71	49,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine7	usine	93,26 1x6 right	usine6	usine	0,26	0,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine7	usine	41,0 6x1 up	usine8	usine	41,71	41,71	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine8	usine	41,71 6x1 down	usine7	usine	41,0	41,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine8	usine	93,34 1x6 right	usine9	usine	0,34	0,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine9	usine	49,71 6x1 down	usine6	usine	49,0	49,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine9	usine	0,34 1x6 left	usine8	usine	93,34	93,34	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	usine9	usine	6,6 up	usine_hall	usine	9,13	9,13	jamais				
+porte	usine_bureau	usine	4,2 2x1 up	usine_entrepot	usine	17,3	17,3	jamais				
+bord	usine_chaine	usine	19,7 1x2 right	usine_hall	usine	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	usine_entrepot	usine	17,2 2x1 up	usine_bureau	usine	4,3	4,3	jamais				
+bord	usine_entrepot	usine	0,7 1x2 left	usine_hall	usine	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine_generateur	usine	19,7 1x2 right	usine_machines	usine	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine_hall	usine	9,14 2x1 down	usine9	usine	6,7	6,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine_hall	usine	0,7 1x2 left	usine_chaine	usine	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	usine_hall	usine	19,7 1x2 right	usine_entrepot	usine	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	usine_hall	usine	9,2 2x1 up	usine_machines	usine	9,3	9,3	jamais				
+bord	usine_machines	usine	0,7 1x2 left	usine_generateur	usine	18,7	18,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+porte	usine_machines	usine	9,2 2x1 up	usine_hall	usine	9,3	9,3	jamais				
+bord	banque_in	village	5,9 2x1 down	village	village	16,12	16,12	jamais				
+bord	bazar_in	village	6,9 2x1 down	village	village	16,20	16,20	jamais				
+porte	cave_joueur	village	7,2 2x1 up	maison_joueur	village	12,3	12,3	ch1 (ch1_kuwagamon)			porte@12,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+PNJ (script)	champs	village	14,28	champs	village	14,29	14,29	ch1 (ch1_debut)				
+bord	champs	village	0,38 1x6 left	marais0	marais	99,32	99,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.		
+bord	champs	village	40,55 6x1 down	tunnel0	tunnel	44,0	44,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.		
+bord	champs	village	10,0 4x1 up	village	village	10,71	10,71	ch1 (ch1_debut)			warp@10,71 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	classe	village	8,12 2x1 down	gym	village	44,10	44,10	ch1 (ch1_debut)			porte@45,8 à 1 case(s) ; ramène à 1 case(s) du départ	
+bord	dojo_combat	village	0,5 1x2 left	dojo_in	village	24,5	24,5	jamais				2 arrivée(s) hors de la carte ; 2 arrivée(s) sans case libre à 6 cases
+bord	dojo_in	village	6,10 2x1 down	village	village	62,20	62,20	jamais				
+bord	dojo_zen	village	13,5 1x2 right	dojo_in	village	1,5	1,5	jamais				
+porte	grange_fenil	village	8,2 2x1 up	grange_in	village	15,3	15,3	jamais				
+bord	grange_in	village	9,14 2x1 down	champs	village	20,18	20,18	jamais				
+porte	grange_in	village	15,2 2x1 up	grange_fenil	village	8,3	8,3	jamais				
+porte	gym	village	45,8 2x1 up	classe	village	8,11	8,11	ch1 (ch1_debut)			warp@8,12 à 1 case(s) ; ramène à 1 case(s) du départ	
+porte	gym	village	17,8 2x1 up	gymnase	village	8,10	8,10	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+bord	gymnase	village	8,11 2x1 down	gym	village	18,10	18,10	jamais				
+bord	gym	village	30,0 4x1 up	village	village	38,71	38,71	ch1 (ch1_debut)			warp@37,71 à 0 case(s) ; ramène à 1 case(s) du départ	
+porte	maison_haut2	village	3,2 2x1 up	maison_haut	village	15,3	15,3	jamais				
+porte	maison_haut	village	3,2 2x1 up	maison	village	3,3	3,4	jamais				arrivée déplacée (jusqu'à 1 case(s))
+bord	maison_joueur_chambre	village	5,8 2x1 down	maison_joueur_etage	village	4,3	4,3	ch2 (ch2_debut)			porte@4,2 à 0 case(s) ; ramène à 1 case(s) du départ	
+bord	maison_joueur_cuisine	village	0,4 1x2 left	maison_joueur	village	14,8	14,8	jamais				
+bord	maison_joueur_digi	village	4,7 2x1 down	maison_joueur_etage	village	7,3	7,3	jamais				
+porte	maison_joueur_etage	village	1,2 2x1 up	maison_joueur	village	9,3	9,3	ch2 (ch2_debut)			porte@9,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur_etage	village	4,2 2x1 up	maison_joueur_chambre	village	5,7	5,7	ch2 (ch2_debut)			warp@5,8 à 1 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur_etage	village	31,2 2x1 up	maison_joueur_grenier	village	5,3	5,3	ch2 (ch2_debut)			porte@5,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur_etage	village	13,2 2x1 up	maison_joueur_matt	village	4,6	4,6	ch3 (ch3_debut)			warp@4,7 à 1 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur_etage	village	16,2 2x1 up	maison_joueur_sora	village	4,6	4,6	ch4 (ch4)			warp@4,7 à 1 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur_etage	village	10,2 2x1 up	maison_joueur_tai	village	4,6	4,6	ch2 (ch2_debut)			warp@4,7 à 1 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur_grenier	village	5,2 2x1 up	maison_joueur_etage	village	31,3	31,3	ch2 (ch2_debut)			porte@31,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	maison_joueur_matt	village	4,7 2x1 down	maison_joueur_etage	village	13,3	13,3	ch3 (ch3_debut)			porte@13,2 à 0 case(s) ; ramène à 1 case(s) du départ	
+bord	maison_joueur_salle	village	21,4 1x2 right	maison_joueur	village	1,4	1,4	ch2 (ch2_debut)			warp@0,4 à 1 case(s) ; ramène à 1 case(s) du départ	
+bord	maison_joueur_sdb	village	9,4 1x2 right	maison_joueur	village	1,8	1,8	jamais				
+bord	maison_joueur_sora	village	4,7 2x1 down	maison_joueur_etage	village	16,3	16,3	ch4 (ch4)			porte@16,2 à 0 case(s) ; ramène à 1 case(s) du départ	
+bord	maison_joueur_sport	village	0,4 1x2 left	maison_joueur	village	14,4	14,4	jamais				
+bord	maison_joueur_tai	village	4,7 2x1 down	maison_joueur_etage	village	10,3	10,3	ch2 (ch2_debut)			porte@10,2 à 0 case(s) ; ramène à 1 case(s) du départ	
+porte	maison_joueur	village	12,2 2x1 up	cave_joueur	village	7,3	7,3	ch1 (ch1_kuwagamon)			porte@7,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur	village	12,2 2x1 up	cave_joueur	village	7,3	7,3	ch2 (ch2_debut)			porte@7,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+porte	maison_joueur	village	9,2 2x1 up	maison_joueur_etage	village	1,3	1,3	ch2 (ch2_debut)			porte@1,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	maison_joueur	village	0,4 1x2 left	maison_joueur_salle	village	20,4	20,4	ch2 (ch2_debut)			warp@21,4 à 1 case(s) ; ramène à 1 case(s) du départ	
+bord	maison_joueur	village	7,11 2x1 down	village	village	62,10	62,10	ch1 (ch1_debut)			porte@62,9 à 0 case(s) ; ramène à 1 case(s) du départ	
+porte	maison_m11_cave	village	11,2 2x1 up	maison_m11	village	8,3	8,3	jamais				
+porte	maison_m11_grenier	village	2,2 2x1 up	maison_m11	village	11,3	11,3	jamais				
+porte	maison_m11	village	8,2 2x1 up	maison_m11_cave	village	11,3	11,3	jamais				
+porte	maison_m11	village	11,2 2x1 up	maison_m11_grenier	village	2,3	2,3	jamais				
+bord	maison_m11	village	6,10 2x1 down	marche	village	22,49	22,49	jamais				
+porte	maison_m13_cave	village	11,2 2x1 up	maison_m13	village	8,3	8,3	jamais				
+porte	maison_m13_grenier	village	2,2 2x1 up	maison_m13	village	11,3	11,3	jamais				
+porte	maison_m13	village	8,2 2x1 up	maison_m13_cave	village	11,3	11,3	jamais				
+porte	maison_m13	village	11,2 2x1 up	maison_m13_grenier	village	2,3	2,3	jamais				
+bord	maison_m13	village	6,10 2x1 down	marche	village	54,53	54,53	jamais				
+porte	maison_m14_grenier	village	2,2 2x1 up	maison_m14	village	11,3	11,3	jamais				
+porte	maison_m14	village	11,2 2x1 up	maison_m14_grenier	village	2,3	2,3	jamais				
+bord	maison_m14	village	6,10 2x1 down	marche	village	78,26	78,26	jamais				
+porte	maison_m15_grenier	village	2,2 2x1 up	maison_m15	village	11,3	11,3	jamais				
+porte	maison_m15	village	11,2 2x1 up	maison_m15_grenier	village	2,3	2,3	jamais				
+bord	maison_m15	village	6,10 2x1 down	marche	village	33,51	33,51	jamais				
+bord	maison_m2	village	6,10 2x1 down	marche	village	13,9	13,9	jamais				
+bord	maison_m3	village	6,10 2x1 down	marche	village	54,9	54,9	jamais				
+porte	maison_m6_cave	village	11,2 2x1 up	maison_m6	village	8,3	8,3	jamais				
+porte	maison_m6_grenier	village	2,2 2x1 up	maison_m6	village	11,3	11,3	jamais				
+porte	maison_m6	village	8,2 2x1 up	maison_m6_cave	village	11,3	11,3	jamais				
+porte	maison_m6	village	11,2 2x1 up	maison_m6_grenier	village	2,3	2,3	jamais				
+bord	maison_m6	village	6,10 2x1 down	marche	village	6,49	6,49	jamais				
+porte	maison_m8_grenier	village	2,2 2x1 up	maison_m8	village	11,3	11,3	jamais				
+porte	maison_m8	village	11,2 2x1 up	maison_m8_grenier	village	2,3	2,3	jamais				
+bord	maison_m8	village	6,10 2x1 down	marche	village	67,51	67,51	jamais				
+porte	maison_n11_cave	village	11,2 2x1 up	maison_n11	village	8,3	8,3	jamais				
+porte	maison_n11_grenier	village	2,2 2x1 up	maison_n11	village	11,3	11,3	jamais				
+porte	maison_n11	village	8,2 2x1 up	maison_n11_cave	village	11,3	11,3	jamais				
+porte	maison_n11	village	11,2 2x1 up	maison_n11_grenier	village	2,3	2,3	jamais				
+bord	maison_n11	village	6,10 2x1 down	numerique	village	56,51	56,51	jamais				
+porte	maison_n12_grenier	village	2,2 2x1 up	maison_n12	village	11,3	11,3	jamais				
+porte	maison_n12	village	11,2 2x1 up	maison_n12_grenier	village	2,3	2,3	jamais				
+bord	maison_n12	village	6,10 2x1 down	numerique	village	70,53	70,53	jamais				
+porte	maison_n1_cave	village	11,2 2x1 up	maison_n1	village	8,3	8,3	jamais				
+porte	maison_n1_grenier	village	2,2 2x1 up	maison_n1	village	11,3	11,3	jamais				
+porte	maison_n1	village	8,2 2x1 up	maison_n1_cave	village	11,3	11,3	jamais				
+porte	maison_n1	village	11,2 2x1 up	maison_n1_grenier	village	2,3	2,3	jamais				
+bord	maison_n1	village	6,10 2x1 down	numerique	village	27,9	27,9	jamais				
+porte	maison_n3_grenier	village	2,2 2x1 up	maison_n3	village	11,3	11,3	jamais				
+porte	maison_n3	village	11,2 2x1 up	maison_n3_grenier	village	2,3	2,3	jamais				
+bord	maison_n3	village	6,10 2x1 down	numerique	village	9,22	9,22	jamais				
+porte	maison_n4_e1_e2	village	2,2 2x1 up	maison_n4_e1	village	11,3	11,3	jamais				
+porte	maison_n4_e1	village	2,2 2x1 up	maison_n4	village	11,3	11,3	jamais				
+porte	maison_n4_e1	village	11,2 2x1 up	maison_n4_e1_e2	village	2,3	2,3	jamais				
+porte	maison_n4	village	11,2 2x1 up	maison_n4_e1	village	2,3	2,3	jamais				
+bord	maison_n4	village	6,10 2x1 down	numerique	village	67,20	67,20	jamais				
+porte	maison_n6_cave	village	11,2 2x1 up	maison_n6	village	8,3	8,3	jamais				
+porte	maison_n6_grenier	village	2,2 2x1 up	maison_n6	village	11,3	11,3	jamais				
+porte	maison_n6	village	8,2 2x1 up	maison_n6_cave	village	11,3	11,3	jamais				
+porte	maison_n6	village	11,2 2x1 up	maison_n6_grenier	village	2,3	2,3	jamais				
+bord	maison_n6	village	6,10 2x1 down	numerique	village	54,38	54,38	jamais				
+porte	maison_n8_grenier	village	2,2 2x1 up	maison_n8	village	11,3	11,3	jamais				
+porte	maison_n8	village	11,2 2x1 up	maison_n8_grenier	village	2,3	2,3	jamais				
+bord	maison_n8	village	6,10 2x1 down	numerique	village	25,49	25,49	jamais				
+porte	maison_n9_e1_e2	village	2,2 2x1 up	maison_n9_e1	village	11,3	11,3	jamais				
+porte	maison_n9_e1	village	2,2 2x1 up	maison_n9	village	11,3	11,3	jamais				
+porte	maison_n9_e1	village	11,2 2x1 up	maison_n9_e1_e2	village	2,3	2,3	jamais				
+porte	maison_n9	village	11,2 2x1 up	maison_n9_e1	village	2,3	2,3	jamais				
+bord	maison_n9	village	6,10 2x1 down	numerique	village	7,51	7,51	jamais				
+porte	maison_r0_cave	village	11,2 2x1 up	maison_r0	village	8,3	8,3	jamais				
+porte	maison_r0_grenier	village	2,2 2x1 up	maison_r0	village	11,3	11,3	jamais				
+porte	maison_r0	village	8,2 2x1 up	maison_r0_cave	village	11,3	11,3	jamais				
+porte	maison_r0	village	11,2 2x1 up	maison_r0_grenier	village	2,3	2,3	jamais				
+bord	maison_r0	village	6,10 2x1 down	residentiel	village	49,13	49,13	jamais				
+porte	maison_r10_grenier	village	2,2 2x1 up	maison_r10	village	11,3	11,3	jamais				
+porte	maison_r10	village	11,2 2x1 up	maison_r10_grenier	village	2,3	2,3	jamais				
+bord	maison_r10	village	6,10 2x1 down	residentiel	village	11,49	11,49	jamais				
+porte	maison_r11_cave	village	11,2 2x1 up	maison_r11	village	8,3	8,3	jamais				
+porte	maison_r11_grenier	village	2,2 2x1 up	maison_r11	village	11,3	11,3	jamais				
+porte	maison_r11	village	8,2 2x1 up	maison_r11_cave	village	11,3	11,3	jamais				
+porte	maison_r11	village	11,2 2x1 up	maison_r11_grenier	village	2,3	2,3	jamais				
+bord	maison_r11	village	6,10 2x1 down	residentiel	village	24,51	24,51	jamais				
+porte	maison_r12_grenier	village	2,2 2x1 up	maison_r12	village	11,3	11,3	jamais				
+porte	maison_r12	village	11,2 2x1 up	maison_r12_grenier	village	2,3	2,3	jamais				
+bord	maison_r12	village	6,10 2x1 down	residentiel	village	34,53	34,53	jamais				
+porte	maison_r13_cave	village	11,2 2x1 up	maison_r13	village	8,3	8,3	jamais				
+porte	maison_r13_grenier	village	2,2 2x1 up	maison_r13	village	11,3	11,3	jamais				
+porte	maison_r13	village	8,2 2x1 up	maison_r13_cave	village	11,3	11,3	jamais				
+porte	maison_r13	village	11,2 2x1 up	maison_r13_grenier	village	2,3	2,3	jamais				
+bord	maison_r13	village	6,10 2x1 down	residentiel	village	52,53	52,53	jamais				
+porte	maison_r14_grenier	village	2,2 2x1 up	maison_r14	village	11,3	11,3	jamais				
+porte	maison_r14	village	11,2 2x1 up	maison_r14_grenier	village	2,3	2,3	jamais				
+bord	maison_r14	village	6,10 2x1 down	residentiel	village	65,54	65,54	jamais				
+porte	maison_r15_grenier	village	2,2 2x1 up	maison_r15	village	11,3	11,3	jamais				
+porte	maison_r15	village	11,2 2x1 up	maison_r15_grenier	village	2,3	2,3	jamais				
+bord	maison_r15	village	6,10 2x1 down	residentiel	village	76,20	76,20	jamais				
+porte	maison_r16_cave	village	11,2 2x1 up	maison_r16	village	8,3	8,3	jamais				
+porte	maison_r16_grenier	village	2,2 2x1 up	maison_r16	village	11,3	11,3	jamais				
+porte	maison_r16	village	8,2 2x1 up	maison_r16_cave	village	11,3	11,3	jamais				
+porte	maison_r16	village	11,2 2x1 up	maison_r16_grenier	village	2,3	2,3	jamais				
+bord	maison_r16	village	6,10 2x1 down	residentiel	village	72,8	72,8	jamais				
+porte	maison_r1_cave	village	11,2 2x1 up	maison_r1	village	8,3	8,3	jamais				
+porte	maison_r1_grenier	village	2,2 2x1 up	maison_r1	village	11,3	11,3	jamais				
+porte	maison_r1	village	8,2 2x1 up	maison_r1_cave	village	11,3	11,3	jamais				
+porte	maison_r1	village	11,2 2x1 up	maison_r1_grenier	village	2,3	2,3	jamais				
+bord	maison_r1	village	6,10 2x1 down	residentiel	village	29,11	29,11	jamais				
+porte	maison_r2_grenier	village	2,2 2x1 up	maison_r2	village	11,3	11,3	jamais				
+porte	maison_r2	village	11,2 2x1 up	maison_r2_grenier	village	2,3	2,3	jamais				
+bord	maison_r2	village	6,10 2x1 down	residentiel	village	20,24	20,24	jamais				
+porte	maison_r3_grenier	village	2,2 2x1 up	maison_r3	village	11,3	11,3	jamais				
+porte	maison_r3	village	11,2 2x1 up	maison_r3_grenier	village	2,3	2,3	jamais				
+bord	maison_r3	village	6,10 2x1 down	residentiel	village	31,24	31,24	jamais				
+porte	maison_r4_grenier	village	2,2 2x1 up	maison_r4	village	11,3	11,3	jamais				
+porte	maison_r4	village	11,2 2x1 up	maison_r4_grenier	village	2,3	2,3	jamais				
+bord	maison_r4	village	6,10 2x1 down	residentiel	village	51,22	51,22	jamais				
+porte	maison_r5_grenier	village	2,2 2x1 up	maison_r5	village	11,3	11,3	jamais				
+porte	maison_r5	village	11,2 2x1 up	maison_r5_grenier	village	2,3	2,3	jamais				
+bord	maison_r5	village	6,10 2x1 down	residentiel	village	9,11	9,11	jamais				
+porte	maison_r6_cave	village	11,2 2x1 up	maison_r6	village	8,3	8,3	jamais				
+porte	maison_r6_grenier	village	2,2 2x1 up	maison_r6	village	11,3	11,3	jamais				
+porte	maison_r6	village	8,2 2x1 up	maison_r6_cave	village	11,3	11,3	jamais				
+porte	maison_r6	village	11,2 2x1 up	maison_r6_grenier	village	2,3	2,3	jamais				
+bord	maison_r6	village	6,10 2x1 down	residentiel	village	18,36	18,36	jamais				
+porte	maison_r7_cave	village	11,2 2x1 up	maison_r7	village	8,3	8,3	jamais				
+porte	maison_r7_grenier	village	2,2 2x1 up	maison_r7	village	11,3	11,3	jamais				
+porte	maison_r7	village	8,2 2x1 up	maison_r7_cave	village	11,3	11,3	jamais				
+porte	maison_r7	village	11,2 2x1 up	maison_r7_grenier	village	2,3	2,3	jamais				
+bord	maison_r7	village	6,10 2x1 down	residentiel	village	7,38	7,38	jamais				
+porte	maison_r8_grenier	village	2,2 2x1 up	maison_r8	village	11,3	11,3	jamais				
+porte	maison_r8	village	11,2 2x1 up	maison_r8_grenier	village	2,3	2,3	jamais				
+bord	maison_r8	village	6,10 2x1 down	residentiel	village	31,40	31,40	jamais				
+porte	maison_r9_grenier	village	2,2 2x1 up	maison_r9	village	11,3	11,3	jamais				
+porte	maison_r9	village	11,2 2x1 up	maison_r9_grenier	village	2,3	2,3	jamais				
+bord	maison_r9	village	6,10 2x1 down	residentiel	village	49,38	49,38	jamais				
+objet (panneau-script)	maison	village	14,8	souterrain_jiji	foret	2,3	2,3	ch1 (ch1_antre)			porte@2,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+bord	maison	village	7,11 2x1 down	village	village	38,12	38,12	ch1 (ch1_debut)			porte@39,9 à 2 case(s) ; ramène à 1 case(s) du départ	
+bord	marche	village	0,25 1x3 left	residentiel	village	85,25	85,25	jamais				
+bord	numerique	village	85,25 1x3 right	residentiel	village	0,25	0,25	jamais				
+bord	poste_in	village	6,9 2x1 down	village	village	52,52	52,52	jamais				
+bord	residentiel	village	85,25 1x3 right	marche	village	0,25	0,25	jamais				
+bord	residentiel	village	0,25 1x3 left	numerique	village	85,25	85,25	jamais				
+bord	residentiel	village	41,60 2x1 down	village	village	22,0	22,0	jamais				
+bord	resto_in	village	6,10 2x1 down	village	village	16,44	16,44	jamais				
+bord	serre_in	village	7,10 2x1 down	village	village	62,44	62,44	jamais				
+porte	village	village	16,10 2x1 up	banque_in	village	5,8	5,8	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+porte	village	village	16,18 2x1 up	bazar_in	village	6,8	6,8	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+bord	village	village	10,71 4x1 down	champs	village	10,0	10,0	ch1 (ch1_debut)			warp@10,0 à 0 case(s) ; ramène à 0 case(s) du départ	
+porte	village	village	62,18 2x1 up	dojo_in	village	6,9	6,9	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+bord	village	village	37,71 5x1 down	gym	village	30,0	30,0	ch1 (ch1_debut)			warp@30,0 à 0 case(s) ; ramène à 1 case(s) du départ	arrivée déplacée (jusqu'à 1 case(s))
+porte	village	village	39,9 2x1 up	maison	village	7,10	7,10	ch1 (ch1_debut)			warp@7,11 à 1 case(s) ; ramène à 2 case(s) du départ	
+porte	village	village	62,9 up	maison_joueur	village	7,10	7,10	ch1 (ch1_debut)			warp@7,11 à 1 case(s) ; ramène à 0 case(s) du départ	
+bord	village	village	95,26 1x6 right	montagne0	montagne	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le passage... Il s'ouvrira plus tard dans l'aventure.		
+bord	village	village	0,2 1x6 left	plage	plage	95,2	95,2	ch1 (ch1_debut)			warp@95,2 à 0 case(s) ; ramène à 0 case(s) du départ	
+porte	village	village	52,50 2x1 up	poste_in	village	6,8	6,8	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+bord	village	village	22,0 4x1 up	residentiel	village	41,60	41,60	ch1 (ch1_debut)			warp@41,60 à 0 case(s) ; ramène à 0 case(s) du départ	
+porte	village	village	16,42 2x1 up	resto_in	village	6,9	6,9	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+porte	village	village	62,42 2x1 up	serre_in	village	7,9	7,9	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4			
+PNJ (script)	village	village	42,22	village	village	62,11	62,11	ch1 (ch1_debut)				
+bord	donjon_sora_galerie	volcan	0,7 1x2 left	donjon_sora_hall	volcan	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			arrivée déplacée (jusqu'à 1 case(s))
+bord	donjon_sora_galerie	volcan	19,7 1x2 right	donjon_sora_sanctuaire	volcan	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	donjon_sora_hall	volcan	19,7 1x2 right	donjon_sora_galerie	volcan	1,7	1,7	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	donjon_sora_hall	volcan	9,14 2x1 down	volcan5	volcan	4,6	4,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	donjon_sora_sanctuaire	volcan	0,7 1x2 left	donjon_sora_galerie	volcan	18,7	18,6	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			arrivée déplacée (jusqu'à 1 case(s))
+bord	volcan0	volcan	48,0 6x1 up	montagne8	montagne	47,67	47,67	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac ch3_debut ch3_souterrains ch3_sora ch4	Un voile de données bloque le chemin... Cette partie de l'île s'ouvrira plus tard dans l'aventure.		
+bord	volcan0	volcan	99,32 1x6 right	volcan1	volcan	0,32	0,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan1	volcan	0,32 1x6 left	volcan0	volcan	99,32	99,32	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan1	volcan	87,29 1x6 right	volcan2	volcan	0,29	0,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan1	volcan	40,63 6x1 down	volcan6	volcan	40,0	40,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan2	volcan	0,29 1x6 left	volcan1	volcan	87,29	87,29	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan2	volcan	93,33 1x6 right	volcan3	volcan	0,33	0,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan2	volcan	45,63 6x1 down	volcan5	volcan	45,0	45,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan3	volcan	0,33 1x6 left	volcan2	volcan	93,33	93,33	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan3	volcan	39,63 6x1 down	volcan4	volcan	39,0	39,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan4	volcan	39,0 6x1 up	volcan3	volcan	39,63	39,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan4	volcan	0,26 1x6 left	volcan5	volcan	93,26	93,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+porte	volcan5	volcan	4,5 2x1 up	donjon_sora_hall	volcan	9,13	9,13	jamais				
+bord	volcan5	volcan	45,0 6x1 up	volcan2	volcan	45,63	45,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan5	volcan	93,26 1x6 right	volcan4	volcan	0,26	0,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan5	volcan	0,30 1x6 left	volcan6	volcan	87,30	87,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan6	volcan	40,0 6x1 up	volcan1	volcan	40,63	40,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan6	volcan	87,30 1x6 right	volcan5	volcan	0,30	0,30	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan6	volcan	0,26 1x6 left	volcan7	volcan	99,26	99,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan6	volcan	38,63 6x1 down	volcan9	volcan	38,0	38,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan7	volcan	99,26 1x6 right	volcan6	volcan	0,26	0,26	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan7	volcan	47,63 6x1 down	volcan8	volcan	47,0	47,0	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan8	volcan	47,0 6x1 up	volcan7	volcan	47,63	47,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan8	volcan	99,25 1x6 right	volcan9	volcan	0,25	0,25	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan9	volcan	38,0 6x1 up	volcan6	volcan	38,63	38,63	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			
+bord	volcan9	volcan	0,25 1x6 left	volcan8	volcan	99,25	99,25	jamais	ch1_debut ch1_kuwagamon ch1_antre ch2_debut ch2_lac			

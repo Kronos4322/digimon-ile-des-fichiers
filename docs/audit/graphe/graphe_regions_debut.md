@@ -1,0 +1,1253 @@
+# Graphe des connexions (début de partie, sans recrue)
+
+Lecture : « A → B (nature, position, ouvert au chapitre N) ». Étapes : ch1_debut, ch1_kuwagamon, ch1_antre, ch2_debut, ch2_lac, ch3_debut, ch3_souterrains, ch3_sora, ch4.
+
+Atteintes depuis la maison de Jijimon : ch1_debut 18 · ch1_kuwagamon 20 · ch1_antre 25 · ch2_debut 32 · ch2_lac 43 · ch3_debut 54 · ch3_souterrains 54 · ch3_sora 54 · ch4 55 cartes (sur 351).
+
+## Le cœur du monde : grille du puzzle (maps/puzzle.js, remplacée par celle de l’atelier)
+
+```
+·           ·           ·           lac10       lac9        ·           ·
+·           ·           lac11       lac7        lac6        lac5        ·
+·           ·           ·           lac8        lac2        lac4        ·
+·           ·           ·           lac1        lac0        lac3        ·
+miharashi4  miharashi3  miharashi1  miharashi0  clairiere   ·           ·
+·           ·           ·           miharashi2  sentier     prairie     berceau
+·           ·           ·           bosquet     geants      ·           ·
+·           ·           ·           dunes       lisiere     ·           ·
+·           ·           ·           crique      plage       village     ·
+```
+
+Passages du puzzle : lac10 right lac9 · lac10 down lac7 · lac9 down lac6 · lac11 right lac7 · lac7 right lac6 · lac6 right lac5 · lac7 down lac8 · lac6 down lac2 · lac5 down lac4 · lac8 down lac1 · lac4 down lac3 · lac1 right lac0 {"jusqua":3} · lac0 right lac3 · lac0 down clairiere {"des":2} · lac1 down miharashi0 · miharashi4 right miharashi3 · miharashi3 right miharashi1 · miharashi1 right miharashi0 · miharashi0 right clairiere {"des":3} · miharashi0 down miharashi2 · clairiere down sentier · miharashi2 right sentier {"des":3} · sentier right prairie · prairie right berceau · miharashi2 down bosquet {"des":3} · sentier down geants · bosquet right geants · bosquet down dunes · geants down lisiere · dunes right lisiere · dunes down crique · lisiere down plage · crique right plage · plage right village · plage left crique · dunes up bosquet · bosquet up miharashi2 {"des":3}
+
+## Région foret (10 cartes ; ouverte au chapitre 1)
+
+Liens vers d'autres régions : lac0 (lac), miharashi0 (miharashi), miharashi2 (miharashi), bosquet (plage), dunes (plage), plage (plage), brumes0 (brumes), maison (village)
+
+- **clairiere** — Clairière de l'Arrivée
+  - → arbre_kuwagamon (porte, 55,19 2x1 up, ouvert ch1 (ch1_kuwagamon))
+  - → lac0 (bord, 32,0 6x1 up, ouvert ch2 (ch2_debut))
+  - → miharashi0 (bord, 0,27 1x6 left, ouvert ch3 (ch3_debut))
+  - → sentier (bord, 42,71 6x1 down, ouvert ch1 (ch1_debut)) ⚠ 1/6 cases de bord bloquées
+- **sentier** — Sentier des Murmures
+  - → clairiere (bord, 42,0 6x1 up, ouvert ch1 (ch1_debut)) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → geants (bord, 58,71 6x1 down, ouvert ch1 (ch1_debut))
+  - → miharashi2 (bord, 0,21 1x5 left, ouvert ch3 (ch3_debut))
+  - → prairie (bord, 95,23 1x8 right, ouvert ch1 (ch1_debut)) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **prairie** — Prairie des Lucioles
+  - → berceau (bord, 95,23 1x6 right, ouvert ch1 (ch1_debut)) ⚠ 1/6 cases de bord bloquées
+  - → sentier (bord, 0,23 1x8 left, ouvert ch1 (ch1_debut)) ⚠ 1/8 cases de bord bloquées
+  - → village_yokomon (objet (panneau-script), 62,25, ouvert ch1 (ch1_debut))
+- **geants** — Bois des Géants
+  - → bosquet (bord, 0,28 1x6 left, ouvert ch1 (ch1_debut))
+  - → lisiere (bord, 26,71 6x1 down, ouvert ch1 (ch1_debut))
+  - → sentier (bord, 58,0 6x1 up, ouvert ch1 (ch1_debut))
+- **lisiere** — Lisière du Ravin
+  - → dunes (bord, 0,38 1x6 left, ouvert ch1 (ch1_debut))
+  - → geants (bord, 26,0 6x1 up, ouvert ch1 (ch1_debut))
+  - → plage (bord, 32,71 10x1 down, ouvert ch1 (ch1_debut))
+- **berceau** — Village des Bébés
+  - → berceau_maison (porte, 37,11 2x1 up, ouvert ch1 (ch1_debut)) ⚠ retour à 37 cases du départ
+  - → brumes0 (bord, 46,0 6x1 up, jamais ouvert/atteint)
+  - → prairie (bord, 0,23 1x6 left, ouvert ch1 (ch1_debut)) ⚠ 1/6 cases de bord bloquées
+- **berceau_maison** — Maison de Penguinmon
+  - → berceau (bord, 7,12 2x1 down, ouvert ch1 (ch1_debut)) ⚠ arrivée déplacée (jusqu'à 1 case(s)) ; arrivée à 36 cases du passage de retour
+- **arbre_kuwagamon** — Cœur du Grand Arbre
+  - → clairiere (bord, 9,14 2x1 down, ouvert ch1 (ch1_kuwagamon))
+  - → maison (PNJ (script), 9,7, jamais ouvert/atteint)
+- **village_yokomon** — Village des Poyomon
+  - → prairie (bord, 17,31 down, ouvert ch1 (ch1_debut)) ⚠ arrivée loin du bord up
+  - → souterrain_jiji (objet (panneau-script), 17,11, ouvert ch1 (ch1_antre))
+- **souterrain_jiji** — Souterrain de Jijimon
+  - → maison (porte, 2,2 2x1 up, ouvert ch1 (ch1_antre)) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → village_yokomon (porte, 42,2 2x1 up, ouvert ch1 (ch1_antre))
+
+## Région plage (9 cartes ; ouverte au chapitre 1)
+
+Liens vers d'autres régions : lisiere (foret), village (village), geants (foret), miharashi2 (miharashi)
+
+- **plage** — Plage des Cabines
+  - → antre1 (objet (panneau-script), 35,52, ouvert ch1 (ch1_antre))
+  - → antre1 (objet (panneau-script), 36,52, ouvert ch1 (ch1_antre))
+  - → antre1 (objet (panneau-script), 37,52, ouvert ch1 (ch1_antre))
+  - → antre1 (objet (panneau-script), 35,53, ouvert ch1 (ch1_antre))
+  - → antre1 (objet (panneau-script), 36,53, ouvert ch1 (ch1_antre))
+  - → antre1 (objet (panneau-script), 37,53, ouvert ch1 (ch1_antre))
+  - → crique (bord, 0,10 1x16 left, ouvert ch1 (ch1_debut))
+  - → crique (bord, 0,3 1x6 left, ouvert ch1 (ch1_debut))
+  - → lisiere (bord, 32,0 10x1 up, ouvert ch1 (ch1_debut))
+  - → village (bord, 95,2 1x6 right, ouvert ch1 (ch1_debut))
+- **crique** — Crique du Radeau
+  - → dunes (bord, 11,0 75x1 up, ouvert ch1 (ch1_debut))
+  - → plage (bord, 95,10 1x16 right, ouvert ch1 (ch1_debut))
+  - → plage (bord, 95,3 1x6 right, ouvert ch1 (ch1_debut))
+- **dunes** — Dunes des Bébés
+  - → bosquet (bord, 38,0 6x1 up, ouvert ch1 (ch1_debut))
+  - → bosquet (bord, 6,0 8x1 up, ouvert ch1 (ch1_debut))
+  - → crique (bord, 11,71 75x1 down, ouvert ch1 (ch1_debut))
+  - → lisiere (bord, 95,38 1x6 right, ouvert ch1 (ch1_debut))
+- **bosquet** — Bosquet des Pousses
+  - → dunes (bord, 38,71 6x1 down, ouvert ch1 (ch1_debut))
+  - → dunes (bord, 6,71 8x1 down, ouvert ch1 (ch1_debut))
+  - → geants (bord, 95,28 1x6 right, ouvert ch1 (ch1_debut))
+  - → miharashi2 (bord, 38,0 6x1 up, ouvert ch3 (ch3_debut))
+  - → miharashi2 (bord, 3,0 9x1 up, ouvert ch3 (ch3_debut))
+- **antre1** — Antre de Shellmon — Galeries ensablées
+  - → antre_lagune (escalier/déclencheur, 40,6, ouvert ch1 (ch1_antre))
+  - → plage (escalier/déclencheur, 31,45, ouvert ch1 (ch1_antre))
+- **antre_lagune** — Antre de Shellmon — Lagune des Cristaux
+  - → antre1 (escalier/déclencheur, 31,45, ouvert ch1 (ch1_antre))
+  - → antre2 (escalier/déclencheur, 37,6, ouvert ch1 (ch1_antre))
+- **antre2** — Antre de Shellmon — Temple englouti
+  - → antre_crypte (escalier/déclencheur, 32,5, ouvert ch1 (ch1_antre))
+  - → antre_lagune (escalier/déclencheur, 31,45, ouvert ch1 (ch1_antre))
+- **antre_crypte** — Antre de Shellmon — Crypte des Gardiens
+  - → antre2 (escalier/déclencheur, 31,45, ouvert ch1 (ch1_antre))
+  - → antre_shellmon (escalier/déclencheur, 32,5, ouvert ch2 (ch2_debut))
+- **antre_shellmon** — Antre de Shellmon — La grande coquille
+  - → antre_crypte (escalier/déclencheur, 21,31, ouvert ch2 (ch2_debut))
+  - → antre_shellmon (PNJ (script), 22,13, jamais ouvert/atteint)
+
+## Région village (113 cartes ; ouverte au chapitre 1)
+
+Liens vers d'autres régions : montagne0 (montagne), plage (plage), souterrain_jiji (foret), marais0 (marais), tunnel0 (tunnel)
+
+- **village** — Ville des Fichiers
+  - → banque_in (porte, 16,10 2x1 up, jamais ouvert/atteint)
+  - → bazar_in (porte, 16,18 2x1 up, jamais ouvert/atteint)
+  - → champs (bord, 10,71 4x1 down, ouvert ch1 (ch1_debut))
+  - → dojo_in (porte, 62,18 2x1 up, jamais ouvert/atteint)
+  - → gym (bord, 37,71 5x1 down, ouvert ch1 (ch1_debut)) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → maison (porte, 39,9 2x1 up, ouvert ch1 (ch1_debut))
+  - → maison_joueur (porte, 62,9 up, ouvert ch1 (ch1_debut))
+  - → montagne0 (bord, 95,26 1x6 right, jamais ouvert/atteint)
+  - → plage (bord, 0,2 1x6 left, ouvert ch1 (ch1_debut))
+  - → poste_in (porte, 52,50 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 22,0 4x1 up, ouvert ch1 (ch1_debut))
+  - → resto_in (porte, 16,42 2x1 up, jamais ouvert/atteint)
+  - → serre_in (porte, 62,42 2x1 up, jamais ouvert/atteint)
+  - → village (PNJ (script), 42,22, ouvert ch1 (ch1_debut))
+- **maison_joueur** — Ma maison
+  - → cave_joueur (porte, 12,2 2x1 up, ouvert ch1 (ch1_kuwagamon))
+  - → cave_joueur (porte, 12,2 2x1 up, ouvert ch2 (ch2_debut))
+  - → maison_joueur_etage (porte, 9,2 2x1 up, ouvert ch2 (ch2_debut))
+  - → maison_joueur_salle (bord, 0,4 1x2 left, ouvert ch2 (ch2_debut))
+  - → village (bord, 7,11 2x1 down, ouvert ch1 (ch1_debut))
+- **maison_joueur_etage** — Ma maison — Couloir de l’étage
+  - → maison_joueur (porte, 1,2 2x1 up, ouvert ch2 (ch2_debut))
+  - → maison_joueur_chambre (porte, 4,2 2x1 up, ouvert ch2 (ch2_debut))
+  - → maison_joueur_grenier (porte, 31,2 2x1 up, ouvert ch2 (ch2_debut))
+  - → maison_joueur_matt (porte, 13,2 2x1 up, ouvert ch3 (ch3_debut))
+  - → maison_joueur_sora (porte, 16,2 2x1 up, ouvert ch4 (ch4))
+  - → maison_joueur_tai (porte, 10,2 2x1 up, ouvert ch2 (ch2_debut))
+- **maison_joueur_grenier** — Ma maison — Grenier
+  - → maison_joueur_etage (porte, 5,2 2x1 up, ouvert ch2 (ch2_debut))
+- **maison_joueur_sdb** — Ma maison — Salle de bain — *jamais atteinte*
+  - → maison_joueur (bord, 9,4 1x2 right, jamais ouvert/atteint)
+- **maison_joueur_cuisine** — Ma maison — Cuisine — *jamais atteinte*
+  - → maison_joueur (bord, 0,4 1x2 left, jamais ouvert/atteint)
+- **maison_joueur_sport** — Ma maison — Salle de sport — *jamais atteinte*
+  - → maison_joueur (bord, 0,4 1x2 left, jamais ouvert/atteint)
+- **maison_joueur_salle** — Ma maison — Grande salle à manger
+  - → maison_joueur (bord, 21,4 1x2 right, ouvert ch2 (ch2_debut))
+- **maison_joueur_chambre** — Ma maison — Ma chambre
+  - → maison_joueur_etage (bord, 5,8 2x1 down, ouvert ch2 (ch2_debut))
+- **maison_joueur_tai** — Ma maison — Chambre de Tai
+  - → maison_joueur_etage (bord, 4,7 2x1 down, ouvert ch2 (ch2_debut))
+- **maison_joueur_matt** — Ma maison — Chambre de Matt
+  - → maison_joueur_etage (bord, 4,7 2x1 down, ouvert ch3 (ch3_debut))
+- **maison_joueur_sora** — Ma maison — Chambre de Sora
+  - → maison_joueur_etage (bord, 4,7 2x1 down, ouvert ch4 (ch4))
+- **maison_joueur_digi** — Ma maison — Chambre du Digimon — *jamais atteinte*
+  - → maison_joueur_etage (bord, 4,7 2x1 down, jamais ouvert/atteint)
+- **maison** — Maison de Jijimon
+  - → souterrain_jiji (objet (panneau-script), 14,8, ouvert ch1 (ch1_antre))
+  - → village (bord, 7,11 2x1 down, ouvert ch1 (ch1_debut))
+- **bazar_in** — Bazar de Gotsumon — *jamais atteinte*
+  - → village (bord, 6,9 2x1 down, jamais ouvert/atteint)
+- **dojo_in** — Dojo d'Elecmon — *jamais atteinte*
+  - → village (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **resto_in** — Restaurant aux Champignons — *jamais atteinte*
+  - → village (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **serre_in** — Serre de Yokomon — DigiFerme — *jamais atteinte*
+  - → village (bord, 7,10 2x1 down, jamais ouvert/atteint)
+- **poste_in** — Poste de Biyomon — *jamais atteinte*
+  - → village (bord, 6,9 2x1 down, jamais ouvert/atteint)
+- **banque_in** — Banque de Kunemon — *jamais atteinte*
+  - → village (bord, 5,9 2x1 down, jamais ouvert/atteint)
+- **maison_haut** — Maison de Jijimon — Dortoir des habitants — *jamais atteinte*
+  - → maison (porte, 3,2 2x1 up, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **maison_haut2** — Maison de Jijimon — Grande bibliothèque — *jamais atteinte*
+  - → maison_haut (porte, 3,2 2x1 up, jamais ouvert/atteint)
+- **dojo_zen** — Dojo d'Elecmon — Salle de méditation — *jamais atteinte*
+  - → dojo_in (bord, 13,5 1x2 right, jamais ouvert/atteint)
+- **dojo_combat** — Dojo d'Elecmon — Salle des combats — *jamais atteinte*
+  - → dojo_in (bord, 0,5 1x2 left, jamais ouvert/atteint) ⚠ 2 arrivée(s) hors de la carte ; 2 arrivée(s) sans case libre à 6 cases
+- **champs** — Quartier des Champs
+  - → champs (PNJ (script), 14,28, ouvert ch1 (ch1_debut))
+  - → marais0 (bord, 0,38 1x6 left, jamais ouvert/atteint)
+  - → tunnel0 (bord, 40,55 6x1 down, jamais ouvert/atteint)
+  - → village (bord, 10,0 4x1 up, ouvert ch1 (ch1_debut))
+- **grange_in** — Grange de Palmon — *jamais atteinte*
+  - → champs (bord, 9,14 2x1 down, jamais ouvert/atteint)
+  - → grange_fenil (porte, 15,2 2x1 up, jamais ouvert/atteint)
+- **grange_fenil** — Grange de Palmon — Fenil — *jamais atteinte*
+  - → grange_in (porte, 8,2 2x1 up, jamais ouvert/atteint)
+- **gym** — Terrain d'entraînement
+  - → classe (porte, 45,8 2x1 up, ouvert ch1 (ch1_debut))
+  - → gymnase (porte, 17,8 2x1 up, jamais ouvert/atteint)
+  - → village (bord, 30,0 4x1 up, ouvert ch1 (ch1_debut))
+- **residentiel** — Quartier Résidentiel — *jamais atteinte*
+  - → marche (bord, 85,25 1x3 right, jamais ouvert/atteint)
+  - → numerique (bord, 0,25 1x3 left, jamais ouvert/atteint)
+  - → village (bord, 41,60 2x1 down, jamais ouvert/atteint)
+- **maison_r0** — Maison inoccupée — *jamais atteinte*
+  - → maison_r0_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_r0_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r0_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r0 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r0_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_r0 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_r1** — Maison inoccupée — *jamais atteinte*
+  - → maison_r1_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_r1_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r1_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r1 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r1_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_r1 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_r2** — Maison inoccupée — *jamais atteinte*
+  - → maison_r2_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r2_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r2 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r3** — Maison inoccupée — *jamais atteinte*
+  - → maison_r3_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r3_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r3 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r4** — Maison inoccupée — *jamais atteinte*
+  - → maison_r4_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r4_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r4 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r5** — Maison inoccupée — *jamais atteinte*
+  - → maison_r5_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r5_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r5 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r6** — Maison inoccupée — *jamais atteinte*
+  - → maison_r6_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_r6_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r6_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r6 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r6_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_r6 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_r7** — Maison inoccupée — *jamais atteinte*
+  - → maison_r7_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_r7_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r7_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r7 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r7_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_r7 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_r8** — Maison inoccupée — *jamais atteinte*
+  - → maison_r8_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r8_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r8 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r9** — Maison inoccupée — *jamais atteinte*
+  - → maison_r9_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r9_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r9 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r10** — Maison inoccupée — *jamais atteinte*
+  - → maison_r10_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r10_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r10 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r11** — Maison inoccupée — *jamais atteinte*
+  - → maison_r11_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_r11_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r11_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r11 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r11_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_r11 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_r12** — Maison inoccupée — *jamais atteinte*
+  - → maison_r12_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r12_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r12 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r13** — Maison inoccupée — *jamais atteinte*
+  - → maison_r13_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_r13_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r13_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r13 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r13_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_r13 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_r14** — Maison inoccupée — *jamais atteinte*
+  - → maison_r14_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r14_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r14 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r15** — Maison inoccupée — *jamais atteinte*
+  - → maison_r15_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r15_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r15 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r16** — Maison inoccupée — *jamais atteinte*
+  - → maison_r16_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_r16_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → residentiel (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_r16_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_r16 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_r16_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_r16 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **marche** — Quartier du Marché — *jamais atteinte*
+  - → residentiel (bord, 0,25 1x3 left, jamais ouvert/atteint)
+- **maison_m2** — Boulangerie — *jamais atteinte*
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m3** — Pâtisserie — *jamais atteinte*
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m6** — Maison inoccupée — *jamais atteinte*
+  - → maison_m6_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_m6_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m6_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_m6 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_m6_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_m6 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_m8** — Maison inoccupée — *jamais atteinte*
+  - → maison_m8_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m8_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_m8 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_m11** — Maison inoccupée — *jamais atteinte*
+  - → maison_m11_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_m11_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m11_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_m11 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_m11_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_m11 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_m13** — Maison inoccupée — *jamais atteinte*
+  - → maison_m13_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_m13_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m13_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_m13 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_m13_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_m13 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_m14** — Maison inoccupée — *jamais atteinte*
+  - → maison_m14_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m14_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_m14 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_m15** — Maison inoccupée — *jamais atteinte*
+  - → maison_m15_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → marche (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_m15_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_m15 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **numerique** — Quartier Numérique — *jamais atteinte*
+  - → residentiel (bord, 85,25 1x3 right, jamais ouvert/atteint)
+- **maison_n1** — Maison inoccupée — *jamais atteinte*
+  - → maison_n1_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_n1_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n1_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_n1 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_n1_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_n1 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_n3** — Maison inoccupée — *jamais atteinte*
+  - → maison_n3_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n3_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_n3 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_n4** — Immeuble — *jamais atteinte*
+  - → maison_n4_e1 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n4_e1** — Immeuble — 1er étage — *jamais atteinte*
+  - → maison_n4 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+  - → maison_n4_e1_e2 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_n4_e1_e2** — Immeuble — 2e étage — *jamais atteinte*
+  - → maison_n4_e1 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_n6** — Maison inoccupée — *jamais atteinte*
+  - → maison_n6_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_n6_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n6_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_n6 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_n6_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_n6 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_n8** — Maison inoccupée — *jamais atteinte*
+  - → maison_n8_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n8_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_n8 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_n9** — Immeuble — *jamais atteinte*
+  - → maison_n9_e1 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n9_e1** — Immeuble — 1er étage — *jamais atteinte*
+  - → maison_n9 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+  - → maison_n9_e1_e2 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_n9_e1_e2** — Immeuble — 2e étage — *jamais atteinte*
+  - → maison_n9_e1 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_n11** — Maison inoccupée — *jamais atteinte*
+  - → maison_n11_cave (porte, 8,2 2x1 up, jamais ouvert/atteint)
+  - → maison_n11_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n11_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_n11 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **maison_n11_cave** — Maison inoccupée — Cave — *jamais atteinte*
+  - → maison_n11 (porte, 11,2 2x1 up, jamais ouvert/atteint)
+- **maison_n12** — Maison inoccupée — *jamais atteinte*
+  - → maison_n12_grenier (porte, 11,2 2x1 up, jamais ouvert/atteint)
+  - → numerique (bord, 6,10 2x1 down, jamais ouvert/atteint)
+- **maison_n12_grenier** — Maison inoccupée — Grenier — *jamais atteinte*
+  - → maison_n12 (porte, 2,2 2x1 up, jamais ouvert/atteint)
+- **classe** — Salle de classe
+  - → gym (bord, 8,12 2x1 down, ouvert ch1 (ch1_debut))
+- **gymnase** — Gymnase — *jamais atteinte*
+  - → gym (bord, 8,11 2x1 down, jamais ouvert/atteint)
+- **cave_joueur** — Ma cave — Salle des trophées
+  - → maison_joueur (porte, 7,2 2x1 up, ouvert ch1 (ch1_kuwagamon))
+
+## Région lac (12 cartes ; ouverte au chapitre 2)
+
+Liens vers d'autres régions : clairiere (foret), miharashi0 (miharashi)
+
+- **lac0** — Rive Sud
+  - → clairiere (bord, 32,71 6x1 down, ouvert ch2 (ch2_debut))
+  - → lac1 (bord, 0,33 1x6 left, ouvert ch2 (ch2_lac))
+  - → lac3 (bord, 95,33 1x6 right, ouvert ch2 (ch2_lac))
+- **lac1** — Rosière
+  - → lac0 (bord, 95,33 1x6 right, ouvert ch2 (ch2_lac))
+  - → lac8 (bord, 45,0 6x1 up, ouvert ch2 (ch2_lac))
+  - → miharashi0 (bord, 45,71 6x1 down, ouvert ch3 (ch3_debut))
+- **lac2** — Lac du Tramway
+  - → lac2 (PNJ (script), 45,48, jamais ouvert/atteint)
+  - → lac6 (bord, 45,0 6x1 up, ouvert ch2 (ch2_lac))
+- **lac3** — Ponton des Pêcheurs
+  - → lac0 (bord, 0,33 1x6 left, ouvert ch2 (ch2_lac))
+  - → lac4 (bord, 45,0 6x1 up, ouvert ch2 (ch2_lac))
+- **lac4** — Pointe Coela
+  - → lac3 (bord, 45,71 6x1 down, ouvert ch2 (ch2_lac))
+  - → lac5 (bord, 45,0 6x1 up, ouvert ch2 (ch2_lac))
+- **lac5** — Îlots aux Nénuphars
+  - → lac4 (bord, 45,71 6x1 down, ouvert ch2 (ch2_lac))
+  - → lac6 (bord, 0,33 1x6 left, ouvert ch2 (ch2_lac))
+- **lac6** — Cascade du Dragon
+  - → lac2 (bord, 45,71 6x1 down, ouvert ch2 (ch2_lac))
+  - → lac5 (bord, 95,33 1x6 right, ouvert ch2 (ch2_lac))
+  - → lac7 (bord, 0,33 1x6 left, ouvert ch2 (ch2_lac))
+  - → lac9 (bord, 45,0 6x1 up, ouvert ch2 (ch2_lac))
+- **lac7** — Lac de l'Œil du Dragon
+  - → lac10 (bord, 45,0 6x1 up, ouvert ch2 (ch2_lac))
+  - → lac11 (bord, 0,33 1x6 left, ouvert ch2 (ch2_lac))
+  - → lac6 (bord, 95,33 1x6 right, ouvert ch2 (ch2_lac))
+  - → lac8 (bord, 45,71 6x1 down, ouvert ch2 (ch2_lac))
+- **lac8** — Pont Numérique
+  - → lac1 (bord, 45,71 6x1 down, ouvert ch2 (ch2_lac))
+  - → lac7 (bord, 45,0 6x1 up, ouvert ch2 (ch2_lac))
+- **lac9** — Phare du Lac
+  - → lac10 (bord, 0,33 1x6 left, ouvert ch2 (ch2_lac))
+  - → lac6 (bord, 45,71 6x1 down, ouvert ch2 (ch2_lac))
+- **lac10** — Prairie des Falaises
+  - → lac7 (bord, 45,71 6x1 down, ouvert ch2 (ch2_lac))
+  - → lac9 (bord, 95,33 1x6 right, ouvert ch2 (ch2_lac))
+- **lac11** — Falaises du Couchant
+  - → lac7 (bord, 95,33 1x6 right, ouvert ch2 (ch2_lac))
+
+## Région miharashi (10 cartes ; ouverte au chapitre 3)
+
+Liens vers d'autres régions : clairiere (foret), lac1 (lac), bosquet (plage), sentier (foret)
+
+- **miharashi0** — Désert des Poteaux
+  - → clairiere (bord, 95,27 1x6 right, ouvert ch3 (ch3_debut))
+  - → lac1 (bord, 45,0 6x1 up, ouvert ch3 (ch3_debut))
+  - → miharashi1 (bord, 0,33 1x6 left, ouvert ch3 (ch3_debut))
+  - → miharashi2 (bord, 45,71 6x1 down, ouvert ch3 (ch3_debut))
+- **miharashi1** — Village des Yokomon
+  - → miharashi0 (bord, 95,33 1x6 right, ouvert ch3 (ch3_debut))
+  - → miharashi3 (bord, 0,33 1x6 left, ouvert ch3 (ch3_debut))
+- **miharashi2** — Plaine des Panneaux
+  - → bosquet (bord, 38,71 6x1 down, ouvert ch3 (ch3_debut))
+  - → bosquet (bord, 3,71 9x1 down, ouvert ch3 (ch3_debut))
+  - → miharashi0 (bord, 45,0 6x1 up, ouvert ch3 (ch3_debut))
+  - → sentier (bord, 95,21 1x5 right, ouvert ch3 (ch3_debut))
+- **miharashi3** — Route du Mont Miharashi
+  - → miharashi1 (bord, 95,33 1x6 right, ouvert ch3 (ch3_debut))
+  - → miharashi4 (bord, 0,33 1x6 left, ouvert ch3 (ch3_debut))
+- **miharashi4** — Mont Miharashi
+  - → miharashi1 (PNJ (script), 48,30, ouvert ch3 (ch3_debut))
+  - → miharashi3 (bord, 95,33 1x6 right, ouvert ch3 (ch3_debut))
+  - → sous_volcan1 (objet (panneau-script), 80,54, ouvert ch3 (ch3_debut))
+  - → sous_volcan1 (objet (panneau-script), 81,54, ouvert ch3 (ch3_debut))
+- **sous_volcan1** — Sous le Mont Miharashi — Galerie des Foreurs
+  - → miharashi4 (escalier/déclencheur, 31,45, ouvert ch3 (ch3_debut))
+  - → sous_volcan2 (escalier/déclencheur, 50,5, ouvert ch3 (ch3_debut))
+  - → sous_volcan5 (objet (panneau-script), 34,34, ouvert ch3 (ch3_sora))
+- **sous_volcan2** — Sous le Mont Miharashi — Corniches de l'Abîme
+  - → sous_volcan1 (escalier/déclencheur, 31,53, ouvert ch3 (ch3_debut))
+  - → sous_volcan3 (escalier/déclencheur, 32,26, ouvert ch3 (ch3_debut))
+- **sous_volcan3** — Sous le Mont Miharashi — Nécropole Ensevelie
+  - → sous_volcan2 (escalier/déclencheur, 31,45, ouvert ch3 (ch3_debut))
+  - → sous_volcan4 (escalier/déclencheur, 32,5, ouvert ch3 (ch3_debut))
+- **sous_volcan4** — Sous le Mont Miharashi — Fleuve de Feu
+  - → sous_volcan3 (escalier/déclencheur, 31,45, ouvert ch3 (ch3_debut))
+  - → sous_volcan5 (escalier/déclencheur, 50,6, ouvert ch3 (ch3_debut))
+- **sous_volcan5** — Sous le Mont Miharashi — Cœur du Volcan
+  - → sous_volcan1 (objet (panneau-script), 27,36, ouvert ch3 (ch3_sora))
+  - → sous_volcan4 (escalier/déclencheur, 31,45, ouvert ch3 (ch3_debut))
+
+## Région brumes (13 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : berceau (foret), jouets0 (jouets), gel0 (gel)
+
+- **donjon_tk_hall** — Chapelle des Brumes — Entrée — *jamais atteinte*
+  - → brumes9 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+  - → donjon_tk_galerie (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_tk_galerie** — Chapelle des Brumes — Galerie — *jamais atteinte*
+  - → donjon_tk_hall (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → donjon_tk_sanctuaire (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_tk_sanctuaire** — Chapelle des Brumes — Sanctuaire — *jamais atteinte*
+  - → donjon_tk_galerie (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **brumes0** — Lisière Brumeuse — *jamais atteinte*
+  - → berceau (bord, 44,63 6x1 down, jamais ouvert/atteint)
+  - → brumes1 (bord, 87,29 1x6 right, jamais ouvert/atteint)
+- **brumes1** — Sentier des Lanternes — *jamais atteinte*
+  - → brumes0 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → brumes2 (bord, 93,30 1x6 right, jamais ouvert/atteint)
+  - → brumes6 (bord, 40,0 6x1 up, jamais ouvert/atteint)
+- **brumes2** — Étang Fantôme — *jamais atteinte*
+  - → brumes1 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → brumes3 (bord, 93,31 1x6 right, jamais ouvert/atteint)
+  - → brumes5 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+- **brumes3** — Labyrinthe de Brume — *jamais atteinte*
+  - → brumes2 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → brumes4 (bord, 40,0 6x1 up, jamais ouvert/atteint)
+- **brumes4** — Clairière Silencieuse — *jamais atteinte*
+  - → brumes3 (bord, 40,71 6x1 down, jamais ouvert/atteint)
+  - → brumes5 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → jouets0 (bord, 87,30 1x6 right, jamais ouvert/atteint)
+- **brumes5** — Arbres Pleureurs — *jamais atteinte*
+  - → brumes2 (bord, 45,71 6x1 down, jamais ouvert/atteint)
+  - → brumes4 (bord, 93,31 1x6 right, jamais ouvert/atteint)
+  - → brumes6 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+  - → gel0 (bord, 42,0 6x1 up, jamais ouvert/atteint)
+- **brumes6** — Puits Oublié — *jamais atteinte*
+  - → brumes1 (bord, 40,71 6x1 down, jamais ouvert/atteint)
+  - → brumes5 (bord, 93,35 1x6 right, jamais ouvert/atteint)
+  - → brumes7 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → brumes9 (bord, 40,0 6x1 up, jamais ouvert/atteint)
+- **brumes7** — Pont de Brume — *jamais atteinte*
+  - → brumes6 (bord, 87,30 1x6 right, jamais ouvert/atteint)
+  - → brumes8 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+- **brumes8** — Sanctuaire Voilé — *jamais atteinte*
+  - → brumes7 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+  - → brumes9 (bord, 87,37 1x6 right, jamais ouvert/atteint)
+- **brumes9** — Cœur du Brouillard — *jamais atteinte*
+  - → brumes6 (bord, 40,71 6x1 down, jamais ouvert/atteint)
+  - → brumes8 (bord, 0,37 1x6 left, jamais ouvert/atteint)
+  - → donjon_tk_hall (porte, 4,5 2x1 up, jamais ouvert/atteint)
+
+## Région canyon (10 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : savane5 (savane), dino0 (dino), jungle0 (jungle)
+
+- **canyon0** — Bord du Canyon — *jamais atteinte*
+  - → canyon1 (bord, 99,37 1x6 right, jamais ouvert/atteint)
+  - → savane5 (bord, 51,0 6x1 up, jamais ouvert/atteint)
+- **canyon1** — Plateau Rouge — *jamais atteinte*
+  - → canyon0 (bord, 0,37 1x6 left, jamais ouvert/atteint)
+  - → canyon2 (bord, 87,37 1x6 right, jamais ouvert/atteint)
+  - → canyon6 (bord, 41,71 6x1 down, jamais ouvert/atteint)
+- **canyon2** — Gorges Étroites — *jamais atteinte*
+  - → canyon1 (bord, 0,37 1x6 left, jamais ouvert/atteint)
+  - → canyon3 (bord, 93,30 1x6 right, jamais ouvert/atteint)
+  - → canyon5 (bord, 45,71 6x1 down, jamais ouvert/atteint)
+- **canyon3** — Ascenseurs du Canyon — *jamais atteinte*
+  - → canyon2 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → canyon4 (bord, 41,71 6x1 down, jamais ouvert/atteint)
+- **canyon4** — Arche de Pierre — *jamais atteinte*
+  - → canyon3 (bord, 41,0 6x1 up, jamais ouvert/atteint)
+  - → canyon5 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+- **canyon5** — Vallée des Cactus — *jamais atteinte*
+  - → canyon2 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+  - → canyon4 (bord, 93,33 1x6 right, jamais ouvert/atteint)
+  - → canyon6 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+- **canyon6** — Oasis Cachée — *jamais atteinte*
+  - → canyon1 (bord, 41,0 6x1 up, jamais ouvert/atteint)
+  - → canyon5 (bord, 87,32 1x6 right, jamais ouvert/atteint)
+  - → canyon7 (bord, 0,36 1x6 left, jamais ouvert/atteint)
+  - → canyon9 (bord, 39,71 6x1 down, jamais ouvert/atteint)
+- **canyon7** — Mesas Jumelles — *jamais atteinte*
+  - → canyon6 (bord, 99,36 1x6 right, jamais ouvert/atteint)
+  - → canyon8 (bord, 46,71 6x1 down, jamais ouvert/atteint)
+  - → dino0 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+- **canyon8** — Ravin des Crânes — *jamais atteinte*
+  - → canyon7 (bord, 46,0 6x1 up, jamais ouvert/atteint)
+  - → canyon9 (bord, 99,31 1x6 right, jamais ouvert/atteint)
+  - → jungle0 (bord, 51,71 6x1 down, jamais ouvert/atteint)
+- **canyon9** — Forteresse d'Ogremon — *jamais atteinte*
+  - → canyon6 (bord, 39,0 6x1 up, jamais ouvert/atteint)
+  - → canyon8 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+
+## Région decharge (10 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : savane4 (savane)
+
+- **decharge0** — Entrée de la Décharge — *jamais atteinte*
+  - → decharge1 (bord, 99,33 1x6 right, jamais ouvert/atteint)
+  - → savane4 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+- **decharge1** — Vallée des Pneus — *jamais atteinte*
+  - → decharge0 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → decharge2 (bord, 99,35 1x6 right, jamais ouvert/atteint)
+  - → decharge6 (bord, 49,67 6x1 down, jamais ouvert/atteint)
+- **decharge2** — Cimetière de Voitures — *jamais atteinte*
+  - → decharge1 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+  - → decharge3 (bord, 87,32 1x6 right, jamais ouvert/atteint)
+  - → decharge5 (bord, 40,67 6x1 down, jamais ouvert/atteint)
+- **decharge3** — Collines de Ferraille — *jamais atteinte*
+  - → decharge2 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+  - → decharge4 (bord, 41,67 6x1 down, jamais ouvert/atteint)
+- **decharge4** — Mare Huileuse — *jamais atteinte*
+  - → decharge3 (bord, 41,0 6x1 up, jamais ouvert/atteint)
+  - → decharge5 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+- **decharge5** — Tours de Télévisions — *jamais atteinte*
+  - → decharge2 (bord, 40,0 6x1 up, jamais ouvert/atteint)
+  - → decharge4 (bord, 87,32 1x6 right, jamais ouvert/atteint)
+  - → decharge6 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+- **decharge6** — Labyrinthe d'Ordures — *jamais atteinte*
+  - → decharge1 (bord, 49,0 6x1 up, jamais ouvert/atteint)
+  - → decharge5 (bord, 99,33 1x6 right, jamais ouvert/atteint)
+  - → decharge7 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → decharge9 (bord, 51,63 6x1 down, jamais ouvert/atteint)
+- **decharge7** — Cratère des Débris — *jamais atteinte*
+  - → decharge6 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → decharge8 (bord, 49,63 6x1 down, jamais ouvert/atteint)
+- **decharge8** — Royaume de la Poussière — *jamais atteinte*
+  - → decharge7 (bord, 49,0 6x1 up, jamais ouvert/atteint)
+  - → decharge9 (bord, 99,27 1x6 right, jamais ouvert/atteint)
+- **decharge9** — Sommet des Ordures — *jamais atteinte*
+  - → decharge6 (bord, 51,0 6x1 up, jamais ouvert/atteint)
+  - → decharge8 (bord, 0,27 1x6 left, jamais ouvert/atteint)
+
+## Région dino (13 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : canyon7 (canyon)
+
+- **donjon_tai_hall** — Temple du Courage — Entrée — *jamais atteinte*
+  - → dino8 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+  - → donjon_tai_galerie (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_tai_galerie** — Temple du Courage — Galerie — *jamais atteinte*
+  - → donjon_tai_hall (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → donjon_tai_sanctuaire (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_tai_sanctuaire** — Temple du Courage — Sanctuaire — *jamais atteinte*
+  - → donjon_tai_galerie (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **dino0** — Lisière Préhistorique — *jamais atteinte*
+  - → canyon7 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → dino1 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+- **dino1** — Forêt de Cycas — *jamais atteinte*
+  - → dino0 (bord, 93,35 1x6 right, jamais ouvert/atteint)
+  - → dino2 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → dino6 (bord, 41,71 6x1 down, jamais ouvert/atteint)
+- **dino2** — Marais Primitif — *jamais atteinte*
+  - → dino1 (bord, 93,30 1x6 right, jamais ouvert/atteint)
+  - → dino3 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → dino5 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+- **dino3** — Nid Géant — *jamais atteinte*
+  - → dino2 (bord, 87,33 1x6 right, jamais ouvert/atteint)
+  - → dino4 (bord, 44,71 6x1 down, jamais ouvert/atteint)
+- **dino4** — Vallée des Ossements — *jamais atteinte*
+  - → dino3 (bord, 44,0 6x1 up, jamais ouvert/atteint)
+  - → dino5 (bord, 87,31 1x6 right, jamais ouvert/atteint)
+- **dino5** — Volcan Fumant — *jamais atteinte*
+  - → dino2 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → dino4 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → dino6 (bord, 93,31 1x6 right, jamais ouvert/atteint)
+- **dino6** — Prairie des Fougères — *jamais atteinte*
+  - → dino1 (bord, 41,0 6x1 up, jamais ouvert/atteint)
+  - → dino5 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → dino7 (bord, 93,37 1x6 right, jamais ouvert/atteint)
+  - → dino9 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+- **dino7** — Rivière Ambrée — *jamais atteinte*
+  - → dino6 (bord, 0,37 1x6 left, jamais ouvert/atteint)
+  - → dino8 (bord, 50,71 6x1 down, jamais ouvert/atteint)
+- **dino8** — Zone Glaciaire — *jamais atteinte*
+  - → dino7 (bord, 50,0 6x1 up, jamais ouvert/atteint)
+  - → dino9 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → donjon_tai_hall (porte, 4,5 2x1 up, jamais ouvert/atteint)
+- **dino9** — Zone du Temps Rapide — *jamais atteinte*
+  - → dino6 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → dino8 (bord, 93,33 1x6 right, jamais ouvert/atteint)
+
+## Région gel (13 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : brumes5 (brumes)
+
+- **donjon_matt_hall** — Palais de Givre — Entrée — *jamais atteinte*
+  - → donjon_matt_galerie (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → gel8 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+- **donjon_matt_galerie** — Palais de Givre — Galerie — *jamais atteinte*
+  - → donjon_matt_hall (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → donjon_matt_sanctuaire (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_matt_sanctuaire** — Palais de Givre — Sanctuaire — *jamais atteinte*
+  - → donjon_matt_galerie (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **gel0** — Frontière Gelée — *jamais atteinte*
+  - → brumes5 (bord, 43,63 6x1 down, jamais ouvert/atteint)
+  - → gel1 (bord, 87,26 1x6 right, jamais ouvert/atteint)
+- **gel1** — Forêt Enneigée — *jamais atteinte*
+  - → gel0 (bord, 0,26 1x6 left, jamais ouvert/atteint)
+  - → gel2 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → gel6 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+- **gel2** — Lac Gelé — *jamais atteinte*
+  - → gel1 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → gel3 (bord, 99,29 1x6 right, jamais ouvert/atteint)
+  - → gel5 (bord, 49,0 6x1 up, jamais ouvert/atteint)
+- **gel3** — Plaine des Bonshommes — *jamais atteinte*
+  - → gel2 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → gel4 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+- **gel4** — Cascade de Glace — *jamais atteinte*
+  - → gel3 (bord, 45,71 6x1 down, jamais ouvert/atteint)
+  - → gel5 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+- **gel5** — Village d'Igloos — *jamais atteinte*
+  - → gel2 (bord, 49,71 6x1 down, jamais ouvert/atteint)
+  - → gel4 (bord, 99,35 1x6 right, jamais ouvert/atteint)
+  - → gel6 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+- **gel6** — Crevasses — *jamais atteinte*
+  - → gel1 (bord, 47,71 6x1 down, jamais ouvert/atteint)
+  - → gel5 (bord, 99,31 1x6 right, jamais ouvert/atteint)
+  - → gel7 (bord, 0,34 1x6 left, jamais ouvert/atteint)
+  - → gel9 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+- **gel7** — Grotte de la Plage Secrète — *jamais atteinte*
+  - → gel6 (bord, 87,34 1x6 right, jamais ouvert/atteint)
+  - → gel8 (bord, 38,0 6x1 up, jamais ouvert/atteint)
+- **gel8** — Champs de Cristaux — *jamais atteinte*
+  - → donjon_matt_hall (porte, 4,5 2x1 up, jamais ouvert/atteint)
+  - → gel7 (bord, 38,71 6x1 down, jamais ouvert/atteint)
+  - → gel9 (bord, 87,33 1x6 right, jamais ouvert/atteint)
+- **gel9** — Temple de Glace — *jamais atteinte*
+  - → gel6 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+  - → gel8 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+
+## Région jouets (19 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : brumes4 (brumes)
+
+- **chateau_hall** — Château — Hall des sourires — *jamais atteinte*
+  - → chateau_bal (porte, 4,2 2x1 up, jamais ouvert/atteint)
+  - → chateau_cuisine (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → chateau_jouets (bord, 0,7 1x2 left, jamais ouvert/atteint)
+  - → chateau_oubliettes (porte, 15,2 2x1 up, jamais ouvert/atteint)
+  - → jouets9 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+- **chateau_jouets** — Château — Salle des jouets — *jamais atteinte*
+  - → chateau_hall (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **chateau_cuisine** — Château — Cuisines — *jamais atteinte*
+  - → chateau_hall (bord, 0,7 1x2 left, jamais ouvert/atteint)
+- **chateau_bal** — Château — Salle de bal — *jamais atteinte*
+  - → chateau_hall (porte, 9,2 2x1 up, jamais ouvert/atteint)
+  - → chateau_royale (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **chateau_royale** — Château — Chambre royale — *jamais atteinte*
+  - → chateau_bal (bord, 0,7 1x2 left, jamais ouvert/atteint)
+- **chateau_oubliettes** — Château — Oubliettes — *jamais atteinte*
+  - → chateau_hall (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **donjon_mimi_hall** — Jardin Secret des Jouets — Entrée — *jamais atteinte*
+  - → donjon_mimi_galerie (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → jouets8 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+- **donjon_mimi_galerie** — Jardin Secret des Jouets — Galerie — *jamais atteinte*
+  - → donjon_mimi_hall (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → donjon_mimi_sanctuaire (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_mimi_sanctuaire** — Jardin Secret des Jouets — Sanctuaire — *jamais atteinte*
+  - → donjon_mimi_galerie (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **jouets0** — Entrée des Jouets — *jamais atteinte*
+  - → brumes4 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → jouets1 (bord, 99,34 1x6 right, jamais ouvert/atteint)
+- **jouets1** — Avenue des Cubes — *jamais atteinte*
+  - → jouets0 (bord, 0,34 1x6 left, jamais ouvert/atteint)
+  - → jouets2 (bord, 99,35 1x6 right, jamais ouvert/atteint)
+  - → jouets6 (bord, 47,67 6x1 down, jamais ouvert/atteint)
+- **jouets2** — Parc du Manège — *jamais atteinte*
+  - → jouets1 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+  - → jouets3 (bord, 93,32 1x6 right, jamais ouvert/atteint)
+  - → jouets5 (bord, 47,67 6x1 down, jamais ouvert/atteint)
+- **jouets3** — Gare du Petit Train — *jamais atteinte*
+  - → jouets2 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+  - → jouets4 (bord, 51,67 6x1 down, jamais ouvert/atteint)
+- **jouets4** — Jardin des Nounours — *jamais atteinte*
+  - → jouets3 (bord, 51,0 6x1 up, jamais ouvert/atteint)
+  - → jouets5 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+- **jouets5** — Quartier des Maisons — *jamais atteinte*
+  - → jouets2 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → jouets4 (bord, 93,31 1x6 right, jamais ouvert/atteint)
+  - → jouets6 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+- **jouets6** — Lac des Canards — *jamais atteinte*
+  - → jouets1 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → jouets5 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → jouets7 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → jouets9 (bord, 49,71 6x1 down, jamais ouvert/atteint)
+- **jouets7** — Labyrinthe de Dominos — *jamais atteinte*
+  - → jouets6 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → jouets8 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+- **jouets8** — Place des Boîtes à Surprise — *jamais atteinte*
+  - → donjon_mimi_hall (porte, 4,5 2x1 up, jamais ouvert/atteint)
+  - → jouets7 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → jouets9 (bord, 99,27 1x6 right, jamais ouvert/atteint)
+- **jouets9** — Château de Monzaemon — *jamais atteinte*
+  - → chateau_hall (porte, 5,6 2x1 up, jamais ouvert/atteint)
+  - → jouets6 (bord, 49,0 6x1 up, jamais ouvert/atteint)
+  - → jouets8 (bord, 0,27 1x6 left, jamais ouvert/atteint)
+
+## Région jungle (16 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : canyon8 (canyon), overdell0 (overdell)
+
+- **temple_parvis** — Temple — Parvis intérieur — *jamais atteinte*
+  - → jungle3 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+  - → temple_colonnes (porte, 9,2 2x1 up, jamais ouvert/atteint)
+  - → temple_crypte (porte, 3,2 2x1 up, jamais ouvert/atteint)
+- **temple_colonnes** — Temple — Salle des colonnes — *jamais atteinte*
+  - → temple_galerie_e (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → temple_galerie_o (bord, 0,7 1x2 left, jamais ouvert/atteint)
+  - → temple_parvis (porte, 9,2 2x1 up, jamais ouvert/atteint)
+  - → temple_sanctuaire (porte, 16,2 2x1 up, jamais ouvert/atteint)
+- **temple_galerie_o** — Temple — Galerie ouest — *jamais atteinte*
+  - → temple_colonnes (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **temple_galerie_e** — Temple — Galerie est — *jamais atteinte*
+  - → temple_colonnes (bord, 0,7 1x2 left, jamais ouvert/atteint)
+- **temple_sanctuaire** — Temple — Sanctuaire — *jamais atteinte*
+  - → temple_colonnes (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **temple_crypte** — Temple — Crypte engloutie — *jamais atteinte*
+  - → temple_parvis (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **jungle0** — Orée de la Jungle — *jamais atteinte*
+  - → canyon8 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → jungle1 (bord, 99,34 1x6 right, jamais ouvert/atteint)
+- **jungle1** — Sous-bois Moite — *jamais atteinte*
+  - → jungle0 (bord, 0,34 1x6 left, jamais ouvert/atteint)
+  - → jungle2 (bord, 99,35 1x6 right, jamais ouvert/atteint)
+  - → jungle6 (bord, 47,67 6x1 down, jamais ouvert/atteint)
+- **jungle2** — Rivière aux Lianes — *jamais atteinte*
+  - → jungle1 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+  - → jungle3 (bord, 93,32 1x6 right, jamais ouvert/atteint)
+  - → jungle5 (bord, 47,67 6x1 down, jamais ouvert/atteint)
+- **jungle3** — Temple Englouti — *jamais atteinte*
+  - → jungle2 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+  - → jungle4 (bord, 51,67 6x1 down, jamais ouvert/atteint)
+  - → temple_parvis (porte, 5,5 2x1 up, jamais ouvert/atteint)
+- **jungle4** — Pont Invisible — *jamais atteinte*
+  - → jungle3 (bord, 51,0 6x1 up, jamais ouvert/atteint)
+  - → jungle5 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+- **jungle5** — Forêt d'Amida — *jamais atteinte*
+  - → jungle2 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → jungle4 (bord, 93,31 1x6 right, jamais ouvert/atteint)
+  - → jungle6 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → overdell0 (bord, 41,71 6x1 down, jamais ouvert/atteint)
+- **jungle6** — Cascade Tropicale — *jamais atteinte*
+  - → jungle1 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → jungle5 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → jungle7 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → jungle9 (bord, 49,71 6x1 down, jamais ouvert/atteint)
+- **jungle7** — Mangrove — *jamais atteinte*
+  - → jungle6 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → jungle8 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+- **jungle8** — Village sur Pilotis — *jamais atteinte*
+  - → jungle7 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → jungle9 (bord, 99,27 1x6 right, jamais ouvert/atteint)
+- **jungle9** — Plage Nue — *jamais atteinte*
+  - → jungle6 (bord, 49,0 6x1 up, jamais ouvert/atteint)
+  - → jungle8 (bord, 0,27 1x6 left, jamais ouvert/atteint)
+
+## Région marais (10 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : champs (village)
+
+- **marais0** — Bord du Marais — *jamais atteinte*
+  - → champs (bord, 99,32 1x6 right, jamais ouvert/atteint)
+  - → marais1 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+- **marais1** — Tourbières — *jamais atteinte*
+  - → marais0 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → marais2 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → marais6 (bord, 50,63 6x1 down, jamais ouvert/atteint)
+- **marais2** — Forêt Engloutie — *jamais atteinte*
+  - → marais1 (bord, 99,29 1x6 right, jamais ouvert/atteint)
+  - → marais3 (bord, 0,27 1x6 left, jamais ouvert/atteint)
+  - → marais5 (bord, 43,63 6x1 down, jamais ouvert/atteint)
+- **marais3** — Roseaux Chantants — *jamais atteinte*
+  - → marais2 (bord, 87,27 1x6 right, jamais ouvert/atteint)
+  - → marais4 (bord, 40,63 6x1 down, jamais ouvert/atteint)
+- **marais4** — Mare aux Grenouilles — *jamais atteinte*
+  - → marais3 (bord, 40,0 6x1 up, jamais ouvert/atteint)
+  - → marais5 (bord, 87,33 1x6 right, jamais ouvert/atteint)
+- **marais5** — Labyrinthe de Vase — *jamais atteinte*
+  - → marais2 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → marais4 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → marais6 (bord, 99,33 1x6 right, jamais ouvert/atteint)
+- **marais6** — Cabanes du Marais — *jamais atteinte*
+  - → marais1 (bord, 50,0 6x1 up, jamais ouvert/atteint)
+  - → marais5 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → marais7 (bord, 99,33 1x6 right, jamais ouvert/atteint)
+  - → marais9 (bord, 45,71 6x1 down, jamais ouvert/atteint)
+- **marais7** — Pont Moussu — *jamais atteinte*
+  - → marais6 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → marais8 (bord, 47,71 6x1 down, jamais ouvert/atteint)
+- **marais8** — Jardin du Palais — *jamais atteinte*
+  - → marais7 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → marais9 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+- **marais9** — Palais Geko — *jamais atteinte*
+  - → marais6 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+  - → marais8 (bord, 99,31 1x6 right, jamais ouvert/atteint)
+
+## Région montagne (13 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : village (village), savane0 (savane), volcan0 (volcan)
+
+- **donjon_joe_hall** — Refuge du Glacier — Entrée — *jamais atteinte*
+  - → donjon_joe_galerie (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → montagne6 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+- **donjon_joe_galerie** — Refuge du Glacier — Galerie — *jamais atteinte*
+  - → donjon_joe_hall (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → donjon_joe_sanctuaire (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_joe_sanctuaire** — Refuge du Glacier — Sanctuaire — *jamais atteinte*
+  - → donjon_joe_galerie (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **montagne0** — Pont de l'Infini — *jamais atteinte*
+  - → montagne1 (bord, 99,28 1x6 right, jamais ouvert/atteint)
+  - → village (bord, 0,30 1x6 left, jamais ouvert/atteint)
+- **montagne1** — Contreforts de l'Infini — *jamais atteinte*
+  - → montagne0 (bord, 0,28 1x6 left, jamais ouvert/atteint)
+  - → montagne2 (bord, 93,30 1x6 right, jamais ouvert/atteint)
+  - → montagne6 (bord, 45,67 6x1 down, jamais ouvert/atteint)
+- **montagne2** — Col des Vents — *jamais atteinte*
+  - → montagne1 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → montagne3 (bord, 93,29 1x6 right, jamais ouvert/atteint)
+  - → montagne5 (bord, 46,67 6x1 down, jamais ouvert/atteint)
+- **montagne3** — Lac d'Altitude — *jamais atteinte*
+  - → montagne2 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → montagne4 (bord, 41,67 6x1 down, jamais ouvert/atteint)
+  - → savane0 (bord, 93,29 1x6 right, jamais ouvert/atteint)
+- **montagne4** — Grotte de l'Infini — *jamais atteinte*
+  - → montagne3 (bord, 41,0 6x1 up, jamais ouvert/atteint)
+  - → montagne5 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+- **montagne5** — Galeries de Cristal — *jamais atteinte*
+  - → montagne2 (bord, 46,0 6x1 up, jamais ouvert/atteint)
+  - → montagne4 (bord, 93,35 1x6 right, jamais ouvert/atteint)
+  - → montagne6 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+- **montagne6** — Gorge du Torrent — *jamais atteinte*
+  - → donjon_joe_hall (porte, 4,5 2x1 up, jamais ouvert/atteint)
+  - → montagne1 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+  - → montagne5 (bord, 93,30 1x6 right, jamais ouvert/atteint)
+  - → montagne7 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → montagne9 (bord, 47,67 6x1 down, jamais ouvert/atteint)
+- **montagne7** — Alpages Suspendus — *jamais atteinte*
+  - → montagne6 (bord, 99,29 1x6 right, jamais ouvert/atteint)
+  - → montagne8 (bord, 46,67 6x1 down, jamais ouvert/atteint)
+- **montagne8** — Plateau des Engrenages Noirs — *jamais atteinte*
+  - → montagne7 (bord, 46,0 6x1 up, jamais ouvert/atteint)
+  - → montagne9 (bord, 99,33 1x6 right, jamais ouvert/atteint)
+  - → volcan0 (bord, 47,67 6x1 down, jamais ouvert/atteint)
+- **montagne9** — Sommet de l'Infini — *jamais atteinte*
+  - → montagne6 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → montagne8 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+
+## Région overdell (18 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : jungle5 (jungle)
+
+- **manoir_hall** — Manoir — Grand hall — *jamais atteinte*
+  - → manoir_biblio (bord, 0,7 1x2 left, jamais ouvert/atteint)
+  - → manoir_cave (porte, 15,2 2x1 up, jamais ouvert/atteint)
+  - → manoir_etage (porte, 4,2 2x1 up, jamais ouvert/atteint)
+  - → manoir_salle (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → overdell9 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+- **manoir_biblio** — Manoir — Bibliothèque — *jamais atteinte*
+  - → manoir_hall (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **manoir_salle** — Manoir — Salle à manger — *jamais atteinte*
+  - → manoir_hall (bord, 0,7 1x2 left, jamais ouvert/atteint)
+- **manoir_etage** — Manoir — Galerie des portraits — *jamais atteinte*
+  - → manoir_chambre (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → manoir_grenier (porte, 16,2 2x1 up, jamais ouvert/atteint)
+  - → manoir_hall (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **manoir_chambre** — Manoir — Chambre du Seigneur — *jamais atteinte*
+  - → manoir_etage (bord, 0,7 1x2 left, jamais ouvert/atteint)
+- **manoir_grenier** — Manoir — Grenier — *jamais atteinte*
+  - → manoir_etage (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **manoir_cave** — Manoir — Cave — *jamais atteinte*
+  - → manoir_crypte (bord, 0,7 1x2 left, jamais ouvert/atteint)
+  - → manoir_hall (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **manoir_crypte** — Manoir — Crypte — *jamais atteinte*
+  - → manoir_cave (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **overdell0** — Lande Grise — *jamais atteinte*
+  - → jungle5 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → overdell1 (bord, 99,31 1x6 right, jamais ouvert/atteint)
+- **overdell1** — Allée des Tombes — *jamais atteinte*
+  - → overdell0 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → overdell2 (bord, 93,27 1x6 right, jamais ouvert/atteint)
+  - → overdell6 (bord, 46,63 6x1 down, jamais ouvert/atteint)
+- **overdell2** — Bois Mort — *jamais atteinte*
+  - → overdell1 (bord, 0,27 1x6 left, jamais ouvert/atteint)
+  - → overdell3 (bord, 87,31 1x6 right, jamais ouvert/atteint)
+  - → overdell5 (bord, 44,63 6x1 down, jamais ouvert/atteint)
+- **overdell3** — Mare Noire — *jamais atteinte*
+  - → overdell2 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → overdell4 (bord, 38,63 6x1 down, jamais ouvert/atteint)
+- **overdell4** — Champ des Croix — *jamais atteinte*
+  - → overdell3 (bord, 38,0 6x1 up, jamais ouvert/atteint)
+  - → overdell5 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+- **overdell5** — Crypte Effondrée — *jamais atteinte*
+  - → overdell2 (bord, 44,0 6x1 up, jamais ouvert/atteint)
+  - → overdell4 (bord, 87,32 1x6 right, jamais ouvert/atteint)
+  - → overdell6 (bord, 0,34 1x6 left, jamais ouvert/atteint)
+- **overdell6** — Jardin des Citrouilles — *jamais atteinte*
+  - → overdell1 (bord, 46,0 6x1 up, jamais ouvert/atteint)
+  - → overdell5 (bord, 93,34 1x6 right, jamais ouvert/atteint)
+  - → overdell7 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+  - → overdell9 (bord, 47,67 6x1 down, jamais ouvert/atteint)
+- **overdell7** — Chapelle en Ruine — *jamais atteinte*
+  - → overdell6 (bord, 99,32 1x6 right, jamais ouvert/atteint)
+  - → overdell8 (bord, 45,67 6x1 down, jamais ouvert/atteint)
+- **overdell8** — Cour du Manoir — *jamais atteinte*
+  - → overdell7 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+  - → overdell9 (bord, 99,29 1x6 right, jamais ouvert/atteint)
+- **overdell9** — Manoir du Seigneur Gris — *jamais atteinte*
+  - → manoir_hall (porte, 6,7 2x1 up, jamais ouvert/atteint)
+  - → overdell6 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → overdell8 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+
+## Région savane (10 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : montagne3 (montagne), usine0 (usine), decharge0 (decharge), canyon0 (canyon)
+
+- **savane0** — Porte de la Savane — *jamais atteinte*
+  - → montagne3 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → savane1 (bord, 99,32 1x6 right, jamais ouvert/atteint)
+- **savane1** — Plaines Dorées — *jamais atteinte*
+  - → savane0 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+  - → savane2 (bord, 93,25 1x6 right, jamais ouvert/atteint)
+  - → savane6 (bord, 44,63 6x1 down, jamais ouvert/atteint)
+  - → usine0 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+- **savane2** — Point d'Eau — *jamais atteinte*
+  - → savane1 (bord, 0,25 1x6 left, jamais ouvert/atteint)
+  - → savane3 (bord, 87,31 1x6 right, jamais ouvert/atteint)
+  - → savane5 (bord, 38,63 6x1 down, jamais ouvert/atteint)
+- **savane3** — Cimetière d'Engrenages — *jamais atteinte*
+  - → savane2 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → savane4 (bord, 50,63 6x1 down, jamais ouvert/atteint)
+- **savane4** — Termitières Géantes — *jamais atteinte*
+  - → decharge0 (bord, 99,34 1x6 right, jamais ouvert/atteint)
+  - → savane3 (bord, 50,0 6x1 up, jamais ouvert/atteint)
+  - → savane5 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+- **savane5** — Baobabs Millénaires — *jamais atteinte*
+  - → canyon0 (bord, 44,71 6x1 down, jamais ouvert/atteint)
+  - → savane2 (bord, 38,0 6x1 up, jamais ouvert/atteint)
+  - → savane4 (bord, 87,32 1x6 right, jamais ouvert/atteint)
+  - → savane6 (bord, 0,37 1x6 left, jamais ouvert/atteint)
+- **savane6** — Gué des Rouages — *jamais atteinte*
+  - → savane1 (bord, 44,0 6x1 up, jamais ouvert/atteint)
+  - → savane5 (bord, 93,37 1x6 right, jamais ouvert/atteint)
+  - → savane7 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+  - → savane9 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+- **savane7** — Collines Rousses — *jamais atteinte*
+  - → savane6 (bord, 99,31 1x6 right, jamais ouvert/atteint)
+  - → savane8 (bord, 49,71 6x1 down, jamais ouvert/atteint)
+- **savane8** — Champ d'Éoliennes — *jamais atteinte*
+  - → savane7 (bord, 49,0 6x1 up, jamais ouvert/atteint)
+  - → savane9 (bord, 99,32 1x6 right, jamais ouvert/atteint)
+- **savane9** — Rocher du Lion — *jamais atteinte*
+  - → savane6 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → savane8 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+
+## Région scarabees (10 cartes ; ouverte au chapitre plus tard)
+
+- **scarabees0** — Bois Ancien — *jamais atteinte*
+  - → scarabees1 (bord, 93,33 1x6 right, jamais ouvert/atteint)
+- **scarabees1** — Souches Géantes — *jamais atteinte*
+  - → scarabees0 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → scarabees2 (bord, 87,29 1x6 right, jamais ouvert/atteint)
+  - → scarabees6 (bord, 41,71 6x1 down, jamais ouvert/atteint)
+- **scarabees2** — Ruches Sauvages — *jamais atteinte*
+  - → scarabees1 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → scarabees3 (bord, 93,34 1x6 right, jamais ouvert/atteint)
+  - → scarabees5 (bord, 46,71 6x1 down, jamais ouvert/atteint)
+- **scarabees3** — Sentier des Lucanes — *jamais atteinte*
+  - → scarabees2 (bord, 0,34 1x6 left, jamais ouvert/atteint)
+  - → scarabees4 (bord, 48,71 6x1 down, jamais ouvert/atteint)
+- **scarabees4** — Clairière Dorée — *jamais atteinte*
+  - → scarabees3 (bord, 48,0 6x1 up, jamais ouvert/atteint)
+  - → scarabees5 (bord, 0,26 1x6 left, jamais ouvert/atteint)
+- **scarabees5** — Mare aux Libellules — *jamais atteinte*
+  - → scarabees2 (bord, 46,0 6x1 up, jamais ouvert/atteint)
+  - → scarabees4 (bord, 93,26 1x6 right, jamais ouvert/atteint)
+  - → scarabees6 (bord, 0,28 1x6 left, jamais ouvert/atteint)
+- **scarabees6** — Forêt de Champignons — *jamais atteinte*
+  - → scarabees1 (bord, 41,0 6x1 up, jamais ouvert/atteint)
+  - → scarabees5 (bord, 87,28 1x6 right, jamais ouvert/atteint)
+  - → scarabees7 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → scarabees9 (bord, 44,63 6x1 down, jamais ouvert/atteint)
+- **scarabees7** — Statues des Scarabées — *jamais atteinte*
+  - → scarabees6 (bord, 93,29 1x6 right, jamais ouvert/atteint)
+  - → scarabees8 (bord, 45,63 6x1 down, jamais ouvert/atteint)
+- **scarabees8** — Arbre-Monde — *jamais atteinte*
+  - → scarabees7 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+  - → scarabees9 (bord, 93,29 1x6 right, jamais ouvert/atteint)
+- **scarabees9** — Colisée des Scarabées — *jamais atteinte*
+  - → scarabees6 (bord, 44,0 6x1 up, jamais ouvert/atteint)
+  - → scarabees8 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+
+## Région tunnel (10 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : champs (village)
+
+- **tunnel0** — Entrée du Tunnel — *jamais atteinte*
+  - → champs (bord, 44,0 6x1 up, jamais ouvert/atteint)
+  - → tunnel1 (bord, 99,35 1x6 right, jamais ouvert/atteint)
+- **tunnel1** — Galerie des Foreuses — *jamais atteinte*
+  - → tunnel0 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+  - → tunnel2 (bord, 87,30 1x6 right, jamais ouvert/atteint)
+  - → tunnel6 (bord, 39,71 6x1 down, jamais ouvert/atteint)
+- **tunnel2** — Rails Abandonnés — *jamais atteinte*
+  - → tunnel1 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → tunnel3 (bord, 99,30 1x6 right, jamais ouvert/atteint)
+  - → tunnel5 (bord, 44,71 6x1 down, jamais ouvert/atteint)
+- **tunnel3** — Lac Souterrain — *jamais atteinte*
+  - → tunnel2 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → tunnel4 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+- **tunnel4** — Grotte aux Champignons — *jamais atteinte*
+  - → tunnel3 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → tunnel5 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+- **tunnel5** — Veines de Cristal — *jamais atteinte*
+  - → tunnel2 (bord, 44,0 6x1 up, jamais ouvert/atteint)
+  - → tunnel4 (bord, 99,35 1x6 right, jamais ouvert/atteint)
+  - → tunnel6 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+- **tunnel6** — Grotte Ancestrale de Leomon — *jamais atteinte*
+  - → tunnel1 (bord, 39,0 6x1 up, jamais ouvert/atteint)
+  - → tunnel5 (bord, 87,35 1x6 right, jamais ouvert/atteint)
+  - → tunnel7 (bord, 0,36 1x6 left, jamais ouvert/atteint)
+  - → tunnel9 (bord, 44,71 6x1 down, jamais ouvert/atteint)
+- **tunnel7** — Bassin de Lave — *jamais atteinte*
+  - → tunnel6 (bord, 99,36 1x6 right, jamais ouvert/atteint)
+  - → tunnel8 (bord, 43,71 6x1 down, jamais ouvert/atteint)
+- **tunnel8** — Rivière de Feu — *jamais atteinte*
+  - → tunnel7 (bord, 43,0 6x1 up, jamais ouvert/atteint)
+  - → tunnel9 (bord, 99,33 1x6 right, jamais ouvert/atteint)
+- **tunnel9** — Grotte de Lave — *jamais atteinte*
+  - → tunnel6 (bord, 44,0 6x1 up, jamais ouvert/atteint)
+  - → tunnel8 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+
+## Région usine (19 cartes ; ouverte au chapitre plus tard)
+
+Liens vers d'autres régions : savane1 (savane)
+
+- **usine_hall** — Usine — Hall — *jamais atteinte*
+  - → usine9 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+  - → usine_chaine (bord, 0,7 1x2 left, jamais ouvert/atteint)
+  - → usine_entrepot (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → usine_machines (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **usine_chaine** — Usine — Chaîne de montage — *jamais atteinte*
+  - → usine_hall (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **usine_entrepot** — Usine — Entrepôt — *jamais atteinte*
+  - → usine_bureau (porte, 17,2 2x1 up, jamais ouvert/atteint)
+  - → usine_hall (bord, 0,7 1x2 left, jamais ouvert/atteint)
+- **usine_machines** — Usine — Salle des machines — *jamais atteinte*
+  - → usine_generateur (bord, 0,7 1x2 left, jamais ouvert/atteint)
+  - → usine_hall (porte, 9,2 2x1 up, jamais ouvert/atteint)
+- **usine_generateur** — Usine — Générateur — *jamais atteinte*
+  - → usine_machines (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **usine_bureau** — Usine — Bureau du directeur — *jamais atteinte*
+  - → usine_entrepot (porte, 4,2 2x1 up, jamais ouvert/atteint)
+- **donjon_izzy_hall** — Archives de Données — Entrée — *jamais atteinte*
+  - → donjon_izzy_galerie (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → usine6 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+- **donjon_izzy_galerie** — Archives de Données — Galerie — *jamais atteinte*
+  - → donjon_izzy_hall (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → donjon_izzy_sanctuaire (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_izzy_sanctuaire** — Archives de Données — Sanctuaire — *jamais atteinte*
+  - → donjon_izzy_galerie (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **usine0** — Faubourg Industriel — *jamais atteinte*
+  - → savane1 (bord, 42,67 6x1 down, jamais ouvert/atteint)
+  - → usine1 (bord, 93,27 1x6 right, jamais ouvert/atteint)
+- **usine1** — Quai des Wagons — *jamais atteinte*
+  - → usine0 (bord, 0,27 1x6 left, jamais ouvert/atteint)
+  - → usine2 (bord, 99,35 1x6 right, jamais ouvert/atteint)
+  - → usine6 (bord, 48,0 6x1 up, jamais ouvert/atteint)
+- **usine2** — Rue des Cheminées — *jamais atteinte*
+  - → usine1 (bord, 0,35 1x6 left, jamais ouvert/atteint)
+  - → usine3 (bord, 93,30 1x6 right, jamais ouvert/atteint)
+  - → usine5 (bord, 42,0 6x1 up, jamais ouvert/atteint)
+- **usine3** — Parc des Citernes — *jamais atteinte*
+  - → usine2 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+  - → usine4 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+- **usine4** — Dépôt de Batteries — *jamais atteinte*
+  - → usine3 (bord, 45,63 6x1 down, jamais ouvert/atteint)
+  - → usine5 (bord, 0,31 1x6 left, jamais ouvert/atteint)
+- **usine5** — Égouts de l'Usine — *jamais atteinte*
+  - → usine2 (bord, 42,63 6x1 down, jamais ouvert/atteint)
+  - → usine4 (bord, 93,31 1x6 right, jamais ouvert/atteint)
+  - → usine6 (bord, 0,28 1x6 left, jamais ouvert/atteint)
+- **usine6** — Atelier des Robots — *jamais atteinte*
+  - → donjon_izzy_hall (porte, 4,5 2x1 up, jamais ouvert/atteint)
+  - → usine1 (bord, 48,63 6x1 down, jamais ouvert/atteint)
+  - → usine5 (bord, 99,28 1x6 right, jamais ouvert/atteint)
+  - → usine7 (bord, 0,26 1x6 left, jamais ouvert/atteint)
+  - → usine9 (bord, 49,0 6x1 up, jamais ouvert/atteint)
+- **usine7** — Grues du Port — *jamais atteinte*
+  - → usine6 (bord, 93,26 1x6 right, jamais ouvert/atteint)
+  - → usine8 (bord, 41,0 6x1 up, jamais ouvert/atteint)
+- **usine8** — Salle des Machines — *jamais atteinte*
+  - → usine7 (bord, 41,71 6x1 down, jamais ouvert/atteint)
+  - → usine9 (bord, 93,34 1x6 right, jamais ouvert/atteint)
+- **usine9** — Cœur de l'Usine — *jamais atteinte*
+  - → usine6 (bord, 49,71 6x1 down, jamais ouvert/atteint)
+  - → usine8 (bord, 0,34 1x6 left, jamais ouvert/atteint)
+  - → usine_hall (porte, 6,6 up, jamais ouvert/atteint)
+
+## Région volcan (13 cartes ; ouverte au chapitre 3)
+
+Liens vers d'autres régions : montagne8 (montagne)
+
+- **donjon_sora_hall** — Nid de Braises — Entrée — *jamais atteinte*
+  - → donjon_sora_galerie (bord, 19,7 1x2 right, jamais ouvert/atteint)
+  - → volcan5 (bord, 9,14 2x1 down, jamais ouvert/atteint)
+- **donjon_sora_galerie** — Nid de Braises — Galerie — *jamais atteinte*
+  - → donjon_sora_hall (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+  - → donjon_sora_sanctuaire (bord, 19,7 1x2 right, jamais ouvert/atteint)
+- **donjon_sora_sanctuaire** — Nid de Braises — Sanctuaire — *jamais atteinte*
+  - → donjon_sora_galerie (bord, 0,7 1x2 left, jamais ouvert/atteint) ⚠ arrivée déplacée (jusqu'à 1 case(s))
+- **volcan0** — Pied du Mont Panorama — *jamais atteinte*
+  - → montagne8 (bord, 48,0 6x1 up, jamais ouvert/atteint)
+  - → volcan1 (bord, 99,32 1x6 right, jamais ouvert/atteint)
+- **volcan1** — Champs de Cendres — *jamais atteinte*
+  - → volcan0 (bord, 0,32 1x6 left, jamais ouvert/atteint)
+  - → volcan2 (bord, 87,29 1x6 right, jamais ouvert/atteint)
+  - → volcan6 (bord, 40,63 6x1 down, jamais ouvert/atteint)
+- **volcan2** — Coulée de Lave — *jamais atteinte*
+  - → volcan1 (bord, 0,29 1x6 left, jamais ouvert/atteint)
+  - → volcan3 (bord, 93,33 1x6 right, jamais ouvert/atteint)
+  - → volcan5 (bord, 45,63 6x1 down, jamais ouvert/atteint)
+- **volcan3** — Forêt Calcinée — *jamais atteinte*
+  - → volcan2 (bord, 0,33 1x6 left, jamais ouvert/atteint)
+  - → volcan4 (bord, 39,63 6x1 down, jamais ouvert/atteint)
+- **volcan4** — Fumerolles — *jamais atteinte*
+  - → volcan3 (bord, 39,0 6x1 up, jamais ouvert/atteint)
+  - → volcan5 (bord, 0,26 1x6 left, jamais ouvert/atteint)
+- **volcan5** — Orgues de Basalte — *jamais atteinte*
+  - → donjon_sora_hall (porte, 4,5 2x1 up, jamais ouvert/atteint)
+  - → volcan2 (bord, 45,0 6x1 up, jamais ouvert/atteint)
+  - → volcan4 (bord, 93,26 1x6 right, jamais ouvert/atteint)
+  - → volcan6 (bord, 0,30 1x6 left, jamais ouvert/atteint)
+- **volcan6** — Lac de Magma — *jamais atteinte*
+  - → volcan1 (bord, 40,0 6x1 up, jamais ouvert/atteint)
+  - → volcan5 (bord, 87,30 1x6 right, jamais ouvert/atteint)
+  - → volcan7 (bord, 0,26 1x6 left, jamais ouvert/atteint)
+  - → volcan9 (bord, 38,63 6x1 down, jamais ouvert/atteint)
+- **volcan7** — Belvédère du Panorama — *jamais atteinte*
+  - → volcan6 (bord, 99,26 1x6 right, jamais ouvert/atteint)
+  - → volcan8 (bord, 47,63 6x1 down, jamais ouvert/atteint)
+- **volcan8** — Grotte Ardente — *jamais atteinte*
+  - → volcan7 (bord, 47,0 6x1 up, jamais ouvert/atteint)
+  - → volcan9 (bord, 99,25 1x6 right, jamais ouvert/atteint)
+- **volcan9** — Cratère de Meramon — *jamais atteinte*
+  - → volcan6 (bord, 38,0 6x1 up, jamais ouvert/atteint)
+  - → volcan8 (bord, 0,25 1x6 left, jamais ouvert/atteint)
