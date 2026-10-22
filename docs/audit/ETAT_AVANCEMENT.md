@@ -31,7 +31,7 @@ Chaque lot de corrections : `python dev/versions.py`, `node dev/tests.js` (tous 
 |---|---|---|
 | 1 | Inventaire, architecture, état initial | fait : 4 audits (systèmes, Digimon et combats, cartes, graphismes) ; 351 cartes, 81 espèces, 132 Digivolutions, 153 objets, 690 images |
 | 2 | Démarrage, boucle, erreurs | corrigé avant l'audit (démarrage blindé, file:// redirigé) ; parcours réel 13/13 sans erreur de console |
-| 3 | Graphismes, fonds verts, textures, ordre d'affichage | audit fait (36 anomalies) ; corrigé : yeux, sens des vues, 30 objets, arbres, écran titre ; volcan, parois, dalles : en cours (agent) ; P3 d'ordre d'affichage non traitées |
+| 3 | Graphismes, fonds verts, textures, ordre d'affichage | audit fait (36 anomalies) ; corrigé : yeux, sens des vues, 30 objets, arbres, écran titre, volcan, parois, dalles, bébés ; P3 d'ordre d'affichage non traitées |
 | 4 | Cartes : graphe des connexions, collisions, level design | audit fait (0 P0, 0 P1, 2 P2, 13 P3) ; tout corrigé (94b9945, a4e0391) sauf la grille de la carte du monde (en pause) |
 | 5 | Digimon, digivolutions, progression | audit fait (0 P0, 1 P1, 10 P2, 21 P3) ; 26 corrigées (52ebfcc) |
 | 6 | Combats, cas extrêmes, équilibrage | corrigé avec la phase 5 ; éléments et renaissance : décisions du joueur ; Méga : « pour plus tard » |
@@ -40,8 +40,8 @@ Chaque lot de corrections : `python dev/versions.py`, `node dev/tests.js` (tous 
 | 9 | Objets, équipements, économie | audit fait ; corrigé (e862fe0) : objets d'Ultime, sac plein, canne, champignons, revanche de Shellmon ; textes des objets : agent Digimon |
 | 10 | PNJ et interactions | audit fait (avec les cartes) : aucun PNJ inaccessible ; 2 panneaux fantômes retirés, 4 dans les retouches de l'atelier |
 | 11 | Sauvegardes | corrigé (e862fe0) : 9 anomalies (dont 3 P1), 5 tests ajoutés |
-| 12 | Sons et musiques | corrigé (e862fe0) : séquenceur, son suspendu onglet caché, musique après un jingle ; volumes de la musique et des bruitages dans les Options (lot suivant) |
-| 13 | Performances | WebP pour le dossier commun (15,9 → 5,2 Mo) ; volcan chargé à part : en cours (agent images) |
+| 12 | Sons et musiques | corrigé (e862fe0, 38a2614) : séquenceur, son suspendu onglet caché, musique après un jingle, volumes de la musique et des bruitages |
+| 13 | Performances | WebP pour le dossier commun (15,9 → 5,2 Mo) ; volcan chargé à part (2,96 Mo → 187 Ko) : 8,3 Mo avant de jouer au lieu de 11,2 |
 | 14 | Compatibilité, écrans | 6 formats sur 6 (PC, 4K, téléphone, tablette) |
 | 15 | Nettoyage du code | fait (38f426c) : lanceur JOUER.bat, pages de dev/ lavées |
 | 16 | Tests automatisés et parcours réels | 60 tests Node ; parcours Playwright 13/13 ; formats 6/6 |
@@ -64,6 +64,9 @@ Chaque lot de corrections : `python dev/versions.py`, `node dev/tests.js` (tous 
 | a4e0391 | cartes : les 6 retouches de l'atelier corrigées, grotte de Sora (pont, rocher et échelle) | 71/71 | vérifié |
 | a66a8c0 | écran titre : écusson imitant le logo officiel effacé, titre dessiné par le jeu | 71/71 ; écran regardé (Chrome) | vérifié |
 | 7b2ae96 | images : yeux d'Agumon et de Palmon, Yuramon et Togemon, 30 objets au détourage net, 23 arbres nets | 71/71 ; parcours 13/13 ; planches avant/après regardées | vérifié |
+| 38a2614 | volumes de la musique et des bruitages ; gardien du Grand Arbre compté pour les demandes | 71/71 ; menu Options regardé (Chrome) | vérifié |
+| 69aeb0c, 2220674 | techniques inconnues gardées dans la sauvegarde ; bébés en pixel art à la bonne taille | 71/71 ; combat et carte regardés (Chrome) | vérifié |
+| 905a766, 1c4b568 | fusion du volcan (images allégées, chargées à part ; parois ; dalles) ; documents | 71/71 ; parcours 13/13 en local ET SUR LE SITE EN LIGNE ; formats 6/6 | vérifié (paquets servis = 554517e8 / 81e643a1) |
 
 ## Rapports d'audit (copies de travail)
 
