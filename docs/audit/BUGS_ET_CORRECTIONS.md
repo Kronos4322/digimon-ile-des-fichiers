@@ -138,10 +138,10 @@ avec ceux de l'audit des Digimon.
 | D1g | P2 | Yuramon : vue combat tournée à gauche | corrigé (7b2ae96) |
 | D2g | P2 | Togemon : vue profil tournée à gauche | corrigé (7b2ae96) |
 | D4g | P2 | Bukamon plus grand que les Disciples | décision du joueur : garder (demandé plusieurs fois) |
-| S1 | P2 | Parois des souterrains du volcan rayées | agent volcan (en cours) |
-| S2 | P2 | `grotte/dalles_fissurees` : couture horizontale | agent volcan (en cours) |
+| S1 | P2 | Parois des souterrains du volcan rayées | corrigé (905a766) : plus de bandes ; la roche a un grain vertical |
+| S2 | P2 | `grotte/dalles_fissurees` : couture horizontale | corrigé (905a766) : raccord sur la période du dessin |
 | Z1 | P2 | Arbres et étals flous | en partie (7b2ae96) : les 23 arbres refaits à 210 px (au lieu de 111 à 143) ; étals : leur dessin d'origine est trop petit pour faire mieux |
-| Z2 | P2 | Volcan : 2,96 Mo de PNG chargés au démarrage | agent volcan (en cours) |
+| Z2 | P2 | Volcan : 2,96 Mo de PNG chargés au démarrage | corrigé (905a766) : 187 Ko de WebP chargés en arrière-plan ; 8,3 Mo avant de jouer au lieu de 11,2 |
 | R2 | P2 | Nom de l'application et icônes sous la marque | décision du joueur : jeu de fan, « non officiel » écrit à l'écran titre et dans le README |
 | R3 | P2 | Personnages et univers de la franchise | propre à un jeu de fan : mention © Bandai / Toei (écran titre, README) |
 | T3 | P3 | La compression WebP verdit le contour | en partie (7b2ae96) : contour démêlé sur les 30 objets refaits |

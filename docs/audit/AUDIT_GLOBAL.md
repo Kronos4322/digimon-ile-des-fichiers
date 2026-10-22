@@ -24,11 +24,10 @@ Documents liés, dans ce dossier :
 | | Nombre |
 |---|---|
 | Anomalies relevées | **123** : 1 P0, 7 P1, 27 P2, 88 P3 |
-| Corrigées | **76** |
-| Corrigées en partie | **7** |
+| Corrigées | **83** |
+| Corrigées en partie | **4** |
 | Laissées à ta décision, ou gardées exprès | **11** |
-| Pas encore traitées (P3 surtout), ou non vérifiables sans essai réel | **26** |
-| En cours (images du volcan) | **3** |
+| Pas encore traitées (P3 surtout), ou non vérifiables sans essai réel | **25** |
 | Tests automatiques | **71**, tous réussis, sur le PC et sur GitHub (53 au départ) |
 | Parcours de joueur dans un vrai Chrome | **13 étapes sur 13**, en local et sur le site en ligne |
 | Formats d'écran essayés | **6 sur 6** |
@@ -133,18 +132,20 @@ Laissés à ta décision :
   - 30 objets qui perdaient leurs verts (regardés un à un) ;
   - les 23 arbres, nets au lieu de flous ;
   - l'écran titre.
-- **En cours** (agent volcan) :
-  - les images du volcan chargées à part, plus légères ;
-  - les parois rayées des souterrains ;
-  - la couture des dalles de la grotte.
+- **Corrigé aussi** :
+  - les images du volcan, 16 fois plus légères et chargées en arrière-plan ;
+  - les parois des souterrains, sans bandes ;
+  - les dalles de la grotte, sans couture ;
+  - les bébés en pixel art, à la taille des autres bébés.
 - **Non corrigé** : 18 défauts mineurs (P3) : contours, ordre d'affichage, tailles. Ils sont listés dans `BUGS_ET_CORRECTIONS.md`.
 
 ### Performances, compatibilité, code
 
 - **Démarrage** :
   - les images du dossier commun sont en WebP (5,2 Mo au lieu de 15,9 Mo) ;
-  - les dossiers de la grotte, des bébés et du désert sont chargés en arrière-plan ;
-  - le volcan les rejoint (en cours).
+  - les dossiers de la grotte, des bébés, du désert et du volcan sont chargés en arrière-plan ;
+  - avant de pouvoir jouer : 8,3 Mo à télécharger au lieu de 11,2 Mo (le volcan passe de 2,96 Mo à 187 Ko) ;
+  - une carte voisine n'est plus préparée avant l'arrivée de ses images.
 - **Écrans** : PC 800 × 600, Full HD, 4K, téléphone en paysage et en portrait, tablette. Le jeu tient en 4:3, les pixels restent nets, et les commandes tactiles n'apparaissent que sur les appareils tactiles.
 - **Code** :
   - lanceur `JOUER.bat` ;

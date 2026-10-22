@@ -6,6 +6,15 @@ l'autre. Le détail de chaque correction est dans `docs/audit/BUGS_ET_CORRECTION
 
 ## 22/10/2026 — Audit intégral : corrections
 
+### Volcan, options, bébés (905a766, 38a2614, 2220674, 69aeb0c)
+- Images du volcan 16 fois plus légères (2,96 Mo -> 187 Ko), chargées en arrière-plan : 8,3 Mo à télécharger avant de
+  jouer au lieu de 11,2 Mo. Une carte n'est jamais dessinée avant l'arrivée de ses images.
+- Parois des souterrains du volcan sans bandes horizontales ; dalles de la grotte sans couture.
+- Options : volumes de la musique et des bruitages réglables à part.
+- Botamon, Pichimon et YukimiBotamon à la taille des autres bébés.
+- Les techniques d'une version plus récente du jeu sont gardées dans la sauvegarde au lieu d'être effacées.
+- Le gardien du Grand Arbre vaincu compte pour les demandes des habitants.
+
 ### Images (7b2ae96)
 - Yeux d'Agumon et de Palmon : l'iris vert n'est plus troué (on voyait le décor à travers l'œil) ; griffes de Palmon nettes.
 - Yuramon (combat) et Togemon (profil) regardent du bon côté.
