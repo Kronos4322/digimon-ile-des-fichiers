@@ -14,9 +14,11 @@
   const MP_REGEN = 0.06;   // PM rendus à la fin de chaque tour (part des PM max) : on n'est jamais à sec bien longtemps
 
   class BattleScene extends DW.Scene {
+    // o.amical : combat d'entraînement (Dojo d'Elecmon, maps/grandir.js) — ni « sauvage » dans les textes, ni fuite, ni bonus
+    // de dégâts des sauvages ; ses récompenses restent celles d'un combat ordinaire
     constructor(o) {
       super();
-      this.o = o; this.enemy = o.enemy; this.wild = !o.boss; this.st = DW.state;
+      this.o = o; this.enemy = o.enemy; this.amical = !!o.amical; this.wild = !o.boss && !this.amical; this.st = DW.state;
       this.active = null; this.activeIdx = 0; this.parts = new Set(); this.runTries = 0;
       this.text = ''; this.shown = 0; this.mode = 'none'; this.cursor = 0; this.mcursor = 0;
       this.spr = {
@@ -78,11 +80,12 @@
         if (Input.hit('ok')) { Audio.sfx('select'); this.resolveMenu(this.cursor); }
         if (Input.hit('back') && this.cursor !== 3) { this.cursor = 3; Audio.sfx('move'); }
       } else if (this.mode === 'moves') {
-        const n = this.active.moves.length;
+        // ses techniques, puis la Lutte, toujours proposée en dernier (2 colonnes ; une 4e rangée avec 6 techniques)
+        const n = this.active.moves.length + 1, cells = Math.ceil(n / 2) * 2;
         let c = this.mcursor;
         if (Input.hit('left') || Input.hit('right')) c ^= 1;
-        if (Input.hit('up')) c = (c - 2 + 6) % 6;
-        if (Input.hit('down')) c = (c + 2) % 6;
+        if (Input.hit('up')) { c = (c - 2 + cells) % cells; if (c >= n) c = n - 1; }
+        if (Input.hit('down')) { c = (c + 2) % cells; if (c >= n) c = n - 1; }
         if (c < n && c !== this.mcursor) { this.mcursor = c; Audio.sfx('move'); }
         if (Input.hit('ok')) { Audio.sfx('select'); this.resolveMenu(this.mcursor); }
         if (Input.hit('menu') && this.energy.p >= 100 && DW.sigOf(this.active)) { Audio.sfx('evolve'); this.resolveMenu('special'); }
@@ -97,7 +100,7 @@
       while (true) {
         const action = await this.playerTurn();
         if (action.type === 'run') {
-          if (!this.wild) { await this.msg('Impossible de fuir ce combat !'); continue; }
+          if (!this.wild) { await this.msg(this.amical ? "C'est un combat d'entraînement : on va jusqu'au bout !" : 'Impossible de fuir ce combat !'); continue; }
           this.runTries++;
           const ps = this.eff('p', 'spd'), es = this.eff('e', 'spd');
           const ch = DW.clamp(0.5 + (ps - es) / (es * 2) + this.runTries * 0.12, 0.25, 1);
@@ -133,7 +136,7 @@
       await DW.tween(this.bars, { v: 0 }, 0.5);
       await DW.tween(this.spr.e, { dx: 0 }, 0.55);
       this.hud.e = true;
-      await this.msg(this.o.intro || (this.wild ? `Un ${this.enemy.name} sauvage apparaît !` : `${this.enemy.name} attaque !`));
+      await this.msg(this.o.intro || (this.wild ? `Un ${this.enemy.name} sauvage apparaît !` : this.amical ? `${this.enemy.name} salue, puis se met en garde !` : `${this.enemy.name} attaque !`));
       const idx = this.st.party.findIndex(m => m.hp > 0);
       if (idx < 0) throw new Error('aucun Digimon en état de se battre');
       await this.sendOut(idx);
@@ -166,10 +169,13 @@
         const c = await this.menu('cmd');
         if (c === 0) {
           if (P.moves.every(m => !P.canPay(m.id))) { await this.msg(`${P.name} n'a plus assez de PM !`); return { type: 'move', slot: -1 }; }
-          if (this.mcursor >= P.moves.length) this.mcursor = 0;
+          if (this.mcursor > P.moves.length) this.mcursor = 0;
           const m = await this.menu('moves');
           if (m === 'special') return { type: 'move', special: true };
           if (m < 0) continue;
+          // la Lutte (dernier choix, gratuite : avant, elle ne venait qu'à court de PM — un Digimon réduit à Garde et
+          // Intimidation ne pouvait plus frapper qu'avec son coup spécial)
+          if (m >= P.moves.length) return { type: 'move', slot: -1 };
           if (!P.canPay(P.moves[m].id)) { await this.msg(`Pas assez de PM ! (${DW.mpCost(P.moves[m].id)} PM nécessaires)`); continue; }
           return { type: 'move', slot: m };
         }
@@ -365,10 +371,13 @@
     async useMove(uSide, slot) {
       const user = this.mon(uSide), tSide = uSide === 'p' ? 'e' : 'p', tgt = this.mon(tSide);
       const mv = DW.MOVES[slot.id], who = this.label(uSide);
+      // sommeil : le réveil prend aussi son action — il dort exactement 2 tours (STATUS_TURNS.slp ; avant, il se réveillait
+      // et jouait dès le 2e : une seule action perdue)
       if (user.status === 'slp') {
         user.slp--;
         if (user.slp <= 0) { user.status = null; await this.msg(`${who} se réveille !`); }
-        else { await this.msg(`${who} dort profondément...`); return; }
+        else await this.msg(`${who} dort profondément...`);
+        return;
       }
       if (user.status === 'par' && Math.random() < 0.2) {
         this.sparkle(uSide, '#ffe030');
@@ -439,7 +448,7 @@
       if (side === 'p' && this.protect) { if (announce) await this.msg(`La Protection repousse l'altération !`); return; }
       if (m.status || immune) { if (announce) await this.msg(`Ça n'a aucun effet sur ${this.label(side)}...`); return; }
       m.status = s;
-      if (s === 'slp') m.slp = STATUS_TURNS.slp;   // dort exactement 2 tours
+      if (s === 'slp') m.slp = STATUS_TURNS.slp;   // dort exactement 2 tours (le réveil compte : useMove)
       m.stT = STATUS_TURNS[s];
       Audio.sfx('status');
       this.sparkle(side, DW.STATUS_COL[s]);
@@ -467,17 +476,18 @@
     // ---------------------------------------------------------- expérience
     async giveXp() {
       const E = this.enemy;
-      // EXPÉRIENCE PARTAGÉE : toute l'équipe (sauf les K.O.) gagne autant que le Digimon qui a combattu ;
-      // la victoire, le bonheur et l'effort ne comptent que pour ceux qui ont combattu (l'entraînement reste individuel)
+      // EXPÉRIENCE PARTAGÉE : toute l'équipe (sauf les K.O.) gagne de l'expérience — la moitié pour ceux qui n'ont pas combattu
+      // (avant : autant, un Botamon jamais envoyé gagnait 2 niveaux) ; la victoire, le bonheur et l'effort ne comptent que
+      // pour ceux qui ont combattu (l'entraînement reste individuel)
       const fought = new Set([...this.parts].filter(m => m.hp > 0));
       const alive = this.st.party.filter(m => m.hp > 0);
       if (alive.length) {
-        const total = Math.floor(E.d.xp * E.level / 7 * (this.wild ? 1 : 1.5));
+        const total = Math.floor(E.d.xp * E.level / 7 * (this.wild || this.amical ? 1 : 1.5));
         for (const m of alive) {
           // contre un adversaire plus faible, on apprend peu (on ne monte plus de niveau en écrasant les petits)
           // (le stade compte : un Champion vaut 3 niveaux de plus qu'un Disciple, etc. — un jeune Kuwagamon rapporte gros)
           const ST = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'], sg = (ST.indexOf(E.d.stage) - ST.indexOf(m.d.stage)) * 3;
-          const gap = DW.clamp(1 - (m.level - E.level - sg) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total * gap));
+          const gap = DW.clamp(1 - (m.level - E.level - sg) * 0.18, 0.15, 1.3), each = Math.max(1, Math.floor(total * gap * (fought.has(m) ? 1 : 0.5)));
           if (fought.has(m)) { m.wins++; m.addHappy(2); DW.Life.addFat(m, -0.02); }   // (un combat fait à peine maigrir : 200 combats ne doivent pas affamer)
           await this.msg(`${m.name} gagne ${each} points d'EXP !`, 0.8);
           const events = m.addXp(each);
@@ -504,10 +514,13 @@
         }
       }
       // Bits selon l'écart de niveau (comme l'expérience) : un adversaire de ton niveau ou plus fort paie bien,
-      // écraser les petits ne rapporte presque rien (partie test : pas assez au début, beaucoup trop ensuite)
-      const lv = this.active ? this.active.level : E.level, gapB = DW.clamp(1 + (E.level - lv) * 0.2, 0.2, 1.8);
-      // (défi d'un Digimon à ramener en ville : à peine plus qu'un sauvage — il rejoint la ville, ce n'est pas un boss)
-      const perLv = this.wild ? 6 : this.o.recruit ? 9 : 25;
+      // écraser les petits ne rapporte presque rien (partie test : pas assez au début, beaucoup trop ensuite) ;
+      // l'écart se compte avec le plus haut niveau de ceux qui ont combattu (avant : le Digimon en jeu au K.O. — envoyer un
+      // bébé pour le dernier coup faisait passer les Bits de ×0,2 à ×1,8)
+      const lv = this.parts.size ? Math.max(...[...this.parts].map(m => m.level)) : E.level, gapB = DW.clamp(1 + (E.level - lv) * 0.2, 0.2, 1.8);
+      // (défi d'un Digimon à ramener en ville : à peine plus qu'un sauvage — il rejoint la ville, ce n'est pas un boss ;
+      //  combat d'entraînement du dojo : comme un combat ordinaire)
+      const perLv = this.wild || this.amical ? 6 : this.o.recruit ? 9 : 25;
       const bits = Math.max(1, Math.floor((E.level * perLv + DW.rand(0, E.level * 2)) * 2 * gapB));
       this.st.bits += bits;
       await this.msg(`Tu récupères ${bits} Bits !`, 0.9);

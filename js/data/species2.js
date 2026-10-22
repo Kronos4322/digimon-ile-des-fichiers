@@ -88,7 +88,7 @@
     penguinmon: [r('frigimon', 15, { hp: 26, wins: 10 })], gabumon: [r('frigimon', 18, { hp: 28, def: 14, wins: 10 }), r('ogremon', 18, { atk: 24, mistakes: 3 })],
     elecmon: [r('leomon', 18, { atk: 28, wins: 12 }), r('centarumon', 18, { int: 26, def: 14, wins: 10 })], agumon: [r('monochromon', 18, { def: 28, hp: 14, wins: 10 })],
     betamon: [r('seadramon', 18, { int: 28, wins: 10 }), r('gekomon', 18, { int: 22, hp: 18, wins: 10 })], gomamon: [r('seadramon', 18, { int: 26, spd: 14, wins: 10 })],
-    biyomon: [r('unimon', 18, { spd: 26, int: 14, wins: 10 })], mushroomon: [r('bakemon', 18, { int: 26, wins: 10 })], kunemon2: [],
+    biyomon: [r('unimon', 18, { spd: 26, int: 14, wins: 10 })], mushroomon: [r('bakemon', 18, { int: 26, wins: 10 })],
     kabuterimon: [r('andromon', 32, { def: 50, int: 30, happy: 60, wins: 40 })], centarumon: [r('andromon', 32, { int: 50, def: 30, happy: 60, wins: 40 })],
     drimogemon: [r('andromon', 32, { atk: 48, def: 40, wins: 40 })], monochromon: [r('megadramon', 32, { atk: 50, def: 30, wins: 40 })],
     seadramon: [r('megadramon', 32, { int: 50, spd: 30, wins: 40 })], devimon: [r('megadramon', 32, { atk: 50, int: 30, wins: 40 })],
@@ -97,5 +97,4 @@
     frigimon: [r('zudomon', 32, { hp: 50, def: 30, happy: 60, wins: 40 })], gekomon: [r('zudomon', 32, { int: 46, def: 30, wins: 40 })],
     bakemon: [r('skullmeramon', 32, { int: 50, wins: 40 })], greymon: [r('skullgreymon', 32, { atk: 50, mistakes: 3 })],
   };
-  delete DW.EVO_EXTRA.kunemon2;
 })();

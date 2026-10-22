@@ -48,7 +48,7 @@
     ikkakumon: [[30, 'raz_de_maree']], gomamon: [[20, 'raz_de_maree']], betamon: [[22, 'raz_de_maree']], shellmon: [[28, 'raz_de_maree']],
     kabuterimon: [[30, 'orage']], elecmon: [[21, 'orage']], tentomon: [[22, 'orage']],
     gabumon: [[20, 'pics_glace']], garurumon: [[28, 'pics_glace']], frigimon: [[26, 'pics_glace']],
-    gotsumon: [[19, 'seisme']], monochromon: [[30, 'seisme']], tyrannomon: [[32, 'seisme']],
+    gotsumon: [[19, 'seisme']], monochromon: [[30, 'seisme']],
     patamon: [[22, 'rayon_sacre']], angemon: [[28, 'rayon_sacre']],
     devimon: [[0, 'sphere_obscure']], bakemon: [[24, 'sphere_obscure']],
     palmon: [[20, 'tempete_petales']], togemon: [[28, 'tempete_petales']], biyomon: [[24, 'tempete_petales']],

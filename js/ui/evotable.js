@@ -15,6 +15,10 @@
     get m() { return DW.state.party[this.i]; }
     get opts() { return DW.Evo.options(this.m.sp); }
     get prev() { return DW.Evo.prev1(this.m.sp, this.m.parcours); }
+    // né d'une fusion (Omegamon) : il ne dé-digivolue pas (avant, il redevenait WarGreymon et MetalGarurumon était perdu)
+    get fusion() { return DW.Evo.estFusion(this.m.sp); }
+    // ce que la dé-digivolution apporte à l'ABI (+2 la première fois depuis cette forme seulement : game/monster.js)
+    abiTxt(to) { return this.m.abiGain(to) > 0 ? 'ABI +2 : son potentiel augmente' : "pas d'ABI en plus : il a déjà dé-digivolué depuis cette forme"; }
     update() {
       const n = this.opts.length;
       if (Input.hit('menu')) { this.i = (this.i + 1) % DW.state.party.length; this.sel = 0; this.col = this.opts.length ? 1 : 0; Audio.sfx('move'); }
@@ -31,8 +35,9 @@
       const m = this.m, st = DW.state;
       if (this.col === 0 && this.prev) {
         const to = this.prev;
+        if (this.fusion) { Audio.sfx('bump'); await DW.say(`${m.name} est né de la fusion de deux Digimon : ils ne font plus qu'un. Il ne peut pas dé-digivoluer.`); return; }
         Audio.sfx('select');
-        const r = await DW.ask(`Faire dé-digivoluer ${m.name} en ${DW.SPECIES[to].name} ? (niveau et entraînement conservés, ABI +2 : son potentiel augmente)`);
+        const r = await DW.ask(`Faire dé-digivoluer ${m.name} en ${DW.SPECIES[to].name} ? (niveau et entraînement conservés, ${this.abiTxt(to)})`);
         if (r !== 0) return;
         await Game.push(new DW.EvolutionScene(m, to, { dedigi: true }));
         m.evolve(to);
@@ -42,6 +47,8 @@
       }
       const o = this.opts[this.sel];
       if (!o) return;
+      // (un Digimon K.O. ne digivolue pas : la Digivolution le relevait, sans objet)
+      if (m.hp <= 0) { Audio.sfx('bump'); await DW.say(`${m.name} est K.O. ! Soigne-le avant de le faire digivoluer.`); return; }
       const chk = DW.Evo.check(m, o);
       if (!chk.ok) { Audio.sfx('bump'); await DW.say('Les conditions ne sont pas encore remplies. Entraîne-toi et gagne des combats !'); return; }
       Audio.sfx('select');
@@ -98,7 +105,7 @@
         UI.box(c, 6, 52, 96, 28, sel ? 'dwsel' : 'dw');
         this.icon(c, prev, 20, 77, true);
         UI.text(c, DW.SPECIES[prev].name, 34, 64, { size: 8, color: sel ? '#ffffff' : '#c8f0ff' });
-        UI.text(c, 'Possible !', 34, 75, { size: 7, color: OK });
+        UI.text(c, this.fusion ? 'Impossible' : 'Possible !', 34, 75, { size: 7, color: this.fusion ? NO : OK });
       } else UI.text(c, '—', 54, 66, { size: 9, align: 'center', color: '#5a8aa0' });
       // digivolutions
       if (top > 0) UI.text(c, '▲', 306, 50, { size: 7, color: '#8ae0f0' });
@@ -116,7 +123,8 @@
       UI.box(c, 6, 168, W - 12, 66);
       if (this.col === 0 && prev) {
         UI.label(c, 'DÉ-DIGIVOLUTION', 12, 173);
-        UI.wrap(c, `${m.name} redevient ${DW.SPECIES[prev].name}. Son niveau, ses attaques et son entraînement sont conservés.`, 290, 9)
+        UI.wrap(c, this.fusion ? `${m.name} est né de la fusion de deux Digimon : ils ne font plus qu'un, il ne peut pas dé-digivoluer.`
+          : `${m.name} redevient ${DW.SPECIES[prev].name}. Son niveau, ses attaques et son entraînement sont conservés (${this.abiTxt(prev)}).`, 290, 9)
           .forEach((l, j) => UI.text(c, l, 14, 198 + j * 12, { size: 9 }));
       } else if (opts[this.sel]) {
         const o = opts[this.sel], chk = DW.Evo.check(m, o);

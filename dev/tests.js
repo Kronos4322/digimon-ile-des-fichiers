@@ -241,6 +241,181 @@ test('une erreur pendant un combat referme le combat au lieu de le bloquer', asy
   } finally { DW.reportError = rep; DW.fade = fade; }
 });
 
+// ------------------------------------------------------------ Digivolutions, ABI, combats (audit des Digimon)
+// banc de combat : la vraie logique de BattleScene (tours, dégâts, coup spécial, statuts, expérience), sans animations ;
+// le partenaire joue sa meilleure attaque payable (coup spécial dès que la jauge est pleine) ; hasard reproductible (graine)
+async function combatSimule(o, party, graine) {
+  const R = Math.random, garde = { tween: DW.tween, wait: DW.wait, fade: DW.fade, playFX: DW.playFX, impact: DW.Elem.impact, rumble: DW.Input.rumble };
+  let s = graine >>> 0;
+  const hasard = () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  Math.random = hasard;
+  DW.tween = (x, p) => { Object.assign(x, p); return Promise.resolve(); }; DW.wait = async () => {}; DW.fade = async () => {}; DW.playFX = async () => {};
+  DW.Elem.impact = () => {}; DW.Input.rumble = () => {};
+  try {
+    DW.state.party = party; DW.state.weather = { type: 'clear', until: 1e12 };
+    const B = new DW.BattleScene(o);
+    Object.assign(B, { msg: async () => {}, attackAnim: async () => {}, hitAnim: async () => {}, sparkle: () => {}, center: () => ({ x: 0, y: 0 }), chargeUp: async () => 70 });
+    B.faint = async side => { B.spr[side].vis = false; };
+    const attendu = (P, mv) => { if (!(mv.pow > 0)) return 0; Math.random = () => 0.5; try { return B.calc('p', mv, P, B.enemy).dmg * (mv.acc ? mv.acc / 100 : 1); } finally { Math.random = hasard; } };
+    B.playerTurn = async () => {
+      const P = B.active;
+      if (B.energy.p >= 100 && DW.sigOf(P)) return { type: 'move', special: true };
+      const pay = P.moves.map((m, i) => ({ i, e: attendu(P, DW.MOVES[m.id]) })).filter(x => P.canPay(P.moves[x.i].id)).sort((a, b) => b.e - a.e);
+      return pay.length && pay[0].e > 0 ? { type: 'move', slot: pay[0].i } : { type: 'move', slot: -1 };
+    };
+    return await B.run();
+  } finally { Math.random = R; DW.tween = garde.tween; DW.wait = garde.wait; DW.fade = garde.fade; DW.playFX = garde.playFX; DW.Elem.impact = garde.impact; DW.Input.rumble = garde.rumble; }
+}
+const IV7 = { hp: 7, atk: 7, def: 7, spd: 7, int: 7 };
+test("ABI : +1 la première fois qu'il atteint une forme, +2 la première fois qu'il en dé-digivolue (plus de boucle), gardé par la sauvegarde", () => {
+  fresh();
+  const m = new DW.Digimon('koromon', 7); m.tr.atk = 10; m.wins = 3; DW.state.party = [m];
+  for (let i = 0; i < 10; i++) { m.evolve('agumon'); m.evolve(DW.Evo.prev1(m.sp, m.parcours)); }
+  eq(m.sp, 'koromon'); eq(m.abi, 3, '10 allers-retours Koromon ↔ Agumon (avant : ABI 30)');
+  eq(DW.Training.cap(m), 10 + 7 * 3 + 4 * 3, "plafond d'entraînement au N.7");
+  // la sauvegarde garde les formes atteintes et les dé-digivolutions faites
+  yes(DW.save(), 'échec de la sauvegarde'); DW.state = DW.newState(); yes(DW.load(), 'échec du chargement');
+  const n = DW.state.party[0]; n.evolve('agumon'); n.evolve('koromon'); eq(n.abi, 3, "après rechargement, l'aller-retour ne rapporte plus rien");
+  n.evolve('gabumon'); eq(n.abi, 4, 'une forme nouvelle : +1'); n.evolve('koromon'); eq(n.abi, 6, 'première dé-digivolution depuis Gabumon : +2');
+  // une ancienne sauvegarde, sans ces listes, se charge et repart de son parcours et de sa forme actuelle
+  const o = new DW.Digimon('agumon', 12, { parcours: ['botamon', 'koromon'], abi: 2 }).toJSON(); delete o.formes; delete o.dedigiDe;
+  const v = DW.Digimon.from(JSON.parse(JSON.stringify(o)));
+  eq(v.formes.join(), 'botamon,koromon,agumon'); eq(v.dedigiDe.length, 0);
+  DW.state.party = [v];
+  yes(/ABI \+2/.test(new DW.EvoTableScene(0).abiTxt('koromon')), "la fiche n'annonce pas l'ABI +2 de la première dé-digivolution");
+  v.evolve('koromon'); eq(v.abi, 4); v.evolve('agumon'); eq(v.abi, 4, 'Agumon déjà atteint : pas de +1');
+  // la fiche Digivolution dit la vérité quand il n'y a plus de gain
+  yes(/pas d'ABI en plus/.test(new DW.EvoTableScene(0).abiTxt('koromon')), 'la fiche annonce encore « ABI +2 »');
+});
+test('écussons : chaque Ultime en demande un (MegaKabuterimon : Izzy ; MagnaAngemon et Angewomon : T.K.)', () => {
+  for (const sp in DW.EVO) for (const o of DW.EVO[sp]) if (DW.SPECIES[o.to].stage === 'Ultime') yes(DW.Crests.OF[o.to], `${sp} → ${o.to} : aucun écusson demandé`);
+  for (const [a, b, k] of [['kabuterimon', 'megakabuterimon', 'izzy'], ['angemon', 'magnaangemon', 'tk'], ['gatomon', 'angewomon', 'tk']]) {
+    fresh();
+    const m = new DW.Digimon(a, 40); m.tr = { hp: 64, mp: 64, atk: 64, def: 64, spd: 64, int: 64 }; m.wins = 999; m.happy = 100; m.disc = 100;
+    const o = DW.Evo.options(a).find(x => x.to === b), row = () => DW.Evo.check(m, o).rows.find(r => /Écusson/.test(r.label));
+    yes(!DW.Evo.check(m, o).ok && row() && row().crest === k, `${a} → ${b} possible sans l'écusson ${k}`);
+    DW.Crests.give(k); yes(DW.Evo.check(m, o).ok, `${a} → ${b} refusé avec l'écusson ${k}`);
+  }
+});
+test("dé-digivolution et renaissance après un objet de Digivolution : la vraie forme d'avant (Gabumon de Matt + Aile de flammes)", () => {
+  fresh();
+  const m = new DW.Digimon('punimon', 5); m.evolve('tsunomon'); m.evolve('gabumon'); m.evolve(DW.ITEMS.aile_flamme.to);
+  eq(m.sp, 'birdramon'); eq(DW.Evo.prev1(m.sp, m.parcours), 'gabumon', 'forme précédente (avant : Biyomon)'); eq(DW.Life.babyOf(m), 'punimon', 'renaissance (avant : Nyokimon)');
+  m.evolve(DW.Evo.prev1(m.sp, m.parcours)); eq(m.sp, 'gabumon'); eq(m.parcours.join(), 'punimon,tsunomon');
+  const g = new DW.Digimon('greymon', 26, { parcours: ['botamon', 'koromon', 'agumon'] }); g.evolve(DW.ITEMS.x_bandage.to);
+  eq(DW.Evo.prev1(g.sp, g.parcours), 'greymon', 'Greymon + Bandage X → Monzaemon : redevient Greymon (avant : Numemon)');
+  // Omegamon, né d'une fusion, ne dé-digivolue pas (le partenaire de fusion était perdu)
+  yes(DW.Evo.estFusion('omegamon') && !DW.Evo.estFusion('wargreymon'), 'fusion mal reconnue');
+});
+test('formes de négligence : Ogremon → Etemon et Devimon → Megadramon ne plafonnent pas les erreurs de soin', () => {
+  fresh(); DW.Crests.give('tai'); DW.Crests.give('matt');
+  for (const [a, mid, b] of [['gabumon', 'ogremon', 'etemon'], ['patamon', 'devimon', 'megadramon']]) {
+    const m = new DW.Digimon(a, 18); m.tr = { hp: 99, mp: 0, atk: 99, def: 99, spd: 99, int: 99 }; m.mistakes = 3; m.wins = 99; m.happy = 100; m.disc = 100;
+    yes(DW.Evo.check(m, DW.Evo.options(a).find(o => o.to === mid)).ok, `${a} → ${mid} (3 erreurs)`);
+    m.evolve(mid); m.level = 40; m.mistakes = 6;
+    const c = DW.Evo.check(m, DW.Evo.options(mid).find(o => o.to === b));
+    yes(c.ok, `${mid} N.40 → ${b} impossible : ${c.rows.filter(r => !r.ok).map(r => r.label).join(', ')}`);
+  }
+  eq(DW.Evo.options('leomon').find(o => o.to === 'etemon').req.mistakesMax, 2, 'Leomon → Etemon garde son plafond');
+  eq(DW.Evo.options('gomamon').find(o => o.to === 'shellmon').req.wins, 10, 'Gomamon → Shellmon : 10 victoires');
+});
+test('un Digimon K.O. ne digivolue pas depuis sa fiche, et une Digivolution ne relève jamais un K.O.', async () => {
+  fresh();
+  const m = new DW.Digimon('agumon', 15); m.tr.atk = 28; m.wins = 10; m.hp = 0; DW.state.party = [m];
+  const T = new DW.EvoTableScene(0); T.col = 1; T.sel = T.opts.findIndex(o => o.to === 'greymon');
+  yes(T.sel >= 0 && DW.Evo.check(m, T.opts[T.sel]).ok, 'conditions de Greymon non remplies');
+  let ouvert = false; const push = DW.Game.push; DW.Game.push = () => { ouvert = true; return Promise.resolve(); };
+  try { await T.act(); } finally { DW.Game.push = push; }
+  eq(m.sp, 'agumon', 'le Digimon K.O. a digivolué'); yes(!ouvert, "l'écran de Digivolution s'est ouvert");
+  m.evolve('greymon'); eq(m.hp, 0, 'K.O. relevé par une Digivolution (objet)'); m.evolve('agumon'); eq(m.hp, 0, 'K.O. relevé par la dé-digivolution');
+  m.hp = 1; m.evolve('greymon'); yes(m.hp >= 1 && m.hp <= m.maxHp, 'PV hors bornes');
+  // au chargement, les PV restent dans leurs bornes ; une stat affichée vaut au moins 1
+  const j = m.toJSON(); j.hp = 99999; eq(DW.Digimon.from(j).hp, m.maxHp, 'PV au-dessus du maximum au chargement');
+  const b = new DW.Digimon('botamon', 4); b.raw = { atk: -15, def: -15 }; yes(b.stat('atk') >= 1 && b.stat('def') >= 1, 'stat négative');
+});
+test("Digimon d'Entraînement : chacun a une technique de son élément ; Koromon, Mochimon, Tokomon et Tsunomon dès le N.1, apprise d'instinct en digivoluant", async () => {
+  fresh();
+  const elem = (sp, max) => { const d = DW.SPECIES[sp]; return d.learn.some(([l, id]) => l <= max && DW.MOVES[id] && DW.MOVES[id].pow > 0 && d.types.includes(DW.MOVES[id].type)); };
+  for (const sp of Object.keys(DW.SPECIES).filter(k => DW.SPECIES[k].stage === 'Entraînement')) yes(elem(sp, 100), `${sp} : aucune technique de son élément`);
+  for (const sp of ['koromon', 'motimon', 'tokomon', 'tsunomon']) yes(elem(sp, 1), `${sp} : pas de technique de son élément au N.1`);
+  eq(DW.MOVES[DW.SIG.koromon].type, 'Feu', 'coup spécial de Koromon');
+  const b = new DW.Digimon('botamon', 5); DW.state.party = [b]; b.evolve('koromon'); await DW.learnEvoMoves(b);
+  yes(b.moves.some(x => DW.MOVES[x.id].type === 'Feu'), 'un Koromon né de Botamon ne sait aucune technique de Feu');
+});
+test("Koromon (lignée de Tai) ne perd plus presque tous ses combats contre les autres Entraînement (N.6, 30 combats chacun)", async () => {
+  // (avant : 2 % contre Bukamon, Tanemon et Yokomon, 5 % contre Pyocomon — audit des Digimon, E1)
+  const E = Object.keys(DW.SPECIES).filter(k => DW.SPECIES[k].stage === 'Entraînement' && k !== 'koromon'), bilan = [];
+  for (const sp of E) {
+    let v = 0;
+    for (let i = 0; i < 30; i++) {
+      fresh(); const k = new DW.Digimon('koromon', 6, { iv: IV7, happy: 60 }); k.disc = 50;
+      if (await combatSimule({ enemy: new DW.Digimon(sp, 6, { iv: IV7 }) }, [k], 1000 + i) === 'win') v++;
+    }
+    bilan.push(`${sp} ${Math.round(v / 0.3)} %`);
+    yes(v >= 6, `Koromon ne gagne que ${v} combats sur 30 contre ${sp} (${bilan.join(', ')})`);
+  }
+});
+test('sommeil : un Digimon endormi perd exactement 2 actions (le réveil compte)', async () => {
+  fresh();
+  const B = new DW.BattleScene({ enemy: new DW.Digimon('agumon', 10), boss: true });
+  B.active = new DW.Digimon('gabumon', 10); B.msg = async () => {}; B.sparkle = () => {};
+  B.enemy.status = 'slp'; B.enemy.slp = 2;   // (comme après Parfum Soporifique : inflict)
+  let agit = 0; B.attackAnim = async () => { agit++; }; B.hitAnim = async () => {}; B.applyDamage = async () => {}; B.center = () => ({ x: 0, y: 0 });
+  const impact = DW.Elem.impact; DW.Elem.impact = () => {};
+  try { for (let i = 0; i < 3; i++) await B.useMove('e', { id: 'charge' }); } finally { DW.Elem.impact = impact; }
+  eq(agit, 1, 'actions jouées sur 3 tours (avant : 2)'); eq(B.enemy.status, null);
+});
+test("combats : la Lutte toujours proposée en dernier, le dojo d'Elecmon amical, les Bits du plus haut niveau, l'EXP partagée de moitié", async () => {
+  fresh();
+  // la Lutte : choisie en dernier dans le menu des attaques, même avec des PM pour Garde et Intimidation
+  const g = new DW.Digimon('greymon', 40); g.moves = [{ id: 'garde' }, { id: 'grondement' }];
+  const B = new DW.BattleScene({ enemy: new DW.Digimon('agumon', 10), boss: true }); B.active = g;
+  B.menu = async mode => (mode === 'cmd' ? 0 : g.moves.length);
+  const a = await B.playerTurn(); eq(a.type + ':' + a.slot, 'move:-1', 'Lutte non proposée');
+  // le dojo d'Elecmon : combat amical (pas « sauvage », pas de fuite, pas de bonus de dégâts des sauvages)
+  const D = new DW.BattleScene({ enemy: new DW.Digimon('agumon', 10), amical: true, canLose: true });
+  yes(!D.wild && D.label('e') === D.enemy.name, 'le combat du dojo reste « sauvage »');
+  // Bits et EXP : un bébé envoyé pour le dernier coup ne multiplie plus les Bits ; un équipier resté au fond gagne la moitié
+  const bits = async (lv) => {
+    fresh(); const fort = new DW.Digimon('greymon', 30), bebe = new DW.Digimon('botamon', 3), fond = new DW.Digimon('punimon', 3);
+    DW.state.party = [fort, bebe, fond]; const W = new DW.BattleScene({ enemy: new DW.Digimon('agumon', 10) });
+    W.msg = async () => {}; W.observe = async () => {}; W.parts = new Set([fort, bebe]); W.active = lv === 'bebe' ? bebe : fort;
+    const tween = DW.tween, R = Math.random; DW.tween = async () => {}; Math.random = () => 0.99; const x0 = fond.xp, xb = bebe.xp;
+    try { await W.giveXp(); } finally { DW.tween = tween; Math.random = R; }
+    return { bits: DW.state.bits, fond: fond.xp - x0, bebe: bebe.xp - xb };
+  };
+  const r1 = await bits('fort'), r2 = await bits('bebe');
+  eq(r2.bits, r1.bits, 'les Bits dépendent du Digimon en jeu au K.O.');
+  eq(r1.fond, Math.max(1, Math.floor(r1.bebe / 2)), "l'équipier resté au fond gagne autant que celui qui a combattu");
+});
+test("entraînement « Statistique » : difficulté sur ce qui est entraîné, gain d'au plus ~1,25 fois l'objectif « Digivolution »", () => {
+  fresh();
+  const T = DW.Training, douze = mode => {
+    const m = new DW.Digimon('agumon', 10, { iv: IV7 }); m.abi = 2; const a0 = m.stat('atk'), dif = [];
+    for (let i = 0; i < 12; i++) { T.opts = { mode, level: T.LEVELS[2] }; const sc = new DW.TrainingScene(m, 'atk'); dif.push(sc.dif); sc.hits = [2, 2, 2]; m.tired = 0; m.hunger = 0; sc.finish(); }
+    return { gain: m.stat('atk') - a0, dif };
+  };
+  const e = douze('evo'), s = douze('stat');
+  yes(s.gain <= e.gain * 1.3, `Statistique +${s.gain}, Digivolution +${e.gain} (avant : +384 contre +83)`);
+  yes(s.dif[11] > s.dif[0], 'la difficulté du mode « Statistique » reste figée');
+  // une séance ne fait jamais baisser une stat déjà gagnée (anciennes parties, plafond plus haut)
+  const m = new DW.Digimon('agumon', 10, { iv: IV7 }); m.raw = { atk: 120 }; const a = m.stat('atk');
+  T.opts = { mode: 'stat', level: T.LEVELS[2] }; const sc = new DW.TrainingScene(m, 'atk'); sc.hits = [2, 2, 2]; sc.finish(); eq(m.stat('atk'), a);
+});
+test('corpulence : nourri à la demande et entraîné 4 fois par jour, il reste léger (formes agiles) sans fermer Greymon', () => {
+  fresh();
+  const m = new DW.Digimon('biyomon', 12); DW.state.party = [m]; DW.Life.init(m); m.fat = 0;
+  // 5 journées : une journée de repas complète (game/care.js : ~1,6 de corpulence) et 4 séances chacune
+  // (avant : +0,8 par jour, Birdramon fermé au 4e jour)
+  for (let j = 0; j < 5; j++) {
+    for (let i = 0; i < DW.Care.mealsDay(m); i++) { m.hunger = 30; DW.Care.feed(m, 60); }
+    for (let i = 0; i < 4; i++) { DW.Training.opts = { mode: 'evo', level: DW.Training.LEVELS[1] }; const sc = new DW.TrainingScene(m, 'spd'); sc.hits = [1, 1, 1]; m.tired = 0; m.tr.spd = 0; sc.finish(); }
+  }
+  const r = Math.round(m.fat);
+  yes(r <= DW.Evo.options('biyomon').find(o => o.to === 'birdramon').req.fatMax, `Birdramon fermé (corpulence ${m.fat.toFixed(2)})`);
+  yes(r >= DW.Evo.options('agumon').find(o => o.to === 'greymon').req.fatMin, `Greymon fermé (corpulence ${m.fat.toFixed(2)})`);
+});
+
 // ------------------------------------------------------------ sauvegarde
 test("sauvegarde puis chargement : la partie revient à l'identique", () => {
   fresh();
@@ -506,16 +681,23 @@ test("périls des souterrains : un rocher coûte des PV sans K.O., les gravats b
     yes(to && to[0] === SV(1) && to[1] === M.entry.x && to[2] === M.entry.y, "évanoui : pas ramené au début du cercle");
   } finally { DW.fade = fade; DW.wait = wait; }
 });
-test("Shellmon : Tai et son Digimon (devenu Greymon) rejoignent le combat à mi-vie et frappent seuls (tour par tour)", async () => {
+test("Shellmon : Tai et son Digimon (devenu Greymon) rejoignent le combat au seuil prévu par le jeu et frappent seuls (tour par tour)", async () => {
   fresh();
-  const B = new DW.BattleScene({ enemy: new DW.Digimon('shellmon', 16), boss: true, ally: { at: 0.5, sp: 'greymon', lvl: 16, move: 'mega_flamme' } });
-  B.active = new DW.Digimon('agumon', 15);
+  // (la vraie configuration du combat, celle du PNJ Shellmon de maps/antre.js : avant, le test recopiait « à mi-vie »,
+  //  alors que Tai n'arrive qu'à 35 % des PV de Shellmon)
+  DW.state.hero = 'perso'; DW.state.party = [new DW.Digimon('agumon', 15)];
+  let o = null; await DW.MAPS.antre_shellmon.npcs.find(n => n.sp === 'shellmon').talk({ battle: async x => { o = x; return 'lose'; }, bossDefeat: async () => {} });
+  yes(o && o.ally && o.ally.at > 0 && o.ally.at < 1, 'pas d\'allié dans le combat de Shellmon');
+  const B = new DW.BattleScene(o), at = o.ally.at;
+  B.active = DW.state.party[0];
   B.msg = async () => {}; B.sparkle = () => {}; B.checkFaints = async () => null;
   B.applyDamage = async (side, d) => { B.enemy.hp = Math.max(0, B.enemy.hp - d); };
-  await B.allyTurn(); yes(!B.allyMon, "l'allié arrive avant la moitié des PV");
-  B.enemy.hp = Math.floor(B.enemy.maxHp * 0.45);
-  await B.allyTurn(); yes(B.allyMon && B.allyMon.sp === 'greymon', "Greymon ne rejoint pas le combat");
-  const hp = B.enemy.hp; await B.allyTurn(); yes(B.enemy.hp < hp, "l'allié ne frappe pas");
+  const push = DW.Game.push; DW.Game.push = () => Promise.resolve();   // (sa Digivolution en Greymon, à son arrivée)
+  try {
+    B.enemy.hp = Math.ceil(B.enemy.maxHp * (at + 0.05)); await B.allyTurn(); yes(!B.allyMon, `l'allié arrive avant ${Math.round(at * 100)} % des PV`);
+    B.enemy.hp = Math.floor(B.enemy.maxHp * (at - 0.05)); await B.allyTurn(); yes(B.allyMon && B.allyMon.sp === 'greymon', 'Greymon ne rejoint pas le combat');
+    const hp = B.enemy.hp; await B.allyTurn(); yes(B.enemy.hp < hp, "l'allié ne frappe pas");
+  } finally { DW.Game.push = push; }
 });
 test('Tai délivré : sa chambre apparaît à l’étage de ta maison (escalier dans le salon), et il ne reste pas chez Jijimon', () => {
   fresh();

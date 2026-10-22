@@ -153,7 +153,7 @@
       UI.bar(c, 18, 151, 60, 4, m.happy / 100, '#ff6ab0');
       UI.text(c, 'EXP', 18, 165, { size: 7, color: '#7ab8ff' });
       UI.bar(c, 18, 168, 60, 4, m.xpRatio(), '#48a8f8');
-      UI.text(c, `Suivant : ${Math.max(0, DW.xpForLevel(m.level + 1) - m.xp)}`, 18, 182, { size: 7, color: '#c8f0ff' });
+      UI.text(c, `Suivant : ${m.level >= 100 ? '—' : Math.max(0, DW.xpForLevel(m.level + 1) - m.xp)}`, 18, 182, { size: 7, color: '#c8f0ff' });   // (N.100 : le niveau maximal)
       if (m === DW.state.party[0]) {
         UI.text(c, `Faim ${Math.round(m.hunger)} %`, 18, 196, { size: 7, color: m.hunger >= 70 ? '#ff7a7a' : '#ffd070' });
         UI.bar(c, 18, 199, 60, 4, m.hunger / 100, m.hunger >= 70 ? '#ff5a5a' : '#f0b040');

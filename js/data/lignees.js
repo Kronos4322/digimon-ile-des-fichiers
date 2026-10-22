@@ -22,11 +22,13 @@
   baby('poyomon', { name: 'Poyomon', types: ['Neutre'], base: { hp: 42, atk: 34, def: 36, spd: 42, int: 38 },
     learn: [[1, 'charge'], [1, 'bulles'], [3, 'grondement'], [5, 'bulles_acides']],
     desc: "Un bébé translucide qui flotte comme une méduse. Il crache des bulles acides pour se défendre." });
+  // (Décharge et Rayon Doux au N.1 : leur technique d'élément, apprise d'instinct en digivoluant — DW.learnEvoMoves ;
+  //  avant, ni Mochimon ni Tokomon n'en avaient aucune)
   def('motimon', { name: 'Motimon', stage: 'Entraînement', types: ['Électrique'], attr: 'Données', base: { hp: 44, atk: 40, def: 44, spd: 44, int: 52 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'garde'], [6, 'bulle_explosive'], [8, 'vive_attaque'], [10, 'coup_tete']], rate: 190, xp: 45,
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'decharge'], [4, 'garde'], [6, 'bulle_explosive'], [8, 'vive_attaque'], [10, 'coup_tete']], rate: 190, xp: 45,
     desc: "Un Digimon tout mou comme une pâte de riz. Il comprend le langage des humains et adore apprendre." });
   def('tokomon', { name: 'Tokomon', stage: 'Entraînement', types: ['Lumière'], attr: 'Vaccin', base: { hp: 48, atk: 46, def: 42, spd: 48, int: 42 }, kg: 4,
-    learn: [[1, 'charge'], [1, 'bulles'], [4, 'grondement'], [6, 'morsure'], [8, 'vive_attaque'], [10, 'bulle_explosive']], rate: 190, xp: 45,
+    learn: [[1, 'charge'], [1, 'bulles'], [1, 'rayon'], [4, 'grondement'], [6, 'morsure'], [8, 'vive_attaque'], [10, 'bulle_explosive']], rate: 190, xp: 45,
     desc: "Une adorable boule blanche aux longues oreilles... qui cache une bouche immense pleine de dents !" });
 
   // la lignée de Kari (et les formes qui manquaient aux autres lignées)

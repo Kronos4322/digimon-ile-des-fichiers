@@ -7,7 +7,7 @@
   // pow: puissance, acc: précision (null = toujours), pp, pri: priorité, contact: animation au corps à corps
   // st: {s: statut, ch: chance}  sc: {who: 'self'|'foe', s: stat, n: crans, ch}
   const M = DW.MOVES = {
-    lutte:          { name: 'Lutte', type: 'Neutre', pow: 40, acc: null, contact: true, desc: "Utilisée quand il n'y a plus assez de PM." },
+    lutte:          { name: 'Lutte', type: 'Neutre', pow: 40, acc: null, contact: true, desc: "Toujours possible, sans PM (dernier choix du menu Combat) : le Digimon se blesse d'un quart de ses PV max." },
     // (les signatures des lignées de Kari, de Sora, d'Izzy et de T.K., et d'Omegamon)
     cri_chiot:      { name: 'Cri du Chiot', type: 'Lumière', pow: 45, acc: 100, sc: { who: 'foe', s: 'atk', n: -1, ch: 0.3 }, desc: "Salamon pousse un cri aigu plein de lumière. Peut baisser l'Attaque de l'ennemi." },
     griffe_eclair:  { name: 'Griffe Éclair', type: 'Lumière', pow: 85, acc: 95, contact: true, desc: 'Gatomon frappe à la vitesse de la lumière avec les griffes de ses gants.' },
@@ -119,7 +119,9 @@
   DW.SIG = {
     botamon: 'bulles_acides', punimon: 'bulles', pichimon: 'bulles', yuramon: 'bulles', nyokimon: 'bulles', wargreymon: 'force_gaia', metalgarurumon: 'souffle_cocyte',
     numemon: 'gadoue_nume', sukamon: 'ordure_toxique', monzaemon: 'attaque_coeur', weregarurumon: 'griffe_garuru', skullmeramon: 'feu_metal', garudamon: 'ombre_ailee', okuwamon: 'double_ciseaux',
-    koromon: 'bulles', tsunomon: 'bulles', bukamon: 'bulles', tanemon: 'bulles', yokomon: 'bulles',
+    // (Koromon : Étincelle, de son élément — ses Bulles d'Eau ne servaient à rien contre Bukamon et les Digimon Plante ;
+    //  Bulles reste de l'Eau : Neutre, Bukamon perdait sa seule technique d'Eau et les Plante ne la craignaient plus)
+    koromon: 'etincelle', tsunomon: 'bulles', bukamon: 'bulles', tanemon: 'bulles', yokomon: 'bulles',
     agumon: 'flamme_bebe', greymon: 'mega_flamme', metalgreymon: 'giga_destruction', gabumon: 'souffle_bleu', garurumon: 'flamme_bleue',
     meramon: 'poing_ardent', gomamon: 'banc_poissons', ikkakumon: 'torpille_harpon', zudomon: 'marteau_vulcain',
     palmon: 'lierre', togemon: 'pluie_epines', lillymon: 'canon_floral', biyomon: 'flamme_spirale', birdramon: 'meteore',

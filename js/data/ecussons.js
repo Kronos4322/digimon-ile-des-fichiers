@@ -14,10 +14,12 @@
     tai: ['metalgreymon', 'skullgreymon', 'etemon'],   // Courage
     matt: ['weregarurumon', 'megadramon'],             // Amitié
     sora: ['garudamon', 'skullmeramon'],               // Amour
-    izzy: ['andromon', 'okuwamon'],                    // Savoir
+    izzy: ['andromon', 'okuwamon', 'megakabuterimon'], // Savoir
     mimi: ['lillymon', 'monzaemon'],                   // Pureté
     joe: ['zudomon'],                                  // Sincérité
-    tk: ['piximon'],                                   // Espoir
+    // Espoir ; Angewomon (lignée de Kari) prend l'écusson de T.K. en attendant celui de Kari, la Lumière (pas encore dans
+    // ORDER : il n'y a que 7 écussons à trouver)
+    tk: ['piximon', 'magnaangemon', 'angewomon'],
   };
   const ORDER = ['tai', 'matt', 'sora', 'izzy', 'mimi', 'joe', 'tk'];
   const OF = {};   // Ultime → écusson

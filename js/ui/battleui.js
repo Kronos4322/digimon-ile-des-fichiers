@@ -148,19 +148,23 @@
       if (this.mode === 'moves') {
         UI.box(c, 4, 180, 206, 56);
         const P = this.active;
+        // ses techniques, puis la Lutte, toujours en dernier (avec 6 techniques : 4 rangées plus serrées)
+        const n = P.moves.length + 1, dy = n > 6 ? 12 : 16, y0 = n > 6 ? 191 : 194, at = i => [20 + (i % 2) * 96, y0 + (i >> 1) * dy];
         P.moves.forEach((m, i) => {
-          const x = 20 + (i % 2) * 96, y = 194 + (i >> 1) * 16;
+          const [x, y] = at(i);
           UI.text(c, DW.MOVES[m.id].name, x, y, { size: 8, color: P.canPay(m.id) ? '#fff' : '#8a8aa0' });
         });
-        UI.cursor(c, 10 + (this.mcursor % 2) * 96, 190.5 + (this.mcursor >> 1) * 16, this.t);
-        const mm = P.moves[this.mcursor], mv = DW.MOVES[mm.id];
+        { const [x, y] = at(n - 1); UI.text(c, DW.MOVES.lutte.name, x, y, { size: 8, color: '#ffc8a0' }); }
+        UI.cursor(c, 10 + (this.mcursor % 2) * 96, y0 - 3.5 + (this.mcursor >> 1) * dy, this.t);
+        const mm = P.moves[this.mcursor] || { id: 'lutte' }, mv = DW.MOVES[mm.id];
         UI.box(c, 212, 180, 104, 56);
         const cost = DW.mpCost(mm.id);
         UI.text(c, cost ? `${cost} PM` : 'Gratuit', 220, 196, { size: 9, color: P.canPay(mm.id) ? '#9ad0ff' : '#f05050' });
         UI.text(c, `${P.mp}/${P.maxMp}`, 308, 196, { size: 8, align: 'right', color: '#c8d4ff' });
         UI.typeTag(c, mv.type, 220, 202, 7);
         const tm = DW.typeMult(mv.type, this.enemy.d.types);
-        if (mv.pow && this.st.seen[this.enemy.sp] && tm !== 1)
+        if (mm.id === 'lutte') UI.text(c, 'Il se blesse !', 308, 210, { size: 7, align: 'right', color: '#ffa080' });
+        else if (mv.pow && this.st.seen[this.enemy.sp] && tm !== 1)
           UI.text(c, tm > 1 ? 'Efficace !' : 'Peu efficace', 308, 210, { size: 7, align: 'right', color: tm > 1 ? '#80ff80' : '#ffa080' });
         UI.text(c, mv.pow ? `Puissance ${mv.pow}` : 'Attaque de statut', 220, 229, { size: 8, color: '#c8d4ff' });
         const sig = DW.sigOf(P);

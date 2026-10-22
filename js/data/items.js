@@ -34,15 +34,17 @@
     s_disque_def: { name: 'Super disque Défense', price: 4000, tier: 14, use: 'buff', st: { def: 2 }, icon: ['disk', '#1a5ab0'], desc: 'En combat : augmente fortement la Défense.' },
     s_disque_vit: { name: 'Super disque Vitesse', price: 4000, tier: 14, use: 'buff', st: { spd: 2 }, icon: ['disk', '#1a9050'], desc: 'En combat : augmente fortement la Vitesse.' },
     // ------------------------------------------------------------ puces (bonus permanents)
-    puce_atk:     { name: 'Puce Attaque', price: 7500, tier: 10, use: 'chip', chip: { atk: 12.5 }, icon: ['chip', '#f08a30'], desc: "Attaque +50, pour toujours." },
-    puce_def:     { name: 'Puce Défense', price: 7500, tier: 10, use: 'chip', chip: { def: 12.5 }, icon: ['chip', '#3a8ae0'], desc: 'Défense +50, pour toujours.' },
-    puce_int:     { name: 'Puce Cerveau', price: 9999, tier: 16, use: 'chip', chip: { int: 12.5 }, icon: ['chip', '#a05ae0'], desc: 'Intelligence +50, pour toujours.' },
-    puce_spd:     { name: 'Puce Vitesse', price: 9999, tier: 16, use: 'chip', chip: { spd: 12.5 }, icon: ['chip', '#3ac070'], desc: 'Vitesse +50, pour toujours.' },
-    puce_pv:      { name: 'Puce PV', price: 5000, tier: 6, use: 'chip', chip: { hp: 25 }, icon: ['chip', '#e04848'], desc: 'PV max +500, pour toujours.' },
-    puce_pm:      { name: 'Puce PM', price: 5000, tier: 6, use: 'chip', chip: { mp: 25 }, icon: ['chip', '#4ae0f0'], desc: 'PM max +500, pour toujours.' },
-    puce_dva:     { name: 'Puce DV A', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, int: 25 }, icon: ['chip', '#ffd040'], desc: 'Attaque et Intelligence +100, pour toujours.' },
-    puce_dvd:     { name: 'Puce DV D', price: 5000, tier: 20, use: 'chip', chip: { def: 25, spd: 25 }, icon: ['chip', '#80e0ff'], desc: 'Défense et Vitesse +100, pour toujours.' },
-    puce_dve:     { name: 'Puce DV E', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, spd: 25 }, icon: ['chip', '#ff80c0'], desc: 'Attaque et Vitesse +100, pour toujours.' },
+    // (le stade multiplie le gain, sauf pour les PM — Disciple ×1, Champion ×1,55, Ultime ×2 : game/monster.js ; avant, les
+    //  textes ne donnaient que celui d'un Disciple)
+    puce_atk:     { name: 'Puce Attaque', price: 7500, tier: 10, use: 'chip', chip: { atk: 12.5 }, icon: ['chip', '#f08a30'], desc: 'Attaque en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_def:     { name: 'Puce Défense', price: 7500, tier: 10, use: 'chip', chip: { def: 12.5 }, icon: ['chip', '#3a8ae0'], desc: 'Défense en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_int:     { name: 'Puce Cerveau', price: 9999, tier: 16, use: 'chip', chip: { int: 12.5 }, icon: ['chip', '#a05ae0'], desc: 'Intelligence en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_spd:     { name: 'Puce Vitesse', price: 9999, tier: 16, use: 'chip', chip: { spd: 12.5 }, icon: ['chip', '#3ac070'], desc: 'Vitesse en hausse pour toujours : +50 pour un Disciple, environ +78 pour un Champion, +100 pour un Ultime.' },
+    puce_pv:      { name: 'Puce PV', price: 5000, tier: 6, use: 'chip', chip: { hp: 25 }, icon: ['chip', '#e04848'], desc: 'PV max en hausse pour toujours : +500 pour un Disciple, +775 pour un Champion, +1000 pour un Ultime.' },
+    puce_pm:      { name: 'Puce PM', price: 5000, tier: 6, use: 'chip', chip: { mp: 25 }, icon: ['chip', '#4ae0f0'], desc: 'PM max +500, pour toujours (à tous les stades).' },
+    puce_dva:     { name: 'Puce DV A', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, int: 25 }, icon: ['chip', '#ffd040'], desc: 'Attaque et Intelligence en hausse pour toujours : +100 pour un Disciple, +155 pour un Champion, +200 pour un Ultime.' },
+    puce_dvd:     { name: 'Puce DV D', price: 5000, tier: 20, use: 'chip', chip: { def: 25, spd: 25 }, icon: ['chip', '#80e0ff'], desc: 'Défense et Vitesse en hausse pour toujours : +100 pour un Disciple, +155 pour un Champion, +200 pour un Ultime.' },
+    puce_dve:     { name: 'Puce DV E', price: 5000, tier: 20, use: 'chip', chip: { atk: 25, spd: 25 }, icon: ['chip', '#ff80c0'], desc: 'Attaque et Vitesse en hausse pour toujours : +100 pour un Disciple, +155 pour un Champion, +200 pour un Ultime.' },
     // ------------------------------------------------------------ outils
     pilote_auto:  { name: 'Pilote automatique', price: 300, tier: 2, use: 'home', icon: ['tool', '#5ab0ff'], desc: 'Te ramène aussitôt à la Ville des Fichiers.' },
     pot_portable: { name: 'Pot portable', price: 300, tier: 2, use: 'potty', icon: ['tool', '#f0f0f0'], desc: 'Ton Digimon peut faire ses besoins n\'importe où.' },
@@ -64,7 +66,7 @@
     steak:        { name: 'Steak', price: 1000, tier: 9, use: 'heal', amt: 2500, food: 100, icon: ['meat', '#7a3a2a'], desc: 'Rassasie complètement, restaure 2500 PV.' },
     digichampi:   { name: 'Digichampignon', price: 100, tier: 0, use: 'heal', amt: 300, food: 40, icon: ['mush', '#d84a3a'], desc: 'Calme un peu la faim, 300 PV.' },
     champi_glace: { name: 'Champignon glacé', price: 1000, tier: 16, use: 'heal', food: 20, disc: 15, icon: ['mush', '#7ad0ff'], desc: 'Augmente beaucoup la discipline.' },
-    champi_luxe:  { name: 'Champignon de luxe', price: 5000, tier: 20, use: 'heal', food: 30, chip: { atk: 1, def: 1, spd: 1, int: 1 }, icon: ['mush', '#f0c030'], desc: 'Attaque, Défense, Vitesse et Intelligence +4, pour toujours.' },
+    champi_luxe:  { name: 'Champignon de luxe', price: 5000, tier: 20, use: 'heal', food: 30, chip: { atk: 1, def: 1, spd: 1, int: 1 }, icon: ['mush', '#f0c030'], desc: 'Attaque, Défense, Vitesse et Intelligence en hausse pour toujours : +4 pour un Disciple, environ +6 pour un Champion, +8 pour un Ultime.' },
     champi_joie:  { name: 'Champignon joyeux', price: 1000, tier: 12, use: 'heal', food: 20, happy: 20, risky: 0.3, icon: ['mush', '#f080c0'], desc: 'Rend très heureux... mais peut rendre malade.' },
     super_carotte:{ name: 'Super carotte', price: 500, tier: 6, use: 'heal', food: 30, boost: 1, icon: ['veg', '#f08a20'], desc: 'La prochaine séance d\'entraînement rapporte 1 point de plus.' },
     radis:        { name: 'Radis faucon', price: 500, tier: 6, use: 'heal', food: 30, boost: 1, icon: ['veg', '#f0f0f0'], desc: 'La prochaine séance d\'entraînement rapporte 1 point de plus.' },
@@ -74,15 +76,17 @@
     baie_rouge:   { name: 'Baie rouge', price: 1000, tier: 9, use: 'heal', food: 20, tired: 100, disc: 5, happy: 5, icon: ['fruit', '#e03a3a'], desc: 'Repose, et augmente discipline et bonheur.' },
     gland_or:     { name: "Gland d'or", price: 8000, sell: 6000, use: 'none', icon: ['fruit', '#f0c030'], desc: 'Ne se mange pas... mais se revend très cher !' },
     grosse_baie:  { name: 'Grosse baie', price: 1000, tier: 9, use: 'heal', food: 100, fat: 3, icon: ['fruit', '#a03ac0'], desc: 'Rassasie et fait prendre du poids.' },
-    noix_douce:   { name: 'Noix douce', price: 1000, tier: 12, use: 'heal', full: true, food: 30, icon: ['fruit', '#c88a4a'], desc: 'Restaure tous les PV !' },
-    super_legume: { name: 'Super légume', price: 1000, tier: 12, use: 'heal', amt: 2500, food: 30, icon: ['veg', '#5ad040'], desc: 'Un légume énorme : rassasie et rend 2500 PV.' },
+    // (Noix douce, Super légume, Orange-banane : la nourriture ne soigne plus — DW.foodRule — et ces trois-là ne faisaient plus
+    //  que calmer la faim, pour 1000 Bits : chacune a retrouvé un petit effet à elle, le bonheur, la fatigue ou la discipline)
+    noix_douce:   { name: 'Noix douce', price: 1000, tier: 12, use: 'heal', food: 30, happy: 10, disc: 3, icon: ['fruit', '#c88a4a'], desc: 'Une noix toute sucrée. Calme la faim, rend heureux et aide un peu la discipline.' },
+    super_legume: { name: 'Super légume', price: 1000, tier: 12, use: 'heal', food: 60, tired: 60, icon: ['veg', '#5ad040'], desc: "Un légume énorme, plein d'énergie. Rassasie bien et chasse une bonne partie de la fatigue." },
     figue:        { name: 'Figue de Barbarie', price: 1000, tier: 9, use: 'heal', food: 20, fat: -3, icon: ['fruit', '#e05a8a'], desc: 'Fait perdre du poids.' },
-    orange_bana:  { name: 'Orange-banane', price: 1000, tier: 12, use: 'heal', full: true, mpFull: true, food: 40, icon: ['fruit', '#f0a020'], desc: 'Restaure tous les PV et PM.' },
-    fruit_force:  { name: 'Fruit de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { atk: 5 }, icon: ['fruit', '#f05a30'], desc: 'Attaque +20, pour toujours !' },
-    glace_force:  { name: 'Glace de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { def: 5 }, icon: ['fruit', '#7ad0ff'], desc: 'Défense +20, pour toujours !' },
-    feuille_vite: { name: 'Feuille de vitesse', price: 5000, tier: 18, use: 'heal', food: 20, chip: { spd: 5 }, icon: ['veg', '#5ae08a'], desc: 'Vitesse +20, pour toujours !' },
-    fruit_sage:   { name: 'Fruit du sage', price: 5000, tier: 18, use: 'heal', food: 20, chip: { int: 5 }, icon: ['fruit', '#a05ae0'], desc: 'Intelligence +20, pour toujours !' },
-    igname:       { name: 'Igname musclée', price: 5000, tier: 18, use: 'heal', food: 40, chip: { hp: 10 }, icon: ['veg', '#c8a070'], desc: 'PV max +200, pour toujours !' },
+    orange_bana:  { name: 'Orange-banane', price: 1000, tier: 12, use: 'heal', food: 40, disc: 10, icon: ['fruit', '#f0a020'], desc: 'Un fruit étrange qui donne envie de bien se tenir. Calme la faim et aide la discipline.' },
+    fruit_force:  { name: 'Fruit de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { atk: 5 }, icon: ['fruit', '#f05a30'], desc: 'Attaque en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    glace_force:  { name: 'Glace de force', price: 5000, tier: 18, use: 'heal', food: 20, chip: { def: 5 }, icon: ['fruit', '#7ad0ff'], desc: 'Défense en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    feuille_vite: { name: 'Feuille de vitesse', price: 5000, tier: 18, use: 'heal', food: 20, chip: { spd: 5 }, icon: ['veg', '#5ae08a'], desc: 'Vitesse en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    fruit_sage:   { name: 'Fruit du sage', price: 5000, tier: 18, use: 'heal', food: 20, chip: { int: 5 }, icon: ['fruit', '#a05ae0'], desc: 'Intelligence en hausse pour toujours : +20 pour un Disciple, +31 pour un Champion, +40 pour un Ultime !' },
+    igname:       { name: 'Igname musclée', price: 5000, tier: 18, use: 'heal', food: 40, chip: { hp: 10 }, icon: ['veg', '#c8a070'], desc: 'PV max en hausse pour toujours : +200 pour un Disciple, +310 pour un Champion, +400 pour un Ultime !' },
     baie_calme:   { name: 'Baie calme', price: 5000, tier: 18, use: 'heal', food: 20, chip: { mp: 10 }, icon: ['fruit', '#5ab0ff'], desc: 'PM max +200, pour toujours !' },
     melon:        { name: 'Melon chaîne', price: 5000, tier: 20, use: 'heal', full: true, mpFull: true, food: 100, happy: 10, disc: 5, tired: 100, icon: ['fruit', '#8ad040'], desc: 'Bon pour tout : PV, PM, faim, fatigue, bonheur et discipline.' },
     viande_moisie:{ name: 'Viande moisie', price: 50, tier: 0, use: 'heal', amt: 300, food: 50, risky: 0.3, icon: ['meat', '#7a8a4a'], desc: 'Rassasie un peu... mais peut rendre malade.' },
@@ -94,7 +98,8 @@
     macaron:      { name: 'Macaron', price: 150, tier: 0, use: 'heal', amt: 100, food: 10, happy: 6, icon: ['cake', '#f08ab0'], desc: 'Petit et coloré. Rend heureux.' },
     eclair:       { name: 'Éclair au chocolat', price: 250, tier: 0, use: 'heal', amt: 200, food: 20, happy: 10, icon: ['cake', '#7a4a2a'], desc: 'Fondant au chocolat. Très bon pour le moral.' },
     tarte:        { name: 'Tarte aux fruits', price: 400, tier: 0, use: 'heal', amt: 1000, food: 60, happy: 8, icon: ['cake', '#e05a3a'], desc: 'Une belle tarte. 1000 PV et de la bonne humeur.' },
-    gateau_fete:  { name: 'Gâteau de fête', price: 900, tier: 0, use: 'heal', full: true, food: 80, happy: 20, fat: 2, icon: ['cake', '#ffffff'], desc: 'Tous les PV et beaucoup de bonheur... mais il fait grossir.' },
+    // (sans « PV » dans le texte : DW.foodRule ne garde que les phrases sans soin, il laissait « mais il fait grossir... » en tête)
+    gateau_fete:  { name: 'Gâteau de fête', price: 900, tier: 0, use: 'heal', food: 80, happy: 20, fat: 2, icon: ['cake', '#ffffff'], desc: 'Le gâteau des grands jours. Rassasie bien et rend très heureux... mais il fait grossir.' },
     // ------------------------------------------------------------ poissons (pêche)
     digianchois:  { name: 'Digi-anchois', price: 50, use: 'heal', amt: 300, food: 30, icon: ['fish', '#b8c8d8'], desc: 'Calme un peu la faim.' },
     digivivaneau: { name: 'Digi-vivaneau', price: 100, use: 'heal', amt: 800, food: 60, icon: ['fish', '#e07a5a'], desc: 'Rassasie bien.' },
@@ -118,10 +123,14 @@
     ['banane_or', 'Banane dorée', 'etemon'], ['miroir_lune', 'Miroir de lune', 'weregarurumon'],
   ];
   const STAGES = ['Bébé', 'Entraînement', 'Disciple', 'Champion', 'Ultime', 'Méga'];
+  // (la Pièce de métal et le Miroir de lune n'ont ni coffre ni quête : rang 20, Piximon les vend en ville — game/services.js —
+  //  une fois la ville au bout de sa croissance ; au rang 24, jamais en vente, ils étaient introuvables. Ils ne servent
+  //  qu'avec l'écusson de leur famille)
+  const RANG = { piece_metal: 20, miroir_lune: 20 };
   for (const [id, name, to] of EVO_ITEMS) {
     const S = DW.SPECIES[to]; if (!S) continue;
     const ult = S.stage === 'Ultime';
-    I[id] = { name, price: ult ? 9999 : 5000, tier: ult ? 24 : 14, use: 'evo', to, from: STAGES[STAGES.indexOf(S.stage) - 1], icon: ['evo', ult ? '#ffd040' : '#c8d0e0'],
+    I[id] = { name, price: ult ? 9999 : 5000, tier: RANG[id] != null ? RANG[id] : ult ? 24 : 14, use: 'evo', to, from: STAGES[STAGES.indexOf(S.stage) - 1], icon: ['evo', ult ? '#ffd040' : '#c8d0e0'],
       desc: `Fait digivoluer un ${STAGES[STAGES.indexOf(S.stage) - 1]} en ${S.name} !` };
   }
 

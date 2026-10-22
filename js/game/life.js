@@ -24,7 +24,9 @@
   const LIFESPAN = 30, KO_MAX = 3;
   // rythmes de sommeil (heures) : coucher, effondrement si pas couché, réveil
   const DAY = { bed: 21, late: 2, wake: 7, name: 'diurne' }, NIGHT = { bed: 8, late: 13, wake: 16, name: 'nocturne' };
-  const NOCTURNAL = new Set(['mushroomon', 'bakemon', 'gazimon', 'tsukaimon', 'demidevimon', 'pagumon', 'candlemon', 'devimon', 'vampiremon', 'myotismon', 'phantomon', 'soulmon', 'wizardmon', 'pumpkinmon', 'impmon', 'keramon', 'kuramon', 'yuramon', 'tanemon']);
+  // (la liste prépare aussi des espèces à venir, pas encore dans le jeu : Gazimon, Tsukaimon, DemiDevimon, Pagumon, Vampiremon,
+  //  Myotismon, Phantomon, Soulmon, Wizardmon, Pumpkinmon, Impmon, Keramon, Kuramon — sans effet tant qu'elles n'existent pas)
+  const NOCTURNAL = new Set(['mushroomon', 'bakemon', 'gazimon','tsukaimon', 'demidevimon', 'pagumon', 'candlemon', 'devimon', 'vampiremon', 'myotismon', 'phantomon', 'soulmon', 'wizardmon', 'pumpkinmon', 'impmon', 'keramon', 'kuramon', 'yuramon', 'tanemon']);
   // h dans [a, b[ sur un cadran de 24 h (gère minuit)
   const between = (h, a, b) => (a <= b ? h >= a && h < b : h >= a || h < b);
 
