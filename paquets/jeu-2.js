@@ -6652,7 +6652,8 @@
         post: (g, m) => DW.Mih.village(g, m) }],
       ['Plaine des Panneaux', 'trail', { textures: 'desert', noRegionLm: true, opts: { hub: [50, 36], autoTall: 0.2 }, post: (g, m) => DW.Mih.desert(g, m, 2) }],
       ['Route du Mont Miharashi', 'trail', { theme: 'miharashi', noRegionLm: true, opts: { hub: [48, 42], autoTall: 0.3 }, post: (g, m) => DW.Mih.route(g, m) }],
-      ['Mont Miharashi', 'plaza', { theme: 'miharashi', noRegionLm: true, opts: { hub: [88, 36], autoTall: 0.2 },
+      // (son dossier d'images, chargé à part, est connu dès ici : le jeu l'attend avant de construire la carte — game/overworld.js)
+      ['Mont Miharashi', 'plaza', { theme: 'miharashi', textures: 'volcan', noRegionLm: true, opts: { hub: [88, 36], autoTall: 0.2 },
         objects: [],   // (le cratère est un lac de lave creusé dans le sommet : maps/miharashi.js, mont)
         post: (g, m) => DW.Mih.mont(g, m) }],
     ] });
@@ -11009,8 +11010,12 @@
       const cols = DW.Perso.couleurs(st.perso);
       if (cols && st.look) st.look = { ...st.look, cols };
     }
-    // (partie reprise dans une carte dont les images sont chargées à part : la grotte de Shellmon, les souterrains)
-    if (!isNew && DW.MAPS[st.map]) await DW.attendreDossiers(st.map);
+    // (partie reprise dans une carte dont les images sont chargées à part : la grotte de Shellmon, les souterrains, le Mont
+    //  Miharashi... ; sur l'écran noir, « Chargement... » pendant l'attente, comme en changeant de carte)
+    if (!isNew && DW.MAPS[st.map] && !DW.dossiersPrets(st.map)) {
+      DW.chargement = { texte: 'Chargement...' };
+      try { await DW.attendreDossiers(st.map); } finally { DW.chargement = null; }
+    }
     lancer(isNew);
   };
   const lancer = isNew => {

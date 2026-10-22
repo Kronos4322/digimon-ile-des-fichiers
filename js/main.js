@@ -35,8 +35,12 @@
       const cols = DW.Perso.couleurs(st.perso);
       if (cols && st.look) st.look = { ...st.look, cols };
     }
-    // (partie reprise dans une carte dont les images sont chargées à part : la grotte de Shellmon, les souterrains)
-    if (!isNew && DW.MAPS[st.map]) await DW.attendreDossiers(st.map);
+    // (partie reprise dans une carte dont les images sont chargées à part : la grotte de Shellmon, les souterrains, le Mont
+    //  Miharashi... ; sur l'écran noir, « Chargement... » pendant l'attente, comme en changeant de carte)
+    if (!isNew && DW.MAPS[st.map] && !DW.dossiersPrets(st.map)) {
+      DW.chargement = { texte: 'Chargement...' };
+      try { await DW.attendreDossiers(st.map); } finally { DW.chargement = null; }
+    }
     lancer(isNew);
   };
   const lancer = isNew => {

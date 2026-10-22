@@ -16,7 +16,7 @@ import glob, os, sys
 from PIL import Image
 
 RACINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
-# même table que TAILLE dans js/gfx/textures.js (pixels du jeu, 1 case = 16) ; copie = 4 fois plus grande
+# même table que TAILLE dans js/gfx/textures.js (pixels du jeu, 1 case = 16) ; taille des copies : COPIES PUBLIÉES DU VOLCAN
 TAILLE = {
     'sol_cendres': (128, 128), 'dessus_falaise': (176, 176), 'lave': (128, 128),
     'falaise_basalte': (80, 64), 'paroi_cratere': (80, 64), 'escalier': (48, 64),
@@ -36,6 +36,41 @@ NOMS = {
         'paroi_cratere': 'Image ChatGPT 19 oct. 2026, 00_09_02-6.png',
     },
 }
+
+
+# COPIES PUBLIÉES DU VOLCAN (assets/volcan/jeu/<nom>.webp, WebP sans perte) : à la taille où le jeu s'en sert, et calculées
+# comme le jeu le faisait lui-même depuis les anciennes copies PNG 4 fois plus grandes (même rendu, 16 fois plus léger :
+# 2,9 Mo de PNG avant, 187 Ko de WebP) — l'original réduit à 4 fois la taille de jeu (Lanczos), puis par blocs de 4 x 4 pixels
+# (moyenne : ce que fait le navigateur en réduisant par moitiés, gfx/textures.js reduire) :
+# - textures (sols, parois, escalier) : 1 pixel par pixel du jeu (le jeu les lit pixel par pixel : T.pixels) ; celles qui
+#   se répètent (RACCORD_VOLCAN : dans les deux sens, ou seulement en largeur pour les parois en bande) sont réduites
+#   bordées de leurs bords opposés, sans couture au bord ;
+# - objets : 2 fois la taille de jeu (HD_JEU = Art.HD : le dessin net que le jeu tirait de l'image, gfx/textures.js objets) ;
+# - le cône de lave reste à 4 fois : game/lave.js le pose sur le lac du cratère à la taille de son image divisée par 4.
+RACCORD_VOLCAN = {'sol_cendres': 'xy', 'dessus_falaise': 'xy', 'lave': 'xy', 'falaise_basalte': 'x', 'paroi_cratere': 'x'}
+HD_JEU = 2
+ECHELLE_VOLCAN = {'cone_lave': K}
+
+
+def arrondi_js(x):
+    """Math.round du jeu (16,5 -> 17 ; le round de Python donnerait 16)."""
+    import math
+    return int(math.floor(x + 0.5))
+
+
+def reduire_jeu(im, W, H, axes=''):
+    """Image -> W x H pixels du jeu, comme le jeu la réduisait depuis une copie 4 fois plus grande (voir plus haut) ;
+    axes 'x', 'y' ou 'xy' : texture qui se répète, réduite avec les pixels d'en face au-delà de ses bords."""
+    if axes:
+        import numpy as np
+        w, h = im.size
+        mx = 3 * w // (W * K) + 3 if 'x' in axes else 0
+        my = 3 * h // (H * K) + 3 if 'y' in axes else 0
+        a = np.pad(np.asarray(im), ((my, my), (mx, mx), (0, 0)), mode='wrap')
+        im4 = Image.fromarray(a, im.mode).resize((W * K, H * K), Image.LANCZOS, box=(mx, my, mx + w, my + h))
+    else:
+        im4 = im.resize((W * K, H * K), Image.LANCZOS)
+    return im4.resize((W, H), Image.BOX)
 
 
 def optimiser(dossier):
@@ -58,12 +93,23 @@ def optimiser(dossier):
                 H = t['h'] * K; W = round(H * w / h)
             else:
                 W = t['w'] * K; H = round(W * h / w)
+            out = im.resize((W, H), Image.LANCZOS)   # (l'ancienne copie, 4 fois la taille de jeu)
+            if ECHELLE_VOLCAN.get(nom) != K:
+                # le dessin net du jeu : contenu assez opaque (alpha > 40), taille de jeu calculée comme gfx/textures.js, puis
+                # 2 fois cette taille (par blocs : comme le navigateur)
+                sx, sy, x1, y1 = out.getchannel('A').point(lambda a: 255 if a > 40 else 0).getbbox()
+                sw, sh = x1 - sx, y1 - sy
+                gw = t['w'] if 'w' in t else arrondi_js(t['h'] * sw / sh)
+                gh = t['h'] if 'h' in t else arrondi_js(t['w'] * sh / sw)
+                out = out.crop((sx, sy, x1, y1)).resize((gw * HD_JEU, gh * HD_JEU), Image.BOX)
         else:
-            W, H = t[0] * K, t[1] * K
-        out = im.resize((W, H), Image.LANCZOS)
-        cible = os.path.join(dst, nom + '.png')
-        out.save(cible, optimize=True)
-        print('%-18s %5dx%-5d -> %4dx%-4d  %4d Ko' % (nom, im.size[0], im.size[1], W, H, os.path.getsize(cible) // 1024))
+            out = reduire_jeu(im, t[0], t[1], RACCORD_VOLCAN.get(nom, ''))
+            if out.getchannel('A').getextrema()[0] == 255:   # (opaque : sans couche alpha)
+                out = out.convert('RGB')
+        cible = os.path.join(dst, nom + '.webp')
+        out.save(cible, 'WEBP', lossless=True, quality=100, method=6)
+        if os.path.exists(cible[:-5] + '.png'): os.remove(cible[:-5] + '.png')   # (l'ancienne copie PNG publiée)
+        print('%-18s %5dx%-5d -> %4dx%-4d  %4d Ko' % (nom, im.size[0], im.size[1], out.width, out.height, os.path.getsize(cible) // 1024))
 
 
 # ---------------------------------------------------------------- DOSSIER COMMUN (tout le jeu) : les assets maison du
@@ -871,6 +917,32 @@ GROTTE_NOMS = {
     19: ['torche', 'brasero_colonne', 'torche_anubis', 'lampe', None, 'flamme_bleue', None, 'torche_plantee', 'coupe_feu', 'braises'],
 }
 GROTTE_SOLS = {'herbe', 'sable', 'chemin', 'paves', 'dalles_fissurees', 'sol_roche', 'terre_sombre'}
+
+
+def raccord_vertical(im, n=256, fondu=0.22):
+    """Carreau de sol d'une planche qui se raccorde déjà en largeur, mais pas en hauteur -> texture raccordable, sans
+    décalage ni miroir (ni dessin dédoublé, ni hiéroglyphe à l'envers). Le bord irrégulier est rogné ; on cherche la
+    PÉRIODE du dessin, la hauteur après laquelle il se reproduit le mieux (dalles_fissurees : ses colonnes d'ankhs) ; le
+    carreau garde cette hauteur et ses premières rangées (fondu : 22 %) sont fondues avec celles qui suivent la période :
+    son bas continue exactement dans son haut. Réduit à n de large en gardant ses proportions, avec les pixels d'en face
+    au-delà des bords ; hauteur multiple de 4 (la taille de jeu, n / 4 de large : TAILLES_DOSSIER de gfx/textures.js)."""
+    import numpy as np
+    w, h = im.size; m = int(min(w, h) * 0.09)
+    a = np.asarray(im.convert('RGB').crop((m, m, w - m, h - m))).astype(float)
+    H, W = a.shape[:2]; L = int(H * fondu)
+    P = min(range(H // 2, H - L + 1), key=lambda p: np.abs(a[:L] - a[p:p + L]).mean())
+    s = (np.arange(L)[:, None, None] + 0.5) / L; s = s * s * (3 - 2 * s)
+    t = a[:P].copy(); t[:L] = a[:L] * s + a[P:P + L] * (1 - s)
+    G = round(n / 4 * P / W)
+    my, mx = P // 4, W // 4
+    t = np.pad(t.clip(0, 255).astype('uint8'), ((my, my), (mx, mx), (0, 0)), mode='wrap')
+    print('   (période %d rangées sur %d, fondu %d : %dx%d, %dx%d pixels du jeu)' % (P, H, L, n, G * 4, n // 4, G))
+    return Image.fromarray(t, 'RGB').resize((n, G * 4), Image.LANCZOS, box=(mx, my, mx + W, my + P))
+
+
+# sols d'une planche raccordés autrement que par raccordable() : (dossier, nom) -> fonction
+# (dalles_fissurees : une couture horizontale nette, le bas de ses dalles et de ses colonnes ne continuait pas dans le haut)
+RACCORDS_PLANCHES = {('grotte', 'dalles_fissurees'): raccord_vertical}
 GROTTE_GRAND = {'porte_gardiens': 260, 'porte_bannieres': 240, 'arche_ruine': 220, 'dais': 220, 'anubis_geant': 240, 'entree_temple': 220,
                 'autel_soleil': 240, 'porte_temple': 220, 'porte_grotte': 220, 'porte_scellee': 220, 'porte_arche': 200, 'porte_ruine': 200,
                 'porte_torches': 220, 'gres_entree': 200, 'gres_arche': 200, 'entree': 200, 'entree_mousse': 200, 'arche': 200,
@@ -946,7 +1018,7 @@ def optimiser_planches(d):
             cible = os.path.join(dst, nom + '.webp')   # (WebP : 4 à 5 fois plus léger que le PNG pour ces images peintes)
             if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
             im = (morceau_net if d + '/' + nom in DETOURAGE_NET else morceau)(f, ('case', k))
-            if nom in SOLS_D: out = raccordable(im)
+            if nom in SOLS_D: out = RACCORDS_PLANCHES.get((d, nom), raccordable)(im)
             else: w, h = im.size; s = min(1.0, GRAND_D.get(nom, defaut) / max(w, h)); out = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
             out.save(cible, 'WEBP', quality=85, method=4)
             if os.path.exists(cible[:-5] + '.png'): os.remove(cible[:-5] + '.png')

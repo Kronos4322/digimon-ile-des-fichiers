@@ -1833,7 +1833,7 @@ DW.VERSIONS_IMAGES = {
   "grotte/jeu/cristaux_violets.webp": "4cfe504e",
   "grotte/jeu/dais.webp": "0e777593",
   "grotte/jeu/dalle_soleil.webp": "e8b0f06a",
-  "grotte/jeu/dalles_fissurees.webp": "87f99362",
+  "grotte/jeu/dalles_fissurees.webp": "5317f89a",
   "grotte/jeu/eboulis.webp": "96e98ad7",
   "grotte/jeu/entree.webp": "d4959a38",
   "grotte/jeu/entree_mousse.webp": "d7994aa3",
@@ -1934,21 +1934,21 @@ DW.VERSIONS_IMAGES = {
   "intro/jeu/camp.webp": "5c8fe64c",
   "intro/jeu/digivices.webp": "a36c8fd7",
   "intro/jeu/titre.webp": "1ff8912d",
-  "volcan/jeu/cone_lave.png": "d1958aa0",
-  "volcan/jeu/dessus_falaise.png": "c0960a6f",
-  "volcan/jeu/escalier.png": "2402aa8d",
-  "volcan/jeu/falaise_basalte.png": "811801fc",
-  "volcan/jeu/fumerolle.png": "f95561b7",
-  "volcan/jeu/lave.png": "f825ca61",
-  "volcan/jeu/paroi_cratere.png": "bae95616",
-  "volcan/jeu/pic_1.png": "053fa1c5",
-  "volcan/jeu/pic_2.png": "babb4d97",
-  "volcan/jeu/pic_3.png": "c0af2f68",
-  "volcan/jeu/plante_feu_1.png": "103ab28a",
-  "volcan/jeu/plante_feu_2.png": "a0e55501",
-  "volcan/jeu/plante_feu_3.png": "d70737e4",
-  "volcan/jeu/rocher_magma.png": "ad612a12",
-  "volcan/jeu/sol_cendres.png": "8a2df5bb",
+  "volcan/jeu/cone_lave.webp": "c5f84e29",
+  "volcan/jeu/dessus_falaise.webp": "6a7099a7",
+  "volcan/jeu/escalier.webp": "535c7f05",
+  "volcan/jeu/falaise_basalte.webp": "ce2618b7",
+  "volcan/jeu/fumerolle.webp": "96aa5ca2",
+  "volcan/jeu/lave.webp": "35c70fe2",
+  "volcan/jeu/paroi_cratere.webp": "b23e2f93",
+  "volcan/jeu/pic_1.webp": "d0609871",
+  "volcan/jeu/pic_2.webp": "46eced8a",
+  "volcan/jeu/pic_3.webp": "99f272ba",
+  "volcan/jeu/plante_feu_1.webp": "c82d228d",
+  "volcan/jeu/plante_feu_2.webp": "81e06348",
+  "volcan/jeu/plante_feu_3.webp": "d55a99a9",
+  "volcan/jeu/rocher_magma.webp": "bdca9250",
+  "volcan/jeu/sol_cendres.webp": "3affa9c2",
 };
 // suffixe d'adresse d'une image (chemin sous assets/, ex. 'commun/jeu/herbe_verte.png')
 DW.versionImage = chemin => (DW.VERSIONS_IMAGES[chemin] ? '?v=' + DW.VERSIONS_IMAGES[chemin] : '');
@@ -6675,8 +6675,6 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
       ...Object.values(SPORT).flat(),
       // Digimon (planches du joueur, une image par vue : gfx/sprites.js)
       ...Object.keys(DW.Sprites.IMAGES).flatMap(sp => DW.Sprites.VUES.map(v => 'digi_' + sp + '_' + v))],
-    volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
-      'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
   // taille dans le jeu : [largeur, hauteur] pour une texture, { h } ou { w } pour un objet (l'autre côté suit l'image)
   const TAILLE = {
@@ -6808,18 +6806,27 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
   const ROLES = { desert: { sable: 'sable_pale', chemin: 'sable_cailloux' } };
   // DOSSIERS CHARGÉS PLUS TARD, en arrière-plan après le démarrage (le démarrage n'attend pas leurs images ; une carte qui
   // s'en sert attend qu'ils soient prêts : T.dossier, game/overworld.js), en WebP — la grotte de Shellmon (maps/antre.js),
-  // le village des bébés (maps/berceau.js, maps/village_yokomon.js), le désert (maps/miharashi.js)
+  // le village des bébés (maps/berceau.js, maps/village_yokomon.js), le désert (maps/miharashi.js), le volcan (le Mont
+  // Miharashi et ses souterrains, chapitre 3 : maps/miharashi.js, maps/sous_volcan.js ; ses tailles : TAILLE ; demandé en
+  // dernier, il ne sert pas avant le chapitre 3)
   const TARDIFS = {
     bebe: ['anneaux', 'arche_fleurs', 'arche_lierre', 'arche_papillon', 'armoire_soins', 'bac_sable', 'balancoire', 'ballons', 'banc', 'banc_camp', 'barriere', 'barriere_corde', 'barriere_fleurs', 'bassin_source', 'berceau', 'boite_lettres', 'borne', 'buisson_fleurs', 'carillon', 'cartons', 'chaise_haute', 'champignon_geant', 'chariot', 'coffre', 'coussins', 'couveuse', 'cubes', 'distributeur', 'dome_bulles', 'dome_grimpe', 'escalier_bois', 'estrade', 'etagere_biberons', 'etagere_jouets', 'fanions', 'feu_camp', 'fontaine_bulles', 'fontaine_oeuf', 'gamelles', 'garde_manger', 'guirlande', 'haie', 'hochet', 'jardiniere', 'jeu_ressort', 'kiosque_livres', 'lampadaire', 'lampe_etoile', 'lampe_fleur', 'lanterne_branche', 'lanterne_camp', 'lanterne_coeur', 'lit_barreaux', 'lit_cocon', 'maison_bois', 'maison_champignon', 'maison_coquillage', 'maison_coussin', 'maison_cubes', 'maison_escargot', 'maison_fleur', 'maison_mousse', 'maison_nid', 'maison_nuage', 'maison_oeuf', 'manege', 'mare_cascade', 'mobile', 'moulin', 'moulinets', 'nid_oeufs', 'observatoire', 'oeufs', 'panier_balles', 'panier_linge', 'panneau_affichage', 'panneau_meteo', 'pas_japonais', 'passerelle', 'pavillon_fleur', 'peluche', 'pont_bois', 'portail', 'portillon', 'poteau_camp', 'poteau_indicateur', 'poubelle', 'scene_musique', 'souche_musique', 'statue_oeuf', 'table', 'table_camp', 'table_langer', 'tabouret', 'tambour', 'tape_cul', 'tapis_patchwork', 'tente_brulee', 'tipi', 'toboggan', 'toupie', 'tourniquet', 'train', 'trampoline', 'trefles', 'tunnel', 'xylophone'],
     desert: ['antenne', 'arbre_mort', 'arbuste_sec', 'arche', 'arche_ruine', 'argile_craquelee', 'balise', 'balise_cristal', 'banniere', 'barrage', 'barriere_corde', 'bassin', 'bloc_circuits', 'bloc_grave', 'blocs', 'bord_falaise', 'borne_pierre', 'borne_rayee', 'buisson_epineux', 'cactus', 'cailloux', 'caisses', 'caisses_numeriques', 'carte', 'coffre', 'colonne', 'colonne_brisee', 'colonne_tombee', 'cristal', 'dalle', 'dalle_plate', 'dalles_ensablees', 'dolmen', 'dune', 'eboulis', 'echelle', 'epave_machine', 'escalier', 'etal', 'falaise', 'fosse', 'foyer', 'herbes_seches', 'jarres', 'marches', 'mur_brise', 'mur_oeil', 'mur_ruine', 'niche_faucon', 'niche_statue', 'obelisque', 'obelisque_losange', 'panneau_danger', 'panneau_ensable', 'panneau_fleches', 'panneau_pierre', 'piedestal', 'pilier_circuits', 'pilier_vasque', 'pont_casse', 'portail', 'porte_ankh', 'porte_cristal', 'portique', 'poteau', 'poteau_boitier', 'poteau_brise', 'poteau_casse', 'poteau_eclate', 'poteau_orbe', 'poteau_penche', 'poteau_tombe', 'poteau_transfo', 'poteaux_cable', 'puits', 'rocher', 'rocher_ecran', 'rocher_glitch', 'rocher_pointu', 'sable_cailloux', 'sable_graviers', 'sable_numerique', 'sable_ondule', 'sable_pale', 'sacs', 'squelette', 'station_meteo', 'stele_cible', 'stele_gravee', 'stele_holo', 'stele_orbe', 'teleporteur', 'tente', 'tente_dechiree', 'terre_noire', 'terre_orange', 'tonneaux', 'tour_antenne', 'virevoltant'],
     grotte: ['alcove_sarcophage', 'ankh', 'ankh_lumineux', 'anubis', 'anubis_geant', 'arche', 'arche_ruine', 'autel', 'autel_soleil', 'banniere', 'bassin_colonnes', 'braises', 'brasero', 'brasero_anubis', 'brasero_colonne', 'caisse', 'canopes', 'cascade_roche', 'cascade_temple', 'champignons', 'chemin', 'coffre', 'coffre_anubis', 'colonne_cristaux', 'colonne_moussue', 'coupe_feu', 'cristaux', 'cristaux_violets', 'dais', 'dalle_soleil', 'dalles_fissurees', 'eboulis', 'entree', 'entree_mousse', 'entree_temple', 'escalier', 'escalier_roche', 'flamme_bleue', 'fleurs_lanternes', 'fontaine', 'fontaine_lotus', 'fresque', 'frise_murale', 'gres_aiguilles', 'gres_ankh', 'gres_arche', 'gres_eboulis', 'gres_entree', 'gres_mur', 'gres_rochers', 'grille', 'gue', 'herbe', 'jarre', 'lampe', 'lanterne', 'mur_blocs', 'mur_brise', 'mur_colonne', 'mur_ecroule', 'mur_fissure', 'mur_frise', 'mur_grave', 'mur_hieroglyphes', 'mur_moussu', 'mur_niche', 'mur_peint', 'mur_scarabee', 'mur_soleil', 'mur_sombre', 'niche', 'niche_statue', 'obelisque', 'obelisque_bleu', 'obelisque_cristal', 'offrandes', 'ossements', 'panneau', 'paves', 'piedestal_orbe', 'pierre_runique', 'pilier_brise', 'pilier_grave', 'pilier_lotus', 'pilier_peint', 'pilier_roche', 'portail_roche', 'porte_anubis', 'porte_arche', 'porte_bannieres', 'porte_gardiens', 'porte_grotte', 'porte_ruine', 'porte_scellee', 'porte_temple', 'porte_tombeau', 'porte_torches', 'portique', 'rideau', 'rocher_mousse', 'rochers', 'sable', 'sanctuaire_orbe', 'sarcophage', 'sarcophage_roche', 'scarabee_or', 'socle', 'sol_roche', 'source', 'source_grotte', 'stalagmite', 'stalagmites', 'statue_scarabee', 'stele', 'stele_lumineuse', 'stele_magique', 'tambour', 'terre_sombre', 'tombeau', 'tonneau', 'torche', 'torche_anubis', 'torche_murale', 'torche_plantee', 'torche_trepied', 'tresor_sable', 'vase', 'vasque'],
+    volcan: ['sol_cendres', 'dessus_falaise', 'lave', 'falaise_basalte', 'paroi_cratere', 'escalier',
+      'pic_1', 'pic_2', 'pic_3', 'rocher_magma', 'fumerolle', 'cone_lave', 'plante_feu_1', 'plante_feu_2', 'plante_feu_3'],
   };
-  const EXT = { commun: 'webp', grotte: 'webp', bebe: 'webp', desert: 'webp' };
+  // décors du jeu PEINTS avec les images d'un dossier chargé plus tard, gardés en cache : oubliés à l'arrivée du dossier
+  // (sinon un dessin fait sans elles resterait) — le cratère du Mont Miharashi (gfx/premium.js : sa lave et sa paroi)
+  const PEINTS = { volcan: ['bouche', 'bouchelave'] };
+  const EXT = { commun: 'webp', grotte: 'webp', bebe: 'webp', desert: 'webp', volcan: 'webp' };
   // tailles propres à un dossier (en pixels du jeu, comme TAILLE ; un même nom peut exister ailleurs : l'escalier du volcan)
   const TAILLES_DOSSIER = {
     bebe: { tipi: { h: 80 }, tente_brulee: { h: 62 }, poteau_camp: { h: 46 }, barriere_corde: { h: 26 }, lanterne_camp: { h: 52 }, feu_camp: { h: 22 }, table_camp: { h: 24 }, banc_camp: { h: 18 }, anneaux: { h: 20 }, arche_fleurs: { h: 64 }, arche_lierre: { h: 64 }, arche_papillon: { h: 62 }, armoire_soins: { h: 46 }, bac_sable: { h: 22 }, balancoire: { h: 54 }, ballons: { h: 46 }, banc: { h: 22 }, barriere: { h: 20 }, barriere_fleurs: { h: 20 }, bassin_source: { h: 34 }, berceau: { h: 34 }, boite_lettres: { h: 40 }, borne: { h: 40 }, buisson_fleurs: { h: 30 }, carillon: { h: 52 }, cartons: { h: 32 }, chaise_haute: { h: 36 }, champignon_geant: { h: 42 }, chariot: { h: 16 }, coffre: { h: 24 }, coussins: { h: 18 }, couveuse: { h: 46 }, cubes: { h: 18 }, distributeur: { h: 46 }, dome_bulles: { h: 76 }, dome_grimpe: { h: 32 }, escalier_bois: { h: 34 }, estrade: { h: 30 }, etagere_biberons: { h: 46 }, etagere_jouets: { h: 40 }, fanions: { h: 40 }, fontaine_bulles: { h: 46 }, fontaine_oeuf: { h: 62 }, gamelles: { h: 16 }, garde_manger: { h: 44 }, guirlande: { h: 50 }, haie: { h: 20 }, hochet: { h: 18 }, jardiniere: { h: 20 }, jeu_ressort: { h: 30 }, kiosque_livres: { h: 62 }, lampadaire: { h: 56 }, lampe_etoile: { h: 44 }, lampe_fleur: { h: 44 }, lanterne_branche: { h: 50 }, lanterne_coeur: { h: 54 }, lit_barreaux: { h: 28 }, lit_cocon: { h: 34 }, maison_bois: { h: 85 }, maison_champignon: { h: 85 }, maison_coquillage: { h: 85 }, maison_coussin: { h: 85 }, maison_cubes: { h: 85 }, maison_escargot: { h: 50 }, maison_fleur: { h: 85 }, maison_mousse: { h: 85 }, maison_nid: { h: 85 }, maison_nuage: { h: 85 }, maison_oeuf: { h: 85 }, manege: { h: 86 }, mare_cascade: { h: 40 }, mobile: { h: 50 }, moulin: { h: 96 }, moulinets: { h: 38 }, nid_oeufs: { h: 22 }, observatoire: { h: 96 }, oeufs: { h: 22 }, panier_balles: { h: 18 }, panier_linge: { h: 20 }, panneau_affichage: { h: 42 }, panneau_meteo: { h: 40 }, pas_japonais: { h: 36 }, passerelle: { h: 22 }, pavillon_fleur: { h: 78 }, peluche: { h: 20 }, pont_bois: { h: 30 }, portail: { h: 76 }, portillon: { h: 26 }, poteau_indicateur: { h: 50 }, poubelle: { h: 32 }, scene_musique: { h: 72 }, souche_musique: { h: 34 }, statue_oeuf: { h: 66 }, table: { h: 22 }, table_langer: { h: 40 }, tabouret: { h: 16 }, tambour: { h: 20 }, tape_cul: { h: 22 }, tapis_patchwork: { h: 36 }, toboggan: { h: 46 }, toupie: { h: 18 }, tourniquet: { h: 26 }, train: { h: 16 }, trampoline: { h: 22 }, trefles: { h: 22 }, tunnel: { h: 28 }, xylophone: { h: 14 } },
     desert: { antenne: { h: 62 }, arbre_mort: { h: 44 }, arbuste_sec: { h: 28 }, arche: { h: 66 }, arche_ruine: { h: 58 }, argile_craquelee: [128, 128], balise: { h: 30 }, balise_cristal: { h: 58 }, banniere: { h: 56 }, barrage: { h: 26 }, barriere_corde: { h: 44 }, bassin: { h: 22 }, bloc_circuits: { h: 32 }, bloc_grave: { h: 34 }, blocs: { h: 24 }, bord_falaise: { h: 48 }, borne_pierre: { h: 52 }, borne_rayee: { h: 34 }, buisson_epineux: { h: 26 }, cactus: { h: 40 }, cailloux: { h: 14 }, caisses: { h: 30 }, caisses_numeriques: { h: 30 }, carte: { h: 40 }, coffre: { h: 22 }, colonne: { h: 64 }, colonne_brisee: { h: 60 }, colonne_tombee: { h: 30 }, cristal: { h: 48 }, dalle: { h: 24 }, dalle_plate: { h: 16 }, dalles_ensablees: [128, 128], dolmen: { h: 52 }, dune: { h: 44 }, eboulis: { h: 46 }, echelle: { h: 56 }, epave_machine: { h: 34 }, escalier: { h: 50 }, etal: { h: 56 }, falaise: { h: 56 }, fosse: { h: 40 }, foyer: { h: 16 }, herbes_seches: { h: 24 }, jarres: { h: 28 }, marches: { h: 50 }, mur_brise: { h: 64 }, mur_oeil: { h: 60 }, mur_ruine: { h: 70 }, niche_faucon: { h: 66 }, niche_statue: { h: 60 }, obelisque: { h: 74 }, obelisque_losange: { h: 72 }, panneau_danger: { h: 46 }, panneau_ensable: { h: 26 }, panneau_fleches: { h: 44 }, panneau_pierre: { h: 44 }, piedestal: { h: 34 }, pilier_circuits: { h: 62 }, pilier_vasque: { h: 56 }, pont_casse: { h: 48 }, portail: { h: 72 }, porte_ankh: { h: 68 }, porte_cristal: { h: 66 }, portique: { h: 64 }, poteau: { h: 76 }, poteau_boitier: { h: 66 }, poteau_brise: { h: 72 }, poteau_casse: { h: 36 }, poteau_eclate: { h: 66 }, poteau_orbe: { h: 58 }, poteau_penche: { h: 68 }, poteau_tombe: { h: 22 }, poteau_transfo: { h: 74 }, poteaux_cable: { h: 60 }, puits: { h: 40 }, rocher: { h: 26 }, rocher_ecran: { h: 40 }, rocher_glitch: { h: 60 }, rocher_pointu: { h: 38 }, sable_cailloux: [128, 128], sable_graviers: [128, 128], sable_numerique: [128, 128], sable_ondule: [128, 128], sable_pale: [128, 128], sacs: { h: 28 }, squelette: { h: 34 }, station_meteo: { h: 62 }, stele_cible: { h: 52 }, stele_gravee: { h: 52 }, stele_holo: { h: 58 }, stele_orbe: { h: 62 }, teleporteur: { h: 36 }, tente: { h: 62 }, tente_dechiree: { h: 52 }, terre_noire: [128, 128], terre_orange: [128, 128], tonneaux: { h: 30 }, tour_antenne: { h: 64 }, virevoltant: { h: 20 } },
-    grotte: { alcove_sarcophage: { h: 82 }, ankh: { h: 44 }, ankh_lumineux: { h: 46 }, anubis: { h: 60 }, anubis_geant: { h: 112 }, arche: { h: 72 }, arche_ruine: { h: 84 }, autel: { h: 26 }, autel_soleil: { h: 92 }, banniere: { h: 56 }, bassin_colonnes: { h: 64 }, braises: { h: 20 }, brasero: { h: 42 }, brasero_anubis: { h: 58 }, brasero_colonne: { h: 56 }, caisse: { h: 22 }, canopes: { h: 28 }, cascade_roche: { h: 78 }, cascade_temple: { h: 74 }, champignons: { h: 30 }, chemin: [128, 128], coffre: { h: 26 }, coffre_anubis: { h: 34 }, colonne_cristaux: { h: 72 }, colonne_moussue: { h: 52 }, coupe_feu: { h: 46 }, cristaux: { h: 30 }, cristaux_violets: { h: 38 }, dais: { h: 80 }, dalle_soleil: { h: 12 }, dalles_fissurees: [64, 64], eboulis: { h: 34 }, entree: { h: 72 }, entree_mousse: { h: 72 }, entree_temple: { h: 92 }, escalier: { h: 42 }, escalier_roche: { h: 50 }, flamme_bleue: { h: 52 }, fleurs_lanternes: { h: 36 }, fontaine: { h: 60 }, fontaine_lotus: { h: 70 }, fresque: { h: 58 }, frise_murale: { h: 40 }, gres_aiguilles: { h: 58 }, gres_ankh: { h: 46 }, gres_arche: { h: 66 }, gres_eboulis: { h: 34 }, gres_entree: { h: 72 }, gres_mur: { h: 62 }, gres_rochers: { h: 42 }, grille: { h: 66 }, gue: { h: 22 }, herbe: [128, 128], jarre: { h: 30 }, lampe: { h: 52 }, lanterne: { h: 50 }, mur_blocs: { h: 56 }, mur_brise: { h: 54 }, mur_colonne: { h: 58 }, mur_ecroule: { h: 56 }, mur_fissure: { h: 56 }, mur_frise: { h: 56 }, mur_grave: { h: 56 }, mur_hieroglyphes: { h: 46 }, mur_moussu: { h: 56 }, mur_niche: { h: 58 }, mur_peint: { h: 56 }, mur_scarabee: { h: 44 }, mur_soleil: { h: 42 }, mur_sombre: { h: 58 }, niche: { h: 58 }, niche_statue: { h: 76 }, obelisque: { h: 88 }, obelisque_bleu: { h: 70 }, obelisque_cristal: { h: 80 }, offrandes: { h: 28 }, ossements: { h: 14 }, panneau: { h: 32 }, paves: [64, 64], piedestal_orbe: { h: 50 }, pierre_runique: { h: 52 }, pilier_brise: { h: 50 }, pilier_grave: { h: 76 }, pilier_lotus: { h: 82 }, pilier_peint: { h: 82 }, pilier_roche: { h: 74 }, portail_roche: { h: 82 }, porte_anubis: { h: 72 }, porte_arche: { h: 86 }, porte_bannieres: { h: 98 }, porte_gardiens: { h: 98 }, porte_grotte: { h: 86 }, porte_ruine: { h: 82 }, porte_scellee: { h: 92 }, porte_temple: { h: 92 }, porte_tombeau: { h: 72 }, porte_torches: { h: 92 }, portique: { h: 66 }, rideau: { h: 46 }, rocher_mousse: { h: 30 }, rochers: { h: 34 }, sable: [128, 128], sanctuaire_orbe: { h: 74 }, sarcophage: { h: 62 }, sarcophage_roche: { h: 72 }, scarabee_or: { h: 54 }, socle: { h: 22 }, sol_roche: [128, 128], source: { h: 46 }, source_grotte: { h: 52 }, stalagmite: { h: 50 }, stalagmites: { h: 40 }, statue_scarabee: { h: 48 }, stele: { h: 50 }, stele_lumineuse: { h: 60 }, stele_magique: { h: 54 }, tambour: { h: 34 }, terre_sombre: [128, 128], tombeau: { h: 58 }, tonneau: { h: 24 }, torche: { h: 46 }, torche_anubis: { h: 50 }, torche_murale: { h: 42 }, torche_plantee: { h: 46 }, torche_trepied: { h: 48 }, tresor_sable: { h: 30 }, vase: { h: 30 }, vasque: { h: 26 } },
+    // (dalles_fissurees, 64 x 46 : une période de ses colonnes d'ankhs, aux proportions du dessin — dev/optimiser_textures.py
+    //  raccord_vertical, qui l'écrit en la fabriquant)
+    grotte: { alcove_sarcophage: { h: 82 }, ankh: { h: 44 }, ankh_lumineux: { h: 46 }, anubis: { h: 60 }, anubis_geant: { h: 112 }, arche: { h: 72 }, arche_ruine: { h: 84 }, autel: { h: 26 }, autel_soleil: { h: 92 }, banniere: { h: 56 }, bassin_colonnes: { h: 64 }, braises: { h: 20 }, brasero: { h: 42 }, brasero_anubis: { h: 58 }, brasero_colonne: { h: 56 }, caisse: { h: 22 }, canopes: { h: 28 }, cascade_roche: { h: 78 }, cascade_temple: { h: 74 }, champignons: { h: 30 }, chemin: [128, 128], coffre: { h: 26 }, coffre_anubis: { h: 34 }, colonne_cristaux: { h: 72 }, colonne_moussue: { h: 52 }, coupe_feu: { h: 46 }, cristaux: { h: 30 }, cristaux_violets: { h: 38 }, dais: { h: 80 }, dalle_soleil: { h: 12 }, dalles_fissurees: [64, 46], eboulis: { h: 34 }, entree: { h: 72 }, entree_mousse: { h: 72 }, entree_temple: { h: 92 }, escalier: { h: 42 }, escalier_roche: { h: 50 }, flamme_bleue: { h: 52 }, fleurs_lanternes: { h: 36 }, fontaine: { h: 60 }, fontaine_lotus: { h: 70 }, fresque: { h: 58 }, frise_murale: { h: 40 }, gres_aiguilles: { h: 58 }, gres_ankh: { h: 46 }, gres_arche: { h: 66 }, gres_eboulis: { h: 34 }, gres_entree: { h: 72 }, gres_mur: { h: 62 }, gres_rochers: { h: 42 }, grille: { h: 66 }, gue: { h: 22 }, herbe: [128, 128], jarre: { h: 30 }, lampe: { h: 52 }, lanterne: { h: 50 }, mur_blocs: { h: 56 }, mur_brise: { h: 54 }, mur_colonne: { h: 58 }, mur_ecroule: { h: 56 }, mur_fissure: { h: 56 }, mur_frise: { h: 56 }, mur_grave: { h: 56 }, mur_hieroglyphes: { h: 46 }, mur_moussu: { h: 56 }, mur_niche: { h: 58 }, mur_peint: { h: 56 }, mur_scarabee: { h: 44 }, mur_soleil: { h: 42 }, mur_sombre: { h: 58 }, niche: { h: 58 }, niche_statue: { h: 76 }, obelisque: { h: 88 }, obelisque_bleu: { h: 70 }, obelisque_cristal: { h: 80 }, offrandes: { h: 28 }, ossements: { h: 14 }, panneau: { h: 32 }, paves: [64, 64], piedestal_orbe: { h: 50 }, pierre_runique: { h: 52 }, pilier_brise: { h: 50 }, pilier_grave: { h: 76 }, pilier_lotus: { h: 82 }, pilier_peint: { h: 82 }, pilier_roche: { h: 74 }, portail_roche: { h: 82 }, porte_anubis: { h: 72 }, porte_arche: { h: 86 }, porte_bannieres: { h: 98 }, porte_gardiens: { h: 98 }, porte_grotte: { h: 86 }, porte_ruine: { h: 82 }, porte_scellee: { h: 92 }, porte_temple: { h: 92 }, porte_tombeau: { h: 72 }, porte_torches: { h: 92 }, portique: { h: 66 }, rideau: { h: 46 }, rocher_mousse: { h: 30 }, rochers: { h: 34 }, sable: [128, 128], sanctuaire_orbe: { h: 74 }, sarcophage: { h: 62 }, sarcophage_roche: { h: 72 }, scarabee_or: { h: 54 }, socle: { h: 22 }, sol_roche: [128, 128], source: { h: 46 }, source_grotte: { h: 52 }, stalagmite: { h: 50 }, stalagmites: { h: 40 }, statue_scarabee: { h: 48 }, stele: { h: 50 }, stele_lumineuse: { h: 60 }, stele_magique: { h: 54 }, tambour: { h: 34 }, terre_sombre: [128, 128], tombeau: { h: 58 }, tonneau: { h: 24 }, torche: { h: 46 }, torche_anubis: { h: 50 }, torche_murale: { h: 42 }, torche_plantee: { h: 46 }, torche_trepied: { h: 48 }, tresor_sable: { h: 30 }, vase: { h: 30 }, vasque: { h: 26 } },
   };
   const tailleDe = (d, n) => (TAILLES_DOSSIER[d] && TAILLES_DOSSIER[d][n]) || TAILLE[n];
   // lumières des décors dessinés, dans le noir des cartes sombres : [x, y] en fraction de l'image, rayon, couleur ;
@@ -6855,9 +6862,15 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
   // (les Digimon dessinés pendant le chargement, sur l'écran titre, l'ont été avec leur dessin de secours : on les oublie)
   T.charge = !nav ? Promise.resolve() : ouvriers(Object.entries(LISTE).flatMap(([d, noms]) => noms.map(n => () => chargerImage(d, n))), 10)
     .then(() => { T.fini = true; objetsCommuns(); objets(LISTE); DW.Sprites.oublier(); });
-  const enCours = {};
+  const enCours = {}, arrives = {};
   T.dossier = d => enCours[d] || (enCours[d] = !nav || !TARDIFS[d] ? Promise.resolve()
-    : T.charge.then(() => ouvriers(TARDIFS[d].map(n => () => chargerImage(d, n)), 6)).then(() => objets({ [d]: TARDIFS[d] })));
+    : T.charge.then(() => ouvriers(TARDIFS[d].map(n => () => chargerImage(d, n)), 6)).then(() => {
+      objets({ [d]: TARDIFS[d] }); arrives[d] = true;
+      for (const k of PEINTS[d] || []) DW.World.oublierObjet(k);
+    }));
+  // dossier prêt (sans attendre) : ses images sont arrivées ; un dossier du démarrage (ou inconnu) l'est d'office
+  // (une carte n'est ni construite ni préparée avant que les siens le soient : game/overworld.js, gfx/terrain.js)
+  T.dossierPret = d => !nav || !TARDIFS[d] || !!arrives[d];
   if (nav) T.charge.then(() => { for (const d in TARDIFS) T.dossier(d); });
 
   T.a = cle => T.img[cle] || null;
@@ -11834,6 +11847,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
     const TX_LAVE = txp('lave');
     const TX_PAROI = map.paroi ? txp(map.paroi) : null;   // (roche des parois : une image du dossier de la carte — la grotte de Shellmon)
+    // (dossiers de la carte chargés à part, gfx/textures.js, pas encore arrivés : elle sera refaite à leur arrivée, stale ;
+    //  le jeu attend toujours avant de la préparer, game/overworld.js — c'est une sûreté, pour l'atelier aussi)
+    const MANQUE = DW.Textures && DW.Textures.dossierPret ? [map.textures, ...(map.dossiers || [])].filter(d => d && !DW.Textures.dossierPret(d)) : [];
     const sol = r => (TX ? TX.sol(map, r) : null);
     const TX_HERBE = sol('herbe'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves');
     // herbe dessinée ; l'ombre des arbres et des falaises reste par-dessus
@@ -12088,6 +12104,34 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       k = 0; for (let py = GH - 1, i = py * GW + px; py >= 0; py--, i -= GW) { if (T[i] === RK) RD[i] = k++; else k = 0; }
     } };
     for (let px = 0; px < GW; px += 128) { paroiCols(px, Math.min(GW, px + 128)); yield; }
+    // PAROIS EN BANDE des grottes (map.paroi : falaise_basalte, paroi_cratere — faites pour se répéter en LARGEUR seulement,
+    // assets/volcan/LISEZ-MOI.txt ; répétées aussi en hauteur, elles rayaient les murs des souterrains du Mont Miharashi
+    // d'une bande claire toutes les 64 pixels) : pour chaque pixel de roche, sa distance au bas de son mur (PB ; un mur qui
+    // touche le bas de la carte n'a pas de bas : « très loin »). La bande y est posée comme une falaise : paroiTx
+    const PAROI_BANDE = !!TX_PAROI && (map.paroi === 'falaise_basalte' || map.paroi === 'paroi_cratere');
+    let PB = null;
+    if (PAROI_BANDE) {
+      PB = new Uint16Array(N); const CA = TER.canopy;
+      const basCols = (xa, xb) => { for (let px = xa; px < xb; px++) {
+        let k = 4096; for (let py = GH - 1, i = py * GW + px; py >= 0; py--, i -= GW) { if (T[i] === CA) PB[i] = k++; else k = 0; }
+      } };
+      for (let px = 0; px < GW; px += 128) { basCols(px, Math.min(GW, px + 128)); yield; }
+    }
+    // pixel de la bande pour un pixel de roche (écrit dans TC, comme texel) : en bas du mur, la bande posée comme une
+    // falaise, son pied contre le sol (éboulis, lueur de la lave), sur 3 cases ; plus haut, le cœur de la roche : les
+    // rangées du milieu de la bande, choisies par un bruit lent — des colonnes de basalte, aucune rangée répétée en ligne ;
+    // les deux fondus sur 8 pixels. (Le liseré du haut de la bande — terre et mousse, le bord d'un plateau — n'est pas
+    // posé : dans une grotte, la roche continue au-dessus.)
+    const paroiTx = (px, py, i) => {
+      const P = TX_PAROI, FH = P.h, b = PB[i], d = P.d;
+      const qf = b < FH - 16 ? texO(P, px, FH - 1 - b) : -1;
+      const qc = b >= FH - 24 ? texO(P, px, 16 + DW.clamp(Math.floor(noise(px * 0.015, py * 0.03, 641) * (FH - 32)), 0, FH - 33)) : -1;
+      if (qc < 0) { TC[0] = d[qf]; TC[1] = d[qf + 1]; TC[2] = d[qf + 2]; return TC; }
+      if (qf < 0) { TC[0] = d[qc]; TC[1] = d[qc + 1]; TC[2] = d[qc + 2]; return TC; }
+      const w = (b - (FH - 24)) / 8;
+      TC[0] = d[qf] + (d[qc] - d[qf]) * w; TC[1] = d[qf + 1] + (d[qc + 1] - d[qf + 1]) * w; TC[2] = d[qf + 2] + (d[qc + 2] - d[qf + 2]) * w;
+      return TC;
+    };
     // SOLS SPÉCIAUX AUX CONTOURS NATURELS (rocaille, cendres, terre ordinaire) : la limite ondule (vote entre les cases
     // voisines, comme entre deux terrains) au lieu de suivre les cases
     let SOLKP = null;
@@ -12354,8 +12398,8 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
           if (d2 - d1 < 1) v -= 2;
         } else if (d2 - d1 < 1.2) v -= 1.3;
         col = CANOPY[DW.clamp(Math.round(v), 0, 5)];
-        // (paroi dessinée : l'image choisie par la carte, éclairée par les mêmes facettes)
-        if (ROCKY && TX_PAROI) { const t = texel(TX_PAROI, px, py), s = 0.3 + DW.clamp(v, 0, 5) * 0.12; col = [Math.min(255, t[0] * s), Math.min(255, t[1] * s), Math.min(255, t[2] * s)]; }
+        // (paroi dessinée : l'image choisie par la carte, éclairée par les mêmes facettes ; une bande, posée en falaise : paroiTx)
+        if (ROCKY && TX_PAROI) { const t = PB ? paroiTx(px, py, i) : texel(TX_PAROI, px, py), s = 0.3 + DW.clamp(v, 0, 5) * 0.12; col = [Math.min(255, t[0] * s), Math.min(255, t[1] * s), Math.min(255, t[2] * s)]; }
       } else if (t === TER.pastel) {
         const cx = Math.floor(px / 8), cy = Math.floor(py / 8);
         let d1 = 99, d2 = 99, ox = 0, oy = 0, cell = 0;
@@ -12946,7 +12990,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     }
     const bridges = !DOCK && World.paintBridges ? World.paintBridges(map) : null;   // ponts de pierre peints (gfx/ponts.js)
     if (bridges) for (const k of bridges.walls) solid.add(k);   // (les murets bloquent le passage)
-    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers, bridges };
+    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers, bridges, manque: MANQUE };
     lap('sol');
     if (!water) { map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }
     else {
@@ -13059,8 +13103,10 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     if (map.bouche) for (const k of ['bouche', 'bouchelave']) for (let fr = 1; fr < OBJ[k].frames; fr++) if (!World.objReady(k, 0, fr)) { World.objFrame(k, 0, fr); yield; }
   }
   // préparation immédiate (jusqu'à ce que la carte soit affichable)
-  // la saison a changé depuis la préparation : on refait la carte
-  const stale = map => { if (map.gfx && map.gfx.tk !== undefined && World.themeKey && map.gfx.tk !== World.themeKey(map)) World.unprepare(map); };
+  // la saison a changé depuis la préparation : on refait la carte ; de même si elle avait été préparée sans les images d'un
+  // de ses dossiers chargés à part et qu'elles sont arrivées depuis (gfx/textures.js)
+  const sansImages = map => !!(map.gfx && map.gfx.manque && map.gfx.manque.length && map.gfx.manque.some(d => DW.Textures.dossierPret(d)));
+  const stale = map => { if (map.gfx && ((map.gfx.tk !== undefined && World.themeKey && map.gfx.tk !== World.themeKey(map)) || sansImages(map))) World.unprepare(map); };
   const stamp = map => { if (map.gfx && map.gfx.tk === undefined) map.gfx.tk = World.themeKey ? World.themeKey(map) : null; };
   // largeur VISIBLE d'un dessin (sans les marges transparentes), en pixels du jeu ; calculée une fois par variante
   const LARGEURS = {};
@@ -13088,8 +13134,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     return false;
   };
   World.unprepare = map => { delete map.gfx; delete map._prep; };
-  // prête à s'afficher (le reste de l'eau animée se termine ensuite, en tâche de fond)
-  World.pret = map => !!(map.gfx && map.gfx.ms !== undefined);
+  // prête à s'afficher (le reste de l'eau animée se termine ensuite, en tâche de fond) ; pas si elle est à refaire avec les
+  // images arrivées depuis (on la prépare alors par morceaux, derrière l'écran de chargement : game/overworld.js charger)
+  World.pret = map => { if (sansImages(map)) World.unprepare(map); return !!(map.gfx && map.gfx.ms !== undefined); };
 
   // ------------------------------------------------------------ herbes hautes (sprites 16x24, 3 positions de vent)
   const TALL = { grass: ['#1c5a22', '#36923a', '#6cca58', 34], dune: ['#6a7228', '#9aac40', '#d4e07a', 18], pastel: ['#3e9a6e', '#72cc96', '#c4f4d8', 30] };
@@ -20654,6 +20701,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
   // (map.textures) et ceux de ses décors (map.dossiers : les souterrains du Mont Miharashi mêlent grotte et désert)
   DW.dossiersCarte = mapId => { const M = DW.MAPS[mapId]; return M ? [M.textures, ...(M.dossiers || [])].filter(Boolean) : []; };
   DW.attendreDossiers = mapId => (DW.Textures && DW.Textures.dossier ? Promise.all(DW.dossiersCarte(mapId).map(d => DW.Textures.dossier(d))) : Promise.resolve());
+  // (tous déjà arrivés, sans attendre : une voisine n'est construite et préparée à l'avance qu'avec eux, background —
+  //  sinon elle serait peinte sans ses images, et gardée ainsi)
+  DW.dossiersPrets = mapId => !(DW.Textures && DW.Textures.dossierPret) || DW.dossiersCarte(mapId).every(d => DW.Textures.dossierPret(d));
   // un personnage n'est jamais DANS le décor : un rocher ou un arbre posé dans l'éditeur de cartes peut avoir pris sa
   // place ; il se décale alors sur la case libre la plus proche (vérifié une fois par état de la carte)
   function pnjHorsDecor(map) {
@@ -20916,11 +20966,12 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       DW.World.prepareSome(DW.preparerCarte(c.id), marche ? 2.5 : urgent ? 10 : 7);
     }
     // la carte voisine pas encore prête dont la sortie est la plus proche du héros (un peu « plus proche » si l'on marche
-    // vers elle) ; null si toutes sont prêtes
+    // vers elle) ; null si toutes sont prêtes (une voisine dont les images chargées à part ne sont pas encore arrivées
+    // attend son tour : DW.dossiersPrets)
     voisinePrioritaire() {
       const P = this.p, [dx, dy] = DIRS[P.dir] || [0, 0]; let best = null;
       const vers = (id, x, y, w, h) => {
-        const M = DW.MAPS[id]; if (!M || id === this.mapId || (M.gfx && !M._prep)) return;
+        const M = DW.MAPS[id]; if (!M || id === this.mapId || (M.gfx && !M._prep) || !DW.dossiersPrets(id)) return;
         const vx = DW.clamp(P.x, x, x + w - 1) - P.x, vy = DW.clamp(P.y, y, y + h - 1) - P.y;
         let d = Math.hypot(vx, vy); if (d > 0 && vx * dx + vy * dy > 0) d *= 0.7;
         if (!best || d < best.d) best = { id, d };
