@@ -1,0 +1,352 @@
+id	nom	région	intérieur	dimensions	thème	chapitre d'ouverture (atteinte)	sorties (bord/porte/script)	PNJ (max)	objets	panneaux	déclencheurs	événements (scripts)	remarques
+manoir_hall	Manoir — Grand hall	overdell	oui	20×15		—	3/2/0	0	9	0	0	0	jamais atteinte
+manoir_biblio	Manoir — Bibliothèque	overdell	oui	20×15		—	1/0/0	0	9	0	0	0	jamais atteinte
+manoir_salle	Manoir — Salle à manger	overdell	oui	20×15		—	1/0/0	0	8	0	0	0	jamais atteinte
+manoir_etage	Manoir — Galerie des portraits	overdell	oui	20×15		—	1/2/0	0	8	0	0	0	jamais atteinte
+manoir_chambre	Manoir — Chambre du Seigneur	overdell	oui	20×15		—	1/0/0	0	8	0	0	0	jamais atteinte
+manoir_grenier	Manoir — Grenier	overdell	oui	20×15		—	0/1/0	0	11	1	0	1	jamais atteinte
+manoir_cave	Manoir — Cave	overdell	oui	20×15		—	1/1/0	0	7	0	0	0	jamais atteinte
+manoir_crypte	Manoir — Crypte	overdell	oui	20×15		—	1/0/0	1	9	1	0	1	jamais atteinte
+usine_hall	Usine — Hall	usine	oui	20×15		—	3/1/0	0	5	0	0	0	jamais atteinte
+usine_chaine	Usine — Chaîne de montage	usine	oui	20×15		—	1/0/0	0	12	0	0	0	jamais atteinte
+usine_entrepot	Usine — Entrepôt	usine	oui	20×15		—	1/1/0	0	14	0	0	0	jamais atteinte
+usine_machines	Usine — Salle des machines	usine	oui	20×15		—	1/1/0	0	9	0	0	0	jamais atteinte
+usine_generateur	Usine — Générateur	usine	oui	20×15		—	1/0/0	1	9	1	0	1	jamais atteinte
+usine_bureau	Usine — Bureau du directeur	usine	oui	20×15		—	0/1/0	0	10	1	0	1	jamais atteinte
+chateau_hall	Château — Hall des sourires	jouets	oui	20×15		—	3/2/0	0	8	0	0	0	jamais atteinte
+chateau_jouets	Château — Salle des jouets	jouets	oui	20×15		—	1/0/0	0	8	0	0	0	jamais atteinte
+chateau_cuisine	Château — Cuisines	jouets	oui	20×15		—	1/0/0	0	8	0	0	0	jamais atteinte
+chateau_bal	Château — Salle de bal	jouets	oui	20×15		—	1/1/0	0	7	0	0	0	jamais atteinte
+chateau_royale	Château — Chambre royale	jouets	oui	20×15		—	1/0/0	0	8	1	0	1	jamais atteinte
+chateau_oubliettes	Château — Oubliettes	jouets	oui	20×15		—	0/1/0	1	8	1	0	1	jamais atteinte
+temple_parvis	Temple — Parvis intérieur	jungle	oui	20×15		—	1/2/0	0	7	0	0	0	jamais atteinte
+temple_colonnes	Temple — Salle des colonnes	jungle	oui	20×15		—	2/2/0	0	12	0	0	0	jamais atteinte
+temple_galerie_o	Temple — Galerie ouest	jungle	oui	20×15		—	1/0/0	0	6	0	0	0	jamais atteinte
+temple_galerie_e	Temple — Galerie est	jungle	oui	20×15		—	1/0/0	0	7	0	0	0	jamais atteinte
+temple_sanctuaire	Temple — Sanctuaire	jungle	oui	20×15		—	0/1/0	0	8	1	0	1	jamais atteinte
+temple_crypte	Temple — Crypte engloutie	jungle	oui	20×15		—	0/1/0	1	8	1	0	1	jamais atteinte
+clairiere	Clairière de l'Arrivée	foret		96×72	spring	ch1 (ch1_debut)	3/1/0	2	99	6	0	5	
+sentier	Sentier des Murmures	foret		96×72	misty	ch1 (ch1_debut)	4/0/0	2	25	2	0	1	
+prairie	Prairie des Lucioles	foret		96×72	meadow	ch1 (ch1_debut)	2/0/1	3	73	3	0	1	
+geants	Bois des Géants	foret		96×72	deep	ch1 (ch1_debut)	3/0/0	3	23	2	0	1	
+lisiere	Lisière du Ravin	foret		96×72	autumn	ch1 (ch1_debut)	3/0/0	1	122	0	0	0	
+plage	Plage des Cabines	plage		96×72	beach	ch1 (ch1_debut)	4/0/6	2	107	14	0	8	
+crique	Crique du Radeau	plage		96×72	beach	ch1 (ch1_debut)	3/0/0	0	109	9	0	4	
+dunes	Dunes des Bébés	plage		96×72	beach	ch1 (ch1_debut)	4/0/0	0	174	1	0	0	
+bosquet	Bosquet des Pousses	plage		96×72	meadow	ch1 (ch1_debut)	5/0/0	0	89	1	0	0	
+village	Ville des Fichiers	village		96×72	town	ch1 (ch1_debut)	5/8/1	12	152	27	0	14	
+maison_joueur	Ma maison	village	oui	16×12		ch1 (ch1_debut)	5/2/0	0	13	16	0	17	
+maison_joueur_etage	Ma maison — Couloir de l’étage	village	oui	34×7		ch1 (ch1_debut)	0/7/0	0	9	0	0	0	
+maison_joueur_grenier	Ma maison — Grenier	village	oui	12×8		ch1 (ch1_debut)	0/1/0	0	6	1	0	1	
+maison_joueur_sdb	Ma maison — Salle de bain	village	oui	10×8		ch1 (ch1_debut)	1/0/0	0	4	2	0	2	
+maison_joueur_cuisine	Ma maison — Cuisine	village	oui	12×8		ch1 (ch1_debut)	1/0/0	0	6	5	0	5	
+maison_joueur_sport	Ma maison — Salle de sport	village	oui	16×11		ch1 (ch1_debut)	1/0/0	0	10	8	0	8	
+maison_joueur_salle	Ma maison — Grande salle à manger	village	oui	22×13		ch1 (ch1_debut)	1/0/0	6	15	8	0	8	
+maison_joueur_chambre	Ma maison — Ma chambre	village	oui	12×9		ch1 (ch1_debut)	1/0/0	0	4	2	0	2	
+maison_joueur_tai	Ma maison — Chambre de Tai	village	oui	10×8		ch1 (ch1_debut)	1/0/0	2	5	0	0	0	
+maison_joueur_matt	Ma maison — Chambre de Matt	village	oui	10×8		ch1 (ch1_debut)	1/0/0	2	5	0	0	0	
+maison_joueur_sora	Ma maison — Chambre de Sora	village	oui	10×8		ch1 (ch1_debut)	1/0/0	2	5	0	0	0	
+maison_joueur_digi	Ma maison — Chambre du Digimon	village	oui	10×8		ch1 (ch1_debut)	1/0/0	0	5	5	0	5	
+maison	Maison de Jijimon	village	oui	16×12		ch1 (ch1_debut)	1/1/1	9	24	17	0	5	
+bazar_in	Centre commercial de Gotsumon	village	oui	30×16		ch1 (ch1_debut)	1/0/0	7	21	46	0	46	
+dojo_in	Dojo d'Elecmon — Grand hall	village	oui	26×15		ch1 (ch1_debut)	3/0/0	3	12	1	0	0	
+resto_in	Restaurant gastronomique de Mushroomon	village	oui	28×16		ch1 (ch1_debut)	1/0/0	11	23	12	0	12	
+serre_in	Jardins maraîchers de Yokomon	village	oui	30×16		ch1 (ch1_debut)	1/0/0	5	19	4	0	4	
+poste_in	Poste de Biyomon	village	oui	14×10		ch1 (ch1_debut)	1/0/0	1	9	10	0	4	
+banque_in	Banque de Kunemon	village	oui	12×10		ch1 (ch1_debut)	1/0/0	1	7	7	0	4	
+maison_haut	Maison de Jijimon — Dortoir des habitants	village	oui	18×12		ch1 (ch1_debut)	0/2/0	5	11	4	0	4	
+maison_haut2	Maison de Jijimon — Grande bibliothèque	village	oui	18×12		ch1 (ch1_debut)	0/1/0	1	14	19	0	19	
+dojo_zen	Dojo d'Elecmon — Salle de méditation	village	oui	14×10		ch1 (ch1_debut)	1/0/0	1	10	0	0	0	
+dojo_combat	Dojo d'Elecmon — Salle des combats	village	oui	16×11		ch1 (ch1_debut)	1/0/0	1	4	0	0	0	
+champs	Quartier des Champs	village		80×56	farm	ch1 (ch1_debut)	3/1/1	4	36	72	0	39	
+grange_in	Grange de Palmon	village	oui	20×15		ch1 (ch1_debut)	1/1/0	1	7	0	0	0	
+grange_fenil	Grange de Palmon — Fenil	village	oui	18×13		ch1 (ch1_debut)	0/1/0	0	6	1	0	1	
+gym	Terrain d'entraînement	village		64×44	town	ch1 (ch1_debut)	1/2/0	2	27	9	0	7	
+berceau	Village des Bébés	foret		96×72	nursery	ch1 (ch1_debut)	2/1/0	6	130	20	0	9	
+berceau_maison	Maison de Penguinmon	foret	oui	16×13		ch1 (ch1_debut)	1/0/0	3	26	10	0	0	
+residentiel	Quartier Résidentiel	village		86×61	town	ch1 (ch1_debut)	3/17/0	7	61	7	0	0	
+maison_r0	Maison de Frigimon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	13	2	0	0	
+maison_r0_grenier	Maison de Frigimon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r0_cave	Maison de Frigimon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_r1	Maison de Tentomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	12	3	0	2	
+maison_r1_grenier	Maison de Tentomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r1_cave	Maison de Tentomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_r2	Maison de Monochromon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_r2_grenier	Maison de Monochromon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r3	Maison de Kunemon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_r3_grenier	Maison de Kunemon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r4	Maison de Patamon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	12	3	0	2	
+maison_r4_grenier	Maison de Patamon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r5	Maison de Gotsumon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	12	3	0	0	
+maison_r5_grenier	Maison de Gotsumon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r6	Maison de Numemon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	11	3	0	2	
+maison_r6_grenier	Maison de Numemon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r6_cave	Maison de Numemon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_r7	Maison de Yokomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	14	2	0	0	
+maison_r7_grenier	Maison de Yokomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r7_cave	Maison de Yokomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_r8	Maison de Unimon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_r8_grenier	Maison de Unimon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r9	Maison de Kunemon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	2	0	0	
+maison_r9_grenier	Maison de Kunemon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r10	Maison de Leomon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_r10_grenier	Maison de Leomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r11	Maison de Biyomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	12	3	0	2	
+maison_r11_grenier	Maison de Biyomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r11_cave	Maison de Biyomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_r12	Maison de Elecmon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	12	3	0	2	
+maison_r12_grenier	Maison de Elecmon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r13	Maison de Biyomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	12	3	0	0	
+maison_r13_grenier	Maison de Biyomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r13_cave	Maison de Biyomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_r14	Maison de Tentomon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	12	3	0	0	
+maison_r14_grenier	Maison de Tentomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r15	Maison de Tsunomon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_r15_grenier	Maison de Tsunomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r16	Maison de Patamon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	13	0	0	0	
+maison_r16_grenier	Maison de Patamon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_r16_cave	Maison de Patamon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+marche	Quartier du Marché	village		86×61	town	ch1 (ch1_debut)	1/8/0	5	34	14	0	4	
+maison_m2	Boulangerie	village	oui	14×11		ch1 (ch1_debut)	1/0/0	1	6	4	0	4	
+maison_m3	Pâtisserie	village	oui	14×11		ch1 (ch1_debut)	1/0/0	1	7	4	0	4	
+maison_m6	Maison de Numemon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	11	3	0	2	
+maison_m6_grenier	Maison de Numemon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_m6_cave	Maison de Numemon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_m8	Maison de Unimon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_m8_grenier	Maison de Unimon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_m11	Maison de Biyomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	12	3	0	2	
+maison_m11_grenier	Maison de Biyomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_m11_cave	Maison de Biyomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_m13	Maison de Biyomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	12	3	0	0	
+maison_m13_grenier	Maison de Biyomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_m13_cave	Maison de Biyomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_m14	Maison de Tentomon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	12	3	0	0	
+maison_m14_grenier	Maison de Tentomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_m15	Maison de Tsunomon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_m15_grenier	Maison de Tsunomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+numerique	Quartier Numérique	village		86×61	town	ch1 (ch1_debut)	1/8/0	2	34	7	0	0	
+maison_n1	Maison de Tentomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	12	3	0	2	
+maison_n1_grenier	Maison de Tentomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_n1_cave	Maison de Tentomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_n3	Maison de Kunemon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_n3_grenier	Maison de Kunemon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_n4	Immeuble	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	12	3	0	2	
+maison_n4_e1	Immeuble — 1er étage	village	oui	14×11		ch1 (ch1_debut)	0/2/0	1	10	0	0	0	
+maison_n4_e1_e2	Immeuble — 2e étage	village	oui	14×11		ch1 (ch1_debut)	0/1/0	1	11	0	0	0	
+maison_n6	Maison de Numemon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	11	3	0	2	
+maison_n6_grenier	Maison de Numemon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_n6_cave	Maison de Numemon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_n8	Maison de Unimon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	0	0	0	
+maison_n8_grenier	Maison de Unimon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_n9	Immeuble	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	13	2	0	0	
+maison_n9_e1	Immeuble — 1er étage	village	oui	14×11		ch1 (ch1_debut)	0/2/0	1	11	2	0	0	
+maison_n9_e1_e2	Immeuble — 2e étage	village	oui	14×11		ch1 (ch1_debut)	0/1/0	1	12	1	0	0	
+maison_n11	Maison de Biyomon	village	oui	14×11		ch1 (ch1_debut)	1/2/0	1	12	3	0	2	
+maison_n11_grenier	Maison de Biyomon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+maison_n11_cave	Maison de Biyomon — Cave	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	6	0	0	0	
+maison_n12	Maison de Elecmon	village	oui	14×11		ch1 (ch1_debut)	1/1/0	1	12	3	0	2	
+maison_n12_grenier	Maison de Elecmon — Grenier	village	oui	14×11		ch1 (ch1_debut)	0/1/0	0	5	1	0	1	
+donjon_joe_hall	Refuge du Glacier — Entrée	montagne	oui	20×15		—	2/0/0	2	5	2	0	2	jamais atteinte
+donjon_joe_galerie	Refuge du Glacier — Galerie	montagne	oui	20×15		—	2/0/0	5	2	0	3	3	jamais atteinte
+donjon_joe_sanctuaire	Refuge du Glacier — Sanctuaire	montagne	oui	20×15		—	1/0/0	2	3	1	0	1	jamais atteinte
+donjon_tk_hall	Chapelle des Brumes — Entrée	brumes	oui	20×15		—	2/0/0	5	4	1	0	1	jamais atteinte
+donjon_tk_galerie	Chapelle des Brumes — Galerie	brumes	oui	20×15		—	2/0/0	2	3	1	0	1	jamais atteinte
+donjon_tk_sanctuaire	Chapelle des Brumes — Sanctuaire	brumes	oui	20×15		—	1/0/0	2	3	1	0	1	jamais atteinte
+donjon_sora_hall	Nid de Braises — Entrée	volcan	oui	20×15		—	2/0/0	6	4	1	4	5	jamais atteinte
+donjon_sora_galerie	Nid de Braises — Galerie	volcan	oui	20×15		—	2/0/0	6	2	0	0	0	jamais atteinte
+donjon_sora_sanctuaire	Nid de Braises — Sanctuaire	volcan	oui	20×15		—	1/0/0	2	3	1	0	1	jamais atteinte
+donjon_izzy_hall	Archives de Données — Entrée	usine	oui	20×15		—	2/0/0	2	5	2	0	2	jamais atteinte
+donjon_izzy_galerie	Archives de Données — Galerie	usine	oui	20×15		—	2/0/0	6	2	0	0	0	jamais atteinte
+donjon_izzy_sanctuaire	Archives de Données — Sanctuaire	usine	oui	20×15		—	1/0/0	2	3	1	0	1	jamais atteinte
+donjon_mimi_hall	Jardin Secret des Jouets — Entrée	jouets	oui	20×15		—	2/0/0	5	4	1	0	1	jamais atteinte
+donjon_mimi_galerie	Jardin Secret des Jouets — Galerie	jouets	oui	20×15		—	2/0/0	7	2	0	5	5	jamais atteinte
+donjon_mimi_sanctuaire	Jardin Secret des Jouets — Sanctuaire	jouets	oui	20×15		—	1/0/0	2	3	1	0	1	jamais atteinte
+donjon_matt_hall	Palais de Givre — Entrée	gel	oui	20×15		—	2/0/0	7	4	1	5	6	jamais atteinte
+donjon_matt_galerie	Palais de Givre — Galerie	gel	oui	20×15		—	2/0/0	2	3	1	0	1	jamais atteinte
+donjon_matt_sanctuaire	Palais de Givre — Sanctuaire	gel	oui	20×15		—	1/0/0	2	3	1	0	1	jamais atteinte
+donjon_tai_hall	Temple du Courage — Entrée	dino	oui	20×15		—	2/0/0	7	4	1	0	1	jamais atteinte
+donjon_tai_galerie	Temple du Courage — Galerie	dino	oui	20×15		—	2/0/0	2	3	1	0	1	jamais atteinte
+donjon_tai_sanctuaire	Temple du Courage — Sanctuaire	dino	oui	20×15		—	1/0/0	2	3	1	0	1	jamais atteinte
+arbre_kuwagamon	Cœur du Grand Arbre	foret	oui	20×15		ch1 (ch1_kuwagamon)	1/0/1	1	15	0	0	1	
+classe	Salle de classe	village	oui	18×13		ch1 (ch1_debut)	1/0/0	0	17	13	0	0	
+gymnase	Gymnase	village	oui	18×12		ch1 (ch1_debut)	1/0/0	1	10	7	0	7	
+montagne0	Pont de l'Infini	montagne		100×68	mountain	—	2/0/0	0	26	4	0	1	jamais atteinte
+montagne1	Contreforts de l'Infini	montagne		94×68	mountain	—	3/0/0	3	16	3	0	0	jamais atteinte
+montagne2	Col des Vents	montagne		94×68	mountain	—	3/0/0	0	10	3	0	0	jamais atteinte
+montagne3	Lac d'Altitude	montagne		94×68	mountain	—	3/0/0	0	29	2	0	0	jamais atteinte
+montagne4	Grotte de l'Infini	montagne	oui	94×68	cave	—	2/0/0	0	1	0	0	0	jamais atteinte
+montagne5	Galeries de Cristal	montagne	oui	94×68	cave	—	3/0/0	0	0	0	0	0	jamais atteinte
+montagne6	Gorge du Torrent	montagne		94×68	mountain	—	4/1/0	0	23	1	0	1	jamais atteinte
+montagne7	Alpages Suspendus	montagne		100×68	mountain	—	2/0/0	0	34	1	0	0	jamais atteinte
+montagne8	Plateau des Engrenages Noirs	montagne		100×68	summit	—	3/0/0	0	23	2	0	0	jamais atteinte
+montagne9	Sommet de l'Infini	montagne		94×68	summit	—	2/0/0	0	51	2	0	0	jamais atteinte
+volcan0	Pied du Mont Panorama	volcan		100×64	volcano	—	2/0/0	0	26	3	0	0	jamais atteinte
+volcan1	Champs de Cendres	volcan		88×64	volcano	—	3/0/0	3	61	4	0	0	jamais atteinte
+volcan2	Coulée de Lave	volcan		94×64	volcano	—	3/0/0	0	36	2	0	0	jamais atteinte
+volcan3	Forêt Calcinée	volcan		88×64	volcano	—	2/0/0	0	33	2	0	0	jamais atteinte
+volcan4	Fumerolles	volcan		88×64	volcano	—	2/0/0	0	31	3	0	0	jamais atteinte
+volcan5	Orgues de Basalte	volcan		94×64	volcano	—	3/1/0	0	16	1	0	1	jamais atteinte
+volcan6	Lac de Magma	volcan		88×64	volcano	—	4/0/0	0	29	0	0	0	jamais atteinte
+volcan7	Belvédère du Panorama	volcan		100×64	volcano	—	2/0/0	0	34	1	0	0	jamais atteinte
+volcan8	Grotte Ardente	volcan	oui	100×64	lavacave	—	2/0/0	0	1	0	0	0	jamais atteinte
+volcan9	Cratère de Meramon	volcan		88×64	volcano	—	2/0/0	0	36	0	0	0	jamais atteinte
+savane0	Porte de la Savane	savane		100×64	savanna	—	2/0/0	0	19	4	0	1	jamais atteinte
+savane1	Plaines Dorées	savane		94×64	savanna	—	4/0/0	3	42	3	0	0	jamais atteinte
+savane2	Point d'Eau	savane		88×64	savanna	—	3/0/0	0	15	3	0	0	jamais atteinte
+savane3	Cimetière d'Engrenages	savane		100×64	savanna	—	2/0/0	0	14	4	0	0	jamais atteinte
+savane4	Termitières Géantes	savane		100×72	savanna	—	3/0/0	0	15	0	0	0	jamais atteinte
+savane5	Baobabs Millénaires	savane		88×72	savanna	—	4/0/0	0	16	2	0	0	jamais atteinte
+savane6	Gué des Rouages	savane		94×72	savanna	—	4/0/0	0	24	3	0	0	jamais atteinte
+savane7	Collines Rousses	savane		100×72	savanna	—	2/0/0	0	20	4	0	0	jamais atteinte
+savane8	Champ d'Éoliennes	savane		100×64	savanna	—	2/0/0	0	35	3	0	0	jamais atteinte
+savane9	Rocher du Lion	savane		94×64	savanna	—	2/0/0	0	33	1	0	0	jamais atteinte
+usine0	Faubourg Industriel	usine		94×68	factory	—	2/0/0	0	21	3	0	0	jamais atteinte
+usine1	Quai des Wagons	usine		100×68	factory	—	3/0/0	3	51	3	0	0	jamais atteinte
+usine2	Rue des Cheminées	usine		94×68	factory	—	3/0/0	0	18	3	0	0	jamais atteinte
+usine3	Parc des Citernes	usine		88×68	factory	—	2/0/0	0	24	2	0	0	jamais atteinte
+usine4	Dépôt de Batteries	usine		88×64	factory	—	2/0/0	0	21	3	0	0	jamais atteinte
+usine5	Égouts de l'Usine	usine	oui	94×64	sewer	—	3/0/0	0	0	0	0	0	jamais atteinte
+usine6	Atelier des Robots	usine		100×64	factory	—	4/1/0	0	60	1	0	1	jamais atteinte
+usine7	Grues du Port	usine		94×64	factory	—	2/0/0	0	37	0	0	0	jamais atteinte
+usine8	Salle des Machines	usine		94×72	factory	—	2/0/0	0	44	3	0	0	jamais atteinte
+usine9	Cœur de l'Usine	usine		100×72	factory	—	2/1/0	0	28	1	0	0	jamais atteinte
+decharge0	Entrée de la Décharge	decharge		100×68	trash	—	2/0/0	0	23	5	0	1	jamais atteinte
+decharge1	Vallée des Pneus	decharge		100×68	trash	—	3/0/0	3	22	4	0	0	jamais atteinte
+decharge2	Cimetière de Voitures	decharge		88×68	trash	—	3/0/0	0	17	3	0	0	jamais atteinte
+decharge3	Collines de Ferraille	decharge		94×68	trash	—	2/0/0	0	7	4	0	0	jamais atteinte
+decharge4	Mare Huileuse	decharge		94×64	sewer	—	2/0/0	0	31	3	0	0	jamais atteinte
+decharge5	Tours de Télévisions	decharge		88×64	trash	—	3/0/0	0	16	3	0	0	jamais atteinte
+decharge6	Labyrinthe d'Ordures	decharge		100×64	trash	—	4/0/0	0	25	4	0	0	jamais atteinte
+decharge7	Cratère des Débris	decharge		100×64	sewer	—	2/0/0	0	24	2	0	0	jamais atteinte
+decharge8	Royaume de la Poussière	decharge		100×64	trash	—	2/0/0	0	49	3	0	0	jamais atteinte
+decharge9	Sommet des Ordures	decharge		100×64	trash	—	2/0/0	0	27	1	0	0	jamais atteinte
+canyon0	Bord du Canyon	canyon		100×72	canyon	—	2/0/0	0	22	4	0	0	jamais atteinte
+canyon1	Plateau Rouge	canyon		88×72	canyon	—	3/0/0	3	52	3	0	0	jamais atteinte
+canyon2	Gorges Étroites	canyon		94×72	canyon	—	3/0/0	0	27	3	0	0	jamais atteinte
+canyon3	Ascenseurs du Canyon	canyon		88×72	canyon	—	2/0/0	0	26	1	0	0	jamais atteinte
+canyon4	Arche de Pierre	canyon		88×72	canyon	—	2/0/0	0	24	0	0	0	jamais atteinte
+canyon5	Vallée des Cactus	canyon		94×72	canyon	—	3/0/0	0	16	2	0	0	jamais atteinte
+canyon6	Oasis Cachée	canyon		88×72	savanna	—	4/0/0	0	24	3	0	0	jamais atteinte
+canyon7	Mesas Jumelles	canyon		100×72	canyon	—	3/0/0	0	12	3	0	0	jamais atteinte
+canyon8	Ravin des Crânes	canyon		100×72	canyon	—	3/0/0	0	12	4	0	0	jamais atteinte
+canyon9	Forteresse d'Ogremon	canyon		88×72	canyon	—	2/0/0	0	27	1	0	0	jamais atteinte
+dino0	Lisière Préhistorique	dino		100×72	dino	—	2/0/0	0	15	4	0	1	jamais atteinte
+dino1	Forêt de Cycas	dino		94×72	dino	—	3/0/0	3	13	2	0	0	jamais atteinte
+dino2	Marais Primitif	dino		94×72	dino	—	3/0/0	0	23	5	0	0	jamais atteinte
+dino3	Nid Géant	dino		88×72	dino	—	2/0/0	0	21	1	0	0	jamais atteinte
+dino4	Vallée des Ossements	dino		88×72	dino	—	2/0/0	0	16	3	0	0	jamais atteinte
+dino5	Volcan Fumant	dino		94×72	dino	—	3/0/0	0	26	0	0	0	jamais atteinte
+dino6	Prairie des Fougères	dino		94×72	dino	—	4/0/0	0	46	5	0	0	jamais atteinte
+dino7	Rivière Ambrée	dino		100×72	dino	—	2/0/0	0	14	3	0	0	jamais atteinte
+dino8	Zone Glaciaire	dino		100×72	snow	—	2/1/0	0	17	1	0	1	jamais atteinte
+dino9	Zone du Temps Rapide	dino		94×72	dino	—	2/0/0	0	20	1	0	0	jamais atteinte
+jungle0	Orée de la Jungle	jungle		100×68	jungle	—	2/0/0	0	23	5	0	0	jamais atteinte
+jungle1	Sous-bois Moite	jungle		100×68	jungle	—	3/0/0	0	12	2	0	0	jamais atteinte
+jungle2	Rivière aux Lianes	jungle		94×68	jungle	—	3/0/0	0	8	2	0	0	jamais atteinte
+jungle3	Temple Englouti	jungle		100×68	jungle	—	2/1/0	0	25	1	0	0	jamais atteinte
+jungle4	Pont Invisible	jungle		100×72	jungle	—	2/0/0	0	17	5	0	0	jamais atteinte
+jungle5	Forêt d'Amida	jungle		94×72	jungle	—	4/0/0	0	16	2	0	0	jamais atteinte
+jungle6	Cascade Tropicale	jungle		100×72	jungle	—	4/0/0	0	23	2	0	0	jamais atteinte
+jungle7	Mangrove	jungle		100×72	mangrove	—	2/0/0	0	13	3	0	0	jamais atteinte
+jungle8	Village sur Pilotis	jungle		100×64	mangrove	—	2/0/0	0	30	0	0	0	jamais atteinte
+jungle9	Plage Nue	jungle		100×64	beach	—	2/0/0	3	36	3	0	0	jamais atteinte
+overdell0	Lande Grise	overdell		100×64	cemetery	—	2/0/0	0	49	4	0	1	jamais atteinte
+overdell1	Allée des Tombes	overdell		94×64	cemetery	—	3/0/0	2	34	5	0	0	jamais atteinte
+overdell2	Bois Mort	overdell		88×64	cemetery	—	3/0/0	0	37	3	0	0	jamais atteinte
+overdell3	Mare Noire	overdell		88×64	cemetery	—	2/0/0	0	48	3	0	0	jamais atteinte
+overdell4	Champ des Croix	overdell		88×68	cemetery	—	2/0/0	0	43	4	0	0	jamais atteinte
+overdell5	Crypte Effondrée	overdell	oui	88×68	cave	—	3/0/0	0	0	0	0	0	jamais atteinte
+overdell6	Jardin des Citrouilles	overdell		94×68	cemetery	—	4/0/0	0	72	3	0	0	jamais atteinte
+overdell7	Chapelle en Ruine	overdell		100×68	cemetery	—	2/0/0	0	49	1	0	0	jamais atteinte
+overdell8	Cour du Manoir	overdell		100×72	cemetery	—	2/0/0	0	65	3	0	0	jamais atteinte
+overdell9	Manoir du Seigneur Gris	overdell		94×72	cemetery	—	2/1/0	0	66	1	0	0	jamais atteinte
+brumes0	Lisière Brumeuse	brumes		88×64	fog	ch4 (ch4)	2/0/0	0	7	3	0	0	
+brumes1	Sentier des Lanternes	brumes		94×64	fog	—	3/0/0	3	31	5	0	0	jamais atteinte
+brumes2	Étang Fantôme	brumes		94×64	fog	—	3/0/0	0	19	2	0	0	jamais atteinte
+brumes3	Labyrinthe de Brume	brumes		88×64	fog	—	2/0/0	0	9	2	0	0	jamais atteinte
+brumes4	Clairière Silencieuse	brumes		88×72	fog	—	3/0/0	0	47	3	0	0	jamais atteinte
+brumes5	Arbres Pleureurs	brumes		94×72	fog	—	4/0/0	0	11	4	0	0	jamais atteinte
+brumes6	Puits Oublié	brumes		94×72	fog	—	4/0/0	0	32	1	0	0	jamais atteinte
+brumes7	Pont de Brume	brumes		88×72	fog	—	2/0/0	0	31	2	0	0	jamais atteinte
+brumes8	Sanctuaire Voilé	brumes		88×72	fog	—	2/0/0	0	28	0	0	0	jamais atteinte
+brumes9	Cœur du Brouillard	brumes		94×72	fog	—	2/1/0	0	49	1	0	1	jamais atteinte
+jouets0	Entrée des Jouets	jouets		100×68	toy	—	2/0/0	0	44	5	0	1	jamais atteinte
+jouets1	Avenue des Cubes	jouets		100×68	toy	—	3/0/0	2	30	4	0	0	jamais atteinte
+jouets2	Parc du Manège	jouets		94×68	toy	—	3/0/0	0	59	0	0	0	jamais atteinte
+jouets3	Gare du Petit Train	jouets		100×68	toy	—	2/0/0	0	57	0	0	0	jamais atteinte
+jouets4	Jardin des Nounours	jouets		100×72	toy	—	2/0/0	0	35	3	0	0	jamais atteinte
+jouets5	Quartier des Maisons	jouets		94×72	toy	—	3/0/0	0	56	0	0	0	jamais atteinte
+jouets6	Lac des Canards	jouets		100×72	toy	—	4/0/0	0	41	4	0	0	jamais atteinte
+jouets7	Labyrinthe de Dominos	jouets		100×72	toy	—	2/0/0	0	21	3	0	0	jamais atteinte
+jouets8	Place des Boîtes à Surprise	jouets		100×64	toy	—	2/1/0	0	58	1	0	1	jamais atteinte
+jouets9	Château de Monzaemon	jouets		100×64	toy	—	2/1/0	0	46	1	0	0	jamais atteinte
+gel0	Frontière Gelée	gel		88×64	snow	—	2/0/0	0	30	2	0	0	jamais atteinte
+gel1	Forêt Enneigée	gel		100×64	snow	—	3/0/0	3	32	4	0	0	jamais atteinte
+gel2	Lac Gelé	gel		100×64	snow	—	3/0/0	0	28	3	0	0	jamais atteinte
+gel3	Plaine des Bonshommes	gel		94×64	snow	—	2/0/0	0	42	6	0	1	jamais atteinte
+gel4	Cascade de Glace	gel		94×72	snow	—	2/0/0	0	39	0	0	0	jamais atteinte
+gel5	Village d'Igloos	gel		100×72	snow	—	3/0/0	0	34	0	0	0	jamais atteinte
+gel6	Crevasses	gel		100×72	snow	—	4/0/0	0	21	3	0	0	jamais atteinte
+gel7	Grotte de la Plage Secrète	gel	oui	88×72	icecave	—	2/0/0	0	0	0	0	0	jamais atteinte
+gel8	Champs de Cristaux	gel		88×72	snow	—	2/1/0	0	33	1	0	1	jamais atteinte
+gel9	Temple de Glace	gel		100×72	snow	—	2/0/0	0	37	1	0	0	jamais atteinte
+lac0	Rive Sud	lac		96×72	spring	ch2 (ch2_debut)	3/0/0	2	14	1	0	2	
+lac1	Rosière	lac		96×72	spring	ch2 (ch2_lac)	3/0/0	3	54	1	0	0	
+lac2	Lac du Tramway	lac		96×72	spring	ch2 (ch2_lac)	1/0/1	2	18	4	0	3	
+lac3	Ponton des Pêcheurs	lac		96×72	spring	ch2 (ch2_lac)	2/0/0	0	35	3	0	1	
+lac4	Pointe Coela	lac		96×72	spring	ch2 (ch2_lac)	2/0/0	0	31	0	0	0	
+lac5	Îlots aux Nénuphars	lac		96×72	spring	ch2 (ch2_lac)	2/0/0	0	21	2	0	0	
+lac6	Cascade du Dragon	lac		96×72	spring	ch2 (ch2_lac)	4/0/0	0	15	2	0	0	
+lac7	Lac de l'Œil du Dragon	lac		96×72	spring	ch2 (ch2_lac)	4/0/0	0	21	2	0	0	
+lac8	Pont Numérique	lac		96×72	spring	ch2 (ch2_lac)	2/0/0	0	14	2	0	0	
+lac9	Phare du Lac	lac		96×72	spring	ch2 (ch2_lac)	2/0/0	0	43	3	0	3	
+lac10	Prairie des Falaises	lac		96×72	meadow	ch2 (ch2_lac)	2/0/0	0	52	0	0	0	
+lac11	Falaises du Couchant	lac		96×72	meadow	ch2 (ch2_lac)	1/0/0	0	54	0	0	0	
+miharashi0	Désert des Poteaux	miharashi		96×72	desert	ch3 (ch3_debut)	4/0/0	0	1	1	0	0	
+miharashi1	Village des Yokomon	miharashi		96×72	yokovillage	ch3 (ch3_debut)	2/0/0	11	46	14	0	12	
+miharashi2	Plaine des Panneaux	miharashi		96×72	desert	ch3 (ch3_debut)	4/0/0	0	21	1	0	0	
+miharashi3	Route du Mont Miharashi	miharashi		96×72	miharashi	ch3 (ch3_debut)	2/0/0	0	0	2	0	1	
+miharashi4	Mont Miharashi	miharashi		96×72	miharashi	ch3 (ch3_debut)	1/0/3	1	94	3	0	3	
+scarabees0	Bois Ancien	scarabees		94×72	beetle	—	1/0/0	0	17	3	0	1	jamais atteinte
+scarabees1	Souches Géantes	scarabees		88×72	beetle	—	3/0/0	3	33	3	0	0	jamais atteinte
+scarabees2	Ruches Sauvages	scarabees		94×72	beetle	—	3/0/0	0	26	2	0	0	jamais atteinte
+scarabees3	Sentier des Lucanes	scarabees		100×72	beetle	—	2/0/0	0	25	2	0	0	jamais atteinte
+scarabees4	Clairière Dorée	scarabees		100×64	beetle	—	2/0/0	0	46	2	0	0	jamais atteinte
+scarabees5	Mare aux Libellules	scarabees		94×64	beetle	—	3/0/0	0	10	2	0	0	jamais atteinte
+scarabees6	Forêt de Champignons	scarabees		88×64	beetle	—	4/0/0	0	19	2	0	0	jamais atteinte
+scarabees7	Statues des Scarabées	scarabees		94×64	beetle	—	2/0/0	0	23	2	0	0	jamais atteinte
+scarabees8	Arbre-Monde	scarabees		94×68	beetle	—	2/0/0	0	39	1	0	0	jamais atteinte
+scarabees9	Colisée des Scarabées	scarabees		88×68	beetle	—	2/0/0	0	40	2	0	1	jamais atteinte
+marais0	Bord du Marais	marais		100×64	swamp	—	2/0/0	0	26	2	0	0	jamais atteinte
+marais1	Tourbières	marais		100×64	swamp	—	3/0/0	0	16	3	0	0	jamais atteinte
+marais2	Forêt Engloutie	marais		100×64	swamp	—	3/0/0	3	22	3	0	0	jamais atteinte
+marais3	Roseaux Chantants	marais		88×64	swamp	—	2/0/0	0	10	2	0	0	jamais atteinte
+marais4	Mare aux Grenouilles	marais		88×72	swamp	—	2/0/0	0	13	3	0	0	jamais atteinte
+marais5	Labyrinthe de Vase	marais		100×72	swamp	—	3/0/0	0	11	2	0	0	jamais atteinte
+marais6	Cabanes du Marais	marais		100×72	swamp	—	4/0/0	0	30	0	0	0	jamais atteinte
+marais7	Pont Moussu	marais		100×72	swamp	—	2/0/0	0	14	3	0	0	jamais atteinte
+marais8	Jardin du Palais	marais		100×64	swamp	—	2/0/0	0	24	2	0	0	jamais atteinte
+marais9	Palais Geko	marais		100×64	swamp	—	2/0/0	0	35	1	0	0	jamais atteinte
+tunnel0	Entrée du Tunnel	tunnel	oui	100×72	cave	—	2/0/0	0	1	0	0	0	jamais atteinte
+tunnel1	Galerie des Foreuses	tunnel	oui	88×72	cave	—	3/0/0	0	1	0	0	0	jamais atteinte
+tunnel2	Rails Abandonnés	tunnel	oui	100×72	cave	—	3/0/0	3	4	2	0	1	jamais atteinte
+tunnel3	Lac Souterrain	tunnel	oui	100×72	cave	—	2/0/0	0	0	0	0	0	jamais atteinte
+tunnel4	Grotte aux Champignons	tunnel	oui	100×72	cave	—	2/0/0	0	1	0	0	0	jamais atteinte
+tunnel5	Veines de Cristal	tunnel	oui	100×72	cave	—	3/0/0	0	0	0	0	0	jamais atteinte
+tunnel6	Grotte Ancestrale de Leomon	tunnel	oui	88×72	cave	—	4/0/0	0	1	1	0	0	jamais atteinte
+tunnel7	Bassin de Lave	tunnel	oui	100×72	lavacave	—	2/0/0	0	0	0	0	0	jamais atteinte
+tunnel8	Rivière de Feu	tunnel	oui	100×68	lavacave	—	2/0/0	0	1	0	0	0	jamais atteinte
+tunnel9	Grotte de Lave	tunnel	oui	88×68	lavacave	—	2/0/0	0	0	0	0	0	jamais atteinte
+antre1	Antre de Shellmon — Galeries ensablées	plage	oui	64×48	sandtemple	ch1 (ch1_antre)	0/0/2	0	36	3	2	4	
+antre_lagune	Antre de Shellmon — Lagune des Cristaux	plage	oui	64×48	sandtemple	ch1 (ch1_antre)	0/0/2	0	53	2	2	4	
+antre2	Antre de Shellmon — Temple englouti	plage	oui	64×48	sandtemple	ch1 (ch1_antre)	0/0/2	0	65	4	2	4	
+antre_crypte	Antre de Shellmon — Crypte des Gardiens	plage	oui	64×48	sandtemple	ch1 (ch1_antre)	0/0/2	0	76	6	2	7	
+antre_shellmon	Antre de Shellmon — La grande coquille	plage	oui	46×34	sandtemple	ch2 (ch2_debut)	0/0/2	4	32	5	1	5	
+sous_volcan1	Sous le Mont Miharashi — Galerie des Foreurs	miharashi	oui	64×48	cave	ch3 (ch3_debut)	0/0/3	1	52	4	2	7	
+sous_volcan2	Sous le Mont Miharashi — Corniches de l'Abîme	miharashi	oui	64×56	lavacave	ch3 (ch3_debut)	0/0/2	0	62	3	2	3	
+sous_volcan3	Sous le Mont Miharashi — Nécropole Ensevelie	miharashi	oui	64×48	sandtemple	ch3 (ch3_debut)	0/0/2	0	61	3	2	4	
+sous_volcan4	Sous le Mont Miharashi — Fleuve de Feu	miharashi	oui	64×48	lavacave	ch3 (ch3_debut)	0/0/2	0	57	4	2	3	
+sous_volcan5	Sous le Mont Miharashi — Cœur du Volcan	miharashi	oui	64×48	cave	ch3 (ch3_debut)	0/0/2	3	36	2	1	4	
+village_yokomon	Village des Poyomon	foret		40×32	meadow	ch1 (ch1_debut)	1/0/1	7	39	12	0	11	
+souterrain_jiji	Souterrain de Jijimon	foret	oui	46×10	cave	ch1 (ch1_antre)	0/2/0	0	10	1	0	1	
+cave_joueur	Ma cave — Salle des trophées	village	oui	16×12		ch1 (ch1_kuwagamon)	0/1/0	0	9	8	0	0	
