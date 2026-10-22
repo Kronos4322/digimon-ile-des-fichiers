@@ -1,0 +1,21 @@
+# Tests automatiques à chaque envoi sur GitHub : la logique du jeu (node dev/tests.js) et les empreintes du commit
+# publié par GitHub Pages (python dev/versions.py --verifier : chaque fichier servi correspond à son empreinte).
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Logique du jeu (dev/tests.js)
+        run: node dev/tests.js
+      - name: Empreintes du commit (dev/versions.py --verifier)
+        run: python3 dev/versions.py --verifier
