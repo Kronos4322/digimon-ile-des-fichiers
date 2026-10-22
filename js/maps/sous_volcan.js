@@ -112,10 +112,15 @@
     });
   }
   // objets qui suivent l'histoire : le gros rocher (poussé une fois pour toutes), l'échelle des foreurs (après le gardien)
+  // (on compare QUELS objets suivis sont là, pas le nombre d'objets : le rocher parti et l'échelle arrivée entre deux passages
+  //  donnaient la même longueur, et rien n'était mis à jour ; les autres objets, ajoutés après coup, sont gardés)
   const suivre = M => function () {
     const f = st().flags, base = this._base || (this._base = this.objects.slice());
-    const L = base.filter(o => !(o.rocher && f.svRocher) && !(o.echelle && !f.svGardien));
-    if (L.length !== this.objects.length) { this.objects = L; if (this.gfx) DW.World.unprepare(this); }
+    const voulus = base.filter(o => (o.rocher && !f.svRocher) || (o.echelle && f.svGardien)), la = this.objects.filter(o => o.rocher || o.echelle);
+    if (voulus.length !== la.length || voulus.some(o => !la.includes(o))) {
+      this.objects = this.objects.filter(o => !o.rocher && !o.echelle).concat(voulus);
+      if (this.gfx) DW.World.unprepare(this);
+    }
     if (M) M.call(this);
   };
 
@@ -292,7 +297,9 @@
     let ex = cx; const ey = Math.round(cy + ay * 1.8); while (ex > 3 && P.sol(ex - 1, ey) && P.at(ex - 1, ey) !== '^') ex--;
     M.objects.push({ kind: C('mont_eboulis_gros'), v: 0, x: ex, y: ey, w: 1, h: 1 });
     M.signs[`${ex},${ey}`] = "La corniche s'est effondrée dans le gouffre. Impossible de passer : il faut faire le tour par l'autre côté.";
-    M.signs[`${cx},${cy + 2}`] = "Le pont de pierre file au-dessus de la lave jusqu'au pilier du milieu, percé d'une bouche noire. Un air brûlant en monte... chargé de sable ?";
+    // (lu depuis le pont, en regardant la lave de chaque côté — avant, devant une case de sol vide au bout du pont)
+    const pont = [0, 1, 2, 3, 4, 5].map(i => cy + 3 + i).find(y => P.at(cx, y) === '_'), PONT = "Le pont de pierre file au-dessus de la lave jusqu'au pilier du milieu, percé d'une bouche noire. Un air brûlant en monte... chargé de sable ?";
+    if (pont != null) for (const dx of [-1, 1]) M.signs[`${cx + dx},${pont + 1}`] = PONT; else M.signs[`${cx},${cy + 2}`] = PONT;
   }
 
   // ------------------------------------------------------------ 3) NÉCROPOLE ENSEVELIE : le désert égyptien

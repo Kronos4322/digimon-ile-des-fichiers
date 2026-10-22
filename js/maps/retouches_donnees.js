@@ -692,14 +692,6 @@ DW.RETOUCHES = {
     {
      "kind": "tree",
      "v": 0,
-     "x": 42,
-     "y": 71,
-     "w": 1,
-     "h": 1
-    },
-    {
-     "kind": "tree",
-     "v": 0,
      "x": 37,
      "y": 67,
      "w": 1,
@@ -2094,14 +2086,6 @@ DW.RETOUCHES = {
      "v": 0,
      "x": 1,
      "y": 31,
-     "w": 1,
-     "h": 1
-    },
-    {
-     "kind": "tree",
-     "v": 0,
-     "x": 0,
-     "y": 30,
      "w": 1,
      "h": 1
     },
@@ -9277,7 +9261,7 @@ DW.RETOUCHES = {
      "type": "bord",
      "x": 37,
      "y": 71,
-     "w": 5,
+     "w": 4,
      "h": 1,
      "dir": "down",
      "to": "gym",
@@ -9293,7 +9277,9 @@ DW.RETOUCHES = {
     "42,65": "Direction le terrain d'entraînement ! Bon courage",
     "43,65": "Direction le terrain d'entraînement ! Bon courage",
     "5,5": "Bienvenue dans la capitale du Digimonde ! Promène-toi et profite. Jijimon",
-    "6,5": "Bienvenue dans la capitale du Digimonde ! Promène-toi et profite. Jijimon"
+    "6,5": "Bienvenue dans la capitale du Digimonde ! Promène-toi et profite. Jijimon",
+    "8,24": null,
+    "36,52": null
    }
   },
   "lac11": {
@@ -10879,7 +10865,7 @@ DW.RETOUCHES = {
     33,
     6,
     {
-     "jusqua": 3
+     "des": 2
     }
    ],
    [
@@ -10973,7 +10959,7 @@ DW.RETOUCHES = {
     "right",
     "berceau",
     23,
-    6
+    5
    ],
    [
     "miharashi2",
