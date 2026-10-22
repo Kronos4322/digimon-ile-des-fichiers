@@ -16,7 +16,7 @@ import glob, os, sys
 from PIL import Image
 
 RACINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
-# même table que TAILLE dans js/gfx/textures.js (pixels du jeu, 1 case = 16) ; copie = 4 fois plus grande
+# même table que TAILLE dans js/gfx/textures.js (pixels du jeu, 1 case = 16) ; taille des copies : COPIES PUBLIÉES DU VOLCAN
 TAILLE = {
     'sol_cendres': (128, 128), 'dessus_falaise': (176, 176), 'lave': (128, 128),
     'falaise_basalte': (80, 64), 'paroi_cratere': (80, 64), 'escalier': (48, 64),
@@ -36,6 +36,41 @@ NOMS = {
         'paroi_cratere': 'Image ChatGPT 19 oct. 2026, 00_09_02-6.png',
     },
 }
+
+
+# COPIES PUBLIÉES DU VOLCAN (assets/volcan/jeu/<nom>.webp, WebP sans perte) : à la taille où le jeu s'en sert, et calculées
+# comme le jeu le faisait lui-même depuis les anciennes copies PNG 4 fois plus grandes (même rendu, 16 fois plus léger :
+# 2,9 Mo de PNG avant, 187 Ko de WebP) — l'original réduit à 4 fois la taille de jeu (Lanczos), puis par blocs de 4 x 4 pixels
+# (moyenne : ce que fait le navigateur en réduisant par moitiés, gfx/textures.js reduire) :
+# - textures (sols, parois, escalier) : 1 pixel par pixel du jeu (le jeu les lit pixel par pixel : T.pixels) ; celles qui
+#   se répètent (RACCORD_VOLCAN : dans les deux sens, ou seulement en largeur pour les parois en bande) sont réduites
+#   bordées de leurs bords opposés, sans couture au bord ;
+# - objets : 2 fois la taille de jeu (HD_JEU = Art.HD : le dessin net que le jeu tirait de l'image, gfx/textures.js objets) ;
+# - le cône de lave reste à 4 fois : game/lave.js le pose sur le lac du cratère à la taille de son image divisée par 4.
+RACCORD_VOLCAN = {'sol_cendres': 'xy', 'dessus_falaise': 'xy', 'lave': 'xy', 'falaise_basalte': 'x', 'paroi_cratere': 'x'}
+HD_JEU = 2
+ECHELLE_VOLCAN = {'cone_lave': K}
+
+
+def arrondi_js(x):
+    """Math.round du jeu (16,5 -> 17 ; le round de Python donnerait 16)."""
+    import math
+    return int(math.floor(x + 0.5))
+
+
+def reduire_jeu(im, W, H, axes=''):
+    """Image -> W x H pixels du jeu, comme le jeu la réduisait depuis une copie 4 fois plus grande (voir plus haut) ;
+    axes 'x', 'y' ou 'xy' : texture qui se répète, réduite avec les pixels d'en face au-delà de ses bords."""
+    if axes:
+        import numpy as np
+        w, h = im.size
+        mx = 3 * w // (W * K) + 3 if 'x' in axes else 0
+        my = 3 * h // (H * K) + 3 if 'y' in axes else 0
+        a = np.pad(np.asarray(im), ((my, my), (mx, mx), (0, 0)), mode='wrap')
+        im4 = Image.fromarray(a, im.mode).resize((W * K, H * K), Image.LANCZOS, box=(mx, my, mx + w, my + h))
+    else:
+        im4 = im.resize((W * K, H * K), Image.LANCZOS)
+    return im4.resize((W, H), Image.BOX)
 
 
 def optimiser(dossier):
@@ -58,12 +93,23 @@ def optimiser(dossier):
                 H = t['h'] * K; W = round(H * w / h)
             else:
                 W = t['w'] * K; H = round(W * h / w)
+            out = im.resize((W, H), Image.LANCZOS)   # (l'ancienne copie, 4 fois la taille de jeu)
+            if ECHELLE_VOLCAN.get(nom) != K:
+                # le dessin net du jeu : contenu assez opaque (alpha > 40), taille de jeu calculée comme gfx/textures.js, puis
+                # 2 fois cette taille (par blocs : comme le navigateur)
+                sx, sy, x1, y1 = out.getchannel('A').point(lambda a: 255 if a > 40 else 0).getbbox()
+                sw, sh = x1 - sx, y1 - sy
+                gw = t['w'] if 'w' in t else arrondi_js(t['h'] * sw / sh)
+                gh = t['h'] if 'h' in t else arrondi_js(t['w'] * sh / sw)
+                out = out.crop((sx, sy, x1, y1)).resize((gw * HD_JEU, gh * HD_JEU), Image.BOX)
         else:
-            W, H = t[0] * K, t[1] * K
-        out = im.resize((W, H), Image.LANCZOS)
-        cible = os.path.join(dst, nom + '.png')
-        out.save(cible, optimize=True)
-        print('%-18s %5dx%-5d -> %4dx%-4d  %4d Ko' % (nom, im.size[0], im.size[1], W, H, os.path.getsize(cible) // 1024))
+            out = reduire_jeu(im, t[0], t[1], RACCORD_VOLCAN.get(nom, ''))
+            if out.getchannel('A').getextrema()[0] == 255:   # (opaque : sans couche alpha)
+                out = out.convert('RGB')
+        cible = os.path.join(dst, nom + '.webp')
+        out.save(cible, 'WEBP', lossless=True, quality=100, method=6)
+        if os.path.exists(cible[:-5] + '.png'): os.remove(cible[:-5] + '.png')   # (l'ancienne copie PNG publiée)
+        print('%-18s %5dx%-5d -> %4dx%-4d  %4d Ko' % (nom, im.size[0], im.size[1], out.width, out.height, os.path.getsize(cible) // 1024))
 
 
 # ---------------------------------------------------------------- DOSSIER COMMUN (tout le jeu) : les assets maison du

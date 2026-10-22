@@ -157,6 +157,9 @@
     const TX_CENDRES = txp('sol_cendres'), TX_DESSUS = txp('dessus_falaise'), TX_FALAISE = txp('falaise_basalte'), TX_ESC = txp('escalier');
     const TX_LAVE = txp('lave');
     const TX_PAROI = map.paroi ? txp(map.paroi) : null;   // (roche des parois : une image du dossier de la carte — la grotte de Shellmon)
+    // (dossiers de la carte chargés à part, gfx/textures.js, pas encore arrivés : elle sera refaite à leur arrivée, stale ;
+    //  le jeu attend toujours avant de la préparer, game/overworld.js — c'est une sûreté, pour l'atelier aussi)
+    const MANQUE = DW.Textures && DW.Textures.dossierPret ? [map.textures, ...(map.dossiers || [])].filter(d => d && !DW.Textures.dossierPret(d)) : [];
     const sol = r => (TX ? TX.sol(map, r) : null);
     const TX_HERBE = sol('herbe'), TX_SABLE = sol('sable'), TX_CHEMIN = sol('chemin'), TX_MER = sol('eau_mer'), TX_DOUCE = sol('eau_douce'), TX_PAVES = sol('paves');
     // herbe dessinée ; l'ombre des arbres et des falaises reste par-dessus
@@ -1269,7 +1272,7 @@
     }
     const bridges = !DOCK && World.paintBridges ? World.paintBridges(map) : null;   // ponts de pierre peints (gfx/ponts.js)
     if (bridges) for (const k of bridges.walls) solid.add(k);   // (les murets bloquent le passage)
-    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers, bridges };
+    map.gfx = { ground, water, objs, solid, tall, GW, GH, fps: 5, puddles, prof, flowers, bridges, manque: MANQUE };
     lap('sol');
     if (!water) { map.gfx.ms = Math.round(performance.now() - t0); yield 'ready'; }
     else {
@@ -1382,8 +1385,10 @@
     if (map.bouche) for (const k of ['bouche', 'bouchelave']) for (let fr = 1; fr < OBJ[k].frames; fr++) if (!World.objReady(k, 0, fr)) { World.objFrame(k, 0, fr); yield; }
   }
   // préparation immédiate (jusqu'à ce que la carte soit affichable)
-  // la saison a changé depuis la préparation : on refait la carte
-  const stale = map => { if (map.gfx && map.gfx.tk !== undefined && World.themeKey && map.gfx.tk !== World.themeKey(map)) World.unprepare(map); };
+  // la saison a changé depuis la préparation : on refait la carte ; de même si elle avait été préparée sans les images d'un
+  // de ses dossiers chargés à part et qu'elles sont arrivées depuis (gfx/textures.js)
+  const sansImages = map => !!(map.gfx && map.gfx.manque && map.gfx.manque.length && map.gfx.manque.some(d => DW.Textures.dossierPret(d)));
+  const stale = map => { if (map.gfx && ((map.gfx.tk !== undefined && World.themeKey && map.gfx.tk !== World.themeKey(map)) || sansImages(map))) World.unprepare(map); };
   const stamp = map => { if (map.gfx && map.gfx.tk === undefined) map.gfx.tk = World.themeKey ? World.themeKey(map) : null; };
   // largeur VISIBLE d'un dessin (sans les marges transparentes), en pixels du jeu ; calculée une fois par variante
   const LARGEURS = {};
@@ -1411,8 +1416,9 @@
     return false;
   };
   World.unprepare = map => { delete map.gfx; delete map._prep; };
-  // prête à s'afficher (le reste de l'eau animée se termine ensuite, en tâche de fond)
-  World.pret = map => !!(map.gfx && map.gfx.ms !== undefined);
+  // prête à s'afficher (le reste de l'eau animée se termine ensuite, en tâche de fond) ; pas si elle est à refaire avec les
+  // images arrivées depuis (on la prépare alors par morceaux, derrière l'écran de chargement : game/overworld.js charger)
+  World.pret = map => { if (sansImages(map)) World.unprepare(map); return !!(map.gfx && map.gfx.ms !== undefined); };
 
   // ------------------------------------------------------------ herbes hautes (sprites 16x24, 3 positions de vent)
   const TALL = { grass: ['#1c5a22', '#36923a', '#6cca58', 34], dune: ['#6a7228', '#9aac40', '#d4e07a', 18], pastel: ['#3e9a6e', '#72cc96', '#c4f4d8', 30] };

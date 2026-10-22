@@ -29,6 +29,9 @@
   // (map.textures) et ceux de ses décors (map.dossiers : les souterrains du Mont Miharashi mêlent grotte et désert)
   DW.dossiersCarte = mapId => { const M = DW.MAPS[mapId]; return M ? [M.textures, ...(M.dossiers || [])].filter(Boolean) : []; };
   DW.attendreDossiers = mapId => (DW.Textures && DW.Textures.dossier ? Promise.all(DW.dossiersCarte(mapId).map(d => DW.Textures.dossier(d))) : Promise.resolve());
+  // (tous déjà arrivés, sans attendre : une voisine n'est construite et préparée à l'avance qu'avec eux, background —
+  //  sinon elle serait peinte sans ses images, et gardée ainsi)
+  DW.dossiersPrets = mapId => !(DW.Textures && DW.Textures.dossierPret) || DW.dossiersCarte(mapId).every(d => DW.Textures.dossierPret(d));
   // un personnage n'est jamais DANS le décor : un rocher ou un arbre posé dans l'éditeur de cartes peut avoir pris sa
   // place ; il se décale alors sur la case libre la plus proche (vérifié une fois par état de la carte)
   function pnjHorsDecor(map) {
@@ -291,11 +294,12 @@
       DW.World.prepareSome(DW.preparerCarte(c.id), marche ? 2.5 : urgent ? 10 : 7);
     }
     // la carte voisine pas encore prête dont la sortie est la plus proche du héros (un peu « plus proche » si l'on marche
-    // vers elle) ; null si toutes sont prêtes
+    // vers elle) ; null si toutes sont prêtes (une voisine dont les images chargées à part ne sont pas encore arrivées
+    // attend son tour : DW.dossiersPrets)
     voisinePrioritaire() {
       const P = this.p, [dx, dy] = DIRS[P.dir] || [0, 0]; let best = null;
       const vers = (id, x, y, w, h) => {
-        const M = DW.MAPS[id]; if (!M || id === this.mapId || (M.gfx && !M._prep)) return;
+        const M = DW.MAPS[id]; if (!M || id === this.mapId || (M.gfx && !M._prep) || !DW.dossiersPrets(id)) return;
         const vx = DW.clamp(P.x, x, x + w - 1) - P.x, vy = DW.clamp(P.y, y, y + h - 1) - P.y;
         let d = Math.hypot(vx, vy); if (d > 0 && vx * dx + vy * dy > 0) d *= 0.7;
         if (!best || d < best.d) best = { id, d };
