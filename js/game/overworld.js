@@ -955,13 +955,16 @@
   // un vrai personnage parmi les PNJ (pas une dalle, une ombre sous l'eau, une trouvaille au sol ni un « PNJ objet »)
   const estPerso = n => !n.walk && !n.shadow && !n.item && !(n.obj && !n.hero);
   // ALPHA D'UN DESSIN (un octet par pixel), lu une fois par image ; a : null si l'image est illisible (jeu ouvert en
-  // file://) — tout compte alors comme couvert, comme avec une simple boîte
+  // file://) — tout compte alors comme couvert, comme avec une simple boîte. Lu sur une COPIE : lire les pixels du dessin
+  // lui-même le sortirait de la carte graphique, et chaque image devrait l'y renvoyer pour le dessiner (très lent)
   const ALPHA = new WeakMap();
   const alphaImg = img => {
     let A = ALPHA.get(img); if (A) return A;
     let a = null;
     try {
-      const d = img.getContext('2d').getImageData(0, 0, img.width, img.height).data;
+      const c = DW.Art.canvas(img.width, img.height), x = c.getContext('2d', { willReadFrequently: true });
+      DW.Art.drawRaw(x, img, 0, 0);
+      const d = x.getImageData(0, 0, img.width, img.height).data;
       a = new Uint8Array(d.length >> 2); for (let i = 0, j = 3; i < a.length; i++, j += 4) a[i] = d[j];
     } catch (e) { /* image illisible */ }
     ALPHA.set(img, A = { a, w: img.width, h: img.height, k: img._k || 1 });
@@ -988,15 +991,17 @@
   // l'objet compte (sans son pied : un personnage devant le tronc n'est pas « caché ») ; avant, une boîte suffisait — une
   // grande fleur à côté du partenaire le faisait dessiner en silhouette par-dessus le héros
   const derniereCache = (list, i, r) => {
+    const besoin = Math.max(1, Math.ceil(Math.ceil((r.w - 1) / 2) * Math.ceil((r.h - 1) / 2) * CACHE));
     let n = 0, dernier = -1;
     for (let j = i + 1; j < list.length; j++) {
       const o = list[j]; if (!o.spr || !o.big) continue;
       const w = o.spr.w, h = o.spr.h, bx = o.x - w / 2, by = o.y - h;
       if (!(r.x + 3 < bx + w && r.x + r.w - 3 > bx && r.y + 4 < by + h * 0.8 && r.y + r.h > by)) continue;
-      const k = pixelsCouverts(o, r.x, r.y, r.w, Math.min(r.h, by + h * 0.8 - r.y));
+      // (on arrête de compter dès que c'est assez ; ensuite, un seul point suffit pour savoir si un objet plus loin le cache)
+      const k = pixelsCouverts(o, r.x, r.y, r.w, Math.min(r.h, by + h * 0.8 - r.y), n >= besoin ? 1 : besoin - n);
       if (k) { n += k; dernier = j; }
     }
-    return n >= Math.ceil((r.w - 1) / 2) * Math.ceil((r.h - 1) / 2) * CACHE ? dernier : -1;
+    return n >= besoin ? dernier : -1;
   };
   // fougère de la grille (case « n », ou ce qu'un thème met à sa place) : objet qu'on traverse
   const planteGrille = o => !o.def && o.flat && o.sort > 0 && o.sort < 1000;
@@ -1018,8 +1023,32 @@
   const herbesParRangee = g => { const R = []; for (const tg of g.tall) (R[tg.ty] || (R[tg.ty] = [])).push(tg); return R; };
   // objets du décor rangés par la rangée de leur pied
   const objetsParRangee = objs => { const R = []; for (const o of objs) { const r = Math.floor(o.y / TS); if (r >= 0) (R[r] || (R[r] = [])).push(o); } return R; };
+  // la bande (x, y, 16 × h) est-elle de toute façon cachée (à 90 %) par le décor dessiné après la rangée ty (arbres des
+  // rangées de devant, dont la ramure monte jusqu'à elle) ? Un haut de touffe redessiné là ne se verrait pas : à chaque
+  // image, ce serait un dessin pour rien (à la lisière des forêts, c'est la plupart des cases)
+  const bandeCachee = (idx, ty, x, y, h) => {
+    const devant = [];
+    for (let r = ty; r <= ty + 10; r++) for (const o of idx[r] || NUL) {
+      const k = o.s !== undefined ? o.s : (o.s = cleObjet(o)), s = o.spr;
+      if (k <= ty + TRAVERSE || o.x + s.w / 2 <= x || o.x - s.w / 2 >= x + TS || o.y < y || o.y - s.h + 1 >= y + h) continue;
+      devant.push({ A: alphaImg(DW.Meteo.objImg(o, o.sprs ? o.sprs[0].img : s.img)), X: Math.round(o.x - s.w / 2), Y: Math.round(o.y - s.h + 1), flip: o.flip });
+    }
+    if (!devant.length) return false;
+    let vus = 0, total = 0;
+    for (let py = y + 1; py < y + h; py += 2) for (let px = x + 1; px < x + TS; px += 2) {
+      total++;
+      for (const D of devant) {
+        const A = D.A, v = Math.floor((py - D.Y) * A.k); let u = Math.floor((px - D.X) * A.k);
+        if (v < 0 || v >= A.h || u < 0 || u >= A.w) continue;
+        if (D.flip) u = A.w - 1 - u;
+        if (!A.a || A.a[v * A.w + u] > 100) { vus++; break; }
+      }
+    }
+    return vus >= total * 0.9;
+  };
   // TOUFFES D'HERBES HAUTES de la rangée ty dont le haut (8 pixels au-dessus de leur case) passe sous le pied d'un objet de
-  // la rangée du dessus : entrées de la liste triée qui redessinent ce haut devant lui (hauteur h : jusqu'au pied de l'objet)
+  // la rangée du dessus : entrées de la liste triée qui redessinent ce haut devant lui (hauteur h : jusqu'au pied de l'objet),
+  // seulement là où il se verra
   const pointesHerbes = (g, ty, cells) => {
     const idx = g._objRangs || (g._objRangs = objetsParRangee(g.objs)), out = [], Y = ty * TS;
     for (const tg of cells) {
@@ -1031,7 +1060,9 @@
         if (o.y < Y - 8 || o.x + half <= X || o.x - half >= X + TS || o.y <= bas) continue;
         if (pixelsCouverts(o, X, Y - 9, TS, Math.min(9, Math.round(o.y) - (Y - 9) + 1), 3) >= 3) bas = Math.round(o.y);
       }
-      if (bas >= 0) out.push({ s: ty + TRAVERSE, ent: 'pointe', tg, X, Y, h: Math.min(24, bas - (Y - 8) + 1) });
+      if (bas < 0) continue;
+      const h = Math.min(24, bas - (Y - 8) + 1);
+      if (!bandeCachee(idx, ty, X, Y - 8, h)) out.push({ s: ty + TRAVERSE, ent: 'pointe', tg, X, Y, h });
     }
     return out;
   };
