@@ -209,6 +209,24 @@ ACC = [('03 (5)', 0, 'Lunettes rondes', 'yeux', 0.26, 1), ('03 (5)', 1, 'Lunette
 
 
 # ------------------------------------------------------------------ construction
+def sans_poussiere(q, seuil=32):
+    """Poussière enlevée (audit graphique T5) : sur la planche en 256 couleurs, les morceaux détachés presque invisibles
+    (alpha maximal < 32 sur 255 ; restes du fond vert ou du rebond de la réduction LANCZOS autour des pièces) prennent la
+    couleur transparente de la palette. Fait après la réduction des couleurs : c'est elle qui détache ces grains (les pixels
+    d'alpha 1 ou 2 qui les reliaient à la pièce deviennent transparents) ; la palette et tous les autres pixels restent
+    identiques. Les repères ne changent pas : ils ne tiennent compte que des pixels assez opaques."""
+    al = np.array(q.convert('RGBA'))[..., 3]
+    lab, n = ndimage.label(al > 0, structure=np.ones((3, 3), bool))
+    if not n: return q
+    mx = np.asarray(ndimage.maximum(al, lab, range(1, n + 1)))
+    pous = np.isin(lab, 1 + np.nonzero(mx < seuil)[0])
+    alphas = (q.getpalette('RGBA') or [])[3::4]
+    t = next((i for i, v in enumerate(alphas) if v == 0), None)
+    if pous.any() and t is not None:
+        q = q.copy(); q.paste(t, (0, 0, q.width, q.height), Image.fromarray(pous.astype('uint8') * 255))
+    return q
+
+
 class Planche:
     """les pièces d'une catégorie rangées en lignes (10 par ligne) dans une seule image"""
     def __init__(self, nom): self.nom, self.ims, self.infos = nom, [], []
@@ -222,8 +240,8 @@ class Planche:
             for im in l:
                 out.alpha_composite(im, (x, y)); self.infos[k]['r'] = [x, y, im.width, im.height]; x += im.width + 2; k += 1
             y += max(i.height for i in l) + 2
-        # (palette de 256 couleurs : 4 fois plus léger, sans différence visible)
-        out.quantize(256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE).save(os.path.join(DST, self.nom + '.png'), optimize=True)
+        # (palette de 256 couleurs : 4 fois plus léger, sans différence visible ; puis sans poussière)
+        sans_poussiere(out.quantize(256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)).save(os.path.join(DST, self.nom + '.png'), optimize=True)
         print('%-10s %2d pièces  %4dx%-4d %4d Ko' % (self.nom, len(self.ims), W, H, os.path.getsize(os.path.join(DST, self.nom + '.png')) // 1024))
         return self.infos
 
