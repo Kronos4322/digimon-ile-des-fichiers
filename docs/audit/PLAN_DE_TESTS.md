@@ -30,7 +30,10 @@ Les résultats de chaque lot publié sont dans `ETAT_AVANCEMENT.md` (« Lots pub
 - **Lancer** : `node dev/e2e/parcours.js`. Avant la première fois : `npm install` dans `dev/e2e`. Le parcours utilise le Chrome installé sur le PC.
 - **Options** :
   - `URL=https://kronos4322.github.io/digimon-ile-des-fichiers/ node dev/e2e/parcours.js` joue le parcours sur le site en ligne ;
-  - `AFFICHER=1` montre la fenêtre.
+  - `AFFICHER=1` montre la fenêtre ;
+  - `LENT=3` rend toutes les attentes 3 fois plus longues, quand le PC est lent ou très occupé. Les vérifications
+    restent les mêmes, seule la patience change. Sur le PC du joueur chargé par d'autres travaux, un menu a déjà mis
+    plus de 8 s à s'ouvrir, et un rechargement de page 146 s.
 - **Les 13 étapes**, jouées avec de vraies touches du clavier :
   1. lancement jusqu'à l'écran titre ;
   2. chargement des décors ;

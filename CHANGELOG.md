@@ -6,7 +6,7 @@ l'autre. Le détail de chaque correction est dans `docs/audit/BUGS_ET_CORRECTION
 
 ## 24/10/2026 — Falaises, bords de sable, fondus entre cartes
 
-### Falaises des prairies
+### Falaises des prairies (5653316)
 - Quartier des Champs, Lisière du Ravin, Ville des Fichiers : les falaises sont une vraie paroi de roche grise moussue,
   tirée de la planche Montagnes du joueur (avant : une bande d'herbe unie et plate au-dessus d'un muret de pavés). Une
   version par hauteur de falaise (1 à 4 cases), sans motif qui se répète avant 15 cases ; la mousse prend la couleur de
@@ -14,7 +14,7 @@ l'autre. Le détail de chaque correction est dans `docs/audit/BUGS_ET_CORRECTION
 - Cascade des Champs : l'eau coule sur la paroi, entre deux bandes de roche mouillée (avant : deux blocs de pierre claire
   posés devant la falaise).
 
-### Sols
+### Sols (5653316)
 - Herbe ↔ sable et terre ↔ sable : le bord est fondu (touffes d'herbe, grains de sable, sur 3 à 4 pixels) au lieu d'une
   ligne nette.
 - Fondus entre cartes voisines : calculés sur les images de sol réellement affichées, et non plus sur les anciennes
