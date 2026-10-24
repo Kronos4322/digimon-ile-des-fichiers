@@ -833,21 +833,62 @@ def planche_digimon(f, seuil=100, ombres=True):
     return a, vert, [p for rg in rangs for p in sorted(rg, key=lambda p: p[1])]
 
 
-def pose_digimon(a, vert, p, miroir=False):
-    """Une pose détourée (RGBA recadré) : bord doux de 2 pixels, liseré vert neutralisé."""
+def pose_digimon(a, vert, p, miroir=False, haut=None):
+    """Une pose détourée (RGBA recadré sur la pose), réduite à la hauteur haut si elle la dépasse.
+    Contour DÉMÊLÉ de la clé (audit graphique D8) : sur la bande du bord (4 px), un pixel plus vert que le Digimon juste à
+    l'intérieur contient de la clé ; son opacité vient de cet excès de vert, son rouge et son bleu sont démêlés et son vert
+    est ramené à la teinte de l'intérieur (demeler, comme les objets au détourage net). Avant, le vert du bord était
+    seulement plafonné au niveau du rouge : un liseré olive restait autour des Digimon orange ou jaunes (Meramon,
+    Birdramon). Un Digimon vert (Betamon, Palmon) garde son vert : le vert permis est celui de son intérieur. La pose
+    garde le masque de planche_digimon (même silhouette, même recadrage)."""
+    import numpy as np
+    y0, x0, y1, x1, m = p
+    H, W = m.shape; M = 8   # (marge : le fond autour du bord)
+    Y0, X0, Y1, X1 = max(0, y0 - M), max(0, x0 - M), min(H, y1 + M), min(W, x1 + M)
+    sub = a[Y0:Y1, X0:X1].astype(float); mm = m[Y0:Y1, X0:X1]
+    # la clé : le vert pur du fond autour de la pose (≈ 2, 250, 4) ; hors de la pose (fond, poses voisines), tout est clé
+    pur = ~mm & (vert[Y0:Y1, X0:X1] > 150)
+    K = np.median(sub[pur], 0) if pur.sum() > 50 else np.array(CLE, float)
+    src = np.where(mm[..., None], sub, K)
+    rgb, al = demeler(src, ~mm, K)
+    # (le vert ramené à la teinte de l'intérieur ne fait pas virer au magenta un reflet blanc ou un trait gris collé à un
+    #  intérieur presque noir — la « teinte » d'un noir ne veut rien dire : un pixel devenu magenta — rouge et bleu proches,
+    #  vert bien plus bas — alors que le démêlage seul le laissait neutre ou vert garde un vert entre son rouge et son bleu ;
+    #  un vrai rose ou violet, ou un brun rouge sombre, ne change pas)
+    C0 = np.clip((src - (1 - al)[..., None] * K) / np.maximum(al, 0.1)[..., None], 0, 255)
+    r_, g_, b_ = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    magenta = (g_ < np.minimum(r_, b_) - 12) & (np.abs(r_ - b_) < 0.4 * np.maximum(r_, b_))
+    vire = mm & magenta & (C0[..., 1] >= np.minimum(C0[..., 0], C0[..., 2]) - 12)
+    rgb[..., 1] = np.where(vire, np.minimum(C0[..., 1], np.maximum(C0[..., 0], C0[..., 2])), g_)
+    sy, sx = slice(y0 - Y0, y1 - Y0), slice(x0 - X0, x1 - X0)
+    alpha = np.where(mm[sy, sx], al[sy, sx] * 255, 0)
+    im = Image.fromarray(np.dstack([rgb[sy, sx], alpha]).round().clip(0, 255).astype('uint8'), 'RGBA')
+    if miroir: im = im.transpose(Image.FLIP_LEFT_RIGHT)
+    return reduire_pose(im, haut) if haut and im.height > haut else im
+
+
+def reduire_pose(im, haut):
+    """Pose -> hauteur haut, SANS REBOND au contour (audit graphique T4). Le filtre LANCZOS (net) fait « rebondir » l'alpha
+    au-delà du bord : un anneau presque transparent (alpha 1 à 31) à 2 px du contour, aux couleurs folles (vert vif, blanc),
+    et entre lui et le Digimon des trous d'épingle fermés (70 à 1 000 par vue). L'alpha réduit n'est gardé que sur les
+    pixels que la pose recouvre vraiment (réduction par moyenne, BOX) ; un trou fermé de moins de 5 px qui resterait est
+    bouché par la couleur et l'opacité moyennes de ce que la pose y couvre. Les vrais trous du dessin (l'anneau d'un bras,
+    l'espace entre deux jambes) ne sont recouverts par rien : ils restent."""
     import numpy as np
     from scipy import ndimage
-    y0, x0, y1, x1, m = p
-    sub = a[y0:y1, x0:x1].copy(); v = vert[y0:y1, x0:x1]; mm = m[y0:y1, x0:x1]
-    bord = mm & ndimage.binary_dilation(~mm, iterations=2)
-    interieur = mm & ~bord
-    ref = max(0, int(np.percentile(v[interieur], 97))) if interieur.any() else 0   # (le vert propre au Digimon : ses feuilles)
-    alpha = np.where(mm, 255.0, 0.0)
-    alpha[bord] = 255 * np.clip((150 - v[bord]) / (150 - max(ref, 20)), 0, 1)
-    gmax = np.maximum(sub[..., 0], sub[..., 2]) + ref
-    sub[..., 1] = np.where(bord & (sub[..., 1] > gmax), gmax, sub[..., 1])
-    im = Image.fromarray(np.dstack([sub, alpha]).clip(0, 255).astype('uint8'), 'RGBA')
-    return im.transpose(Image.FLIP_LEFT_RIGHT) if miroir else im
+    w, h = im.size; s = haut / h; taille = (max(1, round(w * s)), max(1, round(h * s)))
+    net = np.array(im.resize(taille, Image.LANCZOS)); moy = np.array(im.resize(taille, Image.BOX))
+    al = np.where(moy[..., 3] > 0, net[..., 3], 0)
+    tr = al == 0; lab, n = ndimage.label(tr)
+    if n:
+        dehors = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]])).tolist())
+        aires = ndimage.sum(tr, lab, range(1, n + 1))
+        petits = [i + 1 for i in range(n) if aires[i] < 5 and i + 1 not in dehors]
+        if petits:
+            t = np.isin(lab, petits) & (moy[..., 3] > 0)
+            net[t] = moy[t]; al[t] = moy[t][:, 3]
+    net[..., 3] = al
+    return Image.fromarray(net, 'RGBA')
 
 
 def numeroter_digimon():
@@ -880,9 +921,7 @@ def optimiser_digimon():
         a, vert, poses = planche_digimon(f, **CLE_DIGIMON.get(sp, {}))
         for v, k in vues.items():
             n, miroir = (k[0], True) if isinstance(k, tuple) else (k, False)
-            im = pose_digimon(a, vert, poses[n], miroir)
-            w, h = im.size; s = min(1.0, haut / h)
-            out = im.resize((max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
+            out = pose_digimon(a, vert, poses[n], miroir, haut)   # (réduite à haut sans rebond au contour : reduire_pose)
             out.save(cibles[v], optimize=True)
             print('%-24s -> %4dx%-4d  %4d Ko' % ('digi_%s_%s' % (sp, v), out.width, out.height, os.path.getsize(cibles[v]) // 1024))
 
@@ -1004,6 +1043,35 @@ DOSSIERS_PLANCHES = {
 }
 
 
+# un objet qui a gardé un morceau d'une case voisine (audit graphique T7) : zones effacées (x0, y0, x1, y1 en pixels du
+# morceau découpé, avant réduction), puis l'objet est recadré. porte_tombeau : le trait lumineux jaune d'une voisine, collé
+# à gauche de la porte, entre sa corniche (y < 37) et le chapiteau de son pilier (à partir de y = 73, en x = 46 et 47)
+ROGNURES = {('grotte', 'porte_tombeau'): [(0, 37, 46, 101), (46, 37, 48, 73)]}
+
+
+def rogner(im, zones):
+    import numpy as np
+    a = np.array(im.convert('RGBA'))
+    for x0, y0, x1, y1 in zones: a[y0:y1, x0:x1, 3] = 0
+    out = Image.fromarray(a, 'RGBA'); box = out.getchannel('A').getbbox()
+    return out.crop(box) if box else out
+
+
+def saigner(im):
+    """« Alpha bleeding » avant un encodage WebP avec perte (audit graphique T3) : chaque pixel transparent (alpha 0) prend
+    la couleur du pixel visible le plus proche. La compression mêle un peu les couleurs voisines, transparentes comprises :
+    sous le transparent restait le vert de la clé (ou du noir), qui débordait sur le contour visible (liseré verdâtre,
+    surtout sur un sol clair ; le fichier y gagne aussi un peu en poids). Les pixels visibles ne changent pas ; une image
+    sans transparence (sol) est rendue telle quelle."""
+    import numpy as np
+    from scipy import ndimage
+    a = np.array(im.convert('RGBA')); t = a[..., 3] == 0
+    if not t.any() or t.all(): return im
+    _, (iy, ix) = ndimage.distance_transform_edt(t, return_indices=True)
+    a[..., :3] = a[iy, ix, :3]
+    return Image.fromarray(a, 'RGBA')
+
+
 def optimiser_planches(d):
     fichier, NOMS_D, SOLS_D, GRAND_D, defaut, EXTRA_D = DOSSIERS_PLANCHES[d]
     dst = os.path.join(RACINE, d, 'jeu'); os.makedirs(dst, exist_ok=True)
@@ -1018,9 +1086,10 @@ def optimiser_planches(d):
             cible = os.path.join(dst, nom + '.webp')   # (WebP : 4 à 5 fois plus léger que le PNG pour ces images peintes)
             if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
             im = (morceau_net if d + '/' + nom in DETOURAGE_NET else morceau)(f, ('case', k))
+            if (d, nom) in ROGNURES: im = rogner(im, ROGNURES[(d, nom)])
             if nom in SOLS_D: out = RACCORDS_PLANCHES.get((d, nom), raccordable)(im)
             else: w, h = im.size; s = min(1.0, GRAND_D.get(nom, defaut) / max(w, h)); out = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
-            out.save(cible, 'WEBP', quality=85, method=4)
+            saigner(out).save(cible, 'WEBP', quality=85, method=4)   # (saigner : sans effet sur un sol, opaque)
             if os.path.exists(cible[:-5] + '.png'): os.remove(cible[:-5] + '.png')
             print('%s/%-20s -> %4dx%-4d  %4d Ko%s' % (d, nom, out.width, out.height, os.path.getsize(cible) // 1024, ' (sol)' if nom in SOLS_D else ''))
 
@@ -1126,8 +1195,10 @@ def publier_commun():
         nom = os.path.basename(f)[:-4]; cible = os.path.join(dst, nom + '.webp')
         if os.path.exists(cible) and os.path.getmtime(cible) >= os.path.getmtime(f) and '--tout' not in sys.argv: continue
         im = Image.open(f)
+        # (saigner : le transparent prend la couleur du visible le plus proche, contre le liseré verdâtre — inutile sans
+        #  perte : l'encodeur y remplace lui-même le transparent, mêmes octets avec ou sans)
         if nom.startswith(PIXEL_ART): im.save(cible, 'WEBP', lossless=True, method=4)
-        else: im.save(cible, 'WEBP', quality=90, method=4, alpha_quality=100)
+        else: saigner(im).save(cible, 'WEBP', quality=90, method=4, alpha_quality=100)
         if os.path.exists(os.path.join(dst, nom + '.png')): os.remove(os.path.join(dst, nom + '.png'))
         n += 1
     if n: print('commun : %d WebP publiés' % n)

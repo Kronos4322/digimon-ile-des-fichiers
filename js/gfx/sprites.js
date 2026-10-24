@@ -41,15 +41,24 @@
     const k = Art.HD || 1, N = Math.round(res * k);
     const s = Math.min(IMAGES[sp].taille * N / im.naturalHeight, 1.6 * 0.98 * N / im.naturalWidth);
     const w = Math.max(1, Math.round(im.naturalWidth * s)), h = Math.max(1, Math.round(im.naturalHeight * s));
-    const L = Math.max(N, Math.ceil(w / 0.98)), cv = Art.canvas(L + 2, N + 2), c = cv.getContext('2d');
+    const L = Math.max(N, Math.ceil(w / 0.98));
+    // (pose penchée — attaque, recul — ou image étirée en hauteur — respiration, marche sur la carte : le cadre s'agrandit
+    //  de ce qui en sortirait, du côté où l'image penche et en haut, en gardant 1 pixel de marge ; avant, jusqu'à 2,9 % du
+    //  Digimon était coupé, et le haut de la tête des grands Digimon pendant la respiration. Les pieds restent au même
+    //  point : ax, suivi par draw)
+    const sq = o.squash || 1, sh = o.shear || 0, demi = w / 2 / Math.sqrt(sq), haut = h * sq, varie = sh !== 0 || sq !== 1;
+    const ag = varie ? Math.max(0, Math.ceil(demi + Math.max(0, -sh * haut) - L / 2)) : 0;
+    const ad = varie ? Math.max(0, Math.ceil(demi + Math.max(0, sh * haut) - L / 2)) : 0;
+    const ah = varie ? Math.max(0, Math.ceil(haut - N * 62 / 64)) : 0;
+    const cv = Art.canvas(L + 2 + ag + ad, N + 2 + ah), c = cv.getContext('2d');
     if (!nets.has(im)) nets.set(im, {});
     const R0 = nets.get(im), net = R0[w + 'x' + h] || (R0[w + 'x' + h] = DW.Textures.reduire(im, w, h));
-    c.translate(1 + L / 2, 1 + N * 62 / 64);
+    c.translate(1 + ag + L / 2, 1 + ah + N * 62 / 64);
     if (o.shear) c.transform(1, 0, -o.shear, 1, 0, 0);
     if (o.squash) c.scale(1 / Math.sqrt(o.squash), o.squash);
     c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
     c.drawImage(net, -w / 2, -h, w, h);
-    const R = { img: cv, w: cv.width / k, h: cv.height / k, k, data: c.getImageData(0, 0, cv.width, cv.height) };
+    const R = { img: cv, w: cv.width / k, h: cv.height / k, ax: (1 + ag + L / 2) / k, k, data: c.getImageData(0, 0, cv.width, cv.height) };
     cv._k = k;   // (placée à sa taille logique, comme un dessin haute définition : engine/art.js)
     R.white = Art.tint(cv, '#ffffff'); R.black = Art.tint(cv, '#10142a');
     return R;
@@ -159,11 +168,12 @@
     ow(sp, view) { return S.mon(sp, resDe(sp, RES_OW, 24), 2, view === true ? 'back' : view || null); },
     // les images du joueur viennent d'arriver : les Digimon déjà rendus avec leur dessin de secours sont refaits
     oublier() { for (const key in cache) if (IMAGES[key.slice(0, key.indexOf('_'))]) delete cache[key]; },
-    // (x, y) = centre bas du sprite
+    // (x, y) = centre bas du sprite (ses pieds) ; chaque image à son format : une image au cadre agrandi (pose penchée,
+    // respiration qui étire : rendreImage) a ses pieds en ax, pas au milieu
     draw(c, spr, x, y, o = {}) {
       const fr = spr.frames ? spr.frames[(o.frame || 0) % spr.frames.length] : spr;
-      const sc = o.scale || 1, w = spr.w * sc, h = spr.h * sc;
-      const X = Math.round(x - w / 2), Y = Math.round(y - h);
+      const sc = o.scale || 1, w = (fr.w || spr.w) * sc, h = (fr.h || spr.h) * sc, ax = fr.ax != null ? fr.ax * sc : w / 2;
+      const X = Math.round(x - (o.flip ? w - ax : ax)), Y = Math.round(y - h);
       c.save();
       if (o.alpha != null) c.globalAlpha = o.alpha;
       if (o.flip) { c.translate(X + w, Y); c.scale(-1, 1); } else c.translate(X, Y);
