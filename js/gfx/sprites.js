@@ -43,12 +43,13 @@
     const w = Math.max(1, Math.round(im.naturalWidth * s)), h = Math.max(1, Math.round(im.naturalHeight * s));
     const L = Math.max(N, Math.ceil(w / 0.98));
     // (pose penchée — attaque, recul — ou image étirée en hauteur — respiration, marche sur la carte : le cadre s'agrandit
-    //  de ce qui en sortirait, du côté où l'image penche et en haut ; avant, jusqu'à 2,9 % du Digimon était coupé, et le
-    //  haut de la tête des grands Digimon pendant la respiration. Les pieds restent au même point : ax, suivi par draw)
+    //  de ce qui en sortirait, du côté où l'image penche et en haut, en gardant 1 pixel de marge ; avant, jusqu'à 2,9 % du
+    //  Digimon était coupé, et le haut de la tête des grands Digimon pendant la respiration. Les pieds restent au même
+    //  point : ax, suivi par draw)
     const sq = o.squash || 1, sh = o.shear || 0, demi = w / 2 / Math.sqrt(sq), haut = h * sq, varie = sh !== 0 || sq !== 1;
-    const ag = varie ? Math.max(0, Math.ceil(demi + Math.max(0, -sh * haut) - L / 2 - 1)) : 0;
-    const ad = varie ? Math.max(0, Math.ceil(demi + Math.max(0, sh * haut) - L / 2 - 1)) : 0;
-    const ah = varie ? Math.max(0, Math.ceil(haut - 1 - N * 62 / 64)) : 0;
+    const ag = varie ? Math.max(0, Math.ceil(demi + Math.max(0, -sh * haut) - L / 2)) : 0;
+    const ad = varie ? Math.max(0, Math.ceil(demi + Math.max(0, sh * haut) - L / 2)) : 0;
+    const ah = varie ? Math.max(0, Math.ceil(haut - N * 62 / 64)) : 0;
     const cv = Art.canvas(L + 2 + ag + ad, N + 2 + ah), c = cv.getContext('2d');
     if (!nets.has(im)) nets.set(im, {});
     const R0 = nets.get(im), net = R0[w + 'x' + h] || (R0[w + 'x' + h] = DW.Textures.reduire(im, w, h));
