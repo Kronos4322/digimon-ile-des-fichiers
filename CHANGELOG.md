@@ -4,7 +4,16 @@ Le jeu est publié en continu : chaque lot vérifié part sur `main` et sur le s
 (https://kronos4322.github.io/digimon-ile-des-fichiers/). Ce journal résume, pour le joueur, ce qui change d'un lot à
 l'autre. Le détail de chaque correction est dans `docs/audit/BUGS_ET_CORRECTIONS.md`, l'historique complet dans git.
 
-## 24/10/2026 — Falaises, bords de sable, fondus entre cartes
+## 24/10/2026 — Falaises, bords de sable, fondus entre cartes, petits défauts d'image
+
+### Petits défauts d'image (2a5548b)
+- Digimon : plus de trous d'épingle ni de liseré pâle au contour (37 576 petits trous sur les 116 vues, 169 restent : de
+  vrais petits jours du dessin), plus de liseré olive sur les Digimon orange et jaunes (Birdramon, Meramon, Agumon).
+- Combat : les poses d'attaque et de recul ne sont plus coupées par le cadre ; sur la carte et en combat, le haut de la
+  tête n'est plus coupé quand le Digimon s'étire en respirant ou en marchant.
+- Objets : plus de liseré verdâtre au contour (jardinières, étal de fruits, objets des villages de bébés, du désert et
+  de la grotte) ; la porte du tombeau perd le trait lumineux d'une image voisine.
+- Habillage du personnage : plus de grains de poussière verte.
 
 ### Falaises des prairies (5653316)
 - Quartier des Champs, Lisière du Ravin, Ville des Fichiers : les falaises sont une vraie paroi de roche grise moussue,

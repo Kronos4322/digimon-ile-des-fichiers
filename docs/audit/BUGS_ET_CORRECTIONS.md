@@ -144,15 +144,15 @@ avec ceux de l'audit des Digimon.
 | Z2 | P2 | Volcan : 2,96 Mo de PNG chargés au démarrage | corrigé (905a766) : 187 Ko de WebP chargés en arrière-plan ; 8,3 Mo avant de jouer au lieu de 11,2 |
 | R2 | P2 | Nom de l'application et icônes sous la marque | décision du joueur : jeu de fan, « non officiel » écrit à l'écran titre et dans le README |
 | R3 | P2 | Personnages et univers de la franchise | propre à un jeu de fan : mention © Bandai / Toei (écran titre, README) |
-| T3 | P3 | La compression WebP verdit le contour | en partie (7b2ae96) : contour démêlé sur les 30 objets refaits |
-| T4 | P3 | Trous d'épingle au contour des Digimon | non corrigé |
-| T5 | P3 | Poussière verte dans le kit du personnage | non corrigé (presque invisible) |
+| T3 | P3 | La compression WebP verdit le contour | corrigé (2a5548b) : les pixels transparents prennent la couleur du bord avant l'encodage (496 objets) ; excès de vert au contour, ex. jardinière rose +3,4 → −1,1, Pabumon de face +3,8 → −0,4 |
+| T4 | P3 | Trous d'épingle au contour des Digimon | corrigé (2a5548b) : la réduction ne fait plus « rebondir » l'opacité au contour ; 116 vues : 37 576 trous d'épingle → 169 (de vrais petits jours du dessin), 12,8 % plus légères |
+| T5 | P3 | Poussière verte dans le kit du personnage | corrigé (2a5548b) : 1 197 grains → 0, le reste du kit identique |
 | T6 | P3 | Lueurs peintes sur le vert, perdues ou trouées | non corrigé : ces objets gardent l'ancien détourage |
-| T7 | P3 | `grotte/porte_tombeau` : trait d'une voisine collé | non corrigé (image jamais placée sur une carte) |
+| T7 | P3 | `grotte/porte_tombeau` : trait d'une voisine collé | corrigé (2a5548b) : trait effacé, image recadrée |
 | D5g | P3 | Bébés en pixel art plus petits que les autres | corrigé (2220674) : à la taille des autres bébés |
-| D6g | P3 | Poses d'attaque coupées par le cadre (jusqu'à 2,9 %) | non corrigé |
+| D6g | P3 | Poses d'attaque coupées par le cadre (jusqu'à 2,9 %) | corrigé (2a5548b) : le cadre s'élargit du côté où l'image penche ; aussi le haut de la tête pendant la respiration et la marche (jusqu'à 8 px pour Kuwagamon) ; 76 images coupées → 0 |
 | D7g | P3 | Birdramon et Meramon touchent le bord de leur planche | non corrigé (planche d'origine) |
-| D8g | P3 | Liseré olive sur les Digimon orange | non corrigé |
+| D8g | P3 | Liseré olive sur les Digimon orange | corrigé (2a5548b) : la clé verte est démêlée au contour ; Birdramon 3 à 5 % de contour olive → 0,3 à 1,3 % ; Meramon : il reste surtout son trait doré sombre, tel quel dans le dessin |
 | S3 | P3 | Coutures sur des textures jamais employées | non corrigé (jamais employées) |
 | S4 | P3 | Répétition visible des sols raccordables | non corrigé |
 | S5 | P3 | `grotte/herbe` : petite couture | non corrigé |
