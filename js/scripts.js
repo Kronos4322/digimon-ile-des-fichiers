@@ -130,9 +130,9 @@
     'game/calendrier.js': '7da7eb86',
     'game/abri.js': 'c17d2ce2',
     'game/paysage.js': '8999c16a',
-    'game/companion.js': '4b29feb4',
+    'game/companion.js': '58ead8f0',
     'game/sol.js': 'a90d6a65',
-    'game/wild.js': 'cc022a81',
+    'game/wild.js': '72aef541',
     'game/town.js': '81449b43',
     'game/collab.js': 'e397b53a',
     'game/fx.js': '8c4e46f8',
@@ -141,7 +141,7 @@
     'game/fxelem.js': 'e4da1d3e',
     'game/battle.js': '2d6c4618',
     'game/evolution.js': 'c99ac76a',
-    'game/overworld.js': 'bdd1a2f6',
+    'game/overworld.js': '152e8d8b',
     'ui/menus.js': '4024d5da',
     'ui/sac.js': '4052cee2',
     'ui/boutique.js': '58809e49',
@@ -208,7 +208,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: 'a2899096' },
+    { f: '../paquets/jeu-1.js', v: '1c1e4cdb' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '81e643a1' },
   ];   // (fin des paquets)

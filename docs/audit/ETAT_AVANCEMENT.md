@@ -31,7 +31,7 @@ Chaque lot de corrections : `python dev/versions.py`, `node dev/tests.js` (tous 
 |---|---|---|
 | 1 | Inventaire, architecture, état initial | fait : 4 audits (systèmes, Digimon et combats, cartes, graphismes) ; 351 cartes, 81 espèces, 132 Digivolutions, 153 objets, 690 images |
 | 2 | Démarrage, boucle, erreurs | corrigé avant l'audit (démarrage blindé, file:// redirigé) ; parcours réel 13/13 sans erreur de console |
-| 3 | Graphismes, fonds verts, textures, ordre d'affichage | audit fait (36 anomalies) ; corrigé : yeux, sens des vues, 30 objets, arbres, écran titre, volcan, parois, dalles, bébés, falaises (plage, puis prairies), bords de sable, fondus entre cartes ; en cours : ordre d'affichage, petits défauts d'image, coutures des sols |
+| 3 | Graphismes, fonds verts, textures, ordre d'affichage | audit fait (36 anomalies) ; corrigé : yeux, sens des vues, 30 objets, arbres, écran titre, volcan, parois, dalles, bébés, falaises (plage, puis prairies), bords de sable, fondus entre cartes, petits défauts d'image, ordre d'affichage ; en cours : coutures des sols |
 | 4 | Cartes : graphe des connexions, collisions, level design | audit fait (0 P0, 0 P1, 2 P2, 13 P3) ; tout corrigé (94b9945, a4e0391) sauf la grille de la carte du monde (en pause) |
 | 5 | Digimon, digivolutions, progression | audit fait (0 P0, 1 P1, 10 P2, 21 P3) ; 26 corrigées (52ebfcc) |
 | 6 | Combats, cas extrêmes, équilibrage | corrigé avec la phase 5 ; éléments et renaissance : décisions du joueur ; Méga : « pour plus tard » |
@@ -67,7 +67,8 @@ Chaque lot de corrections : `python dev/versions.py`, `node dev/tests.js` (tous 
 | 38a2614 | volumes de la musique et des bruitages ; gardien du Grand Arbre compté pour les demandes | 71/71 ; menu Options regardé (Chrome) | vérifié |
 | 69aeb0c, 2220674 | techniques inconnues gardées dans la sauvegarde ; bébés en pixel art à la bonne taille | 71/71 ; combat et carte regardés (Chrome) | vérifié |
 | 905a766, 1c4b568 | fusion du volcan (images allégées, chargées à part ; parois ; dalles) ; documents | 71/71 ; parcours 13/13 en local ET SUR LE SITE EN LIGNE ; formats 6/6 | vérifié (paquets servis = 554517e8 / 81e643a1) |
-| 5653316, 7b602b0 | falaises des prairies (roche moussue de la planche Montagnes), cascade des Champs, bords de sable (S6), fondus entre cartes (S7) ; délais du parcours réglables (LENT) | 72/72 ; parcours 13/13 en local (LENT=3 : PC chargé, deux essais avant en délai dépassé sans erreur du jeu) ; planche avant/après regardée | vérifié (paquet jeu-1 servi = ce86c0bc, falaise_mousse.webp = 0e6418ff) |
+| 5653316, 7b602b0 | falaises des prairies (roche moussue de la planche Montagnes), cascade des Champs, bords de sable (S6), fondus entre cartes (S7) ; délais du parcours réglables (LENT) | 72/72 ; parcours 13/13 en local (LENT=3 : PC chargé, deux essais avant en délai dépassé sans erreur du jeu) ; planche avant/après regardée | vérifié (paquet jeu-1 servi = ce86c0bc, falaise_mousse.webp = 0e6418ff) ; parcours 13/13 SUR LE SITE EN LIGNE |
+| 2a5548b, 002c9ef | petits défauts d'image (T3, T4, T5, T7, D6, D8) : 116 vues de Digimon, 496 objets, kit | 72/72 ; parcours 13/13 (LENT=3 ; 4 textures de sol réclamées en original après 3 délais dépassés sous la charge : vérifié ensuite, toutes chargées depuis leurs copies) ; planches avant/après regardées | vérifié (paquet jeu-1 servi = a2899096, digi_agumon_combat = a9966a24) |
 
 ## Rapports d'audit (copies de travail)
 

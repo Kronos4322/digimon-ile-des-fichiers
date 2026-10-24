@@ -4,7 +4,17 @@ Le jeu est publié en continu : chaque lot vérifié part sur `main` et sur le s
 (https://kronos4322.github.io/digimon-ile-des-fichiers/). Ce journal résume, pour le joueur, ce qui change d'un lot à
 l'autre. Le détail de chaque correction est dans `docs/audit/BUGS_ET_CORRECTIONS.md`, l'historique complet dans git.
 
-## 24/10/2026 — Falaises, bords de sable, fondus entre cartes, petits défauts d'image
+## 24/10/2026 — Falaises, bords de sable, fondus entre cartes, petits défauts d'image, ordre d'affichage
+
+### Ordre d'affichage sur la carte (45555ca)
+- Le héros (et son partenaire) debout sur une fougère passe devant elle ; avant, elle le cachait aux trois quarts.
+- Caché derrière un arbre, le partenaire a maintenant sa silhouette translucide, comme le héros ; les habitants à qui
+  l'on peut parler aussi.
+- Le haut des herbes hautes passe devant le pied d'un rocher, d'une statue ou d'un arbre de la rangée du dessus.
+- Les petites plantes (massifs de fleurs, plantes de feu, touffes de la montagne) passent devant les pieds d'un
+  personnage qui se tient juste derrière elles.
+- Les grands Digimon (Monochromon, Greymon...) passent devant le décor de leur rangée au lieu d'avoir un rocher dessiné
+  sur leur flanc.
 
 ### Petits défauts d'image (2a5548b)
 - Digimon : plus de trous d'épingle ni de liseré pâle au contour (37 576 petits trous sur les 116 vues, 169 restent : de

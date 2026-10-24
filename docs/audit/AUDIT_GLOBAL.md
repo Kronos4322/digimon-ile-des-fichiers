@@ -24,10 +24,10 @@ Documents liés, dans ce dossier :
 | | Nombre |
 |---|---|
 | Anomalies relevées | **123** : 1 P0, 7 P1, 27 P2, 88 P3 |
-| Corrigées | **92** |
+| Corrigées | **97** |
 | Corrigées en partie | **3** |
 | Laissées à ta décision, ou gardées exprès | **10** |
-| Pas encore traitées (P3 surtout), ou non vérifiables sans essai réel | **18** |
+| Pas encore traitées (P3 surtout), ou non vérifiables sans essai réel | **13** |
 | Tests automatiques | **72**, tous réussis, sur le PC et sur GitHub (53 au départ) |
 | Parcours de joueur dans un vrai Chrome | **13 étapes sur 13**, en local et sur le site en ligne |
 | Formats d'écran essayés | **6 sur 6** |

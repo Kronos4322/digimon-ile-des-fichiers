@@ -161,10 +161,10 @@ avec ceux de l'audit des Digimon.
 | Z3 | P3 | 100 images (1,1 Mo) téléchargées sans être placées | gardé : bibliothèque de l'atelier des cartes (chargée en arrière-plan, après le démarrage) |
 | Z4 | P3 | Petits objets trop définis | non corrigé |
 | Z5 | P3 | Images HD 2 dans un écran x3 : pixels inégaux | non corrigé |
-| O1 | P3 | Fougère dessinée sur le héros | non corrigé |
-| O2 | P3 | Base d'un objet sur le haut des herbes hautes | non corrigé |
-| O3 | P3 | Silhouette translucide pour le héros seulement | non corrigé |
-| O4 | P3 | Objets « walk » triés à −10 | non corrigé |
-| O5 | P3 | Grands Digimon de profil : un objet passe devant leurs côtés | non corrigé |
+| O1 | P3 | Fougère dessinée sur le héros | corrigé (45555ca) : le personnage sur une fougère passe devant elle, le bas de la fougère redessiné devant ses pieds |
+| O2 | P3 | Base d'un objet sur le haut des herbes hautes | corrigé (45555ca) : le haut des touffes sous le pied d'un objet est redessiné devant lui ; en lisière de forêt, environ 0,5 ms de plus par image |
+| O3 | P3 | Silhouette translucide pour le héros seulement | corrigé (45555ca) : aussi pour le partenaire et les habitants à qui l'on parle ; « caché » mesuré sur les vrais pixels des grands objets |
+| O4 | P3 | Objets « walk » triés à −10 | corrigé (45555ca) : les petites plantes qui dépassent de leur case passent devant les pieds d'un personnage de la rangée du dessus ; tapis, dalles et portes restent dessous |
+| O5 | P3 | Grands Digimon de profil : un objet passe devant leurs côtés | corrigé (45555ca) : les Digimon de plus de 52 px passent devant le décor de leur rangée ; le héros reste devant son partenaire |
 | R4 | P3 | Mentions légales incomplètes, README inexact | corrigé (7b2ae96) : README réécrit (© Bandai / Toei, provenance des images, police) |
 | R6 | P3 | Images générées par une IA : traçabilité | documenté (README) |
