@@ -65,25 +65,29 @@
       } else Companion.emote(ow, mood(pt));
     },
 
-    // dessin du partenaire (sautillement, sommeil) + bulle d'émotion
-    draw(ow, c, pt, x, y) {
+    // dessin du partenaire (sautillement, sommeil) + bulle d'émotion ; fantome : sa silhouette seule, sans ombre ni bulle
+    // (caché derrière un grand objet : game/overworld.js) ; renvoie le rectangle de son dessin
+    draw(ow, c, pt, x, y, fantome) {
       const C = state(ow), F = ow.f, t = ow.t;
       if (C.sleep) {
-        ow.drawMon(c, pt.sp, x, y, F.face === 'left', 0, false);
+        const R = ow.drawMon(c, pt.sp, x, y, F.face === 'left', 0, false, false, false, fantome);
+        if (fantome) return R;
         for (let i = 0; i < 3; i++) {
           const k = (t * 0.5 + i / 3) % 1;
           c.globalAlpha = Math.min(1, (1 - k) * 1.6);
           DW.UI.text(c, i % 2 ? 'Z' : 'z', x + 6 + k * 10, y - 16 - k * 16, { size: 8 + i * 2, bold: true, color: '#ffffff', shadowColor: 'rgba(20,30,80,0.9)' });
           c.globalAlpha = 1;
         }
-        return;
+        return R;
       }
       const hop = C.hop > 0 ? Math.sin((1 - C.hop / 0.5) * Math.PI) * 5 : 0;
       if (DW.Meteo && DW.Meteo.fear > 0) x += Math.round((Math.random() - 0.5) * 2.4);   // il tremble de peur (orage)
-      ow.drawMon(c, pt.sp, x, y - hop, F.face === 'left', F.moving ? t * 14 : t * 1.6, F.moving, F.back, F.front);
+      const R = ow.drawMon(c, pt.sp, x, y - hop, F.face === 'left', F.moving ? t * 14 : t * 1.6, F.moving, F.back, F.front, fantome);
+      if (fantome) return R;
       const busy = pt.need >= 75 || pt.hunger >= 70;
       DW.Care.drawBubble(c, pt, x, y, t);
       if (C.emote && !busy) this.drawEmote(c, C.emote, x, y - hop);
+      return R;
     },
     drawEmote(c, e, x, y) {
       const pop = Math.min(1, e.t * 6), fade = Math.min(1, (e.dur - e.t) * 4);
