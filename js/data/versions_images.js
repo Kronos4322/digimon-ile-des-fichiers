@@ -289,6 +289,7 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/ext_jardiniere_verte.webp": "cc85a577",
   "commun/jeu/ext_panneau.webp": "d21efa8a",
   "commun/jeu/ext_puits.webp": "1213e105",
+  "commun/jeu/falaise_mousse.webp": "0e6418ff",
   "commun/jeu/fleur_1.webp": "53baf71a",
   "commun/jeu/fleur_10.webp": "019166ec",
   "commun/jeu/fleur_2.webp": "eaba43c1",

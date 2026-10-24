@@ -49,7 +49,7 @@
     'engine/art.js': '2890e257',
     'ui/widgets.js': 'f4b99472',
     'ui/dialog.js': '337e232b',
-    'data/versions_images.js': 'cc561ccf',
+    'data/versions_images.js': '6d901901',
     'data/types.js': '1b5d67d8',
     'data/moves.js': '179a8cef',
     'data/species.js': 'b840ee5a',
@@ -81,13 +81,13 @@
     'gfx/hero.js': 'da317920',
     'gfx/icons.js': '70d20de6',
     'gfx/objects.js': '6f51a981',
-    'gfx/textures.js': '46a6f87b',
+    'gfx/textures.js': '0d38961d',
     'gfx/kit_donnees.js': '0daf2d7f',
     'gfx/persos.js': '1042b43d',
     'gfx/pinceau.js': '7c091b01',
     'gfx/premium.js': '6bb7782e',
     'gfx/town.js': 'd4991b62',
-    'gfx/district.js': '6ac29d75',
+    'gfx/district.js': '6409cc4e',
     'gfx/littoral.js': 'c36f93f6',
     'gfx/ecussons.js': '0d6e0a95',
     'gfx/chapitre1.js': 'c0f6ade1',
@@ -106,7 +106,7 @@
     'gfx/buildings2.js': '35f25351',
     'gfx/city.js': '71ee9c24',
     'gfx/ponts.js': '1ddd12a7',
-    'gfx/terrain.js': 'a8d2bc68',
+    'gfx/terrain.js': '3ee14d5f',
     'gfx/ambient.js': '187231d6',
     'gfx/vivant.js': 'd49ad57f',
     'gfx/rendu.js': '0e4b5d3b',
@@ -208,7 +208,7 @@
   // PAQUETS DU SITE EN LIGNE (fabriqués par dev/versions.py, vérifiés par les tests) : les scripts réunis en quelques
   // fichiers, une demande au lieu de 160 ; les retouches de l'atelier restent à part (toujours redemandées)
   const PAQUETS = [
-    { f: '../paquets/jeu-1.js', v: '651209e7' },
+    { f: '../paquets/jeu-1.js', v: 'ce86c0bc' },
     { f: 'maps/retouches_donnees.js' },
     { f: '../paquets/jeu-2.js', v: '81e643a1' },
   ];   // (fin des paquets)

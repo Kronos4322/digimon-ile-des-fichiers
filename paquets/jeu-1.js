@@ -1547,6 +1547,7 @@ DW.VERSIONS_IMAGES = {
   "commun/jeu/ext_jardiniere_verte.webp": "cc85a577",
   "commun/jeu/ext_panneau.webp": "d21efa8a",
   "commun/jeu/ext_puits.webp": "1213e105",
+  "commun/jeu/falaise_mousse.webp": "0e6418ff",
   "commun/jeu/fleur_1.webp": "53baf71a",
   "commun/jeu/fleur_10.webp": "019166ec",
   "commun/jeu/fleur_2.webp": "eaba43c1",
@@ -6663,6 +6664,8 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
       'mont_sapin', 'mont_buisson', 'mont_arbuste_sec', 'mont_herbes_hautes', 'mont_herbes_seches', 'mont_herbe_rousse', 'mont_edelweiss', 'mont_fleurs_violettes', 'mont_buisson_baies',
       'mont_grotte', 'mont_petit_rocher', 'mont_rocher', 'mont_gros_rocher', 'mont_aiguille', 'mont_eboulis_gros', 'mont_rocher_mousse', 'mont_eboulis', 'mont_cairn',
       'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche',
+      // falaise moussue des prairies (dev/falaise_mousse.py : la paroi de la planche Montagnes, redressée et recousue)
+      'falaise_mousse',
       'maison_aquarium', 'maison_ordinateur', 'maison_cuisiniere', 'ville_lampadaire_noir', 'ville_paves',
       // mobilier extérieur (planche à 10 catégories) : caisses, distributeurs, boîte aux lettres, jardinières, étals, puits ;
       // les toilettes de tout le jeu : la cabane au toit bleu de la planche VILLAGE BEBE
@@ -6696,6 +6699,7 @@ DW.DRAW.gabumon.views = ['back'];   // a un vrai dessin de dos (gfx/sprites.js)
     mont_rocher_mousse: { h: 24 }, mont_eboulis: { h: 18 }, mont_cairn: { h: 28 },
     ville_paves: [96, 96], plage_sable: [96, 96], plage_borne: { h: 40 },   // (pavés de la ville : une pierre fait environ 12 px du jeu)
     mont_gravier: [128, 128], mont_herbe_alpine: [128, 128], mont_terre_seche: [128, 128],
+    falaise_mousse: [240, 160],   // (4 bandes de 240 px, une par hauteur de falaise : 16, 32, 48, 64 px — gfx/terrain.js)
   };
   // objets du jeu remplacés par une image (par dossier) : un nom, ou plusieurs (variante choisie selon la case)
   // ARBRES DU JEU dessinés avec les images du dossier commun : [type][variante] -> image (variantes de OBJ.tree : 0-2 verts,
@@ -8268,9 +8272,11 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       d.circ(38, 40, 3.6, '#7a5230');
     } },
     // ---------------------------------------------------------- cascade (sur une falaise)
+    // (de chaque côté de la chute, la roche mouillée de la paroi, sombre ; avant, deux blocs de pierre claire posés
+    //  devant la falaise moussue, gfx/terrain.js)
     waterfall: { w: 36, h: 56, n: 1, frames: 4, fps: 8, draw(d, v, f) {
-      d.blob([[0, 52], [2, 8], [8, 0], [10, 50]], '#8a8478', { tex: 0.35 });
-      d.blob([[26, 50], [28, 0], [34, 8], [36, 52]], '#7e786c', { tex: 0.35 });
+      d.blob([[4, 48], [5, 4], [8, 0], [10, 47]], '#2c3230', { noline: true, noshadow: true });
+      d.blob([[26, 47], [28, 0], [31, 4], [32, 48]], '#262c2a', { noline: true, noshadow: true });
       d.rect(8, 0, 20, 46, '#4ab0e8', { unlit: true, noline: true });
       for (let i = 0; i < 6; i++) { const x = 10 + i * 3.2, y0 = ((f * 6 + i * 13) % 24) - 8; d.deco.line(x, y0, x, y0 + 10, 1, '#c8f0ff', { unlit: true }); d.deco.line(x + 1.4, y0 + 22, x + 1.4, y0 + 30, 0.8, '#e8faff', { unlit: true }); }
       d.deco.rect(8, 0, 20, 2, '#a8e8ff', { unlit: true });
@@ -11884,6 +11890,7 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
       if (Q) { solNaturel(Q[0], Q[1], px, py); r = NAT[0]; g = NAT[1]; b = NAT[2]; }
       else { const q = texO(TX_HERBE, px, py), d = TX_HERBE.d; r = d[q]; g = d[q + 1]; b = d[q + 2]; }
       if (TX_CHEMIN && en === TER.dirt && ed <= 2 && hash(px >> 1, py >> 1, 96) < (3 - ed) * 0.3) { const q2 = texO(TX_CHEMIN, px, py), d2 = TX_CHEMIN.d; r = r + (d2[q2] - r) * 0.55; g = g + (d2[q2 + 1] - g) * 0.55; b = b + (d2[q2 + 2] - b) * 0.55; }   // (bord de chemin)
+      else if (TX_SABLE && en === TER.sand && ed <= 4 && hash(px >> 1, py >> 1, 97) < (5 - ed) * 0.2) { const q2 = texO(TX_SABLE, px, py), d2 = TX_SABLE.d; r = r + (d2[q2] - r) * 0.6; g = g + (d2[q2 + 1] - g) * 0.6; b = b + (d2[q2 + 2] - b) * 0.6; }   // (bord de sable : grains qui gagnent l'herbe)
       const k = Math.min(0.45, sh * 0.04); if (k > 0) { r = r + (OMB[0] - r) * k; g = g + (OMB[1] - g) * k; b = b + (OMB[2] - b) * k; }
       HC[0] = r; HC[1] = g; HC[2] = b; return HC;
     };
@@ -11959,6 +11966,9 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
     const CLIFF = TH && TH.cliff ? TH.cliff.map(Art.hex) : PAL.cliff, ROCKY = TH && TH.canopyStyle === 'rock';
     const CLIFF_HAUTE = map.theme === 'beach';   // (falaises de la plage : une paroi sur toute leur hauteur — cases « C »)
     const GRES = ['#3e2c1c', '#584026', '#745632', '#906c3e', '#ac864e', '#c4a064', '#d8ba80', '#ead2a0'].map(Art.hex);   // (grès chaud, assorti au sable)
+    // FALAISE MOUSSUE (cases « C » hors de la plage : Champs, Lisière du Ravin, ville...) : la paroi de roche grise moussue
+    // de la planche Montagnes du joueur, une bande par hauteur de falaise (dev/falaise_mousse.py) ; null = l'ancien dessin
+    const FAL_MOUSSE = !CLIFF_HAUTE && TX && !map.indoor ? TX.pixels('commun/falaise_mousse') : null;
     // intérieurs : style du sol (map.floor) et des murs (map.wall) ; sans style = parquet et enduit d'origine
     const FLOOR = map.floor ? { ...map.floor, c: (map.floor.cols || []).map(Art.hex) } : null;
     const WALL = map.wall ? { ...map.wall, base: Art.hex(map.wall.base || '#ead8b4'), alt: Art.hex(map.wall.alt || map.wall.base || '#ead8b4'), wood: map.wall.wood ? Art.hex(map.wall.wood) : null } : null;
@@ -12270,12 +12280,22 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         let tc = null;
         if (t === TER.grass && TX_HERBE) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
         else if (t === TER.lawn && TX_HERBE && !(LUSH && en !== TER.lawn && en !== 255 && en !== TER.pastel && ed <= 2)) tc = herbeTx(tx, ty, px, py, SH[i], en, ed);
-        else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) tc = texel(TX_SABLE, px, py);
+        else if (t === TER.sand && TX_SABLE && !(en === TER.water && ed <= 9)) {
+          tc = texel(TX_SABLE, px, py);
+          // BORD DU SABLE (avant : net, pixel d'herbe contre pixel de sable) : des touffes d'herbe ou de terre tramées qui
+          // gagnent le sable sur 3 px, le sable un peu plus sombre (humus) près de l'herbe — comme l'herbe au bord des chemins
+          const P2 = en === TER.grass ? TX_HERBE : en === TER.dirt ? TX_CHEMIN : null;
+          if (P2 && ed <= 3) {
+            if (hash(px >> 1, py >> 1, 98) < (4 - ed) * 0.22) { const q = texO(P2, px, py), d = P2.d; tc[0] += (d[q] - tc[0]) * 0.62; tc[1] += (d[q + 1] - tc[1]) * 0.62; tc[2] += (d[q + 2] - tc[2]) * 0.62; }
+            if (en === TER.grass) { const k = 0.05 * (4 - ed); tc[0] -= tc[0] * k; tc[1] -= tc[1] * k * 0.8; tc[2] -= tc[2] * k; }
+          }
+        }
         else if (t === TER.dirt && TX_CHEMIN && !(SOLKP && SOLKP[i]) && altCase(tx, ty) < 3) {
           tc = texel(TX_CHEMIN, px, py);
           // (mélanges écrits en clair : mêmes calculs que Art.mix)
           if (TX_HERBE && en === TER.grass && ed <= 3 && hash(px >> 1, py >> 1, 95) < (4 - ed) * 0.24) { const q = texO(TX_HERBE, px, py), d = TX_HERBE.d; tc[0] += (d[q] - tc[0]) * 0.8; tc[1] += (d[q + 1] - tc[1]) * 0.8; tc[2] += (d[q + 2] - tc[2]) * 0.8; }
           if (ed <= 4 && en === TER.grass) { const k = 0.06 * (5 - ed); tc[0] += (30 - tc[0]) * k; tc[1] += (24 - tc[1]) * k; tc[2] += (14 - tc[2]) * k; }
+          if (TX_SABLE && en === TER.sand && ed <= 3 && hash(px >> 1, py >> 1, 99) < (4 - ed) * 0.22) { const q = texO(TX_SABLE, px, py), d = TX_SABLE.d; tc[0] += (d[q] - tc[0]) * 0.6; tc[1] += (d[q + 1] - tc[1]) * 0.6; tc[2] += (d[q + 2] - tc[2]) * 0.6; }   // (bord de sable)
         }
         if (tc) {
           if (LUSH) { const de = Math.min(EDGE.left ? 999 : px, EDGE.up ? 999 : py, EDGE.right ? 999 : GW - 1 - px, EDGE.down ? 999 : GH - 1 - py); if (de < 80) { const k = (1 - de / 80) * (1 - de / 80) * 0.5; putD(j, tc); D[j] -= D[j] * k; D[j + 1] -= (D[j + 1] - 12) * k; D[j + 2] -= D[j + 2] * k * 0.9; continue; } }
@@ -12469,10 +12489,45 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
         const face = tAt(tx, ty + 1) !== TER.cliff;
         const above = tAt(tx, ty - 1) !== TER.cliff;
         // PLAGE : la falaise est une paroi sur TOUTE sa hauteur (avant : seule la rangée du bas était de la roche, les rangées
-        // au-dessus une bande d'herbe unie — un muret sous une bande verte plate) ; ailleurs (Champs, Lisière), comme avant
+        // au-dessus une bande d'herbe unie — un muret sous une bande verte plate) ; ailleurs (Champs, Lisière, ville) : la
+        // falaise moussue (FAL_MOUSSE), ou l'ancien dessin si son image manque
         let up = 0, dn = 0;
-        if (CLIFF_HAUTE) { while (up < 6 && tAt(tx, ty - up - 1) === TER.cliff) up++; while (dn < 6 && tAt(tx, ty + dn + 1) === TER.cliff) dn++; }
-        if (face || CLIFF_HAUTE) {
+        if (CLIFF_HAUTE || FAL_MOUSSE) { while (up < 6 && tAt(tx, ty - up - 1) === TER.cliff) up++; while (dn < 6 && tAt(tx, ty + dn + 1) === TER.cliff) dn++; }
+        if (FAL_MOUSSE) {
+          // FALAISE MOUSSUE : la paroi entière (toutes les rangées « C » d'une colonne) prend la bande de sa hauteur (1 à 4
+          // cases ; plus haute : la bande de 4 cases, sa roche du milieu répétée) ; sous ses pixels transparents, l'herbe de
+          // la carte (le plateau en haut, le pied à l'ombre de la paroi) ; sa mousse prend la teinte de cette herbe
+          const Hpx = (up + dn + 1) * 16, wy = up * 16 + ly, n = Math.min(4, up + dn + 1), hb = n * 16, y0 = n === 1 ? 0 : n === 2 ? 16 : n === 3 ? 48 : 96;
+          const yt = y0 + (Hpx <= 64 ? wy : wy < 24 ? wy : wy >= Hpx - 24 ? hb - (Hpx - wy) : 24 + (wy - 24) % (hb - 48));
+          const q = texO(FAL_MOUSSE, px, yt), d = FAL_MOUSSE.d;
+          let al = d[q + 3] / 255, r = d[q], g = d[q + 1], bl = d[q + 2];
+          // bouts de la paroi (case voisine sans falaise) : bord irrégulier, arrondi en haut et au pied, l'herbe derrière ; le
+          // bout gauche éclairé, le droit dans l'ombre. Entre deux colonnes de hauteurs différentes : une fissure sombre
+          const gB = tAt(tx - 1, ty) !== TER.cliff, dB = tAt(tx + 1, ty) !== TER.cliff;
+          if (gB || dB) {
+            const e = gB && dB ? Math.min(lx, 15 - lx) : gB ? lx : 15 - lx, f = wy / Hpx;
+            const prof = 1 + noise(py * 0.23, tx * 7 + (gB ? 0 : 3), 82) * 3.5 + (f < 0.25 ? (0.25 - f) * 16 : 0) + (f > 0.8 ? (f - 0.8) * 22 : 0);
+            if (e < prof) al = 0;
+            else if (e < prof + 3) { const k = 1 + (gB ? 0.16 : -0.22) * (1 - (e - prof) / 3); r *= k; g *= k; bl *= k; }
+          } else if (lx <= 1 || lx >= 14) {
+            const vx = lx <= 1 ? tx - 1 : tx + 1; let u2 = 0, d2 = 0;
+            while (u2 < 6 && tAt(vx, ty - u2 - 1) === TER.cliff) u2++; while (d2 < 6 && tAt(vx, ty + d2 + 1) === TER.cliff) d2++;
+            if (u2 !== up || d2 !== dn) { const k = lx === 0 || lx === 15 ? 0.55 : 0.85; r *= k; g *= k; bl *= k; }
+          }
+          const mousse = al > 0.4 && g > r + 8 && g > bl + 30;
+          if (al < 1 || mousse) {
+            const pied = wy >= Hpx >> 1;
+            let gr, gg, gb;
+            if (TX_HERBE) { const h = herbeTx(tx, ty, px, py, pied ? 7 : 0, TER.grass, 99); gr = h[0]; gg = h[1]; gb = h[2]; }
+            else { const h = lerpPal(GRASS, 2.6 + (G5(px, py) - 0.5) * 2.4 - (pied ? 0.9 : 0)); gr = h[0]; gg = h[1]; gb = h[2]; }
+            if (mousse) {   // (la lumière de la mousse, la couleur de l'herbe)
+              const k = (0.3 * r + 0.59 * g + 0.11 * bl) / Math.max(1, 0.3 * gr + 0.59 * gg + 0.11 * gb);
+              r += (Math.min(255, gr * k) - r) * 0.6; g += (Math.min(255, gg * k) - g) * 0.6; bl += (Math.min(255, gb * k) - bl) * 0.6;
+            }
+            r = gr + (r - gr) * al; g = gg + (g - gg) * al; bl = gb + (bl - gb) * al;
+          }
+          col = [r, g, bl];
+        } else if (face || CLIFF_HAUTE) {
           const wy = up * 16 + ly, Hpx = (up + dn + 1) * 16;   // (position dans la paroi entière, et sa hauteur)
           const lip = above ? 3 + Math.floor(noise(px * 0.2, ty, 66) * 4) : 0, drip = above && hash(px >> 2, ty, 67) < 0.18 ? lip + 2 + Math.floor(hash(px >> 2, ty, 68) * 6) : 0;
           if (CLIFF_HAUTE) {
@@ -12645,10 +12700,19 @@ DW.KIT = {"HB":200,"epaule":14.0,"taille":54.0,"menton":10.0,"corps_f":[{"a":[61
           [TER.sand]: T2 && T2.sand ? H(T2.sand) : PAL.sand, [TER.canopy]: T2 && T2.canopy ? H(T2.canopy) : PAL.canopy };
       };
       const mine = { [TER.grass]: GRASS, [TER.dirt]: DIRT, [TER.sand]: SAND, [TER.canopy]: CANOPY }, BAND = 12 * TS, END = 4 * TS;
+      // (teinte d'un sol : la moyenne de l'image dessinée quand les deux cartes en ont une pour ce rôle — c'est elle qu'on
+      //  voit ; avant, toujours la palette du thème : deux images voisines identiques pouvaient être décalées à tort)
+      const ROLE = { [TER.grass]: 'herbe', [TER.dirt]: 'chemin', [TER.sand]: 'sable' }, MOY = new Map();
+      const teinteTx = (m2, k) => {
+        const P = ROLE[k] && DW.Textures && DW.Textures.sol ? DW.Textures.sol(m2, ROLE[k]) : null; if (!P) return null;
+        let c = MOY.get(P); if (c) return c;
+        const d = P.d; let r = 0, g = 0, b = 0; for (let q = 0; q < d.length; q += 4) { r += d[q]; g += d[q + 1]; b += d[q + 2]; }
+        const n = d.length / 4; c = [r / n, g / n, b / n]; MOY.set(P, c); return c;
+      };
       for (const v of map.voisines) {
         const M2 = DW.MAPS[v.id]; if (!M2) continue;
         const other = palOf(M2), delta = {}; let any = false;
-        for (const k in mine) { const a = mean(mine[k]), b = mean(other[k]); delta[k] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]]; if (Math.abs(delta[k][0]) + Math.abs(delta[k][1]) + Math.abs(delta[k][2]) > 6) any = true; }
+        for (const k in mine) { const ta = teinteTx(map, k), tb = ta && teinteTx(M2, k), a = tb ? ta : mean(mine[k]), b = tb ? tb : mean(other[k]); delta[k] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]]; if (Math.abs(delta[k][0]) + Math.abs(delta[k][1]) + Math.abs(delta[k][2]) > 6) any = true; }
         if (!any) continue;
         const vert = v.side === 'left' || v.side === 'right', from = v.from * TS, to = v.to * TS;
         // (seulement la bande le long du bord partagé)

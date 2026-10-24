@@ -38,9 +38,11 @@
       d.circ(38, 40, 3.6, '#7a5230');
     } },
     // ---------------------------------------------------------- cascade (sur une falaise)
+    // (de chaque côté de la chute, la roche mouillée de la paroi, sombre ; avant, deux blocs de pierre claire posés
+    //  devant la falaise moussue, gfx/terrain.js)
     waterfall: { w: 36, h: 56, n: 1, frames: 4, fps: 8, draw(d, v, f) {
-      d.blob([[0, 52], [2, 8], [8, 0], [10, 50]], '#8a8478', { tex: 0.35 });
-      d.blob([[26, 50], [28, 0], [34, 8], [36, 52]], '#7e786c', { tex: 0.35 });
+      d.blob([[4, 48], [5, 4], [8, 0], [10, 47]], '#2c3230', { noline: true, noshadow: true });
+      d.blob([[26, 47], [28, 0], [31, 4], [32, 48]], '#262c2a', { noline: true, noshadow: true });
       d.rect(8, 0, 20, 46, '#4ab0e8', { unlit: true, noline: true });
       for (let i = 0; i < 6; i++) { const x = 10 + i * 3.2, y0 = ((f * 6 + i * 13) % 24) - 8; d.deco.line(x, y0, x, y0 + 10, 1, '#c8f0ff', { unlit: true }); d.deco.line(x + 1.4, y0 + 22, x + 1.4, y0 + 30, 0.8, '#e8faff', { unlit: true }); }
       d.deco.rect(8, 0, 20, 2, '#a8e8ff', { unlit: true });

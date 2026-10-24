@@ -156,8 +156,8 @@ avec ceux de l'audit des Digimon.
 | S3 | P3 | Coutures sur des textures jamais employées | non corrigé (jamais employées) |
 | S4 | P3 | Répétition visible des sols raccordables | non corrigé |
 | S5 | P3 | `grotte/herbe` : petite couture | non corrigé |
-| S6 | P3 | Herbe ↔ sable sans fondu | non vérifié en jeu |
-| S7 | P3 | Fondus entre cartes calculés sur les palettes | non vérifié en jeu |
+| S6 | P3 | Herbe ↔ sable sans fondu | corrigé (ce lot) : herbe ↔ sable et terre ↔ sable tramés sur 3 à 4 px (vu en jeu : Lac, Dunes) |
+| S7 | P3 | Fondus entre cartes calculés sur les palettes | corrigé (ce lot) : teinte moyenne des images de sol quand les deux cartes en ont ; 30 paires de voisines avaient un fondu d'herbe faux de plus de 30 (R + G + B) |
 | Z3 | P3 | 100 images (1,1 Mo) téléchargées sans être placées | gardé : bibliothèque de l'atelier des cartes (chargée en arrière-plan, après le démarrage) |
 | Z4 | P3 | Petits objets trop définis | non corrigé |
 | Z5 | P3 | Images HD 2 dans un écran x3 : pixels inégaux | non corrigé |

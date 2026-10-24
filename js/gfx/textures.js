@@ -43,6 +43,8 @@
       'mont_sapin', 'mont_buisson', 'mont_arbuste_sec', 'mont_herbes_hautes', 'mont_herbes_seches', 'mont_herbe_rousse', 'mont_edelweiss', 'mont_fleurs_violettes', 'mont_buisson_baies',
       'mont_grotte', 'mont_petit_rocher', 'mont_rocher', 'mont_gros_rocher', 'mont_aiguille', 'mont_eboulis_gros', 'mont_rocher_mousse', 'mont_eboulis', 'mont_cairn',
       'mont_gravier', 'mont_herbe_alpine', 'mont_terre_seche',
+      // falaise moussue des prairies (dev/falaise_mousse.py : la paroi de la planche Montagnes, redressée et recousue)
+      'falaise_mousse',
       'maison_aquarium', 'maison_ordinateur', 'maison_cuisiniere', 'ville_lampadaire_noir', 'ville_paves',
       // mobilier extérieur (planche à 10 catégories) : caisses, distributeurs, boîte aux lettres, jardinières, étals, puits ;
       // les toilettes de tout le jeu : la cabane au toit bleu de la planche VILLAGE BEBE
@@ -76,6 +78,7 @@
     mont_rocher_mousse: { h: 24 }, mont_eboulis: { h: 18 }, mont_cairn: { h: 28 },
     ville_paves: [96, 96], plage_sable: [96, 96], plage_borne: { h: 40 },   // (pavés de la ville : une pierre fait environ 12 px du jeu)
     mont_gravier: [128, 128], mont_herbe_alpine: [128, 128], mont_terre_seche: [128, 128],
+    falaise_mousse: [240, 160],   // (4 bandes de 240 px, une par hauteur de falaise : 16, 32, 48, 64 px — gfx/terrain.js)
   };
   // objets du jeu remplacés par une image (par dossier) : un nom, ou plusieurs (variante choisie selon la case)
   // ARBRES DU JEU dessinés avec les images du dossier commun : [type][variante] -> image (variantes de OBJ.tree : 0-2 verts,
