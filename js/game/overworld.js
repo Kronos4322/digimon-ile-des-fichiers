@@ -1058,7 +1058,8 @@
         if (!(k > ty - 1.5 && k < ty + TRAVERSE)) continue;   // (décor dessiné après les herbes et avant cette rangée)
         const half = o.spr.w / 2;
         if (o.y < Y - 8 || o.x + half <= X || o.x - half >= X + TS || o.y <= bas) continue;
-        if (pixelsCouverts(o, X, Y - 9, TS, Math.min(9, Math.round(o.y) - (Y - 9) + 1), 3) >= 3) bas = Math.round(o.y);
+        // (au moins un quart de la bande sous l'objet : sinon le redessin ne se verrait guère, et coûterait à chaque image)
+        if (pixelsCouverts(o, X, Y - 9, TS, Math.min(9, Math.round(o.y) - (Y - 9) + 1), 8) >= 8) bas = Math.round(o.y);
       }
       if (bas < 0) continue;
       const h = Math.min(24, bas - (Y - 8) + 1);
