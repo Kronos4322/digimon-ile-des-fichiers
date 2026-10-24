@@ -202,8 +202,10 @@
         ow.wildGrace = 1.5;
       };
     },
+    // entrées de la liste triée de la carte (x, y : position en cases ; un grand Digimon passe devant le décor de sa
+    // rangée : game/overworld.js, grandDigimon)
     entries(ow, list) {
-      for (const w of ow.wilds || []) list.push({ s: w.hy, ent: 'wild', w, tile: [w.x, w.y] });
+      for (const w of ow.wilds || []) list.push(ow.grandDigimon({ s: w.hy, ent: 'wild', w, tile: [w.x, w.y], x: w.hx, y: w.hy }, w.sp));
     },
     draw(ow, c, w) {
       const X = w.hx * TS + 8, Y = w.hy * TS + 15;

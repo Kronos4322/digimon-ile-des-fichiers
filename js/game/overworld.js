@@ -11,6 +11,22 @@
   // (seul le feuillage ondule au vent : jamais les maisons ni les grands décors)
   const SWAY = { tree: 1, oak: 1, birch: 1, bigtree: 1, palm: 1, pine: 1, fruittree: 1, jungletree: 1, swamptree: 1, cycad: 1, acacia: 1, baobab: 1, mangrove: 1, candytree: 1 };
   const WALK = 0.2, RUN = 0.11; // secondes par case (×√2 en diagonale : même vitesse dans toutes les directions)
+  // ORDRE D'AFFICHAGE sur la carte : tout est trié par une clé « s », en rangées (un dessin d'une rangée passe devant ceux
+  // des rangées du dessus) :
+  //  - personnages : leur rangée (le partenaire juste avant le héros ; un PNJ « dalle », à plat : rangée − 0,6) ;
+  //  - décor bloquant : rangée + 0,5 (il passe devant un personnage de sa rangée, à côté de lui) ; « dessous » et « à plat »
+  //    (tapis, dalles) : sous tout ; « dessus » : par-dessus tout ;
+  //  - PLANTES QU'ON TRAVERSE (fougères de la grille, petites plantes posées « walk ») : rangée − 0,3, devant le décor et
+  //    les personnages de la rangée du dessus, derrière le personnage posé dessus ; le bas d'une fougère est redessiné
+  //    devant ses pieds, comme celui des herbes hautes (avant, une fougère cachait les trois quarts du héros posé sur sa
+  //    case, et les pieds d'un personnage de la rangée du dessus passaient sur une plante « walk ») ;
+  //  - HAUT DES HERBES HAUTES qui dépasse sur le pied d'un objet de la rangée du dessus : redessiné à rangée − 0,3, devant
+  //    cet objet (le reste des herbes hautes est peint d'abord, sous les ombres) ;
+  //  - GRANDS DIGIMON (plus de LARGE pixels de large, de profil jusqu'à 5 cases) : rangée + 0,65, devant le décor de leur
+  //    rangée qui passe derrière leur corps ; un personnage de leur rangée qu'ils recouvrent passe juste après eux (le
+  //    héros reste toujours devant).
+  const TRAVERSE = -0.3, GRAND = 0.65, LARGE = 52;
+  const DEVANT_FOUGERE = 9;   // pixels du bas d'une fougère redessinés devant les pieds de celui qui est dedans
 
   // DONNÉES D'UNE CARTE avant de la dessiner (aussi pour une voisine préparée à l'avance : son décor de première visite
   // est posé AVANT, sinon le dessin fait à l'avance serait jeté en entrant)
@@ -625,12 +641,14 @@
       DW.Vivant.drawGround(this, c, vx0, vx1, vy0, vy1);
       if (DW.Lave) DW.Lave.draw(this, c);   // coulées de lave (sous les personnages)
       if (DW.Perils) DW.Perils.draw(this, c);   // ombres des éboulis, lueurs des braises, gravats (game/perils.js)
-      // herbes hautes (couche arrière)
+      // herbes hautes (couche arrière) : seulement les rangées de l'écran (rangées calculées une fois par carte)
       const tallFrame = (tx, ty) => this.rustle[tx + ',' + ty] ? Math.floor(this.t * 14) % 3 : [0, 1, 2, 1][Math.floor(this.t * 1.6 + tx * 0.4 + ty * 0.25) % 4];
-      for (const tg of g.tall) {
-        const X = tg.tx * TS, Y = tg.ty * TS;
-        if (X < vx0 || X > vx1 || Y < vy0 || Y > vy1) continue;
-        c.drawImage(DW.Meteo.tall(DW.World.tall(tg.kind, tg.v, tallFrame(tg.tx, tg.ty))), X, Y - 8);
+      const rangs = g._herbes || (g._herbes = herbesParRangee(g));
+      const r0 = Math.max(0, Math.ceil(vy0 / TS)), r1 = Math.min(rangs.length - 1, Math.floor(vy1 / TS));
+      for (let ty = r0; ty <= r1; ty++) for (const tg of rangs[ty] || NUL) {
+        const X = tg.tx * TS;
+        if (X < vx0 || X > vx1) continue;
+        c.drawImage(DW.Meteo.tall(DW.World.tall(tg.kind, tg.v, tallFrame(tg.tx, tg.ty))), X, ty * TS - 8);
       }
       // objets & personnages triés en profondeur
       // direction et intensité des ombres selon l'heure
@@ -644,7 +662,7 @@
       if (shade) { c.fillStyle = sun.dx < -0.4 ? `rgba(36,26,60,${sun.a})` : sun.dx > 0.4 ? `rgba(46,20,40,${sun.a})` : `rgba(10,26,42,${sun.a})`; c.beginPath(); }
       for (const o of g.objs) {
         if (o.x < vx0 - 30 || o.x > vx1 + 30 || o.y < vy0 || o.y > vy1 + 40) continue;
-        if (o.s === undefined) o.s = o.sort;
+        if (o.s === undefined) o.s = cleObjet(o);
         list.push(o);
         if (shade && !o.flat && o.spr.h < 34) {   // petits objets : ombre ronde (les grands ont leur ombre projetée)
           const rw = Math.min(16, o.spr.w / 3) * (1 + Math.abs(sun.dx) * 0.4), sx = o.x + sun.dx * 5;
@@ -655,21 +673,55 @@
       if (shade) DW.Rendu.cast(this, c, list, sun);   // ombres projetées des bâtiments et des arbres (forme réelle, gfx/rendu.js)
       DW.Rendu.contact(this, c, vx0, vx1, vy0, vy1);   // ombres de contact (gfx/rendu.js)
       for (const [x, y] of DW.state.poops[this.mapId] || []) list.push({ s: y - 0.02, ent: 'poop', x, y, tile: [x, y] });
+      // haut des herbes hautes qui passe devant le pied d'un objet de la rangée du dessus (cherché une fois par rangée,
+      // au plus 4 nouvelles rangées par image : pas d'à-coup en arrivant sur la carte)
+      const pointes = g._pointes || (g._pointes = []);
+      for (let ty = r0, neuves = 0; ty <= r1; ty++) {
+        if (!rangs[ty]) continue;
+        if (!pointes[ty]) { if (neuves++ >= 4) continue; pointes[ty] = pointesHerbes(g, ty, rangs[ty]); }
+        for (const e of pointes[ty]) if (e.X >= vx0 && e.X <= vx1) list.push(e);
+      }
+      // personnages (x, y : position en cases ; les grands Digimon passent devant le décor de leur rangée : grandDigimon)
+      const grands = this._grands || (this._grands = []), perso0 = list.length;
+      grands.length = 0;
       for (const n of this.map.npcs || []) {
         if (!this.npcVisible(n)) continue;
-        const hy = n.hy != null ? n.hy : n.y;
-        list.push({ s: n.walk ? hy - 0.6 : hy, ent: 'npc', n, tile: [n.x, n.y] });   // une dalle se dessine sous les pieds
+        const hy = n.hy != null ? n.hy : n.y, e = { s: n.walk ? hy - 0.6 : hy, ent: 'npc', n, tile: [n.x, n.y], x: n.hx != null ? n.hx : n.x, y: hy };   // une dalle se dessine sous les pieds
+        if (estPerso(n) && n.sp && !n.hero) this.grandDigimon(e, n.sp);
+        list.push(e);
       }
       DW.Wild.entries(this, list);
       const P = this.p, F = this.f, pt = this.partner;
       const pp = this.pos(P);
+      let ef = null;
       if (pt && !this.hidePartner && !(F.x === P.x && F.y === P.y && !F.moving)) {   // (hidePartner : il s'entraîne au poste, game/trainfield.js)
         const fp = this.pos(F);
-        list.push({ s: fp.y - 0.01, ent: 'follower', fp, tile: this.standTile(F) });
+        ef = this.grandDigimon({ s: fp.y - 0.01, ent: 'follower', fp, tile: this.standTile(F), x: fp.x, y: fp.y }, pt.sp);
+        list.push(ef);
       }
-      list.push({ s: pp.y, ent: 'player', tile: this.standTile(P) });
+      const eh = { s: pp.y, ent: 'player', tile: this.standTile(P), x: pp.x, y: pp.y };
+      list.push(eh);
+      // un personnage de la rangée d'un grand Digimon, qu'il recouvre, passe juste après lui ; le héros, lui, passe toujours
+      // devant son partenaire de la même rangée
+      if (grands.length) for (let k = perso0; k < list.length; k++) {
+        const e = list[k]; if (e.grand || (e.ent === 'npc' && !estPerso(e.n))) continue;
+        for (const G of grands) if (Math.abs(e.y - G.y) < 0.5 && Math.abs(e.x - G.x) * TS < G.demi + 8 && e.s <= G.s) e.s = G.s + 0.001;
+      }
+      if (ef && Math.abs(ef.y - eh.y) < 0.5 && eh.s <= ef.s) eh.s = ef.s + 0.001;
       list.sort((a, b) => a.s - b.s);
-      let playerIdx = -1, playerRect = null;
+      // fougères (et objets de la grille qu'on traverse) par case : leur bas passe devant les pieds de celui qui est dedans
+      const plantes = g._plantes || (g._plantes = plantesParCase(g, this.map.w));
+      // PERSONNAGES CACHÉS derrière un grand objet (arbre, maison...) dessiné après eux : leur silhouette translucide est
+      // dessinée juste après le dernier objet qui les cache (ce qui est devant cet objet passe encore dessus) — le héros,
+      // son partenaire et les habitants à qui l'on peut parler (avant : le héros seul, par-dessus tout ; les autres
+      // disparaissaient sans repère)
+      const fant = this._fant || (this._fant = []);
+      let nf = 0;
+      const cacher = (i, R, type, n, X, Y) => {
+        const j = derniereCache(list, i, R); if (j < 0) return;
+        const f = fant[nf] || (fant[nf] = {}); nf++;
+        f.apres = j; f.type = type; f.n = n; f.X = X; f.Y = Y;
+      };
       list.forEach((e, i) => {
         if (e.spr) {
           const o = e, s = o.spr;
@@ -684,6 +736,12 @@
             c.drawImage(img, Math.round(-s.w / 2), Math.round(-s.h));
             c.restore();
           } else c.drawImage(img, X, Y);
+          for (let k = 0; k < nf; k++) if (fant[k].apres === i) this.fantome(c, fant[k], pt, pp);
+          return;
+        }
+        if (e.ent === 'pointe') {   // haut d'une touffe d'herbes hautes, devant le pied de l'objet du dessus
+          const tg = e.tg;
+          c.drawImage(DW.Meteo.tall(DW.World.tall(tg.kind, tg.v, tallFrame(tg.tx, tg.ty))), 0, 0, TS, e.h, e.X, e.Y - 8, TS, e.h);
           return;
         }
         if (e.ent === 'poop') DW.Care.drawPoop(c, e.x * TS + 8, e.y * TS + 12);
@@ -699,32 +757,34 @@
             c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(bx, by + 2, 6, 2, 0, 0, 7); c.fill();
             c.drawImage(DW.Icons.item(n.item), bx - 7, by - 12 + b, 14, 14);
             if (Math.sin(this.t * 4 + n.y) > 0.8) { c.fillStyle = '#ffffff'; c.fillRect(bx + 4, by - 12 + b, 2, 2); }
-          } else if (n.hero) DW.Sprites.draw(c, DW.Sprites.hero(n.face || 'down', n.mv ? Math.floor(this.t * 8) : 0, n.hero), X * TS + 8, Y * TS + 16);   // enfant DigiSélectionné
-          else if (n.obj) {   // « PNJ objet » : barrière, vasque... (aspect selon l'état : n.ov(state))
+          } else if (n.obj && !n.hero) {   // « PNJ objet » : barrière, vasque... (aspect selon l'état : n.ov(state))
             const v = typeof n.ov === 'function' ? n.ov(DW.state) : n.ov || 0, O = DW.World.OBJ[n.obj];
             const fr = O.frames ? DW.World.objFrames(n.obj, v) : null, s2 = fr ? fr[Math.floor(this.t * (O.fps || 4)) % fr.length] : DW.World.obj(n.obj, v);
             c.drawImage(s2.img || s2, Math.round(X * TS + 8 - s2.w / 2), Math.round(Y * TS + 16 - s2.h));
-          } else this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv, n.face === 'up' && DW.Sprites.hasBack(n.sp), n.face === 'down');   // (de face / de dos s'il a ces dessins)
+          } else {   // enfant DigiSélectionné ou Digimon
+            const R = this.drawPnj(c, n, X, Y);
+            // (habitant à qui l'on peut parler, à l'écran : silhouette s'il est caché derrière un grand objet)
+            if (n.talk && R.x + R.w > cx && R.x < cx + W && R.y + R.h > cy && R.y < cy + H) cacher(i, R, 'pnj', n, X, Y);
+          }
           if (n.gear) DW.Story.drawGear(c, X * TS + 8, Y * TS + 15, this.t, n.sp);
           // « ! » au-dessus des habitants qui ont une demande (game/requests.js)
           if (n.story && DW.Requests && DW.Requests.has(n.sp)) { const h = DW.Sprites.ow(n.sp).h, bx = Math.round(X * TS + 8), by = Math.round(Y * TS + 15 - h - 8 + Math.sin(this.t * 4) * 1.5); c.fillStyle = '#1a0e22'; c.fillRect(bx - 4, by - 1, 8, 11); c.fillStyle = '#ffe060'; c.fillRect(bx - 3, by, 6, 9); c.fillStyle = '#1a0e22'; c.fillRect(bx - 1, by + 1, 2, 4); c.fillRect(bx - 1, by + 6, 2, 2); }
         }
         else if (e.ent === 'wild') DW.Wild.draw(this, c, e.w);
-        else if (e.ent === 'follower') DW.Companion.draw(this, c, pt, e.fp.x * TS + 8, e.fp.y * TS + 15);
-        else { playerIdx = i; playerRect = this.drawPlayer(c, pp); }
+        else if (e.ent === 'follower') {
+          const x = e.fp.x * TS + 8, y = e.fp.y * TS + 15, R = DW.Companion.draw(this, c, pt, x, y);
+          if (R) cacher(i, R, 'partenaire', null, x, y);
+        } else cacher(i, this.drawPlayer(c, pp), 'heros');
         const [tx, ty] = e.tile;
         const ch = this.tileAt(tx, ty);
         if (DW.World.isTall(ch)) {
           const spr = DW.Meteo.tall(DW.World.tall(DW.World.tallKind(this.map, DW.World.info(ch).tall), Math.floor(DW.Art.hash(tx, ty, 70) * 4), tallFrame(tx, ty)));
           c.drawImage(spr, 0, 15, 16, 9, tx * TS, ty * TS + 7, 16, 9);
         }
+        // dans une fougère (dessinée juste avant lui) : son bas passe devant ses pieds
+        const pl = plantes.get(tx + ty * this.map.w);
+        if (pl && e.s > pl.s) this.devantPlante(c, pl);
       });
-      // héros caché derrière un grand objet : silhouette translucide
-      if (playerRect) {
-        let hidden = false;
-        for (let i = playerIdx + 1; i < list.length && !hidden; i++) { const e = list[i]; hidden = !!(e.spr && e.big && overlap(playerRect, objRect(e))); }
-        if (hidden) { c.globalAlpha = 0.45; this.drawPlayer(c, pp, true); c.globalAlpha = 1; }
-      }
       if (this.big) {
         const spr = DW.Sprites.battle(this.big.sp);
         DW.Sprites.draw(c, spr, cx + W / 2 + this.big.x, cy + this.big.y, { flip: true, frame: Math.floor(this.t * 6) });
@@ -838,19 +898,143 @@
       c.drawImage(spr.img, X, Y);
       return { x: X + 3, y: Y + 2, w: spr.w - 6, h: spr.h - 2 };
     }
-    drawMon(c, sp, x, y, flip, t, moving, back, front) {
+    // un Digimon sur la carte ; fantome : sans son ombre au sol (silhouette d'un personnage caché : draw) ; renvoie le
+    // rectangle de son dessin (objet réutilisé : à lire tout de suite)
+    drawMon(c, sp, x, y, flip, t, moving, back, front, fantome) {
       const spr = DW.Sprites.ow(sp, back ? 'back' : front ? 'front' : null);
       if (front && !back && DW.Sprites.hasView(sp, 'front')) flip = false;
-      c.fillStyle = 'rgba(0,0,0,0.22)';
-      c.beginPath(); c.ellipse(x, y, spr.w / 2.8, 2.5, 0, 0, 7); c.fill();
+      if (!fantome) {
+        c.fillStyle = 'rgba(0,0,0,0.22)';
+        c.beginPath(); c.ellipse(x, y, spr.w / 2.8, 2.5, 0, 0, 7); c.fill();
+      }
       const by = y + 2 - (moving ? Math.abs(Math.round(Math.sin(t) * 1.5)) : 0);
+      const R = this._rect || (this._rect = {});   // (le dessin occupe à peu près le milieu de son cadre)
+      R.x = x - spr.w * 0.38; R.y = by - spr.h * 0.88; R.w = spr.w * 0.76; R.h = spr.h * 0.86;
       // de dos sans dessin dédié : silhouette resserrée (vue de derrière plutôt que de profil)
-      if (back && !DW.Sprites.hasBack(sp)) { c.save(); c.translate(x, 0); c.scale(0.72, 1); DW.Sprites.draw(c, spr, 0, by, { flip, frame: moving ? 0 : Math.floor(t) }); c.restore(); return; }
+      if (back && !DW.Sprites.hasBack(sp)) { c.save(); c.translate(x, 0); c.scale(0.72, 1); DW.Sprites.draw(c, spr, 0, by, { flip, frame: moving ? 0 : Math.floor(t) }); c.restore(); return R; }
       DW.Sprites.draw(c, spr, x, by, { flip: back ? false : flip, frame: moving ? 0 : Math.floor(t) });
+      return R;
+    }
+    // un habitant (X, Y : position en cases) : enfant DigiSélectionné ou Digimon (de face / de dos s'il a ces dessins) ;
+    // renvoie le rectangle de son dessin
+    drawPnj(c, n, X, Y, fantome) {
+      if (n.hero) {
+        const s = DW.Sprites.hero(n.face || 'down', n.mv ? Math.floor(this.t * 8) : 0, n.hero), x = X * TS + 8, y = Y * TS + 16;
+        DW.Sprites.draw(c, s, x, y);
+        const R = this._rect || (this._rect = {});
+        R.x = Math.round(x - s.w / 2) + 3; R.y = Math.round(y - s.h) + 2; R.w = s.w - 6; R.h = s.h - 2;
+        return R;
+      }
+      return this.drawMon(c, n.sp, X * TS + 8, Y * TS + 15, n.face === 'left', n.mv ? this.t * 12 : this.t * 1.6 + n.x * 0.37, !!n.mv, n.face === 'up' && DW.Sprites.hasBack(n.sp), n.face === 'down', fantome);
+    }
+    // GRAND DIGIMON (plus de LARGE pixels de large) : il passe devant le décor de sa rangée (clé rangée + GRAND) ; e : son
+    // entrée dans la liste triée (x, y en cases)
+    grandDigimon(e, sp) {
+      const w = DW.Sprites.ow(sp).w;
+      if (w > LARGE) { e.s = e.y + GRAND; e.grand = true; e.demi = w * 0.42; (this._grands || (this._grands = [])).push(e); }
+      return e;
+    }
+    // bas d'une fougère (objet de la grille qu'on traverse), redessiné devant les pieds de celui qui est dedans
+    devantPlante(c, o) {
+      const s = o.spr, h = Math.min(DEVANT_FOUGERE, s.h);
+      let img = DW.Meteo.objImg(o, o.sprs ? o.sprs[Math.floor(this.t * o.fps + o.x * 0.013) % o.sprs.length].img : s.img);
+      if (o.flip) img = DW.Rendu.mirror(img);
+      c.drawImage(img, 0, s.h - h, s.w, h, Math.round(o.x - s.w / 2), Math.round(o.y - s.h + 1) + s.h - h, s.w, h);
+    }
+    // silhouette translucide d'un personnage caché (f : voir cacher, dans draw)
+    fantome(c, f, pt, pp) {
+      c.globalAlpha = f.type === 'pnj' ? 0.4 : 0.45;
+      if (f.type === 'pnj') this.drawPnj(c, f.n, f.X, f.Y, true);
+      else if (f.type === 'partenaire') DW.Companion.draw(this, c, pt, f.X, f.Y, true);
+      else this.drawPlayer(c, pp, true);
+      c.globalAlpha = 1;
     }
   }
-  const objRect = o => ({ x: o.x - o.spr.w / 2, y: o.y - o.spr.h, w: o.spr.w, h: o.spr.h * 0.8 });
-  const overlap = (a, b) => a.x + 3 < b.x + b.w && a.x + a.w - 3 > b.x && a.y + 4 < b.y + b.h && a.y + a.h > b.y;
+  const NUL = [];
+  const CACHE = 0.15;   // part du dessin d'un personnage couverte par de grands objets pour qu'il ait sa silhouette
+  // un vrai personnage parmi les PNJ (pas une dalle, une ombre sous l'eau, une trouvaille au sol ni un « PNJ objet »)
+  const estPerso = n => !n.walk && !n.shadow && !n.item && !(n.obj && !n.hero);
+  // ALPHA D'UN DESSIN (un octet par pixel), lu une fois par image ; a : null si l'image est illisible (jeu ouvert en
+  // file://) — tout compte alors comme couvert, comme avec une simple boîte
+  const ALPHA = new WeakMap();
+  const alphaImg = img => {
+    let A = ALPHA.get(img); if (A) return A;
+    let a = null;
+    try {
+      const d = img.getContext('2d').getImageData(0, 0, img.width, img.height).data;
+      a = new Uint8Array(d.length >> 2); for (let i = 0, j = 3; i < a.length; i++, j += 4) a[i] = d[j];
+    } catch (e) { /* image illisible */ }
+    ALPHA.set(img, A = { a, w: img.width, h: img.height, k: img._k || 1 });
+    return A;
+  };
+  // points d'une grille de 2 pixels, dans le rectangle (x, y, w, h), couverts par les vrais pixels du dessin de l'objet o
+  // (stop : on s'arrête dès qu'il y en a autant)
+  const pixelsCouverts = (o, x, y, w, h, stop = 1e9) => {
+    const s = o.spr, A = alphaImg(DW.Meteo.objImg(o, o.sprs ? o.sprs[0].img : s.img));
+    const X = Math.round(o.x - s.w / 2), Y = Math.round(o.y - s.h + 1);
+    let n = 0;
+    for (let py = y + 1; py < y + h; py += 2) {
+      const v = Math.floor((py - Y) * A.k); if (v < 0 || v >= A.h) continue;
+      for (let px = x + 1; px < x + w; px += 2) {
+        let u = Math.floor((px - X) * A.k); if (u < 0 || u >= A.w) continue;
+        if (o.flip) u = A.w - 1 - u;
+        if ((!A.a || A.a[v * A.w + u] > 100) && ++n >= stop) return n;
+      }
+    }
+    return n;
+  };
+  // PERSONNAGE CACHÉ (rectangle r de son dessin, entrée i de la liste) : indice du dernier grand objet dessiné après lui qui
+  // le cache (au moins CACHE de son dessin couvert par les vrais pixels de ces objets), sinon -1. Seulement le haut de
+  // l'objet compte (sans son pied : un personnage devant le tronc n'est pas « caché ») ; avant, une boîte suffisait — une
+  // grande fleur à côté du partenaire le faisait dessiner en silhouette par-dessus le héros
+  const derniereCache = (list, i, r) => {
+    let n = 0, dernier = -1;
+    for (let j = i + 1; j < list.length; j++) {
+      const o = list[j]; if (!o.spr || !o.big) continue;
+      const w = o.spr.w, h = o.spr.h, bx = o.x - w / 2, by = o.y - h;
+      if (!(r.x + 3 < bx + w && r.x + r.w - 3 > bx && r.y + 4 < by + h * 0.8 && r.y + r.h > by)) continue;
+      const k = pixelsCouverts(o, r.x, r.y, r.w, Math.min(r.h, by + h * 0.8 - r.y));
+      if (k) { n += k; dernier = j; }
+    }
+    return n >= Math.ceil((r.w - 1) / 2) * Math.ceil((r.h - 1) / 2) * CACHE ? dernier : -1;
+  };
+  // fougère de la grille (case « n », ou ce qu'un thème met à sa place) : objet qu'on traverse
+  const planteGrille = o => !o.def && o.flat && o.sort > 0 && o.sort < 1000;
+  // CLÉ DE TRI d'un objet du décor (calculée une fois) : celle de gfx/terrain.js (o.sort), sauf pour les plantes qu'on
+  // traverse (fougères ; petites plantes posées « walk » qui dépassent de leur case : massifs de fleurs, plantes de feu)
+  const cleObjet = o => {
+    if (planteGrille(o)) return o.ty + TRAVERSE;
+    const d = o.def;
+    if (d && d.walk && !d.back && !d.top && o.spr.h < 2 * TS && o.y - o.spr.h + 1 < d.y * TS - 1) return d.y + d.h - 1 + TRAVERSE;
+    return o.sort;
+  };
+  // fougères par case (indice x + y × largeur de la carte)
+  const plantesParCase = (g, w) => {
+    const M = new Map();
+    for (const o of g.objs) if (planteGrille(o)) { if (o.s === undefined) o.s = cleObjet(o); M.set(o.tx + o.ty * w, o); }
+    return M;
+  };
+  // herbes hautes rangée par rangée (dans l'ordre de la carte)
+  const herbesParRangee = g => { const R = []; for (const tg of g.tall) (R[tg.ty] || (R[tg.ty] = [])).push(tg); return R; };
+  // objets du décor rangés par la rangée de leur pied
+  const objetsParRangee = objs => { const R = []; for (const o of objs) { const r = Math.floor(o.y / TS); if (r >= 0) (R[r] || (R[r] = [])).push(o); } return R; };
+  // TOUFFES D'HERBES HAUTES de la rangée ty dont le haut (8 pixels au-dessus de leur case) passe sous le pied d'un objet de
+  // la rangée du dessus : entrées de la liste triée qui redessinent ce haut devant lui (hauteur h : jusqu'au pied de l'objet)
+  const pointesHerbes = (g, ty, cells) => {
+    const idx = g._objRangs || (g._objRangs = objetsParRangee(g.objs)), out = [], Y = ty * TS;
+    for (const tg of cells) {
+      const X = tg.tx * TS; let bas = -1;
+      for (let r = ty - 1; r <= ty; r++) for (const o of idx[r] || NUL) {
+        const k = o.s !== undefined ? o.s : (o.s = cleObjet(o));
+        if (!(k > ty - 1.5 && k < ty + TRAVERSE)) continue;   // (décor dessiné après les herbes et avant cette rangée)
+        const half = o.spr.w / 2;
+        if (o.y < Y - 8 || o.x + half <= X || o.x - half >= X + TS || o.y <= bas) continue;
+        if (pixelsCouverts(o, X, Y - 9, TS, Math.min(9, Math.round(o.y) - (Y - 9) + 1), 3) >= 3) bas = Math.round(o.y);
+      }
+      if (bas >= 0) out.push({ s: ty + TRAVERSE, ent: 'pointe', tg, X, Y, h: Math.min(24, bas - (Y - 8) + 1) });
+    }
+    return out;
+  };
   DW.Overworld = Overworld;
   // fin d'un morceau sans boucle (« victory » d'une recrue, d'une fin de chapitre, d'une Digivolution...) : la musique de la
   // carte revient (avant : silence jusqu'au changement de carte suivant) ; pas pendant un combat, qui mène sa musique
