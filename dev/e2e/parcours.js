@@ -7,7 +7,8 @@
 //    Botamon sauvage) → sauvegarde par le menu du Digivice → rechargement de la page → CONTINUER → partie retrouvée.
 //  Chaque étape est vérifiée dans l'état du jeu (DW) ; les erreurs de la console et les fichiers introuvables sont relevés.
 //  Lancer : node dev/e2e/parcours.js   (une seule fois avant : cd dev/e2e && npm install)
-//    CHROME=…\chrome.exe : un autre navigateur ; AFFICHER=1 : fenêtre visible ; URL=https://… : tester le site en ligne
+//    CHROME=…\chrome.exe : un autre navigateur ; AFFICHER=1 : fenêtre visible ; URL=https://… : tester le site en ligne ;
+//    LENT=3 : délais d'attente 3 fois plus longs (PC lent ou très occupé : les étapes ne sont pas plus permissives, seulement plus patientes)
 //  Le script sert lui-même le dossier du jeu (petit serveur local) ; captures dans dev/captures/e2e/ (non publié).
 // =====================================================================
 const { chromium } = require('playwright-core');
@@ -15,6 +16,7 @@ const http = require('http'), fs = require('fs'), path = require('path');
 
 const RACINE = path.resolve(__dirname, '..', '..');
 const CHROME = process.env.CHROME || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+const LENT = Math.max(1, +process.env.LENT || 1);   // (facteur des délais d'attente)
 const CAPT = path.join(RACINE, 'dev', 'captures', 'e2e');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png',
   '.webp': 'image/webp', '.jpg': 'image/jpeg', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml',
@@ -69,29 +71,29 @@ async function touche(k, n = 1, entre = 260) { for (let i = 0; i < n; i++) { awa
 async function tenir(k, ms) { await page.keyboard.down(k); await pause(ms); await page.keyboard.up(k); await pause(200); }
 // appuie sur ESPACE tant que la condition n'est pas remplie (dialogues, cinématiques)
 async function avancerJusqua(cond, limite, nom) {
-  const fin = Date.now() + limite;
+  const fin = Date.now() + limite * LENT;
   while (Date.now() < fin) {
     if (await page.evaluate(cond)) return;
     await page.keyboard.press('Space'); await pause(320);
   }
-  throw new Error(`délai dépassé (${limite / 1000} s) : ${nom}`);
+  throw new Error(`délai dépassé (${limite * LENT / 1000} s) : ${nom}`);
 }
 // écran titre : ESPACE jusqu'au menu (le démarrage du Digivice, puis « APPUIE SUR ESPACE », selon où il en est)
 // (jamais d'ESPACE une fois le menu ouvert : il choisirait une ligne)
 async function menuDuTitre() {
-  const fin = Date.now() + 30000;
+  const fin = Date.now() + 30000 * LENT;
   while (Date.now() < fin) {
     const ph = await page.evaluate(() => DW.Game.top() instanceof DW.TitleScene ? DW.Game.top().phase : null);
     if (ph === 'menu') { await attendre(() => DW.Game.top().menuIn.v > 0.9, 5000, 'menu affiché'); return; }
     if (ph === 'press' && !(await page.evaluate(() => DW.Game.top().logoIn.v > 0.6))) { await pause(200); continue; }
     await page.keyboard.press('Space'); await pause(400);
   }
-  throw new Error('délai dépassé (30 s) : menu du titre');
+  throw new Error(`délai dépassé (${30 * LENT} s) : menu du titre`);
 }
 // une question du jeu (DW.ask) : une fenêtre de dialogue avec des choix (fonction évaluée dans la page)
 const question = () => DW.Game.top() instanceof DW.DialogScene && !!(DW.Game.top().o && DW.Game.top().o.choices);
 async function attendre(cond, limite, nom) {
-  try { await page.waitForFunction(cond, null, { timeout: limite, polling: 250 }); } catch (e) { throw new Error(`délai dépassé (${limite / 1000} s) : ${nom}`); }
+  try { await page.waitForFunction(cond, null, { timeout: limite * LENT, polling: 250 }); } catch (e) { throw new Error(`délai dépassé (${limite * LENT / 1000} s) : ${nom}`); }
 }
 
 (async () => {
@@ -108,7 +110,7 @@ async function attendre(cond, limite, nom) {
   page.on('requestfailed', r => absents.push('échec ' + r.url().replace(URL, '')));
 
   let ok = await etape('lancement et écran titre', async () => {
-    await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 120000 * LENT });
     await attendre(() => window.DW && DW.Game && DW.Game.top() instanceof DW.TitleScene, 120000, 'écran titre');
     return 'TitleScene en ' + temps();
   });
@@ -211,7 +213,7 @@ async function attendre(cond, limite, nom) {
   });
   const sauve = ok ? await etat() : null;
   ok = ok && await etape('rechargement de la page puis CONTINUER', async () => {
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 120000 * LENT });
     await attendre(() => window.DW && DW.Game && DW.Game.top() instanceof DW.TitleScene, 120000, 'écran titre');
     await page.mouse.click(480, 360);
     await menuDuTitre();
